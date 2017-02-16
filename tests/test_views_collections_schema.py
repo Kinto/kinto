@@ -23,8 +23,7 @@ VALID_RECORD = {'title': 'About us', 'body': '<h1>About</h1>'}
 
 class DeactivatedSchemaTest(BaseWebTest, unittest.TestCase):
     def test_schema_should_be_json_schema(self):
-        newschema = SCHEMA.copy()
-        newschema['type'] = 'Washmachine'
+        newschema = {**SCHEMA, 'type': 'Washmachine'}
         self.app.put(BUCKET_URL, headers=self.headers)
         self.app.put(COLLECTION_URL, headers=self.headers)
         resp = self.app.put_json(COLLECTION_URL,
@@ -50,12 +49,12 @@ class DeactivatedSchemaTest(BaseWebTest, unittest.TestCase):
 
 class BaseWebTestWithSchema(BaseWebTest):
     def get_app_settings(self, extras=None):
-        settings = super(BaseWebTestWithSchema, self).get_app_settings(extras)
+        settings = super().get_app_settings(extras)
         settings['experimental_collection_schema_validation'] = 'True'
         return settings
 
     def setUp(self):
-        super(BaseWebTestWithSchema, self).setUp()
+        super().setUp()
         self.app.put(BUCKET_URL, headers=self.headers)
         self.app.put(COLLECTION_URL, headers=self.headers)
 
@@ -81,8 +80,7 @@ class MissingSchemaTest(BaseWebTestWithSchema, unittest.TestCase):
 
 class InvalidSchemaTest(BaseWebTestWithSchema, unittest.TestCase):
     def test_schema_should_be_json_schema(self):
-        newschema = SCHEMA.copy()
-        newschema['type'] = 'Washmachine'
+        newschema = {**SCHEMA, 'type': 'Washmachine'}
         resp = self.app.put_json(COLLECTION_URL,
                                  {'data': {'schema': newschema}},
                                  headers=self.headers,
@@ -93,7 +91,7 @@ class InvalidSchemaTest(BaseWebTestWithSchema, unittest.TestCase):
 
 class RecordsValidationTest(BaseWebTestWithSchema, unittest.TestCase):
     def setUp(self):
-        super(RecordsValidationTest, self).setUp()
+        super().setUp()
         resp = self.app.put_json(COLLECTION_URL,
                                  {'data': {'schema': SCHEMA}},
                                  headers=self.headers)
@@ -123,7 +121,7 @@ class RecordsValidationTest(BaseWebTestWithSchema, unittest.TestCase):
                                   headers=self.headers,
                                   status=201)
         record_id = resp.json['data']['id']
-        self.app.patch_json('%s/%s' % (RECORDS_URL, record_id),
+        self.app.patch_json('{}/{}'.format(RECORDS_URL, record_id),
                             {'data': {'title': 3.14}},
                             headers=self.headers,
                             status=400)
@@ -134,7 +132,7 @@ class RecordsValidationTest(BaseWebTestWithSchema, unittest.TestCase):
                                   headers=self.headers,
                                   status=201)
         record_id = resp.json['data']['id']
-        self.app.put_json('%s/%s' % (RECORDS_URL, record_id),
+        self.app.put_json('{}/{}'.format(RECORDS_URL, record_id),
                           {'data': {'body': '<h1>Without title</h1>'}},
                           headers=self.headers,
                           status=400)
@@ -175,16 +173,15 @@ class RecordsValidationTest(BaseWebTestWithSchema, unittest.TestCase):
                            {'data': VALID_RECORD},
                            headers=self.headers)
 
-        resp = self.app.get(RECORDS_URL + '?min_schema=%s' % schema_version,
+        resp = self.app.get(RECORDS_URL + '?min_schema={}'.format(schema_version),
                             headers=self.headers)
         self.assertEqual(len(resp.json['data']), 1)
 
 
 class ExtraPropertiesValidationTest(BaseWebTestWithSchema, unittest.TestCase):
     def setUp(self):
-        super(ExtraPropertiesValidationTest, self).setUp()
-        schema = SCHEMA.copy()
-        schema['additionalProperties'] = False
+        super().setUp()
+        schema = {**SCHEMA, 'additionalProperties': False}
         resp = self.app.put_json(COLLECTION_URL,
                                  {'data': {'schema': schema}},
                                  headers=self.headers)
@@ -197,13 +194,13 @@ class ExtraPropertiesValidationTest(BaseWebTestWithSchema, unittest.TestCase):
 
     def test_record_can_be_validated_on_put(self):
         record_id = '5443d83f-852a-481a-8e9d-5aa804b05b08'
-        self.app.put_json('%s/%s' % (RECORDS_URL, record_id),
+        self.app.put_json('{}/{}'.format(RECORDS_URL, record_id),
                           {'data': VALID_RECORD},
                           headers=self.headers)
 
     def test_records_are_validated_on_patch(self):
         record_id = '5443d83f-852a-481a-8e9d-5aa804b05b08'
-        record_url = '%s/%s' % (RECORDS_URL, record_id)
+        record_url = '{}/{}'.format(RECORDS_URL, record_id)
         resp = self.app.put_json(record_url,
                                  {'data': VALID_RECORD},
                                  headers=self.headers)
@@ -216,9 +213,8 @@ class ExtraPropertiesValidationTest(BaseWebTestWithSchema, unittest.TestCase):
 
     def test_additional_properties_are_rejected(self):
         record_id = '5443d83f-852a-481a-8e9d-5aa804b05b08'
-        record = VALID_RECORD.copy()
-        record['extra'] = 'blah!'
-        resp = self.app.put_json('%s/%s' % (RECORDS_URL, record_id),
+        record = {**VALID_RECORD, 'extra': 'blah!'}
+        resp = self.app.put_json('{}/{}'.format(RECORDS_URL, record_id),
                                  {'data': record},
                                  headers=self.headers,
                                  status=400)

@@ -10,11 +10,9 @@ from .support import (BaseWebTest,
 class PermissionsTest(BaseWebTest, unittest.TestCase):
 
     def __init__(self, *args, **kwargs):
-        super(PermissionsTest, self).__init__(*args, **kwargs)
-        self.alice_headers = self.headers.copy()
-        self.alice_headers.update(**get_user_headers('alice'))
-        self.bob_headers = self.headers.copy()
-        self.bob_headers.update(**get_user_headers('bob'))
+        super().__init__(*args, **kwargs)
+        self.alice_headers = {**self.headers, **get_user_headers('alice')}
+        self.bob_headers = {**self.headers, **get_user_headers('bob')}
 
         self.alice_principal = ('basicauth:d5b0026601f1b251974e09548d44155e16'
                                 '812e3c64ff7ae053fe3542e2ca1570')
@@ -25,8 +23,7 @@ class PermissionsTest(BaseWebTest, unittest.TestCase):
 class BucketPermissionsTest(PermissionsTest):
 
     def setUp(self):
-        bucket = MINIMALIST_BUCKET.copy()
-        bucket['permissions'] = {'read': [self.alice_principal]}
+        bucket = {**MINIMALIST_BUCKET, 'permissions': {'read': [self.alice_principal]}}
         self.app.put_json('/buckets/sodas',
                           bucket,
                           headers=self.headers)
@@ -65,11 +62,10 @@ class BucketPermissionsTest(PermissionsTest):
 class CollectionPermissionsTest(PermissionsTest):
 
     def setUp(self):
-        bucket = MINIMALIST_BUCKET.copy()
-        bucket['permissions'] = {
+        bucket = {**MINIMALIST_BUCKET, 'permissions': {
             'read': [self.alice_principal],
             'write': [self.bob_principal]
-        }
+        }}
         self.app.put_json('/buckets/beer',
                           bucket,
                           headers=self.headers)
@@ -91,8 +87,7 @@ class CollectionPermissionsTest(PermissionsTest):
                      headers=self.bob_headers)
 
     def test_cannot_read_if_not_allowed(self):
-        headers = self.headers.copy()
-        headers.update(**get_user_headers('jean-louis'))
+        headers = {**self.headers, **get_user_headers('jean-louis')}
         self.app.get('/buckets/beer/collections/barley',
                      headers=headers,
                      status=403)
@@ -118,11 +113,10 @@ class CollectionPermissionsTest(PermissionsTest):
 class GroupPermissionsTest(PermissionsTest):
 
     def setUp(self):
-        bucket = MINIMALIST_BUCKET.copy()
-        bucket['permissions'] = {
+        bucket = {**MINIMALIST_BUCKET, 'permissions': {
             'read': [self.alice_principal],
             'write': [self.bob_principal]
-        }
+        }}
         self.app.put_json('/buckets/beer',
                           bucket,
                           headers=self.headers)
@@ -145,8 +139,7 @@ class GroupPermissionsTest(PermissionsTest):
                      headers=self.bob_headers)
 
     def test_cannot_read_if_not_allowed(self):
-        headers = self.headers.copy()
-        headers.update(**get_user_headers('jean-louis'))
+        headers = {**self.headers, **get_user_headers('jean-louis')}
         self.app.get('/buckets/beer/groups/moderators',
                      headers=headers,
                      status=403)
@@ -167,14 +160,12 @@ class GroupPermissionsTest(PermissionsTest):
 class RecordPermissionsTest(PermissionsTest):
 
     def setUp(self):
-        bucket = MINIMALIST_BUCKET.copy()
-        bucket['permissions'] = {'write': [self.alice_principal]}
+        bucket = {**MINIMALIST_BUCKET, 'permissions': {'write': [self.alice_principal]}}
         self.app.put_json('/buckets/beer',
                           bucket,
                           headers=self.headers)
 
-        collection = MINIMALIST_COLLECTION.copy()
-        collection['permissions'] = {'write': [self.bob_principal]}
+        collection = {**MINIMALIST_COLLECTION, 'permissions': {'write': [self.bob_principal]}}
         self.app.put_json('/buckets/beer/collections/barley',
                           collection,
                           headers=self.headers)
@@ -190,8 +181,7 @@ class RecordPermissionsTest(PermissionsTest):
                            headers=self.bob_headers)
 
     def test_creation_is_forbidden_is_no_write_on_bucket_nor_collection(self):
-        headers = self.headers.copy()
-        headers.update(**get_user_headers('jean-louis'))
+        headers = {**self.headers, **get_user_headers('jean-louis')}
         self.app.post_json('/buckets/beer/collections/barley/records',
                            MINIMALIST_RECORD,
                            headers=headers,
@@ -203,7 +193,7 @@ class RecordPermissionsTest(PermissionsTest):
                                   MINIMALIST_RECORD,
                                   headers=self.headers)
         record = resp.json['data']
-        resp = self.app.patch_json(collection_url + '/' + record['id'],
+        resp = self.app.patch_json('{}/{}'.format(collection_url, record['id']),
                                    {'permissions': {'read': ['fxa:user']}},
                                    headers=self.headers)
         self.assertIn('fxa:user', resp.json['permissions']['read'])
@@ -221,7 +211,7 @@ class ChildrenCreationTest(PermissionsTest):
                           {'permissions': {'read': ['system.Authenticated']}},
                           headers=self.alice_headers)
         for parent in ('create', 'write', 'read'):
-            self.app.put_json('/buckets/%s/groups/child' % parent,
+            self.app.put_json('/buckets/{}/groups/child'.format(parent),
                               MINIMALIST_GROUP,
                               headers=self.alice_headers)
         self.bob_headers_safe_creation = dict({'If-None-Match': '*'},

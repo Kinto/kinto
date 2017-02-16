@@ -3,7 +3,7 @@ import functools
 
 import colander
 import venusian
-import six
+
 from pyramid import exceptions as pyramid_exceptions
 from pyramid.decorator import reify
 from pyramid.security import Everyone
@@ -17,8 +17,7 @@ from kinto.core.events import ACTIONS
 from kinto.core.storage import exceptions as storage_exceptions, Filter, Sort
 from kinto.core.utils import (
     COMPARISON, classname, decode64, encode64, json,
-    encode_header, dict_subset, recursive_update_dict,
-    apply_json_patch
+    dict_subset, recursive_update_dict, apply_json_patch
 )
 
 from .model import Model, ShareableModel
@@ -68,9 +67,9 @@ def register_resource(resource_cls, settings=None, viewset=None, depth=1,
     def register_service(endpoint_type, settings):
         """Registers a service in cornice, for the given type.
         """
-        path_pattern = getattr(viewset, '%s_path' % endpoint_type)
+        path_pattern = getattr(viewset, '{}_path'.format(endpoint_type))
         path_values = {'resource_name': resource_name}
-        path = path_pattern.format(**path_values)
+        path = path_pattern.format_map(path_values)
 
         name = viewset.get_service_name(endpoint_type, resource_cls)
 
@@ -82,17 +81,17 @@ def register_resource(resource_cls, settings=None, viewset=None, depth=1,
         service.resource = resource_cls
         service.type = endpoint_type
         # Attach collection and record paths.
-        service.collection_path = viewset.collection_path.format(**path_values)
-        service.record_path = (viewset.record_path.format(**path_values)
+        service.collection_path = viewset.collection_path.format_map(path_values)
+        service.record_path = (viewset.record_path.format_map(path_values)
                                if viewset.record_path is not None else None)
 
-        methods = getattr(viewset, '%s_methods' % endpoint_type)
+        methods = getattr(viewset, '{}_methods'.format(endpoint_type))
         for method in methods:
             if not viewset.is_endpoint_enabled(
                     endpoint_type, resource_name, method.lower(), settings):
                 continue
 
-            argument_getter = getattr(viewset, '%s_arguments' % endpoint_type)
+            argument_getter = getattr(viewset, '{}_arguments'.format(endpoint_type))
             view_args = argument_getter(resource_cls, method)
 
             view = viewset.get_view(endpoint_type, method.lower())
@@ -133,7 +132,7 @@ def register_resource(resource_cls, settings=None, viewset=None, depth=1,
     return callback
 
 
-class UserResource(object):
+class UserResource:
     """Base resource class providing every endpoint."""
 
     default_viewset = ViewSet
@@ -287,7 +286,7 @@ class UserResource(object):
         if limit and len(records) == limit and offset < total_records:
             lastrecord = records[-1]
             next_page = self._next_page_url(sorting, limit, lastrecord, offset)
-            headers['Next-Page'] = encode_header(next_page)
+            headers['Next-Page'] = next_page
 
         if partial_fields:
             records = [
@@ -297,7 +296,7 @@ class UserResource(object):
 
         # Bind metric about response size.
         logger.bind(nb_records=len(records), limit=limit)
-        headers['Total-Records'] = encode_header('%s' % total_records)
+        headers['Total-Records'] = str(total_records)
 
         return self.postprocess(records)
 
@@ -381,12 +380,12 @@ class UserResource(object):
             offset = offset + len(deleted)
             if limit and len(deleted) == limit and offset < total_records:
                 next_page = self._next_page_url(sorting, limit, lastrecord, offset)
-                self.request.response.headers['Next-Page'] = encode_header(next_page)
+                self.request.response.headers['Next-Page'] = next_page
         else:
             self._add_timestamp_header(self.request.response)
 
         headers = self.request.response.headers
-        headers['Total-Records'] = encode_header('%s' % total_records)
+        headers['Total-Records'] = str(total_records)
 
         action = len(deleted) > 0 and ACTIONS.DELETE or ACTIONS.READ
         return self.postprocess(deleted, action=action, old=records)
@@ -599,7 +598,7 @@ class UserResource(object):
         .. code-block:: python
 
             def process_record(self, new, old=None):
-                new = super(MyResource, self).process_record(new, old)
+                new = super().process_record(new, old)
                 version = old['version'] if old else 0
                 new['version'] = version + 1
                 return new
@@ -611,7 +610,7 @@ class UserResource(object):
             from kinto.core.errors import raise_invalid
 
             def process_record(self, new, old=None):
-                new = super(MyResource, self).process_record(new, old)
+                new = super().process_record(new, old)
                 if new['browser'] not in request.headers['User-Agent']:
                     raise_invalid(self.request, name='browser', error='Wrong')
                 return new
@@ -655,7 +654,7 @@ class UserResource(object):
                 # Ignore value change if inferior
                 if record['position'] > changes.get('position', -1):
                     changes.pop('position', None)
-                return super(MyResource, self).apply_changes(record, requested_changes)
+                return super().apply_changes(record, requested_changes)
 
         :raises: :exc:`~pyramid:pyramid.httpexceptions.HTTPBadRequest`
             if result does not comply with resource schema.
@@ -666,17 +665,17 @@ class UserResource(object):
         if self._is_json_patch:
             try:
                 applied_changes = apply_json_patch(record, requested_changes)['data']
-                updated = applied_changes.copy()
+                updated = {**applied_changes}
             except ValueError as e:
                 error_details = {
                     'location': 'body',
-                    'description': 'JSON Patch operation failed: %s' % e
+                    'description': 'JSON Patch operation failed: {}'.format(e)
                 }
                 raise_invalid(self.request, **error_details)
 
         else:
-            applied_changes = requested_changes.copy()
-            updated = record.copy()
+            applied_changes = {**requested_changes}
+            updated = {**record}
 
             content_type = str(self.request.headers.get('Content-Type')).lower()
             # recursive patch and remove field if null attribute is passed (RFC 7396)
@@ -690,7 +689,7 @@ class UserResource(object):
             if self.schema.is_readonly(field) and has_changed:
                 error_details = {
                     'name': field,
-                    'description': 'Cannot modify {0}'.format(field)
+                    'description': 'Cannot modify {}'.format(field)
                 }
                 raise_invalid(self.request, **error_details)
 
@@ -753,7 +752,7 @@ class UserResource(object):
         # Pyramid takes care of converting.
         response.last_modified = timestamp / 1000.0
         # Return timestamp as ETag.
-        response.headers['ETag'] = encode_header('"%s"' % timestamp)
+        response.headers['ETag'] = '"{}"'.format(timestamp)
 
     def _add_cache_header(self, response):
         """Add Cache-Control and Expire headers, based a on a setting for the
@@ -770,7 +769,7 @@ class UserResource(object):
             ``304 Not modified`` is returned before serving content from cache.
         """
         resource_name = self.context.resource_name if self.context else ''
-        setting_key = '%s_cache_expires_seconds' % resource_name
+        setting_key = '{}_cache_expires_seconds'.format(resource_name)
         collection_expires = self.request.registry.settings.get(setting_key)
         is_anonymous = self.request.prefixed_userid is None
         if collection_expires and is_anonymous:
@@ -788,7 +787,7 @@ class UserResource(object):
 
         :raises: :class:`pyramid.httpexceptions.HTTPBadRequest`
         """
-        is_string = isinstance(record_id, six.string_types)
+        is_string = isinstance(record_id, str)
         if not is_string or not self.model.id_generator.match(record_id):
             error_details = {
                 'location': 'path',
@@ -883,7 +882,7 @@ class UserResource(object):
             invalid_fields = set(root_fields) - set(known_fields)
             preserve_unknown = self.schema.get_option('preserve_unknown')
             if not preserve_unknown and invalid_fields:
-                error_msg = "Fields %s do not exist" % ','.join(invalid_fields)
+                error_msg = "Fields {} do not exist".format(','.join(invalid_fields))
                 error_details = {
                     'name': "Invalid _fields parameter",
                     'description': error_msg
@@ -920,7 +919,7 @@ class UserResource(object):
             error_details = {
                 'name': param,
                 'location': 'querystring',
-                'description': 'Invalid value for %s' % param
+                'description': 'Invalid value for {}'.format(param)
             }
 
             # Ignore specific fields
@@ -957,14 +956,14 @@ class UserResource(object):
                 operator, field = COMPARISON.EQ, param
 
             if not self.is_known_field(field):
-                error_msg = "Unknown filter field '{0}'".format(param)
+                error_msg = "Unknown filter field '{}'".format(param)
                 error_details['description'] = error_msg
                 raise_invalid(self.request, **error_details)
 
             if operator in (COMPARISON.IN, COMPARISON.EXCLUDE):
-                all_integers = all([isinstance(v, six.integer_types)
+                all_integers = all([isinstance(v, int)
                                     for v in value])
-                all_strings = all([isinstance(v, six.text_type)
+                all_strings = all([isinstance(v, str)
                                    for v in value])
                 has_invalid_value = (
                     (field == self.model.id_field and not all_strings) or
@@ -991,7 +990,7 @@ class UserResource(object):
                 if not self.is_known_field(field):
                     error_details = {
                         'location': 'querystring',
-                        'description': "Unknown sort field '{0}'".format(field)
+                        'description': "Unknown sort field '{}'".format(field)
                     }
                     raise_invalid(self.request, **error_details)
 
@@ -1059,9 +1058,7 @@ class UserResource(object):
         """Build the Next-Page header from where we stopped."""
         token = self._build_pagination_token(sorting, last_record, offset)
 
-        params = self.request.GET.copy()
-        params['_limit'] = limit
-        params['_token'] = token
+        params = {**self.request.GET, '_limit': limit, '_token': token}
 
         service = self.request.current_service
         next_page_url = self.request.route_url(service.name, _query=params,
@@ -1096,7 +1093,7 @@ class ShareableResource(UserResource):
     """List of allowed permissions names."""
 
     def __init__(self, *args, **kwargs):
-        super(ShareableResource, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         # In base resource, PATCH only hit storage if no data has changed.
         # Here, we force update because we add the current principal to
         # the ``write`` ACE.
@@ -1132,7 +1129,7 @@ class ShareableResource(UserResource):
 
         XXX: find more elegant approach to add custom filters.
         """
-        filters = super(ShareableResource, self)._extract_filters(queryparams)
+        filters = super()._extract_filters(queryparams)
 
         ids = self.context.shared_ids
         if ids is not None:
@@ -1146,15 +1143,15 @@ class ShareableResource(UserResource):
         Ref: https://github.com/Kinto/kinto/issues/224
         """
         if record:
-            record = record.copy()
+            record = {**record}
             record.pop(self.model.permissions_field, None)
-        return super(ShareableResource, self)._raise_412_if_modified(record)
+        return super()._raise_412_if_modified(record)
 
     def process_record(self, new, old=None):
         """Read permissions from request body, and in the case of ``PUT`` every
         existing ACE is removed (using empty list).
         """
-        new = super(ShareableResource, self).process_record(new, old)
+        new = super().process_record(new, old)
 
         # patch is specified as a list of of operations (RFC 6902)
         if self._is_json_patch:
@@ -1163,7 +1160,7 @@ class ShareableResource(UserResource):
         else:
             permissions = self.request.validated['body'].get('permissions', {})
 
-        annotated = new.copy()
+        annotated = {**new}
 
         if permissions:
             is_put = (self.request.method.lower() == 'put')
@@ -1193,6 +1190,6 @@ class ShareableResource(UserResource):
                 # Remove permissions from event payload.
                 old.pop(self.model.permissions_field, None)
 
-        data = super(ShareableResource, self).postprocess(result, action, old)
+        data = super().postprocess(result, action, old)
         body.update(data)
         return body

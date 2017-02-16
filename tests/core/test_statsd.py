@@ -9,7 +9,7 @@ from kinto.core import statsd
 from .support import BaseWebTest
 
 
-class TestedClass(object):
+class TestedClass:
     attribute = 3.14
 
     def test_method(self):
@@ -80,8 +80,7 @@ class StatsdClientTest(unittest.TestCase):
     @mock.patch('kinto.core.statsd.statsd_module')
     def test_load_from_config_uses_project_name_if_defined(self, module_mock):
         config = testing.setUp()
-        config.registry.settings = self.settings.copy()
-        config.registry.settings['project_name'] = 'projectname'
+        config.registry.settings = {**self.settings, 'project_name': 'projectname'}
         statsd.load_from_config(config)
         module_mock.StatsClient.assert_called_with('foo', 1234,
                                                    prefix='projectname')
@@ -101,7 +100,7 @@ class StatsdClientTest(unittest.TestCase):
 @skip_if_no_statsd
 class TimingTest(BaseWebTest, unittest.TestCase):
     def get_app_settings(self, *args, **kwargs):
-        settings = super(TimingTest, self).get_app_settings(*args, **kwargs)
+        settings = super().get_app_settings(*args, **kwargs)
         if not statsd.statsd_module:
             return settings
 

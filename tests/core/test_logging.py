@@ -1,10 +1,8 @@
-# -*- coding: utf-8 -*-
 import logging
 import os
 import re
 
 import mock
-import six
 from pyramid import testing
 
 from kinto.core import DEFAULT_SETTINGS
@@ -31,7 +29,7 @@ def strip_ansi(text):
 
 class LoggingSetupTest(unittest.TestCase):
     def tearDown(self):
-        super(LoggingSetupTest, self).tearDown()
+        super().tearDown()
         core_logs.structlog.reset_defaults()
 
     def test_classic_logger_is_used_by_default(self):
@@ -64,7 +62,7 @@ class ClassicLogRendererTest(unittest.TestCase):
 
     def test_output_is_serialized_as_string(self):
         value = self.renderer(self.logger, 'debug', {})
-        self.assertIsInstance(value, six.string_types)
+        self.assertIsInstance(value, str)
 
     def test_output_is_simple_if_no_request_is_bound(self):
         value = self.renderer(self.logger, 'debug', {'event': ':)'})
@@ -104,14 +102,8 @@ class ClassicLogRendererTest(unittest.TestCase):
                           ' app.event nb_records=5'), strip_ansi(value))
 
     def test_fields_values_support_unicode(self):
-        value = self.renderer(self.logger, 'critical', {'value': u'\u2014'})
-        self.assertIn(u'\u2014', value)
-
-    @unittest.skipIf(six.PY3, "Error with Python2 only")
-    def test_fields_values_support_bytes(self):
-        value = self.renderer(self.logger, 'critical',
-                              {'event': AssertionError('\xc3\xa8')})
-        self.assertIn(u'è', value)
+        value = self.renderer(self.logger, 'critical', {'value': '\u2014'})
+        self.assertIn('\u2014', value)
 
 
 class MozillaHekaRendererTest(unittest.TestCase):
@@ -122,7 +114,7 @@ class MozillaHekaRendererTest(unittest.TestCase):
 
     def test_output_is_serialized_json(self):
         value = self.renderer(self.logger, 'debug', {})
-        self.assertIsInstance(value, six.string_types)
+        self.assertIsInstance(value, str)
 
     def test_standard_entries_are_filled(self):
         with mock.patch('kinto.core.utils.msec_time', return_value=12):
@@ -192,13 +184,13 @@ class MozillaHekaRendererTest(unittest.TestCase):
 
 class RequestSummaryTest(BaseWebTest, unittest.TestCase):
     def setUp(self):
-        super(RequestSummaryTest, self).setUp()
+        super().setUp()
         config = testing.setUp()
         config.registry.settings = DEFAULT_SETTINGS
         initialization.setup_logging(config)
 
     def tearDown(self):
-        super(RequestSummaryTest, self).tearDown()
+        super().tearDown()
         core_logs.structlog.reset_defaults()
 
     def test_request_summary_is_sent_as_info(self):
@@ -248,9 +240,8 @@ class RequestSummaryTest(BaseWebTest, unittest.TestCase):
 
 class BatchSubrequestTest(BaseWebTest, unittest.TestCase):
     def setUp(self):
-        super(BatchSubrequestTest, self).setUp()
-        headers = self.headers.copy()
-        headers['User-Agent'] = 'readinglist'
+        super().setUp()
+        headers = {**self.headers, 'User-Agent': 'readinglist'}
         body = {
             'requests': [{
                 'path': '/unknown',
@@ -290,13 +281,13 @@ class BatchSubrequestTest(BaseWebTest, unittest.TestCase):
 
 class ResourceInfoTest(BaseWebTest, unittest.TestCase):
     def setUp(self):
-        super(ResourceInfoTest, self).setUp()
+        super().setUp()
         config = testing.setUp()
         config.registry.settings = DEFAULT_SETTINGS
         initialization.setup_logging(config)
 
     def tearDown(self):
-        super(ResourceInfoTest, self).tearDown()
+        super().tearDown()
         core_logs.structlog.reset_defaults()
 
     def test_collection_id_is_bound(self):

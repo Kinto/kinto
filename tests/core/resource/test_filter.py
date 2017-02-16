@@ -6,7 +6,7 @@ from . import BaseTest
 
 class FilteringTest(BaseTest):
     def setUp(self):
-        super(FilteringTest, self).setUp()
+        super().setUp()
         self.validated = self.resource.request.validated
         self.patch_known_field.start()
         records = [
@@ -34,7 +34,7 @@ class FilteringTest(BaseTest):
     def test_filter_on_id_is_supported(self):
         self.patch_known_field.stop()
         r = self.model.create_record({})
-        self.validated['querystring'] = {'id': '%s' % r['id']}
+        self.validated['querystring'] = {'id': '{}'.format(r['id'])}
         result = self.resource.collection_get()
         self.assertEqual(result['data'][0], r)
 
@@ -198,7 +198,7 @@ class FilteringTest(BaseTest):
 
 class SubobjectFilteringTest(BaseTest):
     def setUp(self):
-        super(SubobjectFilteringTest, self).setUp()
+        super().setUp()
         self.validated = self.resource.request.validated
         self.patch_known_field.start()
         for i in range(6):

@@ -11,9 +11,9 @@ class BackendError(Exception):
     def __init__(self, original=None, message=None, *args, **kwargs):
         self.original = original
         if message is None:
-            message = "%s: %s" % (original.__class__.__name__,
-                                  original)
-        super(BackendError, self).__init__(message, *args, **kwargs)
+            message = "{}: {}".format(original.__class__.__name__,
+                                      original)
+        super().__init__(message, *args, **kwargs)
 
 
 class RecordNotFoundError(Exception):
@@ -37,5 +37,5 @@ class UnicityError(IntegrityError):
     def __init__(self, field, record, *args, **kwargs):
         self.field = field
         self.record = record
-        self.msg = "{0} is not unique: {1}".format(field, record)
-        super(UnicityError, self).__init__(*args, **kwargs)
+        self.msg = "{} is not unique: {}".format(field, record)
+        super().__init__(*args, **kwargs)

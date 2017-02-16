@@ -43,14 +43,14 @@ def get_heartbeat(request):
     for future in done:
         exc = future.exception()
         if exc is not None:
-            logger.error("%r heartbeat failed." % future.__heartbeat_name)
+            logger.error("'{}' heartbeat failed.".format(future.__heartbeat_name))
             logger.error(exc)
 
     # Log timed-out heartbeats.
     for future in not_done:
         name = future.__heartbeat_name
-        error_msg = "%r heartbeat has exceeded timeout of %s seconds."
-        logger.error(error_msg % (name, seconds))
+        error_msg = "'{}' heartbeat has exceeded timeout of {} seconds."
+        logger.error(error_msg.format(name, seconds))
 
     # If any has failed, return a 503 error response.
     has_error = not all([v or v is None for v in status.values()])

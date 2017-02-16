@@ -13,7 +13,7 @@ RECORD_ID = 'd5db6e57-2c10-43e2-96c8-56602ef01435'
 class PermissionsViewTest(BaseWebTest, unittest.TestCase):
 
     def get_app_settings(self, extras=None):
-        settings = super(PermissionsViewTest, self).get_app_settings(extras)
+        settings = super().get_app_settings(extras)
         settings['experimental_permissions_endpoint'] = 'True'
         return settings
 
@@ -21,7 +21,7 @@ class PermissionsViewTest(BaseWebTest, unittest.TestCase):
 class EntriesTest(PermissionsViewTest):
 
     def setUp(self):
-        super(EntriesTest, self).setUp()
+        super().setUp()
         self.app.put_json('/buckets/beers', MINIMALIST_BUCKET,
                           headers=self.headers)
         self.app.put_json('/buckets/beers/collections/barley',
@@ -30,7 +30,7 @@ class EntriesTest(PermissionsViewTest):
         self.app.put_json('/buckets/beers/groups/amateurs',
                           MINIMALIST_GROUP,
                           headers=self.headers)
-        self.app.put_json('/buckets/beers/collections/barley/records/' + RECORD_ID,  # noqa
+        self.app.put_json('/buckets/beers/collections/barley/records/{}'.format(RECORD_ID),
                           MINIMALIST_RECORD,
                           headers=self.headers)
 
@@ -99,7 +99,7 @@ class EntriesTest(PermissionsViewTest):
 class GroupsPermissionTest(PermissionsViewTest):
 
     def setUp(self):
-        super(GroupsPermissionTest, self).setUp()
+        super().setUp()
 
         self.admin_headers = get_user_headers('admin')
         self.admin_principal = self.app.get('/', headers=self.admin_headers).json['user']['id']
@@ -148,10 +148,10 @@ class SettingsPermissionsTest(PermissionsViewTest):
     admin_principal = 'basicauth:bb7fe7b98e759578ef0de85b546dd57d21fe1e399390ad8dafc9886043a00e5c'  # NOQA
 
     def __init__(self, *args, **kwargs):
-        super(SettingsPermissionsTest, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def get_app_settings(self, extras=None):
-        settings = super(SettingsPermissionsTest, self).get_app_settings(extras)
+        settings = super().get_app_settings(extras)
         settings['bucket_write_principals'] = 'system.Authenticated'
         settings['group_create_principals'] = self.admin_principal
         settings['collection_write_principals'] = 'system.Authenticated'
@@ -159,7 +159,7 @@ class SettingsPermissionsTest(PermissionsViewTest):
         return settings
 
     def setUp(self):
-        super(SettingsPermissionsTest, self).setUp()
+        super().setUp()
         self.app.put_json('/buckets/beers', MINIMALIST_BUCKET, headers=self.headers)
         self.app.put_json('/buckets/beers/groups/admins',
                           {'data': {'members': [self.admin_principal]}},
@@ -216,7 +216,7 @@ class SettingsPermissionsTest(PermissionsViewTest):
 class DeletedObjectsTest(PermissionsViewTest):
 
     def setUp(self):
-        super(DeletedObjectsTest, self).setUp()
+        super().setUp()
         self.app.put_json('/buckets/beers',
                           MINIMALIST_BUCKET,
                           headers=self.headers)

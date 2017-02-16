@@ -2,7 +2,6 @@ import json
 import unittest
 
 from kinto.core.errors import send_alert
-from kinto.core.utils import decode_header
 from kinto.core.testing import DummyRequest
 
 
@@ -11,9 +10,8 @@ class SendAlertTest(unittest.TestCase):
     def verify_alert_header(self, request, expected):
         self.assertIn('Alert', request.response.headers)
         alert = request.response.headers['Alert']
-        self.assertDictEqual(
-            decode_header(json.loads(alert)),
-            expected)
+        self.assertDictEqual(json.loads(alert),
+                             expected)
 
     def test_send_alert_default_to_project_url(self):
         request = DummyRequest()

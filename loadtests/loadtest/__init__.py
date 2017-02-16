@@ -24,7 +24,7 @@ class BaseLoadTest(TestCase):
 
             This method is called as many times as number of users.
         """
-        super(BaseLoadTest, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         self.conf = self._get_configuration()
 

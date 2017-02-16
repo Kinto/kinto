@@ -13,9 +13,7 @@ class BasicAuthAuthenticationPolicy(base_auth.BasicAuthAuthenticationPolicy):
     def __init__(self, *args, **kwargs):
         def noop_check(*a):
             return []
-        super(BasicAuthAuthenticationPolicy, self).__init__(noop_check,
-                                                            *args,
-                                                            **kwargs)
+        super().__init__(noop_check, *args, **kwargs)
 
     def effective_principals(self, request):
         # Bypass default Pyramid construction of principals because
@@ -33,7 +31,7 @@ class BasicAuthAuthenticationPolicy(base_auth.BasicAuthAuthenticationPolicy):
                 return
 
             hmac_secret = settings['userid_hmac_secret']
-            credentials = '%s:%s' % credentials
+            credentials = '{}:{}'.format(*credentials)
             userid = utils.hmac_digest(hmac_secret, credentials)
             return userid
 

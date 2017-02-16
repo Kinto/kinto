@@ -35,7 +35,7 @@ class Record(resource.ShareableResource):
                                               object_id=self.collection_id)
             collections[collection_uri] = collection
 
-        super(Record, self).__init__(request, **kwargs)
+        super().__init__(request, **kwargs)
         self._collection = collections[collection_uri]
 
     def get_parent_id(self, request):
@@ -47,7 +47,7 @@ class Record(resource.ShareableResource):
 
     def process_record(self, new, old=None):
         """Validate records against collection schema, if any."""
-        new = super(Record, self).process_record(new, old)
+        new = super().process_record(new, old)
 
         schema = self._collection.get('schema')
         settings = self.request.registry.settings
@@ -75,12 +75,12 @@ class Record(resource.ShareableResource):
         return new
 
     def collection_get(self):
-        result = super(Record, self).collection_get()
+        result = super().collection_get()
         self._handle_cache_expires(self.request.response)
         return result
 
     def get(self):
-        result = super(Record, self).get()
+        result = super().get()
         self._handle_cache_expires(self.request.response)
         return result
 
@@ -99,8 +99,8 @@ class Record(resource.ShareableResource):
 
         cache_expires = self._collection.get('cache_expires')
         if cache_expires is None:
-            by_bucket = '%s_record_cache_expires_seconds' % (self.bucket_id)
-            by_collection = '%s_%s_record_cache_expires_seconds' % (
+            by_bucket = '{}_record_cache_expires_seconds'.format(self.bucket_id)
+            by_collection = '{}_{}_record_cache_expires_seconds'.format(
                 self.bucket_id, self.collection_id)
             settings = self.request.registry.settings
             cache_expires = settings.get(by_collection,

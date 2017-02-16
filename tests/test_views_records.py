@@ -3,7 +3,6 @@ import mock
 import re
 import unittest
 
-from kinto.core.utils import decode_header
 from kinto.core.testing import get_user_headers
 
 from .support import (BaseWebTest, MINIMALIST_RECORD,
@@ -14,10 +13,10 @@ from .support import (BaseWebTest, MINIMALIST_RECORD,
 class RecordsViewTest(BaseWebTest, unittest.TestCase):
 
     collection_url = '/buckets/beers/collections/barley/records'
-    _record_url = '/buckets/beers/collections/barley/records/%s'
+    _record_url = '/buckets/beers/collections/barley/records/{}'
 
     def setUp(self):
-        super(RecordsViewTest, self).setUp()
+        super().setUp()
         self.app.put_json('/buckets/beers', MINIMALIST_BUCKET,
                           headers=self.headers)
         self.app.put_json('/buckets/beers/collections/barley',
@@ -27,7 +26,7 @@ class RecordsViewTest(BaseWebTest, unittest.TestCase):
                                   MINIMALIST_RECORD,
                                   headers=self.headers)
         self.record = resp.json['data']
-        self.record_url = self._record_url % self.record['id']
+        self.record_url = self._record_url.format(self.record['id'])
 
     def test_records_can_be_accessed_by_id(self):
         self.app.get(self.record_url, headers=self.headers)
@@ -140,8 +139,10 @@ class RecordsViewTest(BaseWebTest, unittest.TestCase):
 
     def test_records_can_be_sorted_on_any_field(self):
         for i in range(3):
-            record = MINIMALIST_RECORD.copy()
-            record['data']['name'] = 'Stout %s' % i
+            record = {**MINIMALIST_RECORD, 'data': {
+                **MINIMALIST_RECORD['data'],
+                'name': 'Stout {}'.format(i)}
+            }
             self.app.post_json(self.collection_url,
                                record,
                                headers=self.headers)
@@ -153,8 +154,7 @@ class RecordsViewTest(BaseWebTest, unittest.TestCase):
                          ['Stout 2', 'Stout 1', 'Stout 0', 'Hulled Barley'])
 
     def test_wrong_create_permissions_cannot_be_added_on_records(self):
-        record = MINIMALIST_RECORD.copy()
-        record['permissions'] = {'record:create': ['fxa:user']}
+        record = {**MINIMALIST_RECORD, 'permissions': {'record:create': ['fxa:user']}}
         self.app.put_json(self.record_url,
                           record,
                           headers=self.headers,
@@ -163,16 +163,14 @@ class RecordsViewTest(BaseWebTest, unittest.TestCase):
     def test_create_a_record_update_collection_timestamp(self):
         collection_resp = self.app.get(self.collection_url,
                                        headers=self.headers)
-        old_timestamp = int(
-            decode_header(json.loads(collection_resp.headers['ETag'])))
+        old_timestamp = int(json.loads(collection_resp.headers['ETag']))
         self.app.post_json(self.collection_url,
                            MINIMALIST_RECORD,
                            headers=self.headers,
                            status=201)
         collection_resp = self.app.get(self.collection_url,
                                        headers=self.headers)
-        new_timestamp = int(
-            decode_header(json.loads(collection_resp.headers['ETag'])))
+        new_timestamp = int(json.loads(collection_resp.headers['ETag']))
         assert old_timestamp < new_timestamp
 
     def test_create_a_record_without_id_generates_a_uuid(self):
@@ -220,44 +218,38 @@ class RecordsViewTest(BaseWebTest, unittest.TestCase):
     def test_update_a_record_update_collection_timestamp(self):
         collection_resp = self.app.get(self.collection_url,
                                        headers=self.headers)
-        old_timestamp = int(
-            decode_header(json.loads(collection_resp.headers['ETag'])))
+        old_timestamp = int(json.loads(collection_resp.headers['ETag']))
         self.app.put_json(self.record_url,
                           MINIMALIST_RECORD,
                           headers=self.headers,
                           status=200)
         collection_resp = self.app.get(self.collection_url,
                                        headers=self.headers)
-        new_timestamp = int(
-            decode_header(json.loads(collection_resp.headers['ETag'])))
+        new_timestamp = int(json.loads(collection_resp.headers['ETag']))
         assert old_timestamp < new_timestamp
 
     def test_delete_a_record_update_collection_timestamp(self):
         collection_resp = self.app.get(self.collection_url,
                                        headers=self.headers)
-        old_timestamp = int(
-            decode_header(json.loads(collection_resp.headers['ETag'])))
+        old_timestamp = int(json.loads(collection_resp.headers['ETag']))
         self.app.delete(self.record_url,
                         headers=self.headers,
                         status=200)
         collection_resp = self.app.get(self.collection_url,
                                        headers=self.headers)
-        new_timestamp = int(
-            decode_header(json.loads(collection_resp.headers['ETag'])))
+        new_timestamp = int(json.loads(collection_resp.headers['ETag']))
         assert old_timestamp < new_timestamp
 
     def test_record_is_accessible_by_group_member(self):
         # access as aaron
-        self.aaron_headers = self.headers.copy()
-        self.aaron_headers.update(**get_user_headers('aaron'))
+        self.aaron_headers = {**self.headers, **get_user_headers('aaron')}
 
         resp = self.app.get('/',
                             headers=self.aaron_headers,
                             status=200)
 
         self.create_group('beers', 'brewers', [resp.json['user']['id']])
-        record = MINIMALIST_RECORD.copy()
-        record['permissions'] = {'read': ['/buckets/beers/groups/brewers']}
+        record = {**MINIMALIST_RECORD, 'permissions': {'read': ['/buckets/beers/groups/brewers']}}
         self.app.put_json(self.record_url,
                           record,
                           headers=self.headers,
@@ -268,24 +260,21 @@ class RecordsViewTest(BaseWebTest, unittest.TestCase):
                      status=200)
 
     def test_records_should_reject_unaccepted_request_content_type(self):
-        headers = self.headers.copy()
-        headers['Content-Type'] = 'text/plain'
+        headers = {**self.headers, 'Content-Type': 'text/plain'}
         self.app.put(self.record_url,
                      MINIMALIST_RECORD,
                      headers=headers,
                      status=415)
 
     def test_records_should_reject_unaccepted_client_accept(self):
-        headers = self.headers.copy()
-        headers['Accept'] = 'text/plain'
+        headers = {**self.headers, 'Accept': 'text/plain'}
         self.app.get(self.record_url,
                      MINIMALIST_RECORD,
                      headers=headers,
                      status=406)
 
     def test_records_should_accept_client_accept(self):
-        headers = self.headers.copy()
-        headers['Accept'] = '*/*'
+        headers = {**self.headers, 'Accept': '*/*'}
         self.app.get(self.record_url,
                      MINIMALIST_RECORD,
                      headers=headers,
@@ -295,8 +284,7 @@ class RecordsViewTest(BaseWebTest, unittest.TestCase):
         self.app.delete(self.record_url,
                         headers=self.headers,
                         status=200)
-        headers = self.headers.copy()
-        headers['If-None-Match'] = '*'
+        headers = {**self.headers, 'If-None-Match': '*'}
         self.app.put_json(self.record_url, MINIMALIST_RECORD,
                           headers=headers, status=201)
 
@@ -304,27 +292,23 @@ class RecordsViewTest(BaseWebTest, unittest.TestCase):
 class RecordsViewMergeTest(BaseWebTest, unittest.TestCase):
 
     collection_url = '/buckets/beers/collections/barley/records'
-    _record_url = '/buckets/beers/collections/barley/records/%s'
+    _record_url = '/buckets/beers/collections/barley/records/{}'
 
     def setUp(self):
-        super(RecordsViewMergeTest, self).setUp()
+        super().setUp()
         self.app.put_json('/buckets/beers', MINIMALIST_BUCKET,
                           headers=self.headers)
         self.app.put_json('/buckets/beers/collections/barley',
                           MINIMALIST_COLLECTION,
                           headers=self.headers)
-        record = MINIMALIST_RECORD.copy()
-        record['data'] = {}
-        record['data']['grain'] = {'one': 1}
-        resp = self.app.post_json(self.collection_url,
-                                  record,
+        record = {**MINIMALIST_RECORD, 'data': {'grain': {'one': 1}}}
+        resp = self.app.post_json(self.collection_url, record,
                                   headers=self.headers)
         self.record = resp.json['data']
-        self.record_url = self._record_url % self.record['id']
+        self.record_url = self._record_url.format(self.record['id'])
 
     def test_merge_patch(self):
-        headers = self.headers.copy()
-        headers['Content-Type'] = 'application/merge-patch+json'
+        headers = {**self.headers, 'Content-Type': 'application/merge-patch+json'}
         json = {'data': {'grain': {'two': 2}}}
         resp = self.app.patch_json(self.record_url,
                                    json,
@@ -334,8 +318,7 @@ class RecordsViewMergeTest(BaseWebTest, unittest.TestCase):
         self.assertEquals(resp.json['data']['grain']['two'], 2)
 
     def test_merge_patch_remove_nones(self):
-        headers = self.headers.copy()
-        headers['Content-Type'] = 'application/merge-patch+json'
+        headers = {**self.headers, 'Content-Type': 'application/merge-patch+json'}
         json = {'data': {'grain': {'one': None}}}
         resp = self.app.patch_json(self.record_url,
                                    json,
@@ -347,27 +330,26 @@ class RecordsViewMergeTest(BaseWebTest, unittest.TestCase):
 class RecordsViewPatchTest(BaseWebTest, unittest.TestCase):
 
     collection_url = '/buckets/beers/collections/barley/records'
-    _record_url = '/buckets/beers/collections/barley/records/%s'
+    _record_url = '/buckets/beers/collections/barley/records/{}'
 
     def setUp(self):
-        super(RecordsViewPatchTest, self).setUp()
-        self.patch_headers = self.headers.copy()
-        self.patch_headers['Content-Type'] = 'application/json-patch+json'
+        super().setUp()
+        self.patch_headers = {**self.headers, 'Content-Type': 'application/json-patch+json'}
 
         self.app.put_json('/buckets/beers', MINIMALIST_BUCKET,
                           headers=self.headers)
         self.app.put_json('/buckets/beers/collections/barley',
                           MINIMALIST_COLLECTION,
                           headers=self.headers)
-        record = MINIMALIST_RECORD.copy()
-        record['permissions'] = {}
-        record['permissions']['read'] = ['alice', 'carla']
-        record['permissions']['write'] = ['bob']
+        record = {**MINIMALIST_RECORD, 'permissions': {
+            'read': ['alice', 'carla'],
+            'write': ['bob']
+        }}
         resp = self.app.post_json(self.collection_url,
                                   record,
                                   headers=self.headers)
         self.record = resp.json['data']
-        self.record_url = self._record_url % self.record['id']
+        self.record_url = self._record_url.format(self.record['id'])
 
     def test_patch_add_permissions(self):
         json = [{'op': 'add', 'path': '/permissions/read/me', 'value': 'me'}]

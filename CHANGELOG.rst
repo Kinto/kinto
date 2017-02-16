@@ -8,11 +8,12 @@ This document describes changes between each past release.
 
 **Breaking changes**
 
-- Upgraded to PostgreSQL 9.5  (#1056)
+- Remove Python 2.7 support and upgrade to Python 3.5. (#1050)
+- Upgraded minimal PostgreSQL support to PostgreSQL 9.5 (#1056)
 
 **Bug fixes**
 
-- Prevent injections in the PostgreSQL permission backend. (#1061)
+- Prevent injections in the PostgreSQL permission backend (#1061)
 - Fix crash on ``If-Match: *`` (#1064)
 - Handle Integer overflow in querystring parameters. (#1076)
 
@@ -20,9 +21,6 @@ This document describes changes between each past release.
 
 - Update the upsert query to use an INSERT or UPDATE on CONFLICT behavior (fixes #1055)
 - Remove pypy supports. (#1049)
-
-**Internal changes**
-
 - Permission schema children fields are now set during initialization instead of on
   deserialization (#1046).
 - Request schemas (including validation and deserialization) are now isolated by method

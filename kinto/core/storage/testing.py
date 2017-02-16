@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import time
 
 import mock
@@ -11,13 +10,13 @@ from kinto.core.storage import exceptions, Filter, Sort, heartbeat
 RECORD_ID = '472be9ec-26fe-461b-8282-9c4e4b207ab3'
 
 
-class BaseTestStorage(object):
+class BaseTestStorage:
     backend = None
 
     settings = {}
 
     def setUp(self):
-        super(BaseTestStorage, self).setUp()
+        super().setUp()
         self.storage = self.backend.load_from_config(self._get_config())
         self.storage.initialize_schema()
         self.id_field = 'id'
@@ -44,13 +43,12 @@ class BaseTestStorage(object):
 
     def tearDown(self):
         mock.patch.stopall()
-        super(BaseTestStorage, self).tearDown()
+        super().tearDown()
         self.storage.flush()
 
     def create_record(self, record=None, id_generator=None, **kwargs):
         record = record or self.record
-        kw = self.storage_kw.copy()
-        kw.update(**kwargs)
+        kw = {**self.storage_kw, **kwargs}
         return self.storage.create(record=record,
                                    id_generator=id_generator,
                                    **kw)
@@ -173,27 +171,24 @@ class BaseTestStorage(object):
         self.assertEquals(record['id'], RECORD_ID)
 
     def test_create_supports_unicode_for_parent_and_id(self):
-        unicode_id = u'Rémy'
+        unicode_id = 'Rémy'
         self.create_record(parent_id=unicode_id, collection_id=unicode_id)
 
     def test_create_does_not_overwrite_the_provided_id(self):
-        record = self.record.copy()
-        record[self.id_field] = RECORD_ID
+        record = {**self.record, self.id_field: RECORD_ID}
         stored = self.create_record(record=record)
         self.assertEqual(stored[self.id_field], RECORD_ID)
 
     def test_create_raise_unicity_error_if_provided_id_exists(self):
-        record = self.record.copy()
-        record[self.id_field] = RECORD_ID
+        record = {**self.record, self.id_field: RECORD_ID}
         self.create_record(record=record)
-        record = self.record.copy()
-        record[self.id_field] = RECORD_ID
+        record = {**self.record, self.id_field: RECORD_ID}
         self.assertRaises(exceptions.UnicityError,
                           self.create_record,
                           record=record)
 
     def test_create_does_generate_a_new_last_modified_field(self):
-        record = self.record.copy()
+        record = {**self.record}
         self.assertNotIn(self.modified_field, record)
         created = self.create_record(record=record)
         self.assertIn(self.modified_field, created)
@@ -486,7 +481,7 @@ class BaseTestStorage(object):
         self.assertEqual(len(records), 4)
 
 
-class TimestampsTest(object):
+class TimestampsTest:
     def test_timestamp_are_incremented_on_create(self):
         self.create_record()  # init
         before = self.storage.collection_timestamp(**self.storage_kw)
@@ -550,7 +545,7 @@ class TimestampsTest(object):
         time.sleep(0.002)  # 2 msec
         after = utils.msec_time()
         self.assertTrue(before < now < after,
-                        '%s < %s < %s' % (before, now, after))
+                        '{} < {} < {}'.format(before, now, after))
 
     def test_timestamp_are_always_incremented_above_existing_value(self):
         # Create a record with normal clock
@@ -566,14 +561,12 @@ class TimestampsTest(object):
 
         # Expect the last one to be based on the highest value
         self.assertTrue(0 < current < after,
-                        '0 < %s < %s' % (current, after))
+                        '0 < {} < {}'.format(current, after))
 
     def test_create_uses_specified_last_modified_if_collection_empty(self):
         # Collection is empty, create a new record with a specified timestamp.
         last_modified = 1448881675541
-        record = self.record.copy()
-        record[self.id_field] = RECORD_ID
-        record[self.modified_field] = last_modified
+        record = {**self.record, self.id_field: RECORD_ID, self.modified_field: last_modified}
         self.create_record(record=record)
 
         # Check that the record was assigned the specified timestamp.
@@ -590,9 +583,9 @@ class TimestampsTest(object):
         timestamp_before = first_record[self.modified_field]
 
         # Create a new record with its timestamp in the past.
-        record = self.record.copy()
-        record[self.id_field] = RECORD_ID
-        record[self.modified_field] = timestamp_before - 10
+        record = {**self.record,
+                  self.id_field: RECORD_ID,
+                  self.modified_field: timestamp_before - 10}
         self.create_record(record=record)
 
         # Check that record timestamp is the one specified.
@@ -611,9 +604,9 @@ class TimestampsTest(object):
         timestamp_before = first_record[self.modified_field]
 
         # Create a new record with its timestamp in the past.
-        record = self.record.copy()
-        record[self.id_field] = RECORD_ID
-        record[self.modified_field] = timestamp_before
+        record = {**self.record,
+                  self.id_field: RECORD_ID,
+                  self.modified_field: timestamp_before}
         self.create_record(record=record)
 
         # Check that record timestamp is the one specified.
@@ -687,7 +680,7 @@ class TimestampsTest(object):
         self.assertGreater(timestamp, timestamp_before)
 
 
-class DeletedRecordsTest(object):
+class DeletedRecordsTest:
     def _get_last_modified_filters(self):
         start = self.storage.collection_timestamp(**self.storage_kw)
         time.sleep(0.1)
@@ -1132,7 +1125,7 @@ class DeletedRecordsTest(object):
         self.assertNotIn('deleted', records[1])
 
 
-class ParentRecordAccessTest(object):
+class ParentRecordAccessTest:
     def test_parent_cannot_access_other_parent_record(self):
         record = self.create_record()
         self.assertRaises(
@@ -1157,9 +1150,9 @@ class ParentRecordAccessTest(object):
         record = self.create_record()
 
         new_record = {"another": "record"}
-        kw = self.storage_kw.copy()
-        kw['parent_id'] = self.other_parent_id
-        kw['auth'] = self.other_auth
+        kw = {**self.storage_kw,
+              'parent_id': self.other_parent_id,
+              'auth': self.other_auth}
         self.storage.update(object_id=record['id'], record=new_record, **kw)
 
         not_updated = self.storage.get(object_id=record['id'],

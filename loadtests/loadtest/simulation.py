@@ -38,7 +38,7 @@ def build_article():
 class SimulationLoadTest(BaseLoadTest):
 
     def __init__(self, *args, **kwargs):
-        super(SimulationLoadTest, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.collection = 'articles'
         self.init_user()
 

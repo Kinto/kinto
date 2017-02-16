@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import mock
 import webtest
 
@@ -266,8 +265,7 @@ class ApplicationWrapperTest(unittest.TestCase):
 
 class StatsDConfigurationTest(unittest.TestCase):
     def setUp(self):
-        settings = kinto.core.DEFAULT_SETTINGS.copy()
-        settings['statsd_url'] = 'udp://host:8080'
+        settings = {**kinto.core.DEFAULT_SETTINGS, 'statsd_url': 'udp://host:8080'}
         self.config = Configurator(settings=settings)
         self.config.registry.storage = {}
         self.config.registry.cache = {}
@@ -336,7 +334,7 @@ class StatsDConfigurationTest(unittest.TestCase):
 
     @mock.patch('kinto.core.utils.hmac_digest')
     def test_statsd_counts_unique_users(self, digest_mocked):
-        digest_mocked.return_value = u'mat'
+        digest_mocked.return_value = 'mat'
         kinto.core.initialize(self.config, '0.0.1', 'project_name')
         app = webtest.TestApp(self.config.make_wsgi_app())
         headers = {'Authorization': 'Basic bWF0Og=='}

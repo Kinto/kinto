@@ -19,7 +19,7 @@ class TimeStamp(TimeStamp):
         message = ("`kinto.core.resource.schema.TimeStamp` is deprecated, "
                    "use `kinto.core.schema.TimeStamp` instead.")
         warnings.warn(message, DeprecationWarning)
-        super(TimeStamp, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
 
 class URL(URL):
@@ -29,7 +29,7 @@ class URL(URL):
         message = ("`kinto.core.resource.schema.URL` is deprecated, "
                    "use `kinto.core.schema.URL` instead.")
         warnings.warn(message, DeprecationWarning)
-        super(URL, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
 
 # Resource related schemas
@@ -107,7 +107,7 @@ class PermissionsSchema(colander.SchemaNode):
 
     def __init__(self, *args, **kwargs):
         self.known_perms = kwargs.pop('permissions', tuple())
-        super(PermissionsSchema, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         for perm in self.known_perms:
             self[perm] = self._get_node_principals(perm)
@@ -122,13 +122,13 @@ class PermissionsSchema(colander.SchemaNode):
 
         # If permissions are not a mapping (e.g null or invalid), try deserializing
         if not isinstance(cstruct, dict):
-            return super(PermissionsSchema, self).deserialize(cstruct)
+            return super().deserialize(cstruct)
 
         # If permissions are listed, check fields and produce fancy error messages
         if self.known_perms:
             for perm in cstruct:
                 colander.OneOf(choices=self.known_perms)(self, perm)
-            return super(PermissionsSchema, self).deserialize(cstruct)
+            return super().deserialize(cstruct)
 
         # Else deserialize the fields that are not on the schema
         permissions = {}
@@ -194,7 +194,7 @@ class QuerySchema(colander.MappingSchema):
         """
         values = {}
 
-        schema_values = super(QuerySchema, self).deserialize(cstruct)
+        schema_values = super().deserialize(cstruct)
         if schema_values is colander.drop:
             return schema_values
 

@@ -1,9 +1,8 @@
-import six
 from pyramid import httpexceptions
 from enum import Enum
 
 from kinto.core.logs import logger
-from kinto.core.utils import json, reapply_cors, encode_header
+from kinto.core.utils import json, reapply_cors
 
 
 class ERRORS(Enum):
@@ -132,22 +131,22 @@ def json_error_handler(request):
         (c.f. HTTP API).
     """
     errors = request.errors
-    sorted_errors = sorted(errors, key=lambda x: six.text_type(x['name']))
+    sorted_errors = sorted(errors, key=lambda x: str(x['name']))
     # In Cornice, we call error handler if at least one error was set.
     error = sorted_errors[0]
     name = error['name']
     description = error['description']
 
-    if isinstance(description, six.binary_type):
+    if isinstance(description, bytes):
         description = error['description'].decode('utf-8')
 
     if name is not None:
         if name in description:
             message = description
         else:
-            message = '%(name)s in %(location)s: %(description)s' % error
+            message = '{name} in {location}: {description}'.format_map(error)
     else:
-        message = '%(location)s: %(description)s' % error
+        message = '{location}: {description}'.format_map(error)
 
     response = http_error(httpexceptions.HTTPBadRequest(),
                           code=errors.status,
@@ -185,8 +184,8 @@ def send_alert(request, message=None, url=None, code='soft-eol'):
     if url is None:
         url = request.registry.settings['project_docs']
 
-    request.response.headers['Alert'] = encode_header(json.dumps({
+    request.response.headers['Alert'] = json.dumps({
         'code': code,
         'message': message,
         'url': url
-    }))
+    })

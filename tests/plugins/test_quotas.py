@@ -61,7 +61,7 @@ class QuotaWebTest(support.BaseWebTest, unittest.TestCase):
         self.record = resp.json['data']
 
     def get_app_settings(self, extras=None):
-        settings = super(QuotaWebTest, self).get_app_settings(extras)
+        settings = super().get_app_settings(extras)
 
         # Setup the postgresql backend for transaction support.
         settings['storage_backend'] = 'kinto.core.storage.postgresql'
@@ -241,13 +241,13 @@ class QuotaListenerTest(QuotaWebTest):
         self.create_bucket()
         self.create_collection()
         body = {'data': {'foo': 42}}
-        self.app.post_json('%s/records' % self.collection_uri,
+        self.app.post_json('{}/records'.format(self.collection_uri),
                            body, headers=self.headers)
-        self.app.post_json('%s/records' % self.collection_uri,
+        self.app.post_json('{}/records'.format(self.collection_uri),
                            body, headers=self.headers)
-        self.app.post_json('%s/records' % self.collection_uri,
+        self.app.post_json('{}/records'.format(self.collection_uri),
                            body, headers=self.headers)
-        self.app.post_json('%s/records' % self.collection_uri,
+        self.app.post_json('{}/records'.format(self.collection_uri),
                            body, headers=self.headers)
         self.app.delete(self.collection_uri, headers=self.headers)
         data = self.storage.get(collection_id=QUOTA_RESOURCE_NAME,
@@ -364,15 +364,15 @@ class QuotaListenerTest(QuotaWebTest):
         self.create_bucket()
         self.create_collection()
         body = {'data': {'foo': 42}}
-        self.app.post_json('%s/records' % self.collection_uri,
+        self.app.post_json('{}/records'.format(self.collection_uri),
                            body, headers=self.headers)
-        self.app.post_json('%s/records' % self.collection_uri,
+        self.app.post_json('{}/records'.format(self.collection_uri),
                            body, headers=self.headers)
-        self.app.post_json('%s/records' % self.collection_uri,
+        self.app.post_json('{}/records'.format(self.collection_uri),
                            body, headers=self.headers)
-        self.app.post_json('%s/records' % self.collection_uri,
+        self.app.post_json('{}/records'.format(self.collection_uri),
                            body, headers=self.headers)
-        self.app.delete('%s/records' % self.collection_uri,
+        self.app.delete('{}/records'.format(self.collection_uri),
                         headers=self.headers)
         storage_size = record_size(self.bucket) + record_size(self.collection)
         data = self.storage.get(collection_id=QUOTA_RESOURCE_NAME,
@@ -388,7 +388,7 @@ class QuotaListenerTest(QuotaWebTest):
         body = {
             'defaults': {
                 'method': 'POST',
-                'path': '%s/records' % self.collection_uri,
+                'path': '{}/records'.format(self.collection_uri),
             },
             'requests': [{
                 'path': self.bucket_uri,
@@ -418,7 +418,7 @@ class QuotaListenerTest(QuotaWebTest):
         body = {
             'defaults': {
                 'method': 'POST',
-                'path': '%s/collections' % self.bucket_uri,
+                'path': '{}/collections'.format(self.bucket_uri),
             },
             'requests': [{
                 'path': self.bucket_uri,
@@ -445,13 +445,13 @@ class QuotaListenerTest(QuotaWebTest):
                 'method': 'PUT',
             },
             'requests': [{
-                'path': '%s/collections/a' % self.bucket_uri,
+                'path': '{}/collections/a'.format(self.bucket_uri),
                 'body': {'data': {'attr': 100}},
             }, {
-                'path': '%s/collections/b' % self.bucket_uri,
+                'path': '{}/collections/b'.format(self.bucket_uri),
                 'body': {'data': {'attr': 2000}},
             }, {
-                'path': '%s/collections/c' % self.bucket_uri,
+                'path': '{}/collections/c'.format(self.bucket_uri),
                 'body': {'data': {'attr': 30000}}
             }]
         }
@@ -473,7 +473,7 @@ class QuotaListenerTest(QuotaWebTest):
         body = {
             'defaults': {
                 'method': 'POST',
-                'path': '%s/collections' % self.bucket_uri,
+                'path': '{}/collections'.format(self.bucket_uri),
             },
             'requests': [{
                 'body': {'data': {'id': 'a', 'attr': 1}},
@@ -490,11 +490,11 @@ class QuotaListenerTest(QuotaWebTest):
                 'method': 'DELETE',
             },
             'requests': [{
-                'path': '%s/collections/a' % self.bucket_uri
+                'path': '{}/collections/a'.format(self.bucket_uri)
             }, {
-                'path': '%s/collections/b' % self.bucket_uri
+                'path': '{}/collections/b'.format(self.bucket_uri)
             }, {
-                'path': '%s/collections/c' % self.bucket_uri
+                'path': '{}/collections/c'.format(self.bucket_uri)
             }, {
                 'path': self.collection_uri
             }]
@@ -512,17 +512,17 @@ class QuotaListenerTest(QuotaWebTest):
 
         with pytest.raises(RecordNotFoundError):
             self.storage.get(collection_id=QUOTA_RESOURCE_NAME,
-                             parent_id='%s/collections/a' % self.bucket_uri,
+                             parent_id='{}/collections/a'.format(self.bucket_uri),
                              object_id=QUOTA_COLLECTION_ID)
 
         with pytest.raises(RecordNotFoundError):
             self.storage.get(collection_id=QUOTA_RESOURCE_NAME,
-                             parent_id='%s/collections/b' % self.bucket_uri,
+                             parent_id='{}/collections/b'.format(self.bucket_uri),
                              object_id=QUOTA_COLLECTION_ID)
 
         with pytest.raises(RecordNotFoundError):
             self.storage.get(collection_id=QUOTA_RESOURCE_NAME,
-                             parent_id='%s/collections/c' % self.bucket_uri,
+                             parent_id='{}/collections/c'.format(self.bucket_uri),
                              object_id=QUOTA_COLLECTION_ID)
 
         with pytest.raises(RecordNotFoundError):
@@ -531,13 +531,13 @@ class QuotaListenerTest(QuotaWebTest):
                              object_id=QUOTA_COLLECTION_ID)
 
 
-class QuotaBucketRecordMixin(object):
+class QuotaBucketRecordMixin:
     def test_507_is_raised_if_quota_exceeded_on_record_creation(self):
         self.create_bucket()
         self.create_collection()
         self.create_record()
         body = {'data': {'foo': 42}}
-        resp = self.app.post_json('%s/records' % self.collection_uri,
+        resp = self.app.post_json('{}/records'.format(self.collection_uri),
                                   body, headers=self.headers, status=507)
 
         # Check that the storage was not updated.
@@ -559,12 +559,12 @@ class QuotaBucketRecordMixin(object):
         })
 
         # Check that the record wasn't created
-        resp = self.app.get('%s/records' % self.collection_uri,
+        resp = self.app.get('{}/records'.format(self.collection_uri),
                             headers=self.headers)
         assert len(resp.json['data']) == 1
 
 
-class QuotaBucketUpdateMixin(object):
+class QuotaBucketUpdateMixin:
     def test_507_is_raised_if_quota_exceeded_on_record_update(self):
         self.create_bucket()
         self.create_collection()
@@ -720,13 +720,13 @@ class QuotaBucketUpdateMixin(object):
         })
 
 
-class QuotaBucketMixin(object):
+class QuotaBucketMixin:
     def test_507_is_raised_if_quota_exceeded_on_collection_creation(self):
         self.create_bucket()
         self.create_collection()
         self.create_record()
         body = {'data': {'foo': 42}}
-        resp = self.app.post_json('%s/collections' % self.bucket_uri,
+        resp = self.app.post_json('{}/collections'.format(self.bucket_uri),
                                   body, headers=self.headers, status=507)
 
         storage_size = record_size(self.bucket)
@@ -747,7 +747,7 @@ class QuotaBucketMixin(object):
         })
 
         # Check that the collection wasn't created
-        resp = self.app.get('%s/collections' % self.bucket_uri,
+        resp = self.app.get('{}/collections'.format(self.bucket_uri),
                             headers=self.headers)
         assert len(resp.json['data']) == 1
 
@@ -777,7 +777,7 @@ class QuotaBucketMixin(object):
         })
 
         # Check that the group wasn't created
-        resp = self.app.get('%s/groups' % self.bucket_uri,
+        resp = self.app.get('{}/groups'.format(self.bucket_uri),
                             headers=self.headers)
         assert len(resp.json['data']) == 0
 
@@ -789,8 +789,7 @@ class QuotaMaxBytesExceededSettingsListenerTest(
     error_message = "Bucket maximum total size exceeded "
 
     def get_app_settings(self, extras=None):
-        settings = super(QuotaMaxBytesExceededSettingsListenerTest,
-                         self).get_app_settings(extras)
+        settings = super().get_app_settings(extras)
         settings['quotas.bucket_max_bytes'] = '150'
         return settings
 
@@ -802,8 +801,7 @@ class QuotaMaxBytesExceededBucketSettingsListenerTest(
     error_message = "Bucket maximum total size exceeded "
 
     def get_app_settings(self, extras=None):
-        settings = super(QuotaMaxBytesExceededBucketSettingsListenerTest,
-                         self).get_app_settings(extras)
+        settings = super().get_app_settings(extras)
         settings['quotas.bucket_test_max_bytes'] = '150'
         return settings
 
@@ -814,8 +812,7 @@ class QuotaMaxItemsExceededSettingsListenerTest(
     error_message = "Bucket maximum number of objects exceeded "
 
     def get_app_settings(self, extras=None):
-        settings = super(QuotaMaxItemsExceededSettingsListenerTest,
-                         self).get_app_settings(extras)
+        settings = super().get_app_settings(extras)
         settings['quotas.bucket_max_items'] = '1'
         return settings
 
@@ -826,8 +823,7 @@ class QuotaMaxItemsExceededBucketSettingsListenerTest(
     error_message = "Bucket maximum number of objects exceeded "
 
     def get_app_settings(self, extras=None):
-        settings = super(QuotaMaxItemsExceededBucketSettingsListenerTest,
-                         self).get_app_settings(extras)
+        settings = super().get_app_settings(extras)
         settings['quotas.bucket_test_max_items'] = '1'
         return settings
 
@@ -839,8 +835,7 @@ class QuotaMaxBytesPerItemExceededListenerTest(
     error_message = "Maximum bytes per object exceeded "
 
     def get_app_settings(self, extras=None):
-        settings = super(QuotaMaxBytesPerItemExceededListenerTest,
-                         self).get_app_settings(extras)
+        settings = super().get_app_settings(extras)
         settings['quotas.bucket_max_bytes_per_item'] = '55'
         return settings
 
@@ -852,19 +847,18 @@ class QuotaMaxBytesPerItemExceededBucketListenerTest(
     error_message = "Maximum bytes per object exceeded "
 
     def get_app_settings(self, extras=None):
-        settings = super(QuotaMaxBytesPerItemExceededBucketListenerTest,
-                         self).get_app_settings(extras)
+        settings = super().get_app_settings(extras)
         settings['quotas.bucket_test_max_bytes_per_item'] = '55'
         return settings
 
 
-class QuotaCollectionMixin(object):
+class QuotaCollectionMixin:
     def test_507_is_raised_if_quota_exceeded_on_record_creation(self):
         self.create_bucket()
         self.create_collection()
         self.create_record()
         body = {'data': {'foo': 42}}
-        resp = self.app.post_json('%s/records' % self.collection_uri,
+        resp = self.app.post_json('{}/records'.format(self.collection_uri),
                                   body, headers=self.headers, status=507)
 
         # Check that the storage was not updated.
@@ -883,7 +877,7 @@ class QuotaCollectionMixin(object):
         })
 
 
-class QuotaCollectionUpdateMixin(object):
+class QuotaCollectionUpdateMixin:
     def test_507_is_raised_if_quota_exceeded_on_record_update(self):
         self.create_bucket()
         self.create_collection()
@@ -930,9 +924,7 @@ class QuotaMaxBytesExceededCollectionSettingsListenerTest(
     error_message = "Collection maximum size exceeded "
 
     def get_app_settings(self, extras=None):
-        settings = super(
-            QuotaMaxBytesExceededCollectionSettingsListenerTest,
-            self).get_app_settings(extras)
+        settings = super().get_app_settings(extras)
         settings['quotas.collection_max_bytes'] = '100'
         return settings
 
@@ -944,9 +936,7 @@ class QuotaMaxBytesExceededCollectionBucketSettingsListenerTest(
     error_message = "Collection maximum size exceeded "
 
     def get_app_settings(self, extras=None):
-        settings = super(
-            QuotaMaxBytesExceededCollectionBucketSettingsListenerTest,
-            self).get_app_settings(extras)
+        settings = super().get_app_settings(extras)
         settings['quotas.collection_test_max_bytes'] = '100'
         return settings
 
@@ -958,9 +948,7 @@ class QuotaMaxBytesExceededBucketCollectionSettingsListenerTest(
     error_message = "Collection maximum size exceeded "
 
     def get_app_settings(self, extras=None):
-        settings = super(
-            QuotaMaxBytesExceededBucketCollectionSettingsListenerTest,
-            self).get_app_settings(extras)
+        settings = super().get_app_settings(extras)
         settings['quotas.collection_test_col_max_bytes'] = '100'
         return settings
 
@@ -971,9 +959,7 @@ class QuotaMaxItemsExceededCollectionSettingsListenerTest(
     error_message = "Collection maximum number of objects exceeded "
 
     def get_app_settings(self, extras=None):
-        settings = super(
-            QuotaMaxItemsExceededCollectionSettingsListenerTest,
-            self).get_app_settings(extras)
+        settings = super().get_app_settings(extras)
         settings['quotas.collection_max_items'] = '1'
         return settings
 
@@ -984,9 +970,7 @@ class QuotaMaxItemsExceededCollectionBucketSettingsListenerTest(
     error_message = "Collection maximum number of objects exceeded "
 
     def get_app_settings(self, extras=None):
-        settings = super(
-            QuotaMaxItemsExceededCollectionBucketSettingsListenerTest,
-            self).get_app_settings(extras)
+        settings = super().get_app_settings(extras)
         settings['quotas.collection_test_max_items'] = '1'
         return settings
 
@@ -997,9 +981,7 @@ class QuotaMaxItemsExceededBucketCollectionSettingsListenerTest(
     error_message = "Collection maximum number of objects exceeded "
 
     def get_app_settings(self, extras=None):
-        settings = super(
-            QuotaMaxItemsExceededBucketCollectionSettingsListenerTest,
-            self).get_app_settings(extras)
+        settings = super().get_app_settings(extras)
         settings['quotas.collection_test_col_max_items'] = '1'
         return settings
 
@@ -1010,9 +992,7 @@ class QuotaMaxBytesPerItemExceededCollectionSettingsListenerTest(
     error_message = "Maximum bytes per object exceeded "
 
     def get_app_settings(self, extras=None):
-        settings = super(
-            QuotaMaxBytesPerItemExceededCollectionSettingsListenerTest,
-            self).get_app_settings(extras)
+        settings = super().get_app_settings(extras)
         settings['quotas.collection_max_bytes_per_item'] = '80'
         return settings
 
@@ -1024,9 +1004,7 @@ class QuotaMaxBytesPerItemExceededCollectionBucketSettingsListenerTest(
     error_message = "Maximum bytes per object exceeded "
 
     def get_app_settings(self, extras=None):
-        settings = super(
-            QuotaMaxBytesPerItemExceededCollectionBucketSettingsListenerTest,
-            self).get_app_settings(extras)
+        settings = super().get_app_settings(extras)
         settings['quotas.collection_test_max_bytes_per_item'] = '80'
         return settings
 
@@ -1038,8 +1016,6 @@ class QuotaMaxBytesPerItemExceededBucketCollectionSettingsListenerTest(
     error_message = "Maximum bytes per object exceeded "
 
     def get_app_settings(self, extras=None):
-        settings = super(
-            QuotaMaxBytesPerItemExceededBucketCollectionSettingsListenerTest,
-            self).get_app_settings(extras)
+        settings = super().get_app_settings(extras)
         settings['quotas.collection_test_col_max_bytes_per_item'] = '80'
         return settings

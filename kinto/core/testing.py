@@ -23,9 +23,9 @@ class DummyRequest(mock.MagicMock):
     """Fully mocked request.
     """
     def __init__(self, *args, **kwargs):
-        super(DummyRequest, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.upath_info = '/v0/'
-        self.registry = mock.MagicMock(settings=DEFAULT_SETTINGS.copy())
+        self.registry = mock.MagicMock(settings={**DEFAULT_SETTINGS})
         self.registry.id_generators = defaultdict(generators.UUID4)
         self.GET = {}
         self.headers = {}
@@ -60,13 +60,13 @@ def get_request_class(prefix):
         @classmethod
         def blank(cls, path, *args, **kwargs):
             if prefix:
-                path = '/%s%s' % (prefix, path)
+                path = '/{prefix}{path}'.format(prefix=prefix, path=path)
             return webtest.app.TestRequest.blank(path, *args, **kwargs)
 
     return PrefixedRequestClass
 
 
-class FormattedErrorMixin(object):
+class FormattedErrorMixin:
     """Test mixin in order to perform advanced error responses assertions.
     """
 
@@ -96,14 +96,14 @@ def get_user_headers(user):
 
     :rtype: dict
     """
-    credentials = "%s:secret" % user
-    authorization = 'Basic {0}'.format(encode64(credentials))
+    credentials = "{}:secret".format(user)
+    authorization = 'Basic {}'.format(encode64(credentials))
     return {
         'Authorization': authorization
     }
 
 
-class BaseWebTest(object):
+class BaseWebTest:
     """Base Web Test to test your kinto.core service.
 
     It setups the database before each test and delete it after.
@@ -116,7 +116,7 @@ class BaseWebTest(object):
     """Main application entry"""
 
     def __init__(self, *args, **kwargs):
-        super(BaseWebTest, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.app = self.make_app()
         self.storage = self.app.app.registry.storage
         self.cache = self.app.app.registry.cache
@@ -157,7 +157,7 @@ class BaseWebTest(object):
         :param dict extras: extra settings values
         :rtype: dict
         """
-        settings = DEFAULT_SETTINGS.copy()
+        settings = {**DEFAULT_SETTINGS}
 
         settings['storage_backend'] = 'kinto.core.storage.memory'
         settings['cache_backend'] = 'kinto.core.cache.memory'
@@ -169,20 +169,20 @@ class BaseWebTest(object):
         return settings
 
     def tearDown(self):
-        super(BaseWebTest, self).tearDown()
+        super().tearDown()
         self.storage.flush()
         self.cache.flush()
         self.permission.flush()
 
 
-class ThreadMixin(object):
+class ThreadMixin:
 
     def setUp(self):
-        super(ThreadMixin, self).setUp()
+        super().setUp()
         self._threads = []
 
     def tearDown(self):
-        super(ThreadMixin, self).tearDown()
+        super().tearDown()
 
         for thread in self._threads:
             thread.join()

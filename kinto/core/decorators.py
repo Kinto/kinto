@@ -3,7 +3,7 @@ from functools import update_wrapper
 from pyramid.response import Response
 
 
-class cache_forever(object):
+class cache_forever:
     def __init__(self, wrapped):
         self.wrapped = wrapped
         self.saved = None

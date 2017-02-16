@@ -7,12 +7,12 @@ from kinto.core.permission import heartbeat
 from kinto.core.testing import DummyRequest
 
 
-class PermissionTest(object):
+class PermissionTest:
     backend = None
     settings = {}
 
     def setUp(self):
-        super(PermissionTest, self).setUp()
+        super().setUp()
         self.permission = self.backend.load_from_config(self._get_config())
         self.permission.initialize_schema()
         self.request = DummyRequest()
@@ -29,7 +29,7 @@ class PermissionTest(object):
 
     def tearDown(self):
         mock.patch.stopall()
-        super(PermissionTest, self).tearDown()
+        super().tearDown()
         self.permission.flush()
 
     def test_backend_error_is_raised_anywhere(self):

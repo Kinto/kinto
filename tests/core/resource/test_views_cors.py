@@ -11,7 +11,7 @@ MINIMALIST_RECORD = {'name': 'Champignon'}
 
 class CORSOriginHeadersTest(BaseWebTest, unittest.TestCase):
     def setUp(self):
-        super(CORSOriginHeadersTest, self).setUp()
+        super().setUp()
         self.headers['Origin'] = 'notmyidea.org'
 
         body = {'data': MINIMALIST_RECORD}
@@ -23,8 +23,7 @@ class CORSOriginHeadersTest(BaseWebTest, unittest.TestCase):
 
     def test_can_be_configured_from_settings(self):
         app = self.make_app({'cors_origins': '*.daybed.io'})
-        headers = self.headers.copy()
-        headers['Origin'] = 'demo.daybed.io'
+        headers = {**self.headers, 'Origin': 'demo.daybed.io'}
         resp = app.get(self.collection_url, headers=headers)
         self.assertEqual(resp.headers['Access-Control-Allow-Origin'],
                          'demo.daybed.io')
@@ -46,8 +45,7 @@ class CORSOriginHeadersTest(BaseWebTest, unittest.TestCase):
         self.assertIn('Access-Control-Allow-Origin', response.headers)
 
     def test_present_on_unknown_url(self):
-        headers = self.headers.copy()
-        headers['Origin'] = 'notmyidea.org'
+        headers = {**self.headers, 'Origin': 'notmyidea.org'}
         response = self.app.get('/unknown',
                                 headers=headers,
                                 status=404)
@@ -55,8 +53,7 @@ class CORSOriginHeadersTest(BaseWebTest, unittest.TestCase):
                          'notmyidea.org')
 
     def test_not_present_on_unknown_url_if_setting_does_not_match(self):
-        headers = self.headers.copy()
-        headers['Origin'] = 'notmyidea.org'
+        headers = {**self.headers, 'Origin': 'notmyidea.org'}
         with mock.patch.dict(self.app.app.registry.settings,
                              [('cors_origins', 'daybed.io')]):
             response = self.app.get('/unknown',
@@ -184,7 +181,7 @@ class CORSExposeHeadersTest(BaseWebTest, unittest.TestCase):
 
 class CORSMaxAgeTest(BaseWebTest, unittest.TestCase):
     def setUp(self):
-        super(CORSMaxAgeTest, self).setUp()
+        super().setUp()
         self.headers.update({
             'Origin': 'lolnet.org',
             'Access-Control-Request-Method': 'GET'

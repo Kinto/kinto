@@ -2,7 +2,6 @@ import json
 import mock
 import time
 
-from kinto.core.utils import decode_header
 from kinto.core.testing import ThreadMixin
 
 from . import BaseTest
@@ -11,7 +10,7 @@ from . import BaseTest
 class SinceModifiedTest(ThreadMixin, BaseTest):
 
     def setUp(self):
-        super(SinceModifiedTest, self).setUp()
+        super().setUp()
         self.validated['body'] = {'data': {}}
 
         with mock.patch.object(self.model.storage,
@@ -41,7 +40,7 @@ class SinceModifiedTest(ThreadMixin, BaseTest):
         self.assertIn('Alert', self.resource.request.response.headers)
         alert = self.resource.request.response.headers['Alert']
         self.assertDictEqual(
-            decode_header(json.loads(alert)),
+            json.loads(alert),
             {
                 'code': 'soft-eol',
                 'message': ('_to is now deprecated, '

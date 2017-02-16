@@ -15,7 +15,7 @@ class BucketViewTest(BaseWebTest, unittest.TestCase):
     record_url = '/buckets/beers'
 
     def setUp(self):
-        super(BucketViewTest, self).setUp()
+        super().setUp()
         resp = self.app.put_json(self.record_url,
                                  MINIMALIST_BUCKET,
                                  headers=self.headers)
@@ -31,7 +31,7 @@ class BucketViewTest(BaseWebTest, unittest.TestCase):
         self.assertEqual(self.record['id'], 'beers')
 
     def test_buckets_names_can_have_underscores(self):
-        bucket = MINIMALIST_BUCKET.copy()
+        bucket = {**MINIMALIST_BUCKET}
         record_url = '/buckets/alexis_beers'
         resp = self.app.put_json(record_url,
                                  bucket,
@@ -51,17 +51,15 @@ class BucketViewTest(BaseWebTest, unittest.TestCase):
                           status=400)
 
     def test_buckets_should_reject_unaccepted_request_content_type(self):
-        headers = self.headers.copy()
-        headers['Content-Type'] = 'text/plain'
+        headers = {**self.headers, 'Content-Type': 'text/plain'}
         self.app.put('/buckets/beers',
                      MINIMALIST_BUCKET,
                      headers=headers,
                      status=415)
 
     def test_create_permissions_can_be_added_on_buckets(self):
-        bucket = MINIMALIST_BUCKET.copy()
-        bucket['permissions'] = {'collection:create': ['fxa:user'],
-                                 'group:create': ['fxa:user']}
+        bucket = {**MINIMALIST_BUCKET, 'permissions': {'collection:create': ['fxa:user'],
+                                                       'group:create': ['fxa:user']}}
         resp = self.app.put_json('/buckets/beers',
                                  bucket,
                                  headers=self.headers,
@@ -71,17 +69,15 @@ class BucketViewTest(BaseWebTest, unittest.TestCase):
         self.assertIn('fxa:user', permissions['group:create'])
 
     def test_wrong_create_permissions_cannot_be_added_on_buckets(self):
-        bucket = MINIMALIST_BUCKET.copy()
-        bucket['permissions'] = {'record:create': ['fxa:user']}
+        bucket = {**MINIMALIST_BUCKET, 'permissions': {'record:create': ['fxa:user']}}
         self.app.put_json('/buckets/beers',
                           bucket,
                           headers=self.headers,
                           status=400)
 
     def test_buckets_can_handle_arbitrary_attributes(self):
-        bucket = MINIMALIST_BUCKET.copy()
         public_key = "5866f245a00bb3a39100d31b2f14d453"
-        bucket['data'] = {'public_key': public_key}
+        bucket = {**MINIMALIST_BUCKET, 'data': {'public_key': public_key}}
         resp = self.app.put_json('/buckets/beers',
                                  bucket,
                                  headers=self.headers,
@@ -91,8 +87,7 @@ class BucketViewTest(BaseWebTest, unittest.TestCase):
         self.assertEqual(data['public_key'], public_key)
 
     def test_buckets_can_be_filtered_by_arbitrary_attribute(self):
-        bucket = MINIMALIST_BUCKET.copy()
-        bucket['data'] = {'size': 3}
+        bucket = {**MINIMALIST_BUCKET, 'data': {'size': 3}}
         self.app.put_json('/buckets/beers',
                           bucket,
                           headers=self.headers)
@@ -103,7 +98,7 @@ class BucketViewTest(BaseWebTest, unittest.TestCase):
 
 class BucketListTest(BaseWebTest, unittest.TestCase):
     def get_app_settings(self, extras=None):
-        settings = super(BucketListTest, self).get_app_settings(extras)
+        settings = super().get_app_settings(extras)
         settings['bucket_create_principals'] = self.principal
         return settings
 
@@ -143,7 +138,7 @@ class BucketCreationTest(BaseWebTest, unittest.TestCase):
         self.assertEqual(r.json['data']['id'], bucket)
 
     def test_bucket_can_be_created_without_body_nor_contenttype(self):
-        headers = self.headers.copy()
+        headers = {**self.headers}
         headers.pop("Content-Type")
         self.app.put('/buckets/catalog', headers=headers)
 
@@ -154,8 +149,8 @@ class BucketReadPermissionTest(BaseWebTest, unittest.TestCase):
     record_url = '/buckets/beers'
 
     def setUp(self):
-        super(BucketReadPermissionTest, self).setUp()
-        bucket = MINIMALIST_BUCKET.copy()
+        super().setUp()
+        bucket = {**MINIMALIST_BUCKET}
         self.app.put_json(self.record_url,
                           bucket,
                           headers=self.headers)
@@ -198,12 +193,12 @@ class BucketDeletionTest(BaseWebTest, unittest.TestCase):
                                MINIMALIST_RECORD,
                                headers=self.headers)
         record_id = r.json['data']['id']
-        self.record_url = self.collection_url + '/records/%s' % record_id
+        self.record_url = self.collection_url + '/records/{}'.format(record_id)
         # Delete the bucket.
         self.app.delete(self.bucket_url, headers=self.headers)
 
     def get_app_settings(self, extras=None):
-        settings = super(BucketDeletionTest, self).get_app_settings(extras)
+        settings = super().get_app_settings(extras)
         # Give the permission to read, to get an explicit 404 once deleted.
         settings['kinto.bucket_read_principals'] = self.principal
         return settings
@@ -235,7 +230,7 @@ class BucketDeletionTest(BaseWebTest, unittest.TestCase):
         self.app.get(self.collection_url, headers=self.headers, status=404)
 
         # Verify tombstones
-        resp = self.app.get('%s/collections?_since=0' % self.bucket_url,
+        resp = self.app.get('{}/collections?_since=0'.format(self.bucket_url),
                             headers=self.headers)
         self.assertEqual(len(resp.json['data']), 0)
 
@@ -244,7 +239,7 @@ class BucketDeletionTest(BaseWebTest, unittest.TestCase):
                           headers=self.headers)
         self.app.get(self.group_url, headers=self.headers, status=404)
         # Verify tombstones
-        resp = self.app.get('%s/groups?_since=0' % self.bucket_url,
+        resp = self.app.get('{}/groups?_since=0'.format(self.bucket_url),
                             headers=self.headers)
         self.assertEqual(len(resp.json['data']), 0)
 
@@ -256,12 +251,11 @@ class BucketDeletionTest(BaseWebTest, unittest.TestCase):
         self.app.get(self.record_url, headers=self.headers, status=404)
 
         # Verify tombstones
-        resp = self.app.get('%s/records?_since=0' % self.collection_url,
+        resp = self.app.get('{}/records?_since=0'.format(self.collection_url),
                             headers=self.headers)
         self.assertEqual(len(resp.json['data']), 0)
 
     def test_can_be_created_after_deletion_with_if_none_match_star(self):
-        headers = self.headers.copy()
-        headers['If-None-Match'] = '*'
+        headers = {**self.headers, 'If-None-Match': '*'}
         self.app.put_json(self.bucket_url, MINIMALIST_BUCKET,
                           headers=headers, status=201)

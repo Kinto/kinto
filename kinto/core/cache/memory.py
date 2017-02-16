@@ -15,7 +15,7 @@ class Cache(CacheBase):
     """
 
     def __init__(self, *args, **kwargs):
-        super(Cache, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.flush()
 
     def initialize_schema(self, dry_run=False):
@@ -61,7 +61,7 @@ class Cache(CacheBase):
         if ttl is not None:
             self.expire(key, ttl)
         else:
-            logger.warning("No TTL for cache key %r" % key)
+            logger.warning("No TTL for cache key '{}'".format(key))
         item_key = self.prefix + key
         self._store[item_key] = value
         self._created_at[item_key] = msec_time()

@@ -26,7 +26,7 @@ class HelloViewTest(BaseWebTest, unittest.TestCase):
 
     def test_returns_user_principals_if_authenticated(self):
         group_url = '/buckets/beers/groups/users'
-        group = MINIMALIST_GROUP.copy()
+        group = {**MINIMALIST_GROUP}
         group['data']['members'].append(self.principal)
         self.app.put_json('/buckets/beers', MINIMALIST_BUCKET, headers=self.headers)
         self.app.put_json(group_url, group, headers=self.headers)

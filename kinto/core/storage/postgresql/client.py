@@ -8,7 +8,7 @@ from kinto.core.utils import sqlalchemy
 import transaction as zope_transaction
 
 
-class PostgreSQLClient(object):
+class PostgreSQLClient:
     def __init__(self, session_factory, commit_manually=True, invalidate=None):
         self.session_factory = session_factory
         self.commit_manually = commit_manually
@@ -50,8 +50,7 @@ class PostgreSQLClient(object):
             logger.error(e)
             if session and with_transaction:
                 session.rollback()
-            raise exceptions.BackendError(original=e)
-
+            raise exceptions.BackendError(original=e) from e
         finally:
             if session and self.commit_manually:
                 # Give back to pool if commit done manually.
@@ -73,7 +72,7 @@ def create_from_config(config, prefix='', with_transaction=True):
     from zope.sqlalchemy import ZopeTransactionExtension, invalidate
     from sqlalchemy.orm import sessionmaker, scoped_session
 
-    settings = config.get_settings().copy()
+    settings = {**config.get_settings()}
     # Custom Kinto settings, unsupported by SQLAlchemy.
     settings.pop(prefix + 'backend', None)
     settings.pop(prefix + 'max_fetch_size', None)
@@ -85,7 +84,7 @@ def create_from_config(config, prefix='', with_transaction=True):
     existing_client = _CLIENTS[transaction_per_request].get(url)
     if existing_client:
         msg = ("Reuse existing PostgreSQL connection. "
-               "Parameters %s* will be ignored." % prefix)
+               "Parameters {}* will be ignored.".format(prefix))
         warnings.warn(msg)
         return existing_client
 

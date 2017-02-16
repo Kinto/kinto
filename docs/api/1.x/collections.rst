@@ -598,14 +598,14 @@ Once a schema has been defined, the posted records must match it:
         "code": 400,
         "details": [
             {
-                "description": "u'title' is a required property",
+                "description": "'title' is a required property",
                 "location": "body",
                 "name": "title"
             }
         ],
         "errno": 107,
         "error": "Invalid parameters",
-        "message": "u'title' is a required property"
+        "message": "'title' is a required property"
     }
 
 

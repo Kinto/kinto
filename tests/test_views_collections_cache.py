@@ -6,13 +6,13 @@ from .support import (BaseWebTest, MINIMALIST_BUCKET,
 
 class GlobalSettingsTest(BaseWebTest, unittest.TestCase):
     def get_app_settings(self, extras=None):
-        settings = super(GlobalSettingsTest, self).get_app_settings(extras)
+        settings = super().get_app_settings(extras)
         settings['kinto.record_cache_expires_seconds'] = 3600
         settings['kinto.record_read_principals'] = 'system.Everyone'
         return settings
 
     def setUp(self):
-        super(GlobalSettingsTest, self).setUp()
+        super().setUp()
         self.create_bucket('blog')
         self.app.put_json('/buckets/blog/collections/cached',
                           MINIMALIST_COLLECTION,
@@ -28,29 +28,26 @@ class GlobalSettingsTest(BaseWebTest, unittest.TestCase):
         self.assertIn('Expires', r.headers)
         self.assertEqual(r.headers['Cache-Control'], 'max-age=3600')
 
-        r = self.app.get(url + '/%s' % self.record['id'])
+        r = self.app.get('{}/{}'.format(url, self.record['id']))
         self.assertIn('Expires', r.headers)
         self.assertEqual(r.headers['Cache-Control'], 'max-age=3600')
 
 
 class SpecificSettingsTest(BaseWebTest, unittest.TestCase):
     def get_app_settings(self, extras=None):
-        settings = super(SpecificSettingsTest, self).get_app_settings(extras)
+        settings = super().get_app_settings(extras)
         settings['kinto.blog_record_cache_expires_seconds'] = '30'
         settings['kinto.browser_top500_record_cache_expires_seconds'] = '60'
         return settings
 
     def setUp(self):
-        super(SpecificSettingsTest, self).setUp()
+        super().setUp()
 
         def create_record_in_collection(bucket_id, collection_id):
-            bucket = MINIMALIST_BUCKET.copy()
-            bucket['permissions'] = {'read': ['system.Everyone']}
-            self.app.put_json('/buckets/%s' % bucket_id,
-                              bucket,
-                              headers=self.headers)
-            collection_url = '/buckets/%s/collections/%s' % (bucket_id,
-                                                             collection_id)
+            bucket = {**MINIMALIST_BUCKET, 'permissions': {'read': ['system.Everyone']}}
+            self.app.put_json('/buckets/{}'.format(bucket_id),
+                              bucket, headers=self.headers)
+            collection_url = '/buckets/{}/collections/{}'.format(bucket_id, collection_id)
             self.app.put_json(collection_url,
                               MINIMALIST_COLLECTION,
                               headers=self.headers)
@@ -65,26 +62,25 @@ class SpecificSettingsTest(BaseWebTest, unittest.TestCase):
     def assertHasCache(self, url, age):
         r = self.app.get(url)
         self.assertIn('Expires', r.headers)
-        self.assertEqual(r.headers['Cache-Control'], 'max-age=%s' % age)
+        self.assertEqual(r.headers['Cache-Control'], 'max-age={}'.format(age))
 
     def test_for_records_on_a_specific_bucket(self):
         collection_url = '/buckets/blog/collections/cached/records'
         self.assertHasCache(collection_url, 30)
-        record_url = collection_url + '/%s' % self.blog_record['id']
+        record_url = '{}/{}'.format(collection_url, self.blog_record['id'])
         self.assertHasCache(record_url, 30)
 
     def test_for_records_on_a_specific_collection(self):
         collection_url = '/buckets/browser/collections/top500/records'
         self.assertHasCache(collection_url, 60)
-        record_url = collection_url + '/%s' % self.app_record['id']
+        record_url = '{}/{}'.format(collection_url, self.app_record['id'])
         self.assertHasCache(record_url, 60)
 
 
 class CollectionExpiresTest(BaseWebTest, unittest.TestCase):
     def setUp(self):
-        super(CollectionExpiresTest, self).setUp()
-        bucket = MINIMALIST_BUCKET.copy()
-        bucket['permissions'] = {'read': ['system.Everyone']}
+        super().setUp()
+        bucket = {**MINIMALIST_BUCKET, 'permissions': {'read': ['system.Everyone']}}
         self.app.put_json('/buckets/blog',
                           bucket,
                           headers=self.headers)
@@ -99,7 +95,7 @@ class CollectionExpiresTest(BaseWebTest, unittest.TestCase):
                                   MINIMALIST_RECORD,
                                   headers=self.headers)
         self.record = resp.json['data']
-        self.record_url = self.records_url + '/' + self.record['id']
+        self.record_url = '{}/{}'.format(self.records_url, self.record['id'])
 
     def test_cache_expires_must_be_an_integer(self):
         self.app.put_json(self.collection_url,

@@ -126,8 +126,8 @@ def includeme(config):
     def add_api_capability(config, identifier, description="", url="", **kw):
         existing = config.registry.api_capabilities.get(identifier)
         if existing:
-            error_msg = "The '%s' API capability was already registered (%s)."
-            raise ValueError(error_msg % (identifier, existing))
+            error_msg = "The '{}' API capability was already registered ({})."
+            raise ValueError(error_msg.format(identifier, existing))
 
         capability = dict(description=description, url=url, **kw)
         config.registry.api_capabilities[identifier] = capability
@@ -174,11 +174,11 @@ def includeme(config):
 
     # # Show settings to output.
     # for key, value in settings.items():
-    #     logger.info('Using %s = %s' % (key, value))
+    #     logger.info('Using {} = {}'.format(key, value))
 
     # Scan views.
     config.scan("kinto.core.views")
 
     # Give sign of life.
-    msg = "Running %(project_name)s %(project_version)s."
-    logger.info(msg % settings)
+    msg = "Running {project_name} {project_version}."
+    logger.info(msg.format_map(settings))

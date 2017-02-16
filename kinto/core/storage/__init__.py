@@ -22,7 +22,7 @@ _HEART_PARENT_ID = _HEARTBEAT_COLLECTION_ID
 _HEARTBEAT_RECORD = {'__heartbeat__': True}
 
 
-class StorageBase(object):
+class StorageBase:
     """Storage abstraction used by resource views.
 
     It is meant to be instantiated at application startup.
