@@ -93,7 +93,7 @@ class InitializationTest(unittest.TestCase):
         self.assertEqual(config.registry.settings['paginate_by'], 5)
 
     def test_backends_are_not_instantiated_by_default(self):
-        config = Configurator(settings=kinto.core.DEFAULT_SETTINGS)
+        config = Configurator(settings={**kinto.core.DEFAULT_SETTINGS})
         kinto.core.initialize(config, '0.0.1', 'project_name')
         self.assertFalse(hasattr(config.registry, 'storage'))
         self.assertFalse(hasattr(config.registry, 'cache'))
@@ -430,7 +430,7 @@ class RequestsConfigurationTest(unittest.TestCase):
 
 class PluginsTest(unittest.TestCase):
     def test_kinto_core_includes_are_included_manually(self):
-        config = Configurator(settings=kinto.core.DEFAULT_SETTINGS)
+        config = Configurator(settings={**kinto.core.DEFAULT_SETTINGS})
         config.add_settings({'includes': 'elastic history'})
         config.route_prefix = 'v2'
 
@@ -442,7 +442,7 @@ class PluginsTest(unittest.TestCase):
                 config.include.assert_any_call('history')
 
     def make_app(self):
-        config = Configurator(settings=kinto.core.DEFAULT_SETTINGS)
+        config = Configurator(settings={**kinto.core.DEFAULT_SETTINGS})
         config.add_settings({
             'permission_backend': 'kinto.core.permission.memory',
             'includes': 'tests.core.testplugin'

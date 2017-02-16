@@ -198,7 +198,7 @@ As an example, let's build a code that will copy a collection into another:
     from pyramid import Configurator
 
 
-    config = Configurator(settings=DEFAULT_SETTINGS)
+    config = Configurator(settings={**DEFAULT_SETTINGS})
     config.add_settings({
         'kinto.storage_backend': 'kinto.core.storage.postgresql'
         'kinto.storage_url': 'postgres://user:pass@db.server.lan:5432/dbname'

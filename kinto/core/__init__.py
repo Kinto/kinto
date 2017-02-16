@@ -20,7 +20,6 @@ from kinto.core.logs import logger
 # Module version, as defined in PEP-0396.
 __version__ = pkg_resources.get_distribution('kinto').version  # FIXME?
 
-
 DEFAULT_SETTINGS = {
     'backoff': None,
     'batch_max_requests': 25,
