@@ -30,7 +30,7 @@ matrix:
     - python: 3.6
       env:
         - TOX_ENV=py36
-    - env: TOX_ENV=loadtests
+    - env: ENV=functional
       before_install:
         - make install-dev
         - make runkinto & sleep 5
