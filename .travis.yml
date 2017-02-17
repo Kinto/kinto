@@ -33,5 +33,5 @@ matrix:
     - env: TOX_ENV=loadtests
       before_install:
         - make install-dev
-        - make runkinto & .venv/bin/kinto --ini tests/functional.ini migrate
+        - make runkinto & sleep 5
       script: make functional
