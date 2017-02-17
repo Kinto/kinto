@@ -8,26 +8,28 @@ This document describes changes between each past release.
 
 **Breaking changes**
 
-- Upgraded to PostgreSQL 9.5
+- Remove Python 2.7 support and upgrade to Python 3.5. (#1050)
+- Upgraded minimal PostgreSQL support to PostgreSQL 9.5 (#1056)
 
 **Bug fixes**
 
-- Prevent injections in the PostgreSQL permission backend
-- Fix crash on ``If-Match: *``
+- Prevent injections in the PostgreSQL permission backend (#1061)
+- Fix crash on ``If-Match: *`` (#1064)
+- Handle Integer overflow in querystring parameters. (#1076)
 
 **Internal changes**
 
 - Update the upsert query to use an INSERT or UPDATE on CONFLICT behavior (fixes #1055)
 - Remove pypy supports. (#1049)
-
-**Internal changes**
-
 - Permission schema children fields are now set during initialization instead of on
   deserialization (#1046).
 - Request schemas (including validation and deserialization) are now isolated by method
   and endpoint type (#1047).
 - Move generic API schemas (e.g TimeStamps and HeaderFields) from `kinto.core.resource.schema`
-  to a sepate file on `kinto.core.schema`.
+  to a sepate file on `kinto.core.schema`. (#1054)
+- Upgraded the kinto-admin to version 1.9.0 (#1086)
+- Upgrade to Pyramid 1.8 (#1087)
+- Replace old loadtests with functional tests (#1085)
 
 
 5.3.2 (2017-01-31)

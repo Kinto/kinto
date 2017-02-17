@@ -1,9 +1,10 @@
-import six
+import colander
 from pyramid import httpexceptions
 from enum import Enum
 
 from kinto.core.logs import logger
-from kinto.core.utils import json, reapply_cors, encode_header
+from kinto.core.schema import Any
+from kinto.core.utils import json, reapply_cors
 
 
 class ERRORS(Enum):
@@ -72,6 +73,17 @@ class ERRORS(Enum):
     SERVICE_DEPRECATED = 202
 
 
+class ErrorSchema(colander.MappingSchema):
+    """Payload schema for Kinto errors."""
+
+    code = colander.SchemaNode(colander.Integer())
+    errno = colander.SchemaNode(colander.Integer())
+    error = colander.SchemaNode(colander.String())
+    message = colander.SchemaNode(colander.String(), missing=colander.drop)
+    info = colander.SchemaNode(colander.String(), missing=colander.drop)
+    details = colander.SchemaNode(Any(), missing=colander.drop)
+
+
 def http_error(httpexception, errno=None,
                code=None, error=None, message=None, info=None, details=None):
     """Return a JSON formated response matching the error HTTP API.
@@ -97,20 +109,14 @@ def http_error(httpexception, errno=None,
     body = {
         "code": code or httpexception.code,
         "errno": errno,
-        "error": error or httpexception.title
+        "error": error or httpexception.title,
+        "message": message,
+        "info": info,
+        "details": details or colander.drop,
     }
 
-    if message is not None:
-        body['message'] = message
-
-    if info is not None:
-        body['info'] = info
-
-    if details is not None:
-        body['details'] = details
-
     response = httpexception
-    response.body = json.dumps(body).encode("utf-8")
+    response.json = ErrorSchema().deserialize(body)
     response.content_type = 'application/json'
     return response
 
@@ -132,22 +138,22 @@ def json_error_handler(request):
         (c.f. HTTP API).
     """
     errors = request.errors
-    sorted_errors = sorted(errors, key=lambda x: six.text_type(x['name']))
+    sorted_errors = sorted(errors, key=lambda x: str(x['name']))
     # In Cornice, we call error handler if at least one error was set.
     error = sorted_errors[0]
     name = error['name']
     description = error['description']
 
-    if isinstance(description, six.binary_type):
+    if isinstance(description, bytes):
         description = error['description'].decode('utf-8')
 
     if name is not None:
         if name in description:
             message = description
         else:
-            message = '%(name)s in %(location)s: %(description)s' % error
+            message = '{name} in {location}: {description}'.format_map(error)
     else:
-        message = '%(location)s: %(description)s' % error
+        message = '{location}: {description}'.format_map(error)
 
     response = http_error(httpexceptions.HTTPBadRequest(),
                           code=errors.status,
@@ -185,8 +191,8 @@ def send_alert(request, message=None, url=None, code='soft-eol'):
     if url is None:
         url = request.registry.settings['project_docs']
 
-    request.response.headers['Alert'] = encode_header(json.dumps({
+    request.response.headers['Alert'] = json.dumps({
         'code': code,
         'message': message,
         'url': url
-    }))
+    })

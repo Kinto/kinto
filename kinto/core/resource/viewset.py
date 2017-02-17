@@ -6,10 +6,11 @@ from cornice.validators import colander_validator
 from pyramid.settings import asbool
 
 from kinto.core import authorization
-from kinto.core.resource.schema import (PermissionsSchema, RequestSchema, PayloadRequestSchema,
-                                        PatchHeaderSchema, CollectionQuerySchema,
-                                        CollectionGetQuerySchema, RecordGetQuerySchema,
-                                        RecordSchema)
+
+from .schema import (PermissionsSchema, RequestSchema, PayloadRequestSchema,
+                     PatchHeaderSchema, CollectionQuerySchema, CollectionGetQuerySchema,
+                     RecordGetQuerySchema, RecordSchema, ResourceReponses,
+                     ShareableResourseResponses)
 
 
 CONTENT_TYPES = ["application/json"]
@@ -35,7 +36,7 @@ class SimpleSchema(colander.MappingSchema):
         return colander.Mapping(unknown='preserve')
 
 
-class ViewSet(object):
+class ViewSet:
     """The default ViewSet object.
 
     A viewset contains all the information needed to register
@@ -54,6 +55,8 @@ class ViewSet(object):
     readonly_methods = ('GET', 'OPTIONS', 'HEAD')
 
     factory = authorization.RouteFactory
+
+    responses = ResourceReponses()
 
     service_arguments = {
         'description': 'Collection of {resource_name}',
@@ -117,24 +120,27 @@ class ViewSet(object):
         :param resource_cls: the resource class.
         :param str method: the HTTP method.
         """
-        args = self.default_arguments.copy()
+        args = {**self.default_arguments}
         default_arguments = getattr(self,
-                                    'default_%s_arguments' % endpoint_type)
+                                    'default_{}_arguments'.format(endpoint_type))
         args.update(**default_arguments)
 
-        by_http_verb = 'default_%s_arguments' % method.lower()
+        by_http_verb = 'default_{}_arguments'.format(method.lower())
         method_args = getattr(self, by_http_verb, {})
         args.update(**method_args)
 
-        by_method = '%s_%s_arguments' % (endpoint_type, method.lower())
+        by_method = '{}_{}_arguments'.format(endpoint_type, method.lower())
         endpoint_args = getattr(self, by_method, {})
         args.update(**endpoint_args)
 
         request_schema = args.get('schema', RequestSchema())
         record_schema = self.get_record_schema(resource_cls, method)
         request_schema = request_schema.bind(body=record_schema)
+        response_schemas = self.responses.get_and_bind(endpoint_type, method,
+                                                       record=record_schema)
 
         args['schema'] = request_schema
+        args['response_schemas'] = response_schemas
 
         validators = args.get('validators', [])
         validators.append(colander_validator)
@@ -145,7 +151,7 @@ class ViewSet(object):
     def get_record_schema(self, resource_cls, method):
         """Return the Cornice schema for the given method.
         """
-        if method.lower() == 'patch':
+        if method.lower() in ('patch', 'delete'):
             resource_schema = SimpleSchema
         else:
             resource_schema = resource_cls.schema
@@ -167,7 +173,7 @@ class ViewSet(object):
         """
         if endpoint_type == 'record':
             return method.lower()
-        return '%s_%s' % (endpoint_type, method.lower())
+        return '{}_{}'.format(endpoint_type, method.lower())
 
     def get_name(self, resource_cls):
         """Returns the name of the resource.
@@ -194,7 +200,7 @@ class ViewSet(object):
             endpoint_type=endpoint_type)
 
     def get_service_arguments(self):
-        return self.service_arguments.copy()
+        return {**self.service_arguments}
 
     def is_endpoint_enabled(self, endpoint_type, resource_name, method,
                             settings):
@@ -208,7 +214,7 @@ class ViewSet(object):
         if readonly_enabled and not readonly_method:
             return False
 
-        setting_enabled = '%s_%s_%s_enabled' % (
+        setting_enabled = '{}_{}_{}_enabled'.format(
             endpoint_type, resource_name, method.lower())
         return asbool(settings.get(setting_enabled, True))
 
@@ -220,6 +226,9 @@ class ShareableViewSet(ViewSet):
     The views will rely on dynamic permissions (e.g. create with PUT if
     record does not exist), and solicit the cliquet RouteFactory.
     """
+
+    responses = ShareableResourseResponses()
+
     def get_record_schema(self, resource_cls, method):
         """Return the Cornice schema for the given method.
         """
@@ -231,13 +240,11 @@ class ShareableViewSet(ViewSet):
         return record_schema
 
     def get_view_arguments(self, endpoint_type, resource_cls, method):
-        args = super(ShareableViewSet, self).get_view_arguments(endpoint_type,
-                                                                resource_cls,
-                                                                method)
+        args = super().get_view_arguments(endpoint_type, resource_cls, method)
         args['permission'] = authorization.DYNAMIC
         return args
 
     def get_service_arguments(self):
-        args = super(ShareableViewSet, self).get_service_arguments()
+        args = super().get_service_arguments()
         args['factory'] = self.factory
         return args

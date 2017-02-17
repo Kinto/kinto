@@ -5,8 +5,6 @@ import tempfile
 import unittest
 from time import strftime
 
-import six
-
 from kinto import config
 from kinto import __version__
 
@@ -59,7 +57,7 @@ class ConfigTest(unittest.TestCase):
     def test_hmac_secret_is_text(self, mocked_render_template):
         config.init('kinto.ini', 'postgresql')
         args, kwargs = list(mocked_render_template.call_args)
-        self.assertEquals(type(kwargs['secret']), six.text_type)
+        self.assertEquals(type(kwargs['secret']), str)
 
     @mock.patch('kinto.config.render_template')
     def test_init_postgresql_values(self, mocked_render_template):

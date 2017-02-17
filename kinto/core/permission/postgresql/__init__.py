@@ -1,5 +1,3 @@
-from __future__ import absolute_import
-
 import os
 
 from collections import OrderedDict
@@ -63,7 +61,7 @@ class Permission(PermissionBase):
     :noindex:
     """  # NOQA
     def __init__(self, client, *args, **kwargs):
-        super(Permission, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.client = client
 
     def initialize_schema(self, dry_run=False):
@@ -84,7 +82,7 @@ class Permission(PermissionBase):
         sql_file = os.path.join(here, 'schema.sql')
 
         if dry_run:
-            logger.info("Create permission schema from %s" % sql_file)
+            logger.info("Create permission schema from '{}'".format(sql_file))
             return
 
         # Since called outside request, force commit.
@@ -195,12 +193,12 @@ class Permission(PermissionBase):
 
         query = """
         WITH required_perms AS (
-          VALUES %s
+          VALUES {}
         )
         SELECT principal
           FROM required_perms JOIN access_control_entries
             ON (object_id = column1 AND permission = column2);
-        """ % ','.join(perm_values)
+        """.format(','.join(perm_values))
         with self.client.connect(readonly=True) as conn:
             result = conn.execute(query, placeholders)
             results = result.fetchall()
@@ -244,10 +242,10 @@ class Permission(PermissionBase):
                                        "AND object_id NOT LIKE pattern || '/%'")
             query = """
             WITH required_perms AS (
-              VALUES %(perms)s
+              VALUES {perms}
             ),
             user_principals AS (
-              VALUES %(principals)s
+              VALUES {principals}
             ),
             potential_objects AS (
               SELECT object_id, permission, required_perms.column1 AS pattern
@@ -259,8 +257,8 @@ class Permission(PermissionBase):
             )
             SELECT object_id, permission
               FROM potential_objects
-             WHERE %(object_id_condition)s;
-            """ % dict(perms=','.join(perm_values),
+             WHERE {object_id_condition};
+            """.format(perms=','.join(perm_values),
                        principals=','.join(principals_values),
                        object_id_condition=object_id_condition)
 
@@ -291,7 +289,7 @@ class Permission(PermissionBase):
 
         query = """
         WITH required_perms AS (
-          VALUES %(perms)s
+          VALUES {perms}
         ),
         allowed_principals AS (
           SELECT principal
@@ -299,12 +297,12 @@ class Permission(PermissionBase):
               ON (object_id = column1 AND permission = column2)
         ),
         required_principals AS (
-          VALUES %(principals)s
+          VALUES {principals}
         )
         SELECT COUNT(*) AS matched
           FROM required_principals JOIN allowed_principals
             ON (required_principals.column1 = principal);
-        """ % dict(perms=','.join(perms_values),
+        """.format(perms=','.join(perms_values),
                    principals=','.join(principals_values))
 
         with self.client.connect(readonly=True) as conn:
@@ -321,12 +319,12 @@ class Permission(PermissionBase):
 
         query = """
         WITH required_object_ids AS (
-          VALUES %(objects_ids)s
+          VALUES {objects_ids}
         )
         SELECT object_id, permission, principal
             FROM required_object_ids JOIN access_control_entries
               ON (object_id = column2)
-              %(permissions_condition)s
+              {permissions_condition}
         ORDER BY column1 ASC;
         """
         safeholders = {
@@ -339,7 +337,7 @@ class Permission(PermissionBase):
             placeholders["permissions"] = tuple(permissions)
 
         with self.client.connect(readonly=True) as conn:
-            result = conn.execute(query % safeholders, placeholders)
+            result = conn.execute(query.format_map(safeholders), placeholders)
             rows = result.fetchall()
 
         groupby_id = OrderedDict()
@@ -363,30 +361,30 @@ class Permission(PermissionBase):
         new_perms = []
         specified_perms = []
         for i, (perm, principals) in enumerate(permissions.items()):
-            placeholders['perm_%s' % i] = perm
-            specified_perms.append("(:perm_%s)" % i)
+            placeholders['perm_{}'.format(i)] = perm
+            specified_perms.append("(:perm_{})".format(i))
             for principal in set(principals):
                 j = len(new_perms)
-                placeholders['principal_%s' % j] = principal
-                new_perms.append("(:perm_%s, :principal_%s)" % (i, j))
+                placeholders['principal_{}'.format(j)] = principal
+                new_perms.append("(:perm_{}, :principal_{})".format(i, j))
 
         delete_query = """
         WITH specified_perms AS (
-          VALUES %(specified_perms)s
+          VALUES {specified_perms}
         )
         DELETE FROM access_control_entries
          USING specified_perms
          WHERE object_id = :object_id AND permission = column1
-        """ % dict(specified_perms=','.join(specified_perms))
+        """.format(specified_perms=','.join(specified_perms))
 
         insert_query = """
         WITH new_aces AS (
-          VALUES %(new_perms)s
+          VALUES {new_perms}
         )
         INSERT INTO access_control_entries(object_id, permission, principal)
           SELECT :object_id, column1, column2
             FROM new_aces;
-        """ % dict(new_perms=','.join(new_perms))
+        """.format(new_perms=','.join(new_perms))
 
         with self.client.connect() as conn:
             conn.execute(delete_query, placeholders)
@@ -405,7 +403,7 @@ class Permission(PermissionBase):
 
         query = """
         WITH object_ids AS (
-          VALUES %(object_ids_values)s
+          VALUES {object_ids_values}
         )
         DELETE FROM access_control_entries
          USING object_ids
@@ -414,7 +412,7 @@ class Permission(PermissionBase):
             'object_ids_values': ','.join(object_ids_values)
         }
         with self.client.connect() as conn:
-            conn.execute(query % safeholders, placeholders)
+            conn.execute(query.format_map(safeholders), placeholders)
 
 
 def load_from_config(config):

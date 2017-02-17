@@ -1,6 +1,5 @@
 import functools
 
-import six
 from pyramid.settings import aslist
 from pyramid.security import IAuthorizationPolicy, Authenticated
 from zope.interface import implementer
@@ -40,7 +39,7 @@ def groupfinder(userid, request):
 
 
 @implementer(IAuthorizationPolicy)
-class AuthorizationPolicy(object):
+class AuthorizationPolicy:
     """Default authorization class, that leverages the permission backend
     for shareable resources.
     """
@@ -59,7 +58,7 @@ class AuthorizationPolicy(object):
         if permission == DYNAMIC:
             permission = context.required_permission
 
-        create_permission = '%s:create' % context.resource_name
+        create_permission = '{}:create'.format(context.resource_name)
         if permission == 'create':
             permission = create_permission
 
@@ -107,7 +106,7 @@ class AuthorizationPolicy(object):
         raise NotImplementedError()  # PRAGMA NOCOVER
 
 
-class RouteFactory(object):
+class RouteFactory:
     resource_name = None
     on_collection = False
     required_permission = None
@@ -164,7 +163,7 @@ class RouteFactory(object):
         if not bound_perms:
             bound_perms = [(self.resource_name, self.required_permission)]
         for (_, permission) in bound_perms:
-            setting = '%s_%s_principals' % (self.resource_name, permission)
+            setting = '{}_{}_principals'.format(self.resource_name, permission)
             allowed_principals = aslist(self._settings.get(setting, ''))
             if allowed_principals:
                 if bool(set(allowed_principals) & set(principals)):
@@ -209,8 +208,7 @@ class RouteFactory(object):
             # With the current request on a collection, the record URI must
             # be found out by inspecting the collection service and its sibling
             # record service.
-            matchdict = request.matchdict.copy()
-            matchdict['id'] = object_id
+            matchdict = {**request.matchdict, 'id': object_id}
             try:
                 object_uri = utils.instance_uri(request,
                                                 self.resource_name,
@@ -220,7 +218,7 @@ class RouteFactory(object):
                 # Maybe the resource has no single record endpoint.
                 # We consider that object URIs in permissions backend will
                 # be stored naively:
-                object_uri = object_uri + '/' + object_id
+                object_uri = '{}/{}'.format(object_uri, object_id)
 
         return object_uri
 
@@ -242,8 +240,8 @@ class RouteFactory(object):
         required_permission = self.method_permissions.get(method)
 
         # For create permission, the object id is the plural endpoint.
-        collection_path = six.text_type(service.collection_path)
-        collection_path = collection_path.format(**request.matchdict)
+        collection_path = str(service.collection_path)
+        collection_path = collection_path.format_map(request.matchdict)
 
         # In the case of a "PUT", check if the targetted record already
         # exists, return "write" if it does, "create" otherwise.

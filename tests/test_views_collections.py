@@ -12,7 +12,7 @@ class CollectionViewTest(BaseWebTest, unittest.TestCase):
     collection_url = '/buckets/beers/collections/barley'
 
     def setUp(self):
-        super(CollectionViewTest, self).setUp()
+        super().setUp()
         self.app.put_json('/buckets/beers', MINIMALIST_BUCKET,
                           headers=self.headers)
         resp = self.app.put_json(self.collection_url,
@@ -36,8 +36,7 @@ class CollectionViewTest(BaseWebTest, unittest.TestCase):
                           status=400)
 
     def test_collections_should_reject_unaccepted_request_content_type(self):
-        headers = self.headers.copy()
-        headers['Content-Type'] = 'text/plain'
+        headers = {**self.headers, 'Content-Type': 'text/plain'}
         self.app.put('/buckets/beers/collections/barley',
                      MINIMALIST_COLLECTION,
                      headers=headers,
@@ -61,8 +60,7 @@ class CollectionViewTest(BaseWebTest, unittest.TestCase):
         self.app.get(other_bucket, headers=self.headers, status=404)
 
     def test_create_permissions_can_be_added_on_collections(self):
-        collection = MINIMALIST_COLLECTION.copy()
-        collection['permissions'] = {'record:create': ['fxa:user']}
+        collection = {**MINIMALIST_COLLECTION, 'permissions': {'record:create': ['fxa:user']}}
         resp = self.app.put_json('/buckets/beers/collections/barley',
                                  collection,
                                  headers=self.headers,
@@ -71,17 +69,15 @@ class CollectionViewTest(BaseWebTest, unittest.TestCase):
         self.assertIn('fxa:user', permissions['record:create'])
 
     def test_wrong_create_permissions_cannot_be_added_on_collections(self):
-        collection = MINIMALIST_COLLECTION.copy()
-        collection['permissions'] = {'collection:create': ['fxa:user']}
+        collection = {**MINIMALIST_COLLECTION, 'permissions': {'collection:create': ['fxa:user']}}
         self.app.put_json('/buckets/beers/collections/barley',
                           collection,
                           headers=self.headers,
                           status=400)
 
     def test_collections_can_handle_arbitrary_attributes(self):
-        collection = MINIMALIST_COLLECTION.copy()
         fingerprint = "5866f245a00bb3a39100d31b2f14d453"
-        collection['data'] = {'fingerprint': fingerprint}
+        collection = {**MINIMALIST_COLLECTION, 'data': {'fingerprint': fingerprint}}
         resp = self.app.put_json('/buckets/beers/collections/barley',
                                  collection,
                                  headers=self.headers,
@@ -91,8 +87,7 @@ class CollectionViewTest(BaseWebTest, unittest.TestCase):
         self.assertEqual(data['fingerprint'], fingerprint)
 
     def test_collections_can_be_filtered_by_arbitrary_attribute(self):
-        collection = MINIMALIST_COLLECTION.copy()
-        collection['data'] = {'size': 3}
+        collection = {**MINIMALIST_COLLECTION, 'data': {'size': 3}}
         self.app.put_json('/buckets/beers/collections/moderator',
                           collection,
                           headers=self.headers)
@@ -107,10 +102,10 @@ class CollectionDeletionTest(BaseWebTest, unittest.TestCase):
     collection_url = '/buckets/beers/collections/barley'
 
     def setUp(self):
-        super(CollectionDeletionTest, self).setUp()
-        bucket = MINIMALIST_BUCKET.copy()
-        bucket['permissions'] = {'collection:create': ['system.Everyone'],
-                                 'read': ['system.Everyone']}
+        super().setUp()
+        bucket = {**MINIMALIST_BUCKET,
+                  'permissions': {'collection:create': ['system.Everyone'],
+                                  'read': ['system.Everyone']}}
         self.app.put_json('/buckets/beers', bucket,
                           headers=self.headers)
         self.app.put_json(self.collection_url, MINIMALIST_COLLECTION,
@@ -119,7 +114,7 @@ class CollectionDeletionTest(BaseWebTest, unittest.TestCase):
                                MINIMALIST_RECORD,
                                headers=self.headers)
         record_id = r.json['data']['id']
-        self.record_url = self.collection_url + '/records/%s' % record_id
+        self.record_url = self.collection_url + '/records/{}'.format(record_id)
         self.app.delete(self.collection_url, headers=self.headers)
 
     def test_collections_can_be_deleted(self):
@@ -144,13 +139,12 @@ class CollectionDeletionTest(BaseWebTest, unittest.TestCase):
         self.app.get(self.record_url, headers=self.headers, status=404)
 
         # Verify tombstones
-        resp = self.app.get('%s/records?_since=0' % self.collection_url,
+        resp = self.app.get('{}/records?_since=0'.format(self.collection_url),
                             headers=self.headers)
         self.assertEqual(len(resp.json['data']), 0)
 
     def test_can_be_created_after_deletion_with_if_none_match_star(self):
-        headers = self.headers.copy()
-        headers['If-None-Match'] = '*'
+        headers = {**self.headers, 'If-None-Match': '*'}
         self.app.put_json(self.collection_url, MINIMALIST_COLLECTION,
                           headers=headers, status=201)
 
@@ -160,7 +154,7 @@ class CollectionCreationTest(BaseWebTest, unittest.TestCase):
     collections_url = '/buckets/beers/collections'
 
     def setUp(self):
-        super(CollectionCreationTest, self).setUp()
+        super().setUp()
         self.app.put_json('/buckets/beers', MINIMALIST_BUCKET,
                           headers=self.headers)
 

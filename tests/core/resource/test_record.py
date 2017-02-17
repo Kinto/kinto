@@ -30,13 +30,13 @@ class GetTest(BaseTest):
         # Create another one, bump collection timestamp.
         self.model.create_record({'field': 'value'})
         self.resource.get()
-        expected = '"%s"' % record['last_modified']
+        expected = '"{}"'.format(record['last_modified'])
         self.assertEqual(expected, self.last_response.headers['ETag'])
 
 
 class PutTest(BaseTest):
     def setUp(self):
-        super(PutTest, self).setUp()
+        super().setUp()
         self.record = self.model.create_record({'field': 'old'})
         self.resource.record_id = self.record['id']
 
@@ -48,7 +48,7 @@ class PutTest(BaseTest):
     def test_etag_contains_record_new_timestamp(self):
         self.validated['body'] = {'data': {'field': 'new'}}
         new = self.resource.put()['data']
-        expected = '"%s"' % new['last_modified']
+        expected = '"{}"'.format(new['last_modified'])
         self.assertEqual(expected, self.last_response.headers['ETag'])
 
     def test_returns_201_if_created(self):
@@ -130,7 +130,7 @@ class PutTest(BaseTest):
 class DeleteTest(BaseTest):
     def test_delete_record_returns_last_timestamp(self):
         record = {'field': 'value'}
-        record = self.model.create_record(record).copy()
+        record = {**self.model.create_record(record)}
         self.resource.record_id = record['id']
         result = self.resource.delete()['data']
         self.assertNotEqual(result['last_modified'], record['last_modified'])
@@ -145,7 +145,7 @@ class DeleteTest(BaseTest):
         record = self.model.create_record({'field': 'value'})
         self.resource.record_id = record['id']
         deleted = self.resource.delete()
-        expected = '"%s"' % deleted['data']['last_modified']
+        expected = '"{}"'.format(deleted['data']['last_modified'])
         self.assertEqual(expected, self.last_response.headers['ETag'])
 
     def test_delete_record_returns_stripped_record(self):
@@ -190,7 +190,7 @@ class DeleteTest(BaseTest):
 
 class PatchTest(BaseTest):
     def setUp(self):
-        super(PatchTest, self).setUp()
+        super().setUp()
         self.stored = self.model.create_record({})
         self.resource.record_id = self.stored['id']
         self.validated['body'] = {'data': {'position': 10}}
@@ -207,13 +207,13 @@ class PatchTest(BaseTest):
         self.assertIn('ETag', self.last_response.headers)
 
     def test_etag_contains_record_new_timestamp(self):
-        expected = '"%s"' % self.result['last_modified']
+        expected = '"{}"'.format(self.result['last_modified'])
         self.assertEqual(expected, self.last_response.headers['ETag'])
 
     def test_etag_contains_old_timestamp_if_no_field_changed(self):
         self.validated['body'] = {'data': {'position': 10}}
         self.resource.patch()['data']
-        expected = '"%s"' % self.result['last_modified']
+        expected = '"{}"'.format(self.result['last_modified'])
         self.assertEqual(expected, self.last_response.headers['ETag'])
 
     def test_modify_record_updates_timestamp(self):
@@ -278,7 +278,7 @@ class PatchTest(BaseTest):
 
 class MergePatchTest(BaseTest):
     def setUp(self):
-        super(MergePatchTest, self).setUp()
+        super().setUp()
         self.stored = self.model.create_record({})
         self.resource.record_id = self.stored['id']
         self.headers = self.resource.request.headers
@@ -357,7 +357,7 @@ class MergePatchTest(BaseTest):
 
 class JsonPatchTest(BaseTest):
     def setUp(self):
-        super(JsonPatchTest, self).setUp()
+        super().setUp()
         self.stored = self.model.create_record({})
         self.resource.record_id = self.stored['id']
         self.validated['body'] = {'data': {'a': 'aaa', 'b': ['bb', 'bbb'], 'd': []}}
@@ -468,7 +468,7 @@ class JsonPatchTest(BaseTest):
 
 class UnknownRecordTest(BaseTest):
     def setUp(self):
-        super(UnknownRecordTest, self).setUp()
+        super().setUp()
         self.unknown_id = '1cea99eb-5e3d-44ad-a53a-2fb68473b538'
         self.resource.record_id = self.unknown_id
         self.validated['body'] = {'data': {'field': 'new'}}
@@ -489,7 +489,7 @@ class UnknownRecordTest(BaseTest):
 
 class InvalidIdTest(BaseTest):
     def setUp(self):
-        super(InvalidIdTest, self).setUp()
+        super().setUp()
         self.resource.record_id = 'a*b'
 
     def test_get_with_invalid_id_raises_400(self):
@@ -507,7 +507,7 @@ class InvalidIdTest(BaseTest):
 
 class ReadonlyFieldsTest(BaseTest):
     def setUp(self):
-        super(ReadonlyFieldsTest, self).setUp()
+        super().setUp()
         self.stored = self.model.create_record({'age': 32})
         self.resource.schema.Options.readonly_fields = ('age',)
         self.resource.record_id = self.stored['id']

@@ -32,13 +32,13 @@ class BaseEventTest(BaseWebTest):
     subscribed = tuple()
 
     def setUp(self):
-        super(BaseEventTest, self).setUp()
+        super().setUp()
         self.events = []
         self.body = {'data': {'name': 'de Paris'}}
 
     def tearDown(self):
         self.events = []
-        super(BaseEventTest, self).tearDown()
+        super().tearDown()
 
     def listener(self, event):
         self.events.append(event)
@@ -49,8 +49,7 @@ class BaseEventTest(BaseWebTest):
         for event_cls in self.subscribed:
             config.add_subscriber(self.listener, event_cls)
         config.commit()
-        return super(BaseEventTest, self).make_app(settings=settings,
-                                                   config=config)
+        return super().make_app(settings=settings, config=config)
 
 
 class ResourceReadTest(BaseEventTest, unittest.TestCase):
@@ -96,7 +95,7 @@ class ResourceChangedTest(BaseEventTest, unittest.TestCase):
                            headers=self.headers, status=201)
         self.assertEqual(repr(self.events[0]),
                          "<ResourceChanged action=create "
-                         "uri=%s>" % self.collection_url)
+                         "uri={}>".format(self.collection_url))
 
     def test_post_sends_create_action(self):
         self.app.post_json(self.collection_url, self.body,
@@ -119,8 +118,7 @@ class ResourceChangedTest(BaseEventTest, unittest.TestCase):
         record_id = str(uuid.uuid4())
         record_url = self.get_item_url(record_id)
         self.app.put_json(record_url, self.body, headers=self.headers)
-        headers = self.headers.copy()
-        headers['If-Match'] = '"12345"'
+        headers = {**self.headers, 'If-Match': '"12345"'}
         self.app.put_json(record_url, self.body, headers=headers, status=412)
         self.assertEqual(len(self.events), 1)
         self.assertEqual(self.events[0].payload['action'],
@@ -209,7 +207,7 @@ class ResourceChangedTest(BaseEventTest, unittest.TestCase):
         resp = app.post_json('/psilos', self.body,
                              headers=self.headers, status=201)
         record = resp.json['data']
-        record_url = '/psilos/' + record['id']
+        record_url = '/psilos/{}'.format(record['id'])
         app.patch_json(record_url, {"data": {"name": "De barcelona"}},
                        headers=self.headers)
         impacted_records = self.events[-1].impacted_records
@@ -423,7 +421,7 @@ class BatchEventsTest(BaseEventTest, unittest.TestCase):
 
 
 def load_from_config(config, prefix):
-    class ClassListener(object):
+    class ClassListener:
         def __call__(self, event):
             pass
     return ClassListener()
@@ -432,7 +430,7 @@ def load_from_config(config, prefix):
 @unittest.skipIf(not statsd.statsd_module, "statsd is not installed.")
 class StatsDTest(BaseWebTest, unittest.TestCase):
     def get_app_settings(self, *args, **kwargs):
-        settings = super(StatsDTest, self).get_app_settings(*args, **kwargs)
+        settings = super().get_app_settings(*args, **kwargs)
         if not statsd.statsd_module:
             return settings
 

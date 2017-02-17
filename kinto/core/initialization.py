@@ -80,7 +80,7 @@ def setup_version_redirection(config):
 
         querystring = request.url[(request.url.rindex(request.path) +
                                    len(request.path)):]
-        redirect = '/%s%s%s' % (route_prefix, request.path, querystring)
+        redirect = '/{}{}{}'.format(route_prefix, request.path, querystring)
         raise HTTPTemporaryRedirect(redirect)
 
     # Disable the route prefix passed by the app.
@@ -128,8 +128,7 @@ def setup_backoff(config):
         # Add backoff in response headers.
         backoff = config.registry.settings['backoff']
         if backoff is not None:
-            backoff = utils.encode_header('%s' % backoff)
-            event.response.headers['Backoff'] = backoff
+            event.response.headers['Backoff'] = str(backoff)
 
     config.add_subscriber(on_new_response, NewResponse)
 
@@ -204,7 +203,7 @@ def setup_storage(config):
     storage_mod = config.maybe_dotted(storage_mod)
     backend = storage_mod.load_from_config(config)
     if not isinstance(backend, storage.StorageBase):
-        raise ConfigurationError("Invalid storage backend: %s" % backend)
+        raise ConfigurationError("Invalid storage backend: {}".format(backend))
     config.registry.storage = backend
 
     heartbeat = storage.heartbeat(backend)
@@ -220,7 +219,7 @@ def setup_permission(config):
     permission_mod = config.maybe_dotted(permission_mod)
     backend = permission_mod.load_from_config(config)
     if not isinstance(backend, permission.PermissionBase):
-        raise ConfigurationError("Invalid permission backend: %s" % backend)
+        raise ConfigurationError("Invalid permission backend: {}".format(backend))
     config.registry.permission = backend
 
     heartbeat = permission.heartbeat(backend)
@@ -236,7 +235,7 @@ def setup_cache(config):
     cache_mod = config.maybe_dotted(cache_mod)
     backend = cache_mod.load_from_config(config)
     if not isinstance(backend, cache.CacheBase):
-        raise ConfigurationError("Invalid cache backend: %s" % backend)
+        raise ConfigurationError("Invalid cache backend: {}".format(backend))
     config.registry.cache = backend
 
     heartbeat = cache.heartbeat(backend)
@@ -279,12 +278,12 @@ def setup_statsd(config):
 
             # Count authentication verifications.
             if hasattr(request, 'authn_type'):
-                client.count('authn_type.%s' % request.authn_type)
+                client.count('authn_type.{}'.format(request.authn_type))
 
             # Count view calls.
             service = request.current_service
             if service:
-                client.count('view.%s.%s' % (service.name, request.method))
+                client.count('view.{}.{}'.format(service.name, request.method))
 
         config.add_subscriber(on_new_response, NewResponse)
 
@@ -381,25 +380,25 @@ def setup_logging(config):
     config.add_subscriber(on_new_response, NewResponse)
 
 
-class EventActionFilter(object):
+class EventActionFilter:
     def __init__(self, actions, config):
         actions = ACTIONS.from_string_list(actions)
         self.actions = [action.value for action in actions]
 
     def phash(self):
-        return 'for_actions = %s' % (','.join(self.actions))
+        return 'for_actions = {}'.format(','.join(self.actions))
 
     def __call__(self, event):
         action = event.payload.get('action')
         return not action or action in self.actions
 
 
-class EventResourceFilter(object):
+class EventResourceFilter:
     def __init__(self, resources, config):
         self.resources = resources
 
     def phash(self):
-        return 'for_resources = %s' % (','.join(self.resources))
+        return 'for_resources = {}'.format(','.join(self.resources))
 
     def __call__(self, event):
         resource = event.payload.get('resource_name')
@@ -417,17 +416,17 @@ def setup_listeners(config):
     listeners = aslist(settings['event_listeners'])
 
     for name in listeners:
-        logger.info('Setting up %r listener' % name)
-        prefix = 'event_listeners.%s.' % name
+        logger.info("Setting up '{}' listener".format(name))
+        prefix = 'event_listeners.{}.'.format(name)
 
         try:
             listener_mod = config.maybe_dotted(name)
-            prefix = 'event_listeners.%s.' % name.split('.')[-1]
+            prefix = 'event_listeners.{}.'.format(name.split('.')[-1])
             listener = listener_mod.load_from_config(config, prefix)
         except (ImportError, AttributeError):
             module_setting = prefix + "use"
             # Read from ENV or settings.
-            module_value = utils.read_env(project_name + "." + module_setting,
+            module_value = utils.read_env('{}.{}'.format(project_name, module_setting),
                                           settings.get(module_setting))
             listener_mod = config.maybe_dotted(module_value)
             listener = listener_mod.load_from_config(config, prefix)
@@ -435,13 +434,13 @@ def setup_listeners(config):
         # If StatsD is enabled, monitor execution time of listeners.
         if getattr(config.registry, "statsd", None):
             statsd_client = config.registry.statsd
-            key = 'listeners.%s' % name
+            key = 'listeners.{}'.format(name)
             listener = statsd_client.timer(key)(listener.__call__)
 
         # Optional filter by event action.
         actions_setting = prefix + "actions"
         # Read from ENV or settings.
-        actions_value = utils.read_env(project_name + "." + actions_setting,
+        actions_value = utils.read_env('{}.{}'.format(project_name, actions_setting),
                                        settings.get(actions_setting, ""))
         actions = aslist(actions_value)
         if len(actions) > 0:
@@ -452,7 +451,7 @@ def setup_listeners(config):
         # Optional filter by event resource name.
         resource_setting = prefix + "resources"
         # Read from ENV or settings.
-        resource_value = utils.read_env(project_name + "." + resource_setting,
+        resource_value = utils.read_env('{}.{}'.format(project_name, resource_setting),
                                         settings.get(resource_setting, ""))
         resource_names = aslist(resource_value)
 
@@ -479,8 +478,8 @@ def load_default_settings(config, default_settings):
         unprefixed = key
         if key.startswith('kinto.') or key.startswith(project_name + '.'):
             unprefixed = key.split('.', 1)[1]
-        project_prefix = project_name + '.' + unprefixed
-        kinto_prefix = 'kinto.' + unprefixed
+        project_prefix = '{}.{}'.format(project_name, unprefixed)
+        kinto_prefix = 'kinto.{}'.format(unprefixed)
         return unprefixed, project_prefix, kinto_prefix
 
     # Fill settings with default values if not defined.
@@ -499,7 +498,7 @@ def load_default_settings(config, default_settings):
 
         if len(defined) > 1 and len(distinct_values) > 1:
             names = "', '".join(defined)
-            raise ValueError("Settings '%s' are in conflict." % names)
+            raise ValueError("Settings '{}' are in conflict.".format(names))
 
         # Maintain backwards compatibility with old settings files that
         # have backend settings like cliquet.foo (which is now
@@ -556,7 +555,7 @@ def initialize(config, version=None, project_name='', default_settings=None):
     if not project_name:
         warnings.warn('No value specified for `project_name`')
 
-    kinto_core_defaults = DEFAULT_SETTINGS.copy()
+    kinto_core_defaults = {**DEFAULT_SETTINGS}
 
     if default_settings:
         kinto_core_defaults.update(default_settings)
@@ -570,7 +569,7 @@ def initialize(config, version=None, project_name='', default_settings=None):
     # Override project version from settings.
     project_version = settings.get('project_version') or version
     if not project_version:
-        error_msg = "Invalid project version: %s" % project_version
+        error_msg = "Invalid project version: {}".format(project_version)
         raise ConfigurationError(error_msg)
     settings['project_version'] = project_version = str(project_version)
 
@@ -580,7 +579,7 @@ def initialize(config, version=None, project_name='', default_settings=None):
         # The API version is derivated from the module version if not provided.
         http_api_version = '.'.join(project_version.split('.')[0:2])
     settings['http_api_version'] = http_api_version = str(http_api_version)
-    api_version = 'v%s' % http_api_version.split('.')[0]
+    api_version = 'v{}'.format(http_api_version.split('.')[0])
 
     # Include kinto.core views with the correct api version prefix.
     config.include("kinto.core", route_prefix=api_version)

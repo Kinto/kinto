@@ -12,7 +12,7 @@ class GroupViewTest(FormattedErrorMixin, BaseWebTest, unittest.TestCase):
     record_url = '/buckets/beers/groups/moderators'
 
     def setUp(self):
-        super(GroupViewTest, self).setUp()
+        super().setUp()
         self.app.put_json('/buckets/beers', MINIMALIST_BUCKET,
                           headers=self.headers)
         resp = self.app.put_json(self.record_url,
@@ -44,9 +44,9 @@ class GroupViewTest(FormattedErrorMixin, BaseWebTest, unittest.TestCase):
                           status=400)
 
     def test_groups_can_have_arbitrary_attributes(self):
-        group = MINIMALIST_GROUP.copy()
         mailinglist = "kinto@mozilla.com"
-        group['data']['mailinglist'] = mailinglist
+        group = {**MINIMALIST_GROUP, 'data': {**MINIMALIST_GROUP['data'],
+                                              'mailinglist': mailinglist}}
         resp = self.app.put_json('/buckets/beers/groups/moderator',
                                  group,
                                  headers=self.headers)
@@ -55,8 +55,7 @@ class GroupViewTest(FormattedErrorMixin, BaseWebTest, unittest.TestCase):
         self.assertEqual(data['mailinglist'], mailinglist)
 
     def test_groups_can_be_filtered_by_arbitrary_attribute(self):
-        group = MINIMALIST_GROUP.copy()
-        group['data']['size'] = 3
+        group = {**MINIMALIST_GROUP, 'data': {**MINIMALIST_GROUP['data'], 'size': 3}}
         self.app.put_json('/buckets/beers/groups/moderator',
                           group,
                           headers=self.headers)
@@ -66,8 +65,7 @@ class GroupViewTest(FormattedErrorMixin, BaseWebTest, unittest.TestCase):
         self.assertEqual(len(data), 1)
 
     def test_groups_should_reject_unaccepted_request_content_type(self):
-        headers = self.headers.copy()
-        headers['Content-Type'] = 'text/plain'
+        headers = {**self.headers, 'Content-Type': 'text/plain'}
         self.app.put('/buckets/beers/groups/moderator',
                      MINIMALIST_GROUP,
                      headers=headers,
@@ -85,30 +83,27 @@ class GroupViewTest(FormattedErrorMixin, BaseWebTest, unittest.TestCase):
         self.app.get(other_bucket, headers=self.headers, status=404)
 
     def test_wrong_create_permissions_cannot_be_added_on_groups(self):
-        group = MINIMALIST_GROUP.copy()
-        group['permissions'] = {'group:create': ['fxa:user']}
+        group = {**MINIMALIST_GROUP, 'permissions': {'group:create': ['fxa:user']}}
         self.app.put_json('/buckets/beers/groups/moderator',
                           group,
                           headers=self.headers,
                           status=400)
 
     def test_recreate_group_after_deletion_returns_a_201(self):
-        group = MINIMALIST_GROUP.copy()
         self.app.put_json('/buckets/beers/groups/moderator',
-                          group,
+                          MINIMALIST_GROUP,
                           headers=self.headers,
                           status=201)
         self.app.delete('/buckets/beers/groups/moderator',
                         headers=self.headers,
                         status=200)
         self.app.put_json('/buckets/beers/groups/moderator',
-                          group,
+                          MINIMALIST_GROUP,
                           headers=self.headers,
                           status=201)
 
     def test_group_doesnt_accept_system_Everyone(self):
-        group = MINIMALIST_GROUP.copy()
-        group['data'] = {'members': ['system.Everyone']}
+        group = {**MINIMALIST_GROUP, 'data': {'members': ['system.Everyone']}}
         response = self.app.put_json('/buckets/beers/groups/moderator',
                                      group,
                                      headers=self.headers,
@@ -119,8 +114,7 @@ class GroupViewTest(FormattedErrorMixin, BaseWebTest, unittest.TestCase):
             "'system.Everyone' is not a valid user ID.")
 
     def test_group_doesnt_accept_groups_inside_groups(self):
-        group = MINIMALIST_GROUP.copy()
-        group['data'] = {'members': ['/buckets/beers/groups/administrators']}
+        group = {**MINIMALIST_GROUP, 'data': {'members': ['/buckets/beers/groups/administrators']}}
         response = self.app.put_json('/buckets/beers/groups/moderator',
                                      group,
                                      headers=self.headers,
@@ -136,7 +130,7 @@ class GroupManagementTest(BaseWebTest, unittest.TestCase):
     group_url = '/buckets/beers/groups/moderators'
 
     def setUp(self):
-        super(GroupManagementTest, self).setUp()
+        super().setUp()
         self.create_bucket('beers')
 
     def test_groups_can_be_deleted(self):
@@ -225,8 +219,7 @@ class GroupManagementTest(BaseWebTest, unittest.TestCase):
         self.create_group('beers', 'moderators')
         group_url = '/buckets/beers/groups/moderators'
         self.app.delete(group_url, headers=self.headers)
-        headers = self.headers.copy()
-        headers['If-None-Match'] = '*'
+        headers = {**self.headers, 'If-None-Match': '*'}
         self.app.put_json(group_url, MINIMALIST_GROUP,
                           headers=headers, status=201)
 
@@ -244,7 +237,7 @@ class InvalidGroupTest(BaseWebTest, unittest.TestCase):
     group_url = '/buckets/beers/groups/moderators'
 
     def setUp(self):
-        super(InvalidGroupTest, self).setUp()
+        super().setUp()
         self.create_bucket('beers')
 
     def test_groups_data_is_required_with_put(self):

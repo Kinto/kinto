@@ -30,10 +30,9 @@ class SwaggerResourcesTest(SwaggerTest):
             self.app.put_json('/buckets/b1',
                               MINIMALIST_BUCKET, headers=self.headers)
             self.request.path = {
-                'bucket_id': 'b1',
+                'id': 'b1',
             }
-            bucket = MINIMALIST_BUCKET.copy()
-            bucket['data'] = {'foo': 'bar'}
+            bucket = {**MINIMALIST_BUCKET, 'data': {'foo': 'bar'}}
             self.request.json = lambda: bucket
             self.validate_request_call(op)
 
@@ -45,7 +44,7 @@ class SwaggerResourcesTest(SwaggerTest):
                               MINIMALIST_GROUP, headers=self.headers)
             self.request.path = {
                 'bucket_id': 'b1',
-                'group_id': 'g1',
+                'id': 'g1',
             }
             self.request.json = lambda: MINIMALIST_GROUP
             self.validate_request_call(op)
@@ -58,10 +57,9 @@ class SwaggerResourcesTest(SwaggerTest):
                               MINIMALIST_COLLECTION, headers=self.headers)
             self.request.path = {
                 'bucket_id': 'b1',
-                'collection_id': 'c1',
+                'id': 'c1',
             }
-            collection = MINIMALIST_COLLECTION.copy()
-            collection['data'] = {'foo': 'bar'}
+            collection = {**MINIMALIST_COLLECTION, 'data': {'foo': 'bar'}}
             self.request.json = lambda: collection
             self.validate_request_call(op)
 
@@ -74,7 +72,7 @@ class SwaggerResourcesTest(SwaggerTest):
             self.request.path = {
                 'bucket_id': 'b1',
                 'collection_id': 'c1',
-                'record_id': 'r1',
+                'id': 'r1',
             }
             self.request.json = lambda: MINIMALIST_RECORD
             self.validate_request_call(op)

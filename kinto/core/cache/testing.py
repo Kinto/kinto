@@ -7,12 +7,12 @@ from kinto.core.storage import exceptions
 from kinto.core.cache import heartbeat
 
 
-class CacheTest(object):
+class CacheTest:
     backend = None
     settings = {}
 
     def setUp(self):
-        super(CacheTest, self).setUp()
+        super().setUp()
         self.cache = self.backend.load_from_config(self._get_config())
         self.cache.initialize_schema()
         self.request = None
@@ -29,11 +29,11 @@ class CacheTest(object):
 
     def tearDown(self):
         mock.patch.stopall()
-        super(CacheTest, self).tearDown()
+        super().tearDown()
         self.cache.flush()
 
     def get_backend_prefix(self, prefix):
-        settings_prefix = self.settings.copy()
+        settings_prefix = {**self.settings}
         settings_prefix['cache_prefix'] = prefix
         config_prefix = self._get_config(settings=settings_prefix)
 

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import mock
 import webtest
 
@@ -99,7 +98,7 @@ class InitializationTest(unittest.TestCase):
         self.assertEqual(config.registry.settings['paginate_by'], 5)
 
     def test_backends_are_not_instantiated_by_default(self):
-        config = Configurator(settings=kinto.core.DEFAULT_SETTINGS)
+        config = Configurator(settings={**kinto.core.DEFAULT_SETTINGS})
         kinto.core.initialize(config, '0.0.1', 'project_name')
         self.assertFalse(hasattr(config.registry, 'storage'))
         self.assertFalse(hasattr(config.registry, 'cache'))
@@ -271,8 +270,7 @@ class ApplicationWrapperTest(unittest.TestCase):
 
 class StatsDConfigurationTest(unittest.TestCase):
     def setUp(self):
-        settings = kinto.core.DEFAULT_SETTINGS.copy()
-        settings['statsd_url'] = 'udp://host:8080'
+        settings = {**kinto.core.DEFAULT_SETTINGS, 'statsd_url': 'udp://host:8080'}
         self.config = Configurator(settings=settings)
         self.config.registry.storage = {}
         self.config.registry.cache = {}
@@ -341,7 +339,7 @@ class StatsDConfigurationTest(unittest.TestCase):
 
     @mock.patch('kinto.core.utils.hmac_digest')
     def test_statsd_counts_unique_users(self, digest_mocked):
-        digest_mocked.return_value = u'mat'
+        digest_mocked.return_value = 'mat'
         kinto.core.initialize(self.config, '0.0.1', 'project_name')
         app = webtest.TestApp(self.config.make_wsgi_app())
         headers = {'Authorization': 'Basic bWF0Og=='}
@@ -437,7 +435,7 @@ class RequestsConfigurationTest(unittest.TestCase):
 
 class PluginsTest(unittest.TestCase):
     def test_kinto_core_includes_are_included_manually(self):
-        config = Configurator(settings=kinto.core.DEFAULT_SETTINGS)
+        config = Configurator(settings={**kinto.core.DEFAULT_SETTINGS})
         config.add_settings({'includes': 'elastic history'})
         config.route_prefix = 'v2'
 
@@ -449,7 +447,7 @@ class PluginsTest(unittest.TestCase):
                 config.include.assert_any_call('history')
 
     def make_app(self):
-        config = Configurator(settings=kinto.core.DEFAULT_SETTINGS)
+        config = Configurator(settings={**kinto.core.DEFAULT_SETTINGS})
         config.add_settings({
             'permission_backend': 'kinto.core.permission.memory',
             'includes': 'tests.core.testplugin'

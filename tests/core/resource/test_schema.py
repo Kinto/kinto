@@ -1,4 +1,3 @@
-import six
 import colander
 import mock
 
@@ -11,14 +10,14 @@ class DepracatedSchemasTest(unittest.TestCase):
     def test_resource_timestamp_is_depracated(self):
         with mock.patch('kinto.core.resource.schema.warnings') as mocked:
             schema.TimeStamp()
-            message = ("`kinto.core.resource.schema.TimeStamp` is deprecated, ",
+            message = ("`kinto.core.resource.schema.TimeStamp` is deprecated, "
                        "use `kinto.core.schema.TimeStamp` instead.")
             mocked.warn.assert_called_with(message, DeprecationWarning)
 
     def test_resource_URL_is_depracated(self):
         with mock.patch('kinto.core.resource.schema.warnings') as mocked:
             schema.URL()
-            message = ("`kinto.core.resource.schema.URL` is deprecated, ",
+            message = ("`kinto.core.resource.schema.URL` is deprecated, "
                        "use `kinto.core.schema.URL` instead.")
             mocked.warn.assert_called_with(message, DeprecationWarning)
 
@@ -111,15 +110,13 @@ class HeaderFieldSchemaTest(unittest.TestCase):
         self.schema = schema.HeaderField(colander.String())
 
     def test_decode_unicode(self):
-        value = six.u('\xe7 is not a c')
+        value = '\xe7 is not a c'
         deserialized = self.schema.deserialize(value.encode('utf-8'))
         self.assertEquals(deserialized, value)
 
     def test_bad_unicode_raises_invalid(self):
         value = b'utf8 \xe9'
-        self.assertRaises(colander.Invalid,
-                          self.schema.deserialize,
-                          value)
+        self.assertRaises(colander.Invalid, self.schema.deserialize, value)
 
 
 class QueryFieldSchemaTest(unittest.TestCase):
@@ -288,3 +285,134 @@ class PayloadRequestSchemaTest(unittest.TestCase):
         deserialized = bound.deserialize({})
         self.assertEquals(deserialized['querystring'], {'foo': 'bar'})
         self.assertEquals(deserialized['body'], {'foo': 'beer'})
+
+
+class CollectionQuerySchemaTest(unittest.TestCase):
+
+    def setUp(self):
+        self.schema = schema.CollectionQuerySchema()
+        self.querystring = {
+            '_limit': '2',
+            '_sort': 'toto,tata',
+            '_token': 'abc',
+            '_since': '1234',
+            '_to': '7890',
+            '_before': '4567',
+            'id': 'toot',
+            'last_modified': '9874'
+        }
+
+    def test_decode_valid_querystring(self):
+        deserialized = self.schema.deserialize(self.querystring)
+        self.assertEquals(deserialized, {
+            '_limit': 2,
+            '_sort': ['toto', 'tata'],
+            '_token': 'abc',
+            '_since': 1234,
+            '_to': 7890,
+            '_before': 4567,
+            'id': 'toot',
+            'last_modified': 9874
+        })
+
+    def test_raises_invalid_for_to_big_integer_in_limit(self):
+        querystring = self.querystring.copy()
+        querystring['_limit'] = schema.POSTGRESQL_MAX_INTEGER_VALUE + 1
+        self.assertRaises(colander.Invalid, self.schema.deserialize, querystring)
+
+    def test_raises_invalid_for_to_big_integer_in_since(self):
+        querystring = self.querystring.copy()
+        querystring['_since'] = schema.POSTGRESQL_MAX_INTEGER_VALUE + 1
+        self.assertRaises(colander.Invalid, self.schema.deserialize, querystring)
+
+    def test_raises_invalid_for_to_big_integer_in_to(self):
+        querystring = self.querystring.copy()
+        querystring['_to'] = schema.POSTGRESQL_MAX_INTEGER_VALUE + 1
+        self.assertRaises(colander.Invalid, self.schema.deserialize, querystring)
+
+    def test_raises_invalid_for_to_big_integer_in_before(self):
+        querystring = self.querystring.copy()
+        querystring['_before'] = schema.POSTGRESQL_MAX_INTEGER_VALUE + 1
+        self.assertRaises(colander.Invalid, self.schema.deserialize, querystring)
+
+    def test_raises_invalid_for_to_big_integer_in_last_modified(self):
+        querystring = self.querystring.copy()
+        querystring['last_modified'] = schema.POSTGRESQL_MAX_INTEGER_VALUE + 1
+        self.assertRaises(colander.Invalid, self.schema.deserialize, querystring)
+
+    def test_raises_invalid_for_negative_integer_in_limit(self):
+        querystring = self.querystring.copy()
+        querystring['_limit'] = -1
+        self.assertRaises(colander.Invalid, self.schema.deserialize, querystring)
+
+    def test_raises_invalid_for_negative_integer_in_since(self):
+        querystring = self.querystring.copy()
+        querystring['_since'] = -1
+        self.assertRaises(colander.Invalid, self.schema.deserialize, querystring)
+
+    def test_raises_invalid_for_negative_integer_in_to(self):
+        querystring = self.querystring.copy()
+        querystring['_to'] = -1
+        self.assertRaises(colander.Invalid, self.schema.deserialize, querystring)
+
+    def test_raises_invalid_for_negative_integer_in_before(self):
+        querystring = self.querystring.copy()
+        querystring['_before'] = -1
+        self.assertRaises(colander.Invalid, self.schema.deserialize, querystring)
+
+    def test_raises_invalid_for_negative_integer_in_last_modified(self):
+        querystring = self.querystring.copy()
+        querystring['last_modified'] = -1
+        self.assertRaises(colander.Invalid, self.schema.deserialize, querystring)
+
+
+class ResourceReponsesTest(unittest.TestCase):
+
+    def setUp(self):
+        self.handler = schema.ResourceReponses()
+        self.resource = colander.MappingSchema(title='fake')
+        self.record = schema.RecordSchema().bind(data=self.resource)
+
+    def test_get_and_bind_assign_resource_schema_to_records(self):
+        responses = self.handler.get_and_bind('record', 'get',
+                                              record=self.record)
+        ok_response = responses['200']
+        self.assertEquals(self.record['data'], ok_response['body']['data'])
+
+    def test_get_and_bind_assign_resource_schema_to_collections(self):
+        responses = self.handler.get_and_bind('collection', 'get',
+                                              record=self.record)
+        ok_response = responses['200']
+        # XXX: Data is repeated because it's a colander sequence type index
+        self.assertEquals(self.record['data'],
+                          ok_response['body']['data']['data'])
+
+    def test_responses_doesnt_have_permissions_if_not_bound(self):
+        responses = self.handler.get_and_bind('record', 'get',
+                                              record=self.record)
+        ok_response = responses['200']
+        self.assertNotIn('permissions', ok_response['body'])
+
+
+class ShareableResourceReponsesTest(unittest.TestCase):
+
+    def setUp(self):
+        self.handler = schema.ShareableResourseResponses()
+        self.resource = colander.MappingSchema(title='fake')
+        self.permissions = colander.MappingSchema(title='bla')
+        self.record = schema.RecordSchema().bind(data=self.resource,
+                                                 permissions=self.permissions)
+
+    def test_shareable_responses_doesnt_update_resource_responses(self):
+        resource_handler = schema.ResourceReponses()
+        shareable_responses = self.handler.get_and_bind('record', 'get')
+        resource_responses = resource_handler.get_and_bind('record', 'get')
+        self.assertIn('401', shareable_responses)
+        self.assertNotIn('401', resource_responses)
+
+    def test_get_and_bind_assign_permission_schema_to_records(self):
+        responses = self.handler.get_and_bind('record', 'get',
+                                              record=self.record)
+        ok_response = responses['200']
+        self.assertEquals(self.record['permissions'],
+                          ok_response['body']['permissions'])

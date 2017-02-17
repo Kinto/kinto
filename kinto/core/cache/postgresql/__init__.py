@@ -1,5 +1,3 @@
-from __future__ import absolute_import
-
 import os
 
 from kinto.core import logger
@@ -62,7 +60,7 @@ class Cache(CacheBase):
     :noindex:
     """  # NOQA
     def __init__(self, client, *args, **kwargs):
-        super(Cache, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.client = client
 
     def initialize_schema(self, dry_run=False):
@@ -83,7 +81,7 @@ class Cache(CacheBase):
         sql_file = os.path.join(here, 'schema.sql')
 
         if dry_run:
-            logger.info("Create cache schema from %s" % sql_file)
+            logger.info("Create cache schema from '{}'".format(sql_file))
             return
 
         # Since called outside request, force commit.
@@ -123,7 +121,7 @@ class Cache(CacheBase):
 
     def set(self, key, value, ttl=None):
         if ttl is None:
-            logger.warning("No TTL for cache key %r" % key)
+            logger.warning("No TTL for cache key '{}'".format(key))
         query = """
         INSERT INTO cache (key, value, ttl)
         VALUES (:key, :value, sec2ttl(:ttl))

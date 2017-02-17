@@ -3,13 +3,11 @@
 Selecting fields
 ################
 
-If the ``_fields`` parameter is provided, only the fields specified are returned.
-Fields are separated with a comma.
+On ``GET`` requests with both plural and singular endpoints,
+if the ``_fields`` parameter is provided, only the specified fields
+are returned. The field names are separated with a comma.
 
 This is vital in mobile contexts where bandwidth usage must be optimized.
-
-This works on both plural and singular endpoints -- buckets,
-collections, and records.
 
 Nested objects fields are specified using dots (e.g. ``address.street``).
 

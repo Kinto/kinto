@@ -217,33 +217,6 @@ For example:
     .venv/bin/pip install -e ../cornice/
 
 
-Run load tests
---------------
-
-From the :file:`loadtests` folder:
-
-::
-
-    cd loadtests/
-
-    make test SERVER_URL=http://localhost:8888
-
-
-Use presets to run a particular limited set of operations
-(``random``, ``exhaustive``, ``read`` or ``write``):
-
-::
-
-    LOAD_PRESET=random make test SERVER_URL=http://localhost:8888
-
-
-To run the load tests on the ``default`` bucket:
-
-::
-
-    BUCKET=default make test SERVER_URL=http://localhost:8888
-
-
 Cleaning your environment
 -------------------------
 

@@ -16,14 +16,13 @@ class FlushViewTest(BaseWebTest, unittest.TestCase):
     collection_url = '/buckets/beers/collections/barley/records'
 
     def setUp(self):
-        super(FlushViewTest, self).setUp()
+        super().setUp()
 
         self.events = []
 
-        bucket = MINIMALIST_BUCKET.copy()
+        bucket = {**MINIMALIST_BUCKET}
 
-        self.alice_headers = self.headers.copy()
-        self.alice_headers.update(**get_user_headers('alice'))
+        self.alice_headers = {**self.headers, **get_user_headers('alice')}
 
         resp = self.app.get('/', headers=self.alice_headers)
         alice_principal = resp.json['user']['id']
@@ -48,21 +47,20 @@ class FlushViewTest(BaseWebTest, unittest.TestCase):
 
     def tearDown(self):
         self.events = []
-        super(FlushViewTest, self).tearDown()
+        super().tearDown()
 
     def make_app(self, settings=None, config=None):
         settings = self.get_app_settings(settings)
         config = Configurator(settings=settings)
         config.add_subscriber(self.listener, ServerFlushed)
         config.commit()
-        return super(FlushViewTest, self).make_app(settings=settings,
-                                                   config=config)
+        return super().make_app(settings=settings, config=config)
 
     def get_app_settings(self, extras=None):
         if extras is None:
             extras = {}
         extras.setdefault('flush_endpoint_enabled', True)
-        settings = super(FlushViewTest, self).get_app_settings(extras)
+        settings = super().get_app_settings(extras)
         return settings
 
     def listener(self, event):

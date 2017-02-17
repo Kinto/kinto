@@ -1,4 +1,3 @@
-from __future__ import absolute_import
 import types
 
 try:
@@ -7,12 +6,12 @@ except ImportError:  # pragma: no cover
     statsd_module = None
 
 from pyramid.exceptions import ConfigurationError
-from six.moves.urllib import parse as urlparse
+from urllib.parse import urlparse
 
 from kinto.core import utils
 
 
-class Client(object):
+class Client:
     def __init__(self, host, port, prefix):
         self._client = statsd_module.StatsClient(host, port, prefix=prefix)
 
@@ -23,7 +22,7 @@ class Client(object):
             value = getattr(obj, name)
             is_method = isinstance(value, types.MethodType)
             if not name.startswith('_') and is_method:
-                statsd_key = "%s.%s.%s" % (prefix, classname, name)
+                statsd_key = "{}.{}.{}".format(prefix, classname, name)
                 decorated_method = self.timer(statsd_key)(value)
                 setattr(obj, name, decorated_method)
 
@@ -53,7 +52,7 @@ def load_from_config(config):
 
     settings = config.get_settings()
     uri = settings['statsd_url']
-    uri = urlparse.urlparse(uri)
+    uri = urlparse(uri)
 
     if settings['project_name'] != '':
         prefix = settings['project_name']

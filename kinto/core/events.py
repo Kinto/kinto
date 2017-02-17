@@ -19,7 +19,7 @@ class ACTIONS(Enum):
         return tuple(ACTIONS(el) for el in elements)
 
 
-class _ResourceEvent(object):
+class _ResourceEvent:
     def __init__(self, payload, request):
         self.payload = payload
         self.request = request
@@ -34,7 +34,7 @@ class ResourceRead(_ResourceEvent):
     """Triggered when a resource is being read.
     """
     def __init__(self, payload, read_records, request):
-        super(ResourceRead, self).__init__(payload, request)
+        super().__init__(payload, request)
         self.read_records = read_records
 
 
@@ -42,7 +42,7 @@ class ResourceChanged(_ResourceEvent):
     """Triggered when a resource is being changed.
     """
     def __init__(self, payload, impacted_records, request):
-        super(ResourceChanged, self).__init__(payload, request)
+        super().__init__(payload, request)
         self.impacted_records = impacted_records
 
 
@@ -50,7 +50,7 @@ class AfterResourceRead(_ResourceEvent):
     """Triggered after a resource was successfully read.
     """
     def __init__(self, payload, read_records, request):
-        super(AfterResourceRead, self).__init__(payload, request)
+        super().__init__(payload, request)
         self.read_records = read_records
 
 
@@ -58,7 +58,7 @@ class AfterResourceChanged(_ResourceEvent):
     """Triggered after a resource was successfully changed.
     """
     def __init__(self, payload, impacted_records, request):
-        super(AfterResourceChanged, self).__init__(payload, request)
+        super().__init__(payload, request)
         self.impacted_records = impacted_records
 
 

@@ -7,7 +7,7 @@ from pyramid.view import view_config
 from kinto.core.errors import http_error, ERRORS
 from kinto.core.logs import logger
 from kinto.core.storage import exceptions as storage_exceptions
-from kinto.core.utils import reapply_cors, encode_header
+from kinto.core.utils import reapply_cors
 
 
 @view_config(context=httpexceptions.HTTPForbidden,
@@ -46,7 +46,7 @@ def page_not_found(response, request):
     errno = ERRORS.MISSING_RESOURCE
     error_msg = "The resource you are looking for could not be found."
 
-    if not request.path.startswith('/' + request.registry.route_prefix):
+    if not request.path.startswith('/{}'.format(request.registry.route_prefix)):
         errno = ERRORS.VERSION_NOT_AVAILABLE
         error_msg = ("The requested API version is not available "
                      "on this server.")
@@ -55,10 +55,10 @@ def page_not_found(response, request):
 
         if request.path.endswith('/'):
             path = request.path.rstrip('/')
-            redirect = '%s%s' % (path, querystring)
-        elif request.path == '/' + request.registry.route_prefix:
+            redirect = '{}{}'.format(path, querystring)
+        elif request.path == '/{}'.format(request.registry.route_prefix):
             # Case for /v0 -> /v0/
-            redirect = '/%s/%s' % (request.registry.route_prefix, querystring)
+            redirect = '/{}/{}'.format(request.registry.route_prefix, querystring)
 
         if redirect:
             return reapply_cors(request, HTTPTemporaryRedirect(redirect))
@@ -80,7 +80,7 @@ def service_unavailable(response, request):
                               message=error_msg)
 
     retry_after = request.registry.settings['retry_after_seconds']
-    response.headers["Retry-After"] = encode_header('%s' % retry_after)
+    response.headers["Retry-After"] = str(retry_after)
     return reapply_cors(request, response)
 
 

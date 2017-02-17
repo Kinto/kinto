@@ -1,10 +1,4 @@
-try:
-    import builtins
-    builtins_name = 'builtins'
-except ImportError:
-    import __builtin__ as builtins
-    builtins_name = '__builtin__'
-
+import builtins
 import logging
 import mock
 import os
@@ -13,7 +7,7 @@ import sys
 import tempfile
 import unittest
 
-from six import StringIO
+from io import StringIO
 
 from kinto import __version__ as kinto_version
 from kinto.__main__ import main, DEFAULT_LOG_FORMAT
@@ -76,8 +70,7 @@ class TestMain(unittest.TestCase):
             else:
                 return realimport(name, *args, **kwargs)
 
-        with mock.patch('{}.__import__'.format(builtins_name),
-                        side_effect=psycopg2_missing):
+        with mock.patch('builtins.__import__', side_effect=psycopg2_missing):
             with mock.patch('pip.main', return_value=None) as mocked_pip:
                 with mock.patch("kinto.__main__.input", create=True,
                                 return_value="1"):
@@ -94,8 +87,7 @@ class TestMain(unittest.TestCase):
             else:
                 return realimport(name, *args, **kwargs)
 
-        with mock.patch('{}.__import__'.format(builtins_name),
-                        side_effect=redis_missing):
+        with mock.patch('builtins.__import__', side_effect=redis_missing):
             with mock.patch('pip.main', return_value=None) as mocked_pip:
                 with mock.patch("kinto.__main__.input", create=True,
                                 return_value="2"):
@@ -156,7 +148,7 @@ class TestMain(unittest.TestCase):
     def test_cli_can_display_kinto_version(self):
         with mock.patch('sys.stdout', new_callable=StringIO) as mock_stdout:
             res = main(['version'])
-            assert mock_stdout.getvalue() == '%s\n' % kinto_version
+            assert mock_stdout.getvalue() == '{}\n'.format(kinto_version)
             assert res == 0
 
     def test_cli_can_configure_logger_in_quiet(self):
@@ -182,9 +174,3 @@ class TestMain(unittest.TestCase):
             mocked_logging.basicConfig.assert_called_with(
                 level=logging.INFO,
                 format=DEFAULT_LOG_FORMAT)
-
-    def test_cli_uses_six_moves_input_function(self):
-        # In Py2 we want to use raw_input and input in Py3
-        from kinto.__main__ import input as cli_input
-        from six.moves import input as six_input
-        assert cli_input == six_input
