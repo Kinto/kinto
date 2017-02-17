@@ -16,7 +16,3 @@ class SwaggerPluginsTest(SwaggerTest):
             'bucket_id': 'b1',
         }
         self.validate_request_call(op)
-
-    def test_get_admin(self):
-        op = self.resources['Admin'].admin
-        self.app.get(op.path_name)

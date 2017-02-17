@@ -1,7 +1,9 @@
+import colander
 from pyramid import httpexceptions
 from enum import Enum
 
 from kinto.core.logs import logger
+from kinto.core.schema import Any
 from kinto.core.utils import json, reapply_cors
 
 
@@ -71,6 +73,17 @@ class ERRORS(Enum):
     SERVICE_DEPRECATED = 202
 
 
+class ErrorSchema(colander.MappingSchema):
+    """Payload schema for Kinto errors."""
+
+    code = colander.SchemaNode(colander.Integer())
+    errno = colander.SchemaNode(colander.Integer())
+    error = colander.SchemaNode(colander.String())
+    message = colander.SchemaNode(colander.String(), missing=colander.drop)
+    info = colander.SchemaNode(colander.String(), missing=colander.drop)
+    details = colander.SchemaNode(Any(), missing=colander.drop)
+
+
 def http_error(httpexception, errno=None,
                code=None, error=None, message=None, info=None, details=None):
     """Return a JSON formated response matching the error HTTP API.
@@ -96,20 +109,14 @@ def http_error(httpexception, errno=None,
     body = {
         "code": code or httpexception.code,
         "errno": errno,
-        "error": error or httpexception.title
+        "error": error or httpexception.title,
+        "message": message,
+        "info": info,
+        "details": details or colander.drop,
     }
 
-    if message is not None:
-        body['message'] = message
-
-    if info is not None:
-        body['info'] = info
-
-    if details is not None:
-        body['details'] = details
-
     response = httpexception
-    response.body = json.dumps(body).encode("utf-8")
+    response.json = ErrorSchema().deserialize(body)
     response.content_type = 'application/json'
     return response
 

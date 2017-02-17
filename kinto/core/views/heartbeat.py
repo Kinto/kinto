@@ -1,5 +1,6 @@
 from concurrent.futures import ThreadPoolExecutor, wait
 
+import colander
 import transaction
 from pyramid.security import NO_PERMISSION_REQUIRED
 
@@ -11,7 +12,20 @@ heartbeat = Service(name="heartbeat", path='/__heartbeat__',
                     description="Server health")
 
 
-@heartbeat.get(permission=NO_PERMISSION_REQUIRED)
+class HeartbeatResponseSchema(colander.MappingSchema):
+    body = colander.SchemaNode(colander.Mapping(unknown='preserve'))
+
+
+heartbeat_responses = {
+    '200': HeartbeatResponseSchema(
+        description="Server is working properly."),
+    '503': HeartbeatResponseSchema(
+        description="One or more subsystems failing.")
+}
+
+
+@heartbeat.get(permission=NO_PERMISSION_REQUIRED, tags=['Utilities'],
+               operation_id='__heartbeat__', response_schemas=heartbeat_responses)
 def get_heartbeat(request):
     """Return information about server health."""
     status = {}
@@ -60,11 +74,22 @@ def get_heartbeat(request):
     return status
 
 
+class LbHeartbeatResponseSchema(colander.MappingSchema):
+    body = colander.SchemaNode(colander.Mapping())
+
+
+lbheartbeat_responses = {
+    '200': LbHeartbeatResponseSchema(
+        description="Returned if server is reachable.")
+}
+
+
 lbheartbeat = Service(name="lbheartbeat", path='/__lbheartbeat__',
                       description="Web head health")
 
 
-@lbheartbeat.get(permission=NO_PERMISSION_REQUIRED)
+@lbheartbeat.get(permission=NO_PERMISSION_REQUIRED, tags=['Utilities'],
+                 operation_id='__lbheartbeat__', response_schemas=lbheartbeat_responses)
 def get_lbheartbeat(request):
     """Return successful healthy response.
 

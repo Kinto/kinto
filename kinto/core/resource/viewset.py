@@ -6,10 +6,11 @@ from cornice.validators import colander_validator
 from pyramid.settings import asbool
 
 from kinto.core import authorization
-from kinto.core.resource.schema import (PermissionsSchema, RequestSchema, PayloadRequestSchema,
-                                        PatchHeaderSchema, CollectionQuerySchema,
-                                        CollectionGetQuerySchema, RecordGetQuerySchema,
-                                        RecordSchema)
+
+from .schema import (PermissionsSchema, RequestSchema, PayloadRequestSchema,
+                     PatchHeaderSchema, CollectionQuerySchema, CollectionGetQuerySchema,
+                     RecordGetQuerySchema, RecordSchema, ResourceReponses,
+                     ShareableResourseResponses)
 
 
 CONTENT_TYPES = ["application/json"]
@@ -54,6 +55,8 @@ class ViewSet:
     readonly_methods = ('GET', 'OPTIONS', 'HEAD')
 
     factory = authorization.RouteFactory
+
+    responses = ResourceReponses()
 
     service_arguments = {
         'description': 'Collection of {resource_name}',
@@ -133,8 +136,11 @@ class ViewSet:
         request_schema = args.get('schema', RequestSchema())
         record_schema = self.get_record_schema(resource_cls, method)
         request_schema = request_schema.bind(body=record_schema)
+        response_schemas = self.responses.get_and_bind(endpoint_type, method,
+                                                       record=record_schema)
 
         args['schema'] = request_schema
+        args['response_schemas'] = response_schemas
 
         validators = args.get('validators', [])
         validators.append(colander_validator)
@@ -145,7 +151,7 @@ class ViewSet:
     def get_record_schema(self, resource_cls, method):
         """Return the Cornice schema for the given method.
         """
-        if method.lower() == 'patch':
+        if method.lower() in ('patch', 'delete'):
             resource_schema = SimpleSchema
         else:
             resource_schema = resource_cls.schema
@@ -220,6 +226,9 @@ class ShareableViewSet(ViewSet):
     The views will rely on dynamic permissions (e.g. create with PUT if
     record does not exist), and solicit the cliquet RouteFactory.
     """
+
+    responses = ShareableResourseResponses()
+
     def get_record_schema(self, resource_cls, method):
         """Return the Cornice schema for the given method.
         """

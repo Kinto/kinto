@@ -28,7 +28,7 @@ class SwaggerRequestsValidationTest(SwaggerTest):
         paths = [
             {},
             {'bucket_id': 'b1'},
-            {'group_id': 'g1'}
+            {'id': 'g1'}
         ]
         for path in paths:
             self.request.path = path
@@ -43,7 +43,7 @@ class SwaggerRequestsValidationTest(SwaggerTest):
         paths = [
             {},
             {'bucket_id': 'b1'},
-            {'collection_id': 'c1'}
+            {'id': 'c1'}
         ]
         for path in paths:
             self.request.path = path
@@ -65,7 +65,7 @@ class SwaggerRequestsValidationTest(SwaggerTest):
         paths = [
             {},
             {'bucket_id': 'b1', 'collection_id': 'c1'},
-            {'record_id': 'r1'},
+            {'id': 'r1'},
         ]
         for path in paths:
             self.request.path = path
@@ -75,7 +75,6 @@ class SwaggerRequestsValidationTest(SwaggerTest):
     def test_validate_data(self):
         bodies = [
             {'data': 'aaa'},
-            {'data': {'id': False}}
         ]
         for body in bodies:
             self.request._json = body

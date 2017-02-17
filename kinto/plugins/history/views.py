@@ -3,6 +3,7 @@ import colander
 from kinto.core import resource
 from kinto.core.utils import instance_uri
 from kinto.core.storage import Filter
+from kinto.core.resource.viewset import ViewSet
 
 
 class HistorySchema(resource.ResourceSchema):
@@ -11,20 +12,33 @@ class HistorySchema(resource.ResourceSchema):
     action = colander.SchemaNode(colander.String())
     date = colander.SchemaNode(colander.String())
     resource_name = colander.SchemaNode(colander.String())
-    bucket_id = colander.SchemaNode(colander.String())
-    collection_id = colander.SchemaNode(colander.String())
-    group_id = colander.SchemaNode(colander.String())
-    record_id = colander.SchemaNode(colander.String())
+    bucket_id = colander.SchemaNode(colander.String(), missing=colander.drop)
+    collection_id = colander.SchemaNode(colander.String(), missing=colander.drop)
+    group_id = colander.SchemaNode(colander.String(), missing=colander.drop)
+    record_id = colander.SchemaNode(colander.String(), missing=colander.drop)
     target = colander.SchemaNode(colander.Mapping())
 
     class Options:
         preserve_unknown = False
 
 
+# Add custom OpenAPI tags/operation ids
+collection_get_arguments = getattr(ViewSet, "collection_get_arguments", {})
+collection_delete_arguments = getattr(ViewSet, "collection_delete_arguments", {})
+
+get_history_arguments = {'tags': ['History'], 'operation_id': 'get_history',
+                         **collection_get_arguments}
+delete_history_arguments = {'tags': ['History'], 'operation_id': 'delete_history',
+                            **collection_delete_arguments}
+
+
 @resource.register(name='history',
                    collection_path='/buckets/{{bucket_id}}/history',
                    record_path=None,
-                   collection_methods=('GET', 'DELETE'))
+                   collection_methods=('GET', 'DELETE'),
+                   default_arguments={'tags': ['History']},
+                   collection_get_arguments=get_history_arguments,
+                   collection_delete_arguments=delete_history_arguments)
 class History(resource.ShareableResource):
 
     schema = HistorySchema

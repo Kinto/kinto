@@ -68,7 +68,6 @@ class ModifiedMeanwhileTest(BaseTest):
             error = e
         self.assertEqual(error.json, {
             'errno': ERRORS.MODIFIED_MEANWHILE.value,
-            'details': {},
             'message': 'Resource was modified meanwhile',
             'code': 412,
             'error': 'Precondition Failed'})
@@ -82,7 +81,7 @@ class ModifiedMeanwhileTest(BaseTest):
             self.resource.collection_get()
         except httpexceptions.HTTPPreconditionFailed as e:
             error = e
-        self.assertNotIn('existing', error.json['details'])
+        self.assertNotIn('existing', error.json.get('details', {}))
 
     def test_412_on_collection_has_last_modified_timestamp(self):
         try:

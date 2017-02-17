@@ -17,10 +17,8 @@ Returns the OpenAPI description for the running instance of Kinto on JSON format
 .. important::
 
     Getting the description from this endpoint is the only way to get the full
-    description for the running instance. The description returned is based on a
-    ``swagger.yaml`` valid OpenAPI description file on the root of the Kinto
-    python package, but which lacks some instance specific definitions that
-    are updated on runtime.
+    description for the running instance. The description returned is based on
+    the Service definitions and the configuration file.
 
 
 Known limitations
@@ -32,7 +30,7 @@ Some known limitations are:
 #. Lack of validation on **OR** clauses (e.g. provide `data` or `permissions`
    in PATCH operations), which are trated as non-required on the description.
    This is more critical when setting
-   `Batch operations <http://kinto.readthedocs.io/en/stable/api/1.x/batch.html>`_,
+   :ref:`Batch operations <batch>`,
    which all the fields should be either defined on each request on the
    ``requests`` array or on the ``default`` object.
 
@@ -41,14 +39,17 @@ Some known limitations are:
    specification.
 
 #. Optional response headers are not supported, as required for
-   `Backoff signs <http://kinto.readthedocs.io/en/stable/api/1.x/backoff.html>`_.
-   On the specification, the Backoff field is only listed as a response header
-   on `default` responses, that should be raised with HTTP 5xx errors.
+   :ref:`Backoff signs <backoff-indicators>`.
 
 #. :ref:`Collection defined schemas <collection-json-schema>`
    fields are not validated because they accept any JSON Schema definition,
    which may be too complex to be handled by an OpenAPI description.
    Only the type of the field is checked as a valid JSON object.
+
+#. Multiple schemas tagging different Content-Types for a same endpoint
+   are not supported, so we don't document
+   `JSON Patch operations <http://kinto.readthedocs.io/en/stable/api/1.x/records.html#json-patch-operations>`_.
+
 
 .. important::
 
@@ -68,7 +69,8 @@ SwaggerUI is a resource that allows testing and visualizing the behavior
 of an OpenAPI described interface.
 
 You can try the instance running on https://kinto.dev.mozaws.net/v1/ from you browser
-accessing `our example on SwaggerHub <https://app.swaggerhub.com/api/Kinto/kinto>`_
+accessing this
+`Swagger UI example <http://petstore.swagger.io/?url=https://kinto.dev.mozaws.net/v1/__api__>`_
 
 Automated client generation
 ===========================
@@ -79,51 +81,29 @@ want to have your own personalized interface, you can speedup your development b
 `Swagger Code Generator <https://github.com/swagger-api/swagger-codegen>`_,
 which generates standardized clients for APIs in more than 25 languages.
 
-Using a custom specification
-============================
+Improving the documentation
+===========================
 
-The Kinto OpenAPI description relies on a ``kinto/swagger.yaml`` file.
-You may replace the OpenAPI documentation for your deployment by providing a
-``kinto.swagger_file`` entry on your configuration file.
+The Kinto OpenAPI description relies on
+`Cornice Swagger <https://github.com/Cornices/cornice.ext.swagger>`_,
+which is an extension for :rtd:`Cornice <cornice>` that extracts API
+information from service definitions.
+Cornice Swagger also needs some information that is not on the service such as
+*Tags*, *Possible Responses* and *operation IDs*, so you may upgrade those
+on the Kinto service definitions. Also you can contribute to Cornice Swagger directly.
 
-OpenAPI extensions
-==================
+Documenting your plugin
+=======================
 
-By default all includes on the configuration file will be prompt for a
-``swagger.yaml`` file on the package root containing an OpenAPI extension
-for the main specification. You may use it to include additional resources
-that the plugin provides or override the original definitions. The ``.yaml``
-files provided are recursively merged in the order they are included
-(the default description is always used first).
+The current implementation supports extensions as follows:
 
-For example, if we want to include a plugin to our spec, we can use a description
-as follows. The extensions are not required to be valid OpenAPI descriptions,
-but they can be defined as such. You may also use references that are defined
-on the base description.
+- If the plugin defines views using Kinto or Cornice services, you can
+  document it as a standard service as explained on the
+  `Cornice Swagger documentation <https://cornices.github.io/cornice.ext.swagger/>`_.
 
-.. code-block:: yaml
+- If the plugin changes the possible responses for a Resource, you can
+  document it by subclassing :class:`kinto.core.resource.schema.ResourceReponses` and
+  changing the ``responses`` attribute on your Resource ``ViewSet``.
 
-    swagger: 2.0
-    paths:
-      '/path/to/my/plugin':
-        responses:
-          '200':
-            description: My plugin default response.
-            schema:
-              $ref: '#/definitions/MyPluginSchema'
-          default:
-            description: Default Kinto error.
-            schema:
-              $ref: '#/definitions/Error'
-
-    definitions:
-      MyPluginSchema:
-        type: object
-
-
-.. important::
-
-    Extensions that change or include authentication methods may only overwrite
-    the ``securityDefinitions`` field. The default security field (used when
-    accessing API endpoints that require authentication) is updated on runtime
-    to match the security definitions.
+- If the plugin adds an authentication method, you may declare it using
+  :func:`kinto.core.api.OpenAPI.expose_authentication_method`.

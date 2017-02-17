@@ -7,6 +7,7 @@ from pyramid.security import NO_PERMISSION_REQUIRED
 from kinto.core import errors
 from kinto.core import logger
 from kinto.core import Service
+from kinto.core.errors import ErrorSchema
 from kinto.core.utils import merge_dicts, build_request, build_response
 
 
@@ -67,13 +68,43 @@ class BatchRequest(colander.MappingSchema):
     body = BatchPayloadSchema()
 
 
+class BatchResponseSchema(colander.MappingSchema):
+    status = colander.SchemaNode(colander.Integer())
+    path = colander.SchemaNode(colander.String())
+    headers = colander.SchemaNode(colander.Mapping(unknown='preserve'),
+                                  validator=string_values,
+                                  missing=colander.drop)
+    body = colander.SchemaNode(colander.Mapping(unknown='preserve'),
+                               missing=colander.drop)
+
+
+class BatchResponseBodySchema(colander.MappingSchema):
+    responses = colander.SequenceSchema(BatchResponseSchema(missing=colander.drop))
+
+
+class BatchResponse(colander.MappingSchema):
+    body = BatchResponseBodySchema()
+
+
+class ErrorResponseSchema(colander.MappingSchema):
+    body = ErrorSchema()
+
+
+batch_responses = {
+    '200': BatchResponse(description='Return a list of operation responses.'),
+    '400': ErrorResponseSchema(description='The request was badly formatted.'),
+    'default': ErrorResponseSchema(description='an unknown error occurred.')
+}
+
 batch = Service(name="batch", path='/batch',
                 description="Batch operations")
 
 
 @batch.post(schema=BatchRequest,
             validators=(colander_validator,),
-            permission=NO_PERMISSION_REQUIRED)
+            permission=NO_PERMISSION_REQUIRED,
+            tags=['Batch'], operation_id='batch',
+            response_schemas=batch_responses)
 def post_batch(request):
     requests = request.validated['body']['requests']
     batch_size = len(requests)

@@ -364,3 +364,55 @@ class CollectionQuerySchemaTest(unittest.TestCase):
         querystring = self.querystring.copy()
         querystring['last_modified'] = -1
         self.assertRaises(colander.Invalid, self.schema.deserialize, querystring)
+
+
+class ResourceReponsesTest(unittest.TestCase):
+
+    def setUp(self):
+        self.handler = schema.ResourceReponses()
+        self.resource = colander.MappingSchema(title='fake')
+        self.record = schema.RecordSchema().bind(data=self.resource)
+
+    def test_get_and_bind_assign_resource_schema_to_records(self):
+        responses = self.handler.get_and_bind('record', 'get',
+                                              record=self.record)
+        ok_response = responses['200']
+        self.assertEquals(self.record['data'], ok_response['body']['data'])
+
+    def test_get_and_bind_assign_resource_schema_to_collections(self):
+        responses = self.handler.get_and_bind('collection', 'get',
+                                              record=self.record)
+        ok_response = responses['200']
+        # XXX: Data is repeated because it's a colander sequence type index
+        self.assertEquals(self.record['data'],
+                          ok_response['body']['data']['data'])
+
+    def test_responses_doesnt_have_permissions_if_not_bound(self):
+        responses = self.handler.get_and_bind('record', 'get',
+                                              record=self.record)
+        ok_response = responses['200']
+        self.assertNotIn('permissions', ok_response['body'])
+
+
+class ShareableResourceReponsesTest(unittest.TestCase):
+
+    def setUp(self):
+        self.handler = schema.ShareableResourseResponses()
+        self.resource = colander.MappingSchema(title='fake')
+        self.permissions = colander.MappingSchema(title='bla')
+        self.record = schema.RecordSchema().bind(data=self.resource,
+                                                 permissions=self.permissions)
+
+    def test_shareable_responses_doesnt_update_resource_responses(self):
+        resource_handler = schema.ResourceReponses()
+        shareable_responses = self.handler.get_and_bind('record', 'get')
+        resource_responses = resource_handler.get_and_bind('record', 'get')
+        self.assertIn('401', shareable_responses)
+        self.assertNotIn('401', resource_responses)
+
+    def test_get_and_bind_assign_permission_schema_to_records(self):
+        responses = self.handler.get_and_bind('record', 'get',
+                                              record=self.record)
+        ok_response = responses['200']
+        self.assertEquals(self.record['permissions'],
+                          ok_response['body']['permissions'])
