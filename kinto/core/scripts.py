@@ -29,6 +29,7 @@ def migrate(env, dry_run=False):
 
 
 def delete_collection(env, bucket_id, collection_id):
+    # XXX: this script contains specific notions of Kinto. Should not be in core.
     registry = env['registry']
     settings = registry.settings
     readonly_mode = asbool(settings.get('readonly', False))
@@ -83,5 +84,24 @@ def delete_collection(env, bucket_id, collection_id):
     logger.info('Related permissions were deleted.')
 
     current_transaction.commit()
+
+    return 0
+
+
+def purge_deleted(env, timestamp, parent_id):
+    info = '' if parent_id == '*' else ' in %r' % parent_id
+    if timestamp is None:
+        logger.warning('Purge all tombstones%s.' % info)
+    else:
+        logger.info('Purge tombstones before %r%s.' % (timestamp, info))
+
+    registry = env['registry']
+
+    count = registry.storage.purge_deleted(parent_id=parent_id,
+                                           collection_id=None,  # every kind of objects.
+                                           before=timestamp)
+    current_transaction.commit()
+
+    logger.info('%s tombstone(s) deleted.' % count)
 
     return 0

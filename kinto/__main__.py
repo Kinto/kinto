@@ -38,7 +38,7 @@ def main(args=None):
                         const=logging.DEBUG, dest='verbosity',
                         help='Show all messages, including debug messages.')
 
-    commands = ('init', 'start', 'migrate', 'delete-collection', 'version')
+    commands = ('init', 'start', 'migrate', 'delete-collection', 'purge-deleted', 'version')
     subparsers = parser.add_subparsers(title='subcommands',
                                        description='Main Kinto CLI commands',
                                        dest='subcommand',
@@ -76,7 +76,17 @@ def main(args=None):
             subparser.add_argument('--collection',
                                    help='The collection to remove.',
                                    required=True)
-
+        elif command == 'purge-deleted':
+            subparser.add_argument('--bucket',
+                                   help='Limit the purge to a specific bucket.',
+                                   default='*')
+            subparser.add_argument('--collection',
+                                   help='Limit the purge to a specific collection.',
+                                   default=None)
+            subparser.add_argument('--timestamp',
+                                   help='The maximum timestamp (exclusive).',
+                                   type=int,
+                                   default=None)
         elif command == 'start':
             subparser.add_argument('--reload',
                                    action='store_true',
@@ -143,6 +153,17 @@ def main(args=None):
         return scripts.delete_collection(env,
                                          parsed_args['bucket'],
                                          parsed_args['collection'])
+
+    elif which_command == 'purge-deleted':
+        env = bootstrap(config_file)
+        bid = parsed_args['bucket']
+        parent_id = '/buckets/%s' % bid
+        cid = parsed_args['collection']
+        if cid is not None:
+            parent_id += '/collections/%s' % cid
+        return scripts.purge_deleted(env,
+                                     parsed_args['timestamp'],
+                                     parent_id)
 
     elif which_command == 'start':
         pserve_argv = ['pserve', config_file]

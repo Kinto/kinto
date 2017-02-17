@@ -126,6 +126,45 @@ class TestMain(unittest.TestCase):
             assert res == mock.sentinel.del_col_code
             assert del_col.call_count == 1
 
+    def test_cli_purge_deleted_runs_purge_deleted_script(self):
+        with mock.patch('kinto.__main__.scripts.purge_deleted') as purge_deleted:
+            purge_deleted.return_value = mock.sentinel.purge_deleted
+            main(['--ini', TEMP_KINTO_INI, 'init', '--backend', 'memory'])
+            res = main(['--ini', TEMP_KINTO_INI, 'purge-deleted'])
+            assert res == mock.sentinel.purge_deleted
+            assert purge_deleted.call_count == 1
+
+    def test_cli_purge_deleted_with_bucket(self):
+        with mock.patch('kinto.__main__.scripts.purge_deleted') as purge_deleted:
+            purge_deleted.return_value = mock.sentinel.purge_deleted
+            main(['--ini', TEMP_KINTO_INI, 'init', '--backend', 'memory'])
+            main(['--ini', TEMP_KINTO_INI, 'purge-deleted', '--bucket', 'b'])
+            args, kwargs = purge_deleted.call_args
+            self.assertEqual(args[2], "/buckets/b")
+
+    def test_cli_purge_deleted_with_collection(self):
+        with mock.patch('kinto.__main__.scripts.purge_deleted') as purge_deleted:
+            purge_deleted.return_value = mock.sentinel.purge_deleted
+            main(['--ini', TEMP_KINTO_INI, 'init', '--backend', 'memory'])
+            main(['--ini', TEMP_KINTO_INI, 'purge-deleted', '--collection', 'c'])
+            args, kwargs = purge_deleted.call_args
+            self.assertEqual(args[2], "/buckets/*/collections/c")
+
+    def test_cli_purge_deleted_with_bucket_and_collection(self):
+        with mock.patch('kinto.__main__.scripts.purge_deleted') as purge_deleted:
+            purge_deleted.return_value = mock.sentinel.purge_deleted
+            main(['--ini', TEMP_KINTO_INI, 'init', '--backend', 'memory'])
+            main(['--ini', TEMP_KINTO_INI, 'purge-deleted',
+                  '--bucket', 'b', '--collection', 'c'])
+            args, kwargs = purge_deleted.call_args
+            self.assertEqual(args[2], "/buckets/b/collections/c")
+
+    def test_cli_purge_deleted_fails_if_wrong_timestamp(self):
+        with mock.patch('kinto.__main__.scripts.purge_deleted'):
+            main(['--ini', TEMP_KINTO_INI, 'init', '--backend', 'memory'])
+            with self.assertRaises(SystemExit):
+                main(['--ini', TEMP_KINTO_INI, 'purge-deleted', '--timestamp', 'abc'])
+
     def test_cli_start_runs_pserve(self):
         with mock.patch('kinto.__main__.pserve.main') as mocked_pserve:
             res = main(['--ini', TEMP_KINTO_INI, 'init',

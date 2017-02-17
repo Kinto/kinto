@@ -110,7 +110,7 @@ Protocol is now at version **1.13**. See `API changelog`_.
 
 - Permissions are now correctly removed from permission backend when a parent
   object is deleted (fixes #898)
-- Heartbeat of storage backend does not leave tombstones (fixes #985)
+- Fix heartbeat of storage backend to avoid leaving tombstones (fixes #985)
 - Fix ``record_id`` attribute in history entries when several records are
   modified via a batch request (fixes #942)
 - Fix crash on redirection when path contains control characters (fixes #962)
@@ -129,6 +129,7 @@ Protocol is now at version **1.13**. See `API changelog`_.
 - Activate ``basicauth`` in admin by default. (#943)
 - Add a setting to limit the maximum number of bytes cached in the memory backend. (#610)
 - Add a setting to exclude certain resources from being tracked by history (fixes #964)
+- Add a ``purge-deleted`` command to delete tombstones up-to a particular timestamp (#990).
 
 **Backend changes**
 
