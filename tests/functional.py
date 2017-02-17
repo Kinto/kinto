@@ -1,14 +1,22 @@
-import json
+import os.path
+from urllib.parse import urljoin
+
 import random
 import re
+import unittest
 import uuid
 
-from requests.auth import HTTPBasicAuth
-from . import BaseLoadTest
+import requests
+
+
+__HERE__ = os.path.abspath(os.path.dirname(__file__))
+
+SERVER_URL = "http://localhost:8888/v1"
+DEFAULT_AUTH = ('user', 'p4ssw0rd')
 
 
 def build_task():
-    suffix = unicode(uuid.uuid4())
+    suffix = str(uuid.uuid4())
     data = {
         "description": "Task description {0}".format(suffix),
         "status": random.choice(("todo", "doing")),
@@ -16,66 +24,74 @@ def build_task():
     return data
 
 
-class TutorialLoadTest(BaseLoadTest):
-    def test_tutorial(self):
-        self.play_user_default_bucket_tutorial()
-        self.play_user_shared_bucket_tutorial()
-        self.check_for_lists()
+class FunctionalTest(unittest.TestCase):
 
-    def play_user_default_bucket_tutorial(self):
+    def __init__(self, *args, **kwargs):
+        super(FunctionalTest, self).__init__(*args, **kwargs)
+        # XXX Read the configuration from env variables.
+        self.server_url = SERVER_URL
+        self.auth = DEFAULT_AUTH
+        self.session = requests.Session()
+        self.session.auth = DEFAULT_AUTH
+
+    def tearDown(self):
+        # Delete all the created objects
+        flush_url = urljoin(self.server_url, '/__flush__')
+        resp = requests.post(flush_url)
+        resp.raise_for_status()
+
+    def test_user_default_bucket_tutorial(self):
         collection_id = 'tasks-%s' % uuid.uuid4()
-        collection_url = self.collection_url('default', collection_id)
-
-        # Create a new task
-        # 201 created with data and permission.write
+        collection_url = urljoin(self.server_url,
+                                 '/buckets/default/collections/{}/records'.format(collection_id))
         task = build_task()
-        resp = self.session.post(
-            collection_url,
-            data=json.dumps({'data': task}))
-        self.incr_counter("status-%s" % resp.status_code)
-        self.assertEqual(resp.status_code, 201)
+
+        # Create a task on a default collection
+        # 201 created with data and permission.write
+        resp = self.session.post(collection_url, json={"data": task})
+        resp.raise_for_status()
+        self.assertEquals(resp.status_code, 201)
         record = resp.json()
-        self.assertEqual(record['data']['description'], task['description'])
-        self.assertEqual(record['data']['status'], task['status'])
+
+        self.assertEquals(record['data']['description'], task['description'])
+        self.assertEquals(record['data']['status'], task['status'])
         self.assertIn('write', record['permissions'])
 
         # Create a new one with PUT and If-None-Match: "*"
         task = build_task()
-        record_id = unicode(uuid.uuid4())
-        record_url = self.record_url(record_id, 'default', collection_id)
-        resp = self.session.put(
-            record_url,
-            data=json.dumps({'data': task}),
-            headers={'If-None-Match': '*'})
-        self.incr_counter("status-%s" % resp.status_code)
-        self.assertEqual(resp.status_code, 201)
+        record_id = str(uuid.uuid4())
+        record_url = urljoin(self.server_url,
+                             '{}/{}'.format(collection_url, record_id))
+        resp = self.session.put(record_url, json={'data': task},
+                                headers={'If-None-Match': '*'})
+        resp.raise_for_status()
+        resp.raise_for_status()
+        self.assertEquals(resp.status_code, 201)
         record = resp.json()
-        self.assertEqual(record['data']['description'], task['description'])
-        self.assertEqual(record['data']['status'], task['status'])
+
+        self.assertEquals(record['data']['description'], task['description'])
+        self.assertEquals(record['data']['status'], task['status'])
         self.assertIn('write', record['permissions'])
 
         # Fetch the collection list and see the tasks (save the etag)
         resp = self.session.get(collection_url)
-        self.incr_counter("status-%s" % resp.status_code)
         self.assertEqual(resp.status_code, 200)
-        records = resp.json()['data']
-        self.assertEqual(len(records), 2)
+        record = resp.json()
+        self.assertEqual(len(record['data']), 2)
         etag = resp.headers['ETag']
 
         # Fetch the collection from the Etag and see nothing new
         resp = self.session.get(
             collection_url,
             params={'_since': etag.strip('"')})
-        self.incr_counter("status-%s" % resp.status_code)
         self.assertEqual(resp.status_code, 200)
-        records = resp.json()['data']
-        self.assertEqual(len(records), 0)
+        record = resp.json()
+        self.assertEqual(len(record['data']), 0)
 
         # Update a task
         resp = self.session.patch(
             record_url,
-            data=json.dumps({'data': {'status': 'done'}}))
-        self.incr_counter("status-%s" % resp.status_code)
+            json={'data': {'status': 'done'}})
         self.assertEqual(resp.status_code, 200)
         record = resp.json()
         self.assertEqual(record['data']['status'], 'done')
@@ -84,9 +100,8 @@ class TutorialLoadTest(BaseLoadTest):
         # Try an update with If-Match on the saved ETag and see it fails
         resp = self.session.patch(
             record_url,
-            data=json.dumps({'data': {'status': 'done'}}),
+            json={'data': {'status': 'done'}},
             headers={'If-Match': etag})
-        self.incr_counter("status-%s" % resp.status_code)
         self.assertEqual(resp.status_code, 412)
         self.assertEqual(resp.headers['ETag'],
                          '"%s"' % record['data']['last_modified'])
@@ -94,52 +109,48 @@ class TutorialLoadTest(BaseLoadTest):
         # Get the list of records and update the ETag
         resp = self.session.get(
             '%s?_since=%s' % (collection_url, etag.strip('"')))
-        self.incr_counter("status-%s" % resp.status_code)
         self.assertEqual(resp.status_code, 200)
-        records = resp.json()['data']
-        self.assertEqual(len(records), 1)
+        record = resp.json()
+        self.assertEqual(len(record['data']), 1)
         etag = resp.headers['ETag']
 
         # Try an update with If-Match on the new ETag and see it works
         resp = self.session.patch(
             record_url,
-            data=json.dumps({'data': {'status': 'done'}}),
+            json={'data': {'status': 'done'}},
             headers={'If-Match': etag})
-        self.incr_counter("status-%s" % resp.status_code)
         self.assertEqual(resp.status_code, 200)
-        record = resp.json()['data']
+        record = resp.json()
         etag = resp.headers['ETag']
 
         # Delete the record with If-Match
         resp = self.session.delete(
             record_url,
             headers={'If-Match': etag})
-        self.incr_counter("status-%s" % resp.status_code)
+
         self.assertEqual(resp.status_code, 200)
 
         # Try the collection get with the ``_since`` parameter
         resp = self.session.get(
             '%s?_since=%s' % (collection_url, etag.strip('"')),
             headers={'If-None-Match': etag})
-        self.incr_counter("status-%s" % resp.status_code)
         self.assertEqual(resp.status_code, 200)
-        records = resp.json()['data']
-        self.assertEqual(len(records), 1)
-        self.assertIn('deleted', records[0])
+        record = resp.json()
+        self.assertEqual(len(record['data']), 1)
+        self.assertIn('deleted', record['data'][0])
 
         # Delete all the things
         resp = self.session.delete(collection_url)
-        self.incr_counter("status-%s" % resp.status_code)
         self.assertEqual(resp.status_code, 200)
 
-    def play_user_shared_bucket_tutorial(self):
+    def test_user_shared_bucket_tutorial(self):
         bucket_id = 'bucket-%s' % uuid.uuid4()
         collection_id = 'tasks-%s' % uuid.uuid4()
-        collection_url = self.collection_url(bucket_id, collection_id)
+        bucket_url = urljoin(self.server_url, '/buckets/{}'.format(bucket_id))
+        collection_url = '{}/collections/{}/records'.format(bucket_url, collection_id)
 
         # Create a new bucket and check for permissions
-        resp = self.session.put(self.bucket_url(bucket_id))
-        self.incr_counter("status-%s" % resp.status_code)
+        resp = self.session.put(bucket_url)
         # In case of concurrent execution, it may have been created already.
         self.assertIn(resp.status_code, (200, 201))
         record = resp.json()
@@ -149,8 +160,7 @@ class TutorialLoadTest(BaseLoadTest):
         permissions = {"record:create": ['system.Authenticated']}
         resp = self.session.put(
             re.sub('/records$', '', collection_url),
-            data=json.dumps({'permissions': permissions}))
-        self.incr_counter("status-%s" % resp.status_code)
+            json={'permissions': permissions})
         # In case of concurrent execution, it may have been created already.
         self.assertIn(resp.status_code, (200, 201))
         record = resp.json()
@@ -159,23 +169,21 @@ class TutorialLoadTest(BaseLoadTest):
                       record['permissions']['record:create'])
 
         # Create a new tasks for Alice
-        alice_auth = HTTPBasicAuth('token', 'alice-secret-%s' % uuid.uuid4())
+        alice_auth = ('token', 'alice-secret-%s' % uuid.uuid4())
         alice_task = build_task()
         resp = self.session.post(
             collection_url,
-            data=json.dumps({'data': alice_task}),
+            json={'data': alice_task},
             auth=alice_auth)
-        self.incr_counter("status-%s" % resp.status_code)
         self.assertEqual(resp.status_code, 201)
         record = resp.json()
         self.assertIn('write', record['permissions'])
         alice_task_id = record['data']['id']
 
-        bob_auth = HTTPBasicAuth('token', 'bob-secret-%s' % uuid.uuid4())
+        bob_auth = ('token', 'bob-secret-%s' % uuid.uuid4())
 
         # Bob has no task yet.
         resp = self.session.get(collection_url, auth=bob_auth)
-        self.incr_counter("status-%s" % resp.status_code)
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(len(resp.json()['data']), 0)
 
@@ -183,9 +191,8 @@ class TutorialLoadTest(BaseLoadTest):
         bob_task = build_task()
         resp = self.session.post(
             collection_url,
-            data=json.dumps({'data': bob_task}),
+            json={'data': bob_task},
             auth=bob_auth)
-        self.incr_counter("status-%s" % resp.status_code)
         self.assertEqual(resp.status_code, 201)
         record = resp.json()
         self.assertIn('write', record['permissions'])
@@ -194,44 +201,37 @@ class TutorialLoadTest(BaseLoadTest):
 
         # Now that he has a task, he should see his.
         resp = self.session.get(collection_url, auth=bob_auth)
-        self.incr_counter("status-%s" % resp.status_code)
         self.assertEqual(resp.status_code, 200)
         records = resp.json()['data']
         self.assertEqual(len(records), 1)
         self.assertEqual(records[0]['id'], bob_task_id)
 
+        record_url = '{}/{}'.format(collection_url, alice_task_id)
+
         # Share Alice's task with Bob
-        resp = self.session.patch(
-            self.record_url(alice_task_id, bucket_id, collection_id),
-            data=json.dumps({'permissions': {'read': [bob_user_id]}}),
-            auth=alice_auth)
-        self.incr_counter("status-%s" % resp.status_code)
+        resp = self.session.patch(record_url,
+                                  json={'permissions': {'read': [bob_user_id]}},
+                                  auth=alice_auth)
         self.assertEqual(resp.status_code, 200)
         record = resp.json()
         self.assertIn('write', record['permissions'])
         alice_task_id = record['data']['id']
 
         # Check that Bob can access it
-        resp = self.session.get(
-            self.record_url(alice_task_id, bucket_id, collection_id),
-            auth=bob_auth)
-        self.incr_counter("status-%s" % resp.status_code)
+        resp = self.session.get(record_url, auth=bob_auth)
         self.assertEqual(resp.status_code, 200)
 
         # Get mary's userid
-        mary_auth = HTTPBasicAuth('token', 'mary-secret-%s' % uuid.uuid4())
-        resp = self.session.get(self.api_url(''), auth=mary_auth)
-        self.incr_counter("status-%s" % resp.status_code)
+        mary_auth = ('token', 'mary-secret-%s' % uuid.uuid4())
+        resp = self.session.get('{}/'.format(self.server_url), auth=mary_auth)
         self.assertEqual(resp.status_code, 200)
         record = resp.json()
         mary_user_id = record['user']['id']
 
         # Allow group creation on bucket
         permissions = {"group:create": ['system.Authenticated']}
-        resp = self.session.put(
-            self.bucket_url(bucket_id),
-            data=json.dumps({'permissions': permissions}))
-        self.incr_counter("status-%s" % resp.status_code)
+        resp = self.session.put(bucket_url,
+                                json={'permissions': permissions})
         self.assertEqual(resp.status_code, 200)
         record = resp.json()
         self.assertIn('group:create', record['permissions'])
@@ -239,35 +239,27 @@ class TutorialLoadTest(BaseLoadTest):
                       record['permissions']['group:create'])
 
         # Create Alice's friend group with Bob and Mary
-        resp = self.session.put(
-            self.group_url(bucket_id, 'alices-friends'),
-            data=json.dumps({'data': {'members': [mary_user_id,
-                                                  bob_user_id]}}),
-            auth=alice_auth)
-        self.incr_counter("status-%s" % resp.status_code)
+        group_url = '{}/groups/alices-friends'.format(bucket_url)
+        resp = self.session.put(group_url,
+                                json={'data': {'members': [mary_user_id, bob_user_id]}},
+                                auth=alice_auth)
         self.assertEqual(resp.status_code, 201)
 
         # Give Alice's task permission for that group
-        group_id = self.group_url(bucket_id, 'alices-friends', False)
-        resp = self.session.patch(
-            self.record_url(alice_task_id, bucket_id, collection_id),
-            data=json.dumps({'permissions': {'read': [group_id]}}),
-            auth=alice_auth)
-        self.incr_counter("status-%s" % resp.status_code)
+        group_id = '/buckets/{}/groups/alices-friends'.format(bucket_id)
+        resp = self.session.patch(record_url,
+                                  json={'permissions': {'read': [group_id]}},
+                                  auth=alice_auth)
         self.assertEqual(resp.status_code, 200)
         record = resp.json()
         self.assertIn(group_id, record['permissions']['read'])
 
         # Try to access Alice's task with Mary
-        resp = self.session.get(
-            self.record_url(alice_task_id, bucket_id, collection_id),
-            auth=mary_auth)
-        self.incr_counter("status-%s" % resp.status_code)
+        resp = self.session.get(record_url, auth=mary_auth)
         self.assertEqual(resp.status_code, 200)
 
         # Check that Mary's collection_get sees Alice's task
         resp = self.session.get(collection_url, auth=mary_auth)
-        self.incr_counter("status-%s" % resp.status_code)
         self.assertEqual(resp.status_code, 200)
         records = resp.json()['data']
         self.assertEqual(len(records), 1)
@@ -275,7 +267,6 @@ class TutorialLoadTest(BaseLoadTest):
 
         # Check that Bob's collection_get sees both his and Alice's tasks
         resp = self.session.get(collection_url, auth=bob_auth)
-        self.incr_counter("status-%s" % resp.status_code)
         self.assertEqual(resp.status_code, 200)
         records = resp.json()['data']
         self.assertEqual(len(records), 2)
@@ -283,9 +274,7 @@ class TutorialLoadTest(BaseLoadTest):
         self.assertIn(alice_task_id, records_ids)
         self.assertIn(bob_task_id, records_ids)
 
-    def check_for_lists(self):
-        # List buckets should be forbidden
-        resp = self.session.get(
-            self.api_url('buckets'))
-        self.incr_counter("status-%s" % resp.status_code)
+    def test_check_for_lists(self):
+        # List buckets should not be forbidden
+        resp = self.session.get('{}/buckets'.format(self.server_url))
         self.assertEqual(resp.status_code, 200)

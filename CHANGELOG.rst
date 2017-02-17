@@ -29,6 +29,7 @@ This document describes changes between each past release.
   to a sepate file on `kinto.core.schema`. (#1054)
 - Upgraded the kinto-admin to version 1.9.0 (#1086)
 - Upgrade to Pyramid 1.8 (#1087)
+- Replace old loadtests with functional tests (#1085)
 
 
 5.3.2 (2017-01-31)
