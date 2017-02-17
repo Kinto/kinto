@@ -28,6 +28,7 @@ This document describes changes between each past release.
 - Move generic API schemas (e.g TimeStamps and HeaderFields) from `kinto.core.resource.schema`
   to a sepate file on `kinto.core.schema`. (#1054)
 - Upgraded the kinto-admin to version 1.9.0 (#1086)
+- Upgrade to Pyramid 1.8 (#1087)
 
 
 5.3.2 (2017-01-31)
