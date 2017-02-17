@@ -279,9 +279,7 @@ def prefixed_principals(request):
 
     # Remove unprefixed user id on effective_principals to avoid conflicts.
     # (it is added via Pyramid Authn policy effective principals)
-    userid = request.prefixed_userid
-    if ':' in userid:
-        prefix, userid = userid.split(':', 1)
+    prefix, userid = request.prefixed_userid.split(':', 1)
     principals = [p for p in principals if p != userid]
 
     if request.prefixed_userid not in principals:
@@ -512,10 +510,10 @@ def apply_json_patch(record, ops):
 
     # Allow patch permissions without value since key and value are equal on sets
     for op in ops:
-        if 'path' in op:
-            if op['path'].startswith(('/permissions/read/',
-                                      '/permissions/write/')):
-                op['value'] = op['path'].split('/')[-1]
+        # 'path' is here since it was validated.
+        if op['path'].startswith(('/permissions/read/',
+                                  '/permissions/write/')):
+            op['value'] = op['path'].split('/')[-1]
 
     try:
         result = jsonpatch.apply_patch(resource, ops)

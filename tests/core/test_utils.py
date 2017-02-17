@@ -16,7 +16,8 @@ from pyramid import testing
 from kinto.core.utils import (
     native_value, strip_whitespace, random_bytes_hex, read_env, hmac_digest,
     current_service, encode_header, decode_header, follow_subrequest,
-    build_request, dict_subset, dict_merge, parse_resource, recursive_update_dict
+    build_request, dict_subset, dict_merge, parse_resource, recursive_update_dict,
+    prefixed_principals
 )
 from kinto.core.testing import DummyRequest
 
@@ -137,6 +138,23 @@ class CurrentServiceTest(unittest.TestCase):
         self.assertEqual(current_service(request), None)
 
 
+class PrefixedPrincipalsTest(unittest.TestCase):
+
+    def test_removes_unprefixed_from_principals(self):
+        request = DummyRequest()
+        request.effective_principals = ['foo', 'system.Authenticated']
+        request.prefixed_userid = 'basic:foo'
+        self.assertEqual(prefixed_principals(request),
+                         ['system.Authenticated', 'basic:foo'])
+
+    def test_works_if_userid_is_not_in_principals(self):
+        request = DummyRequest()
+        request.effective_principals = ['basic:foo', 'system.Authenticated']
+        request.prefixed_userid = 'basic:foo'
+        self.assertEqual(prefixed_principals(request),
+                         ['basic:foo', 'system.Authenticated'])
+
+
 class BuildRequestTest(unittest.TestCase):
 
     def test_built_request_has_kinto_core_custom_methods(self):
@@ -219,7 +237,7 @@ class DictSubsetTest(unittest.TestCase):
         self.assertEqual(obtained, expected)
 
     def test_ignores_unknown_keys(self):
-        obtained = dict_subset(dict(a=1, b=2), ["a", "c"])
+        obtained = dict_subset(dict(a=1, b=2), ["a", "a.b", "c"])
         expected = dict(a=1)
         self.assertEqual(obtained, expected)
 
@@ -267,6 +285,11 @@ class RecursiveUpdateDictTest(unittest.TestCase):
         recursive_update_dict(a, {'b': {'c': 1}, 'd': 2})
         self.assertEqual(a['b']['c'], 1)
         self.assertEqual(a['d'], 2)
+
+    def test_merge_non_dict(self):
+        a = {}
+        recursive_update_dict(a, 1)
+        self.assertEqual(a, {})
 
 
 class ParseResourceTest(unittest.TestCase):

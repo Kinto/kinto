@@ -77,6 +77,11 @@ class ModifiedMeanwhileTest(BaseTest):
         self.assertRaises(httpexceptions.HTTPPreconditionFailed,
                           self.resource.collection_get)
 
+    def test_collection_returns_200_if_if_match_is_superior(self):
+        current = self.last_response.headers['ETag'][1:-1]
+        self.validated['header']['If-Match'] = int(current) + 10
+        self.resource.collection_get()
+
     def test_412_errors_on_collection_do_not_provide_existing_record(self):
         try:
             self.resource.collection_get()

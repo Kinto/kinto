@@ -153,7 +153,7 @@ def main(args=None):
         pserve_argv.append('http_port=%s' % parsed_args['port'])
         pserve.main(pserve_argv)
 
-    elif which_command == 'version':
+    else:
         print(__version__)
 
     return 0
