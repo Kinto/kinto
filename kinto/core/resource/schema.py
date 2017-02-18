@@ -67,6 +67,33 @@ class ResourceSchema(colander.MappingSchema):
         the accepted fields to the ones defined in the schema.
         """
 
+    @colander.deferred
+    def id(node, kwargs):
+        def build_id(node, kwargs):
+            """Build an id node with matching the regex from the id_generator
+            provided on the configuration."""
+
+            id_generators = kwargs.get('id_generators')
+            resource_name = kwargs.get('resource_name')
+
+            # If not provided, keep deferred
+            if not (id_generators and resource_name):
+                return
+
+            # Get id generators
+            id_generator = id_generators.get(resource_name, id_generators[''])
+
+            # Build the corresponding validator and SchemaNode
+            validator = colander.Regex(id_generator.regexp)
+            id = colander.SchemaNode(colander.String(),
+                                     validator=validator,
+                                     missing=colander.drop)
+
+            return id
+
+        # Set if node is provided, else keep deferred (allow bindind later)
+        return build_id(node, kwargs) or colander.deferred(build_id)
+
     @classmethod
     def get_option(cls, attr):
         default_value = getattr(ResourceSchema.Options, attr)
@@ -237,7 +264,7 @@ class CollectionGetQuerySchema(CollectionQuerySchema):
     _fields = FieldList()
 
 
-# Body Schemas
+# Body schemas
 
 
 class RecordSchema(colander.MappingSchema):
