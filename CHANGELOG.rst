@@ -30,6 +30,8 @@ This document describes changes between each past release.
 - Upgraded the kinto-admin to version 1.9.0 (#1086)
 - Upgrade to Pyramid 1.8 (#1087)
 - Replace old loadtests with functional tests (#1085)
+- Use `Cornice Swagger <https://github.com/Cornices/cornice.ext.swagger>`_ rather than
+  merging YAML files to generate the OpenAPI spec.
 
 
 5.3.2 (2017-01-31)
