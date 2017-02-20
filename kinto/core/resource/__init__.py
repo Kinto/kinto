@@ -699,7 +699,7 @@ class UserResource:
             # Transform the errors we got from colander into Cornice errors.
             # We could not rely on Service schema because the record should be
             # validated only once the changes are applied
-            for field, error in e.asdict().items():
+            for field, error in e.asdict().items():  # pragma: no branch
                 raise_invalid(self.request, name=field, description=error)
 
         return validated, applied_changes
@@ -906,10 +906,9 @@ class UserResource:
 
         return limit
 
-    def _extract_filters(self, queryparams=None):
+    def _extract_filters(self):
         """Extracts filters from QueryString parameters."""
-        if not queryparams:
-            queryparams = self.request.validated['querystring']
+        queryparams = self.request.validated['querystring']
 
         filters = []
 
@@ -1123,13 +1122,13 @@ class ShareableResource(UserResource):
         """
         return ''
 
-    def _extract_filters(self, queryparams=None):
+    def _extract_filters(self):
         """Override default filters extraction from QueryString to allow
         partial collection of records.
 
         XXX: find more elegant approach to add custom filters.
         """
-        filters = super()._extract_filters(queryparams)
+        filters = super()._extract_filters()
 
         ids = self.context.shared_ids
         if ids is not None:

@@ -105,7 +105,7 @@ class OpenAPI(CorniceSwagger):
         definitions = service.definitions
 
         # Get method view arguments
-        for definition in definitions:
+        for definition in definitions:  # pragma: no branch
             met, view, args = definition
             if met == method:
                 break

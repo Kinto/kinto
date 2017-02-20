@@ -171,8 +171,8 @@ class Permissions(resource.ShareableResource):
                                  if s.field != self.model.modified_field]
         return without_last_modified
 
-    def _extract_filters(self, queryparams=None):
-        result = super()._extract_filters(queryparams)
+    def _extract_filters(self):
+        result = super()._extract_filters()
         without_last_modified = [s for s in result
                                  if s.field != self.model.modified_field]
         return without_last_modified

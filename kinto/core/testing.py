@@ -6,7 +6,6 @@ from collections import defaultdict
 import mock
 import webtest
 from cornice import errors as cornice_errors
-from enum import Enum
 from pyramid.url import parse_url_overrides
 
 from kinto.core import DEFAULT_SETTINGS
@@ -72,12 +71,9 @@ class FormattedErrorMixin:
 
     def assertFormattedError(self, response, code, errno, error,
                              message=None, info=None):
-        if isinstance(errno, Enum):
-            errno = errno.value
-
         self.assertIn('application/json', response.headers['Content-Type'])
         self.assertEqual(response.json['code'], code)
-        self.assertEqual(response.json['errno'], errno)
+        self.assertEqual(response.json['errno'], errno.value)
         self.assertEqual(response.json['error'], error)
         if message is not None:
             self.assertIn(message, response.json['message'])
@@ -163,8 +159,7 @@ class BaseWebTest:
         settings['cache_backend'] = 'kinto.core.cache.memory'
         settings['permission_backend'] = 'kinto.core.permission.memory'
 
-        if extras is not None:
-            settings.update(extras)
+        settings.update(extras or None)
 
         return settings
 

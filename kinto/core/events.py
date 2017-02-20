@@ -78,12 +78,14 @@ def setup_transaction_hook(config):
     def _notify_resource_events_after(success, request):
         """Notify the accumulated resource events if transaction succeeds.
         """
-        if success:
-            for event in request.get_resource_events(after_commit=True):
-                try:
-                    request.registry.notify(event)
-                except Exception:
-                    logger.error("Unable to notify", exc_info=True)
+        if not success:  # pragma: no cover
+            return
+
+        for event in request.get_resource_events(after_commit=True):
+            try:
+                request.registry.notify(event)
+            except Exception:
+                logger.error("Unable to notify", exc_info=True)
 
     def on_new_request(event):
         """When a new request comes in, hook on transaction commit.
@@ -145,7 +147,7 @@ def notify_resource_event(request, parent_id, timestamp, data, action,
             impacted = []
             for i, new in enumerate(data):
                 impacted.append({'new': new, 'old': old[i]})
-    elif action == ACTIONS.UPDATE:
+    else:  # ACTIONS.UPDATE:
         impacted = [{'new': data, 'old': old}]
 
     # Get previously triggered events.

@@ -3,7 +3,7 @@ import mock
 from pyramid.request import Request
 
 from kinto.core import utils
-from kinto.core.authorization import RouteFactory, AuthorizationPolicy
+from kinto.core.authorization import RouteFactory, AuthorizationPolicy, groupfinder
 from kinto.core.storage import exceptions as storage_exceptions
 from kinto.core.testing import DummyRequest, unittest
 
@@ -296,3 +296,18 @@ class GuestAuthorizationPolicyTest(unittest.TestCase):
         self.context.resource_name = 'article'
         obj_id = self.context.get_permission_object_id(self.request, '*')
         self.assertEquals(obj_id, '/articles/*')
+
+
+class GroupFinderTest(unittest.TestCase):
+    def setUp(self):
+        self.request = DummyRequest(method='GET')
+
+    def test_uses_prefixed_as_userid(self):
+        self.request.prefixed_userid = 'basic:bob'
+        groupfinder('bob', self.request)
+        self.request.registry.permission.get_user_principals.assert_called_with('basic:bob')
+
+    def test_uses_provided_id_if_no_prefixed_userid(self):
+        self.request.prefixed_userid = None
+        groupfinder('bob', self.request)
+        self.request.registry.permission.get_user_principals.assert_called_with('bob')

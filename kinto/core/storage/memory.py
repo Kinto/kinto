@@ -363,9 +363,9 @@ def apply_sorting(records, sorting):
 
     def column(first, record, name):
         empty = first.get(name, float('inf'))
-        subfields = name.split('.')
+        subfields = name.split('.')  # Never empty.
         value = record
-        for subfield in subfields:
+        for subfield in subfields:  # pragma: no branch
             value = value.get(subfield, empty)
             if not isinstance(value, dict):
                 break

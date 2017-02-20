@@ -203,8 +203,7 @@ class QuerySchema(colander.MappingSchema):
             # Deserialize lists used on in_ and exclude_ filters
             if k.startswith('in_') or k.startswith('exclude_'):
                 as_list = FieldList().deserialize(v)
-                if isinstance(as_list, list):
-                    values[k] = [native_value(v) for v in as_list]
+                values[k] = [native_value(v) for v in as_list]
             else:
                 values[k] = native_value(v)
 

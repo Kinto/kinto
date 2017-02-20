@@ -18,13 +18,11 @@ class PermissionTest:
         self.request = DummyRequest()
         self.client_error_patcher = []
 
-    def _get_config(self, settings=None):
+    def _get_config(self):
         """Mock Pyramid config object.
         """
-        if settings is None:
-            settings = self.settings
         config = testing.setUp()
-        config.add_settings(settings)
+        config.add_settings(self.settings)
         return config
 
     def tearDown(self):
@@ -103,6 +101,9 @@ class PermissionTest:
         self.permission.add_user_principal(user_id, principal)
         retrieved = self.permission.get_user_principals(user_id)
         self.assertEquals(retrieved, {principal})
+
+    def test_can_remove_a_principal_for_an_unknown_user(self):
+        self.permission.remove_user_principal('foo', 'bar')
 
     def test_can_remove_a_principal_for_a_user(self):
         user_id = 'foo'
