@@ -270,6 +270,8 @@ class CollectionGetQuerySchema(CollectionQuerySchema):
 
 class RecordSchema(colander.MappingSchema):
 
+    missing = colander.drop
+
     @colander.deferred
     def data(node, kwargs):
         data = kwargs.get('data')
@@ -328,6 +330,8 @@ class JsonPatchBodySchema(colander.SequenceSchema):
 # Path schema
 
 class PathSchema(colander.MappingSchema):
+
+    missing = colander.drop
 
     @colander.deferred
     def path(node, kwargs):

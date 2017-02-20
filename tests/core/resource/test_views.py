@@ -542,9 +542,6 @@ class InvalidBodyTest(BaseWebTest, unittest.TestCase):
             'details': [
                 {'description': error_msg,
                  'location': 'body',
-                 'name': ''},
-                {'description': 'Required',
-                 'location': 'body',
                  'name': ''}]})
 
     def test_create_invalid_body_returns_400(self):
