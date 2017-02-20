@@ -215,10 +215,10 @@ class RequestSchemaTest(unittest.TestCase):
         self.assertEquals(deserialized, {})
 
 
-class CollectionQuerySchemaTest(unittest.TestCase):
+class QuerySchemaTest(unittest.TestCase):
 
     def setUp(self):
-        self.schema = schema.CollectionQuerySchema()
+        self.schema = schema.QuerySchema()
         self.querystring = {
             '_limit': '2',
             '_sort': 'toto,tata',
