@@ -143,7 +143,7 @@ class TestMain(unittest.TestCase):
             res = main(['--ini', TEMP_KINTO_INI, 'start', '--reload'])
             assert res == 0
             assert mocked_pserve.call_count == 1
-            assert '--reload' in mocked_pserve.call_args[0][0]
+            assert '--reload' in mocked_pserve.call_args[1]['argv']
 
     def test_cli_can_display_kinto_version(self):
         with mock.patch('sys.stdout', new_callable=StringIO) as mock_stdout:
