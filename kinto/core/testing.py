@@ -6,7 +6,6 @@ from collections import defaultdict
 import mock
 import webtest
 from cornice import errors as cornice_errors
-from enum import Enum
 from pyramid.url import parse_url_overrides
 
 from kinto.core import DEFAULT_SETTINGS
