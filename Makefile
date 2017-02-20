@@ -65,7 +65,7 @@ build-requirements:
 	$(VIRTUALENV) $(TEMPDIR)
 	$(TEMPDIR)/bin/pip install -U pip
 	$(TEMPDIR)/bin/pip install -Ue ".[monitoring,postgresql]"
-	$(TEMPDIR)/bin/pip freeze > requirements.txt
+	$(TEMPDIR)/bin/pip freeze | grep -v -- '-e' > requirements.txt
 
 update-kinto-admin:
 	rm -fr kinto/plugins/admin/build
