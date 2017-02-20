@@ -3,13 +3,18 @@ Changelog
 
 This document describes changes between each past release.
 
-5.3.6 (unreleased)
+5.3.6 (2017-02-20)
 ------------------
 
 **Bug fixes**
 
 - Fix crash on ``If-Match: *`` (#1064)
 - Handle Integer overflow in querystring parameters. (#1076)
+
+
+**Internal changes**
+
+- Document that _fields only work with GET (#1081)
 
 
 5.3.5 (2017-02-08)
