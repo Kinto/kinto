@@ -5,6 +5,10 @@ from colander import SchemaNode, String
 from kinto.core.utils import strip_whitespace, msec_time, decode_header, native_value
 
 
+POSTGRESQL_MAX_INTEGER_VALUE = 2**63
+positive_big_integer = colander.Range(min=0, max=POSTGRESQL_MAX_INTEGER_VALUE)
+
+
 class ResourceSchema(colander.MappingSchema):
     """Base resource schema, with *Cliquet* specific built-in options."""
 
@@ -203,9 +207,8 @@ class HeaderQuotedInteger(HeaderField):
     """Integer between "" used in precondition headers."""
 
     schema_type = colander.String
-    error_message = "The value should be integer between double quotes"
-    validator = colander.Any(colander.Regex('^"([0-9]+?)"$', msg=error_message),
-                             colander.Regex('\*'))
+    error_message = "The value should be integer between double quotes."
+    validator = colander.Regex('^"([0-9]+?)"$|\*', msg=error_message)
 
     def deserialize(self, cstruct=colander.null):
         param = super(HeaderQuotedInteger, self).deserialize(cstruct)
@@ -237,14 +240,14 @@ class QuerySchema(colander.MappingSchema):
     and try to guess the type of unknown fields (field filters) on deserialization.
     """
 
-    _limit = QueryField(colander.Integer())
+    _limit = QueryField(colander.Integer(), validator=positive_big_integer)
     _fields = FieldList()
     _sort = FieldList()
     _token = QueryField(colander.String())
-    _since = QueryField(colander.Integer())
-    _to = QueryField(colander.Integer())
-    _before = QueryField(colander.Integer())
-    last_modified = QueryField(colander.Integer())
+    _since = QueryField(colander.Integer(), validator=positive_big_integer)
+    _to = QueryField(colander.Integer(), validator=positive_big_integer)
+    _before = QueryField(colander.Integer(), validator=positive_big_integer)
+    last_modified = QueryField(colander.Integer(), validator=positive_big_integer)
 
     @staticmethod
     def schema_type():

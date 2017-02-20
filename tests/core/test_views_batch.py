@@ -150,9 +150,8 @@ class BatchViewTest(BaseWebTest, unittest.TestCase):
         body = {'requests': [request, request]}
         resp = self.app.post_json('/batch', body, status=200)
         self.assertEqual(resp.json['responses'][1]['status'], 400)
-        self.assertEqual(resp.json['responses'][1]['body']['message'],
-                         ('If-Match in header: The value should be integer between '
-                          'double quotes; String does not match expected pattern'))
+        msg = 'If-Match in header: The value should be integer between double quotes.'
+        self.assertEqual(resp.json['responses'][1]['body']['message'], msg)
 
     def test_412_errors_are_forwarded(self):
         headers = self.headers.copy()
