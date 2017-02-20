@@ -1,4 +1,5 @@
 import warnings
+import re
 
 import colander
 
@@ -324,11 +325,65 @@ class JsonPatchBodySchema(colander.SequenceSchema):
     operations = JsonPatchOperationSchema(missing=colander.drop)
 
 
+# Path schema
+
+class PathSchema(colander.MappingSchema):
+
+    @colander.deferred
+    def path(node, kwargs):
+        def build_path(node, kwargs):
+            """Build a PathSchema node matching the regex from the id_generator
+            provided on the configuration."""
+
+            id_generators = kwargs.get('id_generators')
+            resource_name = kwargs.get('resource_name')
+            path = kwargs.get('path')
+
+            # If not provided, keep deferred
+            if not (id_generators and resource_name and path):
+                return
+
+            # Match all ids and remove brackets
+            resource_ids = [name[1:-1] for name in re.findall('\{.*?\}', path)]
+
+            # Nothing to validate
+            if not resource_ids:
+                return
+
+            regex_patterns = {}
+
+            for id_name in resource_ids:
+                # if the path includes an id
+                if 'id' in resource_ids:
+                    id_generator = id_generators.get(resource_name, id_generators[''])
+                # Handle other path ids
+                else:
+                    name = id_name.replace('_id', '')
+                    id_generator = id_generators.get(name, id_generators[''])
+
+                regex_patterns[id_name] = id_generator.regexp
+
+            # Build  corresponding validators and SchemaNodes
+            path = colander.MappingSchema()
+            for id_name, regexp in regex_patterns.items():
+                validator = colander.Regex(regexp)
+                node[id_name] = colander.SchemaNode(colander.String(),
+                                                    validator=validator)
+
+            # Undefer generator
+            return True
+
+        # Set if node is provided, else keep deferred (allow bindind later)
+        return build_path(node, kwargs) or colander.deferred(build_path)
+
+
 # Request schemas
 
 
 class RequestSchema(colander.MappingSchema):
     """Base schema for kinto requests."""
+
+    path = PathSchema()
 
     @colander.deferred
     def header(node, kwargs):
@@ -355,6 +410,20 @@ class PayloadRequestSchema(RequestSchema):
             return kwargs.get('body')
         # Set if node is provided, else keep deferred (and allow bindind later)
         return get_body(node, kwargs) or colander.deferred(get_body)
+
+    def deserialize(self, cstruct=colander.null):
+        deserialized = super().deserialize(cstruct)
+
+        # Checks if body id and path id match
+        if isinstance(cstruct, dict):
+            body_id = cstruct.get('body', {}).get('data', {}).get('id')
+            path_id = cstruct.get('path', {}).get('id')
+
+            if body_id and path_id and body_id != path_id:
+                msg = 'Record id does not match existing record'
+                raise colander.Invalid(self, msg=msg)
+
+        return deserialized
 
 
 class JsonPatchRequestSchema(RequestSchema):

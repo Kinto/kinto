@@ -21,7 +21,13 @@ class Record(resource.ShareableResource):
     schema_field = 'schema'
 
     def __init__(self, request, **kwargs):
-        # Before all, first check that the parent collection exists.
+
+        self.request = request
+
+        # Before anything, check if path is valid
+        self._raise_400_if_invalid_path()
+
+        # Now check that the parent collection exists.
         # Check if already fetched before (in batch).
         collections = request.bound_data.setdefault('collections', {})
         collection_uri = self.get_parent_id(request)

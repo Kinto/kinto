@@ -21,7 +21,7 @@ from kinto.core.utils import (
 )
 
 from .model import Model, ShareableModel
-from .schema import ResourceSchema, JsonPatchRequestSchema
+from .schema import PathSchema, ResourceSchema, JsonPatchRequestSchema
 from .viewset import ViewSet, ShareableViewSet
 
 
@@ -80,6 +80,7 @@ def register_resource(resource_cls, settings=None, viewset=None, depth=1,
         service.viewset = viewset
         service.resource = resource_cls
         service.type = endpoint_type
+
         # Attach collection and record paths.
         service.collection_path = viewset.collection_path.format_map(path_values)
         service.record_path = (viewset.record_path.format_map(path_values)
@@ -96,10 +97,11 @@ def register_resource(resource_cls, settings=None, viewset=None, depth=1,
             argument_getter = getattr(viewset, '{}_arguments'.format(endpoint_type))
             view_args = argument_getter(resource_cls, method)
 
-            # If view has a schema, bind the resource id generator for validation
+            # If view has a schema, bind the resource id generators for validation
             # XXX: This can't be bound at viewset because we must have the instance
             # settings available.
-            view_args['schema'] = view_args['schema'].bind(id_generators=id_generators,
+            view_args['schema'] = view_args['schema'].bind(path=path,
+                                                           id_generators=id_generators,
                                                            resource_name=resource_name)
 
             view = viewset.get_view(endpoint_type, method.lower())
@@ -156,6 +158,14 @@ class UserResource:
     """Schema to validate records."""
 
     def __init__(self, request, context=None):
+
+        self.request = request
+        self.context = context
+
+        # XXX: Check if the path is valid before doing anything. This have to be done
+        # before fetching any model, so we can't wait for regular colander validation.
+        self._raise_400_if_invalid_path()
+
         # Models are isolated by user.
         parent_id = self.get_parent_id(request)
 
@@ -175,8 +185,6 @@ class UserResource:
             parent_id=parent_id,
             auth=auth)
 
-        self.request = request
-        self.context = context
         self.record_id = self.request.matchdict.get('id')
         self.force_patch_update = False
 
@@ -412,7 +420,6 @@ class UserResource:
             ``If-Match`` header is provided and record modified
             in the iterim.
         """
-        self._raise_400_if_invalid_id(self.record_id)
         record = self._get_record_or_404(self.record_id)
         timestamp = record[self.model.modified_field]
         self._add_timestamp_header(self.request.response, timestamp=timestamp)
@@ -445,7 +452,6 @@ class UserResource:
             Add custom behaviour by overriding
             :meth:`kinto.core.resource.UserResource.process_record`.
         """
-        self._raise_400_if_invalid_id(self.record_id)
         id_field = self.model.id_field
         existing = None
         tombstones = None
@@ -465,8 +471,7 @@ class UserResource:
         # If `data` is not provided, use existing record (or empty if creation)
         post_record = self.request.validated['body'].get('data', existing) or {}
 
-        record_id = post_record.setdefault(id_field, self.record_id)
-        self._raise_400_if_id_mismatch(record_id, self.record_id)
+        post_record.setdefault(id_field, self.record_id)
 
         new_record = self.process_record(post_record, old=existing)
 
@@ -504,7 +509,6 @@ class UserResource:
             :meth:`kinto.core.resource.UserResource.apply_changes` or
             :meth:`kinto.core.resource.UserResource.process_record`.
         """
-        self._raise_400_if_invalid_id(self.record_id)
         existing = self._get_record_or_404(self.record_id)
         self._raise_412_if_modified(existing)
 
@@ -527,9 +531,7 @@ class UserResource:
         updated, applied_changes = self.apply_changes(existing,
                                                       requested_changes=requested_changes)
 
-        record_id = updated.setdefault(self.model.id_field,
-                                       self.record_id)
-        self._raise_400_if_id_mismatch(record_id, self.record_id)
+        updated.setdefault(self.model.id_field, self.record_id)
 
         new_record = self.process_record(updated, old=existing)
 
@@ -577,7 +579,6 @@ class UserResource:
             ``If-Match`` header is provided and record modified
             in the iterim.
         """
-        self._raise_400_if_invalid_id(self.record_id)
         record = self._get_record_or_404(self.record_id)
         self._raise_412_if_modified(record)
 
@@ -788,17 +789,28 @@ class UserResource:
             response.cache_control.no_cache = True
             response.cache_control.no_store = True
 
-    def _raise_400_if_invalid_id(self, record_id):
+    def _raise_400_if_invalid_path(self):
         """Raise 400 if specified record id does not match the format excepted
         by storage backends.
 
         :raises: :class:`pyramid.httpexceptions.HTTPBadRequest`
         """
-        is_string = isinstance(record_id, str)
-        if not is_string or not self.model.id_generator.match(record_id):
+
+        service = self.request.current_service
+
+        # XXX: If the request is not a true HTTP request, we don't have a real
+        # path pattern to validate
+        if not service:
+            return
+
+        schema = PathSchema().bind(path=service.path, resource_name=classname(self),
+                                   id_generators=self.request.registry.id_generators)
+        try:
+            schema.deserialize(self.request.matchdict)
+        except colander.Invalid as err:
             error_details = {
                 'location': 'path',
-                'description': "Invalid record id"
+                'description': 'invalid path ids',
             }
             raise_invalid(self.request, **error_details)
 
@@ -864,20 +876,6 @@ class UserResource:
                                   details=details)
             self._add_timestamp_header(response, timestamp=current_timestamp)
             raise response
-
-    def _raise_400_if_id_mismatch(self, new_id, record_id):
-        """Raise 400 if the `new_id`, within the request body, does not match
-        the `record_id`, obtained from request path.
-
-        :raises: :class:`pyramid.httpexceptions.HTTPBadRequest`
-        """
-        if new_id != record_id:
-            error_msg = 'Record id does not match existing record'
-            error_details = {
-                'name': self.model.id_field,
-                'description': error_msg
-            }
-            raise_invalid(self.request, **error_details)
 
     def _extract_partial_fields(self):
         """Extract the fields to do the projection from QueryString parameters.
