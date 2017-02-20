@@ -157,7 +157,7 @@ def on_resource_changed(event):
             if resource_name in ('collection', 'record'):
                 collection_info['storage_size'] -= old_size
                 collection_info['storage_size'] += new_size
-        elif action == 'delete':
+        else:   # action == 'delete':
             bucket_info['storage_size'] -= old_size
             if resource_name == 'collection':
                 collection_uri = uri

@@ -96,6 +96,20 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
         sql_called = mocked.call_args_list[-1][0][0]
         self.assertIn('migrations/migration_005_006.sql', sql_called)
 
+    def test_migration_files_are_listed_if_ran_with_dry_run(self):
+        postgresql_storage.Storage.schema_version = 6
+
+        versions = [6, 5, 4, 3, 3]
+        self.storage._get_installed_version = lambda: versions.pop()
+
+        with mock.patch('kinto.core.storage.postgresql.logger') as mocked:
+            self.storage.initialize_schema(dry_run=True)
+
+        output = ''.join([repr(call) for call in mocked.info.call_args_list])
+        self.assertIn('migrations/migration_003_004.sql', output)
+        self.assertIn('migrations/migration_004_005.sql', output)
+        self.assertIn('migrations/migration_005_006.sql', output)
+
     def test_migration_fails_if_intermediary_version_is_missing(self):
         with mock.patch.object(self.storage,
                                '_get_installed_version') as current:

@@ -186,7 +186,7 @@ class DictSubsetTest(unittest.TestCase):
         self.assertEqual(obtained, expected)
 
     def test_ignores_unknown_keys(self):
-        obtained = dict_subset(dict(a=1, b=2), ["a", "a.b", "c"])
+        obtained = dict_subset(dict(a=1, b=2), ["a", "a.b", "d.b", "c"])
         expected = dict(a=1)
         self.assertEqual(obtained, expected)
 
