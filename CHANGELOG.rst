@@ -3,6 +3,12 @@ Changelog
 
 This document describes changes between each past release.
 
+5.3.7 (unreleased)
+------------------
+
+- Nothing changed yet.
+
+
 5.3.6 (2017-02-20)
 ------------------
 
