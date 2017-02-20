@@ -145,11 +145,14 @@ def main(args=None):
                                          parsed_args['collection'])
 
     elif which_command == 'start':
-        pserve_argv = ['pserve', config_file]
+        pserve_argv = ['pserve']
         if parsed_args['reload']:
             pserve_argv.append('--reload')
+        pserve_argv.append('-v')
+        pserve_argv.append(config_file)
         pserve_argv.append('http_port={}'.format(parsed_args['port']))
-        pserve.main(pserve_argv)
+        print(pserve_argv)
+        pserve.main(argv=pserve_argv)
 
     else:
         print(__version__)
