@@ -699,7 +699,7 @@ class UserResource:
             # Transform the errors we got from colander into Cornice errors.
             # We could not rely on Service schema because the record should be
             # validated only once the changes are applied
-            for field, error in e.asdict().items():
+            for field, error in e.asdict().items():  # pragma: no branch
                 raise_invalid(self.request, name=field, description=error)
 
         return validated, applied_changes
