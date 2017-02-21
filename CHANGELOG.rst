@@ -29,6 +29,7 @@ Protocol is now at version **1.15**. See `API changelog`_.
 - Remove ``deleted`` field from ``PUT`` requests over tombstones. (#1115)
 - Fix crash when preconditions are used on the permission endpoint (fixes #1066)
 - Fixed resource timestamp upsert in PostgreSQL backend (#1125)
+- Fix pserve argument ordering with Pyramid 1.8 (#1095)
 
 **Internal changes**
 

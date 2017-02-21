@@ -146,12 +146,18 @@ def main(args=None):
 
     elif which_command == 'start':
         pserve_argv = ['pserve']
+
         if parsed_args['reload']:
             pserve_argv.append('--reload')
-        pserve_argv.append('-v')
+
+        if level == logging.DEBUG:
+            pserve_argv.append('-v')
+
+        if level == logging.CRITICAL:
+            pserve_argv.append('-q')
+
         pserve_argv.append(config_file)
         pserve_argv.append('http_port={}'.format(parsed_args['port']))
-        print(pserve_argv)
         pserve.main(argv=pserve_argv)
 
     else:
