@@ -100,9 +100,12 @@ def register_resource(resource_cls, settings=None, viewset=None, depth=1,
             # If view has a schema, bind the resource id generators for validation
             # XXX: This can't be bound at viewset because we must have the instance
             # settings available.
-            view_args['schema'] = view_args['schema'].bind(path=path,
-                                                           id_generators=id_generators,
-                                                           resource_name=resource_name)
+            request_schema = view_args.get('schema')
+            if request_schema:
+                request_schema = request_schema.bind(path=path,
+                                                     id_generators=id_generators,
+                                                     resource_name=resource_name)
+                view_args['schema'] = request_schema
 
             view = viewset.get_view(endpoint_type, method.lower())
             service.add_view(method, view, klass=resource_cls, **view_args)

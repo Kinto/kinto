@@ -110,10 +110,6 @@ class PutTest(BaseTest):
         self.assertNotEqual(result['last_modified'],
                             self.record['last_modified'])
 
-    def test_cannot_replace_with_different_id(self):
-        self.validated['body'] = {'data': {'id': 'abc'}}
-        self.assertRaises(httpexceptions.HTTPBadRequest, self.resource.put)
-
     def test_last_modified_is_overwritten_on_replace(self):
         self.validated['body'] = {'data': {'last_modified': 123}}
         result = self.resource.put()['data']
@@ -485,24 +481,6 @@ class UnknownRecordTest(BaseTest):
 
     def test_delete_record_unknown_raises_404(self):
         self.assertRaises(httpexceptions.HTTPNotFound, self.resource.delete)
-
-
-class InvalidIdTest(BaseTest):
-    def setUp(self):
-        super().setUp()
-        self.resource.record_id = 'a*b'
-
-    def test_get_with_invalid_id_raises_400(self):
-        self.assertRaises(httpexceptions.HTTPBadRequest, self.resource.get)
-
-    def test_patch_with_invalid_id_raises_400(self):
-        self.assertRaises(httpexceptions.HTTPBadRequest, self.resource.patch)
-
-    def test_put_with_invalid_id_raises_400(self):
-        self.assertRaises(httpexceptions.HTTPBadRequest, self.resource.put)
-
-    def test_delete_with_invalid_id_raises_400(self):
-        self.assertRaises(httpexceptions.HTTPBadRequest, self.resource.delete)
 
 
 class ReadonlyFieldsTest(BaseTest):

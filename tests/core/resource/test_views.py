@@ -228,7 +228,7 @@ class RecordAuthzDeniedTest(AuthzAuthnTest):
         self.permission.flush()
 
     def test_views_require_authentication(self):
-        url = self.get_item_url('abc')
+        url = self.get_item_url(self.record['id'])
         self.app.get(url, status=401)
         self.app.put_json(url, {'data': MINIMALIST_RECORD}, status=401)
         self.app.patch_json(url, {'data': MINIMALIST_RECORD}, status=401)

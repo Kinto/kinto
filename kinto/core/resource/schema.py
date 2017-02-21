@@ -75,10 +75,10 @@ class ResourceSchema(colander.MappingSchema):
             provided on the configuration."""
 
             id_generators = kwargs.get('id_generators')
-            resource_name = kwargs.get('resource_name')
+            resource_name = kwargs.get('resource_name', '')
 
             # If not provided, keep deferred
-            if not (id_generators and resource_name):
+            if not id_generators:
                 return
 
             # Get id generators
@@ -340,11 +340,11 @@ class PathSchema(colander.MappingSchema):
             provided on the configuration."""
 
             id_generators = kwargs.get('id_generators')
-            resource_name = kwargs.get('resource_name')
+            resource_name = kwargs.get('resource_name', '')
             path = kwargs.get('path')
 
             # If not provided, keep deferred
-            if not (id_generators and resource_name and path):
+            if not (id_generators and path):
                 return
 
             # Match all ids and remove brackets
@@ -358,7 +358,7 @@ class PathSchema(colander.MappingSchema):
 
             for id_name in resource_ids:
                 # if the path includes an id
-                if 'id' in resource_ids:
+                if id_name == 'id':
                     id_generator = id_generators.get(resource_name, id_generators[''])
                 # Handle other path ids
                 else:
@@ -416,7 +416,6 @@ class PayloadRequestSchema(RequestSchema):
         return get_body(node, kwargs) or colander.deferred(get_body)
 
     def deserialize(self, cstruct=colander.null):
-        deserialized = super().deserialize(cstruct)
 
         # Checks if body id and path id match
         if isinstance(cstruct, dict):
@@ -427,7 +426,7 @@ class PayloadRequestSchema(RequestSchema):
                 msg = 'Record id does not match existing record'
                 raise colander.Invalid(self, msg=msg)
 
-        return deserialized
+        return super().deserialize(cstruct)
 
 
 class JsonPatchRequestSchema(RequestSchema):
