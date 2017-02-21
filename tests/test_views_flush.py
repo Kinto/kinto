@@ -95,3 +95,7 @@ class FlushViewTest(BaseWebTest, unittest.TestCase):
         app = self.make_app(settings=extra)
         app.post('/__flush__', headers=self.headers)
         os.environ.pop('KINTO_FLUSH_ENDPOINT_ENABLED')
+
+    def test_flush_returns_json(self):
+        response = self.app.post('/__flush__', headers=self.headers, status=202)
+        self.assertEquals(response.json, {})
