@@ -6,6 +6,12 @@ This document describes changes between each past release.
 6.0.0 (unreleased)
 ------------------
 
+**Protocol**
+
+- Fixed ``If-Match`` behavior to match the RFC 2616 specification (#1102).
+
+Protocol is now at version **1.15**. See `API changelog`_.
+
 **Breaking changes**
 
 - Remove Python 2.7 support and upgrade to Python 3.5. (#1050)
