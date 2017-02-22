@@ -243,7 +243,7 @@ class ModifiedMeanwhileTest(BaseTest):
                           self.resource.put)
 
     def test_put_if_fails_if_record_does_not_exist(self):
-        self.validated['header']['If-Match'] = '123'
+        self.validated['header']['If-Match'] += 10  # wouldn't raise on existing
         self.resource.request.json = {'data': {'field': 'new'}}
         self.validated['body'] = self.resource.request.json
         self.resource.record_id = self.resource.model.id_generator()
