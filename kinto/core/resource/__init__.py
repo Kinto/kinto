@@ -815,7 +815,7 @@ class UserResource:
         else:
             current_timestamp = self.model.timestamp()
 
-        if current_timestamp <= if_none_match:
+        if current_timestamp == if_none_match:
             response = HTTPNotModified()
             self._add_timestamp_header(response, timestamp=current_timestamp)
             raise response
@@ -858,7 +858,7 @@ class UserResource:
         else:
             current_timestamp = self.model.timestamp()
 
-        if current_timestamp > modified_since:
+        if current_timestamp != modified_since:
             error_msg = 'Resource was modified meanwhile'
             details = {'existing': record} if record else {}
             response = http_error(HTTPPreconditionFailed(),

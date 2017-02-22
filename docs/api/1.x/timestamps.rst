@@ -110,15 +110,6 @@ When the client receives a |status-412|, it can then choose to:
 * reconcile the resource by fetching, merging and repeating the request.
 
 
-.. note::
-
-    ``If-Match`` and ``If-None-Match`` headers on Kinto work slightly different from what
-    `their RFC specification expects <https://tools.ietf.org/html/rfc7232#section-3>`_.
-    Instead of comparing if the current
-    ``ETag`` is exactly the same as the value provided on the header,
-    the current implementation just checks if the ``ETag`` is newer or older
-    in order to simplify the synchronization behavior on clients.
-
 Replication
 ===========
 
