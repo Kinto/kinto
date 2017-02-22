@@ -255,7 +255,7 @@ class ModifiedMeanwhileTest(BaseTest):
         self.assertRaises(httpexceptions.HTTPPreconditionFailed,
                           self.resource.put)
 
-    def test_put_if_fails_if_record_does_not_exist(self):
+    def test_put_if_match_current_fails_if_record_does_not_exist(self):
         self.validated['header']['If-Match'] = self.current  # wouldn't raise on existing
         self.resource.request.json = {'data': {'field': 'new'}}
         self.validated['body'] = self.resource.request.json

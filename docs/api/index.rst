@@ -13,9 +13,9 @@ Changelog
 
 1.15 (Unreleased)
 '''''''''''''''''
-- ``If-Match`` and ``If-None-Match`` precondition headers now check if ``ETag`` is
-  equal or not equal to the provided value (as in RFC 2616). Previous versions
-  asserted then to be greater or lower.
+- If-Match and If-None-Match precondition headers now check the ETag for
+  strict equality. Previous versions would allow requests if they seemed
+  to be more recent than the current version.
 - ``If-Match`` now raises ``412`` if a record doesn't exist.
 
 1.14 (2017-01-11)
