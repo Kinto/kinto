@@ -200,6 +200,18 @@ class ModifiedMeanwhileTest(BaseTest):
                 'field': 'new'}}
         self.resource.collection_post()  # not raising.
 
+    def test_get_if_none_match_star_fails_on_collections(self):
+        self.validated['header'].pop('If-Match')
+        self.validated['header']['If-None-Match'] = '*'
+        self.assertRaises(httpexceptions.HTTPPreconditionFailed,
+                          self.resource.collection_get)
+
+    def test_delete_if_none_match_star_fails_on_collections(self):
+        self.validated['header'].pop('If-Match')
+        self.validated['header']['If-None-Match'] = '*'
+        self.assertRaises(httpexceptions.HTTPPreconditionFailed,
+                          self.resource.collection_delete)
+
     def test_get_if_match_star_succeeds_if_record_exists(self):
         self.validated['header']['If-Match'] = '*'
         self.resource.record_id = self.stored['id']
@@ -249,6 +261,14 @@ class ModifiedMeanwhileTest(BaseTest):
         self.resource.record_id = self.resource.model.id_generator()
         self.assertRaises(httpexceptions.HTTPPreconditionFailed,
                           self.resource.put)
+
+    def test_get_if_match_star_suceed_on_collections(self):
+        self.validated['header']['If-Match'] = '*'
+        self.resource.collection_get()
+
+    def test_delete_if_match_star_suceed_on_collections(self):
+        self.validated['header']['If-Match'] = '*'
+        self.resource.collection_delete()
 
     def test_patch_returns_412_if_changed_meanwhile(self):
         self.resource.record_id = self.stored['id']

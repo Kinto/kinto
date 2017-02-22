@@ -260,7 +260,8 @@ class UserResource:
         self._add_timestamp_header(self.request.response)
         self._add_cache_header(self.request.response)
         self._raise_304_if_not_modified()
-        self._raise_412_if_modified(record={})  # ignore If-Match on non-existing
+        # Collections are considered resources that always exist
+        self._raise_412_if_modified(record={})
 
         headers = self.request.response.headers
 
@@ -355,7 +356,8 @@ class UserResource:
         :raises: :exc:`~pyramid:pyramid.httpexceptions.HTTPBadRequest`
             if filters are invalid.
         """
-        self._raise_412_if_modified(record={})  # ignore If-Match on non-existing
+        # Collections are considered resources that always exist
+        self._raise_412_if_modified(record={})
 
         filters = self._extract_filters()
         limit = self._extract_limit()
@@ -452,7 +454,7 @@ class UserResource:
             if len(tombstones) > 0:
                 existing = tombstones[0]
         finally:
-            self._raise_412_if_modified(existing)
+            self._raise_412_if_modified(record=existing)
 
         # If `data` is not provided, use existing record (or empty if creation)
         post_record = self.request.validated['body'].get('data', existing) or {}
@@ -828,18 +830,18 @@ class UserResource:
         if_match = self.request.validated['header'].get('If-Match')
         if_none_match = self.request.validated['header'].get('If-None-Match')
 
-        # Check if record exists and it's not a Tombstone
+        # Check if record exists and it's not a tombstone
         record_exists = record is not None and not record.get(self.model.deleted_field)
 
         # If no precondition headers, just ignore
         if not if_match and not if_none_match:
             return
 
-        # If-None-Match: * should always raise if a record exist
-        elif if_none_match == '*' and record_exists:
+        # If-None-Match: * should always raise if a record exists
+        if if_none_match == '*' and record_exists:
             modified_since = -1  # Always raise.
 
-        # If-Match should always raise if a record don't exist
+        # If-Match should always raise if a record doesn't exist
         elif if_match and not record_exists:
             modified_since = -1
 
