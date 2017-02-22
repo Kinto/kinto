@@ -81,27 +81,42 @@ the ``If-None-Match: *`` request header.
 
 The following table gives a summary of the expected behaviour of a resource:
 
-+-----------------------------+-------------+--------------+---------------+---------------+
-|                             | POST        | PUT          | PATCH         | DELETE        |
-+=============================+=============+==============+===============+===============+
-|| **If-Match: "timestamp"**                                                               |
-+-----------------------------+-------------+--------------+---------------+---------------+
-| Changed meanwhile           | ``HTTP 412``| ``HTTP 412`` | ``HTTP 412``  | ``HTTP 412``  |
-+-----------------------------+-------------+--------------+---------------+---------------+
-| Not changed                 | Create      | Overwrite    | Modify        | Delete        |
-+-----------------------------+-------------+--------------+---------------+---------------+
-|| **If-None-Match: ***                                                                    |
-+-----------------------------+-------------+--------------+---------------+---------------+
-| Id exists                   | ``HTTP 412``| ``HTTP 412`` | No effect     | No effect     |
-+-----------------------------+-------------+--------------+---------------+---------------+
-| Id unknown                  | Create      | Create       | No effect     | No effect     |
-+-----------------------------+-------------+--------------+---------------+---------------+
++-----------------------------+-------------+-------------+-------------+-------------+-------------+
+|                             | GET         | POST        | PUT         | PATCH       | DELETE      |
++=============================+=============+=============+=============+=============+=============+
+|| **If-Match: "timestamp"**                                                                        |
++-----------------------------+-------------+-------------+-------------+-------------+-------------+
+| Not changed                 | Fetch       | Fetch       | Overwrite   | Modify      | Delete      |
++-----------------------------+-------------+-------------+-------------+-------------+-------------+
+| Changed meanwhile           | ``HTTP 412``| ``HTTP 412``| ``HTTP 412``| ``HTTP 412``| ``HTTP 412``|
++-----------------------------+-------------+-------------+-------------+-------------+-------------+
+|| **If-Match: ***                                                                                  |
++-----------------------------+-------------+-------------+-------------+-------------+-------------+
+| Id exists                   | Fetch       | Fetch       | Overwrite   | Modify      | Delete      |
++-----------------------------+-------------+-------------+-------------+-------------+-------------+
+| Id unknown                  | ``HTTP 412``| ``HTTP 412``| ``HTTP 412``| ``HTTP 412``| ``HTTP 412``|
++-----------------------------+-------------+-------------+-------------+-------------+-------------+
+|| **If-None-Match: ***                                                                             |
++-----------------------------+-------------+-------------+-------------+-------------+-------------+
+| Id exists                   | ``HTTP 412``| ``HTTP 412``| ``HTTP 412``| ``HTTP 412``| ``HTTP 412``|
++-----------------------------+-------------+-------------+-------------+-------------+-------------+
+| Id unknown                  | No effect   | Create      | Create      | No effect   | No effect   |
++-----------------------------+-------------+-------------+-------------+-------------+-------------+
+
 
 When the client receives a |status-412|, it can then choose to:
 
 * overwrite by repeating the request without concurrency control;
 * reconcile the resource by fetching, merging and repeating the request.
 
+
+.. note::
+
+    ``If-Match`` and ``If-None-Match`` headers on Kinto work slightly different
+    from what `the specification expects <https://tools.ietf.org/html/rfc7232#section-3>`_
+    for these precondition headers. Instead of comparing if ``ETag`` is exactly the
+    same, as the specification suggests, it just checks if the ``ETag`` is newer
+    or older in order to simplify the synchronization behavior.
 
 Replication
 ===========

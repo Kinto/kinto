@@ -260,7 +260,7 @@ class UserResource:
         self._add_timestamp_header(self.request.response)
         self._add_cache_header(self.request.response)
         self._raise_304_if_not_modified()
-        self._raise_412_if_modified()
+        self._raise_412_if_modified(record={})  # ignore If-Match on non-existing
 
         headers = self.request.response.headers
 
@@ -355,7 +355,7 @@ class UserResource:
         :raises: :exc:`~pyramid:pyramid.httpexceptions.HTTPBadRequest`
             if filters are invalid.
         """
-        self._raise_412_if_modified()
+        self._raise_412_if_modified(record={})  # ignore If-Match on non-existing
 
         filters = self._extract_filters()
         limit = self._extract_limit()
@@ -452,8 +452,7 @@ class UserResource:
             if len(tombstones) > 0:
                 existing = tombstones[0]
         finally:
-            if existing:
-                self._raise_412_if_modified(existing)
+            self._raise_412_if_modified(existing)
 
         # If `data` is not provided, use existing record (or empty if creation)
         post_record = self.request.validated['body'].get('data', existing) or {}
@@ -829,18 +828,27 @@ class UserResource:
         if_match = self.request.validated['header'].get('If-Match')
         if_none_match = self.request.validated['header'].get('If-None-Match')
 
+        # Check if record exists and it's not a Tombstone
+        record_exists = record is not None and not record.get(self.model.deleted_field)
+
+        # If no precondition headers, just ignore
         if not if_match and not if_none_match:
             return
 
-        if record and if_none_match == '*':
-            if record.get(self.model.deleted_field, False):
-                # Tombstones should not prevent creation.
-                return
+        # If-None-Match: * should always raise if a record exist
+        elif if_none_match == '*' and record_exists:
             modified_since = -1  # Always raise.
+
+        # If-Match should always raise if a record don't exist
+        elif if_match and not record_exists:
+            modified_since = -1
+
+        # If-Match with ETag value on existing records should compare ETag
         elif if_match and if_match != '*':
             modified_since = if_match
+
+        # If none of the above applies, don't raise
         else:
-            # In case _raise_304_if_not_modified() did not raise.
             return
 
         if record:
