@@ -54,11 +54,18 @@ class NotModifiedTest(BaseTest):
 class ModifiedMeanwhileTest(BaseTest):
     def setUp(self):
         super().setUp()
+
+        # Create a record using model (will have an incremented last_modified)
         self.stored = self.model.create_record({})
-        self.resource.collection_get()
+        # Update the record we just created (will set last_modified with the server ETag)
+        self.resource.record_id = self.stored['id']
+        self.resource.put()
+        # Update our record with last_modified provided by the server
+        self.stored['last_modified'] = int(self.last_response.headers['ETag'][1:-1])
+
         self.validated = self.resource.request.validated
-        current = self.last_response.headers['ETag'][1:-1]
-        previous = int(current) - 10
+        self.current = int(self.last_response.headers['ETag'][1:-1])
+        previous = self.current - 10
         self.validated['header']['If-Match'] = previous
 
     def test_preconditions_errors_are_json_formatted(self):
@@ -76,9 +83,13 @@ class ModifiedMeanwhileTest(BaseTest):
         self.assertRaises(httpexceptions.HTTPPreconditionFailed,
                           self.resource.collection_get)
 
-    def test_collection_returns_200_if_if_match_is_superior(self):
-        current = self.last_response.headers['ETag'][1:-1]
-        self.validated['header']['If-Match'] = int(current) + 10
+    def test_collection_returns_412_if_if_match_is_superior(self):
+        self.validated['header']['If-Match'] = self.current + 10
+        self.assertRaises(httpexceptions.HTTPPreconditionFailed,
+                          self.resource.collection_get)
+
+    def test_collection_returns_200_if_if_match_is_equal(self):
+        self.validated['header']['If-Match'] = self.current
         self.resource.collection_get()
 
     def test_412_errors_on_collection_do_not_provide_existing_record(self):
@@ -97,21 +108,20 @@ class ModifiedMeanwhileTest(BaseTest):
         self.assertIsNotNone(error.headers.get('Last-Modified'))
 
     def test_412_errors_on_record_provide_existing_data(self):
-        self.resource.record_id = self.stored['id']
         try:
             self.resource.put()
         except httpexceptions.HTTPPreconditionFailed as e:
             error = e
-        self.assertEqual(error.json['details']['existing'],
-                         self.stored)
+        print(error.json['details']['existing'])
+        print(self.stored)
+        self.assertDictEqual(error.json['details']['existing'],
+                             self.stored)
 
     def test_single_record_returns_412_if_changed_meanwhile(self):
-        self.resource.record_id = self.stored['id']
         self.assertRaises(httpexceptions.HTTPPreconditionFailed,
                           self.resource.get)
 
     def test_412_on_single_record_has_last_modified_timestamp(self):
-        self.resource.record_id = self.stored['id']
         try:
             self.resource.get()
         except httpexceptions.HTTPPreconditionFailed as e:
@@ -125,7 +135,6 @@ class ModifiedMeanwhileTest(BaseTest):
                           self.resource.collection_post)
 
     def test_put_returns_412_if_changed_meanwhile(self):
-        self.resource.record_id = self.stored['id']
         self.model.delete_record(self.stored)
         self.assertRaises(httpexceptions.HTTPPreconditionFailed,
                           self.resource.put)
@@ -133,7 +142,6 @@ class ModifiedMeanwhileTest(BaseTest):
     def test_put_returns_412_if_changed_and_none_match_present(self):
         self.validated['body'] = {'data': {'field': 'new'}}
         self.validated['header']['If-None-Match'] = 42
-        self.resource.record_id = self.stored['id']
         self.assertRaises(httpexceptions.HTTPPreconditionFailed,
                           self.resource.put)
 
@@ -147,21 +155,18 @@ class ModifiedMeanwhileTest(BaseTest):
         self.assertNotIn('1970', error.headers['Last-Modified'])
 
     def test_put_returns_412_if_deleted_meanwhile(self):
-        self.resource.record_id = self.stored['id']
         self.assertRaises(httpexceptions.HTTPPreconditionFailed,
                           self.resource.put)
 
     def test_put_if_none_match_star_fails_if_record_exists(self):
         self.validated['header'].pop('If-Match')
         self.validated['header']['If-None-Match'] = '*'
-        self.resource.record_id = self.stored['id']
         self.assertRaises(httpexceptions.HTTPPreconditionFailed,
                           self.resource.put)
 
     def test_get_if_none_match_star_fails_if_record_exists(self):
         self.validated['header'].pop('If-Match')
         self.validated['header']['If-None-Match'] = '*'
-        self.resource.record_id = self.stored['id']
         self.assertRaises(httpexceptions.HTTPPreconditionFailed,
                           self.resource.get)
 
@@ -177,7 +182,6 @@ class ModifiedMeanwhileTest(BaseTest):
         self.validated['header'].pop('If-Match')
         self.validated['header']['If-None-Match'] = '*'
         self.validated['body'] = {'data': {'field': 'new'}}
-        self.resource.record_id = self.stored['id']
         self.resource.put()  # not raising.
 
     def test_post_if_none_match_star_fails_if_record_exists(self):
@@ -228,7 +232,6 @@ class ModifiedMeanwhileTest(BaseTest):
 
     def test_put_if_match_star_succeeds_if_record_exists(self):
         self.validated['header']['If-Match'] = '*'
-        self.resource.record_id = self.stored['id']
         self.resource.put()
 
     def test_patch_if_match_star_succeeds_if_record_exists(self):
@@ -238,12 +241,10 @@ class ModifiedMeanwhileTest(BaseTest):
                 'id': self.stored['id'],
                 'field': 'new'}}
         self.validated['body'] = self.resource.request.json
-        self.resource.record_id = self.stored['id']
         self.resource.patch()
 
     def test_delete_if_match_star_succeeds_if_record_exists(self):
         self.validated['header']['If-Match'] = '*'
-        self.resource.record_id = self.stored['id']
         self.resource.delete()
 
     def test_put_if_match_star_fails_if_record_does_not_exist(self):
@@ -255,10 +256,15 @@ class ModifiedMeanwhileTest(BaseTest):
                           self.resource.put)
 
     def test_put_if_fails_if_record_does_not_exist(self):
-        self.validated['header']['If-Match'] += 10  # wouldn't raise on existing
+        self.validated['header']['If-Match'] = self.current  # wouldn't raise on existing
         self.resource.request.json = {'data': {'field': 'new'}}
         self.validated['body'] = self.resource.request.json
         self.resource.record_id = self.resource.model.id_generator()
+        self.assertRaises(httpexceptions.HTTPPreconditionFailed,
+                          self.resource.put)
+
+    def test_put_if_fails_if_if_match_is_superior(self):
+        self.validated['header']['If-Match'] += self.current + 10
         self.assertRaises(httpexceptions.HTTPPreconditionFailed,
                           self.resource.put)
 
@@ -271,13 +277,11 @@ class ModifiedMeanwhileTest(BaseTest):
         self.resource.collection_delete()
 
     def test_patch_returns_412_if_changed_meanwhile(self):
-        self.resource.record_id = self.stored['id']
         self.assertRaises(httpexceptions.HTTPPreconditionFailed,
                           self.resource.patch)
 
     def test_patch_returns_last_modified_if_changed_meanwhile(self):
         self.resource.timestamp = 0
-        self.resource.record_id = self.stored['id']
         try:
             self.resource.patch()
         except httpexceptions.HTTPPreconditionFailed as e:
@@ -285,7 +289,6 @@ class ModifiedMeanwhileTest(BaseTest):
         self.assertNotIn('1970', error.headers['Last-Modified'])
 
     def test_delete_returns_412_if_changed_meanwhile(self):
-        self.resource.record_id = self.stored['id']
         self.assertRaises(httpexceptions.HTTPPreconditionFailed,
                           self.resource.delete)
 
