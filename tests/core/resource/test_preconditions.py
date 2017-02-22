@@ -200,13 +200,55 @@ class ModifiedMeanwhileTest(BaseTest):
                 'field': 'new'}}
         self.resource.collection_post()  # not raising.
 
-    def test_post_if_match_star_succeeds_if_record_does_exist(self):
+    def test_get_if_match_star_succeeds_if_record_exists(self):
         self.validated['header']['If-Match'] = '*'
-        self.validated['body'] = {
+        self.resource.record_id = self.stored['id']
+        self.resource.get()
+
+    def test_post_if_match_star_succeeds_if_record_exists(self):
+        self.validated['header']['If-Match'] = '*'
+        self.resource.request.json = {
             'data': {
-                'id': self.resource.model.id_generator(),
+                'id': self.stored['id'],
                 'field': 'new'}}
-        self.resource.collection_post()  # not raising.
+        self.validated['body'] = self.resource.request.json
+        self.resource.collection_post()
+
+    def test_put_if_match_star_succeeds_if_record_exists(self):
+        self.validated['header']['If-Match'] = '*'
+        self.resource.record_id = self.stored['id']
+        self.resource.put()
+
+    def test_patch_if_match_star_succeeds_if_record_exists(self):
+        self.validated['header']['If-Match'] = '*'
+        self.resource.request.json = {
+            'data': {
+                'id': self.stored['id'],
+                'field': 'new'}}
+        self.validated['body'] = self.resource.request.json
+        self.resource.record_id = self.stored['id']
+        self.resource.patch()
+
+    def test_delete_if_match_star_succeeds_if_record_exists(self):
+        self.validated['header']['If-Match'] = '*'
+        self.resource.record_id = self.stored['id']
+        self.resource.delete()
+
+    def test_put_if_match_star_fails_if_record_does_not_exist(self):
+        self.validated['header']['If-Match'] = '*'
+        self.resource.request.json = {'data': {'field': 'new'}}
+        self.validated['body'] = self.resource.request.json
+        self.resource.record_id = self.resource.model.id_generator()
+        self.assertRaises(httpexceptions.HTTPPreconditionFailed,
+                          self.resource.put)
+
+    def test_put_if_fails_if_record_does_not_exist(self):
+        self.validated['header']['If-Match'] = '123'
+        self.resource.request.json = {'data': {'field': 'new'}}
+        self.validated['body'] = self.resource.request.json
+        self.resource.record_id = self.resource.model.id_generator()
+        self.assertRaises(httpexceptions.HTTPPreconditionFailed,
+                          self.resource.put)
 
     def test_patch_returns_412_if_changed_meanwhile(self):
         self.resource.record_id = self.stored['id']
