@@ -17,6 +17,10 @@ Protocol is now at version **1.15**. See `API changelog`_.
 - Remove Python 2.7 support and upgrade to Python 3.5. (#1050)
 - Upgraded minimal PostgreSQL support to PostgreSQL 9.5 (#1056)
 
+**New features**
+
+- Add a `_at` parameter to a collection to grab it's history. (#1104)
+
 **Bug fixes**
 
 - Prevent injections in the PostgreSQL permission backend (#1061)

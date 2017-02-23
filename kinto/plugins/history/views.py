@@ -1,9 +1,13 @@
 import colander
 
-from kinto.core import resource
+from pyramid import httpexceptions
+from pyramid.security import NO_PERMISSION_REQUIRED
+
+from kinto.core import resource, Service
 from kinto.core.utils import instance_uri
-from kinto.core.storage import Filter
+from kinto.core.storage import Filter, Sort
 from kinto.core.resource.viewset import ViewSet
+from kinto.core.utils import COMPARISON
 
 
 class HistorySchema(resource.ResourceSchema):
@@ -57,3 +61,30 @@ class History(resource.ShareableResource):
             filters_str_id.append(filt)
 
         return filters_str_id
+
+
+version_view = Service(name='version_view',
+                       description='Handle retrieving object from the past.',
+                       path='{subpath:.*}/version/{last_modified:[0-9]{13}}')
+
+@version_view.get(permission=NO_PERMISSION_REQUIRED)
+def get_version_view(request):
+    last_modified = int(request.matchdict['last_modified'])
+    parent_id = '/{}'.format(request.matchdict['subpath'])
+
+    if not parent_id.startswith('/buckets'):
+        raise httpexceptions.HTTPNotFound()
+
+    bucket_id = request.matchdict['subpath'].split('/', 2)[1]
+    bucket_uri = '/buckets/{}'.format(bucket_id)
+    # 1. We want to get the record at a certain time.
+    filters = [Filter('last_modified', last_modified, COMPARISON.MIN),
+               Filter('uri', parent_id, COMPARISON.EQ)]
+    sorting = [Sort('last_modified', 1)]
+
+    records, count = request.registry.storage.get_all(
+        collection_id='history', parent_id=bucket_uri,
+        filters=filters, sorting=sorting, limit=1)
+    if count > 0:
+        return {"data": records[0]['target']['data']}
+    raise httpexceptions.HTTPNotFound()
