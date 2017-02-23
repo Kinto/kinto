@@ -6,7 +6,9 @@ This document describes changes between each past release.
 5.4.1 (unreleased)
 ------------------
 
-- Nothing changed yet.
+**Bug fixes**
+
+- Fixed unexpected references on the swagger spec that failed validation.
 
 
 5.4.0 (2017-02-21)
