@@ -257,7 +257,6 @@ paths:
         - $ref: '#/parameters/_sort'
         - $ref: '#/parameters/_limit'
         - $ref: '#/parameters/_token'
-        - $ref: '#/parameters/_fields'
       responses:
         '200':
           $ref: '#/responses/list-delete-200'
@@ -322,7 +321,6 @@ paths:
         - $ref: '#/parameters/bucket'
         - $ref: '#/parameters/If-Match'
         - $ref: '#/parameters/If-None-Match'
-        - $ref: '#/parameters/_fields'
       responses:
         '200':
           $ref: '#/responses/bucket-put-200'
@@ -356,7 +354,6 @@ paths:
         - $ref: '#/parameters/bucket'
         - $ref: '#/parameters/If-Match'
         - $ref: '#/parameters/If-None-Match'
-        - $ref: '#/parameters/_fields'
       responses:
         '200':
           $ref: '#/responses/bucket-patch-200'
@@ -385,7 +382,6 @@ paths:
       parameters:
         - $ref: '#/parameters/If-Match'
         - $ref: '#/parameters/If-None-Match'
-        - $ref: '#/parameters/_fields'
       responses:
         '200':
           $ref: '#/responses/object-delete-200'
@@ -486,7 +482,6 @@ paths:
         - $ref: '#/parameters/_sort'
         - $ref: '#/parameters/_limit'
         - $ref: '#/parameters/_token'
-        - $ref: '#/parameters/_fields'
       responses:
         '200':
           $ref: '#/responses/list-delete-200'
@@ -556,7 +551,6 @@ paths:
         - $ref: '#/parameters/group'
         - $ref: '#/parameters/If-Match'
         - $ref: '#/parameters/If-None-Match'
-        - $ref: '#/parameters/_fields'
       responses:
         '200':
           $ref: '#/responses/group-put-200'
@@ -590,7 +584,6 @@ paths:
         - $ref: '#/parameters/group'
         - $ref: '#/parameters/If-Match'
         - $ref: '#/parameters/If-None-Match'
-        - $ref: '#/parameters/_fields'
       responses:
         '200':
           $ref: '#/responses/group-patch-200'
@@ -619,7 +612,6 @@ paths:
       parameters:
         - $ref: '#/parameters/If-Match'
         - $ref: '#/parameters/If-None-Match'
-        - $ref: '#/parameters/_fields'
       responses:
         '200':
           $ref: '#/responses/object-delete-200'
@@ -720,7 +712,6 @@ paths:
         - $ref: '#/parameters/_sort'
         - $ref: '#/parameters/_limit'
         - $ref: '#/parameters/_token'
-        - $ref: '#/parameters/_fields'
       responses:
         '200':
           $ref: '#/responses/list-delete-200'
@@ -790,7 +781,6 @@ paths:
         - $ref: '#/parameters/collection'
         - $ref: '#/parameters/If-Match'
         - $ref: '#/parameters/If-None-Match'
-        - $ref: '#/parameters/_fields'
       responses:
         '200':
           $ref: '#/responses/collection-put-200'
@@ -824,7 +814,6 @@ paths:
         - $ref: '#/parameters/collection'
         - $ref: '#/parameters/If-Match'
         - $ref: '#/parameters/If-None-Match'
-        - $ref: '#/parameters/_fields'
       responses:
         '200':
           $ref: '#/responses/collection-patch-200'
@@ -853,7 +842,6 @@ paths:
       parameters:
         - $ref: '#/parameters/If-Match'
         - $ref: '#/parameters/If-None-Match'
-        - $ref: '#/parameters/_fields'
       responses:
         '200':
           $ref: '#/responses/object-delete-200'
@@ -959,7 +947,6 @@ paths:
         - $ref: '#/parameters/_sort'
         - $ref: '#/parameters/_limit'
         - $ref: '#/parameters/_token'
-        - $ref: '#/parameters/_fields'
       responses:
         '200':
           $ref: '#/responses/list-delete-200'
@@ -1034,7 +1021,6 @@ paths:
         - $ref: '#/parameters/record'
         - $ref: '#/parameters/If-Match'
         - $ref: '#/parameters/If-None-Match'
-        - $ref: '#/parameters/_fields'
       responses:
         '200':
           $ref: '#/responses/record-put-200'
@@ -1068,7 +1054,6 @@ paths:
         - $ref: '#/parameters/record'
         - $ref: '#/parameters/If-Match'
         - $ref: '#/parameters/If-None-Match'
-        - $ref: '#/parameters/_fields'
       responses:
         '200':
           $ref: '#/responses/record-patch-200'
@@ -1097,7 +1082,6 @@ paths:
       parameters:
         - $ref: '#/parameters/If-Match'
         - $ref: '#/parameters/If-None-Match'
-        - $ref: '#/parameters/_fields'
       responses:
         '200':
           $ref: '#/responses/object-delete-200'
@@ -1321,23 +1305,26 @@ definitions:
   Error:
     type: object
     properties:
-      code:
-        description: The HTTP status code.
-        type: integer
-      errno:
-        description: Application-leval error number.
-        type: integer
-      error:
-        description: Description of the HTTP error type.
-        type: string
-      message:
-        description: Context information about the error.
-        type: string
-      info:
-        description: Link to an online resource with details.
-        type: string
-    additionalProperties: {}
-
+       code:
+         description: The HTTP status code.
+         type: integer
+       errno:
+         description: Application-leval error number.
+         type: integer
+       error:
+         description: Description of the HTTP error type.
+         type: string
+       message:
+         description: Context information about the error.
+         type: string
+       info:
+         description: Link to an online resource with details.
+         type: string
+       details: {}
+    required:
+      - code
+      - errno
+      - error
 
   Deleted:
     type: object
@@ -1365,7 +1352,7 @@ parameters:
       returns 412 if it does.
     required: false
     type: string
-    pattern: \"[0-9]+\"
+    pattern: '^"([0-9]+?)"$|\*'
 
   If-None-Match:
     in: header
@@ -1376,7 +1363,7 @@ parameters:
       has changed.
     required: false
     type: string
-    pattern: \"[0-9]+\"
+    pattern: '^"([0-9]+?)"$|\*'
 
   #
   # Querystrings
@@ -1583,13 +1570,6 @@ responses:
     description: >-
       The response doesn't match any of the documented cases.
     headers:
-      # We may include all response headers here since we are failing anyway.
-      Backoff:
-        description: >-
-          Time (in seconds) that a client should avoid doing unnecessary
-          requests. Added when the server is in heavy load.
-        type: integer
-        default: 30
       ETag:
         description: >-
           Integer timestamp. Matches the `last_modified` field.
@@ -1675,9 +1655,15 @@ responses:
     description: Return an existing bucket.
     headers:
       ETag:
-        $ref: '#/responses/default/headers/ETag'
+        description: >-
+          Integer timestamp. Matches the `last_modified` field.
+        type: string
+        pattern: \"[0-9]+\"
       Last-Modified:
-        $ref: '#/responses/default/headers/Last-Modified'
+        description: >-
+          `last_modified` field in human-readable format.
+        type: string
+        format: dateTime
     schema:
      $ref: '#/definitions/Bucket'
 
@@ -1685,9 +1671,15 @@ responses:
     description: Return created bucket.
     headers:
       ETag:
-        $ref: '#/responses/default/headers/ETag'
+        description: >-
+          Integer timestamp. Matches the `last_modified` field.
+        type: string
+        pattern: \"[0-9]+\"
       Last-Modified:
-        $ref: '#/responses/default/headers/Last-Modified'
+        description: >-
+          `last_modified` field in human-readable format.
+        type: string
+        format: dateTime
     schema:
       $ref: '#/definitions/Bucket'
 
@@ -1695,9 +1687,15 @@ responses:
     description: Return matched bucket.
     headers:
       ETag:
-        $ref: '#/responses/default/headers/ETag'
+        description: >-
+          Integer timestamp. Matches the `last_modified` field.
+        type: string
+        pattern: \"[0-9]+\"
       Last-Modified:
-        $ref: '#/responses/default/headers/Last-Modified'
+        description: >-
+          `last_modified` field in human-readable format.
+        type: string
+        format: dateTime
     schema:
       $ref: '#/definitions/Bucket'
 
@@ -1705,9 +1703,15 @@ responses:
     description: Return replaced bucket.
     headers:
       ETag:
-        $ref: '#/responses/default/headers/ETag'
+        description: >-
+          Integer timestamp. Matches the `last_modified` field.
+        type: string
+        pattern: \"[0-9]+\"
       Last-Modified:
-        $ref: '#/responses/default/headers/Last-Modified'
+        description: >-
+          `last_modified` field in human-readable format.
+        type: string
+        format: dateTime
     schema:
       $ref: '#/definitions/Bucket'
 
@@ -1715,9 +1719,15 @@ responses:
     description: Return created Bucket.
     headers:
       ETag:
-        $ref: '#/responses/default/headers/ETag'
+        description: >-
+          Integer timestamp. Matches the `last_modified` field.
+        type: string
+        pattern: \"[0-9]+\"
       Last-Modified:
-        $ref: '#/responses/default/headers/Last-Modified'
+        description: >-
+          `last_modified` field in human-readable format.
+        type: string
+        format: dateTime
     schema:
       $ref: '#/definitions/Bucket'
 
@@ -1725,9 +1735,15 @@ responses:
     description: Return updated bucket.
     headers:
       ETag:
-        $ref: '#/responses/default/headers/ETag'
+        description: >-
+          Integer timestamp. Matches the `last_modified` field.
+        type: string
+        pattern: \"[0-9]+\"
       Last-Modified:
-        $ref: '#/responses/default/headers/Last-Modified'
+        description: >-
+          `last_modified` field in human-readable format.
+        type: string
+        format: dateTime
     schema:
       $ref: '#/definitions/Bucket'
 
@@ -1739,9 +1755,15 @@ responses:
     description: Return an existing group.
     headers:
       ETag:
-        $ref: '#/responses/default/headers/ETag'
+        description: >-
+          Integer timestamp. Matches the `last_modified` field.
+        type: string
+        pattern: \"[0-9]+\"
       Last-Modified:
-        $ref: '#/responses/default/headers/Last-Modified'
+        description: >-
+          `last_modified` field in human-readable format.
+        type: string
+        format: dateTime
     schema:
       $ref: '#/definitions/Group'
 
@@ -1749,9 +1771,15 @@ responses:
     description: Return created group.
     headers:
       ETag:
-        $ref: '#/responses/default/headers/ETag'
+        description: >-
+          Integer timestamp. Matches the `last_modified` field.
+        type: string
+        pattern: \"[0-9]+\"
       Last-Modified:
-        $ref: '#/responses/default/headers/Last-Modified'
+        description: >-
+          `last_modified` field in human-readable format.
+        type: string
+        format: dateTime
     schema:
       $ref: '#/definitions/Group'
 
@@ -1759,9 +1787,15 @@ responses:
     description: Return matched group.
     headers:
       ETag:
-        $ref: '#/responses/default/headers/ETag'
+        description: >-
+          Integer timestamp. Matches the `last_modified` field.
+        type: string
+        pattern: \"[0-9]+\"
       Last-Modified:
-        $ref: '#/responses/default/headers/Last-Modified'
+        description: >-
+          `last_modified` field in human-readable format.
+        type: string
+        format: dateTime
     schema:
       $ref: '#/definitions/Group'
 
@@ -1769,9 +1803,15 @@ responses:
     description: Return replaced group.
     headers:
       ETag:
-        $ref: '#/responses/default/headers/ETag'
+        description: >-
+          Integer timestamp. Matches the `last_modified` field.
+        type: string
+        pattern: \"[0-9]+\"
       Last-Modified:
-        $ref: '#/responses/default/headers/Last-Modified'
+        description: >-
+          `last_modified` field in human-readable format.
+        type: string
+        format: dateTime
     schema:
       $ref: '#/definitions/Group'
 
@@ -1779,9 +1819,15 @@ responses:
     description: Return created group.
     headers:
       ETag:
-        $ref: '#/responses/default/headers/ETag'
+        description: >-
+          Integer timestamp. Matches the `last_modified` field.
+        type: string
+        pattern: \"[0-9]+\"
       Last-Modified:
-        $ref: '#/responses/default/headers/Last-Modified'
+        description: >-
+          `last_modified` field in human-readable format.
+        type: string
+        format: dateTime
     schema:
       $ref: '#/definitions/Group'
 
@@ -1789,9 +1835,15 @@ responses:
     description: Return updated group.
     headers:
       ETag:
-        $ref: '#/responses/default/headers/ETag'
+        description: >-
+          Integer timestamp. Matches the `last_modified` field.
+        type: string
+        pattern: \"[0-9]+\"
       Last-Modified:
-        $ref: '#/responses/default/headers/Last-Modified'
+        description: >-
+          `last_modified` field in human-readable format.
+        type: string
+        format: dateTime
     schema:
       $ref: '#/definitions/Group'
 
@@ -1804,9 +1856,15 @@ responses:
     description: Return an existing collection.
     headers:
       ETag:
-        $ref: '#/responses/default/headers/ETag'
+        description: >-
+          Integer timestamp. Matches the `last_modified` field.
+        type: string
+        pattern: \"[0-9]+\"
       Last-Modified:
-        $ref: '#/responses/default/headers/Last-Modified'
+        description: >-
+          `last_modified` field in human-readable format.
+        type: string
+        format: dateTime
     schema:
       $ref: '#/definitions/Collection'
 
@@ -1814,9 +1872,15 @@ responses:
     description: Return created collection.
     headers:
       ETag:
-        $ref: '#/responses/default/headers/ETag'
+        description: >-
+          Integer timestamp. Matches the `last_modified` field.
+        type: string
+        pattern: \"[0-9]+\"
       Last-Modified:
-        $ref: '#/responses/default/headers/Last-Modified'
+        description: >-
+          `last_modified` field in human-readable format.
+        type: string
+        format: dateTime
     schema:
       $ref: '#/definitions/Collection'
 
@@ -1824,9 +1888,15 @@ responses:
     description: Return matched collection.
     headers:
       ETag:
-        $ref: '#/responses/default/headers/ETag'
+        description: >-
+          Integer timestamp. Matches the `last_modified` field.
+        type: string
+        pattern: \"[0-9]+\"
       Last-Modified:
-        $ref: '#/responses/default/headers/Last-Modified'
+        description: >-
+          `last_modified` field in human-readable format.
+        type: string
+        format: dateTime
     schema:
       $ref: '#/definitions/Collection'
 
@@ -1834,9 +1904,15 @@ responses:
     description: Return replaced collection.
     headers:
       ETag:
-        $ref: '#/responses/default/headers/ETag'
+        description: >-
+          Integer timestamp. Matches the `last_modified` field.
+        type: string
+        pattern: \"[0-9]+\"
       Last-Modified:
-        $ref: '#/responses/default/headers/Last-Modified'
+        description: >-
+          `last_modified` field in human-readable format.
+        type: string
+        format: dateTime
     schema:
       $ref: '#/definitions/Collection'
 
@@ -1844,9 +1920,15 @@ responses:
     description: Return created collection.
     headers:
       ETag:
-        $ref: '#/responses/default/headers/ETag'
+        description: >-
+          Integer timestamp. Matches the `last_modified` field.
+        type: string
+        pattern: \"[0-9]+\"
       Last-Modified:
-        $ref: '#/responses/default/headers/Last-Modified'
+        description: >-
+          `last_modified` field in human-readable format.
+        type: string
+        format: dateTime
     schema:
       $ref: '#/definitions/Collection'
 
@@ -1854,9 +1936,15 @@ responses:
     description: Return updated collection.
     headers:
       ETag:
-        $ref: '#/responses/default/headers/ETag'
+        description: >-
+          Integer timestamp. Matches the `last_modified` field.
+        type: string
+        pattern: \"[0-9]+\"
       Last-Modified:
-        $ref: '#/responses/default/headers/Last-Modified'
+        description: >-
+          `last_modified` field in human-readable format.
+        type: string
+        format: dateTime
     schema:
       $ref: '#/definitions/Collection'
 
@@ -1868,9 +1956,15 @@ responses:
     description: Return an existing record.
     headers:
       ETag:
-        $ref: '#/responses/default/headers/ETag'
+        description: >-
+          Integer timestamp. Matches the `last_modified` field.
+        type: string
+        pattern: \"[0-9]+\"
       Last-Modified:
-        $ref: '#/responses/default/headers/Last-Modified'
+        description: >-
+          `last_modified` field in human-readable format.
+        type: string
+        format: dateTime
     schema:
       $ref: '#/definitions/Record'
 
@@ -1878,9 +1972,15 @@ responses:
     description: Return created record.
     headers:
       ETag:
-        $ref: '#/responses/default/headers/ETag'
+        description: >-
+          Integer timestamp. Matches the `last_modified` field.
+        type: string
+        pattern: \"[0-9]+\"
       Last-Modified:
-        $ref: '#/responses/default/headers/Last-Modified'
+        description: >-
+          `last_modified` field in human-readable format.
+        type: string
+        format: dateTime
     schema:
       $ref: '#/definitions/Record'
 
@@ -1888,9 +1988,15 @@ responses:
     description: Return matched record.
     headers:
       ETag:
-        $ref: '#/responses/default/headers/ETag'
+        description: >-
+          Integer timestamp. Matches the `last_modified` field.
+        type: string
+        pattern: \"[0-9]+\"
       Last-Modified:
-        $ref: '#/responses/default/headers/Last-Modified'
+        description: >-
+          `last_modified` field in human-readable format.
+        type: string
+        format: dateTime
     schema:
       $ref: '#/definitions/Record'
 
@@ -1898,9 +2004,15 @@ responses:
     description: Return replaced record.
     headers:
       ETag:
-        $ref: '#/responses/default/headers/ETag'
+        description: >-
+          Integer timestamp. Matches the `last_modified` field.
+        type: string
+        pattern: \"[0-9]+\"
       Last-Modified:
-        $ref: '#/responses/default/headers/Last-Modified'
+        description: >-
+          `last_modified` field in human-readable format.
+        type: string
+        format: dateTime
     schema:
       $ref: '#/definitions/Record'
 
@@ -1908,9 +2020,15 @@ responses:
     description: Return created record.
     headers:
       ETag:
-        $ref: '#/responses/default/headers/ETag'
+        description: >-
+          Integer timestamp. Matches the `last_modified` field.
+        type: string
+        pattern: \"[0-9]+\"
       Last-Modified:
-        $ref: '#/responses/default/headers/Last-Modified'
+        description: >-
+          `last_modified` field in human-readable format.
+        type: string
+        format: dateTime
     schema:
       $ref: '#/definitions/Record'
 
@@ -1918,9 +2036,15 @@ responses:
     description: Return updated record.
     headers:
       ETag:
-        $ref: '#/responses/default/headers/ETag'
+        description: >-
+          Integer timestamp. Matches the `last_modified` field.
+        type: string
+        pattern: \"[0-9]+\"
       Last-Modified:
-        $ref: '#/responses/default/headers/Last-Modified'
+        description: >-
+          `last_modified` field in human-readable format.
+        type: string
+        format: dateTime
     schema:
       $ref: '#/definitions/Record'
 
@@ -1934,9 +2058,15 @@ responses:
     description: Object did not change since value in ``If-None-Match`` header.
     headers:
       ETag:
-        $ref: '#/responses/default/headers/ETag'
+        description: >-
+          Integer timestamp. Matches the `last_modified` field.
+        type: string
+        pattern: \"[0-9]+\"
       Last-Modified:
-        $ref: '#/responses/default/headers/Last-Modified'
+        description: >-
+          `last_modified` field in human-readable format.
+        type: string
+        format: dateTime
   object-get-400:
     description: The request headers are invalid.
     schema:
@@ -2029,9 +2159,15 @@ responses:
     description: Return the deleted object.
     headers:
       ETag:
-        $ref: '#/responses/default/headers/ETag'
+        description: >-
+          Integer timestamp. Matches the `last_modified` field.
+        type: string
+        pattern: \"[0-9]+\"
       Last-Modified:
-        $ref: '#/responses/default/headers/Last-Modified'
+        description: >-
+          `last_modified` field in human-readable format.
+        type: string
+        format: dateTime
     schema:
       $ref: '#/definitions/Deleted'
   object-delete-400:
@@ -2074,18 +2210,30 @@ responses:
         type: integer
         description: Number of objects on the list.
       ETag:
-        $ref: '#/responses/default/headers/ETag'
+        description: >-
+          Integer timestamp. Matches the `last_modified` field.
+        type: string
+        pattern: \"[0-9]+\"
       Last-Modified:
-        $ref: '#/responses/default/headers/Last-Modified'
+        description: >-
+          `last_modified` field in human-readable format.
+        type: string
+        format: dateTime
     schema:
       $ref: '#/definitions/List'
   list-get-304:
     description: List has not changed since value in ``If-None-Match`` header.
     headers:
       ETag:
-        $ref: '#/responses/default/headers/ETag'
+        description: >-
+          Integer timestamp. Matches the `last_modified` field.
+        type: string
+        pattern: \"[0-9]+\"
       Last-Modified:
-        $ref: '#/responses/default/headers/Last-Modified'
+        description: >-
+          `last_modified` field in human-readable format.
+        type: string
+        format: dateTime
   list-get-400:
     description: The request headers or querystring are invalid.
     schema:
@@ -2147,9 +2295,15 @@ responses:
         type: integer
         description: Number of objects on the list.
       ETag:
-        $ref: '#/responses/default/headers/ETag'
+        description: >-
+          Integer timestamp. Matches the `last_modified` field.
+        type: string
+        pattern: \"[0-9]+\"
       Last-Modified:
-        $ref: '#/responses/default/headers/Last-Modified'
+        description: >-
+          `last_modified` field in human-readable format.
+        type: string
+        format: dateTime
     schema:
       $ref: '#/definitions/List'
   list-delete-400:
