@@ -72,9 +72,9 @@ copyright = u'2015-2017 — Mozilla Services'
 # built documents.
 #
 # The short X.Y version.
-version = '5.3'
+version = '5.4'
 # The full version, including alpha/beta/rc tags.
-release = '5.3.6'
+release = '5.4.1'
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
