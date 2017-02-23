@@ -11,7 +11,14 @@ API
 Changelog
 ---------
 
-1.14 (Unreleased)
+1.15 (Unreleased)
+'''''''''''''''''
+- If-Match and If-None-Match precondition headers now check the ETag for
+  strict equality. Previous versions would allow requests if they seemed
+  to be more recent than the current version.
+- ``If-Match`` now raises ``412`` if a record doesn't exist.
+
+1.14 (2017-01-11)
 '''''''''''''''''
 
 - Add an OpenAPI 2.0 specification on ``GET /__api__`` endpoint.
