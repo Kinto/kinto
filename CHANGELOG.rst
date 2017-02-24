@@ -19,7 +19,7 @@ Protocol is now at version **1.15**. See `API changelog`_.
 
 **New features**
 
-- Add a `_at` parameter to a collection to grab it's history. (#1104)
+- Add a version endpoint to grab a record or collection of records at a certain time in history. (#1104)
 
 **Bug fixes**
 
