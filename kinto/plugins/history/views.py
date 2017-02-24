@@ -90,9 +90,21 @@ def get_version_view(request):
     return handle_version_on_records(request, last_modified, bucket_uri)
 
 
+def get_resource_name(request):
+    subpath = '/{}'.format(request.matchdict['subpath'])
+    resources = {
+        '/collections': "collection",
+        '/groups': 'group',
+        '/records': 'record'
+    }
+    for suffix, name in resources.items():
+        if subpath.endswith(suffix):
+            return name
+
+
 def handle_version_on_collections(request, last_modified, bucket_uri):
     parent_id = '/{}/*'.format(request.matchdict['subpath'])
-    resource_name = 'collection'
+    resource_name = get_resource_name(request)
 
     # We want to get the record at a certain time.
     filters = [Filter('target.data.last_modified', last_modified, COMPARISON.MAX),
@@ -104,7 +116,7 @@ def handle_version_on_collections(request, last_modified, bucket_uri):
         collection_id='history', parent_id=bucket_uri,
         filters=filters, sorting=sorting)
 
-    # DISTINCT
+    # Only process records once
     already_processed = set()
     results = []
     for record in records:
