@@ -67,20 +67,53 @@ version_view = Service(name='version_view',
                        description='Handle retrieving object from the past.',
                        path='{subpath:.*}/version/{last_modified:[0-9]{13}}')
 
+
 @version_view.get(permission=NO_PERMISSION_REQUIRED)
 def get_version_view(request):
     last_modified = int(request.matchdict['last_modified'])
-    parent_id = '/{}'.format(request.matchdict['subpath'])
+    subpath = '/{}'.format(request.matchdict['subpath'])
 
-    if not parent_id.startswith('/buckets'):
+    if not subpath.startswith('/buckets'):
         raise httpexceptions.HTTPNotFound()
 
     bucket_id = request.matchdict['subpath'].split('/', 2)[1]
     bucket_uri = '/buckets/{}'.format(bucket_id)
-    # 1. We want to get the record at a certain time.
-    filters = [Filter('last_modified', last_modified, COMPARISON.MIN),
+
+    is_collection = [True for collection_type in ['collections', 'groups', 'records']
+                     if subpath.endswith('/{}'.format(collection_type))]
+
+    # Handle collections
+    if is_collection:
+        return handle_version_on_collections(request, last_modified, bucket_uri)
+
+    # Handle records
+    return handle_version_on_records(request, last_modified, bucket_uri)
+
+
+def handle_version_on_collections(request, last_modified, bucket_uri):
+    parent_id = '/{}/*'.format(request.matchdict['subpath'])
+    resource_name = 'collection'
+
+    # We want to get the record at a certain time.
+    filters = [Filter('target.data.last_modified', last_modified, COMPARISON.MAX),
+               Filter('resource_name', resource_name, COMPARISON.EQ),
+               Filter('uri', parent_id, COMPARISON.LIKE)]
+    sorting = [Sort('last_modified', -1)]
+
+    records, count = request.registry.storage.get_all(
+        collection_id='history', parent_id=bucket_uri,
+        filters=filters, sorting=sorting)
+
+    return {"data": [record['target']['data'] for record in records]}
+
+
+def handle_version_on_records(request, last_modified, bucket_uri):
+    parent_id = '/{}'.format(request.matchdict['subpath'])
+
+    # We want to get the record at a certain time.
+    filters = [Filter('target.data.last_modified', last_modified, COMPARISON.MAX),
                Filter('uri', parent_id, COMPARISON.EQ)]
-    sorting = [Sort('last_modified', 1)]
+    sorting = [Sort('last_modified', -1)]
 
     records, count = request.registry.storage.get_all(
         collection_id='history', parent_id=bucket_uri,
