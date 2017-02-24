@@ -1,14 +1,3 @@
-import json
-import re
-import unittest
-import mock
-
-from pyramid import testing
-
-from kinto import main as kinto_main
-from kinto.core.testing import get_user_headers
-
-from .. import support
 from .test_history import HistoryWebTest
 
 
