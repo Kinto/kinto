@@ -8,7 +8,7 @@ This document describes changes between each past release.
 
 **Bug fixes**
 
-- Fixed unexpected references on the swagger spec that failed validation.
+- Fixed unexpected references on the swagger spec that failed validation. (#1108)
 
 
 5.4.0 (2017-02-21)
