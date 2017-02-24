@@ -104,7 +104,17 @@ def handle_version_on_collections(request, last_modified, bucket_uri):
         collection_id='history', parent_id=bucket_uri,
         filters=filters, sorting=sorting)
 
-    return {"data": [record['target']['data'] for record in records]}
+    # DISTINCT
+    already_processed = set()
+    results = []
+    for record in records:
+        record_id = record['target']['data']['id']
+        if record_id not in already_processed:
+            already_processed.add(record_id)
+            if record['target']['data'].get('deleted') is not True:
+                results.append(record['target']['data'])
+
+    return {"data": results}
 
 
 def handle_version_on_records(request, last_modified, bucket_uri):
