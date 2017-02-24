@@ -3,12 +3,12 @@ Changelog
 
 This document describes changes between each past release.
 
-5.4.1 (unreleased)
+5.4.1 (2017-02-23)
 ------------------
 
 **Bug fixes**
 
-- Fixed unexpected references on the swagger spec that failed validation.
+- Fixed unexpected references on the swagger spec that failed validation. (#1108)
 
 
 5.4.0 (2017-02-21)
