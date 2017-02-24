@@ -65,22 +65,20 @@ class History(resource.ShareableResource):
 
 version_view = Service(name='version_view',
                        description='Handle retrieving object from the past.',
-                       path='{subpath:.*}/version/{last_modified:[0-9]{13}}')
+                       path='/buckets/{bucket_id}{subpath:.*}/version/{last_modified:[0-9]{13}}')
 
 
 @version_view.get(permission=NO_PERMISSION_REQUIRED)
 def get_version_view(request):
     last_modified = int(request.matchdict['last_modified'])
-    subpath = '/{}'.format(request.matchdict['subpath'])
+    bucket_id = request.matchdict['bucket_id']
+    resource_path = '/buckets/{}{}'.format(request.matchdict['bucket_id'],
+                                           request.matchdict['subpath'])
 
-    if not subpath.startswith('/buckets'):
-        raise httpexceptions.HTTPNotFound()
-
-    bucket_id = request.matchdict['subpath'].split('/', 2)[1]
     bucket_uri = '/buckets/{}'.format(bucket_id)
 
-    is_collection = [True for collection_type in ['collections', 'groups', 'records']
-                     if subpath.endswith('/{}'.format(collection_type))]
+    is_collection = any([resource_path.endswith('/{}'.format(collection_type))
+                         for collection_type in ['collections', 'groups', 'records']])
 
     # Handle collections
     if is_collection:
@@ -103,7 +101,7 @@ def get_resource_name(request):
 
 
 def handle_version_on_collections(request, last_modified, bucket_uri):
-    parent_id = '/{}/*'.format(request.matchdict['subpath'])
+    parent_id = '{}{}/*'.format(bucket_uri, request.matchdict['subpath'])
     resource_name = get_resource_name(request)
 
     # We want to get the record at a certain time.
@@ -130,7 +128,7 @@ def handle_version_on_collections(request, last_modified, bucket_uri):
 
 
 def handle_version_on_records(request, last_modified, bucket_uri):
-    parent_id = '/{}'.format(request.matchdict['subpath'])
+    parent_id = '{}{}'.format(bucket_uri, request.matchdict['subpath'])
 
     # We want to get the record at a certain time.
     filters = [Filter('target.data.last_modified', last_modified, COMPARISON.MAX),

@@ -201,9 +201,9 @@ It is possible to exclude certain resources from being tracked by history using 
 Time traveling
 ==============
 
-It is possible to retrieve a previous state of a collection of records
-or a record (a snapshot) by using the ``/version/(timestamp)``
-endpoint appended to existing resources endpoint:
+It is possible to retrieve a previous version objects by using the
+``/version/(timestamp)`` endpoint appended to existing resources
+endpoint:
 
 
 -  ``GET /buckets/(bucket_id)/version/(timestamp)``
@@ -219,9 +219,9 @@ endpoint appended to existing resources endpoint:
 
     The history plugin does not record bucket deletion because the
     whole bucket history is deleted on bucket deletion. That's why we
-    cannot provide a version history on the buckets collection
+    cannot provide a version history on the buckets plural endpoint
     resource because we are not tracking it.
 
 .. note::
 
-   Currently it is not possible to filter snapshot list resource.
+   Currently it is not possible to filter the version list resource.
