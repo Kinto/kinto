@@ -30,7 +30,6 @@ REQUIREMENTS = [
     'pyramid_tm',
     'requests',
     'structlog >= 16.1.0',
-    'enum34',
     'waitress',
     'ujson >= 1.35'
 ]
