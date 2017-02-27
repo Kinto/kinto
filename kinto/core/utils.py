@@ -208,11 +208,11 @@ def find_nested_value(d, path):
             root = candidate
             break
 
-    # if no candidate was found, we have no other choice than raising
+    # if no candidate was found, the path is invalid; abandon
     if root is None:
         return None
 
-    # discard any non-dict root key value
+    # discard any non-dict root key attached value
     if not isinstance(d.get(root), dict):
         return None
 
