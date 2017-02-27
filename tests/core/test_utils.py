@@ -13,7 +13,8 @@ from pyramid import testing
 from kinto.core.utils import (
     native_value, strip_whitespace, random_bytes_hex, read_env, hmac_digest,
     current_service, follow_subrequest, build_request, dict_subset, dict_merge,
-    parse_resource, prefixed_principals, recursive_update_dict
+    parse_resource, prefixed_principals, recursive_update_dict,
+    find_nested_value
 )
 from kinto.core.testing import DummyRequest
 
@@ -225,6 +226,51 @@ class DictMergeTest(unittest.TestCase):
         obtained = dict_merge(dict(a=1, b=dict(c=2)), dict(b=dict(d=4)))
         expected = dict(a=1, b=dict(c=2, d=4))
         self.assertEqual(obtained, expected)
+
+
+class FindNestedValueTest(unittest.TestCase):
+
+    def test_find_flat_value(self):
+        record = {"a": 42}
+        obtained = find_nested_value(record, "a")
+        self.assertEqual(obtained, 42)
+
+    def test_find_nested_value(self):
+        record = {"a": {"b": 42}}
+        obtained = find_nested_value(record, "a.b")
+        self.assertEqual(obtained, 42)
+
+    def test_find_deeply_nested_value(self):
+        record = {"a": {"b": {"c": 42}}}
+        obtained = find_nested_value(record, "a.b.c")
+        self.assertEqual(obtained, 42)
+
+    def test_find_dotted_key_value(self):
+        record = {"a.b": 42}
+        obtained = find_nested_value(record, "a.b")
+        self.assertEqual(obtained, 42)
+
+    def test_find_nested_dotted_key_value(self):
+        record = {"a": {"b.c": 42}}
+        obtained = find_nested_value(record, "a.b.c")
+        self.assertEqual(obtained, 42)
+
+        record = {"a.b": {"c.d": 42}}
+        obtained = find_nested_value(record, "a.b.c.d")
+        self.assertEqual(obtained, 42)
+
+    def test_find_disambiguated_dotted_key_values(self):
+        # XXX: To be honest, this is a really scary use case. Probably a
+        # limitation of the dotted path notation we may want to document.
+        # At least this test acts as documentation for now.
+        record = {"a": {"b": 0}, "a.b": 42}
+        obtained = find_nested_value(record, "a.b")
+        self.assertEqual(obtained, 42)
+
+    def test_invalid_path_raises_a_key_error(self):
+        record = {"a.b": 42}
+        with self.assertRaises(KeyError):
+            find_nested_value(record, "non.existent")
 
 
 class RecursiveUpdateDictTest(unittest.TestCase):

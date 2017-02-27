@@ -236,7 +236,8 @@ class BuildPaginationTokenTest(BaseTest):
         self.record = {
             'id': 1, 'status': 2, 'unread': True,
             'last_modified': 1234, 'title': 'Title',
-            'nested': {'subvalue': 42}
+            'nested': {'subvalue': 42},
+            'nested.other': {'subvalue': 43},
         }
 
     def test_token_contains_current_offset(self):
@@ -291,3 +292,12 @@ class BuildPaginationTokenTest(BaseTest):
         tokeninfo = json.loads(b64decode(token).decode('ascii'))
         self.assertEqual(tokeninfo['last_record'],
                          {'title': 'Title', 'nested.subvalue': 42})
+
+    def test_disambiguate_fieldname_containing_dots(self):
+        token = self.resource._build_pagination_token([
+            ('nested.other.subvalue', -1),
+            ('title', 1),
+        ], self.record, 88)
+        tokeninfo = json.loads(b64decode(token).decode('ascii'))
+        self.assertEqual(tokeninfo['last_record'],
+                         {'title': 'Title', 'nested.other.subvalue': 43})
