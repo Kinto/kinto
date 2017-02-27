@@ -442,11 +442,11 @@ class UserResource:
         """
         self._raise_400_if_invalid_id(self.record_id)
         try:
-            existing = self.model.get_record(self.record_id)
-        except storage_exceptions.RecordNotFoundError:
+            existing = self._get_record_or_404(self.record_id)
+        except HTTPNotFound:
             existing = None
-        finally:
-            self._raise_412_if_modified(record=existing)
+
+        self._raise_412_if_modified(record=existing)
 
         # If `data` is not provided, use existing record (or empty if creation)
         post_record = self.request.validated['body'].get('data', existing) or {}
