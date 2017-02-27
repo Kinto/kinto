@@ -441,30 +441,22 @@ class UserResource:
             :meth:`kinto.core.resource.UserResource.process_record`.
         """
         self._raise_400_if_invalid_id(self.record_id)
-        id_field = self.model.id_field
-        existing = None
-        tombstones = None
         try:
-            existing = self._get_record_or_404(self.record_id)
-        except HTTPNotFound:
-            # Look if this record used to exist (for preconditions check).
-            filter_by_id = Filter(id_field, self.record_id, COMPARISON.EQ)
-            tombstones, _ = self.model.get_records(filters=[filter_by_id],
-                                                   include_deleted=True)
-            if len(tombstones) > 0:
-                existing = tombstones[0]
+            existing = self.model.get_record(self.record_id)
+        except storage_exceptions.RecordNotFoundError:
+            existing = None
         finally:
             self._raise_412_if_modified(record=existing)
 
         # If `data` is not provided, use existing record (or empty if creation)
         post_record = self.request.validated['body'].get('data', existing) or {}
 
-        record_id = post_record.setdefault(id_field, self.record_id)
+        record_id = post_record.setdefault(self.model.id_field, self.record_id)
         self._raise_400_if_id_mismatch(record_id, self.record_id)
 
         new_record = self.process_record(post_record, old=existing)
 
-        if existing and not tombstones:
+        if existing:
             record = self.model.update_record(new_record)
         else:
             record = self.model.create_record(new_record)
@@ -830,8 +822,8 @@ class UserResource:
         if_match = self.request.validated['header'].get('If-Match')
         if_none_match = self.request.validated['header'].get('If-None-Match')
 
-        # Check if record exists and it's not a tombstone
-        record_exists = record is not None and not record.get(self.model.deleted_field)
+        # Check if record exists
+        record_exists = record is not None
 
         # If no precondition headers, just ignore
         if not if_match and not if_none_match:
