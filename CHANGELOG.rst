@@ -22,7 +22,9 @@ Protocol is now at version **1.15**. See `API changelog`_.
 - Prevent injections in the PostgreSQL permission backend (#1061)
 - Fix crash on ``If-Match: *`` (#1064)
 - Handle Integer overflow in querystring parameters. (#1076)
-- Flush endpoint now returns an empty JSON object instad of an HTML page (#1098)
+- Flush endpoint now returns an empty JSON object instead of an HTML page. (#1098)
+- Remove ``deleted`` field from ``PUT`` requests over tombstones. (#1115)
+
 
 **Internal changes**
 
