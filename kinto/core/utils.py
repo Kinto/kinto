@@ -184,6 +184,9 @@ def dict_merge(a, b):
 
 def find_nested_value(d, path):
     """Finds a nested value in a dict from a dotted path key string."""
+    if not isinstance(d, dict):
+        raise TypeError('This function only supports dict.')
+
     if path in d:
         return d.get(path)
 
@@ -207,10 +210,14 @@ def find_nested_value(d, path):
 
     # if no candidate was found, we have no other choice than raising
     if root is None:
-        raise KeyError("Couldn't identify a root key.")
+        return None
 
-    # we have a root key, extract the new subpath and recur
-    subpath = path.split(root)[1][1:]
+    # discard any non-dict root key value
+    if not isinstance(d.get(root), dict):
+        return None
+
+    # we have our root key, extract the new subpath and recur
+    subpath = path.replace(root + '.', '', 1)
     return find_nested_value(d.get(root), subpath)
 
 

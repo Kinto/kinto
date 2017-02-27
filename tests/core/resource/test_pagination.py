@@ -301,3 +301,12 @@ class BuildPaginationTokenTest(BaseTest):
         tokeninfo = json.loads(b64decode(token).decode('ascii'))
         self.assertEqual(tokeninfo['last_record'],
                          {'title': 'Title', 'nested.other.subvalue': 43})
+
+    def test_strip_malformed_sort_field(self):
+        token = self.resource._build_pagination_token([
+            ('non.existent', -1),
+            ('title', 1),
+        ], self.record, 88)
+        tokeninfo = json.loads(b64decode(token).decode('ascii'))
+        self.assertEqual(tokeninfo['last_record'],
+                         {'title': 'Title'})

@@ -245,12 +245,12 @@ class FindNestedValueTest(unittest.TestCase):
         obtained = find_nested_value(record, "a.b.c")
         self.assertEqual(obtained, 42)
 
-    def test_find_dotted_key_value(self):
+    def test_find_dotted_path_value(self):
         record = {"a.b": 42}
         obtained = find_nested_value(record, "a.b")
         self.assertEqual(obtained, 42)
 
-    def test_find_nested_dotted_key_value(self):
+    def test_find_nested_dotted_path_value(self):
         record = {"a": {"b.c": 42}}
         obtained = find_nested_value(record, "a.b.c")
         self.assertEqual(obtained, 42)
@@ -259,7 +259,11 @@ class FindNestedValueTest(unittest.TestCase):
         obtained = find_nested_value(record, "a.b.c.d")
         self.assertEqual(obtained, 42)
 
-    def test_find_disambiguated_dotted_key_values(self):
+        record = {"a": {"b": {"a": {"b": 42}}}}
+        obtained = find_nested_value(record, "a.b.a.b")
+        self.assertEqual(obtained, 42)
+
+    def test_find_disambiguated_dotted_path_values(self):
         # XXX: To be honest, this is a really scary use case. Probably a
         # limitation of the dotted path notation we may want to document.
         # At least this test acts as documentation for now.
@@ -267,10 +271,16 @@ class FindNestedValueTest(unittest.TestCase):
         obtained = find_nested_value(record, "a.b")
         self.assertEqual(obtained, 42)
 
-    def test_invalid_path_raises_a_key_error(self):
-        record = {"a.b": 42}
-        with self.assertRaises(KeyError):
-            find_nested_value(record, "non.existent")
+    def test_invalid_dict_arg_raises_a_type_error(self):
+        record = "bleh"
+        with self.assertRaises(TypeError):
+            find_nested_value(record, "yo")
+
+    def test_unmatched_path_returns_none(self):
+        record = {"a": 42}
+        self.assertIsNone(find_nested_value(record, "x"))
+        self.assertIsNone(find_nested_value(record, "a.b"))
+        self.assertIsNone(find_nested_value(record, "x.a"))
 
 
 class RecursiveUpdateDictTest(unittest.TestCase):

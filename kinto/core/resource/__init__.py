@@ -1087,7 +1087,9 @@ class UserResource:
         }
 
         for field, _ in sorting:
-            token['last_record'][field] = find_nested_value(last_record, field)
+            last_value = find_nested_value(last_record, field)
+            if last_value is not None:
+                token['last_record'][field] = last_value
 
         return encode64(json.dumps(token))
 
