@@ -182,6 +182,13 @@ def dict_merge(a, b):
     return result
 
 
+def find_nested_value(dict, path):
+    if "." not in path:
+        return dict[path]
+    root, rest = path.split('.', 1)
+    return find_nested_value(dict[root], rest)
+
+
 class COMPARISON(Enum):
     LT = '<'
     MIN = '>='

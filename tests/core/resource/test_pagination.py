@@ -235,7 +235,8 @@ class BuildPaginationTokenTest(BaseTest):
         self.patch_known_field.start()
         self.record = {
             'id': 1, 'status': 2, 'unread': True,
-            'last_modified': 1234, 'title': 'Title'
+            'last_modified': 1234, 'title': 'Title',
+            'nested': {'subvalue': 42}
         }
 
     def test_token_contains_current_offset(self):
@@ -281,3 +282,12 @@ class BuildPaginationTokenTest(BaseTest):
         self.assertEqual(tokeninfo['last_record'],
                          {"last_modified": 1234, "status": 2,
                           'title': 'Title'})
+
+    def test_sorting_on_nested_field(self):
+        token = self.resource._build_pagination_token([
+            ('nested.subvalue', -1),
+            ('title', 1),
+        ], self.record, 88)
+        tokeninfo = json.loads(b64decode(token).decode('ascii'))
+        self.assertEqual(tokeninfo['last_record'],
+                         {'title': 'Title', 'nested.subvalue': 42})
