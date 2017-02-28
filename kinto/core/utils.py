@@ -196,17 +196,12 @@ def find_nested_value(d, path):
     root = None
 
     # build a list of all possible root keys from all the path parts
-    candidates = []
-    for i in range(len(parts)):
-        candidates.append('.'.join(parts[:i + 1]))
+    candidates = ['.'.join(parts[:i + 1]) for i in range(len(parts))]
 
     # we start with the longest candidate paths as they're most likely to be the
     # ones we want if they match
     candidates.reverse()
-    for candidate in candidates:
-        if candidate in d:
-            root = candidate
-            break
+    root = next((key for key in candidates if key in d), None)
 
     # if no candidate was found, the path is invalid; abandon
     if root is None:
