@@ -182,6 +182,36 @@ def dict_merge(a, b):
     return result
 
 
+def find_nested_value(d, path, default=None):
+    """Finds a nested value in a dict from a dotted path key string.
+
+    :param dict d: the dict to retrieve nested value from
+    :param str path: the path to the nested value, in dot notation
+    :returns: the nested value if any was found, or None
+    """
+    if path in d:
+        return d.get(path)
+
+    # the challenge is to identify what is the root key, as dict keys may
+    # contain dot characters themselves
+    parts = path.split('.')
+
+    # build a list of all possible root keys from all the path parts
+    candidates = ['.'.join(parts[:i + 1]) for i in range(len(parts))]
+
+    # we start with the longest candidate paths as they're most likely to be the
+    # ones we want if they match
+    root = next((key for key in reversed(candidates) if key in d), None)
+
+    # if no valid root candidates were found, the path is invalid; abandon
+    if root is None or not isinstance(d.get(root), dict):
+        return default
+
+    # we have our root key, extract the new subpath and recur
+    subpath = path.replace(root + '.', '', 1)
+    return find_nested_value(d.get(root), subpath)
+
+
 class COMPARISON(Enum):
     LT = '<'
     MIN = '>='

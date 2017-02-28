@@ -16,7 +16,7 @@ from kinto.core.errors import http_error, raise_invalid, send_alert, ERRORS
 from kinto.core.events import ACTIONS
 from kinto.core.storage import exceptions as storage_exceptions, Filter, Sort
 from kinto.core.utils import (
-    COMPARISON, classname, decode64, encode64, json,
+    COMPARISON, classname, decode64, encode64, json, find_nested_value,
     dict_subset, recursive_update_dict, apply_json_patch
 )
 
@@ -1079,7 +1079,9 @@ class UserResource:
         }
 
         for field, _ in sorting:
-            token['last_record'][field] = last_record[field]
+            last_value = find_nested_value(last_record, field)
+            if last_value is not None:
+                token['last_record'][field] = last_value
 
         return encode64(json.dumps(token))
 
