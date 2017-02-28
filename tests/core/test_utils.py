@@ -278,10 +278,11 @@ class FindNestedValueTest(unittest.TestCase):
         self.assertIsNone(find_nested_value(record, "x.a"))
 
     def test_fallback_default_value(self):
-        record = {"a": 42}
+        record = {"a": {"c": 42}}
         self.assertEqual(find_nested_value(record, "x", 1337), 1337)
         self.assertEqual(find_nested_value(record, "a.b", 1337), 1337)
         self.assertEqual(find_nested_value(record, "x.a", 1337), 1337)
+        self.assertEqual(find_nested_value(record, "a.c.d", 1337), 1337)
 
 
 class RecursiveUpdateDictTest(unittest.TestCase):
