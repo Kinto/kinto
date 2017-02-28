@@ -190,7 +190,6 @@ def find_nested_value(d, path):
     # the challenge is to identify what is the root key, as dict keys may
     # contain dot characters themselves
     parts = path.split('.')
-    root = None
 
     # build a list of all possible root keys from all the path parts
     candidates = ['.'.join(parts[:i + 1]) for i in range(len(parts))]
@@ -199,12 +198,8 @@ def find_nested_value(d, path):
     # ones we want if they match
     root = next((key for key in candidates[::-1] if key in d), None)
 
-    # if no candidate was found, the path is invalid; abandon
-    if root is None:
-        return None
-
-    # discard any non-dict root key attached value
-    if not isinstance(d.get(root), dict):
+    # if no valid root candidates were found, the path is invalid; abandon
+    if root is None or not isinstance(d.get(root), dict):
         return None
 
     # we have our root key, extract the new subpath and recur
