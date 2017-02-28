@@ -23,6 +23,7 @@ Protocol is now at version **1.15**. See `API changelog`_.
 - Fix crash on ``If-Match: *`` (#1064)
 - Handle Integer overflow in querystring parameters. (#1076)
 - Flush endpoint now returns an empty JSON object instad of an HTML page (#1098)
+- Fix nested sorting key breaks pagination token. (#1116)
 
 **Internal changes**
 
