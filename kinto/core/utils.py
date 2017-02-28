@@ -200,8 +200,7 @@ def find_nested_value(d, path):
 
     # we start with the longest candidate paths as they're most likely to be the
     # ones we want if they match
-    candidates.reverse()
-    root = next((key for key in candidates if key in d), None)
+    root = next((key for key in candidates[::-1] if key in d), None)
 
     # if no candidate was found, the path is invalid; abandon
     if root is None:
