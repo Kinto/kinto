@@ -209,7 +209,7 @@ def find_nested_value(d, path, default=None):
 
     # we have our root key, extract the new subpath and recur
     subpath = path.replace(root + '.', '', 1)
-    return find_nested_value(d.get(root), subpath)
+    return find_nested_value(d.get(root), subpath, default=default)
 
 
 class COMPARISON(Enum):
