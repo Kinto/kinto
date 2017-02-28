@@ -271,11 +271,6 @@ class FindNestedValueTest(unittest.TestCase):
         obtained = find_nested_value(record, "a.b")
         self.assertEqual(obtained, 42)
 
-    def test_invalid_dict_arg_raises_a_type_error(self):
-        record = "bleh"
-        with self.assertRaises(TypeError):
-            find_nested_value(record, "yo")
-
     def test_unmatched_path_returns_none(self):
         record = {"a": 42}
         self.assertIsNone(find_nested_value(record, "x"))

@@ -184,9 +184,6 @@ def dict_merge(a, b):
 
 def find_nested_value(d, path):
     """Finds a nested value in a dict from a dotted path key string."""
-    if not isinstance(d, dict):
-        raise TypeError('This function only supports dict.')
-
     if path in d:
         return d.get(path)
 
