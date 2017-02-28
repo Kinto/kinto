@@ -7,7 +7,7 @@ from kinto.core.decorators import synchronized
 from kinto.core.storage import (
     StorageBase, exceptions,
     DEFAULT_ID_FIELD, DEFAULT_MODIFIED_FIELD, DEFAULT_DELETED_FIELD)
-from kinto.core.utils import COMPARISON
+from kinto.core.utils import (COMPARISON, find_nested_value)
 
 
 def tree():
@@ -326,12 +326,7 @@ def apply_filters(records, filters):
                 if isinstance(right, int):
                     right = str(right)
 
-            left = record
-            subfields = f.field.split('.')
-            for subfield in subfields:
-                if not isinstance(left, dict):
-                    break
-                left = left.get(subfield)
+            left = find_nested_value(record, f.field)
 
             if f.operator in (COMPARISON.IN, COMPARISON.EXCLUDE):
                 right, left = left, right
@@ -362,14 +357,7 @@ def apply_sorting(records, sorting):
     first_record = result[0]
 
     def column(first, record, name):
-        empty = first.get(name, float('inf'))
-        subfields = name.split('.')  # Never empty.
-        value = record
-        for subfield in subfields:  # pragma: no branch
-            value = value.get(subfield, empty)
-            if not isinstance(value, dict):
-                break
-        return value
+        return find_nested_value(record, name, default=float('inf'))
 
     for sort in reversed(sorting):
         result = sorted(result,

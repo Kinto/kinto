@@ -182,7 +182,7 @@ def dict_merge(a, b):
     return result
 
 
-def find_nested_value(d, path):
+def find_nested_value(d, path, default=None):
     """Finds a nested value in a dict from a dotted path key string.
 
     :param dict d: the dict to retrieve nested value from
@@ -201,11 +201,11 @@ def find_nested_value(d, path):
 
     # we start with the longest candidate paths as they're most likely to be the
     # ones we want if they match
-    root = next((key for key in candidates[::-1] if key in d), None)
+    root = next((key for key in reversed(candidates) if key in d), None)
 
     # if no valid root candidates were found, the path is invalid; abandon
     if root is None or not isinstance(d.get(root), dict):
-        return None
+        return default
 
     # we have our root key, extract the new subpath and recur
     subpath = path.replace(root + '.', '', 1)
