@@ -183,7 +183,12 @@ def dict_merge(a, b):
 
 
 def find_nested_value(d, path):
-    """Finds a nested value in a dict from a dotted path key string."""
+    """Finds a nested value in a dict from a dotted path key string.
+
+    :param dict d: the dict to retrieve nested value from
+    :param str path: the path to the nested value, in dot notation
+    :returns: the nested value if any was found, or None
+    """
     if path in d:
         return d.get(path)
 
