@@ -39,8 +39,6 @@ CREATE TABLE IF NOT EXISTS records (
 );
 CREATE UNIQUE INDEX IF NOT EXISTS idx_records_parent_id_collection_id_last_modified
     ON records(parent_id, collection_id, last_modified DESC);
-CREATE UNIQUE INDEX IF NOT EXISTS idx_records_parent_id_collection_id_last_modified
-  ON records(parent_id, collection_id, last_modified DESC);
 CREATE INDEX IF NOT EXISTS idx_records_last_modified_epoch
     ON records(as_epoch(last_modified));
 
