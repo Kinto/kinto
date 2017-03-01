@@ -95,6 +95,34 @@ END;
 $$ LANGUAGE plpgsql;
 
 --
+-- Find timestamp in case of conflict
+--
+
+CREATE OR REPLACE FUNCTION find_timestamp(pid VARCHAR, cid VARCHAR, ts TIMESTAMP)
+RETURNS TIMESTAMP AS $$
+DECLARE
+    previous_collection_ts TIMESTAMP;
+    record_ts TIMESTAMP;
+BEGIN
+	record_ts := ts;
+
+	previous_collection_ts := NULL;
+    SELECT last_modified INTO previous_collection_ts
+      FROM timestamps
+     WHERE parent_id = pid
+       AND collection_id = cid;
+
+    IF ts IS NULL OR
+       (previous_collection_ts IS NOT NULL AND as_epoch(ts) = as_epoch(previous_collection_ts)) THEN
+        -- If record does not carry last-modified, or if the one specified
+        -- is equal to previous, assign it to current (i.e. bump it).
+	  record_ts := previous_collection_ts;
+	END IF;
+RETURN record_ts;
+END;
+$$ LANGUAGE plpgsql;
+
+--
 -- Triggers to set last_modified on INSERT/UPDATE
 --
 DROP TRIGGER IF EXISTS tgr_records_last_modified ON records;
@@ -103,12 +131,11 @@ DROP TRIGGER IF EXISTS tgr_deleted_last_modified ON deleted;
 CREATE OR REPLACE FUNCTION bump_timestamp()
 RETURNS trigger AS $$
 DECLARE
-    previous TIMESTAMP;
-    current TIMESTAMP;
-
+    previous_collection_ts TIMESTAMP;
+    next_collection_ts TIMESTAMP;
 BEGIN
-    previous := NULL;
-    SELECT last_modified INTO previous
+    previous_collection_ts := NULL;
+    SELECT last_modified INTO previous_collection_ts
       FROM timestamps
      WHERE parent_id = NEW.parent_id
        AND collection_id = NEW.collection_id;
@@ -122,20 +149,20 @@ BEGIN
     -- an error (operation is cancelled).
     -- See https://github.com/mozilla-services/cliquet/issues/25
     --
-    current := clock_timestamp();
-    IF previous IS NOT NULL AND previous >= current THEN
-        current := previous + INTERVAL '1 milliseconds';
+    next_collection_ts := clock_timestamp();
+    IF previous_collection_ts IS NOT NULL AND previous_collection_ts >= next_collection_ts THEN
+        next_collection_ts := previous_collection_ts + INTERVAL '1 milliseconds';
     END IF;
 
     IF NEW.last_modified IS NULL OR
-       (previous IS NOT NULL AND as_epoch(NEW.last_modified) = as_epoch(previous)) THEN
+       (previous_collection_ts IS NOT NULL AND as_epoch(NEW.last_modified) = as_epoch(previous_collection_ts)) THEN
         -- If record does not carry last-modified, or if the one specified
         -- is equal to previous, assign it to current (i.e. bump it).
-        NEW.last_modified := current;
+        NEW.last_modified := next_collection_ts;
     ELSE
         -- Use record last-modified as collection timestamp.
-        IF previous IS NULL OR NEW.last_modified > previous THEN
-            current := NEW.last_modified;
+        IF previous_collection_ts IS NULL OR NEW.last_modified > previous_collection_ts THEN
+            next_collection_ts := NEW.last_modified;
         END IF;
     END IF;
 
@@ -143,12 +170,12 @@ BEGIN
     -- Upsert current collection timestamp.
     --
     WITH upsert AS (
-        UPDATE timestamps SET last_modified = current
+        UPDATE timestamps SET last_modified = next_collection_ts
          WHERE parent_id = NEW.parent_id AND collection_id = NEW.collection_id
         RETURNING *
     )
     INSERT INTO timestamps (parent_id, collection_id, last_modified)
-    SELECT NEW.parent_id, NEW.collection_id, current
+    SELECT NEW.parent_id, NEW.collection_id, next_collection_ts
     WHERE NOT EXISTS (SELECT * FROM upsert);
 
     RETURN NEW;
