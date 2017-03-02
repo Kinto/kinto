@@ -17,7 +17,7 @@ Changelog
   strict equality. Previous versions would allow requests if they seemed
   to be more recent than the current version.
 - ``If-Match`` now raises ``412`` if a record doesn't exist.
-- À |status-409| error response is now returned when some backend integrity
+- A |status-409| error response is now returned when some backend integrity
   constraint is violated (instead of |status-503|).
 
 1.14 (2017-01-11)

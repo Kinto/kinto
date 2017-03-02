@@ -124,7 +124,12 @@ class TransactionTest(PostgreSQLTest, unittest.TestCase):
         resp = self.app.get('/psilos', headers=self.headers)
         self.assertEqual(len(resp.json['data']), 0)
 
-    def test_integrity_errors_are_returned_as_409(self):
+    def test_concurrent_transactions_do_not_fail(self):
+        # This test originally intended to reproduce integrity errors and check
+        # that a 409 was obtained. But since every errors that could be reproduced
+        # could be also be fixed, this test just asserts that API responses
+        # are consistent. # See Kinto/kinto#1125.
+
         # Make requests slow.
         patch = mock.patch('kinto.core.events.notify_resource_event', lambda: time.sleep(0.1))
         patch.start()
