@@ -1,5 +1,8 @@
 import mock
+import time
+import threading
 import unittest
+from uuid import uuid4
 
 from pyramid import testing
 from pyramid import httpexceptions
@@ -120,6 +123,28 @@ class TransactionTest(PostgreSQLTest, unittest.TestCase):
 
         resp = self.app.get('/psilos', headers=self.headers)
         self.assertEqual(len(resp.json['data']), 0)
+
+    def test_integrity_errors_are_returned_as_409(self):
+        # Make requests slow.
+        patch = mock.patch('kinto.core.events.notify_resource_event', lambda: time.sleep(0.1))
+        patch.start()
+        self.addCleanup(patch.stop)
+
+        # Same object created in two concurrent requests.
+        body = {'data': {'id': str(uuid4())}}
+        results = set()
+
+        def create_object():
+            r = self.app.post_json('/psilos', body, headers=self.headers)
+            results.add(r.status_code)
+
+        thread1 = threading.Thread(target=create_object)
+        thread2 = threading.Thread(target=create_object)
+        thread1.start()
+        thread2.start()
+        thread1.join()
+        thread2.join()
+        self.assertEqual({201, 200}, results)
 
 
 @skip_if_no_postgresql
