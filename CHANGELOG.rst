@@ -41,6 +41,8 @@ Protocol is now at version **1.15**. See `API changelog`_.
 - Replace old loadtests with functional tests (#1085)
 - Use `Cornice Swagger <https://github.com/Cornices/cornice.ext.swagger>`_ rather than
   merging YAML files to generate the OpenAPI spec.
+- Gracefully handle ``UnicityError`` with the ``default_bucket`` plugin and
+  the PostgreSQL backend using PostgreSQL 9.5+ ``ON CONFLICT`` clause. (#1122)
 
 
 5.3.2 (2017-01-31)
