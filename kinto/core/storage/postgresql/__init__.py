@@ -65,7 +65,7 @@ class Storage(StorageBase):
 
     """  # NOQA
 
-    schema_version = 14
+    schema_version = 15
 
     def __init__(self, client, max_fetch_size, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -244,6 +244,9 @@ class Storage(StorageBase):
         VALUES (:object_id, :parent_id,
                 :collection_id, (:data)::JSONB,
                 from_epoch(:last_modified))
+        ON CONFLICT (id, parent_id, collection_id) DO UPDATE
+        SET data = (:data)::JSONB,
+            last_modified = find_timestamp(:parent_id, :collection_id, from_epoch(:last_modified))
         RETURNING id, as_epoch(last_modified) AS last_modified;
         """
         placeholders = dict(object_id=record[id_field],
@@ -305,6 +308,9 @@ class Storage(StorageBase):
         VALUES (:object_id, :parent_id,
                 :collection_id, (:data)::JSONB,
                 from_epoch(:last_modified))
+        ON CONFLICT (id, parent_id, collection_id) DO UPDATE
+        SET data = (:data)::JSONB,
+            last_modified = find_timestamp(:parent_id, :collection_id, from_epoch(:last_modified))
         RETURNING as_epoch(last_modified) AS last_modified;
         """
 
