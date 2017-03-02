@@ -645,7 +645,7 @@ class TimestampsTest:
         record_id = stored[self.id_field]
         timestamp_before = stored[self.modified_field]
 
-        # Set timestamp manually in the future.
+        # Set timestamp manually in the past.
         stored[self.modified_field] = timestamp_before - 10
         self.storage.update(object_id=record_id, record=stored,
                             **self.storage_kw)
