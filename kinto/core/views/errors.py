@@ -104,6 +104,15 @@ def error(context, request):
     if isinstance(context, httpexceptions.Response):
         return reapply_cors(request, context)
 
+    if isinstance(context, storage_exceptions.IntegrityError):
+        error_msg = "Integrity constraint violated, please retry."
+        response = http_error(httpexceptions.HTTPConflict(),
+                              errno=ERRORS.CONSTRAINT_VIOLATED,
+                              message=error_msg)
+        retry_after = request.registry.settings['retry_after_seconds']
+        response.headers["Retry-After"] = str(retry_after)
+        return reapply_cors(request, response)
+
     if isinstance(context, storage_exceptions.BackendError):
         logger.critical(context.original, exc_info=True)
         response = httpexceptions.HTTPServiceUnavailable()

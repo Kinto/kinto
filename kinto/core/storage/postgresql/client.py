@@ -40,6 +40,11 @@ class PostgreSQLClient(object):
                 # Commit like would do a succesful request.
                 zope_transaction.commit()
 
+        except sqlalchemy.exc.IntegrityError as e:
+            logger.error(e)
+            if session and with_transaction:
+                session.rollback()
+            raise exceptions.IntegrityError(original=e) from e
         except sqlalchemy.exc.SQLAlchemyError as e:
             logger.error(e)
             if session and with_transaction:

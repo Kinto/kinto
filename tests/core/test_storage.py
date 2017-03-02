@@ -168,3 +168,10 @@ class PostgreSQLStorageTest(StorageTest, unittest.TestCase):
                         'warnings.warn') as mocked:
             self.backend.load_from_config(self._get_config(settings=settings))
             mocked.assert_any_call(msg)
+
+    def test_raises_integrity_error(self):
+        with self.assertRaises(exceptions.IntegrityError):
+            with self.storage.client.connect() as conn:
+                query = "INSERT INTO timestamps VALUES ('a', 'b', NOW());"
+                conn.execute(query)
+                conn.execute(query)

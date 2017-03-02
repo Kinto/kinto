@@ -23,7 +23,7 @@ class RecordNotFoundError(Exception):
     pass
 
 
-class IntegrityError(Exception):
+class IntegrityError(BackendError):
     pass
 
 

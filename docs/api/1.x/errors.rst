@@ -53,7 +53,7 @@ Precondition errors
 As detailed in the :ref:`timestamps  <server-timestamps>` section, it is
 possible to add concurrency control using ``ETag`` request headers.
 
-When a concurrency error occurs, a |status-412| error response
+When a the provided preconditions are not met, a |status-412| error response
 is returned.
 
 Additional information about the record currently stored on the server will be
@@ -99,4 +99,23 @@ The full list of validation errors is provided in the ``details`` field.
                 "name": "name"
             }
         ]
+    }
+
+
+Conflict errors
+===============
+
+When concurrent requests are manipulating the same resource, it can happen that
+some database transactions overlap and end up as integrity constraint violations.
+
+In this case, a |status-409| error response is returned. Retrying the same request
+will usually be enough to get over it.
+
+::
+
+    {
+        "code": 409,
+        "errno": 122,
+        "error": "Conflict",
+        "message": "Integrity constraint violated, please retry.",
     }
