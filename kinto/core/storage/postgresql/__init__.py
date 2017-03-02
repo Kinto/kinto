@@ -243,17 +243,20 @@ class Storage(StorageBase):
         VALUES (:object_id, :parent_id,
                 :collection_id, (:data)::JSONB,
                 from_epoch(:last_modified))
+        %(on_conflict)s
+        RETURNING id, as_epoch(last_modified) AS last_modified;
         """
+
+        safe_holders = {"on_conflict": ""}
 
         if ignore_conflict:
             # We use DO UPDATE so that the RETURNING clause works
             # but we don't update anything and keep the previous
             # last_modified value already stored.
-            query += """ON CONFLICT (id, parent_id, collection_id) DO UPDATE
-        SET last_modified = EXCLUDED.last_modified
-        """
-
-        query += "RETURNING id, as_epoch(last_modified) AS last_modified;"
+            safe_holders["on_conflict"] = """
+            ON CONFLICT (id, parent_id, collection_id) DO UPDATE
+            SET last_modified = EXCLUDED.last_modified
+            """
 
         placeholders = dict(object_id=record[id_field],
                             parent_id=parent_id,
@@ -261,7 +264,7 @@ class Storage(StorageBase):
                             last_modified=record.get(modified_field),
                             data=json.dumps(query_record))
         with self.client.connect() as conn:
-            result = conn.execute(query, placeholders)
+            result = conn.execute(query % safe_holders, placeholders)
             inserted = result.fetchone()
 
         record[modified_field] = inserted['last_modified']

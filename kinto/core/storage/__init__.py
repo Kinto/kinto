@@ -86,6 +86,7 @@ class StorageBase:
         :param str collection_id: the collection id.
         :param str parent_id: the collection parent.
         :param dict record: the object to create.
+        :param boolean ignore_conflict: Do not raise the UnicityError on conflict.
 
         :returns: the newly created object.
         :rtype: dict

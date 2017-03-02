@@ -191,10 +191,7 @@ class BaseTestStorage:
         record = {**self.record, self.id_field: RECORD_ID}
         self.create_record(record=record)
         record = {**self.record, self.id_field: RECORD_ID}
-        try:
-            self.create_record(record=record, ignore_conflict=True)
-        except exceptions.UnicityError:  # pragma: no cover
-            self.fail('It should not raise a UnicityError here.')
+        self.create_record(record=record, ignore_conflict=True)  # not raising
 
     def test_create_does_generate_a_new_last_modified_field(self):
         record = {**self.record}
