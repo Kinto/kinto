@@ -187,6 +187,15 @@ class BaseTestStorage:
                           self.create_record,
                           record=record)
 
+    def test_create_does_not_raise_unicity_error_if_ignore_conflict_is_set(self):
+        record = {**self.record, self.id_field: RECORD_ID}
+        self.create_record(record=record)
+        record = {**self.record, self.id_field: RECORD_ID}
+        try:
+            self.create_record(record=record, ignore_conflict=True)
+        except exceptions.UnicityError:
+            self.fail('It should not raise a UnicityError here.')
+
     def test_create_does_generate_a_new_last_modified_field(self):
         record = {**self.record}
         self.assertNotIn(self.modified_field, record)

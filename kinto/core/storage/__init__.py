@@ -72,7 +72,7 @@ class StorageBase:
     def create(self, collection_id, parent_id, record, id_generator=None,
                id_field=DEFAULT_ID_FIELD,
                modified_field=DEFAULT_MODIFIED_FIELD,
-               auth=None):
+               auth=None, ignore_conflict=False):
         """Create the specified `object` in this `collection_id` for this `parent_id`.
         Assign the id to the object, using the attribute
         :attr:`kinto.core.resource.model.Model.id_field`.

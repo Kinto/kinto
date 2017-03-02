@@ -214,10 +214,10 @@ class Storage(StorageBase):
     def create(self, collection_id, parent_id, record, id_generator=None,
                id_field=DEFAULT_ID_FIELD,
                modified_field=DEFAULT_MODIFIED_FIELD,
-               auth=None):
+               auth=None, ignore_conflict=False):
         id_generator = id_generator or self.id_generator
         record = {**record}
-        if id_field in record:
+        if id_field in record and not ignore_conflict:
             # Raise unicity error if record with same id already exists.
             try:
                 existing = self.get(collection_id, parent_id, record[id_field])
@@ -243,8 +243,18 @@ class Storage(StorageBase):
         VALUES (:object_id, :parent_id,
                 :collection_id, (:data)::JSONB,
                 from_epoch(:last_modified))
-        RETURNING id, as_epoch(last_modified) AS last_modified;
         """
+
+        if ignore_conflict:
+            # We use DO UPDATE so that the RETURNING clause works
+            # but we don't update anything and keep the previous
+            # last_modified value already stored.
+            query += """ON CONFLICT (id, parent_id, collection_id) DO UPDATE
+        SET last_modified = EXCLUDED.last_modified
+        """
+
+        query += "RETURNING id, as_epoch(last_modified) AS last_modified;"
+
         placeholders = dict(object_id=record[id_field],
                             parent_id=parent_id,
                             collection_id=collection_id,
