@@ -130,7 +130,8 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
         with self.storage.client.connect() as conn:
             here = os.path.abspath(os.path.dirname(__file__))
             filepath = 'schema/postgresql-storage-1.6.sql'
-            old_schema = open(os.path.join(here, filepath)).read()
+            with open(os.path.join(here, filepath)) as f:
+                old_schema = f.read()
             conn.execute(old_schema)
 
         # Create a sample record using some code that is compatible with the
