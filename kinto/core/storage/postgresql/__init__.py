@@ -73,7 +73,8 @@ class Storage(StorageBase):
         self._max_fetch_size = max_fetch_size
 
     def _execute_sql_file(self, filepath):
-        schema = open(filepath).read()
+        with open(filepath) as f:
+            schema = f.read()
         # Since called outside request, force commit.
         with self.client.connect(force_commit=True) as conn:
             conn.execute(schema)
