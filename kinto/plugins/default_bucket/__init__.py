@@ -8,7 +8,6 @@ from kinto.core.errors import raise_invalid
 from kinto.core.events import ACTIONS
 from kinto.core.utils import (
     build_request, reapply_cors, hmac_digest, instance_uri, view_lookup)
-from kinto.core.storage import exceptions as storage_exceptions
 
 from kinto.authorization import RouteFactory
 from kinto.views.buckets import Bucket
@@ -101,14 +100,11 @@ def resource_create_object(request, resource_cls, uri):
         raise_invalid(resource.request, **error_details)
 
     data = {'id': obj_id}
-    try:
-        obj = resource.model.create_record(data)
-        # Since the current request is not a resource (but a straight Service),
-        # we simulate a request on a resource.
-        # This will be used in the resource event payload.
-        resource.postprocess(data, action=ACTIONS.CREATE)
-    except storage_exceptions.UnicityError as e:
-        obj = e.record
+    obj = resource.model.create_record(data, ignore_conflict=True)
+    # Since the current request is not a resource (but a straight Service),
+    # we simulate a request on a resource.
+    # This will be used in the resource event payload.
+    resource.postprocess(data, action=ACTIONS.CREATE)
     return obj
 
 
