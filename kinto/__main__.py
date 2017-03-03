@@ -23,13 +23,6 @@ def main(args=None):
 
     parser = argparse.ArgumentParser(description="Kinto Command-Line "
                                                  "Interface")
-    # XXX: deprecate this option, unnatural as first argument.
-    parser.add_argument('--ini',
-                        help='Application configuration file',
-                        dest='ini_file',
-                        required=False,
-                        default=DEFAULT_CONFIG_FILE)
-
     commands = ('init', 'start', 'migrate', 'delete-collection', 'version')
     subparsers = parser.add_subparsers(title='subcommands',
                                        description='Main Kinto CLI commands',
@@ -40,6 +33,20 @@ def main(args=None):
     for command in commands:
         subparser = subparsers.add_parser(command)
         subparser.set_defaults(which=command)
+
+        subparser.add_argument('--ini',
+                               help='Application configuration file',
+                               dest='ini_file',
+                               required=False,
+                               default=DEFAULT_CONFIG_FILE)
+
+        subparser.add_argument('-q', '--quiet', action='store_const',
+                               const=logging.CRITICAL, dest='verbosity',
+                               help='Show only critical errors.')
+
+        subparser.add_argument('-v', '--debug', action='store_const',
+                               const=logging.DEBUG, dest='verbosity',
+                               help='Show all messages, including debug messages.')
 
         if command == 'init':
             subparser.add_argument('--backend',
@@ -80,14 +87,6 @@ def main(args=None):
                                    help='Listening port number',
                                    required=False,
                                    default=DEFAULT_PORT)
-
-            subparser.add_argument('-q', '--quiet', action='store_const',
-                                   const=logging.CRITICAL, dest='verbosity',
-                                   help='Show only critical errors.')
-
-            subparser.add_argument('-v', '--debug', action='store_const',
-                                   const=logging.DEBUG, dest='verbosity',
-                                   help='Show all messages, including debug messages.')
 
     # Parse command-line arguments
     parsed_args = vars(parser.parse_args(args))

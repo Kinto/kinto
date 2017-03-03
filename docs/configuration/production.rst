@@ -115,7 +115,7 @@ Once a PostgreSQL is up and running somewhere, you should edit your configuratio
 
 .. code-block:: bash
 
-    $ kinto --ini production.ini init
+    $ kinto init --ini production.ini
 
 
 Select your database server address, name and user by editing the configuration file. Also make sure that the PostgreSQL :ref:`backend settings<configuration-backends>` are selected. For our example, the backend configuration would be:
@@ -137,7 +137,7 @@ The last step consists in creating the necessary tables and indices, run the ``m
 
 .. code-block:: bash
 
-    $ kinto --ini production.ini migrate
+    $ kinto migrate --ini production.ini
 
 .. important::
     You should run ``migrate`` every time you change the configuration file or kinto is upgraded.
