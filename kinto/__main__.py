@@ -30,14 +30,6 @@ def main(args=None):
                         required=False,
                         default=DEFAULT_CONFIG_FILE)
 
-    parser.add_argument('-q', '--quiet', action='store_const',
-                        const=logging.CRITICAL, dest='verbosity',
-                        help='Show only critical errors.')
-
-    parser.add_argument('--debug', action='store_const',
-                        const=logging.DEBUG, dest='verbosity',
-                        help='Show all messages, including debug messages.')
-
     commands = ('init', 'start', 'migrate', 'delete-collection', 'version')
     subparsers = parser.add_subparsers(title='subcommands',
                                        description='Main Kinto CLI commands',
@@ -88,6 +80,14 @@ def main(args=None):
                                    help='Listening port number',
                                    required=False,
                                    default=DEFAULT_PORT)
+
+            subparser.add_argument('-q', '--quiet', action='store_const',
+                                   const=logging.CRITICAL, dest='verbosity',
+                                   help='Show only critical errors.')
+
+            subparser.add_argument('-v', '--debug', action='store_const',
+                                   const=logging.DEBUG, dest='verbosity',
+                                   help='Show all messages, including debug messages.')
 
     # Parse command-line arguments
     parsed_args = vars(parser.parse_args(args))
