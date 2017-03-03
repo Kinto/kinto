@@ -196,3 +196,32 @@ It is possible to exclude certain resources from being tracked by history using 
 
     kinto.history.exclude_resources = /buckets/preview
                                       /buckets/signed/collections/certificates
+
+
+Time traveling
+==============
+
+It is possible to retrieve a previous version objects by using the
+``/version/(timestamp)`` endpoint appended to existing resources
+endpoint:
+
+
+-  ``GET /buckets/(bucket_id)/version/(timestamp)``
+-  ``GET /buckets/(bucket_id)/groups/version/(timestamp)``
+-  ``GET /buckets/(bucket_id)/groups/(group_id)/version/(timestamp)``
+-  ``GET /buckets/(bucket_id)/collections/version/(timestamp)``
+-  ``GET /buckets/(bucket_id)/collections/(collection_id)/version/(timestamp)``
+-  ``GET /buckets/(bucket_id)/collections/(collection_id)/records/version/(timestamp)``
+-  ``GET /buckets/(bucket_id)/collections/(collection_id)/records/(record_id)/version/(timestamp)``
+
+
+.. note::
+
+    The history plugin does not record bucket deletion because the
+    whole bucket history is deleted on bucket deletion. That's why we
+    cannot provide a version history on the buckets plural endpoint
+    resource because we are not tracking it.
+
+.. note::
+
+   Currently it is not possible to filter the version list resource.

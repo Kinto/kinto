@@ -17,6 +17,8 @@ Changelog
   strict equality. Previous versions would allow requests if they seemed
   to be more recent than the current version.
 - ``If-Match`` now raises ``412`` if a record doesn't exist.
+- Add a version endpoint to resource URL to retrieve previous version of
+  collections and records from the past.
 
 1.14 (2017-01-11)
 '''''''''''''''''
