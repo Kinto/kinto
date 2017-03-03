@@ -95,6 +95,10 @@ class EntriesTest(PermissionsViewTest):
         self.assertIn('Next-Page', resp.headers)
         self.assertEqual(len(resp.json['data']), 2)
 
+    def test_permissions_list_do_not_crash_with_preconditions(self):
+        headers = {'If-None-Match': '"123"', **self.headers}
+        self.app.get('/permissions', headers=headers)
+
 
 class GroupsPermissionTest(PermissionsViewTest):
 

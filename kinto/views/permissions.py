@@ -56,6 +56,9 @@ class PermissionsModel:
     def __init__(self, request):
         self.request = request
 
+    def timestamp(self, parent_id=None):
+        return 0
+
     def get_records(self, filters=None, sorting=None, pagination_rules=None,
                     limit=None, include_deleted=False, parent_id=None):
         # Invert the permissions inheritance tree.

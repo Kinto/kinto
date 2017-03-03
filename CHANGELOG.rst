@@ -27,6 +27,7 @@ Protocol is now at version **1.15**. See `API changelog`_.
 - Flush endpoint now returns an empty JSON object instad of an HTML page (#1098)
 - Fix nested sorting key breaks pagination token. (#1116)
 - Remove ``deleted`` field from ``PUT`` requests over tombstones. (#1115)
+- Fix crash when preconditions are used on the permission endpoint (fixes #1066)
 - Fixed resource timestamp upsert in PostgreSQL backend (#1125)
 
 **Internal changes**
