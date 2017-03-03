@@ -189,6 +189,7 @@ class PostgreSQLStorageTest(StorageTest, unittest.TestCase):
                 conn.execute(query)
                 conn.execute(query)
                 conn.commit()
+                conn.close()
 
         # Check that change in metadata was rolledback.
         with client.connect() as conn:

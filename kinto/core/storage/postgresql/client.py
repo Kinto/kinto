@@ -23,7 +23,7 @@ class PostgreSQLClient(object):
         A COMMIT is performed on the current transaction if everything went
         well. Otherwise transaction is ROLLBACK, and everything cleaned up.
         """
-        with_transaction = not readonly and self.commit_manually
+        commit_manually = self.commit_manually and not readonly
         session = None
         try:
             # Pull connection from pool.
@@ -34,7 +34,7 @@ class PostgreSQLClient(object):
                 # Mark session as dirty.
                 self.invalidate(session)
             # Success
-            if with_transaction:
+            if commit_manually:
                 session.commit()
             elif force_commit:
                 # Commit like would do a succesful request.
@@ -42,12 +42,12 @@ class PostgreSQLClient(object):
 
         except sqlalchemy.exc.IntegrityError as e:
             logger.error(e)
-            if session and with_transaction:
+            if session and commit_manually:
                 session.rollback()
             raise exceptions.IntegrityError(original=e) from e
         except sqlalchemy.exc.SQLAlchemyError as e:
             logger.error(e)
-            if session and with_transaction:
+            if session and commit_manually:
                 session.rollback()
             raise exceptions.BackendError(original=e) from e
         finally:
