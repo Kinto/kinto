@@ -10,20 +10,17 @@ and a set of «sub commands» are available.
 
 ::
 
-    usage: kinto [-h] [--ini INI_FILE] [-v]
-                 {init,start,migrate,delete-collection} ...
+    usage: kinto [-h] {init,start,migrate,delete-collection,version} ...
 
     Kinto Command-Line Interface
 
     optional arguments:
       -h, --help            show this help message and exit
-      --ini INI_FILE        Application configuration file
-      -v, --version         Print the Kinto version and exit.
 
     subcommands:
       Main Kinto CLI commands
 
-      {init,start,migrate,delete-collection}
+      {init,start,migrate,delete-collection,version}
                             Choose and run with --help
 
 
@@ -107,7 +104,7 @@ For example:
 
 ::
 
-    kinto --ini=config/postgresql.ini delete-collection --bucket=source --collection=source
+    kinto delete-collection --ini=config/postgresql.ini --bucket=source --collection=source
 
 .. note::
 

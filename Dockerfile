@@ -13,10 +13,10 @@ RUN \
     apt-get install -y build-essential git python3-dev libssl-dev libffi-dev libpq-dev; \
     pip3 install -e /code[postgresql,monitoring]; \
     pip3 install kinto-pusher kinto-fxa kinto-attachment ; \
-    kinto --ini $KINTO_INI init --host 0.0.0.0 --backend=memory; \
+    kinto init --ini $KINTO_INI --host 0.0.0.0 --backend=memory; \
     apt-get remove -y -qq build-essential git python3-dev libssl-dev libffi-dev libpq-dev; \
     apt-get autoremove -y -qq; \
     apt-get clean -y
 
 # Run database migrations and start the kinto server
-CMD kinto --ini $KINTO_INI migrate && kinto --ini $KINTO_INI start
+CMD kinto migrate --ini $KINTO_INI && kinto start --ini $KINTO_INI

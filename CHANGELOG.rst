@@ -6,6 +6,12 @@ This document describes changes between each past release.
 6.0.0 (unreleased)
 ------------------
 
+**Breaking changes**
+
+- Remove Python 2.7 support and upgrade to Python 3.5. (#1050)
+- Upgraded minimal PostgreSQL support to PostgreSQL 9.5 (#1056)
+- The ``--ini`` parameter is now after the subcommand name (#1095)
+
 **Protocol**
 
 - Fixed ``If-Match`` behavior to match the RFC 2616 specification (#1102).
@@ -13,11 +19,6 @@ This document describes changes between each past release.
   constraint is violated (instead of ``503``) (ref #602)
 
 Protocol is now at version **1.15**. See `API changelog`_.
-
-**Breaking changes**
-
-- Remove Python 2.7 support and upgrade to Python 3.5. (#1050)
-- Upgraded minimal PostgreSQL support to PostgreSQL 9.5 (#1056)
 
 **Bug fixes**
 
@@ -29,6 +30,7 @@ Protocol is now at version **1.15**. See `API changelog`_.
 - Remove ``deleted`` field from ``PUT`` requests over tombstones. (#1115)
 - Fix crash when preconditions are used on the permission endpoint (fixes #1066)
 - Fixed resource timestamp upsert in PostgreSQL backend (#1125)
+- Fix pserve argument ordering with Pyramid 1.8 (#1095)
 
 **Internal changes**
 

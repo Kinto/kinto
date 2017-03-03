@@ -76,7 +76,7 @@ update-kinto-admin:
 	git add kinto/plugins/admin/build/static/css/main.*
 
 $(SERVER_CONFIG):
-	$(VENV)/bin/kinto --ini $(SERVER_CONFIG) init
+	$(VENV)/bin/kinto init --ini $(SERVER_CONFIG)
 
 NAME := kinto
 SOURCE := $(shell git config remote.origin.url | sed -e 's|git@|https://|g' | sed -e 's|github.com:|github.com/|g')
@@ -86,10 +86,11 @@ version-file:
 	echo '{"name":"$(NAME)","version":"$(VERSION)","source":"$(SOURCE)","commit":"$(COMMIT)"}' > version.json
 
 serve: install-dev $(SERVER_CONFIG) migrate version-file
-	$(VENV)/bin/kinto --ini $(SERVER_CONFIG) start --reload
+# Reload is temporary deactivated because Pylons/pyramid/pull#2962
+	$(VENV)/bin/kinto start --ini $(SERVER_CONFIG) # --reload
 
 migrate: install $(SERVER_CONFIG)
-	$(VENV)/bin/kinto --ini $(SERVER_CONFIG) migrate
+	$(VENV)/bin/kinto migrate --ini $(SERVER_CONFIG)
 
 tests-once: install-dev version-file install-postgres install-monitoring
 	$(VENV)/bin/py.test --cov-report term-missing --cov-fail-under 100 --cov kinto
@@ -104,7 +105,7 @@ need-kinto-running:
 	@curl http://localhost:8888/v0/ 2>/dev/null 1>&2 || (echo "Run 'make runkinto' before starting tests." && exit 1)
 
 runkinto: install-dev
-	$(VENV)/bin/kinto --ini tests/functional.ini start
+	$(VENV)/bin/kinto start --ini tests/functional.ini
 
 functional: install-dev need-kinto-running
 	$(VENV)/bin/py.test tests/functional.py

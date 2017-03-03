@@ -60,7 +60,7 @@ And then run your server as usual
 
 .. code-block:: bash
 
-    $ kinto --ini config/kinto.ini start
+    $ kinto start --ini config/kinto.ini
 
 Now, if you try to generate a new record, you should have the new ID used,
 well done!
