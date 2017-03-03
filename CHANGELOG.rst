@@ -9,6 +9,8 @@ This document describes changes between each past release.
 **Protocol**
 
 - Fixed ``If-Match`` behavior to match the RFC 2616 specification (#1102).
+- A ``409 Conflict`` error response is now returned when some backend integrity
+  constraint is violated (instead of ``503``) (ref #602)
 
 Protocol is now at version **1.15**. See `API changelog`_.
 
@@ -26,6 +28,7 @@ Protocol is now at version **1.15**. See `API changelog`_.
 - Fix nested sorting key breaks pagination token. (#1116)
 - Remove ``deleted`` field from ``PUT`` requests over tombstones. (#1115)
 - Fix crash when preconditions are used on the permission endpoint (fixes #1066)
+- Fixed resource timestamp upsert in PostgreSQL backend (#1125)
 
 **Internal changes**
 

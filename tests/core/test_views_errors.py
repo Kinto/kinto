@@ -5,6 +5,7 @@ from pyramid import httpexceptions
 
 from kinto.core.errors import ERRORS, http_error
 from kinto.core.testing import FormattedErrorMixin
+from kinto.core.storage import exceptions as storage_exceptions
 
 from .support import BaseWebTest, authorize
 
@@ -128,6 +129,14 @@ class ErrorViewTest(FormattedErrorMixin, BaseWebTest, unittest.TestCase):
             response = self.app.get(self.sample_url, headers=self.headers, status=503)
         self.assertFormattedError(response, 503, ERRORS.BACKEND, "Service Unavailable",
                                   "Unable to connect the server.")
+
+    def test_integrity_errors_are_served_as_409(self):
+        with mock.patch('tests.core.testapp.views.Mushroom._extract_filters',
+                        side_effect=storage_exceptions.IntegrityError):
+            response = self.app.get(self.sample_url, headers=self.headers, status=409)
+        self.assertFormattedError(response, 409, ERRORS.CONSTRAINT_VIOLATED, "Conflict",
+                                  "Integrity constraint violated, please retry.")
+        self.assertIn("Retry-After", response.headers)
 
     def test_500_provides_traceback_on_server(self):
         mock_traceback = mock.patch('logging.traceback.print_exception')
