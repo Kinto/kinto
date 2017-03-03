@@ -25,11 +25,13 @@ Contributors
 * FooBarQuaxx
 * Greeshma <greeshmabalabadra@gmail.com>
 * Gabriela Surita <gabsurita@gmail.com>
+* Greg Guthe <gguthe@mozilla.com>
 * Hiromipaw <silvia@nopressure.co.uk>
 * Indranil Dutta <duttaindranil497@gmail.com>
 * Jelmer van der Ploeg <jelmer@woovar.com>
 * Joël Marty
 * John Giannelos <johngiannelos@gmail.com>
+* Joshua Bird <joshua.thomas.bird@gmail.com>
 * Julien Bouquillon <contact@revolunet.com>
 * Lavish Aggarwal <lucky.lavish@gmail.com>
 * Maksym Shalenyi <supamaxy@gmail.com>
@@ -41,6 +43,7 @@ Contributors
 * Michael Charlton <m.charlton@mac.com>
 * Michiel de Jong <michiel@unhosted.org>
 * Mo Valipour <valipour@gmail.com>
+* Mozillazg
 * Nicolas Hoizey <nicolas@hoizey.com>
 * Nicolas Perriault <nperriault@mozilla.com>
 * Niraj <https://github.com/niraj8>

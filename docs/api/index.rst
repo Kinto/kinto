@@ -11,8 +11,9 @@ API
 Changelog
 ---------
 
-1.15 (Unreleased)
+1.15 (2017-03-03)
 '''''''''''''''''
+
 - ``If-Match`` and ``If-None-Match`` precondition headers now check the ETag for
   strict equality. Previous versions would allow requests if they seemed
   to be more recent than the current version.

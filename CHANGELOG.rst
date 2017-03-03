@@ -3,8 +3,13 @@ Changelog
 
 This document describes changes between each past release.
 
-6.0.0 (unreleased)
+6.0.0 (2017-03-03)
 ------------------
+
+**Breaking changes**
+
+- Remove Python 2.7 support and upgrade to Python 3.5. (#1050)
+- Upgraded minimal PostgreSQL support to PostgreSQL 9.5 (#1056)
 
 **Protocol**
 
@@ -13,11 +18,6 @@ This document describes changes between each past release.
   constraint is violated (instead of ``503``) (ref #602)
 
 Protocol is now at version **1.15**. See `API changelog`_.
-
-**Breaking changes**
-
-- Remove Python 2.7 support and upgrade to Python 3.5. (#1050)
-- Upgraded minimal PostgreSQL support to PostgreSQL 9.5 (#1056)
 
 **Bug fixes**
 
