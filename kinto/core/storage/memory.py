@@ -132,16 +132,17 @@ class Storage(MemoryBasedStorage):
     @synchronized
     def create(self, collection_id, parent_id, record, id_generator=None,
                id_field=DEFAULT_ID_FIELD,
-               modified_field=DEFAULT_MODIFIED_FIELD, auth=None):
+               modified_field=DEFAULT_MODIFIED_FIELD, auth=None, ignore_conflict=False):
         id_generator = id_generator or self.id_generator
         record = {**record}
         if id_field in record:
-            # Raise unicity error if record with same id already exists.
-            try:
-                existing = self.get(collection_id, parent_id, record[id_field])
-                raise exceptions.UnicityError(id_field, existing)
-            except exceptions.RecordNotFoundError:
-                pass
+            if not ignore_conflict:
+                # Raise unicity error if record with same id already exists.
+                try:
+                    existing = self.get(collection_id, parent_id, record[id_field])
+                    raise exceptions.UnicityError(id_field, existing)
+                except exceptions.RecordNotFoundError:
+                    pass
         else:
             record[id_field] = id_generator()
 

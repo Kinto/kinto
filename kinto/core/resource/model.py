@@ -161,7 +161,7 @@ class Model:
                                 modified_field=self.modified_field,
                                 auth=self.auth)
 
-    def create_record(self, record, parent_id=None):
+    def create_record(self, record, parent_id=None, ignore_conflict=False):
         """Create a record in the collection.
 
         Override to perform actions or post-process records after their
@@ -188,7 +188,8 @@ class Model:
                                    id_generator=self.id_generator,
                                    id_field=self.id_field,
                                    modified_field=self.modified_field,
-                                   auth=self.auth)
+                                   auth=self.auth,
+                                   ignore_conflict=ignore_conflict)
 
     def update_record(self, record, parent_id=None):
         """Update a record in the collection.
@@ -306,13 +307,13 @@ class ShareableModel(Model):
 
         return self._annotate(record, perm_object_id)
 
-    def create_record(self, record, parent_id=None):
+    def create_record(self, record, parent_id=None, ignore_conflict=False):
         """Create record and set specified permissions.
 
         The current principal is added to the owner (``write`` permission).
         """
         permissions = record.pop(self.permissions_field, {})
-        record = super().create_record(record, parent_id)
+        record = super().create_record(record, parent_id, ignore_conflict=ignore_conflict)
         record_id = record[self.id_field]
         perm_object_id = self.get_permission_object_id(record_id)
         self.permission.replace_object_permissions(perm_object_id, permissions)

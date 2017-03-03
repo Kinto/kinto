@@ -159,11 +159,11 @@ class DefaultBucketViewTest(FormattedErrorMixin, DefaultBucketWebTest):
                        'body': MINIMALIST_RECORD}
             batch['requests'].append(request)
 
-        with mock.patch.object(self.storage, 'get',
-                               wraps=self.storage.get) as patched:
+        with mock.patch.object(self.storage, 'create',
+                               wraps=self.storage.create) as patched:
             self.app.post_json('/batch', batch, headers=self.headers)
             # Called twice only: bucket + collection ids unicity.
-            self.assertEqual(patched.call_count, 2)
+            self.assertEqual(patched.call_count, 25 + 2)
 
     def test_parent_collection_is_taken_from_the_one_checked_in_batch(self):
         # Create it first.
@@ -177,11 +177,11 @@ class DefaultBucketViewTest(FormattedErrorMixin, DefaultBucketWebTest):
                        'body': MINIMALIST_RECORD}
             batch['requests'].append(request)
 
-        with mock.patch.object(self.storage, 'get',
-                               wraps=self.storage.get) as patched:
+        with mock.patch.object(self.storage, 'create',
+                               wraps=self.storage.create) as patched:
             self.app.post_json('/batch', batch, headers=self.headers)
             # Called twice only: bucket + collection ids unicity.
-            self.assertEqual(patched.call_count, 2)
+            self.assertEqual(patched.call_count, 25 + 2)
 
     def test_collection_id_is_validated(self):
         collection_url = '/buckets/default/collections/__files__/records'
