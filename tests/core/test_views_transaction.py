@@ -124,6 +124,14 @@ class TransactionTest(PostgreSQLTest, unittest.TestCase):
         resp = self.app.get('/psilos', headers=self.headers)
         self.assertEqual(len(resp.json['data']), 0)
 
+
+class IntegrityConstraintTest(PostgreSQLTest, unittest.TestCase):
+    def get_app_settings(self, extras=None):
+        settings = super().get_app_settings(extras)
+        if sqlalchemy is not None:
+            settings.pop('storage_poolclass', None)  # Use real pool.
+        return settings
+
     def test_concurrent_transactions_do_not_fail(self):
         # This test originally intended to reproduce integrity errors and check
         # that a 409 was obtained. But since every errors that could be reproduced
@@ -131,7 +139,8 @@ class TransactionTest(PostgreSQLTest, unittest.TestCase):
         # are consistent. # See Kinto/kinto#1125.
 
         # Make requests slow.
-        patch = mock.patch('kinto.core.events.notify_resource_event', lambda: time.sleep(0.1))
+        patch = mock.patch('kinto.core.resource.UserResource.postprocess',
+                           lambda s, r, a='read', old=None: time.sleep(0.2) or {})
         patch.start()
         self.addCleanup(patch.stop)
 
@@ -140,16 +149,18 @@ class TransactionTest(PostgreSQLTest, unittest.TestCase):
         results = set()
 
         def create_object():
-            r = self.app.post_json('/psilos', body, headers=self.headers)
+            r = self.app.post_json('/psilos', body, headers=self.headers,
+                                   status=(201, 200, 409))
             results.add(r.status_code)
 
         thread1 = threading.Thread(target=create_object)
         thread2 = threading.Thread(target=create_object)
         thread1.start()
+        time.sleep(0.1)
         thread2.start()
         thread1.join()
         thread2.join()
-        self.assertEqual({201, 200}, results)
+        self.assertTrue({201, 200, 409} >= results)
 
 
 @skip_if_no_postgresql

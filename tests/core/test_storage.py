@@ -169,13 +169,6 @@ class PostgreSQLStorageTest(StorageTest, unittest.TestCase):
             self.backend.load_from_config(self._get_config(settings=settings))
             mocked.assert_any_call(msg)
 
-    def test_raises_integrity_error(self):
-        with self.assertRaises(exceptions.IntegrityError):
-            with self.storage.client.connect() as conn:
-                query = "INSERT INTO timestamps VALUES ('a', 'b', NOW());"
-                conn.execute(query)
-                conn.execute(query)
-
     def test_integrity_error_rollsback_transaction(self):
         client = postgresql.create_from_config(self._get_config(),
                                                prefix='storage_',
