@@ -36,7 +36,7 @@ Protocol is now at version **1.15**. See `API changelog`_.
   and endpoint type (#1047).
 - Move generic API schemas (e.g TimeStamps and HeaderFields) from `kinto.core.resource.schema`
   to a sepate file on `kinto.core.schema`. (#1054)
-- Upgraded the kinto-admin to version 1.9.0 (#1086)
+- Upgraded the kinto-admin to version 1.10.0 (#1086, #1128)
 - Upgrade to Pyramid 1.8 (#1087)
 - Replace old loadtests with functional tests (#1085)
 - Use `Cornice Swagger <https://github.com/Cornices/cornice.ext.swagger>`_ rather than
