@@ -168,3 +168,23 @@ class PostgreSQLStorageTest(StorageTest, unittest.TestCase):
                         'warnings.warn') as mocked:
             self.backend.load_from_config(self._get_config(settings=settings))
             mocked.assert_any_call(msg)
+
+    def test_integrity_error_rollsback_transaction(self):
+        client = postgresql.create_from_config(self._get_config(),
+                                               prefix='storage_',
+                                               with_transaction=False)
+        with self.assertRaises(exceptions.IntegrityError):
+            with client.connect() as conn:
+                # Make some change in metadata.
+                conn.execute("INSERT INTO metadata VALUES ('roll', 'rock');")
+                # Go into a failing integrity constraint.
+                query = "INSERT INTO timestamps VALUES ('a', 'b', NOW());"
+                conn.execute(query)
+                conn.execute(query)
+                conn.commit()
+                conn.close()
+
+        # Check that change in metadata was rolledback.
+        with client.connect() as conn:
+            result = conn.execute("SELECT FROM metadata WHERE name = 'roll';")
+        self.assertEqual(result.rowcount, 0)
