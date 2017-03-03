@@ -2,7 +2,6 @@ dist: trusty
 language: python
 python: 3.5
 cache: pip
-services: redis-server
 addons:
   postgresql: "9.5"
 env:
