@@ -458,6 +458,13 @@ class PermissionTest:
         permissions = self.permission.get_object_permissions('/url/a/id/1')
         self.assertEqual(len(permissions), 0)
 
+    def test_replace_object_permission_supports_empty_list_to_new_object(self):
+        self.permission.replace_object_permissions('/url/a/id/1', {
+            "write": set()
+        })
+        permissions = self.permission.get_object_permissions('/url/a/id/1')
+        self.assertEqual(len(permissions), 0)
+
     def test_delete_object_permissions_remove_all_given_objects_acls(self):
         self.permission.add_principal_to_ace('/url/a/id/1', 'write', 'user1')
         self.permission.add_principal_to_ace('/url/a/id/1', 'write', 'user2')
