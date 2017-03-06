@@ -258,11 +258,8 @@ Step 1
 - If API was updated, update API changelog in :file:`docs/api/index.rst`
 - Make sure ``HTTP_API_VERSION`` is up-to-date in :file:`kinto/__init__.py`
 - Update the link in :file:`docs/configuration/production.rst`
-- Update the kinto-admin if needed: https://github.com/Kinto/kinto-admin/releases
-
-.. code-block:: bash
-
-     $ make update-kinto-admin
+- Update the kinto-admin version in :file:`kinto/plugins/admin/package.json` if needed
+  (`available releases <https://github.com/Kinto/kinto-admin/releases>`_)
 
 - Update :file:`CONTRIBUTORS.rst`. The following hairy command will output the full list:
 
@@ -288,7 +285,12 @@ Step 2
 ------
 
 Once the pull-request is validated, merge it and do a release.
-Use the ``release`` command to invoke the ``setup.py``, which builds and uploads to PyPI
+Use the ``release`` command to invoke the ``setup.py``, which builds and uploads to PyPI.
+
+.. important::
+
+    The Kinto Admin bundle will be built during the release process. Make sure
+    a recent version of ``npm`` is available in your shell when running ``release``.
 
 .. code-block:: bash
 
