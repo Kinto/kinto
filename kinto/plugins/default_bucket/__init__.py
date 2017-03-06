@@ -142,7 +142,7 @@ def default_bucket(request):
         body = request.json
         body['data']['id'] = body['data']['id'].replace('default', bucket_id)
     except:
-        body = request.body
+        body = request.body or {"data": {}}
     subrequest = build_request(request, {
         'method': request.method,
         'path': path + querystring,
