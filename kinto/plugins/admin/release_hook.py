@@ -1,20 +1,22 @@
+"""
+This module is a release hook for `zest.releaser <https://zestreleaser.readthedocs.io>`_
+in order to build the Kinto Admin UI bundle just before it is packaged.
+
+* See hooks in :file:`setup.cfg`
+* `Documentation <http://zestreleaser.readthedocs.io/en/latest/entrypoints.html>`_
+"""
+
 import subprocess
 
 
-def main(data):
+def after_checkout(data):
     """
-    Example of data for after-checkout:
+    During the ``release`` process, the current tag is checked out in a
+    temporary folder. We build the Kinto Admin at this step, just before
+    the files are gathered for the final Python package.
 
-    {'tag': '6.1.0.dev0',
-     'tagdir': '/tmp/kinto-6.1.0.dev0-yap7gojl/gitclone',
-     'workingdir': '/home/mathieu/Code/Mozilla/kinto',
-     'name': 'kinto',
-     'reporoot': '/home/mathieu/Code/Mozilla/kinto',
-     'tagworkingdir': '/tmp/kinto-6.1.0.dev0-yap7gojl/gitclone',
-     'nothing_changed_yet': '- Nothing changed yet.',
-     'version': '6.1.0.dev0',
-     'tag_already_exists': True
-    }
+    .. note::
+
+        The ``node_modules`` folder is excluded using :file:`MANIFEST.in`.
     """
-    tagdir = data['tagdir']
     subprocess.run(["make", "build-kinto-admin"])

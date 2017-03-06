@@ -279,7 +279,7 @@ See our :ref:`dedicated section about contributing <how-to-contribute>`!
 Kinto Admin
 -----------
 
-In order to run a local :github:`Kinto Admin UI <Kinto/kinto-admin>`_ from a cloned
+In order to run a local :github:`Kinto Admin UI <Kinto/kinto-admin>` from a cloned
 repo, the ``npm`` command must be available in order to build it with ::
 
     make build-kinto-admin

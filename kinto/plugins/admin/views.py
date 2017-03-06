@@ -19,7 +19,7 @@ def admin_home_view(request):
     try:
         with open(os.path.join(HERE, 'build/index.html')) as f:
             index_content = f.read()
-    except FileNotFoundError:
+    except FileNotFoundError:  # pragma: no cover
         with open(os.path.join(HERE, 'public/help.html')) as f:
             index_content = f.read()
     # Update the file built by react-scripts to load the globalSettings.
