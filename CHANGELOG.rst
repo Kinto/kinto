@@ -10,6 +10,7 @@ This document describes changes between each past release.
 
 - Fix Memory backend sometimes show empty permissions (#1045)
 - Allow to create default bucket with a PUT request and an empty body (fixes #1080)
+- Fix PostgreSQL backend when excluding a list of numeric values (fixes #1093)
 
 
 6.0.0 (2017-03-03)

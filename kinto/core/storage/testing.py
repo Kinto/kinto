@@ -450,6 +450,30 @@ class BaseTestStorage:
                                           **self.storage_kw)
         self.assertEqual(len(records), 1)
 
+    def test_get_all_can_filter_a_list_of_integer_values(self):
+        for l in [1, 2, 3]:
+            self.create_record({'code': l})
+        filters = [Filter('code', (1, 2), utils.COMPARISON.EXCLUDE)]
+        records, _ = self.storage.get_all(filters=filters,
+                                          **self.storage_kw)
+        self.assertEqual(len(records), 1)
+
+    def test_get_all_can_filter_a_list_of_mixed_typed_values(self):
+        for l in [1, 2, 3]:
+            self.create_record({'code': l})
+        filters = [Filter('code', (1, "b"), utils.COMPARISON.EXCLUDE)]
+        records, _ = self.storage.get_all(filters=filters,
+                                          **self.storage_kw)
+        self.assertEqual(len(records), 2)
+
+    def test_get_all_can_filter_a_list_of_integer_values_on_subobjects(self):
+        for l in [1, 2, 3]:
+            self.create_record({'code': {'city': l}})
+        filters = [Filter('code.city', (1, 2), utils.COMPARISON.EXCLUDE)]
+        records, _ = self.storage.get_all(filters=filters,
+                                          **self.storage_kw)
+        self.assertEqual(len(records), 1)
+
     def test_get_all_can_filter_by_subobjects_values(self):
         for l in ['a', 'b', 'c']:
             self.create_record({'code': {'sub': l}})
