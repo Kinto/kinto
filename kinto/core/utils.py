@@ -58,6 +58,14 @@ def classname(obj):
     return obj.__class__.__name__.lower()
 
 
+def is_numeric(value):
+    """Check if the provided value is a numeric value.
+
+    :rtype: boolean
+    """
+    return isinstance(value, (int, float)) and not isinstance(value, bool)
+
+
 def merge_dicts(a, b):
     """Merge b into a recursively, without overwriting values.
 
