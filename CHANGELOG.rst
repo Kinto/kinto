@@ -9,6 +9,7 @@ This document describes changes between each past release.
 **Bug fixes**
 
 - Fix Memory backend sometimes show empty permissions (#1045)
+- Allow to create default bucket with a PUT request and an empty body (fixes #1080)
 
 
 6.0.0 (2017-03-03)
