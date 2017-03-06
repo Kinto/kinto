@@ -21,7 +21,7 @@ help:
 	@echo "  install-postgres            install postgresql support"
 	@echo "  install-dev                 install dependencies and everything needed to run tests"
 	@echo "  build-requirements          install all requirements and freeze them in requirements.txt"
-	@echo "  update-kinto-admin          update the built-in admin plugin to the last Kinto Admin UI version"
+	@echo "  build-kinto-admin           build the Kinto admin UI plugin (requires npm)"
 	@echo "  serve                       start the kinto server on default port"
 	@echo "  migrate                     run the kinto migrations"
 	@echo "  flake8                      run the flake8 linter"
@@ -67,13 +67,8 @@ build-requirements:
 	$(TEMPDIR)/bin/pip install -Ue ".[monitoring,postgresql]"
 	$(TEMPDIR)/bin/pip freeze | grep -v -- '-e' > requirements.txt
 
-update-kinto-admin:
-	rm -fr kinto/plugins/admin/build
-	rm -fr kinto/plugins/admin/node_modules
+build-kinto-admin: need-npm
 	cd kinto/plugins/admin/; npm install && export REACT_APP_VERSION="$$(npm list | egrep kinto-admin | cut -d @ -f 2)" && npm run build
-	cd kinto/plugins/admin/; sed -i "s/ version=\".*\"/ version=\"$$(npm list | egrep kinto-admin | cut -d @ -f 2)\"/g" __init__.py
-	git add kinto/plugins/admin/build/static/js/main.*
-	git add kinto/plugins/admin/build/static/css/main.*
 
 $(SERVER_CONFIG):
 	$(VENV)/bin/kinto init --ini $(SERVER_CONFIG)
@@ -100,6 +95,9 @@ flake8: install-dev
 
 tests: version-file
 	$(VENV)/bin/tox
+
+need-npm:
+	@npm --version 2>/dev/null 1>&2 || (echo "The 'npm' command is required to build the Kinto Admin UI." && exit 1)
 
 need-kinto-running:
 	@curl http://localhost:8888/v0/ 2>/dev/null 1>&2 || (echo "Run 'make runkinto' before starting tests." && exit 1)

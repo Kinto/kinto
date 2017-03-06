@@ -12,6 +12,10 @@ This document describes changes between each past release.
 - Allow to create default bucket with a PUT request and an empty body (fixes #1080)
 - Fix PostgreSQL backend when excluding a list of numeric values (fixes #1093)
 
+**Internal changes**
+
+- Do not keep the whole Kinto Admin bundle in the repo (fixes #1012)
+
 
 6.0.0 (2017-03-03)
 ------------------
