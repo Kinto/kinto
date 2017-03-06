@@ -61,7 +61,7 @@ def classname(obj):
 def is_numeric(value):
     """Check if the provided value is a numeric value.
 
-    :rtype: boolean
+    :rtype: bool
     """
     return isinstance(value, (int, float)) and not isinstance(value, bool)
 
