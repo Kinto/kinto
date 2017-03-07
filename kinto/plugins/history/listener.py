@@ -11,6 +11,7 @@ def on_resource_changed(event):
     :mod:`kinto.plugins.history.views` module.
     """
     payload = event.payload
+    action = payload['action']
     resource_name = payload['resource_name']
     event_uri = payload['uri']
 
@@ -26,7 +27,7 @@ def on_resource_changed(event):
 
     targets = []
     for impacted in event.impacted_records:
-        target = impacted['new']
+        target = impacted['old'] if action == 'delete' else impacted['new']
         obj_id = target['id']
 
         try:

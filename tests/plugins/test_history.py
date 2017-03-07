@@ -48,7 +48,8 @@ class HistoryViewTest(HistoryWebTest):
         self.app.put(self.bucket_uri, headers=self.headers)
 
         self.collection_uri = self.bucket_uri + '/collections/col'
-        resp = self.app.put(self.collection_uri, headers=self.headers)
+        body = {'data': {'signed': True}}
+        resp = self.app.put_json(self.collection_uri, body, headers=self.headers)
         self.collection = resp.json['data']
 
         self.group_uri = self.bucket_uri + '/groups/grp'
@@ -185,7 +186,7 @@ class HistoryViewTest(HistoryWebTest):
         resp = self.app.get(self.history_uri, headers=self.headers)
         entry = resp.json['data'][0]
         assert entry['action'] == 'delete'
-        assert entry['target']['data']['deleted'] is True
+        assert entry['target']['data']['signed']
 
     def test_tracks_multiple_collections_delete(self):
         self.app.put(self.bucket_uri + '/collections/col2',
@@ -235,7 +236,7 @@ class HistoryViewTest(HistoryWebTest):
         resp = self.app.get(self.history_uri, headers=self.headers)
         entry = resp.json['data'][0]
         assert entry['action'] == 'delete'
-        assert entry['target']['data']['deleted'] is True
+        assert entry['target']['data']['members'] == ['elle']
 
     def test_tracks_multiple_groups_delete(self):
         self.app.put_json(self.bucket_uri + '/groups/g2',
@@ -289,7 +290,7 @@ class HistoryViewTest(HistoryWebTest):
         resp = self.app.get(self.history_uri, headers=self.headers)
         entry = resp.json['data'][0]
         assert entry['action'] == 'delete'
-        assert entry['target']['data']['deleted'] is True
+        assert entry['target']['data']['foo'] == 42
 
     def test_tracks_multiple_records_delete(self):
         records_uri = self.collection_uri + '/records'
