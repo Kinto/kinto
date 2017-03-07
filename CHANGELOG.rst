@@ -10,6 +10,7 @@ This document describes changes between each past release.
 
 - The history entries for deletions now provide the deleted object instead of
   just the tombstone (fixes #1135)
+- Groups can now be created with a simple ``PUT`` (fixes #793)
 
 Protocol is now at version **1.15**. See `API changelog`_.
 
