@@ -24,6 +24,7 @@ Protocol is now at version **1.15**. See `API changelog`_.
 **Internal changes**
 
 - Do not keep the whole Kinto Admin bundle in the repo (fixes #1012)
+- Remove the email example from the custom code event listener tutorial (fixes #420)
 
 
 6.0.0 (2017-03-03)
