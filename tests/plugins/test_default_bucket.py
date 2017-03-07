@@ -292,6 +292,7 @@ class EventsTest(DefaultBucketWebTest):
         bucket_url = '/buckets/default'
         self.app.get(bucket_url, headers=self.headers)
         assert len(_events) == 1
+        assert 'last_modified' in _events[-1].impacted_records[0]['new']
         payload = _events[-1].payload
         assert payload['resource_name'] == 'bucket'
         assert payload['action'] == 'create'
