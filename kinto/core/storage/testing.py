@@ -189,9 +189,16 @@ class BaseTestStorage:
 
     def test_create_does_not_raise_unicity_error_if_ignore_conflict_is_set(self):
         record = {**self.record, self.id_field: RECORD_ID}
-        self.create_record(record=record)
+        self.create_record(record=record, ignore_conflict=True)
         record = {**self.record, self.id_field: RECORD_ID}
         self.create_record(record=record, ignore_conflict=True)  # not raising
+
+    def test_create_keep_existing_if_ignore_conflict_is_set(self):
+        record = {**self.record, "synced": True, self.id_field: RECORD_ID}
+        self.create_record(record=record)
+        new_record = {**self.record, self.id_field: RECORD_ID}
+        result = self.create_record(record=new_record, ignore_conflict=True)
+        assert 'synced' in result
 
     def test_create_does_generate_a_new_last_modified_field(self):
         record = {**self.record}
