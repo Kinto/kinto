@@ -13,7 +13,8 @@ def validate_member(node, member):
 class GroupSchema(resource.ResourceSchema):
     members = colander.SchemaNode(colander.Sequence(),
                                   colander.SchemaNode(colander.String(),
-                                                      validator=validate_member))
+                                                      validator=validate_member),
+                                  missing=[])
 
 
 @resource.register(name='group',
