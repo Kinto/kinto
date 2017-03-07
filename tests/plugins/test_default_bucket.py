@@ -46,7 +46,7 @@ class DefaultBucketViewTest(FormattedErrorMixin, DefaultBucketWebTest):
         resp = self.app.put_json(self.collection_url, collection, headers=self.headers)
         result = resp.json
         self.assertIn('synced', result['data'])
-        self.assertTrue('synced', result['data']['synced'])
+        self.assertTrue(result['data']['synced'])
         resp = self.app.get(self.collection_url, headers=self.headers)
         result = resp.json
         self.assertIn('synced', result['data'])
