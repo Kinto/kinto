@@ -182,11 +182,13 @@ class HistoryViewTest(HistoryWebTest):
         assert entry['target']['permissions']['read'] == ['admins']
 
     def test_tracks_collection_delete(self):
-        self.app.delete(self.collection_uri, headers=self.headers)
+        resp = self.app.delete(self.collection_uri, headers=self.headers)
+        tombstone = resp.json['data']
         resp = self.app.get(self.history_uri, headers=self.headers)
         entry = resp.json['data'][0]
         assert entry['action'] == 'delete'
         assert entry['target']['data']['signed']
+        assert entry['target']['data']['last_modified'] >= tombstone['last_modified']
 
     def test_tracks_multiple_collections_delete(self):
         self.app.put(self.bucket_uri + '/collections/col2',

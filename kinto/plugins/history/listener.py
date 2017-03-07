@@ -28,6 +28,9 @@ def on_resource_changed(event):
     targets = []
     for impacted in event.impacted_records:
         target = impacted['old'] if action == 'delete' else impacted['new']
+        # Show deleted records with the timestamp of their tombstone.
+        target['last_modified'] = impacted['new']['last_modified']
+
         obj_id = target['id']
 
         try:
