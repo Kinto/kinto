@@ -189,7 +189,7 @@ class BaseTestStorage:
 
     def test_create_does_not_raise_unicity_error_if_ignore_conflict_is_set(self):
         record = {**self.record, self.id_field: RECORD_ID}
-        self.create_record(record=record)
+        self.create_record(record=record, ignore_conflict=True)
         record = {**self.record, self.id_field: RECORD_ID}
         self.create_record(record=record, ignore_conflict=True)  # not raising
 
