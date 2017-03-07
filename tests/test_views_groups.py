@@ -51,6 +51,14 @@ class GroupViewTest(FormattedErrorMixin, BaseWebTest, unittest.TestCase):
                                  headers=self.headers)
         self.assertEqual(resp.json['data']['members'], [])
 
+    def test_groups_can_be_patched_without_members_attribute(self):
+        group = {'data': {'alias': 'admins'}}
+        resp = self.app.patch_json(self.record_url,
+                                   group,
+                                   headers=self.headers)
+        self.assertEqual(resp.json['data']['members'], ['fxa:user'])
+        self.assertEqual(resp.json['data']['alias'], 'admins')
+
     def test_groups_can_be_put_with_simple_name(self):
         self.assertEqual(self.record['id'], 'moderators')
 
