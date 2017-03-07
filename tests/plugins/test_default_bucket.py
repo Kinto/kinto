@@ -41,6 +41,17 @@ class DefaultBucketViewTest(FormattedErrorMixin, DefaultBucketWebTest):
         result = resp.json
         self.assertIn('system.Everyone', result['permissions']['read'])
 
+    def test_default_bucket_collection_can_still_be_explicitly_created(self):
+        collection = {'data': {'synced': True}}
+        resp = self.app.put_json(self.collection_url, collection, headers=self.headers)
+        result = resp.json
+        self.assertIn('synced', result['data'])
+        self.assertTrue('synced', result['data']['synced'])
+        resp = self.app.get(self.collection_url, headers=self.headers)
+        result = resp.json
+        self.assertIn('synced', result['data'])
+        self.assertTrue('synced', result['data']['synced'])
+
     def test_default_bucket_can_be_created_with_simple_put(self):
         self.app.put(self.bucket_url, headers=get_user_headers('bob'), status=201)
 
