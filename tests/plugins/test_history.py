@@ -188,7 +188,7 @@ class HistoryViewTest(HistoryWebTest):
         entry = resp.json['data'][0]
         assert entry['action'] == 'delete'
         assert entry['target']['data']['signed']
-        assert entry['target']['data']['last_modified'] >= tombstone['last_modified']
+        assert entry['target']['data']['last_modified'] == tombstone['last_modified']
 
     def test_tracks_multiple_collections_delete(self):
         self.app.put(self.bucket_uri + '/collections/col2',
