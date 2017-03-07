@@ -1,8 +1,35 @@
+import os
 import unittest
+
+from kinto.plugins.admin import views as admin_views
 from ..support import BaseWebTest
 
 
+admin_module = os.path.abspath(os.path.dirname(admin_views.__file__))
+build_folder = os.path.join(admin_module, "build")
+built_index = os.path.join(build_folder, "index.html")
+
+
 class AdminViewTest(BaseWebTest, unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        # Simulate admin bundle without npm
+        os.makedirs(build_folder, exist_ok=True)
+        with open(built_index, "w") as f:
+            f.write("<html><script/></html>")
+
+    def setUp(self):
+        admin_views.admin_home_view.saved = None
+
+    @classmethod
+    def tearDownClass(cls):
+        super().tearDownClass()
+        try:
+            os.remove(built_index)
+        except FileNotFoundError:
+            pass
 
     def get_app_settings(self, extras=None):
         settings = super().get_app_settings(extras)

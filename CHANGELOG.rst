@@ -14,6 +14,10 @@ This document describes changes between each past release.
 - Fix ``ignore_conflict`` storage backend create method parameter to
   keep the existing rather than overriding it. (#1134)
 
+**Internal changes**
+
+- Do not keep the whole Kinto Admin bundle in the repo (fixes #1012)
+
 
 6.0.0 (2017-03-03)
 ------------------
