@@ -6,13 +6,6 @@ This document describes changes between each past release.
 6.1.0 (unreleased)
 ------------------
 
-**Protocol**
-
-- The history entries for deletions now provide the deleted object instead of
-  just the tombstone (fixes #1135)
-
-Protocol is now at version **1.15**. See `API changelog`_.
-
 **Bug fixes**
 
 - Fix Memory backend sometimes show empty permissions (#1045)

@@ -11,13 +11,6 @@ API
 Changelog
 ---------
 
-1.16 (unreleased)
-'''''''''''''''''
-
-- The history entries for deletions now provide the deleted object instead of
-  just the tombstone.
-
-
 1.15 (2017-03-03)
 '''''''''''''''''
 
