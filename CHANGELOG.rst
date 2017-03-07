@@ -18,6 +18,10 @@ This document describes changes between each past release.
 
 Protocol is now at version **1.16**. See `API changelog`_.
 
+**New features**
+
+- Enforce the permission endpoint when the admin plugin is included (fixes #1059)
+
 **Bug fixes**
 
 - Fix Memory backend sometimes show empty permissions (#1045)

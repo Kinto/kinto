@@ -50,6 +50,11 @@ class AdminViewTest(BaseWebTest, unittest.TestCase):
         }
         self.assertEqual(expected, capabilities['admin'])
 
+    def test_permission_endpoint_is_enabled_with_admin(self):
+        resp = self.app.get('/')
+        capabilities = resp.json['capabilities']
+        assert 'permissions_endpoint' in capabilities
+
     def test_admin_index_cat_be_reached(self):
         self.maxDiff = None
         resp = self.app.get('/admin/')
