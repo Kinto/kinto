@@ -1,4 +1,3 @@
-import os
 import unittest
 
 from pyramid.config import Configurator
@@ -6,9 +5,9 @@ from pyramid.config import Configurator
 from kinto.core.testing import get_user_headers
 from kinto.events import ServerFlushed
 
-from .support import (BaseWebTest,
-                      MINIMALIST_BUCKET, MINIMALIST_COLLECTION,
-                      MINIMALIST_RECORD)
+from ..support import (BaseWebTest,
+                       MINIMALIST_BUCKET, MINIMALIST_COLLECTION,
+                       MINIMALIST_RECORD)
 
 
 class FlushViewTest(BaseWebTest, unittest.TestCase):
@@ -62,7 +61,7 @@ class FlushViewTest(BaseWebTest, unittest.TestCase):
     def get_app_settings(cls, extras=None):
         if extras is None:
             extras = {}
-        extras.setdefault('flush_endpoint_enabled', True)
+        extras.setdefault('includes', 'kinto.plugins.flush_endpoint')
         settings = super().get_app_settings(extras)
         return settings
 
@@ -71,8 +70,7 @@ class FlushViewTest(BaseWebTest, unittest.TestCase):
         cls.events.append(event)
 
     def test_returns_404_if_not_enabled_in_configuration(self):
-        extra = {'flush_endpoint_enabled': False}
-        app = self.make_app(settings=extra)
+        app = self.make_app(settings={'includes': ''})
         app.post('/__flush__', headers=self.headers, status=404)
 
     def test_removes_every_records_of_everykind(self):
@@ -93,13 +91,18 @@ class FlushViewTest(BaseWebTest, unittest.TestCase):
         self.assertEqual(len(self.events), 1)
         self.assertTrue(isinstance(self.events[0], ServerFlushed))
 
-    def test_can_be_enabled_via_environment(self):
-        os.environ['KINTO_FLUSH_ENDPOINT_ENABLED'] = 'true'
-        extra = {'flush_endpoint_enabled': False}
-        app = self.make_app(settings=extra)
-        app.post('/__flush__', headers=self.headers)
-        os.environ.pop('KINTO_FLUSH_ENDPOINT_ENABLED')
-
     def test_flush_returns_json(self):
         response = self.app.post('/__flush__', headers=self.headers, status=202)
         self.assertEquals(response.json, {})
+
+    def test_flush_capability_if_enabled(self):
+        resp = self.app.get('/')
+        capabilities = resp.json['capabilities']
+        self.assertIn('flush_endpoint', capabilities)
+        expected = {
+            "description": "The __flush__ endpoint can be used to remove "
+                           "all data from all backends.",
+            "url": "https://kinto.readthedocs.io/en/latest/configuration/"
+                   "settings.html#activating-the-flush-endpoint"
+        }
+        self.assertEqual(expected, capabilities['flush_endpoint'])
