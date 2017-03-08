@@ -23,6 +23,14 @@ class SuccessTest(BaseWebTest, unittest.TestCase):
 
 class FailureTest(BaseWebTest, unittest.TestCase):
 
+    def setUp(self):
+        self._heartbeats = {**self.app.app.registry.heartbeats}
+        super().setUp()
+
+    def tearDown(self):
+        self.app.app.registry.heartbeats = self._heartbeats
+        super().tearDown()
+
     def test_returns_storage_false_if_ko(self):
         self.app.app.registry.heartbeats['storage'] = lambda r: False
         response = self.app.get('/__heartbeat__', status=503)

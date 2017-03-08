@@ -12,21 +12,19 @@ from ..support import (BaseWebTest, MINIMALIST_BUCKET, MINIMALIST_GROUP,
 
 class SwaggerTest(BaseWebTest, unittest.TestCase):
 
-    settings = {
-        'includes': [
-            'kinto.plugins.history',
-            'kinto.plugins.admin',
-        ]
-    }
-
     @classmethod
     def setUpClass(cls):
-        # FIXME: solve memory issues from generating the spec multiple times
-        app = BaseWebTest().make_app(settings=cls.settings)
-
-        cls.spec_dict = app.get('/__api__').json
+        super().setUpClass()
+        cls.spec_dict = cls.app.get('/__api__').json
         cls.spec = Spec.from_dict(cls.spec_dict)
         cls.resources = build_resources(cls.spec)
+
+    @classmethod
+    def get_app_settings(cls, extras=None):
+        settings = super().get_app_settings(extras)
+        settings['includes'] = ['kinto.plugins.history',
+                                'kinto.plugins.admin']
+        return settings
 
     def setUp(self):
         super().setUp()
@@ -56,11 +54,6 @@ class SwaggerTest(BaseWebTest, unittest.TestCase):
         self.request.query = {}
         self.request._json = {}
         self.request.json = lambda: self.request._json
-
-    def get_app_settings(self, extras=None):
-        settings = super().get_app_settings(extras)
-        settings.update(self.settings)
-        return settings
 
     def cast_bravado_response(self, response):
         resp = OutgoingResponse()

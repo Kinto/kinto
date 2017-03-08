@@ -14,7 +14,8 @@ from ..support import BaseWebTest, MINIMALIST_RECORD
 
 class DefaultBucketWebTest(BaseWebTest, unittest.TestCase):
 
-    def get_app_settings(self, extras=None):
+    @classmethod
+    def get_app_settings(cls, extras=None):
         settings = super().get_app_settings(extras)
         settings['includes'] = 'kinto.plugins.default_bucket'
         return settings
@@ -282,7 +283,8 @@ class EventsTest(DefaultBucketWebTest):
         super().tearDown()
         del _events[:]
 
-    def get_app_settings(self, extras=None):
+    @classmethod
+    def get_app_settings(cls, extras=None):
         settings = super().get_app_settings(extras)
         settings = {**settings, 'event_listeners': 'testevent',
                     'event_listeners.testevent.use': 'tests.plugins.test_default_bucket'}
@@ -339,7 +341,8 @@ class EventsTest(DefaultBucketWebTest):
 
 class ReadonlyDefaultBucket(DefaultBucketWebTest):
 
-    def get_app_settings(self, extras=None):
+    @classmethod
+    def get_app_settings(cls, extras=None):
         settings = super().get_app_settings(extras)
         settings['readonly'] = True
         return settings

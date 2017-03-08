@@ -14,11 +14,12 @@ from .support import (BaseWebTest,
 class FlushViewTest(BaseWebTest, unittest.TestCase):
 
     collection_url = '/buckets/beers/collections/barley/records'
+    events = []
 
     def setUp(self):
         super().setUp()
 
-        self.events = []
+        del self.events[:]
 
         bucket = {**MINIMALIST_BUCKET}
 
@@ -46,25 +47,28 @@ class FlushViewTest(BaseWebTest, unittest.TestCase):
                            status=201)
 
     def tearDown(self):
-        self.events = []
+        del self.events[:]
         super().tearDown()
 
-    def make_app(self, settings=None, config=None):
-        settings = self.get_app_settings(settings)
+    @classmethod
+    def make_app(cls, settings=None, config=None):
+        settings = cls.get_app_settings(settings)
         config = Configurator(settings=settings)
-        config.add_subscriber(self.listener, ServerFlushed)
+        config.add_subscriber(cls.listener, ServerFlushed)
         config.commit()
         return super().make_app(settings=settings, config=config)
 
-    def get_app_settings(self, extras=None):
+    @classmethod
+    def get_app_settings(cls, extras=None):
         if extras is None:
             extras = {}
         extras.setdefault('flush_endpoint_enabled', True)
         settings = super().get_app_settings(extras)
         return settings
 
-    def listener(self, event):
-        self.events.append(event)
+    @classmethod
+    def listener(cls, event):
+        cls.events.append(event)
 
     def test_returns_404_if_not_enabled_in_configuration(self):
         extra = {'flush_endpoint_enabled': False}

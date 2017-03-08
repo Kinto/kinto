@@ -9,14 +9,15 @@ from .support import (BaseWebTest,
 
 class PermissionsTest(BaseWebTest, unittest.TestCase):
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.alice_headers = {**self.headers, **get_user_headers('alice')}
-        self.bob_headers = {**self.headers, **get_user_headers('bob')}
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.alice_headers = {**cls.headers, **get_user_headers('alice')}
+        cls.bob_headers = {**cls.headers, **get_user_headers('bob')}
 
-        self.alice_principal = ('basicauth:d5b0026601f1b251974e09548d44155e16'
+        cls.alice_principal = ('basicauth:d5b0026601f1b251974e09548d44155e16'
                                 '812e3c64ff7ae053fe3542e2ca1570')
-        self.bob_principal = ('basicauth:c031ced27503f788b102ca54269a062ec737'
+        cls.bob_principal = ('basicauth:c031ced27503f788b102ca54269a062ec737'
                               '94bb075154c74a0d4311e74ca8b6')
 
 

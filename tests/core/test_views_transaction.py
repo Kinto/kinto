@@ -16,7 +16,9 @@ from .support import BaseWebTest, USER_PRINCIPAL
 
 
 class PostgreSQLTest(BaseWebTest):
-    def get_app_settings(self, extras=None):
+
+    @classmethod
+    def get_app_settings(cls, extras=None):
         settings = super().get_app_settings(extras)
         if sqlalchemy is not None:
             from .test_storage import PostgreSQLStorageTest
@@ -126,7 +128,9 @@ class TransactionTest(PostgreSQLTest, unittest.TestCase):
 
 
 class IntegrityConstraintTest(PostgreSQLTest, unittest.TestCase):
-    def get_app_settings(self, extras=None):
+
+    @classmethod
+    def get_app_settings(cls, extras=None):
         settings = super().get_app_settings(extras)
         if sqlalchemy is not None:
             settings.pop('storage_poolclass', None)  # Use real pool.
@@ -267,7 +271,8 @@ class TransactionEventsTest(PostgreSQLTest, unittest.TestCase):
 @skip_if_no_postgresql
 class WithoutTransactionTest(PostgreSQLTest, unittest.TestCase):
 
-    def get_app_settings(self, extras=None):
+    @classmethod
+    def get_app_settings(cls, extras=None):
         settings = super().get_app_settings(extras)
         settings['transaction_per_request'] = False
         return settings

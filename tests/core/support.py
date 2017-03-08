@@ -21,18 +21,19 @@ class BaseWebTest(testing.BaseWebTest):
     It setups the database before each test and delete it after.
     """
 
-    api_prefix = "v0"
     entry_point = testapp
     principal = USER_PRINCIPAL
 
     authorization_policy = 'tests.core.support.AllowAuthorizationPolicy'
     collection_url = '/mushrooms'
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.headers.update(testing.get_user_headers('mat'))
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.headers.update(testing.get_user_headers('mat'))
 
-    def get_app_settings(self, extras=None):
+    @classmethod
+    def get_app_settings(cls, extras=None):
         if extras is None:
             extras = {}
         extras.setdefault('project_name', 'myapp')
@@ -40,7 +41,7 @@ class BaseWebTest(testing.BaseWebTest):
         extras.setdefault('http_api_version', '0.1')
         extras.setdefault('project_docs', 'https://kinto.readthedocs.io/')
         extras.setdefault('multiauth.authorization_policy',
-                          self.authorization_policy)
+                          cls.authorization_policy)
         return super().get_app_settings(extras)
 
     def get_item_url(self, id=None):

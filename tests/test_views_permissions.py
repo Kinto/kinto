@@ -12,7 +12,8 @@ RECORD_ID = 'd5db6e57-2c10-43e2-96c8-56602ef01435'
 
 class PermissionsViewTest(BaseWebTest, unittest.TestCase):
 
-    def get_app_settings(self, extras=None):
+    @classmethod
+    def get_app_settings(cls, extras=None):
         settings = super().get_app_settings(extras)
         settings['experimental_permissions_endpoint'] = 'True'
         return settings
@@ -151,13 +152,11 @@ class SettingsPermissionsTest(PermissionsViewTest):
     admin_headers = get_user_headers('admin')
     admin_principal = 'basicauth:bb7fe7b98e759578ef0de85b546dd57d21fe1e399390ad8dafc9886043a00e5c'  # NOQA
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-    def get_app_settings(self, extras=None):
+    @classmethod
+    def get_app_settings(cls, extras=None):
         settings = super().get_app_settings(extras)
         settings['bucket_write_principals'] = 'system.Authenticated'
-        settings['group_create_principals'] = self.admin_principal
+        settings['group_create_principals'] = cls.admin_principal
         settings['collection_write_principals'] = 'system.Authenticated'
         settings['record_create_principals'] = '/buckets/beers/groups/admins'
         return settings
