@@ -3,7 +3,7 @@ Changelog
 
 This document describes changes between each past release.
 
-6.1.0 (unreleased)
+7.0.0 (unreleased)
 ------------------
 
 **Protocol**
@@ -11,6 +11,10 @@ This document describes changes between each past release.
 - Groups can now be created with a simple ``PUT`` (fixes #793)
 
 Protocol is now at version **1.16**. See `API changelog`_.
+
+**Breaking changes**
+
+- Forbid storing bytes in the cache backend. (#1143)
 
 **Bug fixes**
 
