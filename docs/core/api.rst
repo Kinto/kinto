@@ -1,9 +1,9 @@
 .. _core_api:
 
 
-API core module
-###############
+OpenAPI core module
+###################
 
 
-.. automodule:: kinto.core.api
+.. automodule:: kinto.core.openapi
     :members:

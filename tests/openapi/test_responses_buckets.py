@@ -1,9 +1,9 @@
 from bravado_core.response import validate_response
 
-from .support import SwaggerTest, MINIMALIST_BUCKET
+from .support import OpenAPITest, MINIMALIST_BUCKET
 
 
-class SwaggerBucketResponsesTest(SwaggerTest):
+class OpenAPIBucketResponsesTest(OpenAPITest):
 
     def test_get_bucket_200(self):
         response = self.app.get('/buckets/b1',

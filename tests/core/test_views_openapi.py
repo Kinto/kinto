@@ -1,14 +1,14 @@
 import unittest
 
-from kinto.core.views.swagger import swagger_view
+from kinto.core.views.openapi import openapi_view
 from .support import BaseWebTest
 
 
-class SwaggerViewTest(BaseWebTest, unittest.TestCase):
+class OpenAPIViewTest(BaseWebTest, unittest.TestCase):
 
     def setUp(self):
         try:
-            delattr(swagger_view, '__json__')  # Clean-up memoization.
+            delattr(openapi_view, '__json__')  # Clean-up memoization.
         except AttributeError:
             pass
 

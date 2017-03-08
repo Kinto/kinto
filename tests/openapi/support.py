@@ -10,7 +10,7 @@ from ..support import (BaseWebTest, MINIMALIST_BUCKET, MINIMALIST_GROUP,
                        MINIMALIST_COLLECTION, MINIMALIST_RECORD)
 
 
-class SwaggerTest(BaseWebTest, unittest.TestCase):
+class OpenAPITest(BaseWebTest, unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):

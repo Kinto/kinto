@@ -1,7 +1,7 @@
 from pyramid import authentication as base_auth
 
 from kinto.core import utils
-from kinto.core.api import OpenAPI
+from kinto.core.openapi import OpenAPI
 
 
 class BasicAuthAuthenticationPolicy(base_auth.BasicAuthAuthenticationPolicy):

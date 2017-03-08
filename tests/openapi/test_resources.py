@@ -1,8 +1,8 @@
-from .support import (SwaggerTest, MINIMALIST_BUCKET, MINIMALIST_GROUP,
+from .support import (OpenAPITest, MINIMALIST_BUCKET, MINIMALIST_GROUP,
                       MINIMALIST_COLLECTION, MINIMALIST_RECORD)
 
 
-class SwaggerResourcesTest(SwaggerTest):
+class OpenAPIResourcesTest(OpenAPITest):
 
     allowed_failures = ['version']
 

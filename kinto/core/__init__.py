@@ -89,7 +89,6 @@ DEFAULT_SETTINGS = {
                                        'BasicAuthAuthenticationPolicy'),
     'multiauth.authorization_policy': ('kinto.core.authorization.'
                                        'AuthorizationPolicy'),
-    'swagger_file': 'swagger.yaml',
 }
 
 

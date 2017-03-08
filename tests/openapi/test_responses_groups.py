@@ -1,9 +1,9 @@
 from bravado_core.response import validate_response
 
-from .support import SwaggerTest, MINIMALIST_GROUP
+from .support import OpenAPITest, MINIMALIST_GROUP
 
 
-class SwaggerGroupResponsesTest(SwaggerTest):
+class OpenAPIGroupResponsesTest(OpenAPITest):
 
     def test_get_group_200(self):
         response = self.app.get('/buckets/b1/groups/g1',

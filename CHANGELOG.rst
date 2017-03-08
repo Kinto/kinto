@@ -10,6 +10,7 @@ This document describes changes between each past release.
 
 - ``get_app_settings()`` from ``kinto.core.testing.BaseWebTest`` is now a
   class method (#1144)
+- ``kinto.core.api`` was renamed to ``kinto.core.openapi`` (#1145)
 
 **Protocol**
 
