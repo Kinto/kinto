@@ -1,10 +1,10 @@
 from bravado_core.request import IncomingRequest, unmarshal_request
 from bravado_core.swagger20_validator import ValidationError
 
-from .support import SwaggerTest
+from .support import OpenAPITest
 
 
-class SwaggerRequestsValidationTest(SwaggerTest):
+class OpenAPIRequestsValidationTest(OpenAPITest):
 
     def setUp(self):
         super().setUp()

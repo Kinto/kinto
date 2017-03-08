@@ -106,4 +106,4 @@ The current implementation supports extensions as follows:
   changing the ``responses`` attribute on your Resource ``ViewSet``.
 
 - If the plugin adds an authentication method, you may declare it using
-  :func:`kinto.core.api.OpenAPI.expose_authentication_method`.
+  :func:`kinto.core.openapi.OpenAPI.expose_authentication_method`.

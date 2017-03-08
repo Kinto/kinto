@@ -1,12 +1,12 @@
 from bravado_core.response import validate_response
 
 from kinto.core import testing
-from .support import SwaggerTest
+from .support import OpenAPITest
 from ..support import (MINIMALIST_BUCKET, MINIMALIST_GROUP,
                        MINIMALIST_COLLECTION, MINIMALIST_RECORD)
 
 
-class SwaggerObjectErrorResponsesTest(SwaggerTest):
+class OpenAPIObjectErrorResponsesTest(OpenAPITest):
 
     def setUp(self):
         super().setUp()

@@ -6,6 +6,10 @@ This document describes changes between each past release.
 6.1.0 (unreleased)
 ------------------
 
+**Breaking changes**
+
+- ``kinto.core.api`` was renamed to ``kinto.core.openapi``
+
 **Protocol**
 
 - Groups can now be created with a simple ``PUT`` (fixes #793)
@@ -26,6 +30,7 @@ Protocol is now at version **1.16**. See `API changelog`_.
 
 - Do not keep the whole Kinto Admin bundle in the repo (fixes #1012)
 - Remove the email example from the custom code event listener tutorial (fixes #420)
+- Renamed Swagger views and tests to OpenAPI
 
 
 6.0.0 (2017-03-03)

@@ -1,9 +1,9 @@
 from bravado_core.response import validate_response
 
-from .support import SwaggerTest, MINIMALIST_COLLECTION
+from .support import OpenAPITest, MINIMALIST_COLLECTION
 
 
-class SwaggerCollectionResponsesTest(SwaggerTest):
+class OpenAPICollectionResponsesTest(OpenAPITest):
 
     def test_get_collection_200(self):
         response = self.app.get('/buckets/b1/collections/c1',
