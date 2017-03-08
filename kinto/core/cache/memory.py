@@ -56,6 +56,8 @@ class Cache(CacheBase):
 
     @synchronized
     def set(self, key, value, ttl=None):
+        if isinstance(value, bytes):
+            raise TypeError("a string-like object is required, not 'bytes'")
         self._clean_expired()
         self._clean_oversized()
         if ttl is not None:

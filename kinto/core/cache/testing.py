@@ -1,4 +1,5 @@
 import mock
+import pytest
 import time
 
 from pyramid import testing
@@ -101,8 +102,8 @@ class CacheTest:
         self.assertEqual(*setget('foobar', 3.14))
 
     def test_bytes_are_converted_to_unicode(self):
-        self.cache.set('test', b'foo')
-        assert self.cache.get('test') == 'foo'
+        with pytest.raises(TypeError):
+            self.cache.set('test', b'foo')
 
     def test_delete_removes_the_record(self):
         self.cache.set('foobar', 'toto')
