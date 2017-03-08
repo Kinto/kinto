@@ -2,7 +2,6 @@ import colander
 from pyramid import httpexceptions
 from enum import Enum
 
-from kinto.core.logs import logger
 from kinto.core.schema import Any
 from kinto.core.utils import json, reapply_cors
 
@@ -103,9 +102,6 @@ def http_error(httpexception, errno=None,
     if isinstance(errno, Enum):
         errno = errno.value
 
-    # Track error number for request summary
-    logger.bind(errno=errno)
-
     body = {
         "code": code or httpexception.code,
         "errno": errno,
@@ -116,6 +112,7 @@ def http_error(httpexception, errno=None,
     }
 
     response = httpexception
+    response.errno = errno
     response.json = ErrorSchema().deserialize(body)
     response.content_type = 'application/json'
     return response

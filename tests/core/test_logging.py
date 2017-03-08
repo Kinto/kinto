@@ -14,10 +14,6 @@ from kinto.core.testing import unittest
 from .support import BaseWebTest
 
 
-def logger_context():
-    return core_logs.logger._context._dict
-
-
 def strip_ansi(text):
     """
     Strip ANSI sequences (colors) from text.
@@ -189,18 +185,22 @@ class RequestSummaryTest(BaseWebTest, unittest.TestCase):
         config.registry.settings = DEFAULT_SETTINGS
         initialization.setup_logging(config)
 
-    def tearDown(self):
-        super().tearDown()
-        core_logs.structlog.reset_defaults()
+        patch = mock.patch.object(core_logs.logger, 'info')
+        self.mocked = patch.start()
+        self.addCleanup(patch.stop)
 
     def test_request_summary_is_sent_as_info(self):
-        with mock.patch('kinto.core.logs.logger.info') as mocked:
-            self.app.get('/')
-            mocked.assert_called_with('request.summary')
+        self.app.get('/')
+        args, kwargs = self.mocked.call_args_list[-1]
+        self.assertIn('request.summary', args)
+
+    def logger_context(self):
+        args, kwargs = self.mocked.call_args_list[-1]
+        return kwargs
 
     def test_standard_info_is_bound(self):
         self.app.get('/', headers=self.headers)
-        event_dict = logger_context()
+        event_dict = self.logger_context()
         self.assertEqual(event_dict['path'], '/v0/')
         self.assertEqual(event_dict['method'], 'GET')
         self.assertEqual(event_dict['code'], 200)
@@ -213,100 +213,66 @@ class RequestSummaryTest(BaseWebTest, unittest.TestCase):
 
     def test_userid_is_none_when_anonymous(self):
         self.app.get('/')
-        event_dict = logger_context()
+        event_dict = self.logger_context()
         self.assertIsNone(event_dict['uid'])
 
     def test_lang_is_not_none_when_provided(self):
         self.app.get('/', headers={'Accept-Language': 'fr-FR'})
-        event_dict = logger_context()
+        event_dict = self.logger_context()
         self.assertEqual(event_dict['lang'], 'fr-FR')
 
     def test_agent_is_not_none_when_provided(self):
         self.app.get('/', headers={'User-Agent': 'webtest/x.y.z'})
-        event_dict = logger_context()
+        event_dict = self.logger_context()
         self.assertEqual(event_dict['agent'], 'webtest/x.y.z')
 
     def test_errno_is_specified_on_error(self):
         self.app.get('/unknown', status=404)
-        event_dict = logger_context()
+        event_dict = self.logger_context()
         self.assertEqual(event_dict['errno'], 111)
 
     def test_basic_authn_type_is_bound(self):
         app = self.make_app({'multiauth.policies': 'basicauth'})
         app.get('/mushrooms', headers={'Authorization': 'Basic bWF0OjE='})
-        event_dict = logger_context()
+        event_dict = self.logger_context()
         self.assertEqual(event_dict['authn_type'], 'basicauth')
 
 
 class BatchSubrequestTest(BaseWebTest, unittest.TestCase):
     def setUp(self):
         super().setUp()
+
+        patch = mock.patch.object(core_logs.logger, 'info')
+        self.mocked = patch.start()
+        self.addCleanup(patch.stop)
+
         headers = {**self.headers, 'User-Agent': 'readinglist'}
         body = {
             'requests': [{
                 'path': '/unknown',
                 'headers': {'User-Agent': 'foo'}
+            }, {
+                'path': '/unknown2'
             }]
         }
         self.app.post_json('/batch', body, headers=headers)
 
     def test_batch_global_request_is_preserved(self):
-        event_dict = logger_context()
-        self.assertEqual(event_dict['code'], 200)
-        self.assertEqual(event_dict['path'], '/batch')
-        self.assertEqual(event_dict['agent'], 'readinglist')
+        args, kwargs = self.mocked.call_args_list[-1]
+        self.assertEqual(kwargs['code'], 200)
+        self.assertEqual(kwargs['path'], '/v0/batch')
+        self.assertEqual(kwargs['agent'], 'readinglist')
 
     def test_batch_size_is_bound(self):
-        event_dict = logger_context()
-        self.assertEqual(event_dict['batch_size'], 1)
+        args, kwargs = self.mocked.call_args_list[-1]
+        self.assertEqual(kwargs['batch_size'], 2)
 
     def test_subrequests_are_not_logged_as_request_summary(self):
-        with mock.patch('kinto.core.logs.logger.info') as log_patched:
-            body = {
-                'requests': [{'path': '/unknown1'}, {'path': '/unknown2'}]
-            }
-            self.app.post_json('/batch', body)
-            self.assertEqual(log_patched.call_count, 1)
-            log_patched.assert_called_with('request.summary')
+        summaries = [args[0] for args, kwargs in self.mocked.call_args_list
+                     if args[0] == "request.summary"]
+        self.assertEqual(len(summaries), 1)
 
     def test_subrequests_are_logged_as_subrequest_summary(self):
-        with mock.patch('kinto.core.logger.new') as log_patched:
-            body = {
-                'requests': [{'path': '/unknown1'}, {'path': '/unknown2'}]
-            }
-            self.app.post_json('/batch', body)
-            self.assertEqual(log_patched().info.call_count, 2)
-            log_patched().info.assert_called_with('subrequest.summary')
-
-
-class ResourceInfoTest(BaseWebTest, unittest.TestCase):
-    def setUp(self):
-        super().setUp()
-        config = testing.setUp()
-        config.registry.settings = DEFAULT_SETTINGS
-        initialization.setup_logging(config)
-
-    def tearDown(self):
-        super().tearDown()
-        core_logs.structlog.reset_defaults()
-
-    def test_collection_id_is_bound(self):
-        self.app.get('/mushrooms', headers=self.headers)
-        event_dict = logger_context()
-        self.assertEqual(event_dict['collection_id'], 'mushroom')
-
-    def test_collection_timestamp_is_bound(self):
-        r = self.app.get('/mushrooms', headers=self.headers)
-        event_dict = logger_context()
-        self.assertEqual(event_dict['collection_timestamp'],
-                         int(r.headers['ETag'][1:-1]))
-
-    def test_result_size_and_limit_are_bound(self):
-        for name in ['a', 'b', 'c']:
-            body = {'data': {'name': name}}
-            self.app.post_json('/mushrooms', body, headers=self.headers)
-
-        self.app.get('/mushrooms?_limit=5', headers=self.headers)
-        event_dict = logger_context()
-        self.assertEqual(event_dict['limit'], 5)
-        self.assertEqual(event_dict['nb_records'], 3)
+        summaries = [args[0] for args, kwargs in self.mocked.call_args_list
+                     if args[0] == "subrequest.summary"]
+        self.assertEqual(len(summaries), 2)

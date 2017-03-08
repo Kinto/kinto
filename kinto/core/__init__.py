@@ -14,7 +14,7 @@ from kinto.core.initialization import (  # NOQA
 from kinto.core.utils import (
     follow_subrequest, current_service, current_resource_name,
     prefixed_userid, prefixed_principals)
-from kinto.core.logs import logger
+from kinto.core.logs import logger, log_context
 
 
 # Module version, as defined in PEP-0396.
@@ -157,6 +157,7 @@ def includeme(config):
         step_func(config)
 
     # Custom helpers.
+    config.add_request_method(log_context)
     config.add_request_method(follow_subrequest)
     config.add_request_method(prefixed_userid, property=True)
     config.add_request_method(prefixed_principals, reify=True)
