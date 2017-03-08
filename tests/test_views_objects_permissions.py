@@ -16,9 +16,9 @@ class PermissionsTest(BaseWebTest, unittest.TestCase):
         cls.bob_headers = {**cls.headers, **get_user_headers('bob')}
 
         cls.alice_principal = ('basicauth:d5b0026601f1b251974e09548d44155e16'
-                                '812e3c64ff7ae053fe3542e2ca1570')
+                               '812e3c64ff7ae053fe3542e2ca1570')
         cls.bob_principal = ('basicauth:c031ced27503f788b102ca54269a062ec737'
-                              '94bb075154c74a0d4311e74ca8b6')
+                             '94bb075154c74a0d4311e74ca8b6')
 
 
 class BucketPermissionsTest(PermissionsTest):
