@@ -11,6 +11,7 @@ This document describes changes between each past release.
 - ``get_app_settings()`` from ``kinto.core.testing.BaseWebTest`` is now a
   class method (#1144)
 - ``kinto.core.api`` was renamed to ``kinto.core.openapi`` (#1145)
+- Forbid storing bytes in the cache backend. (#1143)
 
 **Protocol**
 
@@ -18,9 +19,9 @@ This document describes changes between each past release.
 
 Protocol is now at version **1.16**. See `API changelog`_.
 
-**Breaking changes**
+**New features**
 
-- Forbid storing bytes in the cache backend. (#1143)
+- Enforce the permission endpoint when the admin plugin is included (fixes #1059)
 
 **Bug fixes**
 

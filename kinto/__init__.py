@@ -79,8 +79,9 @@ def main(global_config, config=None, **settings):
         kwargs['ignore'] = ['kinto.views.flush']
 
     # Permissions endpoint enabled if permission backend is setup.
+    is_admin_enabled = 'kinto.plugins.admin' in settings['includes']
     permissions_endpoint_enabled = (
-        asbool(settings['experimental_permissions_endpoint']) and
+        (is_admin_enabled or asbool(settings['experimental_permissions_endpoint'])) and
         hasattr(config.registry, 'permission'))
     if permissions_endpoint_enabled:
         config.add_api_capability(
