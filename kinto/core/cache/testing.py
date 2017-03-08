@@ -101,7 +101,7 @@ class CacheTest:
         self.assertEqual(*setget('foobar', {'b': [1, 2]}))
         self.assertEqual(*setget('foobar', 3.14))
 
-    def test_bytes_are_converted_to_unicode(self):
+    def test_bytes_cannot_be_stored_in_the_cache(self):
         with pytest.raises(TypeError):
             self.cache.set('test', b'foo')
 
