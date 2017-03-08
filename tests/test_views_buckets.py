@@ -97,9 +97,10 @@ class BucketViewTest(BaseWebTest, unittest.TestCase):
 
 
 class BucketListTest(BaseWebTest, unittest.TestCase):
-    def get_app_settings(self, extras=None):
+    @classmethod
+    def get_app_settings(cls, extras=None):
         settings = super().get_app_settings(extras)
-        settings['bucket_create_principals'] = self.principal
+        settings['bucket_create_principals'] = cls.principal
         return settings
 
     def test_can_list_buckets_by_default_if_allowed_to_create(self):
@@ -155,10 +156,10 @@ class BucketReadPermissionTest(BaseWebTest, unittest.TestCase):
                           bucket,
                           headers=self.headers)
 
-    def get_app_settings(self, extras=None):
-        settings = super(BucketReadPermissionTest,
-                         self).get_app_settings(extras)
-        # Give the right to list buckets (for self.principal and alice).
+    @classmethod
+    def get_app_settings(cls, extras=None):
+        settings = super().get_app_settings(extras)
+        # Give the right to list buckets (for cls.principal and alice).
         settings['kinto.bucket_read_principals'] = Authenticated
         return settings
 
@@ -197,10 +198,11 @@ class BucketDeletionTest(BaseWebTest, unittest.TestCase):
         # Delete the bucket.
         self.app.delete(self.bucket_url, headers=self.headers)
 
-    def get_app_settings(self, extras=None):
+    @classmethod
+    def get_app_settings(cls, extras=None):
         settings = super().get_app_settings(extras)
         # Give the permission to read, to get an explicit 404 once deleted.
-        settings['kinto.bucket_read_principals'] = self.principal
+        settings['kinto.bucket_read_principals'] = cls.principal
         return settings
 
     def test_buckets_can_be_deleted_in_bulk(self):

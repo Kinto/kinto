@@ -18,11 +18,13 @@ class BaseWebTest(testing.BaseWebTest):
     entry_point = kinto_main
     principal = USER_PRINCIPAL
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.headers.update(testing.get_user_headers('mat'))
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.headers.update(testing.get_user_headers('mat'))
 
-    def get_app_settings(self, extras=None):
+    @classmethod
+    def get_app_settings(cls, extras=None):
         settings = {**DEFAULT_SETTINGS}
         if extras is not None:
             settings.update(extras)

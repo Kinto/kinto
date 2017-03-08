@@ -20,9 +20,6 @@ class AdminViewTest(BaseWebTest, unittest.TestCase):
         with open(built_index, "w") as f:
             f.write("<html><script/></html>")
 
-    def setUp(self):
-        admin_views.admin_home_view.saved = None
-
     @classmethod
     def tearDownClass(cls):
         super().tearDownClass()
@@ -31,10 +28,14 @@ class AdminViewTest(BaseWebTest, unittest.TestCase):
         except FileNotFoundError:
             pass
 
+    @classmethod
     def get_app_settings(self, extras=None):
         settings = super().get_app_settings(extras)
         settings['includes'] = 'kinto.plugins.admin'
         return settings
+
+    def setUp(self):
+        admin_views.admin_home_view.saved = None
 
     def test_capability_is_exposed(self):
         self.maxDiff = None

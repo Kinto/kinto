@@ -5,7 +5,9 @@ from .support import (BaseWebTest, MINIMALIST_BUCKET,
 
 
 class GlobalSettingsTest(BaseWebTest, unittest.TestCase):
-    def get_app_settings(self, extras=None):
+
+    @classmethod
+    def get_app_settings(cls, extras=None):
         settings = super().get_app_settings(extras)
         settings['kinto.record_cache_expires_seconds'] = 3600
         settings['kinto.record_read_principals'] = 'system.Everyone'
@@ -34,7 +36,9 @@ class GlobalSettingsTest(BaseWebTest, unittest.TestCase):
 
 
 class SpecificSettingsTest(BaseWebTest, unittest.TestCase):
-    def get_app_settings(self, extras=None):
+
+    @classmethod
+    def get_app_settings(cls, extras=None):
         settings = super().get_app_settings(extras)
         settings['kinto.blog_record_cache_expires_seconds'] = '30'
         settings['kinto.browser_top500_record_cache_expires_seconds'] = '60'

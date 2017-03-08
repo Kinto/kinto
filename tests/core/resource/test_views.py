@@ -514,9 +514,8 @@ class IgnoredFieldsTest(BaseWebTest, unittest.TestCase):
 
 
 class InvalidBodyTest(BaseWebTest, unittest.TestCase):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.invalid_body = "{'foo>}"
+
+    invalid_body = "{'foo>}"
 
     def setUp(self):
         super().setUp()
@@ -650,7 +649,8 @@ class InvalidPermissionsTest(BaseWebTest, unittest.TestCase):
 class CacheControlTest(BaseWebTest, unittest.TestCase):
     collection_url = '/toadstools'
 
-    def get_app_settings(self, extras=None):
+    @classmethod
+    def get_app_settings(cls, extras=None):
         settings = super().get_app_settings(extras)
         settings['toadstool_cache_expires_seconds'] = 3600
         settings['toadstool_read_principals'] = 'system.Everyone'

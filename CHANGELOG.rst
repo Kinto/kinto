@@ -6,6 +6,11 @@ This document describes changes between each past release.
 6.1.0 (unreleased)
 ------------------
 
+**Breaking changes**
+
+- ``get_app_settings()`` from ``kinto.core.testing.BaseWebTest`` is now a
+  class method (#1144)
+
 **Protocol**
 
 - Groups can now be created with a simple ``PUT`` (fixes #793)
