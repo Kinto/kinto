@@ -121,6 +121,9 @@ class Cache(CacheBase):
             conn.execute(query, dict(ttl=ttl, key=self.prefix + key))
 
     def set(self, key, value, ttl=None):
+        if isinstance(value, bytes):
+            raise TypeError("a string-like object is required, not 'bytes'")
+
         if ttl is None:
             logger.warning("No TTL for cache key '{}'".format(key))
         query = """

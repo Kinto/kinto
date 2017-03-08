@@ -1,4 +1,5 @@
 import mock
+import pytest
 import time
 
 from pyramid import testing
@@ -99,6 +100,10 @@ class CacheTest:
         self.assertEqual(*setget('foobar', ['a']))
         self.assertEqual(*setget('foobar', {'b': [1, 2]}))
         self.assertEqual(*setget('foobar', 3.14))
+
+    def test_bytes_cannot_be_stored_in_the_cache(self):
+        with pytest.raises(TypeError):
+            self.cache.set('test', b'foo')
 
     def test_delete_removes_the_record(self):
         self.cache.set('foobar', 'toto')
