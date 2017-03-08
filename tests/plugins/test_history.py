@@ -48,8 +48,7 @@ class HistoryViewTest(HistoryWebTest):
         self.app.put(self.bucket_uri, headers=self.headers)
 
         self.collection_uri = self.bucket_uri + '/collections/col'
-        body = {'data': {'signed': True}}
-        resp = self.app.put_json(self.collection_uri, body, headers=self.headers)
+        resp = self.app.put(self.collection_uri, headers=self.headers)
         self.collection = resp.json['data']
 
         self.group_uri = self.bucket_uri + '/groups/grp'
@@ -182,13 +181,11 @@ class HistoryViewTest(HistoryWebTest):
         assert entry['target']['permissions']['read'] == ['admins']
 
     def test_tracks_collection_delete(self):
-        resp = self.app.delete(self.collection_uri, headers=self.headers)
-        tombstone = resp.json['data']
+        self.app.delete(self.collection_uri, headers=self.headers)
         resp = self.app.get(self.history_uri, headers=self.headers)
         entry = resp.json['data'][0]
         assert entry['action'] == 'delete'
-        assert entry['target']['data']['signed']
-        assert entry['target']['data']['last_modified'] == tombstone['last_modified']
+        assert entry['target']['data']['deleted'] is True
 
     def test_tracks_multiple_collections_delete(self):
         self.app.put(self.bucket_uri + '/collections/col2',
@@ -238,7 +235,7 @@ class HistoryViewTest(HistoryWebTest):
         resp = self.app.get(self.history_uri, headers=self.headers)
         entry = resp.json['data'][0]
         assert entry['action'] == 'delete'
-        assert entry['target']['data']['members'] == ['elle']
+        assert entry['target']['data']['deleted'] is True
 
     def test_tracks_multiple_groups_delete(self):
         self.app.put_json(self.bucket_uri + '/groups/g2',
@@ -292,7 +289,7 @@ class HistoryViewTest(HistoryWebTest):
         resp = self.app.get(self.history_uri, headers=self.headers)
         entry = resp.json['data'][0]
         assert entry['action'] == 'delete'
-        assert entry['target']['data']['foo'] == 42
+        assert entry['target']['data']['deleted'] is True
 
     def test_tracks_multiple_records_delete(self):
         records_uri = self.collection_uri + '/records'
