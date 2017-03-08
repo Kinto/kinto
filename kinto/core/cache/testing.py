@@ -100,6 +100,10 @@ class CacheTest:
         self.assertEqual(*setget('foobar', {'b': [1, 2]}))
         self.assertEqual(*setget('foobar', 3.14))
 
+    def test_bytes_are_converted_to_unicode(self):
+        self.cache.set('test', b'foo')
+        assert self.cache.get('test') == 'foo'
+
     def test_delete_removes_the_record(self):
         self.cache.set('foobar', 'toto')
         self.cache.delete('foobar')
