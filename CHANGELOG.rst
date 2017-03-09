@@ -22,6 +22,7 @@ Protocol is now at version **1.16**. See `API changelog`_.
 **New features**
 
 - Enforce the permission endpoint when the admin plugin is included (fixes #1059)
+- Access control failures are logged with WARN level (fixes #1074)
 
 **Bug fixes**
 

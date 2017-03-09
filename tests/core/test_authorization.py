@@ -170,7 +170,7 @@ class AuthorizationPolicyTest(unittest.TestCase):
         self.context = mock.MagicMock()
         self.context.permission_object_id = '/articles/43/comments/2'
         self.context.required_permission = 'read'
-        self.principals = []
+        self.principals = ["portier:yourself"]
         self.context.get_prefixed_principals.return_value = self.principals
         self.permission = 'dynamic'
 
@@ -181,6 +181,15 @@ class AuthorizationPolicyTest(unittest.TestCase):
         self.assertTrue(self.authz.permits(None,
                                            ['system.Authenticated'],
                                            'private'))
+
+    def test_permits_logs_authz_failures(self):
+        self.context.on_collection = False
+        self.context.check_permission.return_value = False
+        with mock.patch('kinto.core.authorization.logger') as mocked:
+            self.authz.permits(self.context, self.principals, 'dynamic')
+        mocked.warn.assert_called_with('{userid} is not allowed to {perm} {uri}',
+                                       perm='read', uri='/articles/43/comments/2',
+                                       userid='portier:yourself')
 
     def test_permits_refers_to_context_to_check_permissions(self):
         self.context.check_permission.return_value = True
