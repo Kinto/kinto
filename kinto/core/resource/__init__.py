@@ -175,9 +175,8 @@ class UserResource:
         content_type = str(self.request.headers.get('Content-Type')).lower()
         self._is_json_patch = content_type == 'application/json-patch+json'
 
-        # Log resource context.
-        logger.bind(collection_id=self.model.collection_id,
-                    collection_timestamp=self.timestamp)
+        # Initialize timestamp as soon as possible.
+        self.timestamp
 
     @reify
     def timestamp(self):
@@ -295,8 +294,6 @@ class UserResource:
                 for record in records
             ]
 
-        # Bind metric about response size.
-        logger.bind(nb_records=len(records), limit=limit)
         headers['Total-Records'] = str(total_records)
 
         return self.postprocess(records)

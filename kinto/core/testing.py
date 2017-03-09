@@ -39,6 +39,7 @@ class DummyRequest(mock.MagicMock):
         self.prefixed_principals = self.effective_principals + [self.prefixed_userid]
         self.json = {}
         self.validated = {}
+        self.log_context = lambda **kw: kw
         self.matchdict = {}
         self.response = mock.MagicMock(headers={})
 
