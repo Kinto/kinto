@@ -163,7 +163,6 @@ adjustments:
 
 .. code-block :: ini
 
-    kinto.flush_endpoint_enabled = false
     kinto.http_scheme = https
     kinto.paginate_by = 100
     kinto.batch_max_requests = 25

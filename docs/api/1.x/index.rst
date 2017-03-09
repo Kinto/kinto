@@ -26,6 +26,7 @@ Full detailed API documentation:
    utilities
    batch
    openapi
+   flush
    timestamps
    backoff
    errors
