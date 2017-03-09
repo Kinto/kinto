@@ -142,7 +142,7 @@ class PrefixedPrincipalsTest(unittest.TestCase):
         request.effective_principals = ['foo', 'system.Authenticated']
         request.prefixed_userid = 'basic:foo'
         self.assertEqual(prefixed_principals(request),
-                         ['system.Authenticated', 'basic:foo'])
+                         ['basic:foo', 'system.Authenticated'])
 
     def test_works_if_userid_is_not_in_principals(self):
         request = DummyRequest()

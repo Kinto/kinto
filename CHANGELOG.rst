@@ -25,6 +25,7 @@ Protocol is now at version **1.16**. See `API changelog`_.
 **New features**
 
 - Enforce the permission endpoint when the admin plugin is included (fixes #1059)
+- Access control failures are logged with WARN level (fixes #1074)
 
 **Bug fixes**
 
@@ -42,6 +43,7 @@ Protocol is now at version **1.16**. See `API changelog`_.
 - Do not keep the whole Kinto Admin bundle in the repo (fixes #1012)
 - Remove the email example from the custom code event listener tutorial (fixes #420)
 - Removed useless logging info from resource (ref #603)
+- Make sure prefixed userid is always first in principals
 
 
 6.0.0 (2017-03-03)

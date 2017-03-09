@@ -170,7 +170,7 @@ class AuthorizationPolicyTest(unittest.TestCase):
         self.context = mock.MagicMock()
         self.context.permission_object_id = '/articles/43/comments/2'
         self.context.required_permission = 'read'
-        self.principals = []
+        self.principals = ["portier:yourself"]
         self.context.get_prefixed_principals.return_value = self.principals
         self.permission = 'dynamic'
 
@@ -182,6 +182,15 @@ class AuthorizationPolicyTest(unittest.TestCase):
                                            ['system.Authenticated'],
                                            'private'))
 
+    def test_permits_logs_authz_failures(self):
+        self.context.on_collection = False
+        self.context.check_permission.return_value = False
+        with mock.patch('kinto.core.authorization.logger') as mocked:
+            self.authz.permits(self.context, self.principals, 'dynamic')
+        mocked.warn.assert_called_with('{userid} is not allowed to {perm} {uri}',
+                                       perm='read', uri='/articles/43/comments/2',
+                                       userid='portier:yourself')
+
     def test_permits_refers_to_context_to_check_permissions(self):
         self.context.check_permission.return_value = True
         allowed = self.authz.permits(self.context, self.principals, 'dynamic')
@@ -190,7 +199,7 @@ class AuthorizationPolicyTest(unittest.TestCase):
     def test_permits_refers_to_context_to_check_permission_principals(self):
         self.context.check_permission.return_value = False
         allowed = self.authz.permits(
-            self.context, ['fxa:user', 'system.Authenticated'], 'dynamic')
+            self.context, self.principals, 'dynamic')
         self.assertTrue(allowed)
 
     def test_permits_reads_the_context_when_permission_is_dynamic(self):
@@ -231,7 +240,7 @@ class AuthorizationPolicyTest(unittest.TestCase):
         self.context.resource_name = 'record'
         self.context.required_permission = 'create'
         self.context._settings = {'record_create_principals': 'fxa:user'}
-        allowed = self.authz.permits(self.context, ['fxa:user'], 'dynamic')
+        allowed = self.authz.permits(self.context, self.principals, 'dynamic')
         self.context._check_permission.assert_not_called()
         self.assertTrue(allowed)
 
@@ -252,7 +261,7 @@ class GuestAuthorizationPolicyTest(unittest.TestCase):
         # Note: we use the list of principals from request.prefixed_principals
         self.context.fetch_shared_records.assert_called_with(
             'read',
-            ['system.Everyone', 'system.Authenticated', 'basicauth:bob'],
+            ['basicauth:bob', 'system.Everyone', 'system.Authenticated'],
             self.authz.get_bound_permissions)
         self.assertTrue(allowed)
 
@@ -274,7 +283,7 @@ class GuestAuthorizationPolicyTest(unittest.TestCase):
         # Note: we use the list of principals from request.prefixed_principals
         self.context.fetch_shared_records.assert_called_with(
             'read',
-            ['system.Everyone', 'system.Authenticated', 'basicauth:bob'],
+            ['basicauth:bob', 'system.Everyone', 'system.Authenticated'],
             self.authz.get_bound_permissions)
         self.assertFalse(allowed)
 

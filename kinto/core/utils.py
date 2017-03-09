@@ -319,7 +319,7 @@ def prefixed_principals(request):
     principals = [p for p in principals if p != userid]
 
     if request.prefixed_userid not in principals:
-        principals.append(request.prefixed_userid)
+        principals = [request.prefixed_userid] + principals
 
     return principals
 

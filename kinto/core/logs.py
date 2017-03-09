@@ -54,8 +54,10 @@ class ClassicLogRenderer:
         else:
             pattern = '{event} {context}'
 
-        output = {}
-        for field in ['method', 'path', 'code', 't', 'event']:
+        output = {
+            'event': str(event_dict.pop('event', '?')).format(**event_dict)
+        }
+        for field in ['method', 'path', 'code', 't']:
             output[field] = decode_value(event_dict.pop(field, '?'))
 
         querystring = event_dict.pop('querystring', {})
