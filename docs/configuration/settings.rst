@@ -471,7 +471,7 @@ list of Python modules:
 +---------------------------------------+--------------------------------------------------------------------------+
 | Built-in plugins                      | What does it do?                                                         |
 +=======================================+==========================================================================+
-| ``kinto.plugins.default_bucket``      | It enables a personnal bucket ``default``, where collections are created |
+| ``kinto.plugins.default_bucket``      | It enables a personal bucket ``default``, where collections are created  |
 |                                       | implicitly (:ref:`more details <buckets-default-id>`).                   |
 +---------------------------------------+--------------------------------------------------------------------------+
 | ``kinto.plugins.history``             | It tracks every action performed on objects within a bucket              |
@@ -480,6 +480,10 @@ list of Python modules:
 | ``kinto.plugins.admin``               | It is a Web admin UI to manage data from a Kinto server.                 |
 |                                       | (:ref:`more details <api-history>`).                                     |
 +---------------------------------------+--------------------------------------------------------------------------+
+| ``kinto.plugins.flush``               | Adds an endpoint to completely remove all data from the database backend |
+|                                       | for testing/staging purposes. (:ref:`more details <api-flush>`).         |
++---------------------------------------+--------------------------------------------------------------------------+
+
 
 There are `many available packages`_ in Pyramid ecosystem, and it is straightforward to build one,
 since the specified module must just define an ``includeme(config)`` function.
@@ -634,22 +638,6 @@ following setting should be declared in the ``.ini`` file:
 
     # Disable mushroom record PATCH endpoint
     kinto.record_mushroom_patch_enabled = false
-
-
-Activating the flush endpoint
-=============================
-
-
-The Flush endpoint is used to flush (completely remove) all data from the
-database backend. While this can be useful during development, it's too
-dangerous to leave on by default, and must therefore be enabled explicitly.
-
-.. code-block :: ini
-
-    kinto.flush_endpoint_enabled = true
-
-Then, issue a ``POST`` request to the ``/__flush__`` endpoint to flush all
-the data.
 
 
 Activating the permissions endpoint

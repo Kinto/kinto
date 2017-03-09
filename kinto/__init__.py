@@ -20,7 +20,6 @@ logger = logging.getLogger(__name__)
 
 
 DEFAULT_SETTINGS = {
-    'flush_endpoint_enabled': False,
     'retry_after_seconds': 3,
     'cache_backend': 'kinto.core.cache.memory',
     'permission_backend': 'kinto.core.permission.memory',
@@ -66,17 +65,6 @@ def main(global_config, config=None, **settings):
 
     # Scan Kinto views.
     kwargs = {}
-
-    flush_enabled = asbool(settings['flush_endpoint_enabled'])
-    if flush_enabled:
-        config.add_api_capability(
-            "flush_endpoint",
-            description="The __flush__ endpoint can be used to remove all "
-                        "data from all backends.",
-            url="https://kinto.readthedocs.io/en/latest/configuration/"
-                "settings.html#activating-the-flush-endpoint")
-    else:
-        kwargs['ignore'] = ['kinto.views.flush']
 
     # Permissions endpoint enabled if permission backend is setup.
     is_admin_enabled = 'kinto.plugins.admin' in settings['includes']
