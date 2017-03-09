@@ -167,9 +167,6 @@ class UserResource:
             parent_id=parent_id,
             auth=auth)
 
-        # Initialize timestamp as soon as possible.
-        self.timestamp
-
         self.request = request
         self.context = context
         self.record_id = self.request.matchdict.get('id')
@@ -177,6 +174,9 @@ class UserResource:
 
         content_type = str(self.request.headers.get('Content-Type')).lower()
         self._is_json_patch = content_type == 'application/json-patch+json'
+
+        # Initialize timestamp as soon as possible.
+        self.timestamp
 
     @reify
     def timestamp(self):
