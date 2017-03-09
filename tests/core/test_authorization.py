@@ -190,7 +190,7 @@ class AuthorizationPolicyTest(unittest.TestCase):
     def test_permits_refers_to_context_to_check_permission_principals(self):
         self.context.check_permission.return_value = False
         allowed = self.authz.permits(
-            self.context, ['fxa:user', 'system.Authenticated'], 'dynamic')
+            self.context, self.principals, 'dynamic')
         self.assertTrue(allowed)
 
     def test_permits_reads_the_context_when_permission_is_dynamic(self):
@@ -231,7 +231,7 @@ class AuthorizationPolicyTest(unittest.TestCase):
         self.context.resource_name = 'record'
         self.context.required_permission = 'create'
         self.context._settings = {'record_create_principals': 'fxa:user'}
-        allowed = self.authz.permits(self.context, ['fxa:user'], 'dynamic')
+        allowed = self.authz.permits(self.context, self.principals, 'dynamic')
         self.context._check_permission.assert_not_called()
         self.assertTrue(allowed)
 
@@ -252,7 +252,7 @@ class GuestAuthorizationPolicyTest(unittest.TestCase):
         # Note: we use the list of principals from request.prefixed_principals
         self.context.fetch_shared_records.assert_called_with(
             'read',
-            ['system.Everyone', 'system.Authenticated', 'basicauth:bob'],
+            ['basicauth:bob', 'system.Everyone', 'system.Authenticated'],
             self.authz.get_bound_permissions)
         self.assertTrue(allowed)
 
@@ -274,7 +274,7 @@ class GuestAuthorizationPolicyTest(unittest.TestCase):
         # Note: we use the list of principals from request.prefixed_principals
         self.context.fetch_shared_records.assert_called_with(
             'read',
-            ['system.Everyone', 'system.Authenticated', 'basicauth:bob'],
+            ['basicauth:bob', 'system.Everyone', 'system.Authenticated'],
             self.authz.get_bound_permissions)
         self.assertFalse(allowed)
 
