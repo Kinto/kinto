@@ -184,7 +184,7 @@ class ProjectSettingsTest(unittest.TestCase):
         settings = {
             'kinto.permission_backend': 'cliquet.permission.memory'
         }
-        with mock.patch('kinto.core.logger.warn') as mocked:
+        with mock.patch('kinto.core.initialization.logger.warn') as mocked:
             new_settings = self.settings(settings)
             warning_message = ''.join([
                 "Backend settings referring to cliquet are DEPRECATED. ",

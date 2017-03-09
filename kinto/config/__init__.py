@@ -1,11 +1,14 @@
-import os
 import codecs
+import logging
+import os
 from time import strftime
 
 from kinto.core import utils as core_utils
 
-from kinto import logger
 from kinto import __version__
+
+
+logger = logging.getLogger(__name__)
 
 HERE = os.path.abspath(os.path.dirname(__file__))
 

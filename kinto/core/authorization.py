@@ -1,12 +1,15 @@
 import functools
+import logging
 
 from pyramid.settings import aslist
 from pyramid.security import IAuthorizationPolicy, Authenticated
 from zope.interface import implementer
 
-from kinto.core import utils, logger
+from kinto.core import utils
 from kinto.core.storage import exceptions as storage_exceptions
 
+
+logger = logging.getLogger(__name__)
 
 # A permission is called "dynamic" when it's computed at request time.
 DYNAMIC = 'dynamic'
@@ -96,8 +99,8 @@ class AuthorizationPolicy:
                 allowed = context.check_permission(principals, bound_perms)
 
         if not allowed:
-            logger.warn("{userid} is not allowed to {perm} {uri}",
-                        userid=principals[0], uri=object_id, perm=permission)
+            logger.warn("Permission not granted.",
+                        extra=dict(userid=principals[0], uri=object_id, perm=permission))
 
         return allowed
 

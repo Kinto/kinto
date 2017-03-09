@@ -122,8 +122,6 @@ kinto.includes = kinto.plugins.default_bucket
 # Logging configuration
 #
 
-# kinto.logging_renderer = kinto.core.logs.ClassicLogRenderer
-
 [loggers]
 keys = root, kinto
 
@@ -131,7 +129,7 @@ keys = root, kinto
 keys = console
 
 [formatters]
-keys = generic
+keys = color
 
 [logger_root]
 level = INFO
@@ -146,7 +144,7 @@ qualname = kinto
 class = StreamHandler
 args = (sys.stderr,)
 level = NOTSET
-formatter = generic
+formatter = color
 
-[formatter_generic]
-format = %(asctime)s %(levelname)-5.5s [%(name)s][%(threadName)s] %(message)s
+[formatter_color]
+class = kinto.core.logs.ColorFormatter

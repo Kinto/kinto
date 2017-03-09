@@ -1,13 +1,16 @@
+import logging
 import os
 import warnings
 from collections import defaultdict
 
-from kinto.core import logger
 from kinto.core.storage import (
     StorageBase, exceptions,
     DEFAULT_ID_FIELD, DEFAULT_MODIFIED_FIELD, DEFAULT_DELETED_FIELD)
 from kinto.core.storage.postgresql.client import create_from_config
 from kinto.core.utils import COMPARISON, json, is_numeric
+
+
+logger = logging.getLogger(__name__)
 
 
 class Storage(StorageBase):

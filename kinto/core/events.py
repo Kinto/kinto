@@ -1,11 +1,14 @@
+import logging
 from collections import OrderedDict
 
 import transaction
 from pyramid.events import NewRequest
 from enum import Enum
 
-from kinto.core.logs import logger
 from kinto.core.utils import strip_uri_prefix
+
+
+logger = logging.getLogger(__name__)
 
 
 class ACTIONS(Enum):

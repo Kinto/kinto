@@ -1,3 +1,4 @@
+import logging
 import re
 import functools
 
@@ -10,7 +11,6 @@ from pyramid.security import Everyone
 from pyramid.httpexceptions import (HTTPNotModified, HTTPPreconditionFailed,
                                     HTTPNotFound, HTTPServiceUnavailable)
 
-from kinto.core import logger
 from kinto.core import Service
 from kinto.core.errors import http_error, raise_invalid, send_alert, ERRORS
 from kinto.core.events import ACTIONS
@@ -23,6 +23,9 @@ from kinto.core.utils import (
 from .model import Model, ShareableModel
 from .schema import ResourceSchema, JsonPatchRequestSchema
 from .viewset import ViewSet, ShareableViewSet
+
+
+logger = logging.getLogger(__name__)
 
 
 def register(depth=1, **kwargs):

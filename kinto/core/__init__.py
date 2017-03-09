@@ -1,5 +1,6 @@
 """Main entry point
 """
+import logging
 import pkg_resources
 import tempfile
 
@@ -11,10 +12,13 @@ from kinto.core import events
 from kinto.core.initialization import (  # NOQA
     initialize, install_middlewares,
     load_default_settings)
+from kinto.core.logs import log_context
 from kinto.core.utils import (
     follow_subrequest, current_service, current_resource_name,
     prefixed_userid, prefixed_principals)
-from kinto.core.logs import logger, log_context
+
+
+logger = logging.getLogger(__name__)
 
 
 # Module version, as defined in PEP-0396.
@@ -56,7 +60,6 @@ DEFAULT_SETTINGS = {
     ),
     'event_listeners': '',
     'heartbeat_timeout_seconds': 10,
-    'logging_renderer': 'kinto.core.logs.ClassicLogRenderer',
     'newrelic_config': None,
     'newrelic_env': 'dev',
     'paginate_by': None,

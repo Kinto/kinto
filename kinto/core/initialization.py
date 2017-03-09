@@ -1,9 +1,9 @@
+import logging
 import re
 import warnings
 from datetime import datetime
 from dateutil import parser as dateparser
 
-import structlog
 from pyramid.events import NewRequest, NewResponse
 from pyramid.exceptions import ConfigurationError
 from pyramid.httpexceptions import (HTTPTemporaryRedirect, HTTPGone,
@@ -30,8 +30,11 @@ from kinto.core import utils
 from kinto.core import cache
 from kinto.core import storage
 from kinto.core import permission
-from kinto.core.logs import logger
 from kinto.core.events import ResourceRead, ResourceChanged, ACTIONS
+
+
+logger = logging.getLogger(__name__)
+summary_logger = logging.getLogger('request.summary')
 
 
 def setup_request_bound_data(config):
@@ -316,24 +319,6 @@ def setup_logging(config):
     * https://mana.mozilla.org/wiki/display/CLOUDSERVICES/Logging+Standard
     * http://12factor.net/logs
     """
-    settings = config.get_settings()
-
-    renderer_klass = config.maybe_dotted(settings['logging_renderer'])
-    renderer = renderer_klass(settings)
-
-    structlog.configure(
-        # Share the logger context by thread.
-        context_class=structlog.threadlocal.wrap_dict(dict),
-        # Integrate with Pyramid logging facilities.
-        logger_factory=structlog.stdlib.LoggerFactory(),
-        wrapper_class=structlog.stdlib.BoundLogger,
-        # Setup logger output format.
-        processors=[
-            structlog.stdlib.filter_by_level,
-            structlog.processors.format_exc_info,
-            renderer,
-        ])
-
     def on_new_request(event):
         request = event.request
         # Save the time the request was received by the server.
@@ -381,7 +366,7 @@ def setup_logging(config):
 
         if not hasattr(request, 'parent'):
             # Ouput application request summary.
-            logger.info('request.summary', **request.log_context())
+            summary_logger.info('', extra=request.log_context())
 
     config.add_subscriber(on_new_response, NewResponse)
 

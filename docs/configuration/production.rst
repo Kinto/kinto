@@ -261,14 +261,6 @@ Heka Logging
 At Mozilla, applications log files follow a specific JSON schema, that is
 processed through `Heka <https://hekad.readthedocs.io>`_.
 
-In order to enable Mozilla *Heka* logging output:
-
-.. code-block :: ini
-
-    # Heka
-    kinto.logging_renderer = kinto.core.logs.MozillaHekaRenderer
-
-
 With the following configuration, all logs are structured in JSON and
 redirected to standard output (See `12factor app <http://12factor.net/logs>`_).
 A `Sentry <https://getsentry.com>`_ logger is also enabled.
@@ -288,30 +280,37 @@ A `Sentry <https://getsentry.com>`_ logger is also enabled.
     [logger_root]
     level = INFO
     handlers = console, sentry
+    formatter = heka
 
     [logger_kinto]
     level = INFO
-    handlers = console, sentry
+    handlers =
     qualname = kinto
+
+    [logger_sentry]
+    level = WARN
+    handlers = console
+    qualname = sentry.errors
+    propagate = 0
 
     [handler_console]
     class = StreamHandler
     args = (sys.stdout,)
-    level = INFO
+    level = NOTSET
     formatter = heka
 
     [handler_sentry]
     class = raven.handlers.logging.SentryHandler
-    args = ('http://public:secret@example.com/1',)
-    level = INFO
+    args = ('https://<key>:<secret>@app.getsentry.com/<project>',)
+    level = WARNING
     formatter = generic
 
-    [formatter_generic]
-    format = %(asctime)s %(levelname)-5.5s [%(name)s][%(threadName)s] %(message)s
-
     [formatter_heka]
-    format = %(message)s
+    class = mozilla_cloud_services_logger.formatters.JsonLogFormatter
 
+    [formatter_generic]
+    format = %(asctime)s,%(msecs)03d %(levelname)-5.5s [%(name)s] %(message)s
+    datefmt = %H:%M:%S
 
 
 Run the Kinto application

@@ -1,10 +1,13 @@
+import logging
 import os
 
 from collections import OrderedDict
 
-from kinto.core import logger
 from kinto.core.permission import PermissionBase
 from kinto.core.storage.postgresql.client import create_from_config
+
+
+logger = logging.getLogger(__name__)
 
 
 class Permission(PermissionBase):

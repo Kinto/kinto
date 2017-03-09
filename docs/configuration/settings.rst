@@ -258,9 +258,6 @@ Logging and Monitoring
 +------------------------+----------------------------------------+--------------------------------------------------------------------------+
 | Setting name           | Default                                | What does it do?                                                         |
 +========================+========================================+==========================================================================+
-| kinto.logging_renderer | ``kinto.core.logs.ClassicLogRenderer`` | The Python *dotted* location of the renderer class that should be used   |
-|                        |                                        | to render the logs to the standard output.                               |
-+------------------------+----------------------------------------+--------------------------------------------------------------------------+
 | kinto.statsd_backend   | ``kinto.core.statsd``                  | The Python **dotted** location of the StatsD module that should be used  |
 |                        |                                        | for monitoring. Useful to plug custom implementations like Datadog™.     |
 +------------------------+----------------------------------------+--------------------------------------------------------------------------+
@@ -270,21 +267,8 @@ Logging and Monitoring
 |                        |                                        | ``udp://localhost:8125``                                                 |
 +------------------------+----------------------------------------+--------------------------------------------------------------------------+
 
-Logging with Heka
-:::::::::::::::::
-
-Heka is an open source stream processing software system developed by Mozilla.
-Heka is a "Swiss Army Knife" type tool for data processing, and is useful for
-a wide variety of different tasks.
-
-For more information, see https://hekad.readthedocs.io/
-
-Heka logging format can be enabled using:
-
-.. code-block:: ini
-
-    kinto.logging_renderer = kinto.core.logs.MozillaHekaRenderer
-
+Standard Logging
+::::::::::::::::
 
 With the following configuration, all logs are redirected to standard output
 (See `12factor app <http://12factor.net/logs>`_):
@@ -298,20 +282,68 @@ With the following configuration, all logs are redirected to standard output
     keys = console
 
     [formatters]
-    keys = heka
+    keys = generic
 
     [logger_root]
     level = INFO
     handlers = console
-    formatter = heka
+    formatter = generic
 
     [handler_console]
     class = StreamHandler
     args = (sys.stdout,)
     level = NOTSET
 
-    [formatter_heka]
-    format = %(message)s
+    [formatter_generic]
+    format = %(asctime)s,%(msecs)03d %(levelname)-5.5s [%(name)s] %(message)s
+    datefmt = %H:%M:%S
+
+Example output:
+
+::
+
+    16:18:57,179 INFO  [root] Running kinto 6.1.0.dev0.
+    16:19:00,729 INFO  [request.summary]
+    16:19:22,232 WARNI [kinto.core.authorization] Permission not granted.
+    16:19:22,238 INFO  [request.summary]
+
+
+Colored Logging
+:::::::::::::::
+
+.. code-block:: ini
+
+    [formatters]
+    keys = color
+
+    [formatter_color]
+    class = kinto.core.logs.ColorFormatter
+
+Example output:
+
+.. image:: ../images/color-formatter.png
+
+
+JSON Logging
+::::::::::::
+
+Using a JSON logging formatter, like :github:`this one <mozilla/mozilla-cloud-services-logger>`,
+it is possible to output logs as JSON:
+
+.. code-block:: ini
+
+    [formatters]
+    keys = json
+
+    [formatter_json]
+    class = mozilla_cloud_services_logger.formatters.JsonLogFormatter
+
+Example output:
+
+::
+
+    {"Pid": 19240, "Type": "root", "Timestamp": 1489067815875679744, "Severity": 6, "Hostname": "pluo", "Logger": "%", "EnvVersion": "2.0", "Fields": {"message": "Running kinto 6.1.0.dev0."}}
+    {"Pid": 19240, "Type": "root", "Timestamp": 1489067817834153984, "Severity": 4, "Hostname": "pluo", "Logger": "%", "EnvVersion": "2.0", "Fields": {"perm": "read", "userid": "basicauth:cbd3731f18c97ebe1d31d9846b5f1b95cf8eeeae586e201277263434041e99d1", "message": "Permission not granted.", "uri": "/buckets/123"}}
 
 
 Handling exceptions with Sentry
