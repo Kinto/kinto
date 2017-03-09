@@ -480,7 +480,7 @@ list of Python modules:
 | ``kinto.plugins.admin``               | It is a Web admin UI to manage data from a Kinto server.                 |
 |                                       | (:ref:`more details <api-history>`).                                     |
 +---------------------------------------+--------------------------------------------------------------------------+
-| ``kinto.plugins.flush_endpoint``      | Completely remove all data from the database backend for                 |
+| ``kinto.plugins.flush``               | Completely remove all data from the database backend for                 |
 |                                       | testing/staging purposes. (:ref:`more details <api-flush`).              |
 +---------------------------------------+--------------------------------------------------------------------------+
 

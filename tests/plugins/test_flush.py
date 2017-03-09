@@ -61,7 +61,7 @@ class FlushViewTest(BaseWebTest, unittest.TestCase):
     def get_app_settings(cls, extras=None):
         if extras is None:
             extras = {}
-        extras.setdefault('includes', 'kinto.plugins.flush_endpoint')
+        extras.setdefault('includes', 'kinto.plugins.flush')
         settings = super().get_app_settings(extras)
         return settings
 
@@ -102,7 +102,6 @@ class FlushViewTest(BaseWebTest, unittest.TestCase):
         expected = {
             "description": "The __flush__ endpoint can be used to remove "
                            "all data from all backends.",
-            "url": "https://kinto.readthedocs.io/en/latest/configuration/"
-                   "settings.html#activating-the-flush-endpoint"
+            "url": "https://kinto.readthedocs.io/en/latest/api/1.x/flush.html"
         }
         self.assertEqual(expected, capabilities['flush_endpoint'])

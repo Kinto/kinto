@@ -7,8 +7,8 @@ Flush Endpoint
 
 The Flush endpoint is used to flush (completely remove) all data from the
 database backend. While this can be useful during development, but can be
-dangerous at production. You can enable it including
-``kinto.plugins.flush_endpoint`` to your configuration file.
+dangerous at production. You can enable it including ``kinto.plugins.flush``
+to your configuration file.
 
 
 .. http:post:: /__flush__
