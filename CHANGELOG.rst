@@ -12,8 +12,9 @@ This document describes changes between each past release.
   class method (#1144)
 - ``kinto.core.api`` was renamed to ``kinto.core.openapi`` (#1145)
 - Forbid storing bytes in the cache backend. (#1143)
-- The flush endpoint is now a built-in plugin at ``kinto.plugins.flush`` and should
-  be enabled using the ``includes`` section of the configuration file. (#1147)
+- The flush endpoint is now a built-in plugin at ``kinto.plugins.flush`` and
+  should be enabled using the ``includes`` section of the configuration file.
+  ``KINTO_FLUSH_ENDPOINT_ENABLED`` environment variable is no longer supported. (#1147)
 
 **Protocol**
 
