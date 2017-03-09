@@ -471,7 +471,7 @@ list of Python modules:
 +---------------------------------------+--------------------------------------------------------------------------+
 | Built-in plugins                      | What does it do?                                                         |
 +=======================================+==========================================================================+
-| ``kinto.plugins.default_bucket``      | It enables a personnal bucket ``default``, where collections are created |
+| ``kinto.plugins.default_bucket``      | It enables a personal bucket ``default``, where collections are created  |
 |                                       | implicitly (:ref:`more details <buckets-default-id>`).                   |
 +---------------------------------------+--------------------------------------------------------------------------+
 | ``kinto.plugins.history``             | It tracks every action performed on objects within a bucket              |
@@ -481,7 +481,7 @@ list of Python modules:
 |                                       | (:ref:`more details <api-history>`).                                     |
 +---------------------------------------+--------------------------------------------------------------------------+
 | ``kinto.plugins.flush``               | Completely remove all data from the database backend for                 |
-|                                       | testing/staging purposes. (:ref:`more details <api-flush`).              |
+|                                       | testing/staging purposes. (:ref:`more details <api-flush>`).             |
 +---------------------------------------+--------------------------------------------------------------------------+
 
 
