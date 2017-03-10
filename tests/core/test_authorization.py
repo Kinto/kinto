@@ -187,9 +187,12 @@ class AuthorizationPolicyTest(unittest.TestCase):
         self.context.check_permission.return_value = False
         with mock.patch('kinto.core.authorization.logger') as mocked:
             self.authz.permits(self.context, self.principals, 'dynamic')
-        mocked.warn.assert_called_with('Permission not granted.',
-                                       extra=dict(perm='read', uri='/articles/43/comments/2',
-                                                  userid='portier:yourself'))
+        userid = 'portier:yourself'
+        object_id = '/articles/43/comments/2'
+        perm = 'read'
+        mocked.warn.assert_called_with('Permission %r on %r not granted to %r.',
+                                       perm, object_id, userid,
+                                       extra=dict(perm=perm, uri=object_id, userid=userid))
 
     def test_permits_refers_to_context_to_check_permissions(self):
         self.context.check_permission.return_value = True
