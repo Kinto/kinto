@@ -1,6 +1,8 @@
+import logging
 import random
 
-from kinto.core.logs import logger
+
+logger = logging.getLogger(__name__)
 
 
 _HEARTBEAT_DELETE_RATE = 0.5

@@ -1,181 +1,12 @@
-import logging
-import os
-import re
+import unittest
 
 import mock
 from pyramid import testing
 
 from kinto.core import DEFAULT_SETTINGS
 from kinto.core import initialization
-from kinto.core import logs as core_logs
-from kinto.core.utils import json
-from kinto.core.testing import unittest
 
 from .support import BaseWebTest
-
-
-def strip_ansi(text):
-    """
-    Strip ANSI sequences (colors) from text.
-    Source: http://stackoverflow.com/a/15780675
-    """
-    SEQUENCES = r'\x1b\[([0-9,A-Z]{1,2}(;[0-9]{1,2})?(;[0-9]{3})?)?[m|K]?'
-    return re.sub(SEQUENCES, '', text)
-
-
-class LoggingSetupTest(unittest.TestCase):
-    def tearDown(self):
-        super().tearDown()
-        core_logs.structlog.reset_defaults()
-
-    def test_classic_logger_is_used_by_default(self):
-        config = testing.setUp()
-        config.registry.settings = DEFAULT_SETTINGS
-        classiclog_class = mock.patch('kinto.core.logs.ClassicLogRenderer')
-        with classiclog_class as mocked:
-            initialization.setup_logging(config)
-            mocked.assert_called_with(DEFAULT_SETTINGS)
-
-    def test_mozlog_logger_is_enabled_via_setting(self):
-        mozlog_class = mock.patch('kinto.core.logs.MozillaHekaRenderer')
-        classiclog_class = mock.patch('kinto.core.logs.ClassicLogRenderer')
-
-        config = testing.setUp()
-        with mock.patch.dict(config.registry.settings,
-                             [('logging_renderer',
-                               'kinto.core.logs.MozillaHekaRenderer')]):
-            with mozlog_class as moz_mocked:
-                with classiclog_class as classic_mocked:
-                    initialization.setup_logging(config)
-                    self.assertTrue(moz_mocked.called)
-                    self.assertFalse(classic_mocked.called)
-
-
-class ClassicLogRendererTest(unittest.TestCase):
-    def setUp(self):
-        self.renderer = core_logs.ClassicLogRenderer({})
-        self.logger = logging.getLogger(__name__)
-
-    def test_output_is_serialized_as_string(self):
-        value = self.renderer(self.logger, 'debug', {})
-        self.assertIsInstance(value, str)
-
-    def test_output_is_simple_if_no_request_is_bound(self):
-        value = self.renderer(self.logger, 'debug', {'event': ':)'})
-        self.assertNotIn('? ms', value)
-
-    def test_values_are_defaulted_to_question_mark(self):
-        value = self.renderer(self.logger, 'debug', {'path': '/'})
-        self.assertIn('? ms', value)
-
-    def test_querystring_is_rendered_as_string(self):
-        event_dict = {
-            'path': '/',
-            'querystring': {'param': 'val'}
-        }
-        value = self.renderer(self.logger, 'debug', event_dict)
-        self.assertIn('/?param=val', value)
-
-    def test_extra_event_infos_is_rendered_as_key_values(self):
-        event_dict = {
-            'nb_records': 5,
-        }
-        value = self.renderer(self.logger, 'debug', event_dict)
-        self.assertIn('nb_records=5', strip_ansi(value))
-
-    def test_every_event_dict_entry_appears_in_log_message(self):
-        event_dict = {
-            'method': 'GET',
-            'path': '/v1/',
-            'querystring': {'_sort': 'field'},
-            'code': 200,
-            't': 32,
-            'event': 'app.event',
-            'nb_records': 5
-        }
-        value = self.renderer(self.logger, 'debug', event_dict)
-        self.assertEqual(('"GET   /v1/?_sort=field" 200 (32 ms)'
-                          ' app.event nb_records=5'), strip_ansi(value))
-
-    def test_fields_values_support_unicode(self):
-        value = self.renderer(self.logger, 'critical', {'value': '\u2014'})
-        self.assertIn('\u2014', value)
-
-
-class MozillaHekaRendererTest(unittest.TestCase):
-    def setUp(self):
-        self.settings = {'project_name': ''}
-        self.renderer = core_logs.MozillaHekaRenderer(self.settings)
-        self.logger = logging.getLogger(__name__)
-
-    def test_output_is_serialized_json(self):
-        value = self.renderer(self.logger, 'debug', {})
-        self.assertIsInstance(value, str)
-
-    def test_standard_entries_are_filled(self):
-        with mock.patch('kinto.core.utils.msec_time', return_value=12):
-            value = self.renderer(self.logger, 'debug', {})
-
-        log = json.loads(value)
-        self.assertDictEqual(log, {
-            'EnvVersion': '2.0',
-            'Hostname': os.uname()[1],
-            'Logger': '',
-            'Pid': os.getpid(),
-            'Severity': 7,
-            'Timestamp': 12000000,
-            'Type': '',
-            'Fields': {}
-        })
-
-    def test_hostname_can_be_specified_via_environment(self):
-        os.environ['HOSTNAME'] = 'abc'
-        renderer = core_logs.MozillaHekaRenderer(self.settings)
-        os.environ.pop('HOSTNAME')
-        self.assertEqual(renderer.hostname, 'abc')
-
-    def test_standard_entries_are_not_overwritten(self):
-        value = self.renderer(self.logger, 'debug', {'Hostname': 'her'})
-        log = json.loads(value)
-        self.assertEqual(log['Hostname'], 'her')
-
-    def test_type_comes_from_structlog_event(self):
-        value = self.renderer(self.logger, 'debug', {'event': 'booh'})
-        log = json.loads(value)
-        self.assertEqual(log['Type'], 'booh')
-
-    def test_severity_comes_from_logger_name(self):
-        value = self.renderer(self.logger, 'critical', {})
-        log = json.loads(value)
-        self.assertEqual(log['Severity'], 0)
-
-    def test_unknown_fields_are_moved_to_fields_entry(self):
-        value = self.renderer(self.logger, 'critical', {'win': 11})
-        log = json.loads(value)
-        self.assertEqual(log['Fields'], {'win': 11})
-
-    def test_fields_can_be_provided_directly(self):
-        value = self.renderer(self.logger, 'critical', {'Fields': {'win': 11}})
-        log = json.loads(value)
-        self.assertEqual(log['Fields'], {'win': 11})
-
-    def test_objects_values_are_serialized_as_string(self):
-        querystring = {'_sort': 'name'}
-        logged = self.renderer(self.logger, 'info', {'params': querystring})
-        log = json.loads(logged)
-        self.assertEqual(log['Fields']['params'], json.dumps(querystring))
-
-    def test_list_of_homogeneous_values_are_serialized_as_string(self):
-        list_values = ['life', 'of', 'pi', 3.14]
-        logged = self.renderer(self.logger, 'info', {'params': list_values})
-        log = json.loads(logged)
-        self.assertEqual(log['Fields']['params'], json.dumps(list_values))
-
-    def test_list_of_string_values_are_not_serialized(self):
-        list_values = ['life', 'of', 'pi']
-        logged = self.renderer(self.logger, 'info', {'params': list_values})
-        log = json.loads(logged)
-        self.assertEqual(log['Fields']['params'], list_values)
 
 
 class RequestSummaryTest(BaseWebTest, unittest.TestCase):
@@ -185,18 +16,13 @@ class RequestSummaryTest(BaseWebTest, unittest.TestCase):
         config.registry.settings = DEFAULT_SETTINGS
         initialization.setup_logging(config)
 
-        patch = mock.patch.object(core_logs.logger, 'info')
+        patch = mock.patch('kinto.core.initialization.summary_logger')
         self.mocked = patch.start()
         self.addCleanup(patch.stop)
 
-    def test_request_summary_is_sent_as_info(self):
-        self.app.get('/')
-        args, kwargs = self.mocked.call_args_list[-1]
-        self.assertIn('request.summary', args)
-
     def logger_context(self):
-        args, kwargs = self.mocked.call_args_list[-1]
-        return kwargs
+        args, kwargs = self.mocked.info.call_args_list[-1]
+        return kwargs['extra']
 
     def test_standard_info_is_bound(self):
         self.app.get('/', headers=self.headers)
@@ -242,8 +68,12 @@ class BatchSubrequestTest(BaseWebTest, unittest.TestCase):
     def setUp(self):
         super().setUp()
 
-        patch = mock.patch.object(core_logs.logger, 'info')
-        self.mocked = patch.start()
+        patch = mock.patch('kinto.core.views.batch.subrequest_logger')
+        self.subrequest_mocked = patch.start()
+        self.addCleanup(patch.stop)
+
+        patch = mock.patch('kinto.core.initialization.summary_logger')
+        self.summary_mocked = patch.start()
         self.addCleanup(patch.stop)
 
         headers = {**self.headers, 'User-Agent': 'readinglist'}
@@ -258,21 +88,19 @@ class BatchSubrequestTest(BaseWebTest, unittest.TestCase):
         self.app.post_json('/batch', body, headers=headers)
 
     def test_batch_global_request_is_preserved(self):
-        args, kwargs = self.mocked.call_args_list[-1]
-        self.assertEqual(kwargs['code'], 200)
-        self.assertEqual(kwargs['path'], '/v0/batch')
-        self.assertEqual(kwargs['agent'], 'readinglist')
+        args, kwargs = self.summary_mocked.info.call_args_list[-1]
+        extra = kwargs['extra']
+        self.assertEqual(extra['code'], 200)
+        self.assertEqual(extra['path'], '/v0/batch')
+        self.assertEqual(extra['agent'], 'readinglist')
 
     def test_batch_size_is_bound(self):
-        args, kwargs = self.mocked.call_args_list[-1]
-        self.assertEqual(kwargs['batch_size'], 2)
+        args, kwargs = self.summary_mocked.info.call_args_list[-1]
+        extra = kwargs['extra']
+        self.assertEqual(extra['batch_size'], 2)
 
     def test_subrequests_are_not_logged_as_request_summary(self):
-        summaries = [args[0] for args, kwargs in self.mocked.call_args_list
-                     if args[0] == "request.summary"]
-        self.assertEqual(len(summaries), 1)
+        self.assertEqual(self.summary_mocked.info.call_count, 1)
 
     def test_subrequests_are_logged_as_subrequest_summary(self):
-        summaries = [args[0] for args, kwargs in self.mocked.call_args_list
-                     if args[0] == "subrequest.summary"]
-        self.assertEqual(len(summaries), 2)
+        self.assertEqual(self.subrequest_mocked.info.call_count, 2)

@@ -1,9 +1,9 @@
+import logging
 import re
 import warnings
 from datetime import datetime
 from dateutil import parser as dateparser
 
-import structlog
 from pyramid.events import NewRequest, NewResponse
 from pyramid.exceptions import ConfigurationError
 from pyramid.httpexceptions import (HTTPTemporaryRedirect, HTTPGone,
@@ -30,8 +30,11 @@ from kinto.core import utils
 from kinto.core import cache
 from kinto.core import storage
 from kinto.core import permission
-from kinto.core.logs import logger
 from kinto.core.events import ResourceRead, ResourceChanged, ACTIONS
+
+
+logger = logging.getLogger(__name__)
+summary_logger = logging.getLogger('request.summary')
 
 
 def setup_request_bound_data(config):
@@ -316,24 +319,6 @@ def setup_logging(config):
     * https://mana.mozilla.org/wiki/display/CLOUDSERVICES/Logging+Standard
     * http://12factor.net/logs
     """
-    settings = config.get_settings()
-
-    renderer_klass = config.maybe_dotted(settings['logging_renderer'])
-    renderer = renderer_klass(settings)
-
-    structlog.configure(
-        # Share the logger context by thread.
-        context_class=structlog.threadlocal.wrap_dict(dict),
-        # Integrate with Pyramid logging facilities.
-        logger_factory=structlog.stdlib.LoggerFactory(),
-        wrapper_class=structlog.stdlib.BoundLogger,
-        # Setup logger output format.
-        processors=[
-            structlog.stdlib.filter_by_level,
-            structlog.processors.format_exc_info,
-            renderer,
-        ])
-
     def on_new_request(event):
         request = event.request
         # Save the time the request was received by the server.
@@ -381,7 +366,7 @@ def setup_logging(config):
 
         if not hasattr(request, 'parent'):
             # Ouput application request summary.
-            logger.info('request.summary', **request.log_context())
+            summary_logger.info('', extra=request.log_context())
 
     config.add_subscriber(on_new_response, NewResponse)
 
@@ -505,25 +490,6 @@ def load_default_settings(config, default_settings):
         if len(defined) > 1 and len(distinct_values) > 1:
             names = "', '".join(defined)
             raise ValueError("Settings '{}' are in conflict.".format(names))
-
-        # Maintain backwards compatibility with old settings files that
-        # have backend settings like cliquet.foo (which is now
-        # kinto.core.foo).
-        unprefixed, _, _ = _prefixed_keys(key)
-        CONTAIN_CLIQUET_MODULE_NAMES = [
-            'storage_backend',
-            'cache_backend',
-            'permission_backend',
-            'logging_renderer',
-        ]
-        if unprefixed in CONTAIN_CLIQUET_MODULE_NAMES and \
-                value.startswith('cliquet.'):
-            new_value = value.replace('cliquet.', 'kinto.core.')
-            logger.warn(
-                "Backend settings referring to cliquet are DEPRECATED. "
-                "Please update your {} setting to {} (was: {}).".format(
-                    key, new_value, value))
-            value = new_value
 
         # Override settings from OS env values.
         # e.g. HTTP_PORT, READINGLIST_HTTP_PORT, KINTO_HTTP_PORT

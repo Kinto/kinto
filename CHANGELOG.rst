@@ -15,6 +15,32 @@ This document describes changes between each past release.
 - The flush endpoint is now a built-in plugin at ``kinto.plugins.flush`` and
   should be enabled using the ``includes`` section of the configuration file.
   ``KINTO_FLUSH_ENDPOINT_ENABLED`` environment variable is no longer supported. (#1147)
+- Logging extra information on message must be done using the ``extra`` keyword
+  (eg. ``logger.info('msg', extra={a=1})`` instead of ``logger.info('msg', a=1)``)
+  (#1110, #1150)
+- Settings with ``cliquet.`` prefix are not supported anymore.
+- Logging configuration now relies on standard Python logging module (#1150)
+
+Before:
+
+.. code-block:: ini
+
+    kinto.logging_renderer = kinto.core.logs.ClassicLogRenderer
+
+Now:
+
+.. code-block:: ini
+
+    [handler_console]
+    ...
+    formatter = color
+
+    [formatters]
+    keys = color
+
+    [formatter_color]
+    class = logging_color_formatter.ColorFormatter
+
 
 **Protocol**
 

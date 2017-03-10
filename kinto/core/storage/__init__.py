@@ -1,9 +1,13 @@
+import logging
 import random
 from collections import namedtuple
+
 from pyramid.settings import asbool
 
-from kinto.core.logs import logger
 from . import generators
+
+
+logger = logging.getLogger(__name__)
 
 
 Filter = namedtuple('Filter', ['field', 'value', 'operator'])

@@ -1,15 +1,17 @@
-import colander
+import logging
 
+import colander
 from cornice.validators import colander_validator
 from pyramid import httpexceptions
 from pyramid.security import NO_PERMISSION_REQUIRED
 
 from kinto.core import errors
-from kinto.core import logger
 from kinto.core import Service
 from kinto.core.errors import ErrorSchema
 from kinto.core.utils import merge_dicts, build_request, build_response
 
+
+subrequest_logger = logging.getLogger("subrequest.summary")
 
 valid_http_method = colander.OneOf(('GET', 'HEAD', 'DELETE', 'TRACE',
                                     'POST', 'PUT', 'PATCH'))
@@ -140,7 +142,7 @@ def post_batch(request):
                 # JSONify raw Pyramid errors.
                 resp = errors.http_error(e)
 
-        logger.info('subrequest.summary', **log_context)
+        subrequest_logger.info('subrequest.summary', extra=log_context)
 
         dict_resp = build_response(resp, subrequest)
         responses.append(dict_resp)
