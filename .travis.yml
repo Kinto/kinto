@@ -32,5 +32,6 @@ matrix:
     - env: ENV=functional
       before_install:
         - make install-dev
+        - make install-postgres
         - make runkinto & sleep 5
       script: make functional
