@@ -137,7 +137,6 @@ handlers = console
 
 [logger_kinto]
 level = DEBUG
-handlers =
 qualname = kinto
 
 [handler_console]

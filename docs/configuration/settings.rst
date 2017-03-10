@@ -285,14 +285,14 @@ With the following configuration, all logs are redirected to standard output
     keys = generic
 
     [logger_root]
-    level = INFO
+    level = DEBUG
     handlers = console
-    formatter = generic
 
     [handler_console]
     class = StreamHandler
     args = (sys.stdout,)
     level = NOTSET
+    formatter = generic
 
     [formatter_generic]
     format = %(asctime)s,%(msecs)03d %(levelname)-5.5s [%(name)s] %(message)s

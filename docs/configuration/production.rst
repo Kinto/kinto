@@ -255,49 +255,41 @@ Timers
    "``permission.{method}``", "Time needed to execute a method of the permission backend. Methods are ``add_user_principal``, ``remove_user_principal``, ``get_user_principals``, ``add_principal_to_ace``, ``remove_principal_from_ace``, ``get_object_permission_principals``, ``check_permission``"
 
 
-Heka Logging
+JSON Logging
 ------------
 
 At Mozilla, applications log files follow a specific JSON schema, that is
-processed through `Heka <https://hekad.readthedocs.io>`_.
+processed through `Kibana <https://github.com/elastic/kibana>`_ or
+`Heka <https://hekad.readthedocs.io>`_.
 
 With the following configuration, all logs are structured in JSON and
 redirected to standard output (See `12factor app <http://12factor.net/logs>`_).
 A `Sentry <https://getsentry.com>`_ logger is also enabled.
 
+.. note::
+
+    You must install the ``mozilla-cloud-services-logger`` package.
 
 .. code-block:: ini
 
     [loggers]
-    keys = root, kinto
+    keys = root
 
     [handlers]
     keys = console, sentry
 
     [formatters]
-    keys = generic, heka
+    keys = generic, json
 
     [logger_root]
     level = INFO
     handlers = console, sentry
-    formatter = heka
-
-    [logger_kinto]
-    level = INFO
-    handlers =
-    qualname = kinto
-
-    [logger_sentry]
-    level = WARN
-    handlers = console
-    qualname = sentry.errors
-    propagate = 0
 
     [handler_console]
     class = StreamHandler
     args = (sys.stdout,)
     level = NOTSET
-    formatter = heka
+    formatter = json
 
     [handler_sentry]
     class = raven.handlers.logging.SentryHandler
@@ -305,7 +297,7 @@ A `Sentry <https://getsentry.com>`_ logger is also enabled.
     level = WARNING
     formatter = generic
 
-    [formatter_heka]
+    [formatter_json]
     class = mozilla_cloud_services_logger.formatters.JsonLogFormatter
 
     [formatter_generic]
