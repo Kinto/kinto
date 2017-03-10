@@ -1,10 +1,10 @@
-appdirs==1.4.2
+appdirs==1.4.3
 colander==1.3.2
 colorama==0.3.7
 contextlib2==0.5.4
 cornice==2.4.0
 cornice-swagger==0.5.0
-hupper==0.4.2
+hupper==0.4.4
 iso8601==0.1.11
 jsonpatch==1.15
 jsonpointer==1.10
@@ -13,7 +13,7 @@ newrelic==2.80.1.61
 packaging==16.8
 PasteDeploy==1.5.2
 psycopg2==2.7
-pyparsing==2.1.10
+pyparsing==2.2.0
 pyramid==1.8.2
 pyramid-multiauth==0.9.0
 pyramid-tm==1.1.1
@@ -32,7 +32,7 @@ ujson==1.35
 venusian==1.0
 waitress==1.0.2
 WebOb==1.7.1
-Werkzeug==0.11.15
+Werkzeug==0.12
 zope.deprecation==4.2.0
 zope.interface==4.3.3
 zope.sqlalchemy==0.7.7

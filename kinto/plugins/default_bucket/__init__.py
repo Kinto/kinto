@@ -104,7 +104,7 @@ def resource_create_object(request, resource_cls, uri):
     # Since the current request is not a resource (but a straight Service),
     # we simulate a request on a resource.
     # This will be used in the resource event payload.
-    resource.postprocess(data, action=ACTIONS.CREATE)
+    resource.postprocess(obj, action=ACTIONS.CREATE)
     return obj
 
 
@@ -142,7 +142,7 @@ def default_bucket(request):
         body = request.json
         body['data']['id'] = body['data']['id'].replace('default', bucket_id)
     except:
-        body = request.body
+        body = request.body or {"data": {}}
     subrequest = build_request(request, {
         'method': request.method,
         'path': path + querystring,
