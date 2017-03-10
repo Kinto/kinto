@@ -317,7 +317,7 @@ Colored Logging
     keys = color
 
     [formatter_color]
-    class = kinto.core.logs.ColorFormatter
+    class = logging_color_formatter.ColorFormatter
 
 Example output:
 
