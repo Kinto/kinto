@@ -12,10 +12,9 @@ from kinto.core import events
 from kinto.core.initialization import (  # NOQA
     initialize, install_middlewares,
     load_default_settings)
-from kinto.core.logs import log_context
 from kinto.core.utils import (
     follow_subrequest, current_service, current_resource_name,
-    prefixed_userid, prefixed_principals)
+    prefixed_userid, prefixed_principals, log_context)
 
 
 logger = logging.getLogger(__name__)

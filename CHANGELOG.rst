@@ -19,7 +19,7 @@ This document describes changes between each past release.
   (eg. ``logger.info('msg', extra={a=1})`` instead of ``logger.info('msg', a=1)``)
   (#1110, #1150)
 - Settings with ``cliquet.`` prefix are not supported anymore.
-- Logging configuration now rely on standard Python logging module (#1150)
+- Logging configuration now relies on standard Python logging module (#1150)
 
 Before:
 
