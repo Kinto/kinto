@@ -18,6 +18,7 @@ This document describes changes between each past release.
 - Logging extra information on message must be done using the ``extra`` keyword
   (eg. ``logger.info('msg', extra={a=1})`` instead of ``logger.info('msg', a=1)``)
   (#1110)
+- Settings with ``cliquet.`` prefix are not supported anymore
 
 **Protocol**
 
