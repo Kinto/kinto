@@ -70,6 +70,7 @@ Protocol is now at version **1.16**. See `API changelog`_.
 - Remove the email example from the custom code event listener tutorial (fixes #420)
 - Removed useless logging info from resource (ref #603)
 - Make sure prefixed userid is always first in principals
+- Run functional tests on PostgreSQL
 
 
 6.0.0 (2017-03-03)
