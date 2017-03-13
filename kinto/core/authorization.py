@@ -99,7 +99,8 @@ class AuthorizationPolicy:
                 allowed = context.check_permission(principals, bound_perms)
 
         if not allowed:
-            logger.warn("Permission not granted.",
+            logger.warn("Permission %r on %r not granted to %r.",
+                        permission, object_id, principals[0],
                         extra=dict(userid=principals[0], uri=object_id, perm=permission))
 
         return allowed

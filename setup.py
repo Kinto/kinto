@@ -22,7 +22,7 @@ REQUIREMENTS = [
     'cornice_swagger >= 0.5',
     'jsonschema',
     'jsonpatch',
-    'logging-color-formatter',
+    'logging-color-formatter >= 1.0.1',  # Message interpolations.
     'python-dateutil',
     'pyramid > 1.8',
     'pyramid_multiauth >= 0.8',  # User on policy selected event.
