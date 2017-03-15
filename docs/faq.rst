@@ -26,7 +26,7 @@ Fine-grained permissions     ✔       ✔              ✔                  ~  
 Easy query mechanism         ✔       ✔              ✔         [#]_     ✔       [#]_            ✔
 Conflict resolution          ✔       ✔              ✔         ✔        ✔       ✔ [#]_          ✔
 Validation                   ✔       ✔              ✔         ✔        ✔                       ✔
-Revision history                                              ✔                                ✔
+Revision history             ✔                                ✔                                ✔
 File storage                 ✔       ✔                        ✔                ✔               ✔        ✔
 Batch/bulk operations        ✔       ✔                        ✔        ✔                       ✔
 Changes stream               ✔       ✔              ✔         ✔        ✔                       ✔
