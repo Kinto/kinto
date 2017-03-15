@@ -30,7 +30,7 @@ Revision history                                       ✔                      
 File storage                 ✔       ✔                 ✔                ✔               ✔        ✔
 Batch/bulk operations        ✔       ✔                 ✔        ✔                       ✔
 Changes stream               ✔       ✔       ✔         ✔        ✔                       ✔
-Pluggable authentication     ✔                         ✔                [#]_            ✔        ✔
+Pluggable authentication     ✔       ✔                 ✔                [#]_            ✔        ✔
 Pluggable storage / cache    ✔       ✔                                  ✔
 Self-hostable                ✔       ✔                 ✔        ✔       ✔               ✔        ✔
 Decentralised discovery      [#]_                                       ✔
