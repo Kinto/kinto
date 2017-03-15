@@ -18,25 +18,25 @@ What follows is a comparison table showing how Kinto stacks up compared to some
 other projects in this space.
 
 
-===========================  ======  ======  ========  =======  ======= ==============  =======  =========
-Project                      Kinto   Parse   Firebase  CouchDB  Kuzzle  Remote-Storage  Hoodie   BrowserFS
----------------------------  ------  ------  --------  -------  ------- --------------  -------  ---------
-Offline-first client         ✔       ✔       ✔         ✔        ✔       ✔               ✔
-Fine-grained permissions     ✔       ✔       ✔                  ~                       [#]_
-Easy query mechanism         ✔       ✔       ✔         [#]_     ✔       [#]_            ✔
-Conflict resolution          ✔       ✔       ✔         ✔        ✔       ✔ [#]_          ✔
-Validation                   ✔       ✔       ✔         ✔        ✔                       ✔
-Revision history                                       ✔                                ✔
-File storage                 ✔       ✔                 ✔                ✔               ✔        ✔
-Batch/bulk operations        ✔       ✔                 ✔        ✔                       ✔
-Changes stream               ✔       ✔       ✔         ✔        ✔                       ✔
-Pluggable authentication     ✔                         ✔                [#]_            ✔        ✔
-Pluggable storage / cache    ✔                                          ✔
-Self-hostable                ✔       ✔                 ✔        ✔       ✔               ✔        ✔
-Decentralised discovery      [#]_                                       ✔
-Open source                  ✔       ✔                 ✔        ✔       ✔               ✔        ✔
-Language                     Python                    Erlang   Node.js Node.js [#]_    Node.js  Node.js
-===========================  ======  ======  ========  =======  ======= ==============  =======  =========
+===========================  ======  =============  ========  =======  ======= ==============  =======  =========
+Project                      Kinto   Parse Server   Firebase  CouchDB  Kuzzle  Remote-Storage  Hoodie   BrowserFS
+---------------------------  ------  -------------  --------  -------  ------- --------------  -------  ---------
+Offline-first client         ✔       ✔              ✔         ✔        ✔       ✔               ✔
+Fine-grained permissions     ✔       ✔              ✔                  ~                       [#]_
+Easy query mechanism         ✔       ✔              ✔         [#]_     ✔       [#]_            ✔
+Conflict resolution          ✔       ✔              ✔         ✔        ✔       ✔ [#]_          ✔
+Validation                   ✔       ✔              ✔         ✔        ✔                       ✔
+Revision history                                              ✔                                ✔
+File storage                 ✔       ✔                        ✔                ✔               ✔        ✔
+Batch/bulk operations        ✔       ✔                        ✔        ✔                       ✔
+Changes stream               ✔       ✔              ✔         ✔        ✔                       ✔
+Pluggable authentication     ✔                                ✔                [#]_            ✔        ✔
+Pluggable storage / cache    ✔                                                 ✔
+Self-hostable                ✔       ✔                        ✔        ✔       ✔               ✔        ✔
+Decentralised discovery      [#]_                                              ✔
+Open source                  ✔       ✔                        ✔        ✔       ✔               ✔        ✔
+Language                     Python  Node.js                  Erlang   Node.js Node.js [#]_    Node.js  Node.js
+===========================  ======  =============  ========  =======  ======= ==============  =======  =========
 
 .. [#] Currently, user plugin in Hoodie auto-approves users, but they are working on it.
 .. [#] CouchDB uses Map/Reduce as a query mechanism, which isn't easy to
