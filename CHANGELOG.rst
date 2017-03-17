@@ -45,6 +45,7 @@ Now:
 **Protocol**
 
 - Groups can now be created with a simple ``PUT`` (fixes #793)
+- Batch requests now raise ``400`` on unknown attributes (#1163).
 
 Protocol is now at version **1.16**. See `API changelog`_.
 
