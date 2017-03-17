@@ -200,7 +200,7 @@ class BatchSchemaTest(unittest.TestCase):
         request = {'path': '/', 'method': 'get'}
         self.assertInvalid({'requests': [request]})
 
-    def test_raise_invalid_on_request_unkown_attributes(self):
+    def test_raise_invalid_on_request_unknown_attributes(self):
         request = {'path': '/', 'method': 'GET', 'foo': 42}
         self.assertInvalid({'requests': [request]})
 
@@ -250,7 +250,7 @@ class BatchSchemaTest(unittest.TestCase):
         batch_payload = {'requests': [request], 'defaults': defaults}
         self.assertInvalid(batch_payload)
 
-    def test_raise_invalid_on_default_unkown_attributes(self):
+    def test_raise_invalid_on_default_unknown_attributes(self):
         request = {'path': '/'}
         defaults = {'foo': 'bar'}
         self.assertInvalid({'requests': [request], 'defaults': defaults})
