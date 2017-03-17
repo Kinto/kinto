@@ -42,11 +42,19 @@ class BatchRequestSchema(colander.MappingSchema):
     body = colander.SchemaNode(colander.Mapping(unknown='preserve'),
                                missing=colander.drop)
 
+    @staticmethod
+    def schema_type():
+        return colander.Mapping(unknown='raise')
+
 
 class BatchPayloadSchema(colander.MappingSchema):
     defaults = BatchRequestSchema(missing=colander.drop).clone()
     requests = colander.SchemaNode(colander.Sequence(),
                                    BatchRequestSchema())
+
+    @staticmethod
+    def schema_type():
+        return colander.Mapping(unknown='raise')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

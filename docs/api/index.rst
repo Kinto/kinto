@@ -15,6 +15,7 @@ Changelog
 '''''''''''''''''
 
 - Groups can now be created with a simple ``PUT`` (fixes #793)
+- Batch requests now raise ``400`` on unknown attributes (#1163).
 
 1.15 (2017-03-03)
 '''''''''''''''''
