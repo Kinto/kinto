@@ -251,12 +251,12 @@ class RequestSchemaTest(unittest.TestCase):
         bound = self.schema.bind()
         self.assertEquals(type(bound['querystring']), schema.QuerySchema)
 
-    def test_header_preserve_unkown_fields(self):
+    def test_header_preserve_unknown_fields(self):
         value = {'header': {'foo': 'bar'}}
         deserialized = self.schema.bind().deserialize(value)
         self.assertEquals(deserialized, value)
 
-    def test_querystring_preserve_unkown_fields(self):
+    def test_querystring_preserve_unknown_fields(self):
         value = {'querystring': {'foo': 'bar'}}
         deserialized = self.schema.bind().deserialize(value)
         self.assertEquals(deserialized, value)
