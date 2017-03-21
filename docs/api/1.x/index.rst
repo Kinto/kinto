@@ -23,6 +23,7 @@ Full detailed API documentation:
    selecting_fields
    history
    quotas
+   accounts
    utilities
    batch
    openapi
