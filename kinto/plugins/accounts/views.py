@@ -31,7 +31,7 @@ class Account(resource.ShareableResource):
         if self.model.current_principal == Everyone:
             # Creation is anonymous, but author with write perm is this:
             # XXX: only works if policy name is account in settings.
-            self.model.current_principal = 'account:%s' % self.model.parent_id
+            self.model.current_principal = 'account:{}'.format(self.model.parent_id)
 
     def get_parent_id(self, request):
         # The whole challenge here is that we want to isolate what
