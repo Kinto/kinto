@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import colander
 import mock
 import uuid
@@ -100,6 +99,12 @@ class BatchViewTest(BaseWebTest, unittest.TestCase):
         resp = self.app.post_json('/batch', body, status=400)
         self.assertIn('Recursive', resp.json['message'])
 
+    def test_batch_validates_json(self):
+        body = """{"requests": [{"path": "/v0/"},]}"""
+        resp = self.app.post('/batch', body, status=400,
+                             headers={'Content-Type': 'application/json'})
+        self.assertIn('Invalid JSON', resp.json['message'])
+
     def test_responses_are_resolved_with_api_with_prefix(self):
         request = {'path': '/'}
         body = {'requests': [request]}
@@ -122,7 +127,7 @@ class BatchViewTest(BaseWebTest, unittest.TestCase):
     def test_body_is_transmitted_during_redirect(self):
         request = {
             'method': 'PUT',
-            'path': '/mushrooms/%s/' % str(uuid.uuid4()),
+            'path': '/mushrooms/{}/'.format(str(uuid.uuid4())),
             'body': {'data': {'name': 'Trompette de la mort'}}
         }
         body = {'requests': [request]}
@@ -133,27 +138,24 @@ class BatchViewTest(BaseWebTest, unittest.TestCase):
         self.assertEqual(record['name'], 'Trompette de la mort')
 
     def test_400_error_message_is_forwarded(self):
-        headers = self.headers.copy()
-        headers['If-Match'] = '"*"'
+        headers = {**self.headers, 'If-Match': '"*"'}
         request = {
             'method': 'PUT',
-            'path': '/mushrooms/%s' % str(uuid.uuid4()),
+            'path': '/mushrooms/{}'.format(str(uuid.uuid4())),
             'body': {'data': {'name': 'Trompette de la mort'}},
             'headers': headers
         }
         body = {'requests': [request, request]}
         resp = self.app.post_json('/batch', body, status=200)
         self.assertEqual(resp.json['responses'][1]['status'], 400)
-        self.assertEqual(resp.json['responses'][1]['body']['message'],
-                         ('header: Invalid value for If-Match. The value '
-                          'should be integer between double quotes.'))
+        msg = 'If-Match in header: The value should be integer between double quotes.'
+        self.assertEqual(resp.json['responses'][1]['body']['message'], msg)
 
     def test_412_errors_are_forwarded(self):
-        headers = self.headers.copy()
-        headers['If-None-Match'] = '*'
+        headers = {**self.headers, 'If-None-Match': '*'}
         request = {
             'method': 'PUT',
-            'path': '/mushrooms/%s' % str(uuid.uuid4()),
+            'path': '/mushrooms/{}'.format(str(uuid.uuid4())),
             'body': {'data': {'name': 'Trompette de la mort'}},
             'headers': headers
         }
@@ -173,9 +175,8 @@ class BatchSchemaTest(unittest.TestCase):
     def test_requests_is_mandatory(self):
         self.assertInvalid({})
 
-    def test_unknown_attributes_are_dropped(self):
-        deserialized = self.schema.deserialize({'requests': [], 'unknown': 42})
-        self.assertNotIn('unknown', deserialized)
+    def test_raise_invalid_on_unknown_attributes(self):
+        self.assertInvalid({'requests': [], 'unknown': 42})
 
     def test_list_of_requests_can_be_empty(self):
         self.schema.deserialize({'requests': []})
@@ -185,7 +186,7 @@ class BatchSchemaTest(unittest.TestCase):
 
     def test_list_of_requests_must_be_dicts(self):
         request = 42
-        self.assertInvalid({'requests': [request]})
+        self.assertInvalid({'defaults': {'path': '/'}, 'requests': [request]})
 
     def test_request_path_must_start_with_slash(self):
         request = {'path': 'http://localhost'}
@@ -197,6 +198,10 @@ class BatchSchemaTest(unittest.TestCase):
 
     def test_request_method_must_be_known_uppercase_word(self):
         request = {'path': '/', 'method': 'get'}
+        self.assertInvalid({'requests': [request]})
+
+    def test_raise_invalid_on_request_unknown_attributes(self):
+        request = {'path': '/', 'method': 'GET', 'foo': 42}
         self.assertInvalid({'requests': [request]})
 
     #
@@ -245,12 +250,10 @@ class BatchSchemaTest(unittest.TestCase):
         batch_payload = {'requests': [request], 'defaults': defaults}
         self.assertInvalid(batch_payload)
 
-    def test_unknown_defaults_are_ignored_silently(self):
+    def test_raise_invalid_on_default_unknown_attributes(self):
         request = {'path': '/'}
         defaults = {'foo': 'bar'}
-        batch_payload = {'requests': [request], 'defaults': defaults}
-        result = self.schema.deserialize(batch_payload)
-        self.assertNotIn('foo', result['requests'][0])
+        self.assertInvalid({'requests': [request], 'defaults': defaults})
 
     def test_defaults_can_be_specified_empty(self):
         request = {'path': '/'}
@@ -355,31 +358,31 @@ class BatchServiceTest(unittest.TestCase):
                       subrequest.headers['Content-Type'])
 
     def test_subrequests_body_have_utf8_charset(self):
-        request = {'path': '/', 'body': {'json': u"😂"}}
+        request = {'path': '/', 'body': {'json': "😂"}}
         self.post({'requests': [request]})
         subrequest, = self.request.invoke_subrequest.call_args[0]
         self.assertIn('charset=utf-8', subrequest.headers['Content-Type'])
-        wanted = {"json": u"😂"}
+        wanted = {"json": "😂"}
         self.assertEqual(subrequest.body.decode('utf8'),
                          json.dumps(wanted))
 
     def test_subrequests_paths_are_url_encoded(self):
-        request = {'path': u'/test?param=©'}
+        request = {'path': '/test?param=©'}
         self.post({'requests': [request]})
         subrequest, = self.request.invoke_subrequest.call_args[0]
-        self.assertEqual(subrequest.path, u'/v0/test')
-        self.assertEqual(subrequest.GET['param'], u'©')
+        self.assertEqual(subrequest.path, '/v0/test')
+        self.assertEqual(subrequest.GET['param'], '©')
 
     def test_subrequests_responses_paths_are_url_decoded(self):
-        request = {'path': u'/test?param=©'}
+        request = {'path': '/test?param=©'}
         resp = self.post({'requests': [request]})
         path = resp['responses'][0]['path']
-        self.assertEqual(path, u'/v0/test')
+        self.assertEqual(path, '/v0/test')
 
     def test_response_body_is_string_if_remote_response_is_not_json(self):
         response = Response(body='Internal Error')
         self.request.invoke_subrequest.return_value = response
-        request = {'path': u'/test'}
+        request = {'path': '/test'}
         resp = self.post({'requests': [request]})
         body = resp['responses'][0]['body'].decode('utf-8')
         self.assertEqual(body, 'Internal Error')

@@ -85,7 +85,7 @@ It is a wrapper basically, and the code is kept simple for the simplicity of thi
 
     import elasticsearch
 
-    class Indexer(object):
+    class Indexer:
         def __init__(self, hosts):
             self.client = elasticsearch.Elasticsearch(hosts)
 
@@ -155,7 +155,11 @@ Add an endpoint definition in :file:`kinto_elasticsearch/views.py`:
 
 .. code-block:: python
 
-    from kinto.core import Service, logger
+    import logging
+
+    from kinto.core import Service
+
+    logger = logging.getLogger(__name__)
 
     search = Service(name="search",
                      path='/buckets/{bucket_id}/collections/{collection_id}/search',

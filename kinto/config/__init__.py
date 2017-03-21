@@ -1,11 +1,14 @@
-import os
 import codecs
+import logging
+import os
 from time import strftime
 
 from kinto.core import utils as core_utils
 
-from kinto import logger
 from kinto import __version__
+
+
+logger = logging.getLogger(__name__)
 
 HERE = os.path.abspath(os.path.dirname(__file__))
 
@@ -21,23 +24,23 @@ def render_template(template, destination, **kwargs):
 
     with codecs.open(template, 'r', encoding='utf-8') as f:
         raw_template = f.read()
-        rendered = raw_template.format(**kwargs)
+        rendered = raw_template.format_map(kwargs)
         with codecs.open(destination, 'w+', encoding='utf-8') as output:
             output.write(rendered)
 
 
-def init(config_file, backend):
+def init(config_file, backend, host='127.0.0.1'):
     values = {}
 
+    values['host'] = host
     values['secret'] = core_utils.random_bytes_hex(32)
 
     values['kinto_version'] = __version__
-    values['config_file_timestamp'] = core_utils._encoded(
-        strftime('%a, %d %b %Y %H:%M:%S %z'))
+    values['config_file_timestamp'] = str(strftime('%a, %d %b %Y %H:%M:%S %z'))
 
-    values['storage_backend'] = "kinto.core.storage.%s" % backend
-    values['cache_backend'] = "kinto.core.cache.%s" % backend
-    values['permission_backend'] = "kinto.core.permission.%s" % backend
+    values['storage_backend'] = "kinto.core.storage.{}".format(backend)
+    values['cache_backend'] = "kinto.core.cache.{}".format(backend)
+    values['permission_backend'] = "kinto.core.permission.{}".format(backend)
 
     if backend == 'postgresql':
         postgresql_url = "postgres://postgres:postgres@localhost/postgres"

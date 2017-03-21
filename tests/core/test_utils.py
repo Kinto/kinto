@@ -1,12 +1,9 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
 import unittest
 import os
 import pytest
 
 import colander
 import mock
-import six
 from kinto.core import includeme
 from kinto.core import DEFAULT_SETTINGS
 from pyramid import httpexceptions
@@ -15,8 +12,9 @@ from pyramid import testing
 
 from kinto.core.utils import (
     native_value, strip_whitespace, random_bytes_hex, read_env, hmac_digest,
-    current_service, encode_header, decode_header, follow_subrequest,
-    build_request, dict_subset, dict_merge, parse_resource
+    current_service, follow_subrequest, build_request, dict_subset, dict_merge,
+    parse_resource, prefixed_principals, recursive_update_dict,
+    find_nested_value
 )
 from kinto.core.testing import DummyRequest
 
@@ -81,7 +79,7 @@ class CryptographicRandomBytesTest(unittest.TestCase):
         try:
             int(value, 16)
         except ValueError:
-            self.fail("%s is not an hexadecimal value." % value)
+            self.fail("{} is not an hexadecimal value.".format(value))
 
     def test_return_right_length_string(self):
         for x in range(2, 4):
@@ -90,7 +88,7 @@ class CryptographicRandomBytesTest(unittest.TestCase):
 
     def test_return_text_string(self):
         value = random_bytes_hex(16)
-        self.assertIsInstance(value, six.text_type)
+        self.assertIsInstance(value, str)
 
 
 class HmacDigestTest(unittest.TestCase):
@@ -137,59 +135,29 @@ class CurrentServiceTest(unittest.TestCase):
         self.assertEqual(current_service(request), None)
 
 
+class PrefixedPrincipalsTest(unittest.TestCase):
+
+    def test_removes_unprefixed_from_principals(self):
+        request = DummyRequest()
+        request.effective_principals = ['foo', 'system.Authenticated']
+        request.prefixed_userid = 'basic:foo'
+        self.assertEqual(prefixed_principals(request),
+                         ['basic:foo', 'system.Authenticated'])
+
+    def test_works_if_userid_is_not_in_principals(self):
+        request = DummyRequest()
+        request.effective_principals = ['basic:foo', 'system.Authenticated']
+        request.prefixed_userid = 'basic:foo'
+        self.assertEqual(prefixed_principals(request),
+                         ['basic:foo', 'system.Authenticated'])
+
+
 class BuildRequestTest(unittest.TestCase):
 
     def test_built_request_has_kinto_core_custom_methods(self):
         original = build_real_request({'PATH_INFO': '/foo'})
         request = build_request(original, {"path": "bar"})
         self.assertTrue(hasattr(request, 'current_service'))
-
-
-class EncodeHeaderTest(unittest.TestCase):
-
-    def test_returns_a_string_if_passed_a_string(self):
-        entry = str('Toto')
-        value = encode_header(entry)
-        self.assertEqual(entry, value)
-        self.assertEqual(type(value), str)
-
-    def test_returns_a_string_if_passed_bytes(self):
-        entry = 'Toto'.encode('utf-8')
-        value = encode_header(entry)
-        self.assertEqual(type(value), str)
-
-    def test_returns_a_string_if_passed_bytes_and_encoding(self):
-        entry = 'Rémy'.encode('latin-1')
-        value = encode_header(entry, 'latin-1')
-        self.assertEqual(type(value), str)
-
-    def test_returns_a_string_if_passed_unicode(self):
-        entry = six.text_type('Rémy')
-        value = encode_header(entry)
-        self.assertEqual(type(value), str)
-
-    def test_returns_a_string_if_passed_unicode_with_encoding(self):
-        entry = six.text_type('Rémy')
-        value = encode_header(entry, 'latin-1')
-        self.assertEqual(type(value), str)
-
-
-class DecodeHeaderTest(unittest.TestCase):
-
-    def test_returns_an_unicode_string_if_passed_a_string(self):
-        entry = 'Toto'
-        value = decode_header(entry)
-        self.assertEqual(entry, value)
-
-    def test_returns_an_unicode__string_if_passed_bytes(self):
-        entry = 'Toto'.encode('utf-8')
-        value = decode_header(entry)
-        self.assertEqual(type(value), six.text_type)
-
-    def test_returns_an_unicode__string_if_passed_bytes_and_encoding(self):
-        entry = 'Rémy'.encode('latin-1')
-        value = decode_header(entry, 'latin-1')
-        self.assertEqual(type(value), six.text_type)
 
 
 class FollowSubrequestTest(unittest.TestCase):
@@ -219,7 +187,7 @@ class DictSubsetTest(unittest.TestCase):
         self.assertEqual(obtained, expected)
 
     def test_ignores_unknown_keys(self):
-        obtained = dict_subset(dict(a=1, b=2), ["a", "c"])
+        obtained = dict_subset(dict(a=1, b=2), ["a", "a.b", "d.b", "c"])
         expected = dict(a=1)
         self.assertEqual(obtained, expected)
 
@@ -258,6 +226,77 @@ class DictMergeTest(unittest.TestCase):
         obtained = dict_merge(dict(a=1, b=dict(c=2)), dict(b=dict(d=4)))
         expected = dict(a=1, b=dict(c=2, d=4))
         self.assertEqual(obtained, expected)
+
+
+class FindNestedValueTest(unittest.TestCase):
+
+    def test_find_flat_value(self):
+        record = {"a": 42}
+        obtained = find_nested_value(record, "a")
+        self.assertEqual(obtained, 42)
+
+    def test_find_nested_value(self):
+        record = {"a": {"b": 42}}
+        obtained = find_nested_value(record, "a.b")
+        self.assertEqual(obtained, 42)
+
+    def test_find_deeply_nested_value(self):
+        record = {"a": {"b": {"c": 42}}}
+        obtained = find_nested_value(record, "a.b.c")
+        self.assertEqual(obtained, 42)
+
+    def test_find_dotted_path_value(self):
+        record = {"a.b": 42}
+        obtained = find_nested_value(record, "a.b")
+        self.assertEqual(obtained, 42)
+
+    def test_find_nested_dotted_path_value(self):
+        record = {"a": {"b.c": 42}}
+        obtained = find_nested_value(record, "a.b.c")
+        self.assertEqual(obtained, 42)
+
+        record = {"a.b": {"c.d": 42}}
+        obtained = find_nested_value(record, "a.b.c.d")
+        self.assertEqual(obtained, 42)
+
+        record = {"a": {"b": {"a": {"b": 42}}}}
+        obtained = find_nested_value(record, "a.b.a.b")
+        self.assertEqual(obtained, 42)
+
+    def test_find_disambiguated_dotted_path_values(self):
+        # XXX: To be honest, this is a really scary use case. Probably a
+        # limitation of the dotted path notation we may want to document.
+        # At least this test acts as documentation for now.
+        record = {"a": {"b": 0}, "a.b": 42}
+        obtained = find_nested_value(record, "a.b")
+        self.assertEqual(obtained, 42)
+
+    def test_unmatched_path_returns_none(self):
+        record = {"a": 42}
+        self.assertIsNone(find_nested_value(record, "x"))
+        self.assertIsNone(find_nested_value(record, "a.b"))
+        self.assertIsNone(find_nested_value(record, "x.a"))
+
+    def test_fallback_default_value(self):
+        record = {"a": {"c": 42}}
+        self.assertEqual(find_nested_value(record, "x", 1337), 1337)
+        self.assertEqual(find_nested_value(record, "a.b", 1337), 1337)
+        self.assertEqual(find_nested_value(record, "x.a", 1337), 1337)
+        self.assertEqual(find_nested_value(record, "a.c.d", 1337), 1337)
+
+
+class RecursiveUpdateDictTest(unittest.TestCase):
+
+    def test_merge(self):
+        a = {}
+        recursive_update_dict(a, {'b': {'c': 1}, 'd': 2})
+        self.assertEqual(a['b']['c'], 1)
+        self.assertEqual(a['d'], 2)
+
+    def test_merge_non_dict(self):
+        a = {}
+        recursive_update_dict(a, 1)
+        self.assertEqual(a, {})
 
 
 class ParseResourceTest(unittest.TestCase):

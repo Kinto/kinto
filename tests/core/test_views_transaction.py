@@ -1,5 +1,8 @@
 import mock
+import time
+import threading
 import unittest
+from uuid import uuid4
 
 from pyramid import testing
 from pyramid import httpexceptions
@@ -13,24 +16,19 @@ from .support import BaseWebTest, USER_PRINCIPAL
 
 
 class PostgreSQLTest(BaseWebTest):
-    def setUp(self):
-        super(PostgreSQLTest, self).setUp()
-        self.storage.initialize_schema()
-        self.permission.initialize_schema()
 
-    def tearDown(self):
-        super(BaseWebTest, self).tearDown()
-        self.storage.flush()
-        self.permission.flush()
-
-    def get_app_settings(self, extras=None):
-        settings = super(PostgreSQLTest, self).get_app_settings(extras)
+    @classmethod
+    def get_app_settings(cls, extras=None):
+        settings = super().get_app_settings(extras)
         if sqlalchemy is not None:
             from .test_storage import PostgreSQLStorageTest
+            from .test_cache import PostgreSQLCacheTest
             from .test_permission import PostgreSQLPermissionTest
             settings.update(**PostgreSQLStorageTest.settings)
+            settings.update(**PostgreSQLCacheTest.settings)
             settings.update(**PostgreSQLPermissionTest.settings)
             settings.pop('storage_poolclass', None)
+            settings.pop('cache_poolclass', None)
             settings.pop('permission_poolclass', None)
         return settings
 
@@ -129,6 +127,74 @@ class TransactionTest(PostgreSQLTest, unittest.TestCase):
         self.assertEqual(len(resp.json['data']), 0)
 
 
+class IntegrityConstraintTest(PostgreSQLTest, unittest.TestCase):
+
+    @classmethod
+    def get_app_settings(cls, extras=None):
+        settings = super().get_app_settings(extras)
+        if sqlalchemy is not None:
+            settings.pop('storage_poolclass', None)  # Use real pool.
+        return settings
+
+    def test_concurrent_transactions_do_not_fail(self):
+        # This test originally intended to reproduce integrity errors and check
+        # that a 409 was obtained. But since every errors that could be reproduced
+        # could be also be fixed, this test just asserts that API responses
+        # are consistent. # See Kinto/kinto#1125.
+
+        # Make requests slow.
+        patch = mock.patch('kinto.core.resource.UserResource.postprocess',
+                           lambda s, r, a='read', old=None: time.sleep(0.2) or {})
+        patch.start()
+        self.addCleanup(patch.stop)
+
+        # Same object created in two concurrent requests.
+        body = {'data': {'id': str(uuid4())}}
+        results = set()
+
+        def create_object():
+            r = self.app.post_json('/psilos', body, headers=self.headers,
+                                   status=(201, 200, 409))
+            results.add(r.status_code)
+
+        thread1 = threading.Thread(target=create_object)
+        thread2 = threading.Thread(target=create_object)
+        thread1.start()
+        time.sleep(0.1)
+        thread2.start()
+        thread1.join()
+        thread2.join()
+        self.assertTrue({201, 200, 409} >= results)
+
+
+@skip_if_no_postgresql
+class TransactionCacheTest(PostgreSQLTest, unittest.TestCase):
+    def setUp(self):
+        def cache_and_fails(this, *args, **kwargs):
+            self.cache.set('test-cache', 'a value', ttl=100)
+            raise BackendError('boom')
+
+        patch = mock.patch.object(
+            self.permission,
+            'add_principal_to_ace',
+            wraps=cache_and_fails)
+        self.addCleanup(patch.stop)
+        patch.start()
+
+    def test_cache_backend_operations_are_always_committed(self):
+        self.app.post_json('/psilos',
+                           {'data': {'name': 'Amanite'}},
+                           headers=self.headers,
+                           status=503)
+
+        # Storage was rolled back.
+        resp = self.app.get('/psilos', headers=self.headers)
+        self.assertEqual(len(resp.json['data']), 0)
+
+        # Cache was committed.
+        self.assertEqual(self.cache.get('test-cache'), 'a value')
+
+
 @skip_if_no_postgresql
 class TransactionEventsTest(PostgreSQLTest, unittest.TestCase):
     def make_app_with_subscribers(self, subscribers):
@@ -205,8 +271,9 @@ class TransactionEventsTest(PostgreSQLTest, unittest.TestCase):
 @skip_if_no_postgresql
 class WithoutTransactionTest(PostgreSQLTest, unittest.TestCase):
 
-    def get_app_settings(self, extras=None):
-        settings = super(WithoutTransactionTest, self).get_app_settings(extras)
+    @classmethod
+    def get_app_settings(cls, extras=None):
+        settings = super().get_app_settings(extras)
         settings['transaction_per_request'] = False
         return settings
 

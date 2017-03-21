@@ -5,9 +5,8 @@ import time
 from kinto.core.utils import sqlalchemy
 from kinto.core.cache import (CacheBase, memory as memory_backend,
                               postgresql as postgresql_backend)
-
-from kinto.core.testing import skip_if_no_postgresql
 from kinto.core.cache.testing import CacheTest
+from kinto.core.testing import skip_if_no_postgresql
 
 
 class CacheBaseTest(unittest.TestCase):
@@ -68,7 +67,7 @@ class MemoryCacheTest(CacheTest, unittest.TestCase):
     def test_add_over_quota_clean_oversized_items(self):
         for x in range(100):
             # Each entry is 70 bytes
-            self.cache.set('foo' + str(x).zfill(3), 'toto')
+            self.cache.set('foo{0:03d}'.format(x), 'toto')
             time.sleep(0.001)
         assert self.cache.get('foo000') == 'toto'
         # This should delete the 2 first entries
@@ -77,18 +76,26 @@ class MemoryCacheTest(CacheTest, unittest.TestCase):
         assert self.cache.get('foo000') is None
         assert self.cache.get('foobar') == 'tata'
 
+    def test_size_quota_can_be_set_to_zero(self):
+        before = self.cache.max_size_bytes
+        self.cache.max_size_bytes = 0
+        self.cache.set('foobar', 'tata')
+        self.cache.max_size_bytes = before
+        assert self.cache.get('foobar') == 'tata'
+
 
 @skip_if_no_postgresql
 class PostgreSQLCacheTest(CacheTest, unittest.TestCase):
     backend = postgresql_backend
     settings = {
+        'cache_backend': 'kinto.core.cache.postgresql',
         'cache_pool_size': 10,
         'cache_url': 'postgres://postgres:postgres@localhost:5432/testdb',
         'cache_prefix': ''
     }
 
     def setUp(self):
-        super(PostgreSQLCacheTest, self).setUp()
+        super().setUp()
         self.client_error_patcher = mock.patch.object(
             self.cache.client,
             'session_factory',

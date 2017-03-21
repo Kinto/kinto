@@ -3,7 +3,7 @@ import mock
 from pyramid.request import Request
 
 from kinto.core import utils
-from kinto.core.authorization import RouteFactory, AuthorizationPolicy
+from kinto.core.authorization import RouteFactory, AuthorizationPolicy, groupfinder
 from kinto.core.storage import exceptions as storage_exceptions
 from kinto.core.testing import DummyRequest, unittest
 
@@ -120,7 +120,8 @@ class RouteFactoryTest(unittest.TestCase):
 
         request.registry.permission.get_accessible_objects.assert_called_with(
             ['userid'],
-            [('/buckets/[a-zA-Z0-9_-]+', 'read')])
+            [('/buckets/*', 'read')],
+            with_children=False)
 
     def test_fetch_shared_records_uses_get_bound_permission_callback(self):
         request = DummyRequest()
@@ -140,7 +141,8 @@ class RouteFactoryTest(unittest.TestCase):
 
         request.registry.permission.get_accessible_objects.assert_called_with(
             ['userid'],
-            [('/buckets/[a-zA-Z0-9_-]+', 'write'), ('/buckets/[a-zA-Z0-9_-]+', 'read')])
+            [('/buckets/*', 'write'), ('/buckets/*', 'read')],
+            with_children=False)
 
     def test_fetch_shared_records_sets_shared_ids_from_results(self):
         request = DummyRequest()
@@ -168,7 +170,7 @@ class AuthorizationPolicyTest(unittest.TestCase):
         self.context = mock.MagicMock()
         self.context.permission_object_id = '/articles/43/comments/2'
         self.context.required_permission = 'read'
-        self.principals = []
+        self.principals = ["portier:yourself"]
         self.context.get_prefixed_principals.return_value = self.principals
         self.permission = 'dynamic'
 
@@ -180,6 +182,18 @@ class AuthorizationPolicyTest(unittest.TestCase):
                                            ['system.Authenticated'],
                                            'private'))
 
+    def test_permits_logs_authz_failures(self):
+        self.context.on_collection = False
+        self.context.check_permission.return_value = False
+        with mock.patch('kinto.core.authorization.logger') as mocked:
+            self.authz.permits(self.context, self.principals, 'dynamic')
+        userid = 'portier:yourself'
+        object_id = '/articles/43/comments/2'
+        perm = 'read'
+        mocked.warn.assert_called_with('Permission %r on %r not granted to %r.',
+                                       perm, object_id, userid,
+                                       extra=dict(perm=perm, uri=object_id, userid=userid))
+
     def test_permits_refers_to_context_to_check_permissions(self):
         self.context.check_permission.return_value = True
         allowed = self.authz.permits(self.context, self.principals, 'dynamic')
@@ -188,7 +202,7 @@ class AuthorizationPolicyTest(unittest.TestCase):
     def test_permits_refers_to_context_to_check_permission_principals(self):
         self.context.check_permission.return_value = False
         allowed = self.authz.permits(
-            self.context, ['fxa:user', 'system.Authenticated'], 'dynamic')
+            self.context, self.principals, 'dynamic')
         self.assertTrue(allowed)
 
     def test_permits_reads_the_context_when_permission_is_dynamic(self):
@@ -229,7 +243,7 @@ class AuthorizationPolicyTest(unittest.TestCase):
         self.context.resource_name = 'record'
         self.context.required_permission = 'create'
         self.context._settings = {'record_create_principals': 'fxa:user'}
-        allowed = self.authz.permits(self.context, ['fxa:user'], 'dynamic')
+        allowed = self.authz.permits(self.context, self.principals, 'dynamic')
         self.context._check_permission.assert_not_called()
         self.assertTrue(allowed)
 
@@ -250,7 +264,7 @@ class GuestAuthorizationPolicyTest(unittest.TestCase):
         # Note: we use the list of principals from request.prefixed_principals
         self.context.fetch_shared_records.assert_called_with(
             'read',
-            ['system.Everyone', 'system.Authenticated', 'basicauth:bob'],
+            ['basicauth:bob', 'system.Everyone', 'system.Authenticated'],
             self.authz.get_bound_permissions)
         self.assertTrue(allowed)
 
@@ -272,7 +286,7 @@ class GuestAuthorizationPolicyTest(unittest.TestCase):
         # Note: we use the list of principals from request.prefixed_principals
         self.context.fetch_shared_records.assert_called_with(
             'read',
-            ['system.Everyone', 'system.Authenticated', 'basicauth:bob'],
+            ['basicauth:bob', 'system.Everyone', 'system.Authenticated'],
             self.authz.get_bound_permissions)
         self.assertFalse(allowed)
 
@@ -281,7 +295,7 @@ class GuestAuthorizationPolicyTest(unittest.TestCase):
             # Simulate a resource that has no record_path (only list).
             if service_name == 'article-record':
                 raise KeyError
-            return '/comments/sub/{id}'.format(**kwargs)
+            return '/comments/sub/{id}'.format_map(kwargs)
 
         self.request.route_path.side_effect = route_path
 
@@ -294,3 +308,18 @@ class GuestAuthorizationPolicyTest(unittest.TestCase):
         self.context.resource_name = 'article'
         obj_id = self.context.get_permission_object_id(self.request, '*')
         self.assertEquals(obj_id, '/articles/*')
+
+
+class GroupFinderTest(unittest.TestCase):
+    def setUp(self):
+        self.request = DummyRequest(method='GET')
+
+    def test_uses_prefixed_as_userid(self):
+        self.request.prefixed_userid = 'basic:bob'
+        groupfinder('bob', self.request)
+        self.request.registry.permission.get_user_principals.assert_called_with('basic:bob')
+
+    def test_uses_provided_id_if_no_prefixed_userid(self):
+        self.request.prefixed_userid = None
+        groupfinder('bob', self.request)
+        self.request.registry.permission.get_user_principals.assert_called_with('bob')

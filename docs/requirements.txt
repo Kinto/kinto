@@ -1,4 +1,9 @@
+docutils<0.13
 Sphinx
 sphinx_rtd_theme
 sphinxcontrib-httpdomain
 kinto-redis
+mock
+webtest
+cornice
+pyramid

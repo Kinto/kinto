@@ -1,8 +1,10 @@
-from __future__ import absolute_import
 import json
+import logging
 
-from kinto.core import logger
 from kinto.core.listeners import ListenerBase
+
+
+logger = logging.getLogger(__name__)
 
 
 class Listener(ListenerBase):

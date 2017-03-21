@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import mock
 import webtest
 
@@ -68,8 +67,13 @@ class InitializationTest(unittest.TestCase):
                          'kinto')
 
     def test_warns_if_not_https(self):
-        config = Configurator(settings={'kinto.http_scheme': 'http'})
         with mock.patch('kinto.core.initialization.warnings.warn') as mocked:
+            config = Configurator(settings={'project_name': 'kinto',
+                                            'kinto.http_scheme': 'https'})
+            kinto.core.initialize(config, '0.0.1')
+            self.assertFalse(mocked.called)
+
+            config = Configurator(settings={'kinto.http_scheme': 'http'})
             kinto.core.initialize(config, '0.0.1')
             error_msg = 'HTTPS is not enabled'
             mocked.assert_any_call(error_msg)
@@ -94,7 +98,7 @@ class InitializationTest(unittest.TestCase):
         self.assertEqual(config.registry.settings['paginate_by'], 5)
 
     def test_backends_are_not_instantiated_by_default(self):
-        config = Configurator(settings=kinto.core.DEFAULT_SETTINGS)
+        config = Configurator(settings={**kinto.core.DEFAULT_SETTINGS})
         kinto.core.initialize(config, '0.0.1', 'project_name')
         self.assertFalse(hasattr(config.registry, 'storage'))
         self.assertFalse(hasattr(config.registry, 'cache'))
@@ -176,22 +180,6 @@ class ProjectSettingsTest(unittest.TestCase):
         os.environ.pop(envkey)
         self.assertEqual(value, 'kinto_redis.storage')
 
-    def test_can_continue_to_use_cliquet_names(self):
-        settings = {
-            'kinto.permission_backend': 'cliquet.permission.memory'
-        }
-        with mock.patch('kinto.core.logger.warn') as mocked:
-            new_settings = self.settings(settings)
-            warning_message = ''.join([
-                "Backend settings referring to cliquet are DEPRECATED. ",
-                "Please update your kinto.permission_backend setting to ",
-                "kinto.core.permission.memory ",
-                "(was: cliquet.permission.memory).",
-                ])
-            mocked.assert_called_once_with(warning_message)
-            self.assertEqual(new_settings['permission_backend'],
-                             'kinto.core.permission.memory')
-
 
 class ApplicationWrapperTest(unittest.TestCase):
 
@@ -266,8 +254,7 @@ class ApplicationWrapperTest(unittest.TestCase):
 
 class StatsDConfigurationTest(unittest.TestCase):
     def setUp(self):
-        settings = kinto.core.DEFAULT_SETTINGS.copy()
-        settings['statsd_url'] = 'udp://host:8080'
+        settings = {**kinto.core.DEFAULT_SETTINGS, 'statsd_url': 'udp://host:8080'}
         self.config = Configurator(settings=settings)
         self.config.registry.storage = {}
         self.config.registry.cache = {}
@@ -336,7 +323,7 @@ class StatsDConfigurationTest(unittest.TestCase):
 
     @mock.patch('kinto.core.utils.hmac_digest')
     def test_statsd_counts_unique_users(self, digest_mocked):
-        digest_mocked.return_value = u'mat'
+        digest_mocked.return_value = 'mat'
         kinto.core.initialize(self.config, '0.0.1', 'project_name')
         app = webtest.TestApp(self.config.make_wsgi_app())
         headers = {'Authorization': 'Basic bWF0Og=='}
@@ -432,7 +419,7 @@ class RequestsConfigurationTest(unittest.TestCase):
 
 class PluginsTest(unittest.TestCase):
     def test_kinto_core_includes_are_included_manually(self):
-        config = Configurator(settings=kinto.core.DEFAULT_SETTINGS)
+        config = Configurator(settings={**kinto.core.DEFAULT_SETTINGS})
         config.add_settings({'includes': 'elastic history'})
         config.route_prefix = 'v2'
 
@@ -444,7 +431,7 @@ class PluginsTest(unittest.TestCase):
                 config.include.assert_any_call('history')
 
     def make_app(self):
-        config = Configurator(settings=kinto.core.DEFAULT_SETTINGS)
+        config = Configurator(settings={**kinto.core.DEFAULT_SETTINGS})
         config.add_settings({
             'permission_backend': 'kinto.core.permission.memory',
             'includes': 'tests.core.testplugin'

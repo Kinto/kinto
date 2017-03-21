@@ -294,7 +294,7 @@ on the resource during registration.
     class MyViewSet(resource.ViewSet):
 
         def get_view_arguments(self, endpoint_type, resource_cls, method):
-            args = super(MyViewSet, self).get_view_arguments(endpoint_type,
+            args = super().get_view_arguments(endpoint_type,
                                                              resource_cls,
                                                              method)
             if method.lower() not in ('get', 'head'):
@@ -302,7 +302,7 @@ on the resource during registration.
             return args
 
         def get_service_arguments(self):
-            args = super(MyViewSet, self).get_service_arguments()
+            args = super().get_service_arguments()
             args['factory'] = myapp.MyRootFactory
             return args
 
@@ -323,7 +323,7 @@ For example, a simplistic example with the previous resource viewset:
 
     from pyramid.security import IAuthorizationPolicy
 
-    class MyRootFactory(object):
+    class MyRootFactory:
         def __init__(self, request):
             self.current_resource = None
             service = request.current_service
@@ -332,7 +332,7 @@ For example, a simplistic example with the previous resource viewset:
 
 
     @implementer(IAuthorizationPolicy)
-    class AuthorizationPolicy(object):
+    class AuthorizationPolicy:
         def permits(self, context, principals, permission):
             if context.current_resource == BlogArticle:
                 if permission == 'publish':

@@ -5,14 +5,8 @@ from . import BaseTest
 
 class ModelTest(BaseTest):
     def setUp(self):
-        super(ModelTest, self).setUp()
+        super().setUp()
         self.record = self.model.create_record({'field': 'value'})
-
-    def test_list_gives_number_of_results_in_headers(self):
-        self.resource.collection_get()
-        headers = self.last_response.headers
-        count = headers['Total-Records']
-        self.assertEquals(int(count), 1)
 
     def test_list_returns_all_records_in_data(self):
         result = self.resource.collection_get()
@@ -23,8 +17,8 @@ class ModelTest(BaseTest):
 
 class CreateTest(BaseTest):
     def setUp(self):
-        super(CreateTest, self).setUp()
-        self.resource.request.validated = {'body': {'data': {'field': 'new'}}}
+        super().setUp()
+        self.resource.request.validated['body'] = {'data': {'field': 'new'}}
 
     def test_new_records_are_linked_to_owner(self):
         resp = self.resource.collection_post()['data']
@@ -40,7 +34,7 @@ class CreateTest(BaseTest):
 
 class DeleteModelTest(BaseTest):
     def setUp(self):
-        super(DeleteModelTest, self).setUp()
+        super().setUp()
         self.patch_known_field.start()
         self.model.create_record({'field': 'a'})
         self.model.create_record({'field': 'b'})
@@ -57,9 +51,9 @@ class DeleteModelTest(BaseTest):
         self.assertIn('deleted', deleted)
 
     def test_delete_supports_collection_filters(self):
-        self.resource.request.GET = {'field': 'a'}
+        self.resource.request.validated['querystring'] = {'field': 'a'}
         self.resource.collection_delete()
-        self.resource.request.GET = {}
+        self.resource.request.validated['querystring'] = {}
         result = self.resource.collection_get()
         records = result['data']
         self.assertEqual(len(records), 1)
@@ -67,17 +61,18 @@ class DeleteModelTest(BaseTest):
 
 class IsolatedModelsTest(BaseTest):
     def setUp(self):
-        super(IsolatedModelsTest, self).setUp()
+        super().setUp()
+        self.resource.request.validated = {'header': {}, 'querystring': {}}
         self.stored = self.model.create_record({}, parent_id='bob')
         self.resource.record_id = self.stored['id']
 
     def get_request(self):
-        request = super(IsolatedModelsTest, self).get_request()
+        request = super().get_request()
         request.prefixed_userid = 'basicauth:alice'
         return request
 
     def get_context(self):
-        context = super(IsolatedModelsTest, self).get_context()
+        context = super().get_context()
         context.prefixed_userid = 'basicauth:alice'
         return context
 
@@ -87,7 +82,7 @@ class IsolatedModelsTest(BaseTest):
         self.assertEquals(len(records), 0)
 
     def test_update_record_of_another_user_will_create_it(self):
-        self.resource.request.validated = {'body': {'data': {'some': 'record'}}}
+        self.resource.request.validated['body'] = {'data': {'some': 'record'}}
         self.resource.put()
         self.model.get_record(record_id=self.stored['id'],
                               parent_id='basicauth:alice')  # not raising

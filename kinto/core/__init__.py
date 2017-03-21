@@ -1,5 +1,6 @@
 """Main entry point
 """
+import logging
 import pkg_resources
 import tempfile
 
@@ -13,13 +14,14 @@ from kinto.core.initialization import (  # NOQA
     load_default_settings)
 from kinto.core.utils import (
     follow_subrequest, current_service, current_resource_name,
-    prefixed_userid, prefixed_principals)
-from kinto.core.logs import logger
+    prefixed_userid, prefixed_principals, log_context)
+
+
+logger = logging.getLogger(__name__)
 
 
 # Module version, as defined in PEP-0396.
 __version__ = pkg_resources.get_distribution('kinto').version  # FIXME?
-
 
 DEFAULT_SETTINGS = {
     'backoff': None,
@@ -57,7 +59,6 @@ DEFAULT_SETTINGS = {
     ),
     'event_listeners': '',
     'heartbeat_timeout_seconds': 10,
-    'logging_renderer': 'kinto.core.logs.ClassicLogRenderer',
     'newrelic_config': None,
     'newrelic_env': 'dev',
     'paginate_by': None,
@@ -89,7 +90,7 @@ DEFAULT_SETTINGS = {
     'multiauth.policy.basicauth.use': ('kinto.core.authentication.'
                                        'BasicAuthAuthenticationPolicy'),
     'multiauth.authorization_policy': ('kinto.core.authorization.'
-                                       'AuthorizationPolicy')
+                                       'AuthorizationPolicy'),
 }
 
 
@@ -125,8 +126,8 @@ def includeme(config):
     def add_api_capability(config, identifier, description="", url="", **kw):
         existing = config.registry.api_capabilities.get(identifier)
         if existing:
-            error_msg = "The '%s' API capability was already registered (%s)."
-            raise ValueError(error_msg % (identifier, existing))
+            error_msg = "The '{}' API capability was already registered ({})."
+            raise ValueError(error_msg.format(identifier, existing))
 
         capability = dict(description=description, url=url, **kw)
         config.registry.api_capabilities[identifier] = capability
@@ -143,6 +144,9 @@ def includeme(config):
     # Setup cornice.
     config.include("cornice")
 
+    # Setup cornice api documentation
+    config.include("cornice_swagger")
+
     # Per-request transaction.
     config.include("pyramid_tm")
 
@@ -155,6 +159,7 @@ def includeme(config):
         step_func(config)
 
     # Custom helpers.
+    config.add_request_method(log_context)
     config.add_request_method(follow_subrequest)
     config.add_request_method(prefixed_userid, property=True)
     config.add_request_method(prefixed_principals, reify=True)
@@ -173,11 +178,11 @@ def includeme(config):
 
     # # Show settings to output.
     # for key, value in settings.items():
-    #     logger.info('Using %s = %s' % (key, value))
+    #     logger.info('Using {} = {}'.format(key, value))
 
     # Scan views.
     config.scan("kinto.core.views")
 
     # Give sign of life.
-    msg = "Running %(project_name)s %(project_version)s."
-    logger.info(msg % settings)
+    msg = "Running {project_name} {project_version}."
+    logger.info(msg.format_map(settings))

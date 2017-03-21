@@ -5,6 +5,7 @@ from pyramid import httpexceptions
 
 from kinto.core.errors import ERRORS, http_error
 from kinto.core.testing import FormattedErrorMixin
+from kinto.core.storage import exceptions as storage_exceptions
 
 from .support import BaseWebTest, authorize
 
@@ -25,8 +26,7 @@ class ErrorViewTest(FormattedErrorMixin, BaseWebTest, unittest.TestCase):
     def test_backoff_headers_is_present_on_304(self):
         first = self.app.get(self.sample_url, headers=self.headers)
         etag = first.headers['ETag']
-        headers = self.headers.copy()
-        headers['If-None-Match'] = etag
+        headers = {**self.headers, 'If-None-Match': etag}
         with mock.patch.dict(self.app.app.registry.settings, [('backoff', 10)]):
             response = self.app.get(self.sample_url, headers=headers, status=304)
         self.assertIn('Backoff', response.headers)
@@ -130,6 +130,14 @@ class ErrorViewTest(FormattedErrorMixin, BaseWebTest, unittest.TestCase):
         self.assertFormattedError(response, 503, ERRORS.BACKEND, "Service Unavailable",
                                   "Unable to connect the server.")
 
+    def test_integrity_errors_are_served_as_409(self):
+        with mock.patch('tests.core.testapp.views.Mushroom._extract_filters',
+                        side_effect=storage_exceptions.IntegrityError):
+            response = self.app.get(self.sample_url, headers=self.headers, status=409)
+        self.assertFormattedError(response, 409, ERRORS.CONSTRAINT_VIOLATED, "Conflict",
+                                  "Integrity constraint violated, please retry.")
+        self.assertIn("Retry-After", response.headers)
+
     def test_500_provides_traceback_on_server(self):
         mock_traceback = mock.patch('logging.traceback.print_exception')
         with mock.patch('tests.core.testapp.views.Mushroom._extract_filters',
@@ -182,6 +190,14 @@ class RedirectViewTest(FormattedErrorMixin, BaseWebTest, unittest.TestCase):
 
     def test_redirection_does_not_allow_control_characters(self):
         self.app.get('/9l2j7%0A21m2n', status=404)
+
+    def test_redirection_allows_unicode_characters(self):
+        # URL with unicode: /crlftest嘊/
+        self.app.get('/crlftest%E5%98%8A/', status=307)
+
+    def test_redirection_allows_unicode_characters_in_querystring(self):
+        # URL with unicode: /crlftest?name=嘊
+        self.app.get('/crlftest?name=%E5%98%8A', status=307)
 
 
 class TrailingSlashRedirectViewTest(FormattedErrorMixin, BaseWebTest,

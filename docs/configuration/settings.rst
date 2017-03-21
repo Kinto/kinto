@@ -258,9 +258,6 @@ Logging and Monitoring
 +------------------------+----------------------------------------+--------------------------------------------------------------------------+
 | Setting name           | Default                                | What does it do?                                                         |
 +========================+========================================+==========================================================================+
-| kinto.logging_renderer | ``kinto.core.logs.ClassicLogRenderer`` | The Python *dotted* location of the renderer class that should be used   |
-|                        |                                        | to render the logs to the standard output.                               |
-+------------------------+----------------------------------------+--------------------------------------------------------------------------+
 | kinto.statsd_backend   | ``kinto.core.statsd``                  | The Python **dotted** location of the StatsD module that should be used  |
 |                        |                                        | for monitoring. Useful to plug custom implementations like Datadog™.     |
 +------------------------+----------------------------------------+--------------------------------------------------------------------------+
@@ -270,21 +267,8 @@ Logging and Monitoring
 |                        |                                        | ``udp://localhost:8125``                                                 |
 +------------------------+----------------------------------------+--------------------------------------------------------------------------+
 
-Logging with Heka
-:::::::::::::::::
-
-Heka is an open source stream processing software system developed by Mozilla.
-Heka is a "Swiss Army Knife" type tool for data processing, and is useful for
-a wide variety of different tasks.
-
-For more information, see https://hekad.readthedocs.io/
-
-Heka logging format can be enabled using:
-
-.. code-block:: ini
-
-    kinto.logging_renderer = kinto.core.logs.MozillaHekaRenderer
-
+Standard Logging
+::::::::::::::::
 
 With the following configuration, all logs are redirected to standard output
 (See `12factor app <http://12factor.net/logs>`_):
@@ -298,20 +282,68 @@ With the following configuration, all logs are redirected to standard output
     keys = console
 
     [formatters]
-    keys = heka
+    keys = generic
 
     [logger_root]
-    level = INFO
+    level = DEBUG
     handlers = console
-    formatter = heka
 
     [handler_console]
     class = StreamHandler
     args = (sys.stdout,)
     level = NOTSET
+    formatter = generic
 
-    [formatter_heka]
-    format = %(message)s
+    [formatter_generic]
+    format = %(asctime)s,%(msecs)03d %(levelname)-5.5s [%(name)s] %(message)s
+    datefmt = %H:%M:%S
+
+Example output:
+
+::
+
+    16:18:57,179 INFO  [root] Running kinto 6.1.0.dev0.
+    16:19:00,729 INFO  [request.summary]
+    16:19:22,232 WARNI [kinto.core.authorization] Permission not granted.
+    16:19:22,238 INFO  [request.summary]
+
+
+Colored Logging
+:::::::::::::::
+
+.. code-block:: ini
+
+    [formatters]
+    keys = color
+
+    [formatter_color]
+    class = logging_color_formatter.ColorFormatter
+
+Example output:
+
+.. image:: ../images/color-formatter.png
+
+
+JSON Logging
+::::::::::::
+
+Using a JSON logging formatter, like :github:`this one <mozilla/mozilla-cloud-services-logger>`,
+it is possible to output logs as JSON:
+
+.. code-block:: ini
+
+    [formatters]
+    keys = json
+
+    [formatter_json]
+    class = mozilla_cloud_services_logger.formatters.JsonLogFormatter
+
+Example output:
+
+::
+
+    {"Pid": 19240, "Type": "root", "Timestamp": 1489067815875679744, "Severity": 6, "Hostname": "pluo", "Logger": "%", "EnvVersion": "2.0", "Fields": {"message": "Running kinto 6.1.0.dev0."}}
+    {"Pid": 19240, "Type": "root", "Timestamp": 1489067817834153984, "Severity": 4, "Hostname": "pluo", "Logger": "%", "EnvVersion": "2.0", "Fields": {"perm": "read", "userid": "basicauth:cbd3731f18c97ebe1d31d9846b5f1b95cf8eeeae586e201277263434041e99d1", "message": "Permission not granted.", "uri": "/buckets/123"}}
 
 
 Handling exceptions with Sentry
@@ -471,7 +503,7 @@ list of Python modules:
 +---------------------------------------+--------------------------------------------------------------------------+
 | Built-in plugins                      | What does it do?                                                         |
 +=======================================+==========================================================================+
-| ``kinto.plugins.default_bucket``      | It enables a personnal bucket ``default``, where collections are created |
+| ``kinto.plugins.default_bucket``      | It enables a personal bucket ``default``, where collections are created  |
 |                                       | implicitly (:ref:`more details <buckets-default-id>`).                   |
 +---------------------------------------+--------------------------------------------------------------------------+
 | ``kinto.plugins.history``             | It tracks every action performed on objects within a bucket              |
@@ -480,6 +512,10 @@ list of Python modules:
 | ``kinto.plugins.admin``               | It is a Web admin UI to manage data from a Kinto server.                 |
 |                                       | (:ref:`more details <api-history>`).                                     |
 +---------------------------------------+--------------------------------------------------------------------------+
+| ``kinto.plugins.flush``               | Adds an endpoint to completely remove all data from the database backend |
+|                                       | for testing/staging purposes. (:ref:`more details <api-flush>`).         |
++---------------------------------------+--------------------------------------------------------------------------+
+
 
 There are `many available packages`_ in Pyramid ecosystem, and it is straightforward to build one,
 since the specified module must just define an ``includeme(config)`` function.
@@ -636,22 +672,6 @@ following setting should be declared in the ``.ini`` file:
     kinto.record_mushroom_patch_enabled = false
 
 
-Activating the flush endpoint
-=============================
-
-
-The Flush endpoint is used to flush (completely remove) all data from the
-database backend. While this can be useful during development, it's too
-dangerous to leave on by default, and must therefore be enabled explicitly.
-
-.. code-block :: ini
-
-    kinto.flush_endpoint_enabled = true
-
-Then, issue a ``POST`` request to the ``/__flush__`` endpoint to flush all
-the data.
-
-
 Activating the permissions endpoint
 ===================================
 
@@ -749,12 +769,11 @@ Update the configuration file with the following values:
     kinto.profiler_enabled = true
     kinto.profiler_dir = /tmp/profiling
 
-Run a load test (*for example*):
+Run some request on the server (*for example*):
 
 ::
 
-    cd loadtests/
-    SERVER_URL=http://localhost:8888 make bench -e
+    http GET http://localhost:8888/v1/
 
 
 Render execution graphs using GraphViz:

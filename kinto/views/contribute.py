@@ -1,3 +1,4 @@
+import colander
 from cornice import Service
 from pyramid.security import NO_PERMISSION_REQUIRED
 
@@ -7,7 +8,18 @@ contribute = Service(name='contribute.json',
                      path='/contribute.json')
 
 
-@contribute.get(permission=NO_PERMISSION_REQUIRED)
+class ContributeResponseSchema(colander.MappingSchema):
+    body = colander.SchemaNode(colander.Mapping(unknown='preserve'))
+
+
+contribute_responses = {
+    '200': ContributeResponseSchema(
+        description="Return open source contributing information.")
+}
+
+
+@contribute.get(permission=NO_PERMISSION_REQUIRED, tags=['Utilities'],
+                operation_id='contribute', response_schemas=contribute_responses)
 def contribute_get(request):
     return {
         "name": "kinto",

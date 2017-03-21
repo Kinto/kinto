@@ -1,15 +1,16 @@
+import logging
 import os
 import warnings
 from collections import defaultdict
 
-import six
-
-from kinto.core import logger
 from kinto.core.storage import (
     StorageBase, exceptions,
     DEFAULT_ID_FIELD, DEFAULT_MODIFIED_FIELD, DEFAULT_DELETED_FIELD)
 from kinto.core.storage.postgresql.client import create_from_config
-from kinto.core.utils import COMPARISON, json
+from kinto.core.utils import COMPARISON, json, is_numeric
+
+
+logger = logging.getLogger(__name__)
 
 
 class Storage(StorageBase):
@@ -67,15 +68,16 @@ class Storage(StorageBase):
 
     """  # NOQA
 
-    schema_version = 14
+    schema_version = 15
 
     def __init__(self, client, max_fetch_size, *args, **kwargs):
-        super(Storage, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.client = client
         self._max_fetch_size = max_fetch_size
 
     def _execute_sql_file(self, filepath):
-        schema = open(filepath).read()
+        with open(filepath) as f:
+            schema = f.read()
         # Since called outside request, force commit.
         with self.client.connect(force_commit=True) as conn:
             conn.execute(schema)
@@ -93,18 +95,18 @@ class Storage(StorageBase):
         if not version:
             filepath = os.path.join(here, 'schema.sql')
             logger.info("Create PostgreSQL storage schema at version "
-                        "%s from %s" % (self.schema_version, filepath))
+                        "{} from {}".format(self.schema_version, filepath))
             # Create full schema.
             self._check_database_encoding()
             self._check_database_timezone()
             # Create full schema.
             if not dry_run:
                 self._execute_sql_file(filepath)
-                logger.info('Created PostgreSQL storage schema '
-                            '(version %s).' % self.schema_version)
+                logger.info('Created PostgreSQL storage schema (version {}).'.format(
+                    self.schema_version))
             return
 
-        logger.info('Detected PostgreSQL storage schema version %s.' % version)
+        logger.info('Detected PostgreSQL storage schema version {}.'.format(version))
         migrations = [(v, v + 1) for v in range(version, self.schema_version)]
         if not migrations:
             logger.info('PostgreSQL storage schema is up-to-date.')
@@ -114,20 +116,19 @@ class Storage(StorageBase):
             # Check order of migrations.
             expected = migration[0]
             current = self._get_installed_version()
-            error_msg = "Expected version %s. Found version %s."
+            error_msg = "Expected version {}. Found version {}."
             if not dry_run and expected != current:
-                raise AssertionError(error_msg % (expected, current))
+                raise AssertionError(error_msg.format(expected, current))
 
             logger.info('Migrate PostgreSQL storage schema from'
-                        ' version %s to %s.' % migration)
-            filename = 'migration_%03d_%03d.sql' % migration
+                        ' version {} to {}.'.format(*migration))
+            filename = 'migration_{0:03d}_{1:03d}.sql'.format(*migration)
             filepath = os.path.join(here, 'migrations', filename)
-            logger.info("Execute PostgreSQL storage migration"
-                        " from %s" % filepath)
+            logger.info("Execute PostgreSQL storage migration from {}".format(filepath))
             if not dry_run:
                 self._execute_sql_file(filepath)
-        logger.info("PostgreSQL storage schema migration " +
-                    ("simulated." if dry_run else "done."))
+        logger.info("PostgreSQL storage schema migration {}".format(
+            "simulated." if dry_run else "done."))
 
     def _check_database_timezone(self):
         # Make sure database has UTC timezone.
@@ -137,7 +138,7 @@ class Storage(StorageBase):
             record = result.fetchone()
         timezone = record['timezone'].upper()
         if timezone != 'UTC':  # pragma: no cover
-            msg = 'Database timezone is not UTC (%s)' % timezone
+            msg = 'Database timezone is not UTC ({})'.format(timezone)
             warnings.warn(msg)
             logger.warning(msg)
 
@@ -153,7 +154,7 @@ class Storage(StorageBase):
             record = result.fetchone()
         encoding = record['encoding'].lower()
         if encoding != 'utf8':  # pragma: no cover
-            raise AssertionError('Unexpected database encoding %s' % encoding)
+            raise AssertionError('Unexpected database encoding {}'.format(encoding))
 
     def _get_installed_version(self):
         """Return current version of schema or None if not any found.
@@ -182,8 +183,8 @@ class Storage(StorageBase):
                 result = conn.execute(query)
                 was_flushed = int(result.fetchone()[0]) == 0
                 if was_flushed:
-                    error_msg = 'Missing schema history: consider version %s.'
-                    logger.warning(error_msg % self.schema_version)
+                    error_msg = 'Missing schema history: consider version {}.'
+                    logger.warning(error_msg.format(self.schema_version))
                     return self.schema_version
 
                 # In the first versions of Cliquet, there was no migration.
@@ -217,13 +218,15 @@ class Storage(StorageBase):
     def create(self, collection_id, parent_id, record, id_generator=None,
                id_field=DEFAULT_ID_FIELD,
                modified_field=DEFAULT_MODIFIED_FIELD,
-               auth=None):
+               auth=None, ignore_conflict=False):
         id_generator = id_generator or self.id_generator
-        record = record.copy()
+        record = {**record}
         if id_field in record:
             # Raise unicity error if record with same id already exists.
             try:
                 existing = self.get(collection_id, parent_id, record[id_field])
+                if ignore_conflict:
+                    return existing
                 raise exceptions.UnicityError(id_field, existing)
             except exceptions.RecordNotFoundError:
                 pass
@@ -231,7 +234,7 @@ class Storage(StorageBase):
             record[id_field] = id_generator()
 
         # Remove redundancy in data field
-        query_record = record.copy()
+        query_record = {**record}
         query_record.pop(id_field, None)
         query_record.pop(modified_field, None)
 
@@ -246,15 +249,28 @@ class Storage(StorageBase):
         VALUES (:object_id, :parent_id,
                 :collection_id, (:data)::JSONB,
                 from_epoch(:last_modified))
+        %(on_conflict)s
         RETURNING id, as_epoch(last_modified) AS last_modified;
         """
+
+        safe_holders = {"on_conflict": ""}
+
+        if ignore_conflict:
+            # We use DO UPDATE so that the RETURNING clause works
+            # but we don't update anything and keep the previous
+            # last_modified value already stored.
+            safe_holders["on_conflict"] = """
+            ON CONFLICT (id, parent_id, collection_id) DO UPDATE
+            SET last_modified = EXCLUDED.last_modified
+            """
+
         placeholders = dict(object_id=record[id_field],
                             parent_id=parent_id,
                             collection_id=collection_id,
                             last_modified=record.get(modified_field),
                             data=json.dumps(query_record))
         with self.client.connect() as conn:
-            result = conn.execute(query, placeholders)
+            result = conn.execute(query % safe_holders, placeholders)
             inserted = result.fetchone()
 
         record[modified_field] = inserted['last_modified']
@@ -292,7 +308,7 @@ class Storage(StorageBase):
                auth=None):
 
         # Remove redundancy in data field
-        query_record = record.copy()
+        query_record = {**record}
         query_record.pop(id_field, None)
         query_record.pop(modified_field, None)
 
@@ -324,8 +340,7 @@ class Storage(StorageBase):
                             last_modified=record.get(modified_field),
                             data=json.dumps(query_record))
 
-        record = record.copy()
-        record[id_field] = object_id
+        record = {**record, id_field: object_id}
 
         with self.client.connect() as conn:
             # Create or update ?
@@ -392,6 +407,7 @@ class Storage(StorageBase):
         return record
 
     def delete_all(self, collection_id, parent_id, filters=None,
+                   sorting=None, pagination_rules=None, limit=None,
                    id_field=DEFAULT_ID_FIELD, with_deleted=True,
                    modified_field=DEFAULT_MODIFIED_FIELD,
                    deleted_field=DEFAULT_DELETED_FIELD,
@@ -401,9 +417,14 @@ class Storage(StorageBase):
             WITH deleted_records AS (
                 DELETE
                 FROM records
-                WHERE %(parent_id_filter)s
-                      %(collection_id_filter)s
-                      %(conditions_filter)s
+                WHERE id IN (SELECT id
+                             FROM records
+                             WHERE {parent_id_filter}
+                                   {collection_id_filter}
+                                   {conditions_filter}
+                                   {pagination_rules}
+                             {sorting}
+                             {pagination_limit})
                 RETURNING id, parent_id, collection_id
             )
             INSERT INTO deleted (id, parent_id, collection_id)
@@ -415,9 +436,14 @@ class Storage(StorageBase):
             query = """
             DELETE
             FROM records
-            WHERE %(parent_id_filter)s
-                  %(collection_id_filter)s
-                  %(conditions_filter)s
+            WHERE id IN (SELECT id
+                         FROM records
+                         WHERE {parent_id_filter}
+                               {collection_id_filter}
+                               {conditions_filter}
+                               {pagination_rules}
+                         {sorting}
+                         {pagination_limit})
             RETURNING id, as_epoch(last_modified) AS last_modified;
             """
 
@@ -426,11 +452,11 @@ class Storage(StorageBase):
         placeholders = dict(parent_id=parent_id,
                             collection_id=collection_id)
         # Safe strings
-        safeholders = defaultdict(six.text_type)
+        safeholders = defaultdict(str)
         # Handle parent_id as a regex only if it contains *
         if '*' in parent_id:
-            safeholders['parent_id_filter'] = 'parent_id ~ :parent_id'
-            placeholders['parent_id'] = "^%s$" % parent_id.replace('*', '.*')
+            safeholders['parent_id_filter'] = 'parent_id LIKE :parent_id'
+            placeholders['parent_id'] = parent_id.replace('*', '%')
         else:
             safeholders['parent_id_filter'] = 'parent_id = :parent_id'
         # If collection is None, remove it from query.
@@ -443,11 +469,27 @@ class Storage(StorageBase):
             safe_sql, holders = self._format_conditions(filters,
                                                         id_field,
                                                         modified_field)
-            safeholders['conditions_filter'] = 'AND %s' % safe_sql
+            safeholders['conditions_filter'] = 'AND {}'.format(safe_sql)
             placeholders.update(**holders)
 
+        if sorting:
+            sql, holders = self._format_sorting(sorting, id_field,
+                                                modified_field)
+            safeholders['sorting'] = sql
+            placeholders.update(**holders)
+
+        if pagination_rules:
+            sql, holders = self._format_pagination(pagination_rules, id_field,
+                                                   modified_field)
+            safeholders['pagination_rules'] = 'AND {}'.format(sql)
+            placeholders.update(**holders)
+
+        if limit:
+            # We validate the limit value in the resource class as integer.
+            safeholders['pagination_limit'] = 'LIMIT {}'.format(limit)
+
         with self.client.connect() as conn:
-            result = conn.execute(query % safeholders, placeholders)
+            result = conn.execute(query.format_map(safeholders), placeholders)
             deleted = result.fetchmany(self._max_fetch_size)
 
         records = []
@@ -467,20 +509,20 @@ class Storage(StorageBase):
         query = """
         DELETE
         FROM deleted
-        WHERE %(parent_id_filter)s
-              %(collection_id_filter)s
-              %(conditions_filter)s;
+        WHERE {parent_id_filter}
+              {collection_id_filter}
+              {conditions_filter};
         """
         id_field = id_field or self.id_field
         modified_field = modified_field or self.modified_field
         placeholders = dict(parent_id=parent_id,
                             collection_id=collection_id)
         # Safe strings
-        safeholders = defaultdict(six.text_type)
+        safeholders = defaultdict(str)
         # Handle parent_id as a regex only if it contains *
         if '*' in parent_id:
-            safeholders['parent_id_filter'] = 'parent_id ~ :parent_id'
-            placeholders['parent_id'] = "^%s$" % parent_id.replace('*', '.*')
+            safeholders['parent_id_filter'] = 'parent_id LIKE :parent_id'
+            placeholders['parent_id'] = parent_id.replace('*', '%')
         else:
             safeholders['parent_id_filter'] = 'parent_id = :parent_id'
         # If collection is None, remove it from query.
@@ -495,7 +537,7 @@ class Storage(StorageBase):
             placeholders['before'] = before
 
         with self.client.connect() as conn:
-            result = conn.execute(query % safeholders, placeholders)
+            result = conn.execute(query.format_map(safeholders), placeholders)
 
         return result.rowcount
 
@@ -509,17 +551,17 @@ class Storage(StorageBase):
         WITH total_filtered AS (
             SELECT COUNT(id) AS count
               FROM records
-             WHERE %(parent_id_filter)s
+             WHERE {parent_id_filter}
                AND collection_id = :collection_id
-               %(conditions_filter)s
+               {conditions_filter}
         ),
         collection_filtered AS (
             SELECT id, last_modified, data
               FROM records
-             WHERE %(parent_id_filter)s
+             WHERE {parent_id_filter}
                AND collection_id = :collection_id
-               %(conditions_filter)s
-             LIMIT %(max_fetch_size)s
+               {conditions_filter}
+             LIMIT {max_fetch_size}
         ),
         fake_deleted AS (
             SELECT (:deleted_field)::JSONB AS data
@@ -527,10 +569,10 @@ class Storage(StorageBase):
         filtered_deleted AS (
             SELECT id, last_modified, fake_deleted.data AS data
               FROM deleted, fake_deleted
-             WHERE %(parent_id_filter)s
+             WHERE {parent_id_filter}
                AND collection_id = :collection_id
-               %(conditions_filter)s
-               %(deleted_limit)s
+               {conditions_filter}
+               {deleted_limit}
         ),
         all_records AS (
             SELECT * FROM filtered_deleted
@@ -540,14 +582,14 @@ class Storage(StorageBase):
         paginated_records AS (
             SELECT DISTINCT id
               FROM all_records
-              %(pagination_rules)s
+              {pagination_rules}
         )
         SELECT total_filtered.count AS count_total,
                a.id, as_epoch(a.last_modified) AS last_modified, a.data
           FROM paginated_records AS p JOIN all_records AS a ON (a.id = p.id),
                total_filtered
-          %(sorting)s
-          %(pagination_limit)s;
+          {sorting}
+          {pagination_limit};
         """
         deleted_field = json.dumps(dict([(deleted_field, True)]))
 
@@ -557,13 +599,13 @@ class Storage(StorageBase):
                             deleted_field=deleted_field)
 
         # Safe strings
-        safeholders = defaultdict(six.text_type)
+        safeholders = defaultdict(str)
         safeholders['max_fetch_size'] = self._max_fetch_size
 
         # Handle parent_id as a regex only if it contains *
         if '*' in parent_id:
-            safeholders['parent_id_filter'] = 'parent_id ~ :parent_id'
-            placeholders['parent_id'] = "^%s$" % parent_id.replace('*', '.*')
+            safeholders['parent_id_filter'] = 'parent_id LIKE :parent_id'
+            placeholders['parent_id'] = parent_id.replace('*', '%')
         else:
             safeholders['parent_id_filter'] = 'parent_id = :parent_id'
 
@@ -571,7 +613,7 @@ class Storage(StorageBase):
             safe_sql, holders = self._format_conditions(filters,
                                                         id_field,
                                                         modified_field)
-            safeholders['conditions_filter'] = 'AND %s' % safe_sql
+            safeholders['conditions_filter'] = 'AND {}'.format(safe_sql)
             placeholders.update(**holders)
 
         if not include_deleted:
@@ -586,15 +628,15 @@ class Storage(StorageBase):
         if pagination_rules:
             sql, holders = self._format_pagination(pagination_rules, id_field,
                                                    modified_field)
-            safeholders['pagination_rules'] = 'WHERE %s' % sql
+            safeholders['pagination_rules'] = 'WHERE {}'.format(sql)
             placeholders.update(**holders)
 
         if limit:
             # We validate the limit value in the resource class as integer.
-            safeholders['pagination_limit'] = 'LIMIT %s' % limit
+            safeholders['pagination_limit'] = 'LIMIT {}'.format(limit)
 
         with self.client.connect(readonly=True) as conn:
-            result = conn.execute(query % safeholders, placeholders)
+            result = conn.execute(query.format_map(safeholders), placeholders)
             retrieved = result.fetchmany(self._max_fetch_size)
 
         if not len(retrieved):
@@ -651,40 +693,45 @@ class Storage(StorageBase):
                 subfields = filtr.field.split('.')
                 for j, subfield in enumerate(subfields):
                     # Safely escape field name
-                    field_holder = '%s_field_%s_%s' % (prefix, i, j)
+                    field_holder = '{}_field_{}_{}'.format(prefix, i, j)
                     holders[field_holder] = subfield
                     # Use ->> to convert the last level to text.
                     column_name += "->>" if j == len(subfields) - 1 else "->"
-                    column_name += ":%s" % field_holder
+                    column_name += ":{}".format(field_holder)
 
                 # If field is missing, we default to ''.
-                sql_field = "coalesce(%s, '')" % column_name
+                sql_field = "coalesce({}, '')".format(column_name)
                 # Cast when comparing to number (eg. '4' < '12')
-                if isinstance(value, (int, float)) and \
-                   value not in (True, False):
-                    sql_field = "(%s)::numeric" % column_name
+                try:
+                    if is_numeric(value) or all([is_numeric(v) for v in value]):
+                        sql_field = "({})::numeric".format(column_name)
+                except TypeError:  # not iterable
+                    pass
 
             if filtr.operator not in (COMPARISON.IN, COMPARISON.EXCLUDE):
                 # For the IN operator, let psycopg escape the values list.
                 # Otherwise JSON-ify the native value (e.g. True -> 'true')
-                if not isinstance(filtr.value, six.string_types):
-                    value = json.dumps(filtr.value).strip('"')
+                if not isinstance(value, str):
+                    value = json.dumps(value).strip('"')
             else:
+                # If not all numeric, fallback to string comparison.
+                if not all([is_numeric(v) for v in value]):
+                    value = [str(v) for v in value]
                 value = tuple(value)
                 # WHERE field IN ();  -- Fails with syntax error.
                 if len(value) == 0:
                     value = (None,)
 
             if filtr.operator == COMPARISON.LIKE:
-                value = '%{0}%'.format(value)
+                value = '%{}%'.format(value)
 
             # Safely escape value
-            value_holder = '%s_value_%s' % (prefix, i)
+            value_holder = '{}_value_{}'.format(prefix, i)
             holders[value_holder] = value
 
             sql_operator = operators.setdefault(filtr.operator,
                                                 filtr.operator.value)
-            cond = "%s %s :%s" % (sql_field, sql_operator, value_holder)
+            cond = "{} {} :{}".format(sql_field, sql_operator, value_holder)
             conditions.append(cond)
 
         safe_sql = ' AND '.join(conditions)
@@ -710,7 +757,7 @@ class Storage(StorageBase):
         placeholders = {}
 
         for i, rule in enumerate(pagination_rules):
-            prefix = 'rules_%s' % i
+            prefix = 'rules_{}'.format(i)
             safe_sql, holders = self._format_conditions(rule,
                                                         id_field,
                                                         modified_field,
@@ -718,7 +765,7 @@ class Storage(StorageBase):
             rules.append(safe_sql)
             placeholders.update(**holders)
 
-        safe_sql = ' OR '.join(['(%s)' % r for r in rules])
+        safe_sql = ' OR '.join(['({})'.format(r) for r in rules])
         return safe_sql, placeholders
 
     def _format_sorting(self, sorting, id_field, modified_field):
@@ -746,16 +793,16 @@ class Storage(StorageBase):
                 sql_field = 'data'
                 for j, subfield in enumerate(subfields):
                     # Safely escape field name
-                    field_holder = 'sort_field_%s_%s' % (i, j)
+                    field_holder = 'sort_field_{}_{}'.format(i, j)
                     holders[field_holder] = subfield
                     # Use ->> to convert the last level to text.
-                    sql_field += '->(:%s)' % field_holder
+                    sql_field += '->(:{})'.format(field_holder)
 
             sql_direction = 'ASC' if sort.direction > 0 else 'DESC'
-            sql_sort = "%s %s" % (sql_field, sql_direction)
+            sql_sort = "{} {}".format(sql_field, sql_direction)
             sorts.append(sql_sort)
 
-        safe_sql = 'ORDER BY %s' % (', '.join(sorts))
+        safe_sql = 'ORDER BY {}'.format(', '.join(sorts))
         return safe_sql, holders
 
 

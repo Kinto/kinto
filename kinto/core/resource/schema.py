@@ -1,7 +1,38 @@
-import colander
-from colander import SchemaNode, String
+import warnings
 
-from kinto.core.utils import strip_whitespace, msec_time
+import colander
+
+from kinto.core.schema import (Any, HeaderField, QueryField, HeaderQuotedInteger,
+                               FieldList, TimeStamp, URL)
+from kinto.core.errors import ErrorSchema
+from kinto.core.utils import native_value
+
+POSTGRESQL_MAX_INTEGER_VALUE = 2**63
+
+positive_big_integer = colander.Range(min=0, max=POSTGRESQL_MAX_INTEGER_VALUE)
+
+
+class TimeStamp(TimeStamp):
+    """This schema is deprecated, you shoud use `kinto.core.schema.TimeStamp` instead."""
+
+    def __init__(self, *args, **kwargs):
+        message = ("`kinto.core.resource.schema.TimeStamp` is deprecated, "
+                   "use `kinto.core.schema.TimeStamp` instead.")
+        warnings.warn(message, DeprecationWarning)
+        super().__init__(*args, **kwargs)
+
+
+class URL(URL):
+    """This schema is deprecated, you shoud use `kinto.core.schema.URL` instead."""
+
+    def __init__(self, *args, **kwargs):
+        message = ("`kinto.core.resource.schema.URL` is deprecated, "
+                   "use `kinto.core.schema.URL` instead.")
+        warnings.warn(message, DeprecationWarning)
+        super().__init__(*args, **kwargs)
+
+
+# Resource related schemas
 
 
 class ResourceSchema(colander.MappingSchema):
@@ -73,34 +104,39 @@ class PermissionsSchema(colander.SchemaNode):
         }
 
     """
+
     def __init__(self, *args, **kwargs):
         self.known_perms = kwargs.pop('permissions', tuple())
-        super(PermissionsSchema, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
-    @staticmethod
-    def schema_type():
-        return colander.Mapping(unknown='preserve')
+        for perm in self.known_perms:
+            self[perm] = self._get_node_principals(perm)
+
+    def schema_type(self):
+        if self.known_perms:
+            return colander.Mapping(unknown='raise')
+        else:
+            return colander.Mapping(unknown='preserve')
 
     def deserialize(self, cstruct=colander.null):
-        # Start by deserializing a simple mapping.
-        permissions = super(PermissionsSchema, self).deserialize(cstruct)
 
-        # In case it is optional in parent schema.
-        if permissions in (colander.null, colander.drop):
-            return permissions
+        # If permissions are not a mapping (e.g null or invalid), try deserializing
+        if not isinstance(cstruct, dict):
+            return super().deserialize(cstruct)
 
-        # Remove potential extra children from previous deserialization.
-        self.children = []
-        for perm in permissions.keys():
-            # If know permissions is limited, then validate inline.
-            if self.known_perms:
+        # If permissions are listed, check fields and produce fancy error messages
+        if self.known_perms:
+            for perm in cstruct:
                 colander.OneOf(choices=self.known_perms)(self, perm)
+            return super().deserialize(cstruct)
 
-            # Add a String list child node with the name of ``perm``.
-            self.add(self._get_node_principals(perm))
+        # Else deserialize the fields that are not on the schema
+        permissions = {}
+        perm_schema = colander.SequenceSchema(colander.SchemaNode(colander.String()))
+        for perm, principals in cstruct.items():
+            permissions[perm] = perm_schema.deserialize(principals)
 
-        # End up by deserializing a mapping whose keys are now known.
-        return super(PermissionsSchema, self).deserialize(permissions)
+        return permissions
 
     def _get_node_principals(self, perm):
         principal = colander.SchemaNode(colander.String())
@@ -108,45 +144,323 @@ class PermissionsSchema(colander.SchemaNode):
                                    missing=colander.drop)
 
 
-class TimeStamp(colander.SchemaNode):
-    """Basic integer schema field that can be set to current server timestamp
-    in milliseconds if no value is provided.
+# Header schemas
 
-    .. code-block:: python
 
-        class Book(ResourceSchema):
-            added_on = TimeStamp()
-            read_on = TimeStamp(auto_now=False, missing=-1)
+class HeaderSchema(colander.MappingSchema):
+    """Base schema used for validating and deserializing request headers. """
+
+    missing = colander.drop
+
+    if_match = HeaderQuotedInteger(name='If-Match')
+    if_none_match = HeaderQuotedInteger(name='If-None-Match')
+
+    @staticmethod
+    def schema_type():
+        return colander.Mapping(unknown='preserve')
+
+
+class PatchHeaderSchema(HeaderSchema):
+    """Header schema used with PATCH requests."""
+
+    def response_behavior_validator():
+        return colander.OneOf(['full', 'light', 'diff'])
+
+    response_behaviour = HeaderField(colander.String(), name='Response-Behavior',
+                                     validator=response_behavior_validator())
+
+
+# Querystring schemas
+
+
+class QuerySchema(colander.MappingSchema):
     """
-    schema_type = colander.Integer
+    Schema used for validating and deserializing querystrings. It will include
+    and try to guess the type of unknown fields (field filters) on deserialization.
+    """
+    missing = colander.drop
 
-    title = 'Epoch timestamp'
-    """Default field title."""
-
-    auto_now = True
-    """Set to current server timestamp (*milliseconds*) if not provided."""
-
-    missing = None
-    """Default field value if not provided in record."""
+    @staticmethod
+    def schema_type():
+        return colander.Mapping(unknown='ignore')
 
     def deserialize(self, cstruct=colander.null):
-        if cstruct is colander.null and self.auto_now:
-            cstruct = msec_time()
-        return super(TimeStamp, self).deserialize(cstruct)
+        """
+        Deserialize and validate the QuerySchema fields and try to deserialize and
+        get the native value of additional filds (field filters) that may be present
+        on the cstruct.
+
+        e.g:: ?exclude_id=a,b&deleted=true -> {'exclude_id': ['a', 'b'], deleted: True}
+        """
+        values = {}
+
+        schema_values = super().deserialize(cstruct)
+        if schema_values is colander.drop:
+            return schema_values
+
+        # Deserialize querystring field filters (see docstring e.g)
+        for k, v in cstruct.items():
+            # Deserialize lists used on in_ and exclude_ filters
+            if k.startswith('in_') or k.startswith('exclude_'):
+                as_list = FieldList().deserialize(v)
+                values[k] = [native_value(v) for v in as_list]
+            else:
+                values[k] = native_value(v)
+
+        values.update(schema_values)
+        return values
 
 
-class URL(SchemaNode):
-    """String field representing a URL, with max length of 2048.
-    This is basically a shortcut for string field with
-    `~colander:colander.url`.
+class CollectionQuerySchema(QuerySchema):
+    """Querystring schema used with collections."""
 
-    .. code-block:: python
+    _limit = QueryField(colander.Integer(), validator=positive_big_integer)
+    _sort = FieldList()
+    _token = QueryField(colander.String())
+    _since = QueryField(colander.Integer(), validator=positive_big_integer)
+    _to = QueryField(colander.Integer(), validator=positive_big_integer)
+    _before = QueryField(colander.Integer(), validator=positive_big_integer)
+    id = QueryField(colander.String())
+    last_modified = QueryField(colander.Integer(), validator=positive_big_integer)
 
-        class BookmarkSchema(ResourceSchema):
-            url = URL()
-    """
-    schema_type = String
-    validator = colander.All(colander.url, colander.Length(min=1, max=2048))
 
-    def preparer(self, appstruct):
-        return strip_whitespace(appstruct)
+class RecordGetQuerySchema(QuerySchema):
+    """Querystring schema for GET record requests."""
+
+    _fields = FieldList()
+
+
+class CollectionGetQuerySchema(CollectionQuerySchema):
+    """Querystring schema for GET collection requests."""
+
+    _fields = FieldList()
+
+
+# Body Schemas
+
+
+class RecordSchema(colander.MappingSchema):
+
+    @colander.deferred
+    def data(node, kwargs):
+        data = kwargs.get('data')
+        if data:
+            # Check if empty record is allowed.
+            # (e.g every schema fields have defaults)
+            try:
+                data.deserialize({})
+            except colander.Invalid:
+                pass
+            else:
+                data.default = {}
+                data.missing = colander.drop
+        return data
+
+    @colander.deferred
+    def permissions(node, kwargs):
+        def get_perms(node, kwargs):
+            return kwargs.get('permissions')
+        # Set if node is provided, else keep deferred. This allows binding the body
+        # on Resource first and bind permissions later if using SharableResource.
+        return get_perms(node, kwargs) or colander.deferred(get_perms)
+
+    @staticmethod
+    def schema_type():
+        return colander.Mapping(unknown='raise')
+
+
+class JsonPatchOperationSchema(colander.MappingSchema):
+    """Single JSON Patch Operation."""
+
+    def op_validator():
+        op_values = ['test', 'add', 'remove', 'replace', 'move', 'copy']
+        return colander.OneOf(op_values)
+
+    def path_validator():
+        return colander.Regex('(/\w*)+')
+
+    op = colander.SchemaNode(colander.String(), validator=op_validator())
+    path = colander.SchemaNode(colander.String(), validator=path_validator())
+    from_ = colander.SchemaNode(colander.String(), name='from',
+                                validator=path_validator(), missing=colander.drop)
+    value = colander.SchemaNode(Any(), missing=colander.drop)
+
+    @staticmethod
+    def schema_type():
+        return colander.Mapping(unknown='raise')
+
+
+class JsonPatchBodySchema(colander.SequenceSchema):
+    """Body used with JSON Patch (application/json-patch+json) as in RFC 6902."""
+
+    operations = JsonPatchOperationSchema(missing=colander.drop)
+
+
+# Request schemas
+
+
+class RequestSchema(colander.MappingSchema):
+    """Base schema for kinto requests."""
+
+    @colander.deferred
+    def header(node, kwargs):
+        return kwargs.get('header')
+
+    @colander.deferred
+    def querystring(node, kwargs):
+        return kwargs.get('querystring')
+
+    def after_bind(self, node, kw):
+        # Set default bindings
+        if not self.get('header'):
+            self['header'] = HeaderSchema()
+        if not self.get('querystring'):
+            self['querystring'] = QuerySchema()
+
+
+class PayloadRequestSchema(RequestSchema):
+    """Base schema for methods that use a JSON request body."""
+
+    @colander.deferred
+    def body(node, kwargs):
+        def get_body(node, kwargs):
+            return kwargs.get('body')
+        # Set if node is provided, else keep deferred (and allow bindind later)
+        return get_body(node, kwargs) or colander.deferred(get_body)
+
+
+class JsonPatchRequestSchema(RequestSchema):
+    """JSON Patch (application/json-patch+json) request schema."""
+
+    body = JsonPatchBodySchema()
+    querystring = QuerySchema()
+    header = PatchHeaderSchema()
+
+
+# Response schemas
+
+
+class ResponseHeaderSchema(colander.MappingSchema):
+    """Kinto API custom response headers."""
+
+    etag = HeaderQuotedInteger(name='Etag')
+    last_modified = colander.SchemaNode(colander.String(), name='Last-Modified')
+
+
+class ErrorResponseSchema(colander.MappingSchema):
+    """Response schema used on 4xx and 5xx errors."""
+    body = ErrorSchema()
+
+
+class NotModifiedResponseSchema(colander.MappingSchema):
+    """Response schema used on 304 Not Modified responses."""
+    header = ResponseHeaderSchema()
+
+
+class RecordResponseSchema(colander.MappingSchema):
+    """Response schema used with sigle resource endpoints."""
+    header = ResponseHeaderSchema()
+
+    @colander.deferred
+    def body(node, kwargs):
+        return kwargs.get('record')
+
+
+class CollectionResponseSchema(colander.MappingSchema):
+    """Response schema used with plural endpoints."""
+    header = ResponseHeaderSchema()
+
+    @colander.deferred
+    def body(node, kwargs):
+        resource = kwargs.get('record')['data']
+        collection = colander.MappingSchema()
+        collection['data'] = colander.SequenceSchema(resource, missing=[])
+        return collection
+
+
+class ResourceReponses:
+    """Class that wraps and handles Resource responses."""
+
+    default_schemas = {
+        '400': ErrorResponseSchema(description="The request is invalid."),
+        '406': ErrorResponseSchema(
+            description="The client doesn't accept supported responses Content-Type."),
+        '412': ErrorResponseSchema(
+            description="Record was changed or deleted since value in `If-Match` header."),
+        'default': ErrorResponseSchema(description="Unexpected error."),
+
+    }
+    default_record_schemas = {
+        '200': RecordResponseSchema(description="Return the target object.")
+    }
+    default_collection_schemas = {
+        '200': CollectionResponseSchema(description="Return a list of matching objects.")
+    }
+    default_get_schemas = {
+        '304': NotModifiedResponseSchema(
+            description="Reponse has not changed since value in If-None-Match header")
+    }
+    default_post_schemas = {
+        '200': RecordResponseSchema(description="Return an existing object."),
+        '201': RecordResponseSchema(description="Return a created object."),
+        '415': ErrorResponseSchema(
+            description="The client request was not sent with a correct Content-Type.")
+    }
+    default_put_schemas = {
+        '201': RecordResponseSchema(description="Return created object."),
+        '415': ErrorResponseSchema(
+            description="The client request was not sent with a correct Content-Type.")
+    }
+    default_patch_schemas = {
+        '415': ErrorResponseSchema(
+            description="The client request was not sent with a correct Content-Type.")
+    }
+    default_delete_schemas = {
+    }
+    record_get_schemas = {
+        '404': ErrorResponseSchema(description="The object does not exist or was deleted."),
+    }
+    record_patch_schemas = {
+        '404': ErrorResponseSchema(description="The object does not exist or was deleted."),
+    }
+    record_delete_schemas = {
+        '404': ErrorResponseSchema(
+            description="The object does not exist or was already deleted."),
+    }
+
+    def get_and_bind(self, endpoint_type, method, **kwargs):
+        """Wrap resource colander response schemas for an endpoint and return a dict
+        of status codes mapping cloned and binded responses."""
+
+        responses = self.default_schemas.copy()
+        type_responses = getattr(self, 'default_{}_schemas'.format(endpoint_type))
+        responses.update(**type_responses)
+
+        verb_responses = 'default_{}_schemas'.format(method.lower())
+        method_args = getattr(self, verb_responses, {})
+        responses.update(**method_args)
+
+        method_responses = '{}_{}_schemas'.format(endpoint_type, method.lower())
+        endpoint_args = getattr(self, method_responses, {})
+        responses.update(**endpoint_args)
+
+        # Bind and clone schemas into a new dict
+        bound = {code: resp.bind(**kwargs) for code, resp in responses.items()}
+
+        return bound
+
+
+class ShareableResourseResponses(ResourceReponses):
+    """Class that wraps and handles SharableResource responses."""
+
+    def __init__(self, **kwargs):
+
+        # Add permission related responses to defaults
+        self.default_schemas = {
+            '401': ErrorResponseSchema(
+                description="The request is missing authentication headers."),
+            '403': ErrorResponseSchema(
+                description=("The user is not allowed to perform the operation, "
+                             "or the resource is not accessible.")),
+            **self.default_schemas
+        }

@@ -3,10 +3,11 @@ import operator
 from collections import defaultdict
 
 from kinto.core import utils
+from kinto.core.decorators import synchronized
 from kinto.core.storage import (
     StorageBase, exceptions,
     DEFAULT_ID_FIELD, DEFAULT_MODIFIED_FIELD, DEFAULT_DELETED_FIELD)
-from kinto.core.utils import COMPARISON, synchronized
+from kinto.core.utils import (COMPARISON, find_nested_value)
 
 
 def tree():
@@ -73,7 +74,7 @@ class Storage(MemoryBasedStorage):
         kinto.storage_backend = kinto.core.storage.memory
     """
     def __init__(self, *args, **kwargs):
-        super(Storage, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.flush()
 
     def flush(self, auth=None):
@@ -131,13 +132,15 @@ class Storage(MemoryBasedStorage):
     @synchronized
     def create(self, collection_id, parent_id, record, id_generator=None,
                id_field=DEFAULT_ID_FIELD,
-               modified_field=DEFAULT_MODIFIED_FIELD, auth=None):
+               modified_field=DEFAULT_MODIFIED_FIELD, auth=None, ignore_conflict=False):
         id_generator = id_generator or self.id_generator
-        record = record.copy()
+        record = {**record}
         if id_field in record:
             # Raise unicity error if record with same id already exists.
             try:
                 existing = self.get(collection_id, parent_id, record[id_field])
+                if ignore_conflict:
+                    return existing
                 raise exceptions.UnicityError(id_field, existing)
             except exceptions.RecordNotFoundError:
                 pass
@@ -159,14 +162,14 @@ class Storage(MemoryBasedStorage):
         collection = self._store[parent_id][collection_id]
         if object_id not in collection:
             raise exceptions.RecordNotFoundError(object_id)
-        return collection[object_id].copy()
+        return {**collection[object_id]}
 
     @synchronized
     def update(self, collection_id, parent_id, object_id, record,
                id_field=DEFAULT_ID_FIELD,
                modified_field=DEFAULT_MODIFIED_FIELD,
                auth=None):
-        record = record.copy()
+        record = {**record}
         record[id_field] = object_id
 
         self.set_record_timestamp(collection_id, parent_id, record,
@@ -194,7 +197,7 @@ class Storage(MemoryBasedStorage):
 
         # Add to deleted items, remove from store.
         if with_deleted:
-            deleted = existing.copy()
+            deleted = {**existing}
             self._cemetery[parent_id][collection_id][object_id] = deleted
         self._store[parent_id][collection_id].pop(object_id)
         return existing
@@ -248,6 +251,7 @@ class Storage(MemoryBasedStorage):
 
     @synchronized
     def delete_all(self, collection_id, parent_id, filters=None,
+                   sorting=None, pagination_rules=None, limit=None,
                    id_field=DEFAULT_ID_FIELD, with_deleted=True,
                    modified_field=DEFAULT_MODIFIED_FIELD,
                    deleted_field=DEFAULT_DELETED_FIELD,
@@ -255,7 +259,8 @@ class Storage(MemoryBasedStorage):
         records = _get_objects_by_parent_id(self._store, parent_id, collection_id, with_meta=True)
         records, count = self.extract_record_set(records=records,
                                                  filters=filters,
-                                                 sorting=None,
+                                                 sorting=sorting,
+                                                 pagination_rules=pagination_rules, limit=limit,
                                                  id_field=id_field,
                                                  deleted_field=deleted_field)
 
@@ -323,12 +328,7 @@ def apply_filters(records, filters):
                 if isinstance(right, int):
                     right = str(right)
 
-            left = record
-            subfields = f.field.split('.')
-            for subfield in subfields:
-                if not isinstance(left, dict):
-                    break
-                left = left.get(subfield)
+            left = find_nested_value(record, f.field)
 
             if f.operator in (COMPARISON.IN, COMPARISON.EXCLUDE):
                 right, left = left, right
@@ -359,14 +359,7 @@ def apply_sorting(records, sorting):
     first_record = result[0]
 
     def column(first, record, name):
-        empty = first.get(name, float('inf'))
-        subfields = name.split('.')
-        value = record
-        for subfield in subfields:
-            value = value.get(subfield, empty)
-            if not isinstance(value, dict):
-                break
-        return value
+        return find_nested_value(record, name, default=float('inf'))
 
     for sort in reversed(sorting):
         result = sorted(result,
@@ -378,7 +371,7 @@ def apply_sorting(records, sorting):
 
 def _get_objects_by_parent_id(store, parent_id, collection_id, with_meta=False):
     if parent_id is not None:
-        parent_id_match = re.compile("^%s$" % parent_id.replace('*', '.*'))
+        parent_id_match = re.compile("^{}$".format(parent_id.replace('*', '.*')))
         by_parent_id = {pid: collections
                         for pid, collections in store.items()
                         if parent_id_match.match(pid)}

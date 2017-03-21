@@ -1,6 +1,5 @@
 import uuid
 
-import six
 from pyramid import httpexceptions
 from pyramid.settings import asbool
 from pyramid.security import NO_PERMISSION_REQUIRED, Authenticated
@@ -9,7 +8,6 @@ from kinto.core.errors import raise_invalid
 from kinto.core.events import ACTIONS
 from kinto.core.utils import (
     build_request, reapply_cors, hmac_digest, instance_uri, view_lookup)
-from kinto.core.storage import exceptions as storage_exceptions
 
 from kinto.authorization import RouteFactory
 from kinto.views.buckets import Bucket
@@ -97,19 +95,16 @@ def resource_create_object(request, resource_cls, uri):
     if not resource.model.id_generator.match(obj_id):
         error_details = {
             'location': 'path',
-            'description': "Invalid %s id" % resource_name
+            'description': "Invalid {} id".format(resource_name)
         }
         raise_invalid(resource.request, **error_details)
 
     data = {'id': obj_id}
-    try:
-        obj = resource.model.create_record(data)
-        # Since the current request is not a resource (but a straight Service),
-        # we simulate a request on a resource.
-        # This will be used in the resource event payload.
-        resource.postprocess(data, action=ACTIONS.CREATE)
-    except storage_exceptions.UnicityError as e:
-        obj = e.record
+    obj = resource.model.create_record(data, ignore_conflict=True)
+    # Since the current request is not a resource (but a straight Service),
+    # we simulate a request on a resource.
+    # This will be used in the resource event payload.
+    resource.postprocess(obj, action=ACTIONS.CREATE)
     return obj
 
 
@@ -139,7 +134,7 @@ def default_bucket(request):
     # Make sure the collection exists
     create_collection(request, bucket_id)
 
-    path = request.path.replace('/buckets/default', '/buckets/%s' % bucket_id)
+    path = request.path.replace('/buckets/default', '/buckets/{}'.format(bucket_id))
     querystring = request.url[(request.url.index(request.path) +
                                len(request.path)):]
     try:
@@ -147,7 +142,7 @@ def default_bucket(request):
         body = request.json
         body['data']['id'] = body['data']['id'].replace('default', bucket_id)
     except:
-        body = request.body
+        body = request.body or {"data": {}}
     subrequest = build_request(request, {
         'method': request.method,
         'path': path + querystring,
@@ -172,7 +167,7 @@ def default_bucket_id(request):
     secret = settings['userid_hmac_secret']
     # Build the user unguessable bucket_id UUID from its user_id
     digest = hmac_digest(secret, request.prefixed_userid)
-    return six.text_type(uuid.UUID(digest[:32]))
+    return str(uuid.UUID(digest[:32]))
 
 
 def get_user_info(request):

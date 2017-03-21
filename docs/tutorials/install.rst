@@ -36,7 +36,7 @@ got a few different options:
 .. |scalingo-button| image:: ../images/scalingo-button.svg
    :target: https://my.scalingo.com/deploy?source=https://github.com/Kinto/kinto-scalingo
    :alt: Deploy on Scalingo
-   
+
 .. |alwaysdata-button| image:: ../images/alwaysdata-button.svg
    :target: https://kinto.github.io/kinto-alwaysdata/
    :alt: Deploy on Alwaysdata
@@ -274,6 +274,15 @@ With `make`, it is also possible to specify arguments from environment variables
 
 
 See our :ref:`dedicated section about contributing <how-to-contribute>`!
+
+
+Kinto Admin
+-----------
+
+In order to run a local :github:`Kinto Admin UI <Kinto/kinto-admin>` from a cloned
+repo, the ``npm`` command must be available in order to build it with ::
+
+    make build-kinto-admin
 
 
 Go further

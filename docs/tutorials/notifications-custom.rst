@@ -7,37 +7,33 @@ Kinto is able to execute some custom code when a particular event occurs.
 For example, when a record is created or updated in a particular collection.
 
 Kinto uses the same thread to trigger notifications on events, so any custom
-code that is executed through a notification will block the incoming 
-request until it's done. 
+code that is executed through a notification will block the incoming
+request until it's done.
 
-This design is useful when we want to ensure that something is done on the 
-server before we send back the result to the client. But sometimes it's 
-preferrable to run the notifications asynchronously.
+This design is useful when we want to ensure that something is done on the
+server before we send back the result to the client, and within the database
+transaction. But it's usually preferrable to run the notifications asynchronously.
 
 For the latter, the simplest way to run our custom code asynchronously
-is to use separate process workers that are notified via a job queue
+is to use separate process workers that are notified via a job queue.
 
 This tutorial presents the basic steps to run code both ways:
 
 * synchronously in Python;
 * asynchronously using a Redis queue, consumed via any third-party application.
 
-    
+
 
 Run synchronous code
 --------------------
 
-In this example, we will send an email to an administrator every time
-a new bucket is created.
-
-To run this in production, we would rely on a local email server acting as a relay
-in order to avoid bottlenecks. Or use the asynchronous approach otherwise.
+In this example, we will track the creation of new buckets.
 
 
 Implement a listener
 ''''''''''''''''''''
 
-Create a file :file:`kinto_email.py` with the following scaffold:
+Create a file :file:`tracker.py` with the following scaffold:
 
 .. code-block:: python
 
@@ -50,98 +46,58 @@ Create a file :file:`kinto_email.py` with the following scaffold:
     def load_from_config(config, prefix=''):
         return Listener()
 
-Then, we will read the email server configuration and recipients from
-the settings.
-
+Now, every time a new event occurs, we create a record in a tracker collection.
 
 .. code-block:: python
-    :emphasize-lines: 2,5-11,17-26
+    :emphasize-lines: 5-7
 
     from kinto.core.listeners import ListenerBase
-    from pyramid.settings import aslist, asbool
 
     class Listener(ListenerBase):
-        def __init__(self, server, tls, username, password, sender, recipients):
-            self.server = server
-            self.tls = tls
-            self.username = username
-            self.password = password
-            self.sender = sender
-            self.recipients = recipients
-
         def __call__(self, event):
-            print(event.payload)
+            backend = event.request.registry.storage
+            userid = event.request.prefixed_userid
+            backend.create(record={'userid': userid}, collection_id='tracker')
 
     def load_from_config(config, prefix=''):
-        settings = config.get_settings()
+        return Listener()
 
-        server = settings[prefix + 'server']
-        tls = asbool(settings[prefix + 'tls'])
-        username = settings[prefix + 'username']
-        password = settings[prefix + 'password']
-        sender = settings[prefix + 'from']
-        recipients = aslist(settings[prefix + 'recipients'])
-
-        return Listener(server, tls, username, password, sender, recipients)
-
-
-Now, every time a new event occurs, we send an email:
-
+In order to keep advantage of what we've just tracked and show it into the
+response:
 
 .. code-block:: python
-    :emphasize-lines: 1,2,17-32
+    :emphasize-lines: 1-5,13-19,22
 
-    import smtplib
-    from email.mime.text import MIMEText
+    from pyramid.events import NewRequest, NewResponse
 
+    from kinto.core import utils as core_utils
     from kinto.core.listeners import ListenerBase
-    from pyramid.settings import aslist, asbool
+    from kinto.core.storage import Filter
 
     class Listener(ListenerBase):
-        def __init__(self, server, tls, username, password, sender, recipients):
-            self.server = server
-            self.tls = tls
-            self.username = username
-            self.password = password
-            self.sender = sender
-            self.recipients = recipients
-
         def __call__(self, event):
-            subject = "%s %sd" % (event.payload['resource_name'],
-                                  event.payload['action'])
-            text = "User id: %s" % event.request.prefixed_userid
+            backend = event.request.registry.storage
+            userid = event.request.prefixed_userid
+            backend.create(record={'userid': userid}, collection_id='tracker')
 
-            message = MIMEText(text)
-            message['Subject'] = subject
-            message['From'] = self.sender
-            message['To'] = ", ".join(self.recipients)
-
-            server = smtplib.SMTP(self.server)
-            if self.tls:
-                server.starttls()
-            if self.username and self.password:
-                server.login(self.username, self.password)
-            server.sendmail(self.sender, self.recipients, message.as_string())
-            server.quit()
+    def count_created_buckets(event):
+        userid = event.request.prefixed_userid
+        if userid:
+            backend = event.request.registry.storage
+            filters = [Filter('userid', userid, core_utils.COMPARISON.EQ)]
+            _, count = backend.get_all(collection_id='tracker', filters=filters)
+            event.response.headers['Buckets-Created'] = str(count)
 
     def load_from_config(config, prefix=''):
-        settings = config.get_settings()
-
-        server = settings[prefix + 'server']
-        tls = asbool(settings[prefix + 'tls'])
-        username = settings[prefix + 'username']
-        password = settings[prefix + 'password']
-        sender = settings[prefix + 'from']
-        recipients = aslist(settings[prefix + 'recipients'])
-
-        return Listener(server, tls, username, password, sender, recipients)
+        config.add_subscriber(count_created_buckets, NewResponse)
+        return Listener()
 
 
 Add it to Python path
 '''''''''''''''''''''
 
 For the simplicity in this tutorial, we will just alter the ``PYTHONPATH`` system
-environment variable. Specify the path to the folder containing the :file:`kinto_email.py`:
+environment variable. Specify the path to the folder containing the :file:`tracker.py`:
 
 ::
 
@@ -157,7 +113,7 @@ In order to test that it works, simply try to import it from a ``python`` script
     Python 2.7.9 (default, Apr  2 2015, 15:33:21)
     [GCC 4.9.2] on linux2
     Type "help", "copyright", "credits" or "license" for more information.
-    >>> import kinto_email
+    >>> import tracker
     >>>
 
 
@@ -169,15 +125,11 @@ enable a new listener pointing to your python module:
 
 .. code-block:: ini
 
-    kinto.event_listeners = send_email
+    kinto.event_listeners = tracker
 
-    kinto.event_listeners.send_email.use = kinto_email
-    kinto.event_listeners.send_email.server = localhost:1025
-    kinto.event_listeners.send_email.tls = false
-    kinto.event_listeners.send_email.username =
-    kinto.event_listeners.send_email.password =
-    kinto.event_listeners.send_email.from = postmaster@localhost
-    kinto.event_listeners.send_email.recipients = kinto@yopmail.com
+    kinto.event_listeners.tracker.use = tracker
+    kinto.event_listeners.tracker.actions = create
+    kinto.event_listeners.tracker.resources = bucket
 
 Kinto should load the listeners without errors:
 
@@ -186,40 +138,31 @@ Kinto should load the listeners without errors:
 
     $ kinto start
     Starting subprocess with file monitor
-    2016-01-21 16:21:59,941 INFO  [kinto.core.initialization][MainThread] Setting up 'send_email' listener
+    2016-01-21 16:21:59,941 INFO  [kinto.core.initialization][MainThread] Setting up 'tracker' listener
 
 
 Test it
 '''''''
 
-In a separate terminal, run a fake SMTP server on ``localhost:1025``:
-
-::
-
-    $ python -m smtpd -n -c DebuggingServer localhost:1025
-
-Create a record (using `HTTPie <http://httpie.org>`_):
+Create a bucket (using `HTTPie <http://httpie.org>`_):
 
 .. code-block:: shell
 
-    $ echo '{"data": {"note": "kinto"}}' | \
-        http --auth token:alice-token --verbose POST http://localhost:8888/v1/buckets/default/collections/notes/records
+    $ http --auth token:alice-token --verbose PUT http://localhost:8888/v1/buckets/bid1
+    $ http --auth token:alice-token --verbose PUT http://localhost:8888/v1/buckets/bid2
 
-And observe the fake server output:
+Now, every response has a ``Buckets-Created`` header:
 
-::
+.. code-block:: shell
+    :emphasize-lines: 6
 
-    ---------- MESSAGE FOLLOWS ----------
-    Content-Type: text/plain; charset="us-ascii"
-    MIME-Version: 1.0
-    Content-Transfer-Encoding: 7bit
-    Subject: record created
-    From: postmaster@localhost
-    To: kinto@yopmail.com
-    X-Peer: 127.0.0.1
+    $ http --auth token:alice-token --verbose GET http://localhost:8888/v1/
 
-    User id: basicauth:fea1e21d339299506d89e60f048cefd5b424ea641ba48267c35a4ce921439fa4
-    ------------ END MESSAGE ------------
+    HTTP/1.1 200 OK
+    Content-Length: 66
+    Content-Type: application/json
+    Buckets-Created: 2
+    ...
 
 It worked!
 
@@ -321,6 +264,6 @@ But 2 seconds later, look at the worker output:
 
 ::
 
-    {u'resource_name': u'record', u'user_id': u'basicauth:fea1e21d339299506d89e60f048cefd5b424ea641ba48267c35a4ce921439fa4', u'timestamp': 1453459942672, u'uri': u'/buckets/c8c94a74-5bf6-9fb0-5b72-b0777da6718e/collections/assets/records', u'bucket_id': u'c8c94a74-5bf6-9fb0-5b72-b0777da6718e', u'action': u'create', u'collection_id': u'assets'}
+    {'resource_name': 'record', 'user_id': 'basicauth:fea1e21d339299506d89e60f048cefd5b424ea641ba48267c35a4ce921439fa4', 'timestamp': 1453459942672, 'uri': '/buckets/c8c94a74-5bf6-9fb0-5b72-b0777da6718e/collections/assets/records', 'bucket_id': 'c8c94a74-5bf6-9fb0-5b72-b0777da6718e', 'action': 'create', 'collection_id': 'assets'}
 
 It worked!

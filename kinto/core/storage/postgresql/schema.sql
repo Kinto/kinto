@@ -37,53 +37,10 @@ CREATE TABLE IF NOT EXISTS records (
 
     PRIMARY KEY (id, parent_id, collection_id)
 );
---
--- CREATE INDEX IF NOT EXISTS will be available in PostgreSQL 9.5
--- http://www.postgresql.org/docs/9.5/static/sql-createindex.html
-DO $$
-BEGIN
-
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_indexes
-       WHERE indexname = 'idx_records_parent_id_collection_id_last_modified'
-       AND tablename = 'records'
-  ) THEN
-
-  CREATE UNIQUE INDEX idx_records_parent_id_collection_id_last_modified
+CREATE UNIQUE INDEX IF NOT EXISTS idx_records_parent_id_collection_id_last_modified
     ON records(parent_id, collection_id, last_modified DESC);
-
-  END IF;
-END$$;
-
-DO $$
-BEGIN
-
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_indexes
-       WHERE indexname = 'idx_records_parent_id_collection_id_last_modified'
-       AND tablename = 'records'
-  ) THEN
-
-  CREATE UNIQUE INDEX idx_records_parent_id_collection_id_last_modified
-    ON records(parent_id, collection_id, last_modified DESC);
-
-  END IF;
-END$$;
-
-DO $$
-BEGIN
-
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_indexes
-       WHERE indexname = 'idx_records_last_modified_epoch'
-       AND tablename = 'records'
-  ) THEN
-
-  CREATE INDEX idx_records_last_modified_epoch
+CREATE INDEX IF NOT EXISTS idx_records_last_modified_epoch
     ON records(as_epoch(last_modified));
-
-  END IF;
-END$$;
 
 --
 -- Deleted records, without data.
@@ -96,36 +53,10 @@ CREATE TABLE IF NOT EXISTS deleted (
 
     PRIMARY KEY (id, parent_id, collection_id)
 );
-
-DO $$
-BEGIN
-
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_indexes
-       WHERE indexname = 'idx_deleted_parent_id_collection_id_last_modified'
-       AND tablename = 'deleted'
-  ) THEN
-
-  CREATE UNIQUE INDEX idx_deleted_parent_id_collection_id_last_modified
-    ON deleted(parent_id, collection_id, last_modified DESC);
-
-  END IF;
-END$$;
-
-DO $$
-BEGIN
-
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_indexes
-       WHERE indexname = 'idx_deleted_last_modified_epoch'
-       AND tablename = 'deleted'
-  ) THEN
-
-  CREATE INDEX idx_deleted_last_modified_epoch
-    ON deleted(as_epoch(last_modified));
-
-  END IF;
-END$$;
+CREATE UNIQUE INDEX IF NOT EXISTS idx_deleted_parent_id_collection_id_last_modified
+  ON deleted(parent_id, collection_id, last_modified DESC);
+CREATE INDEX IF NOT EXISTS idx_deleted_last_modified_epoch
+  ON deleted(as_epoch(last_modified));
 
 
 CREATE TABLE IF NOT EXISTS timestamps (
@@ -144,18 +75,20 @@ RETURNS TIMESTAMP AS $$
 DECLARE
     ts TIMESTAMP;
 BEGIN
-    ts := NULL;
-
-    SELECT last_modified INTO ts
-      FROM timestamps
-     WHERE parent_id = uid
-       AND collection_id = resource;
-
-    IF ts IS NULL THEN
-      ts := clock_timestamp();
+    WITH create_if_missing AS (
       INSERT INTO timestamps (parent_id, collection_id, last_modified)
-      VALUES (uid, resource, ts);
-    END IF;
+      VALUES (uid, resource, clock_timestamp())
+      ON CONFLICT (parent_id, collection_id) DO NOTHING
+      RETURNING last_modified
+    ),
+    get_or_create AS (
+      SELECT last_modified FROM create_if_missing
+      UNION
+      SELECT last_modified FROM timestamps
+       WHERE parent_id = uid
+         AND collection_id = resource
+    )
+    SELECT last_modified INTO ts FROM get_or_create;
 
     RETURN ts;
 END;
@@ -209,14 +142,10 @@ BEGIN
     --
     -- Upsert current collection timestamp.
     --
-    WITH upsert AS (
-        UPDATE timestamps SET last_modified = current
-         WHERE parent_id = NEW.parent_id AND collection_id = NEW.collection_id
-        RETURNING *
-    )
     INSERT INTO timestamps (parent_id, collection_id, last_modified)
-    SELECT NEW.parent_id, NEW.collection_id, current
-    WHERE NOT EXISTS (SELECT * FROM upsert);
+    VALUES (NEW.parent_id, NEW.collection_id, current)
+    ON CONFLICT (parent_id, collection_id) DO UPDATE
+      SET last_modified = current;
 
     RETURN NEW;
 END;
@@ -242,4 +171,4 @@ INSERT INTO metadata (name, value) VALUES ('created_at', NOW()::TEXT);
 
 -- Set storage schema version.
 -- Should match ``kinto.core.storage.postgresql.PostgreSQL.schema_version``
-INSERT INTO metadata (name, value) VALUES ('storage_schema_version', '14');
+INSERT INTO metadata (name, value) VALUES ('storage_schema_version', '15');

@@ -1,9 +1,9 @@
 SERVER_CONFIG = config/kinto.ini
 
-VIRTUALENV = virtualenv
+VIRTUALENV = virtualenv --python=python3
 SPHINX_BUILDDIR = docs/_build
 VENV := $(shell echo $${VIRTUAL_ENV-.venv})
-PYTHON = $(VENV)/bin/python
+PYTHON = $(VENV)/bin/python3
 DEV_STAMP = $(VENV)/.dev_env_installed.stamp
 DOC_STAMP = $(VENV)/.doc_env_installed.stamp
 INSTALL_STAMP = $(VENV)/.install.stamp
@@ -21,17 +21,16 @@ help:
 	@echo "  install-postgres            install postgresql support"
 	@echo "  install-dev                 install dependencies and everything needed to run tests"
 	@echo "  build-requirements          install all requirements and freeze them in requirements.txt"
-	@echo "  update-kinto-admin          update the built-in admin plugin to the last Kinto Admin UI version"
+	@echo "  build-kinto-admin           build the Kinto admin UI plugin (requires npm)"
 	@echo "  serve                       start the kinto server on default port"
 	@echo "  migrate                     run the kinto migrations"
-	@echo "  tests-once                  only run the tests once with the default python interpreter"
 	@echo "  flake8                      run the flake8 linter"
 	@echo "  tests                       run all the tests with all the supported python interpreters (same as travis)"
+	@echo "  tests-once                  only run the tests once with the default python interpreter"
+	@echo "  functional                  run functional test against a real kinto"
 	@echo "  clean                       remove *.pyc files and __pycache__ directory"
 	@echo "  distclean                   remove *.egg-info files and *.egg, build and dist directories"
 	@echo "  maintainer-clean            remove the .tox and the .venv directories"
-	@echo "  loadtest-check-tutorial     load test the using tutorial"
-	@echo "  loadtest-check-simulation   load test using a simulation"
 	@echo "  docs                        build the docs"
 	@echo "Check the Makefile to know exactly what each target is doing."
 
@@ -66,16 +65,13 @@ build-requirements:
 	$(VIRTUALENV) $(TEMPDIR)
 	$(TEMPDIR)/bin/pip install -U pip
 	$(TEMPDIR)/bin/pip install -Ue ".[monitoring,postgresql]"
-	$(TEMPDIR)/bin/pip freeze > requirements.txt
+	$(TEMPDIR)/bin/pip freeze | grep -v -- '-e' > requirements.txt
 
-update-kinto-admin:
-	rm -fr kinto/plugins/admin/build
-	rm -fr kinto/plugins/admin/node_modules
-	cd kinto/plugins/admin/; npm install && npm run build
-	cd kinto/plugins/admin/; sed -i "s/ version=\".*\"/ version=\"$$(npm list | egrep kinto-admin | cut -d @ -f 2)\"/g" __init__.py
+build-kinto-admin: need-npm
+	cd kinto/plugins/admin/; npm install && export REACT_APP_VERSION="$$(npm list | egrep kinto-admin | cut -d @ -f 2)" && npm run build
 
 $(SERVER_CONFIG):
-	$(VENV)/bin/kinto --ini $(SERVER_CONFIG) init
+	$(VENV)/bin/kinto init --ini $(SERVER_CONFIG)
 
 NAME := kinto
 SOURCE := $(shell git config remote.origin.url | sed -e 's|git@|https://|g' | sed -e 's|github.com:|github.com/|g')
@@ -85,10 +81,11 @@ version-file:
 	echo '{"name":"$(NAME)","version":"$(VERSION)","source":"$(SOURCE)","commit":"$(COMMIT)"}' > version.json
 
 serve: install-dev $(SERVER_CONFIG) migrate version-file
-	$(VENV)/bin/kinto --ini $(SERVER_CONFIG) start --reload
+# Reload is temporary deactivated because Pylons/pyramid/pull#2962
+	$(VENV)/bin/kinto start --ini $(SERVER_CONFIG) # --reload
 
 migrate: install $(SERVER_CONFIG)
-	$(VENV)/bin/kinto --ini $(SERVER_CONFIG) migrate
+	$(VENV)/bin/kinto migrate --ini $(SERVER_CONFIG)
 
 tests-once: install-dev version-file install-postgres install-monitoring
 	$(VENV)/bin/py.test --cov-report term-missing --cov-fail-under 100 --cov kinto
@@ -99,6 +96,19 @@ flake8: install-dev
 tests: version-file
 	$(VENV)/bin/tox
 
+need-npm:
+	@npm --version 2>/dev/null 1>&2 || (echo "The 'npm' command is required to build the Kinto Admin UI." && exit 1)
+
+need-kinto-running:
+	@curl http://localhost:8888/v0/ 2>/dev/null 1>&2 || (echo "Run 'make runkinto' before starting tests." && exit 1)
+
+runkinto: install-dev
+	$(VENV)/bin/kinto migrate --ini tests/functional.ini
+	$(VENV)/bin/kinto start --ini tests/functional.ini
+
+functional: install-dev need-kinto-running
+	$(VENV)/bin/py.test tests/functional.py
+
 clean:
 	find . -name '*.pyc' -delete
 	find . -name '__pycache__' -type d | xargs rm -fr
@@ -108,23 +118,7 @@ distclean: clean
 	rm -fr *.egg *.egg-info/ dist/ build/
 
 maintainer-clean: distclean
-	rm -fr .venv/ .tox/
-
-loadtest-check-tutorial: install-postgres
-	$(VENV)/bin/kinto --ini loadtests/server.ini migrate > kinto.log &&\
-	$(VENV)/bin/kinto --ini loadtests/server.ini start > kinto.log & PID=$$! && \
-	  rm kinto.log || cat kinto.log; \
-	  sleep 1 && cd loadtests && \
-	  make tutorial SERVER_URL=http://127.0.0.1:8888; \
-	  EXIT_CODE=$$?; kill $$PID; exit $$EXIT_CODE
-
-loadtest-check-simulation: install-postgres
-	$(VENV)/bin/kinto --ini loadtests/server.ini migrate > kinto.log &&\
-	$(VENV)/bin/kinto --ini loadtests/server.ini start > kinto.log & PID=$$! && \
-	  rm kinto.log || cat kinto.log; \
-	  sleep 1 && cd loadtests && \
-	  make simulation SERVER_URL=http://127.0.0.1:8888; \
-	  EXIT_CODE=$$?; kill $$PID; exit $$EXIT_CODE
+	rm -fr .venv/ .tox/ kinto/plugins/admin/build/ kinto/plugins/admin/node_modules/
 
 docs: install-docs
 	$(VENV)/bin/sphinx-build -a -W -n -b html -d $(SPHINX_BUILDDIR)/doctrees docs $(SPHINX_BUILDDIR)/html

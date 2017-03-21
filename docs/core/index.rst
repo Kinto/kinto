@@ -15,11 +15,13 @@ like notifications when you write a plugin.
    rationale
    quickstart
    resource
+   decorators
    viewsets
    storage
    cache
    notifications
    permission
    errors
+   api
    testing
    utils

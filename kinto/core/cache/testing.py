@@ -1,4 +1,5 @@
 import mock
+import pytest
 import time
 
 from pyramid import testing
@@ -7,12 +8,12 @@ from kinto.core.storage import exceptions
 from kinto.core.cache import heartbeat
 
 
-class CacheTest(object):
+class CacheTest:
     backend = None
     settings = {}
 
     def setUp(self):
-        super(CacheTest, self).setUp()
+        super().setUp()
         self.cache = self.backend.load_from_config(self._get_config())
         self.cache.initialize_schema()
         self.request = None
@@ -29,11 +30,11 @@ class CacheTest(object):
 
     def tearDown(self):
         mock.patch.stopall()
-        super(CacheTest, self).tearDown()
+        super().tearDown()
         self.cache.flush()
 
     def get_backend_prefix(self, prefix):
-        settings_prefix = self.settings.copy()
+        settings_prefix = {**self.settings}
         settings_prefix['cache_prefix'] = prefix
         config_prefix = self._get_config(settings=settings_prefix)
 
@@ -63,9 +64,9 @@ class CacheTest(object):
         self.client_error_patcher.start()
         ping = heartbeat(self.cache)
         self.assertFalse(ping(self.request))
-        with mock.patch('kinto.core.cache.random.random', return_value=0.6):
+        with mock.patch('kinto.core.cache.random.SystemRandom.random', return_value=0.6):
             self.assertFalse(ping(self.request))
-        with mock.patch('kinto.core.cache.random.random', return_value=0.4):
+        with mock.patch('kinto.core.cache.random.SystemRandom.random', return_value=0.4):
             self.assertFalse(ping(self.request))
 
     def test_ping_returns_true_if_available(self):
@@ -99,6 +100,10 @@ class CacheTest(object):
         self.assertEqual(*setget('foobar', ['a']))
         self.assertEqual(*setget('foobar', {'b': [1, 2]}))
         self.assertEqual(*setget('foobar', 3.14))
+
+    def test_bytes_cannot_be_stored_in_the_cache(self):
+        with pytest.raises(TypeError):
+            self.cache.set('test', b'foo')
 
     def test_delete_removes_the_record(self):
         self.cache.set('foobar', 'toto')

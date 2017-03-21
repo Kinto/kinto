@@ -1,10 +1,8 @@
-from __future__ import print_function
 import argparse
 import os
 import sys
 import logging
 import logging.config
-from six.moves import input
 
 from kinto.core import scripts
 from pyramid.scripts import pserve
@@ -25,21 +23,6 @@ def main(args=None):
 
     parser = argparse.ArgumentParser(description="Kinto Command-Line "
                                                  "Interface")
-    # XXX: deprecate this option, unnatural as first argument.
-    parser.add_argument('--ini',
-                        help='Application configuration file',
-                        dest='ini_file',
-                        required=False,
-                        default=DEFAULT_CONFIG_FILE)
-
-    parser.add_argument('-q', '--quiet', action='store_const',
-                        const=logging.CRITICAL, dest='verbosity',
-                        help='Show only critical errors.')
-
-    parser.add_argument('--debug', action='store_const',
-                        const=logging.DEBUG, dest='verbosity',
-                        help='Show all messages, including debug messages.')
-
     commands = ('init', 'start', 'migrate', 'delete-collection', 'version')
     subparsers = parser.add_subparsers(title='subcommands',
                                        description='Main Kinto CLI commands',
@@ -51,12 +34,31 @@ def main(args=None):
         subparser = subparsers.add_parser(command)
         subparser.set_defaults(which=command)
 
+        subparser.add_argument('--ini',
+                               help='Application configuration file',
+                               dest='ini_file',
+                               required=False,
+                               default=DEFAULT_CONFIG_FILE)
+
+        subparser.add_argument('-q', '--quiet', action='store_const',
+                               const=logging.CRITICAL, dest='verbosity',
+                               help='Show only critical errors.')
+
+        subparser.add_argument('-v', '--debug', action='store_const',
+                               const=logging.DEBUG, dest='verbosity',
+                               help='Show all messages, including debug messages.')
+
         if command == 'init':
             subparser.add_argument('--backend',
                                    help='{memory,redis,postgresql}',
                                    dest='backend',
                                    required=False,
                                    default=None)
+            subparser.add_argument('--host',
+                                   help='Host to listen() on.',
+                                   dest='host',
+                                   required=False,
+                                   default='127.0.0.1')
         elif command == 'migrate':
             subparser.add_argument('--dry-run',
                                    action='store_true',
@@ -98,7 +100,7 @@ def main(args=None):
 
     if which_command == 'init':
         if os.path.exists(config_file):
-            print("%s already exists." % config_file, file=sys.stderr)
+            print("{} already exists.".format(config_file), file=sys.stderr)
             return 1
 
         backend = parsed_args['backend']
@@ -114,7 +116,7 @@ def main(args=None):
                 except KeyError:
                     pass
 
-        init(config_file, backend)
+        init(config_file, backend, parsed_args['host'])
 
         # Install postgresql libraries if necessary
         if backend == "postgresql":
@@ -142,13 +144,22 @@ def main(args=None):
                                          parsed_args['collection'])
 
     elif which_command == 'start':
-        pserve_argv = ['pserve', config_file]
+        pserve_argv = ['pserve']
+
         if parsed_args['reload']:
             pserve_argv.append('--reload')
-        pserve_argv.append('http_port=%s' % parsed_args['port'])
-        pserve.main(pserve_argv)
 
-    elif which_command == 'version':
+        if level == logging.DEBUG:
+            pserve_argv.append('-v')
+
+        if level == logging.CRITICAL:
+            pserve_argv.append('-q')
+
+        pserve_argv.append(config_file)
+        pserve_argv.append('http_port={}'.format(parsed_args['port']))
+        pserve.main(argv=pserve_argv)
+
+    else:
         print(__version__)
 
     return 0

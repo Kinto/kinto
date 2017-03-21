@@ -13,14 +13,13 @@ from kinto.authorization import RouteFactory
 __version__ = pkg_resources.get_distribution(__package__).version
 
 # Implemented HTTP API Version
-HTTP_API_VERSION = '1.13'
+HTTP_API_VERSION = '1.16'
 
 # Main kinto logger
 logger = logging.getLogger(__name__)
 
 
 DEFAULT_SETTINGS = {
-    'flush_endpoint_enabled': False,
     'retry_after_seconds': 3,
     'cache_backend': 'kinto.core.cache.memory',
     'permission_backend': 'kinto.core.permission.memory',
@@ -67,20 +66,10 @@ def main(global_config, config=None, **settings):
     # Scan Kinto views.
     kwargs = {}
 
-    flush_enabled = asbool(settings['flush_endpoint_enabled'])
-    if flush_enabled:
-        config.add_api_capability(
-            "flush_endpoint",
-            description="The __flush__ endpoint can be used to remove all "
-                        "data from all backends.",
-            url="https://kinto.readthedocs.io/en/latest/configuration/"
-                "settings.html#activating-the-flush-endpoint")
-    else:
-        kwargs['ignore'] = ['kinto.views.flush']
-
     # Permissions endpoint enabled if permission backend is setup.
+    is_admin_enabled = 'kinto.plugins.admin' in settings['includes']
     permissions_endpoint_enabled = (
-        asbool(settings['experimental_permissions_endpoint']) and
+        (is_admin_enabled or asbool(settings['experimental_permissions_endpoint'])) and
         hasattr(config.registry, 'permission'))
     if permissions_endpoint_enabled:
         config.add_api_capability(

@@ -1,4 +1,3 @@
-import platform
 import codecs
 import os
 from setuptools import setup, find_packages
@@ -12,46 +11,34 @@ def read_file(filename):
         content = f.read()
     return content
 
+
 README = read_file('README.rst')
 CHANGELOG = read_file('CHANGELOG.rst')
 CONTRIBUTORS = read_file('CONTRIBUTORS.rst')
 
-installed_with_pypy = platform.python_implementation() == 'PyPy'
-
 REQUIREMENTS = [
     'bcrypt',
-    'colander',
-    'colorama',
-    'cornice >= 2.1',
+    'colander >= 1.3.2',
+    'cornice >= 2.4',
+    'cornice_swagger >= 0.5',
     'jsonschema',
     'jsonpatch',
+    'logging-color-formatter >= 1.0.1',  # Message interpolations.
     'python-dateutil',
+    'pyramid > 1.8',
     'pyramid_multiauth >= 0.8',  # User on policy selected event.
     'transaction',
     'pyramid_tm',
     'requests',
-    'six',
-    'structlog >= 16.1.0',
-    'enum34',
     'waitress',
+    'ujson >= 1.35'
 ]
 
-if installed_with_pypy:
-    # We install psycopg2cffi instead of psycopg2 when dealing with pypy
-    # Note: JSONB support landed after psycopg2cffi 2.7.0
-    POSTGRESQL_REQUIRES = [
-        'SQLAlchemy',
-        'psycopg2cffi>2.7.0',
-        'zope.sqlalchemy',
-    ]
-else:
-    # ujson is not pypy compliant, as it uses the CPython C API
-    REQUIREMENTS.append('ujson >= 1.35')
-    POSTGRESQL_REQUIRES = [
-        'SQLAlchemy',
-        'psycopg2>2.5',
-        'zope.sqlalchemy',
-    ]
+POSTGRESQL_REQUIRES = [
+    'SQLAlchemy',
+    'psycopg2 > 2.5',
+    'zope.sqlalchemy',
+]
 
 REDIS_REQUIRES = [
     'kinto_redis'
@@ -62,6 +49,7 @@ SETUP_REQUIRES = [
 ]
 
 TEST_REQUIREMENTS = [
+    'bravado_core',
     'pytest',
     'WebTest'
 ]
@@ -87,19 +75,16 @@ ENTRY_POINTS = {
 
 
 setup(name='kinto',
-      version='5.0.1.dev0',
+      version='7.0.0.dev0',
       description='Kinto Web Service - Store, Sync, Share, and Self-Host.',
-      long_description=README + "\n\n" + CHANGELOG + "\n\n" + CONTRIBUTORS,
+      long_description="{}\n\n{}\n\n{}".format(README, CHANGELOG, CONTRIBUTORS),
       license='Apache License (2.0)',
       classifiers=[
           "Programming Language :: Python",
-          "Programming Language :: Python :: 2",
-          "Programming Language :: Python :: 2.7",
           "Programming Language :: Python :: 3",
-          "Programming Language :: Python :: 3.4",
           "Programming Language :: Python :: 3.5",
+          "Programming Language :: Python :: 3.6",
           "Programming Language :: Python :: Implementation :: CPython",
-          "Programming Language :: Python :: Implementation :: PyPy",
           "Topic :: Internet :: WWW/HTTP",
           "Topic :: Internet :: WWW/HTTP :: WSGI :: Application",
           "License :: OSI Approved :: Apache Software License"
@@ -109,7 +94,7 @@ setup(name='kinto',
       author_email='storage-team@mozilla.com',
       url='https://github.com/Kinto/kinto',
       packages=find_packages(),
-      package_data={'': ['*.rst', '*.py']},
+      package_data={'': ['*.rst', '*.py', '*.yaml']},
       include_package_data=True,
       zip_safe=False,
       setup_requires=SETUP_REQUIRES,
@@ -119,7 +104,6 @@ setup(name='kinto',
           'redis': REDIS_REQUIRES,
           'postgresql': POSTGRESQL_REQUIRES,
           'monitoring': MONITORING_REQUIRES,
-          ":python_version=='2.7'": ["functools32", "futures"],
       },
       test_suite="tests",
       dependency_links=DEPENDENCY_LINKS,

@@ -1,20 +1,19 @@
+dist: trusty
 language: python
-python: 2.7
+python: 3.5
 cache: pip
-services: redis-server
 addons:
-  postgresql: "9.4"
+  postgresql: "9.5"
 env:
-  - TOX_ENV=py27
-  - TOX_ENV=py34
-  - TOX_ENV=py27-raw
+  - TOX_ENV=py35
+  - TOX_ENV=py35-raw
   - TOX_ENV=flake8
   - TOX_ENV=docs
 install:
   - pip install tox
 before_script:
   - echo "Pull request ${TRAVIS_PULL_REQUEST}"
-  - sudo sed -i "s/fsync/#fsync/" /etc/postgresql/9.4/main/postgresql.conf
+  - sudo sed -i "s/fsync/#fsync/" /etc/postgresql/9.5/main/postgresql.conf
   - sudo /etc/init.d/postgresql restart
   - psql -c "CREATE DATABASE testdb ENCODING 'UTF8' TEMPLATE template0;" -U postgres
   - make version-file
@@ -27,16 +26,13 @@ after_success:
 
 matrix:
   include:
-    - python: 3.5
+    - python: 3.6
       env:
-        - TOX_ENV=py35
-    - env: ACTION=loadtest_tutorial
-      before_script: echo 'Tutorial'
-      script: make loadtest-check-tutorial
-    - env: ACTION=loadtest_simulation
-      before_script: echo 'Simulation'
-      script: make loadtest-check-simulation
-    - env: TOX_ENV=pypy
-      script: if [ "${TRAVIS_BRANCH}" = "master" ]; then tox -e $TOX_ENV; else true; fi;
-  allow_failures:
-    - env: TOX_ENV=pypy
+        - TOX_ENV=py36
+    - env: ENV=functional
+      before_install:
+        - make install-dev
+        - make install-postgres
+      script:
+        - make runkinto & sleep 5
+        - make functional

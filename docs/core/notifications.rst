@@ -125,8 +125,8 @@ Example, when deleting a collection with two records:
 ::
 
     >>> event.impacted_records
-    [{'old': {'deleted': True, 'last_modified': 1447240896769, 'id': u'a1f4af60-ddf5-4c49-933f-4cfeff18ad07'}},
-     {'old': {'deleted': True, 'last_modified': 1447240896770, 'id': u'7a6916aa-0ea1-42a7-9741-c24fe13cb70b'}}]
+    [{'old': {'deleted': True, 'last_modified': 1447240896769, 'id': 'a1f4af60-ddf5-4c49-933f-4cfeff18ad07'}},
+     {'old': {'deleted': True, 'last_modified': 1447240896770, 'id': '7a6916aa-0ea1-42a7-9741-c24fe13cb70b'}}]
 
 
 Event listeners

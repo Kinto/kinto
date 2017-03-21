@@ -1,11 +1,12 @@
-from __future__ import absolute_import
-
+import logging
 import os
 
-from kinto.core import logger
 from kinto.core.cache import CacheBase
 from kinto.core.storage.postgresql.client import create_from_config
 from kinto.core.utils import json
+
+
+logger = logging.getLogger(__name__)
 
 
 class Cache(CacheBase):
@@ -62,7 +63,7 @@ class Cache(CacheBase):
     :noindex:
     """  # NOQA
     def __init__(self, client, *args, **kwargs):
-        super(Cache, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.client = client
 
     def initialize_schema(self, dry_run=False):
@@ -83,11 +84,12 @@ class Cache(CacheBase):
         sql_file = os.path.join(here, 'schema.sql')
 
         if dry_run:
-            logger.info("Create cache schema from %s" % sql_file)
+            logger.info("Create cache schema from '{}'".format(sql_file))
             return
 
         # Since called outside request, force commit.
-        schema = open(sql_file).read()
+        with open(sql_file) as f:
+            schema = f.read()
         with self.client.connect(force_commit=True) as conn:
             conn.execute(schema)
         logger.info('Created PostgreSQL cache tables')
@@ -122,16 +124,17 @@ class Cache(CacheBase):
             conn.execute(query, dict(ttl=ttl, key=self.prefix + key))
 
     def set(self, key, value, ttl=None):
+        if isinstance(value, bytes):
+            raise TypeError("a string-like object is required, not 'bytes'")
+
         if ttl is None:
-            logger.warning("No TTL for cache key %r" % key)
+            logger.warning("No TTL for cache key '{}'".format(key))
         query = """
-        WITH upsert AS (
-            UPDATE cache SET value = :value, ttl = sec2ttl(:ttl)
-             WHERE key=:key
-            RETURNING *)
         INSERT INTO cache (key, value, ttl)
-        SELECT :key, :value, sec2ttl(:ttl)
-        WHERE NOT EXISTS (SELECT * FROM upsert)
+        VALUES (:key, :value, sec2ttl(:ttl))
+        ON CONFLICT (key) DO UPDATE
+        SET value = :value,
+            ttl = sec2ttl(:ttl);
         """
         value = json.dumps(value)
         with self.client.connect() as conn:
@@ -156,5 +159,5 @@ class Cache(CacheBase):
 
 def load_from_config(config):
     settings = config.get_settings()
-    client = create_from_config(config, prefix='cache_')
+    client = create_from_config(config, prefix='cache_', with_transaction=False)
     return Cache(client=client, cache_prefix=settings['cache_prefix'])

@@ -25,11 +25,13 @@ Contributors
 * FooBarQuaxx
 * Greeshma <greeshmabalabadra@gmail.com>
 * Gabriela Surita <gabsurita@gmail.com>
+* Greg Guthe <gguthe@mozilla.com>
 * Hiromipaw <silvia@nopressure.co.uk>
 * Indranil Dutta <duttaindranil497@gmail.com>
 * Jelmer van der Ploeg <jelmer@woovar.com>
 * Joël Marty
 * John Giannelos <johngiannelos@gmail.com>
+* Joshua Bird <joshua.thomas.bird@gmail.com>
 * Julien Bouquillon <contact@revolunet.com>
 * Lavish Aggarwal <lucky.lavish@gmail.com>
 * Maksym Shalenyi <supamaxy@gmail.com>
@@ -38,18 +40,22 @@ Contributors
 * Mathieu Agopian <mathieu@agopian.info>
 * Mathieu Leplatre <mathieu@mozilla.com>
 * Maxime Warnier <marmax@gmail.com>
+* Michael Charlton <m.charlton@mac.com>
 * Michiel de Jong <michiel@unhosted.org>
 * Mo Valipour <valipour@gmail.com>
+* Mozillazg
 * Nicolas Hoizey <nicolas@hoizey.com>
 * Nicolas Perriault <nperriault@mozilla.com>
 * Niraj <https://github.com/niraj8>
 * Oron Gola <oron.golar@gmail.com>
+* PeriGK <per.gkolias@gmail.com>
 * Rektide <rektide@voodoowarez.com>
 * Rémy Hubscher <rhubscher@mozilla.com>
 * Rodolphe Quiédeville <rodolphe@quiedeville.org>
 * Sahil Dua <sahildua2305@gmail.com>
 * Shweta Oak <oakshweta11@gmail.com>
 * Sofia Utsch <sofia.utsch@gmail.com>
+* Sunakshi Tejwani <sunakshitejwani@gmail.com>
 * Surya Prashanth <prashantsurya@ymail.com>
 * SwhGo_oN
 * Tarek Ziade <tarek@mozilla.com>

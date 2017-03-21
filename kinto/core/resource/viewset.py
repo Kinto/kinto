@@ -6,13 +6,16 @@ from cornice.validators import colander_validator
 from pyramid.settings import asbool
 
 from kinto.core import authorization
-from kinto.core.resource.schema import PermissionsSchema
+
+from .schema import (PermissionsSchema, RequestSchema, PayloadRequestSchema,
+                     PatchHeaderSchema, CollectionQuerySchema, CollectionGetQuerySchema,
+                     RecordGetQuerySchema, RecordSchema, ResourceReponses,
+                     ShareableResourseResponses)
 
 
 CONTENT_TYPES = ["application/json"]
 
-PATCH_CONTENT_TYPES = ["application/json-patch+json",
-                       "application/merge-patch+json"]
+PATCH_CONTENT_TYPES = ["application/merge-patch+json"]
 
 
 class StrictSchema(colander.MappingSchema):
@@ -33,7 +36,7 @@ class SimpleSchema(colander.MappingSchema):
         return colander.Mapping(unknown='preserve')
 
 
-class ViewSet(object):
+class ViewSet:
     """The default ViewSet object.
 
     A viewset contains all the information needed to register
@@ -48,11 +51,12 @@ class ViewSet(object):
 
     collection_methods = ('GET', 'POST', 'DELETE')
     record_methods = ('GET', 'PUT', 'PATCH', 'DELETE')
-    validate_schema_for = ('POST', 'PUT', 'PATCH')
 
     readonly_methods = ('GET', 'OPTIONS', 'HEAD')
 
     factory = authorization.RouteFactory
+
+    responses = ResourceReponses()
 
     service_arguments = {
         'description': 'Collection of {resource_name}',
@@ -61,28 +65,38 @@ class ViewSet(object):
     default_arguments = {
         'permission': authorization.PRIVATE,
         'accept': CONTENT_TYPES,
+        'schema': RequestSchema(),
     }
 
     default_post_arguments = {
         "content_type": CONTENT_TYPES,
+        'schema': PayloadRequestSchema(),
     }
 
     default_put_arguments = {
         "content_type": CONTENT_TYPES,
+        'schema': PayloadRequestSchema(),
     }
 
     default_patch_arguments = {
-        "content_type": CONTENT_TYPES + PATCH_CONTENT_TYPES
+        "content_type": CONTENT_TYPES + PATCH_CONTENT_TYPES,
+        'schema': PayloadRequestSchema().bind(header=PatchHeaderSchema()),
     }
 
-    default_collection_arguments = {}
+    default_collection_arguments = {
+        'schema': RequestSchema().bind(querystring=CollectionQuerySchema()),
+    }
     collection_get_arguments = {
+        'schema': RequestSchema().bind(querystring=CollectionGetQuerySchema()),
         'cors_headers': ('Next-Page', 'Total-Records', 'Last-Modified', 'ETag',
                          'Cache-Control', 'Expires', 'Pragma')
     }
-
+    collection_post_arguments = {
+        'schema': PayloadRequestSchema(),
+    }
     default_record_arguments = {}
     record_get_arguments = {
+        'schema': RequestSchema().bind(querystring=RecordGetQuerySchema()),
         'cors_headers': ('Last-Modified', 'ETag',
                          'Cache-Control', 'Expires', 'Pragma')
     }
@@ -106,27 +120,27 @@ class ViewSet(object):
         :param resource_cls: the resource class.
         :param str method: the HTTP method.
         """
-        args = self.default_arguments.copy()
+        args = {**self.default_arguments}
         default_arguments = getattr(self,
-                                    'default_%s_arguments' % endpoint_type)
+                                    'default_{}_arguments'.format(endpoint_type))
         args.update(**default_arguments)
 
-        by_http_verb = 'default_%s_arguments' % method.lower()
+        by_http_verb = 'default_{}_arguments'.format(method.lower())
         method_args = getattr(self, by_http_verb, {})
         args.update(**method_args)
 
-        by_method = '%s_%s_arguments' % (endpoint_type, method.lower())
+        by_method = '{}_{}_arguments'.format(endpoint_type, method.lower())
         endpoint_args = getattr(self, by_method, {})
         args.update(**endpoint_args)
 
-        if method.lower() in map(str.lower, self.validate_schema_for):
-            schema = PartialSchema()
-            record_schema = self.get_record_schema(resource_cls, method)
-            record_schema.name = 'body'
-            schema.add(record_schema)
-            args['schema'] = schema
-        else:
-            args['schema'] = SimpleSchema()
+        request_schema = args.get('schema', RequestSchema())
+        record_schema = self.get_record_schema(resource_cls, method)
+        request_schema = request_schema.bind(body=record_schema)
+        response_schemas = self.responses.get_and_bind(endpoint_type, method,
+                                                       record=record_schema)
+
+        args['schema'] = request_schema
+        args['response_schemas'] = response_schemas
 
         validators = args.get('validators', [])
         validators.append(colander_validator)
@@ -137,7 +151,7 @@ class ViewSet(object):
     def get_record_schema(self, resource_cls, method):
         """Return the Cornice schema for the given method.
         """
-        if method.lower() == 'patch':
+        if method.lower() in ('patch', 'delete'):
             resource_schema = SimpleSchema
         else:
             resource_schema = resource_cls.schema
@@ -146,9 +160,9 @@ class ViewSet(object):
                 warnings.warn(message, DeprecationWarning)
                 resource_schema = resource_cls.mapping.__class__
 
-        payload_schema = StrictSchema()
-        payload_schema.add(resource_schema(name='data'))
-        return payload_schema
+        record_schema = RecordSchema().bind(data=resource_schema())
+
+        return record_schema
 
     def get_view(self, endpoint_type, method):
         """Return the view method name located on the resource object, for the
@@ -159,7 +173,7 @@ class ViewSet(object):
         """
         if endpoint_type == 'record':
             return method.lower()
-        return '%s_%s' % (endpoint_type, method.lower())
+        return '{}_{}'.format(endpoint_type, method.lower())
 
     def get_name(self, resource_cls):
         """Returns the name of the resource.
@@ -186,7 +200,7 @@ class ViewSet(object):
             endpoint_type=endpoint_type)
 
     def get_service_arguments(self):
-        return self.service_arguments.copy()
+        return {**self.service_arguments}
 
     def is_endpoint_enabled(self, endpoint_type, resource_name, method,
                             settings):
@@ -200,7 +214,7 @@ class ViewSet(object):
         if readonly_enabled and not readonly_method:
             return False
 
-        setting_enabled = '%s_%s_%s_enabled' % (
+        setting_enabled = '{}_{}_{}_enabled'.format(
             endpoint_type, resource_name, method.lower())
         return asbool(settings.get(setting_enabled, True))
 
@@ -212,44 +226,25 @@ class ShareableViewSet(ViewSet):
     The views will rely on dynamic permissions (e.g. create with PUT if
     record does not exist), and solicit the cliquet RouteFactory.
     """
+
+    responses = ShareableResourseResponses()
+
     def get_record_schema(self, resource_cls, method):
         """Return the Cornice schema for the given method.
         """
-        if method.lower() == 'patch':
-            resource_schema = SimpleSchema
-        else:
-            resource_schema = resource_cls.schema
-            if hasattr(resource_cls, 'mapping'):
-                message = "Resource `mapping` is deprecated, use `schema`"
-                warnings.warn(message, DeprecationWarning)
-                resource_schema = resource_cls.mapping.__class__
-
-        try:
-            # Check if empty record is allowed.
-            # (e.g every schema fields have defaults)
-            resource_schema().deserialize({})
-        except colander.Invalid:
-            schema_kw = dict(missing=colander.required)
-        else:
-            schema_kw = dict(default={}, missing=colander.drop)
-
+        record_schema = super(ShareableViewSet, self).get_record_schema(resource_cls, method)
         allowed_permissions = resource_cls.permissions
-
-        payload_schema = StrictSchema()
-        payload_schema.add(resource_schema(name='data', **schema_kw))
-        payload_schema.add(PermissionsSchema(name='permissions',
-                                             missing=colander.drop,
-                                             permissions=allowed_permissions))
-        return payload_schema
+        permissions = PermissionsSchema(name='permissions', missing=colander.drop,
+                                        permissions=allowed_permissions)
+        record_schema = record_schema.bind(permissions=permissions)
+        return record_schema
 
     def get_view_arguments(self, endpoint_type, resource_cls, method):
-        args = super(ShareableViewSet, self).get_view_arguments(endpoint_type,
-                                                                resource_cls,
-                                                                method)
+        args = super().get_view_arguments(endpoint_type, resource_cls, method)
         args['permission'] = authorization.DYNAMIC
         return args
 
     def get_service_arguments(self):
-        args = super(ShareableViewSet, self).get_service_arguments()
+        args = super().get_service_arguments()
         args['factory'] = self.factory
         return args

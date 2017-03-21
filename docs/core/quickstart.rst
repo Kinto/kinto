@@ -63,7 +63,7 @@ A generic command is provided to accomplish this:
 
 ::
 
-    $ kinto --ini development.ini migrate
+    $ kinto migrate --ini development.ini
 
 
 Like any *Pyramid* application, it can be served locally with:

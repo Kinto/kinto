@@ -7,29 +7,27 @@ from kinto.core.permission import heartbeat
 from kinto.core.testing import DummyRequest
 
 
-class PermissionTest(object):
+class PermissionTest:
     backend = None
     settings = {}
 
     def setUp(self):
-        super(PermissionTest, self).setUp()
+        super().setUp()
         self.permission = self.backend.load_from_config(self._get_config())
         self.permission.initialize_schema()
         self.request = DummyRequest()
         self.client_error_patcher = []
 
-    def _get_config(self, settings=None):
+    def _get_config(self):
         """Mock Pyramid config object.
         """
-        if settings is None:
-            settings = self.settings
         config = testing.setUp()
-        config.add_settings(settings)
+        config.add_settings(self.settings)
         return config
 
     def tearDown(self):
         mock.patch.stopall()
-        super(PermissionTest, self).tearDown()
+        super().tearDown()
         self.permission.flush()
 
     def test_backend_error_is_raised_anywhere(self):
@@ -103,6 +101,9 @@ class PermissionTest(object):
         self.permission.add_user_principal(user_id, principal)
         retrieved = self.permission.get_user_principals(user_id)
         self.assertEquals(retrieved, {principal})
+
+    def test_can_remove_a_principal_for_an_unknown_user(self):
+        self.permission.remove_user_principal('foo', 'bar')
 
     def test_can_remove_a_principal_for_a_user(self):
         user_id = 'foo'
@@ -319,7 +320,8 @@ class PermissionTest(object):
         self.permission.add_principal_to_ace('/a/url1/id', 'write', 'user1')
         per_object_ids = self.permission.get_accessible_objects(
             ['user1'],
-            [('/url1/[a-z]+', 'write')])
+            [('/url1/*', 'write')],
+            with_children=False)
         self.assertEquals(sorted(per_object_ids.keys()), ['/url1/id'])
 
     def test_accessible_objects_several_bound_permissions(self):
@@ -450,6 +452,13 @@ class PermissionTest(object):
 
     def test_replace_object_permission_supports_empty_list(self):
         self.permission.add_principal_to_ace('/url/a/id/1', 'write', 'user1')
+        self.permission.replace_object_permissions('/url/a/id/1', {
+            "write": set()
+        })
+        permissions = self.permission.get_object_permissions('/url/a/id/1')
+        self.assertEqual(len(permissions), 0)
+
+    def test_replace_object_permission_supports_empty_list_to_new_object(self):
         self.permission.replace_object_permissions('/url/a/id/1', {
             "write": set()
         })

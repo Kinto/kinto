@@ -21,36 +21,38 @@ class BaseWebTest(testing.BaseWebTest):
     It setups the database before each test and delete it after.
     """
 
-    api_prefix = "v0"
     entry_point = testapp
     principal = USER_PRINCIPAL
 
     authorization_policy = 'tests.core.support.AllowAuthorizationPolicy'
     collection_url = '/mushrooms'
 
-    def __init__(self, *args, **kwargs):
-        super(BaseWebTest, self).__init__(*args, **kwargs)
-        self.headers.update(testing.get_user_headers('mat'))
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.headers.update(testing.get_user_headers('mat'))
 
-    def get_app_settings(self, extras=None):
+    @classmethod
+    def get_app_settings(cls, extras=None):
         if extras is None:
             extras = {}
         extras.setdefault('project_name', 'myapp')
         extras.setdefault('project_version', '0.0.1')
+        extras.setdefault('http_api_version', '0.1')
         extras.setdefault('project_docs', 'https://kinto.readthedocs.io/')
         extras.setdefault('multiauth.authorization_policy',
-                          self.authorization_policy)
-        return super(BaseWebTest, self).get_app_settings(extras)
+                          cls.authorization_policy)
+        return super().get_app_settings(extras)
 
     def get_item_url(self, id=None):
         """Return the URL of the item using self.item_url."""
         if id is None:
             id = self.record['id']
-        return self.collection_url + '/' + str(id)
+        return '{}/{}'.format(self.collection_url, id)
 
 
 @implementer(IAuthorizationPolicy)
-class AllowAuthorizationPolicy(object):
+class AllowAuthorizationPolicy:
     def permits(self, context, principals, permission):
         if permission == PRIVATE:
             return Authenticated in principals
@@ -75,7 +77,7 @@ def authorize(permits=True, authz_class=None):
         @functools.wraps(f)
         def wrapped(*args, **kwargs):
             with mock.patch(
-                    '%s.permits' % authz_class,
+                    '{}.permits'.format(authz_class),
                     return_value=permits):
                 return f(*args, **kwargs)
         return wrapped

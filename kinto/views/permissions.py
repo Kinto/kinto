@@ -35,7 +35,9 @@ def allowed_from_settings(settings, principals):
             continue
         # ``collection_create_principals`` means ``collection:create`` in bucket.
         if permission == 'create':
-            permission = '%s:%s' % (resource_name, permission)
+            permission = '{resource_name}:{permission}'.format(
+                resource_name=resource_name,
+                permission=permission)
             resource_name = {  # resource parents.
                 'bucket': '',
                 'collection': 'bucket',
@@ -46,13 +48,16 @@ def allowed_from_settings(settings, principals):
     return from_settings
 
 
-class PermissionsModel(object):
+class PermissionsModel:
     id_field = 'id'
     modified_field = 'last_modified'
     deleted_field = 'deleted'
 
     def __init__(self, request):
         self.request = request
+
+    def timestamp(self, parent_id=None):
+        return 0
 
     def get_records(self, filters=None, sorting=None, pagination_rules=None,
                     limit=None, include_deleted=False, parent_id=None):
@@ -84,7 +89,7 @@ class PermissionsModel(object):
             storage = self.request.registry.storage
             every_bucket, _ = storage.get_all(parent_id='', collection_id='bucket')
             for bucket in every_bucket:
-                bucket_uri = '/buckets/{id}'.format(**bucket)
+                bucket_uri = '/buckets/{id}'.format_map(bucket)
                 for res in allowed_resources:
                     resource_perms = from_settings[res]
                     # Bucket is always fetched.
@@ -158,19 +163,19 @@ class Permissions(resource.ShareableResource):
     schema = PermissionsSchema
 
     def __init__(self, request, context=None):
-        super(Permissions, self).__init__(request, context)
+        super().__init__(request, context)
         self.model = PermissionsModel(request)
 
     def _extract_sorting(self, limit):
         # Permissions entries are not stored with timestamp, so do not
         # force it.
-        result = super(Permissions, self)._extract_sorting(limit)
+        result = super()._extract_sorting(limit)
         without_last_modified = [s for s in result
                                  if s.field != self.model.modified_field]
         return without_last_modified
 
-    def _extract_filters(self, queryparams=None):
-        result = super(Permissions, self)._extract_filters(queryparams)
+    def _extract_filters(self):
+        result = super()._extract_filters()
         without_last_modified = [s for s in result
                                  if s.field != self.model.modified_field]
         return without_last_modified

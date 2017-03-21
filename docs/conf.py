@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # Kinto documentation build configuration file, created by
 # sphinx-quickstart on Mon Feb  2 15:08:06 2015.
@@ -64,17 +63,17 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'Kinto'
-copyright = u'2015-2016 — Mozilla Services'
+project = 'Kinto'
+copyright = '2015-2017 — Mozilla Services'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
 # built documents.
 #
 # The short X.Y version.
-version = '5.0'
+version = '6.0'
 # The full version, including alpha/beta/rc tags.
-release = '5.0.0'
+release = '6.0.0'
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
@@ -102,13 +101,13 @@ nitpicky = True
 nitpick_ignore = [
     ('py:obj', 'Exception'),
     ('py:obj', 'bool'),
+    ('py:obj', 'cornice.Service'),
     ('py:obj', 'dict'),
     ('py:obj', 'float'),
     ('py:obj', 'int'),
     ('py:obj', 'list'),
     ('py:obj', 'str'),
     ('py:obj', 'tuple'),
-    ('py:obj', 'cornice.Service'),
     # Member autodoc fails with those:
     # kinto.core.resource.schema
     ('py:class', 'Integer'),
@@ -119,6 +118,7 @@ nitpick_ignore = [
     ('py:class', 'ShareableModel'),
     ('py:class', 'ShareableViewSet'),
     ('py:class', 'ViewSet'),
+    ('py:class', 'Sequence')
 ]
 
 
@@ -150,8 +150,8 @@ rst_epilog = """
 .. |status-503| replace:: ``503 Service Unavailable``
 """
 
-# --
 
+# --
 def setup(app):
     # path relative to _static
     app.add_stylesheet('theme_overrides.css')
@@ -174,8 +174,8 @@ latex_elements = {}
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    ('index', 'Kinto.tex', u'Kinto Documentation',
-     u'Mozilla Services — Da French Team', 'manual'),
+    ('index', 'Kinto.tex', 'Kinto Documentation',
+     'Mozilla Services — Da French Team', 'manual'),
 ]
 
 
@@ -184,8 +184,8 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'kinto', u'Kinto Documentation',
-     [u'Mozilla Services — Da French Team'], 1)
+    ('index', 'kinto', 'Kinto Documentation',
+     ['Mozilla Services — Da French Team'], 1)
 ]
 
 
@@ -195,8 +195,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    ('index', 'Kinto', u'Kinto Documentation',
-     u'Mozilla Services — Da French Team', 'Kinto',
+    ('index', 'Kinto', 'Kinto Documentation',
+     'Mozilla Services — Da French Team', 'Kinto',
      'A remote storage service with syncing and sharing abilities.',
      'Miscellaneous'),
 ]

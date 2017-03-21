@@ -2,8 +2,7 @@ from kinto import __version__ as VERSION
 
 from kinto.core.testing import unittest
 
-from .support import (BaseWebTest, MINIMALIST_BUCKET,
-                      MINIMALIST_GROUP)
+from .support import BaseWebTest, MINIMALIST_BUCKET, MINIMALIST_GROUP
 
 
 class HelloViewTest(BaseWebTest, unittest.TestCase):
@@ -26,7 +25,7 @@ class HelloViewTest(BaseWebTest, unittest.TestCase):
 
     def test_returns_user_principals_if_authenticated(self):
         group_url = '/buckets/beers/groups/users'
-        group = MINIMALIST_GROUP.copy()
+        group = {**MINIMALIST_GROUP}
         group['data']['members'].append(self.principal)
         self.app.put_json('/buckets/beers', MINIMALIST_BUCKET, headers=self.headers)
         self.app.put_json(group_url, group, headers=self.headers)
@@ -55,27 +54,6 @@ class HelloViewTest(BaseWebTest, unittest.TestCase):
         resp = app.get('/')
         capabilities = resp.json['capabilities']
         self.assertNotIn('schema', capabilities)
-
-    def test_flush_capability_if_enabled(self):
-        settings = {'flush_endpoint_enabled': True}
-        app = self.make_app(settings=settings)
-        resp = app.get('/')
-        capabilities = resp.json['capabilities']
-        self.assertIn('flush_endpoint', capabilities)
-        expected = {
-            "description": "The __flush__ endpoint can be used to remove "
-                           "all data from all backends.",
-            "url": "https://kinto.readthedocs.io/en/latest/configuration/"
-                   "settings.html#activating-the-flush-endpoint"
-        }
-        self.assertEqual(expected, capabilities['flush_endpoint'])
-
-    def test_flush_capability_if_not_enabled(self):
-        settings = {'flush_endpoint_enabled': False}
-        app = self.make_app(settings=settings)
-        resp = app.get('/')
-        capabilities = resp.json['capabilities']
-        self.assertNotIn('flush_endpoint', capabilities)
 
     def test_permissions_capability_if_enabled(self):
         settings = {'experimental_permissions_endpoint': True}

@@ -1,11 +1,14 @@
+import logging
 from collections import OrderedDict
 
 import transaction
 from pyramid.events import NewRequest
 from enum import Enum
 
-from kinto.core.logs import logger
 from kinto.core.utils import strip_uri_prefix
+
+
+logger = logging.getLogger(__name__)
 
 
 class ACTIONS(Enum):
@@ -19,7 +22,7 @@ class ACTIONS(Enum):
         return tuple(ACTIONS(el) for el in elements)
 
 
-class _ResourceEvent(object):
+class _ResourceEvent:
     def __init__(self, payload, request):
         self.payload = payload
         self.request = request
@@ -34,7 +37,7 @@ class ResourceRead(_ResourceEvent):
     """Triggered when a resource is being read.
     """
     def __init__(self, payload, read_records, request):
-        super(ResourceRead, self).__init__(payload, request)
+        super().__init__(payload, request)
         self.read_records = read_records
 
 
@@ -42,7 +45,7 @@ class ResourceChanged(_ResourceEvent):
     """Triggered when a resource is being changed.
     """
     def __init__(self, payload, impacted_records, request):
-        super(ResourceChanged, self).__init__(payload, request)
+        super().__init__(payload, request)
         self.impacted_records = impacted_records
 
 
@@ -50,7 +53,7 @@ class AfterResourceRead(_ResourceEvent):
     """Triggered after a resource was successfully read.
     """
     def __init__(self, payload, read_records, request):
-        super(AfterResourceRead, self).__init__(payload, request)
+        super().__init__(payload, request)
         self.read_records = read_records
 
 
@@ -58,7 +61,7 @@ class AfterResourceChanged(_ResourceEvent):
     """Triggered after a resource was successfully changed.
     """
     def __init__(self, payload, impacted_records, request):
-        super(AfterResourceChanged, self).__init__(payload, request)
+        super().__init__(payload, request)
         self.impacted_records = impacted_records
 
 
@@ -78,12 +81,14 @@ def setup_transaction_hook(config):
     def _notify_resource_events_after(success, request):
         """Notify the accumulated resource events if transaction succeeds.
         """
-        if success:
-            for event in request.get_resource_events(after_commit=True):
-                try:
-                    request.registry.notify(event)
-                except Exception:
-                    logger.error("Unable to notify", exc_info=True)
+        if not success:  # pragma: no cover
+            return
+
+        for event in request.get_resource_events(after_commit=True):
+            try:
+                request.registry.notify(event)
+            except Exception:
+                logger.error("Unable to notify", exc_info=True)
 
     def on_new_request(event):
         """When a new request comes in, hook on transaction commit.
@@ -145,7 +150,7 @@ def notify_resource_event(request, parent_id, timestamp, data, action,
             impacted = []
             for i, new in enumerate(data):
                 impacted.append({'new': new, 'old': old[i]})
-    elif action == ACTIONS.UPDATE:
+    else:  # ACTIONS.UPDATE:
         impacted = [{'new': data, 'old': old}]
 
     # Get previously triggered events.
