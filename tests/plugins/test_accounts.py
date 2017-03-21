@@ -10,8 +10,9 @@ from .. import support
 
 class AccountsWebTest(support.BaseWebTest, unittest.TestCase):
 
-    def get_app_settings(self, extras=None):
-        settings = super(AccountsWebTest, self).get_app_settings(extras)
+    @classmethod
+    def get_app_settings(cls, extras=None):
+        settings = super().get_app_settings(extras)
         settings['includes'] = 'kinto.plugins.accounts'
         settings['account_create_principals'] = 'system.Everyone'
         settings['multiauth.policies'] = 'account'
@@ -179,8 +180,9 @@ class AccountViewsTest(AccountsWebTest):
 
 class AdminTest(AccountsWebTest):
 
-    def get_app_settings(self, extras=None):
-        settings = super(AdminTest, self).get_app_settings(extras)
+    @classmethod
+    def get_app_settings(cls, extras=None):
+        settings = super().get_app_settings(extras)
         settings['account_write_principals'] = 'account:admin'
         settings['account_read_principals'] = 'account:admin'
         return settings
