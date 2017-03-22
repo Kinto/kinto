@@ -6,7 +6,9 @@ This document describes changes between each past release.
 6.0.3 (unreleased)
 ------------------
 
-- Nothing changed yet.
+**Bug fixes**
+
+- Upgrade the kinto-admin to v1.12.0.
 
 
 6.0.2 (2017-03-16)
