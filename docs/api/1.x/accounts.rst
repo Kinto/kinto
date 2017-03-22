@@ -160,7 +160,62 @@ Create account
 Change password
 ===============
 
-*TO BE DOCUMENTED*
+.. http:put:: /accounts/(user_id)
+
+    :synopsis: Changes the password for an existing account.
+
+    **Requires authentication**
+
+    **Example Request**
+
+    .. sourcecode:: bash
+
+        $ echo '{"data": {"password": "azerty123"}}' | http PUT http://localhost:8888/v1/accounts/bob --verbose --auth 'bob:azerty123'
+
+    .. sourcecode:: http
+
+        PUT /v1/accounts/bob HTTP/1.1
+        Accept: application/json
+        Accept-Encoding: gzip, deflate
+        Authorization: Basic Ym9iOmF6ZXJ0eTEyMw==
+        Connection: keep-alive
+        Content-Length: 36
+        Content-Type: application/json
+        Host: localhost:8888
+        User-Agent: HTTPie/0.9.2
+
+        {
+            "data": {
+                "password": "azerty123"
+            }
+        }
+
+    **Example Response**
+
+    .. sourcecode:: http
+
+        HTTP/1.1 200 OK
+        Access-Control-Expose-Headers: Backoff, Alert, Content-Length, Retry-After
+        Content-Length: 165
+        Content-Type: application/json
+        Date: Tue, 21 Mar 2017 17:11:58 GMT
+        Etag: "1490116321096"
+        Last-Modified: Tue, 21 Mar 2017 17:12:01 GMT
+        Server: waitress
+        X-Content-Type-Options: nosniff
+
+        {
+            "data": {
+                "id": "bob", 
+                "last_modified": 1490116321096, 
+                "password": "$2b$12$c12ui4O/z9gmVpGe1NMG2.Sb4zdw9p20oka2Seg3Xqq9rDpNR5HoW"
+            }, 
+            "permissions": {
+                "write": [
+                    "account:bob"
+                ]
+            }
+        }
 
 
 .. _accounts-delete:
@@ -168,7 +223,50 @@ Change password
 Delete account
 ==============
 
-*TO BE DOCUMENTED*
+.. http:delete:: /accounts/(user_id)
+
+    :synopsis: Deletes an existing account.
+
+    **Requires authentication**
+
+    **Example Request**
+
+    .. sourcecode:: bash
+
+        $ http DELETE http://localhost:8888/v1/accounts/bob --verbose --auth 'bob:azerty123'
+
+    .. sourcecode:: http
+
+        DELETE /v1/accounts/bob HTTP/1.1
+        Accept: */*
+        Accept-Encoding: gzip, deflate
+        Authorization: Basic Ym9iOmF6ZXJ0eTEyMw==
+        Connection: keep-alive
+        Content-Length: 0
+        Host: localhost:8888
+        User-Agent: HTTPie/0.9.2
+
+    **Example Response**
+
+    .. sourcecode:: http
+
+        HTTP/1.1 200 OK
+        Access-Control-Expose-Headers: Backoff, Alert, Content-Length, Retry-After
+        Content-Length: 66
+        Content-Type: application/json
+        Date: Tue, 21 Mar 2017 17:18:14 GMT
+        Etag: "1490116696859"
+        Last-Modified: Tue, 21 Mar 2017 17:18:16 GMT
+        Server: waitress
+        X-Content-Type-Options: nosniff
+
+        {
+            "data": {
+                "deleted": true, 
+                "id": "bob", 
+                "last_modified": 1490116696859
+            }
+        }
 
 
 .. _accounts-manage:
@@ -176,6 +274,13 @@ Delete account
 Manage accounts
 ===============
 
-* Configure administrator in ``.ini`` settings
+To set an administrator, add the following settings to the ``.ini`` file:
 
-*TO BE DOCUMENTED*
+.. code-block:: ini
+
+    # Set principal 'account:admin' as the administrator
+    # by giving it read/write access to all accounts
+    kinto.account_write_principals = account:admin
+    kinto.account_read_principals = account:admin
+
+This setup gives the user with user ID ``admin`` permissions to read, update and delete all accounts.
