@@ -70,7 +70,9 @@ to several objects.
 Authentication
 ==============
 
-Kinto doesn't provide users management, like user sign-up, password modification, etc.
+Kinto comes with an accounts API that allows user sign-up, password modification and user deletion. It allows you to configure an administrator account that has read/write access to all other accounts.
+
+By default, Kinto accounts are authenticated using basic authentication.
 
 Kinto can rely on a third-party called "`Identity provider <https://en.wikipedia.org/wiki/Identity_provider>`_"
 like *Auth0*, *Github* or *Google* in order to authenticate the incoming request and assign a :term:`user id`.
