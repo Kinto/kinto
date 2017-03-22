@@ -70,7 +70,9 @@ to several objects.
 Authentication
 ==============
 
-Kinto comes with an accounts API that allows user sign-up, password modification and user deletion. It allows you to configure an administrator account that has read/write access to all other accounts.
+By design, Kinto doesn't have any hard dependency on any particular authentication mechanism or provider.
+
+Kinto, however, does comes with a built-in :ref:`accounts plugin <api-accounts>` that allows user sign-up, password modification and user deletion. It allows you to configure an administrator account that has read/write access to all other accounts.
 
 By default, Kinto accounts are authenticated using basic authentication.
 
