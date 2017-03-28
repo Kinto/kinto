@@ -277,13 +277,20 @@ Delete account
 Manage accounts
 ===============
 
-To set an administrator, add the following settings to the ``.ini`` file:
+It is possible to configure administrators in settings. They will be able to manage
+others users accounts via the API.
+
+First create the actual accounts:
+
+::
+
+    $ echo '{"data": {"password": "azerty123"}}' | http PUT http://localhost:8888/v1/accounts/admin
+
+Then mention the created accounts via the following settings in the ``.ini`` file.
+For example to account IDs ``admin`` and ``master``:
 
 .. code-block:: ini
 
-    # Set principal 'account:admin' as the administrator
-    # by giving it read/write access to all accounts
-    kinto.account_write_principals = account:admin
-    kinto.account_read_principals = account:admin
-
-This setup gives the user with user ID ``admin`` permissions to read, update and delete all accounts.
+    # Give read/write access to all accounts to `account:admin`.
+    kinto.account_write_principals = account:admin account:master
+    kinto.account_read_principals = account:admin account:master
