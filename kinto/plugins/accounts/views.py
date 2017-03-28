@@ -1,6 +1,6 @@
 import bcrypt
 import colander
-from pyramid.exceptions import HTTPForbidden
+from pyramid import httpexceptions
 from pyramid.security import Authenticated, Everyone
 from pyramid.settings import aslist
 
@@ -59,16 +59,24 @@ class Account(resource.ShareableResource):
             # Anonymous creation with POST.
             return request.json['data']['id']
         except (ValueError, KeyError):
-            # Anonymous GET, or bad POST.
-            return '__no_match__'
+            # Bad POST data.
+            if request.method.lower() == 'post':
+                error_details = {
+                    'name': 'data.id',
+                    'description': 'Cannot read account ID from payload.'
+                }
+                raise_invalid(request, **error_details)
+            # Anonymous GET
+            error_msg = 'Cannot read account anonymously.'
+            raise http_error(httpexceptions.HTTPUnauthorized(), error=error_msg)
 
     def collection_post(self):
         result = super(Account, self).collection_post()
         if self.context.is_anonymous and self.request.response.status_code == 200:
             error_details = {
-                'message': 'User %r already exists' % result['data']['id']
+                'message': 'Account ID %r already exists' % result['data']['id']
             }
-            raise http_error(HTTPForbidden(), **error_details)
+            raise http_error(httpexceptions.HTTPForbidden(), **error_details)
         return result
 
     def process_record(self, new, old=None):
@@ -86,8 +94,8 @@ class Account(resource.ShareableResource):
         # Otherwise, we force the id to match the authenticated username.
         if new[self.model.id_field] != self.request.selected_userid:
             error_details = {
-                'name': 'data',
-                'description': 'Username and account id do not match.',
+                'name': 'data.id',
+                'description': 'Username and account ID do not match.',
             }
             raise_invalid(self.request, **error_details)
 

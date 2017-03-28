@@ -55,6 +55,9 @@ class AccountCreationTest(AccountsWebTest):
     def test_password_field_is_mandatory(self):
         self.app.post_json('/accounts', {'data': {'id': 'me'}}, status=400)
 
+    def test_id_field_is_mandatory(self):
+        self.app.post_json('/accounts', {'data': {'password': 'pass'}}, status=400)
+
     def test_account_can_have_metadata(self):
         resp = self.app.post_json('/accounts',
                                   {'data': {'id': 'me', 'password': 'bouh', 'age': 42}},
@@ -155,9 +158,8 @@ class AccountViewsTest(AccountsWebTest):
         self.app.put_json('/accounts/alice', {'data': {'password': '123456'}}, status=201)
         self.app.put_json('/accounts/bob', {'data': {'password': 'azerty'}}, status=201)
 
-    def test_account_list_is_empty_if_anonymous(self):
-        resp = self.app.get('/accounts')
-        assert len(resp.json['data']) == 0
+    def test_account_list_is_forbidden_if_anonymous(self):
+        self.app.get('/accounts', status=401)
 
     def test_account_detail_is_forbidden_if_anonymous(self):
         self.app.get('/accounts/alice', status=401)
