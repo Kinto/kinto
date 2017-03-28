@@ -287,10 +287,15 @@ First create the actual accounts:
     $ echo '{"data": {"password": "azerty123"}}' | http PUT http://localhost:8888/v1/accounts/admin
 
 Then mention the created accounts via the following settings in the ``.ini`` file.
-For example to account IDs ``admin`` and ``master``:
+For example to account IDs ``admin`` and members of the ``admin`` groups in the ``bid`` bucket:
 
 .. code-block:: ini
 
-    # Give read/write access to all accounts to `account:admin`.
-    kinto.account_write_principals = account:admin account:master
-    kinto.account_read_principals = account:admin account:master
+    # Give read/write access to all accounts to ``account:admin``.
+    kinto.account_write_principals = account:admin /buckets/bid/groups/admin
+    kinto.account_read_principals = account:admin /buckets/bid/groups/admin
+
+.. note::
+
+    It is not very convenient to require a server restart for configuring administrators.
+    But we thought it was acceptable as a first iteration.
