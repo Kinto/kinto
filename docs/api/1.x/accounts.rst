@@ -6,6 +6,9 @@ Accounts
 When the built-in plugin ``kinto.plugins.accounts`` is enabled in configuration,
 it becomes possible to manage accounts via a new resource ``/accounts``.
 
+Via this endpoint, users can sign-up, modify their password or delete their account.
+Administrators configured in settings can manage users accounts.
+
 .. important::
 
     This plugin is **highly experimental**
@@ -206,10 +209,10 @@ Change password
 
         {
             "data": {
-                "id": "bob", 
-                "last_modified": 1490116321096, 
+                "id": "bob",
+                "last_modified": 1490116321096,
                 "password": "$2b$12$c12ui4O/z9gmVpGe1NMG2.Sb4zdw9p20oka2Seg3Xqq9rDpNR5HoW"
-            }, 
+            },
             "permissions": {
                 "write": [
                     "account:bob"
@@ -262,8 +265,8 @@ Delete account
 
         {
             "data": {
-                "deleted": true, 
-                "id": "bob", 
+                "deleted": true,
+                "id": "bob",
                 "last_modified": 1490116696859
             }
         }
