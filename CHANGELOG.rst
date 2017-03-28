@@ -20,6 +20,8 @@ This document describes changes between each past release.
   (#1110, #1150)
 - Settings with ``cliquet.`` prefix are not supported anymore.
 - Logging configuration now relies on standard Python logging module (#1150)
+- Cache entries must now always have a TTL. The ``ttl`` parameter of ``cache.set()``
+  is now mandatory (fixes #960).
 
 Before:
 

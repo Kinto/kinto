@@ -123,12 +123,10 @@ class Cache(CacheBase):
         with self.client.connect() as conn:
             conn.execute(query, dict(ttl=ttl, key=self.prefix + key))
 
-    def set(self, key, value, ttl=None):
+    def set(self, key, value, ttl):
         if isinstance(value, bytes):
             raise TypeError("a string-like object is required, not 'bytes'")
 
-        if ttl is None:
-            logger.warning("No TTL for cache key '{}'".format(key))
         query = """
         INSERT INTO cache (key, value, ttl)
         VALUES (:key, :value, sec2ttl(:ttl))
