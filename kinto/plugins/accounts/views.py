@@ -25,7 +25,7 @@ class Account(resource.ShareableResource):
         # Shortcut to check if current is anonymous (before get_parent_id()).
         context.is_anonymous = Authenticated not in request.effective_principals
 
-        super(Account, self).__init__(request, context)
+        super().__init__(request, context)
 
         # Overwrite the current principal set by ShareableResource.
         if self.model.current_principal == Everyone:

@@ -25,7 +25,7 @@ class AccountsAuthenticationPolicy(base_auth.BasicAuthAuthenticationPolicy):
     It will check that the credentials exist in the account resource.
     """
     def __init__(self, *args, **kwargs):
-        super(AccountsAuthenticationPolicy, self).__init__(account_check, *args, **kwargs)
+        super().__init__(account_check, *args, **kwargs)
 
     def effective_principals(self, request):
         # Bypass default Pyramid construction of principals because
