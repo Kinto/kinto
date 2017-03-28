@@ -1,9 +1,11 @@
 import bcrypt
 import colander
 from pyramid import httpexceptions
+from pyramid.decorator import reify
 from pyramid.security import Authenticated, Everyone
 from pyramid.settings import aslist
 
+from kinto.views import NameGenerator
 from kinto.core import resource
 from kinto.core.errors import raise_invalid, http_error
 
@@ -32,6 +34,11 @@ class Account(resource.ShareableResource):
             # Creation is anonymous, but author with write perm is this:
             # XXX: only works if policy name is account in settings.
             self.model.current_principal = 'account:{}'.format(self.model.parent_id)
+
+    @reify
+    def id_generator(self):
+        # This generator is used for ID validation.
+        return NameGenerator()
 
     def get_parent_id(self, request):
         # The whole challenge here is that we want to isolate what
@@ -63,11 +70,11 @@ class Account(resource.ShareableResource):
             if request.method.lower() == 'post':
                 error_details = {
                     'name': 'data.id',
-                    'description': 'Cannot read account ID from payload.'
+                    'description': 'data.id in body: Required'
                 }
                 raise_invalid(request, **error_details)
             # Anonymous GET
-            error_msg = 'Cannot read account anonymously.'
+            error_msg = 'Cannot read accounts.'
             raise http_error(httpexceptions.HTTPUnauthorized(), error=error_msg)
 
     def collection_post(self):
