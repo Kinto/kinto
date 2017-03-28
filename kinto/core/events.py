@@ -159,7 +159,7 @@ def notify_resource_event(request, parent_id, timestamp, data, action,
     resource_name = request.current_resource_name
 
     # Group events by resource and action.
-    group_by = resource_name + parent_id + action.value
+    group_by = '{}-{}-{}'.format(resource_name, parent_id, action.value)
 
     if group_by in events:
         # Add to impacted records of existing event.

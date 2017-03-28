@@ -21,10 +21,11 @@ def authorization_required(response, request):
     not allowed (``403 Forbidden``).
     """
     if Authenticated not in request.effective_principals:
-        error_msg = "Please authenticate yourself to use this endpoint."
-        response = http_error(httpexceptions.HTTPUnauthorized(),
-                              errno=ERRORS.MISSING_AUTH_TOKEN,
-                              message=error_msg)
+        if response.content_type != "application/json":
+            error_msg = "Please authenticate yourself to use this endpoint."
+            response = http_error(httpexceptions.HTTPUnauthorized(),
+                                  errno=ERRORS.MISSING_AUTH_TOKEN,
+                                  message=error_msg)
         response.headers.extend(forget(request))
         return response
 

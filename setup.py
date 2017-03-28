@@ -17,6 +17,7 @@ CHANGELOG = read_file('CHANGELOG.rst')
 CONTRIBUTORS = read_file('CONTRIBUTORS.rst')
 
 REQUIREMENTS = [
+    'bcrypt',
     'colander >= 1.3.2',
     'cornice >= 2.4',
     'cornice_swagger >= 0.5',
