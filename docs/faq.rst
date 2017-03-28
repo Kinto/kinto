@@ -143,10 +143,9 @@ How does Kinto authenticate users?
 
 Kinto authentication system is pluggable and controlled from settings.
 
-By default it ships with a very simple (but limited) *Basic Authentication* policy, which
-distinguishes users using the value provided in the header. In other words, any
-combination of user:password will be accepted. Kinto will encrypt them and determine a
-unique :term:`user id` from them.
+Kinto ships with an accounts API that allows user registration, password modification and user deletion.
+
+By default, Kinto accounts are authenticated using *Basic Authentication* but the plugin system and Kinto's extensibility allows you to use third party identity providers.
 
 See also:
 
