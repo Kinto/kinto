@@ -20,7 +20,7 @@ class CacheBaseTest(unittest.TestCase):
             (self.cache.ttl, ''),
             (self.cache.expire, '', ''),
             (self.cache.get, ''),
-            (self.cache.set, '', ''),
+            (self.cache.set, '', '', 42),
             (self.cache.delete, ''),
         ]
         for call in calls:
@@ -67,11 +67,11 @@ class MemoryCacheTest(CacheTest, unittest.TestCase):
     def test_add_over_quota_clean_oversized_items(self):
         for x in range(100):
             # Each entry is 70 bytes
-            self.cache.set('foo{0:03d}'.format(x), 'toto')
+            self.cache.set('foo{0:03d}'.format(x), 'toto', 42)
             time.sleep(0.001)
         assert self.cache.get('foo000') == 'toto'
         # This should delete the 2 first entries
-        self.cache.set('foobar', 'tata')
+        self.cache.set('foobar', 'tata', 42)
         assert self.cache._quota == 7000 - 70 * 20
         assert self.cache.get('foo000') is None
         assert self.cache.get('foobar') == 'tata'
@@ -79,7 +79,7 @@ class MemoryCacheTest(CacheTest, unittest.TestCase):
     def test_size_quota_can_be_set_to_zero(self):
         before = self.cache.max_size_bytes
         self.cache.max_size_bytes = 0
-        self.cache.set('foobar', 'tata')
+        self.cache.set('foobar', 'tata', 42)
         self.cache.max_size_bytes = before
         assert self.cache.get('foobar') == 'tata'
 

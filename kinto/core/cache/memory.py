@@ -59,15 +59,12 @@ class Cache(CacheBase):
         self._ttl[self.prefix + key] = msec_time() + int(ttl * 1000.0)
 
     @synchronized
-    def set(self, key, value, ttl=None):
+    def set(self, key, value, ttl):
         if isinstance(value, bytes):
             raise TypeError("a string-like object is required, not 'bytes'")
         self._clean_expired()
         self._clean_oversized()
-        if ttl is not None:
-            self.expire(key, ttl)
-        else:
-            logger.warning("No TTL for cache key '{}'".format(key))
+        self.expire(key, ttl)
         item_key = self.prefix + key
         self._store[item_key] = value
         self._created_at[item_key] = msec_time()

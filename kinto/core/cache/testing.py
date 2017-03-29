@@ -50,7 +50,7 @@ class CacheTest:
             (self.cache.ttl, ''),
             (self.cache.expire, '', 0),
             (self.cache.get, ''),
-            (self.cache.set, '', ''),
+            (self.cache.set, '', '', 42),
             (self.cache.delete, ''),
         ]
         for call in calls:
@@ -87,13 +87,13 @@ class CacheTest:
 
     def test_set_adds_the_record(self):
         stored = 'toto'
-        self.cache.set('foobar', stored)
+        self.cache.set('foobar', stored, 42)
         retrieved = self.cache.get('foobar')
         self.assertEquals(retrieved, stored)
 
     def test_values_remains_python_dict(self):
         def setget(k, v):
-            self.cache.set(k, v)
+            self.cache.set(k, v, 42)
             return (self.cache.get(k), v)
 
         self.assertEqual(*setget('foobar', 3))
@@ -103,10 +103,10 @@ class CacheTest:
 
     def test_bytes_cannot_be_stored_in_the_cache(self):
         with pytest.raises(TypeError):
-            self.cache.set('test', b'foo')
+            self.cache.set('test', b'foo', 42)
 
     def test_delete_removes_the_record(self):
-        self.cache.set('foobar', 'toto')
+        self.cache.set('foobar', 'toto', 42)
         self.cache.delete('foobar')
         retrieved = self.cache.get('foobar')
         self.assertIsNone(retrieved)
@@ -115,7 +115,7 @@ class CacheTest:
         self.cache.delete('foobar')
 
     def test_expire_expires_the_value(self):
-        self.cache.set('foobar', 'toto')
+        self.cache.set('foobar', 'toto', 42)
         self.cache.expire('foobar', 0.01)
         time.sleep(0.02)
         retrieved = self.cache.get('foobar')
@@ -128,7 +128,7 @@ class CacheTest:
         self.assertIsNone(retrieved)
 
     def test_ttl_return_the_time_to_live(self):
-        self.cache.set('foobar', 'toto')
+        self.cache.set('foobar', 'toto', 42)
         self.cache.expire('foobar', 10)
         ttl = self.cache.ttl('foobar')
         self.assertGreater(ttl, 0)
@@ -142,7 +142,7 @@ class CacheTest:
         backend_prefix = self.get_backend_prefix(prefix='prefix_')
 
         # Set the value
-        backend_prefix.set('key', 'foo')
+        backend_prefix.set('key', 'foo', 42)
 
         # Validate that it was set with the prefix.
         obtained = self.cache.get('prefix_key')
@@ -152,7 +152,7 @@ class CacheTest:
         backend_prefix = self.get_backend_prefix(prefix='')
 
         # Set a value
-        backend_prefix.set('key', 'foo')
+        backend_prefix.set('key', 'foo', 42)
 
         # Validate that it was set with no prefix
         obtained = self.cache.get('key')
@@ -162,7 +162,7 @@ class CacheTest:
         backend_prefix = self.get_backend_prefix(prefix='prefix_')
 
         # Set the value with the prefix
-        self.cache.set('prefix_key', 'foo')
+        self.cache.set('prefix_key', 'foo', 42)
 
         # Validate that the prefix was added
         obtained = backend_prefix.get('key')
@@ -171,7 +171,7 @@ class CacheTest:
     def test_prefix_value_use_to_delete_data(self):
         backend_prefix = self.get_backend_prefix(prefix='prefix_')
         # Set the value
-        self.cache.set('prefix_key', 'foo')
+        self.cache.set('prefix_key', 'foo', 42)
 
         # Delete the value
         backend_prefix.delete('key')
