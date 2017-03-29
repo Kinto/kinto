@@ -8,20 +8,11 @@ This document describes changes between each past release.
 
 **Breaking changes**
 
-- ``get_app_settings()`` from ``kinto.core.testing.BaseWebTest`` is now a
-  class method (#1144)
-- ``kinto.core.api`` was renamed to ``kinto.core.openapi`` (#1145)
-- Forbid storing bytes in the cache backend. (#1143)
 - The flush endpoint is now a built-in plugin at ``kinto.plugins.flush`` and
   should be enabled using the ``includes`` section of the configuration file.
   ``KINTO_FLUSH_ENDPOINT_ENABLED`` environment variable is no longer supported. (#1147)
-- Logging extra information on message must be done using the ``extra`` keyword
-  (eg. ``logger.info('msg', extra={a=1})`` instead of ``logger.info('msg', a=1)``)
-  (#1110, #1150)
 - Settings with ``cliquet.`` prefix are not supported anymore.
 - Logging configuration now relies on standard Python logging module (#1150)
-- Cache entries must now always have a TTL. The ``ttl`` parameter of ``cache.set()``
-  is now mandatory (fixes #960).
 
 Before:
 
@@ -43,6 +34,15 @@ Now:
     [formatter_color]
     class = logging_color_formatter.ColorFormatter
 
+- Forbid storing bytes in the cache backend. (#1143)
+- ``kinto.core.api`` was renamed to ``kinto.core.openapi`` (#1145)
+- Logging extra information on message must be done using the ``extra`` keyword
+  (eg. ``logger.info('msg', extra={a=1})`` instead of ``logger.info('msg', a=1)``)
+  (#1110, #1150)
+- Cache entries must now always have a TTL. The ``ttl`` parameter of ``cache.set()``
+  is now mandatory (fixes #960).
+- ``get_app_settings()`` from ``kinto.core.testing.BaseWebTest`` is now a
+  class method (#1144)
 
 **Protocol**
 
