@@ -20,7 +20,9 @@ from kinto.core import authorization as core_authorization
 #    A permission bound to an object (e.g. "collection:create")
 
 
-# Dictionary which list all permissions a given permission enables.
+# Dictionary that associates single permissions to any other permission that
+# automatically provides it
+# Ex: bucket:read is granted by both bucket:write and bucket:read
 PERMISSIONS_INHERITANCE_TREE = {
     '': {  # Granted via settings only.
         'bucket:create': {},
