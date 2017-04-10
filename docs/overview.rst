@@ -177,27 +177,27 @@ Key features
    :alt: https://thenounproject.com/search/?q=tutorial&i=24313
    :width: 50px
 
-+---------------------------------------------+---------------------------------------------+
-| |logo-javascript|                           | |logo-python|                               |
-| :github:`JavaScript HTTP API client         | :github:`Python HTTP API client             |
-| <Kinto/kinto-http.js/>`                     | <Kinto/kinto.py>`                           |
-+---------------------------------------------+---------------------------------------------+
-| |logo-offline|                              | |logo-admin|                                |
-| Offline-first `JavaScript client            | :github:`Web Admin UI                       |
-| <https://kintojs.readthedocs.io>`_          | <Kinto/kinto-admin>`                        |
-+---------------------------------------------+---------------------------------------------+
-| |logo-history|                              | |logo-livesync|                             |
-| :ref:`History of changes and authorship     | Live :ref:`Push notifications               |
-| <api-history>`                              | <tutorials>`                                |
-+---------------------------------------------+---------------------------------------------+
-| |logo-attachment|                           | |logo-signature|                            |
-| :github:`File attachments on records        | :github:`Digital signature and review       |
-| <Kinto/kinto-attachment>`                   | workflows <Kinto/kinto-signer>`             |
-+---------------------------------------------+---------------------------------------------+
-| |logo-quotas|                               | |logo-boilerplate|                          |
-| :ref:`Storage quotas                        | :github:`Kinto+React boilerplate            |
-| <api-quotas>`                               | <Kinto/kinto-react-boilerplate>`            |
-+---------------------------------------------+---------------------------------------------+
++---------------------------------------------+---------------------------------------------------------+
+| |logo-javascript|                           | |logo-python|                                           |
+| :github:`JavaScript HTTP API client         | :github:`Python HTTP API client                         |
+| <Kinto/kinto-http.js/>`                     | <Kinto/kinto.py>`                                       |
++---------------------------------------------+---------------------------------------------------------+
+| |logo-offline|                              | |logo-admin|                                            |
+| Offline-first `JavaScript client            | :github:`Web Admin UI                                   |
+| <https://kintojs.readthedocs.io>`_          | <Kinto/kinto-admin>`                                    |
++---------------------------------------------+---------------------------------------------------------+
+| |logo-history|                              | |logo-livesync|                                         |
+| :ref:`History of changes and authorship     | Live `Push notifications                                |
+| <api-history>`                              | <https://github.com/webpush-channels/webpush-channels>`_|
++---------------------------------------------+---------------------------------------------------------+
+| |logo-attachment|                           | |logo-signature|                                        |
+| :github:`File attachments on records        | :github:`Digital signature and review                   |
+| <Kinto/kinto-attachment>`                   | workflows <Kinto/kinto-signer>`                         |
++---------------------------------------------+---------------------------------------------------------+
+| |logo-quotas|                               | |logo-boilerplate|                                      |
+| :ref:`Storage quotas                        | :github:`Kinto+React boilerplate                        |
+| <api-quotas>`                               | <Kinto/kinto-react-boilerplate>`                        |
++---------------------------------------------+---------------------------------------------------------+
 
 **Learn from examples**
 
@@ -208,12 +208,6 @@ or our :ref:`tutorials <tutorials>`!
 
 - `kinto-http-java <https://github.com/intesens/kinto-http-java>`_: A Java HTTP Client
 - `ember-kinto <https://github.com/ptgamr/ember-kinto>`_: Offline first Ember Data adapter
-
-**Coming soon**
-
-- Push notifications using `the Push API <https://developer.mozilla.org/en-US/docs/Web/API/Push_API>`_ (:github:`under construction <Kinto/kinto-webpush>`)
-
-(See `our roadmap <https://github.com/Kinto/kinto/wiki/Roadmap>`_)
 
 
 .. _overview-synchronisation:
