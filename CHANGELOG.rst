@@ -3,10 +3,13 @@ Changelog
 
 This document describes changes between each past release.
 
-6.0.4 (unreleased)
+6.0.4 (2017-04-11)
 ------------------
 
-- Nothing changed yet.
+**Bug fixes**
+
+- Upgrade the kinto-admin to v1.13.1.
+- Fixed Swagger when routes contain subpath/regexp (fixes #1180)
 
 
 6.0.3 (2017-03-22)

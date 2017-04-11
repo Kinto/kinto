@@ -27,7 +27,7 @@ REQUIREMENTS = [
     'pyramid > 1.8',
     'pyramid_multiauth >= 0.8',  # User on policy selected event.
     'transaction',
-    'pyramid_tm',
+    'pyramid_tm < 2',
     'requests',
     'structlog >= 16.1.0',
     'waitress',
@@ -75,7 +75,7 @@ ENTRY_POINTS = {
 
 
 setup(name='kinto',
-      version='6.0.4.dev0',
+      version='6.0.4',
       description='Kinto Web Service - Store, Sync, Share, and Self-Host.',
       long_description="{}\n\n{}\n\n{}".format(README, CHANGELOG, CONTRIBUTORS),
       license='Apache License (2.0)',
