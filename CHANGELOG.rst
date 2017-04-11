@@ -43,7 +43,7 @@ Now:
   is now mandatory (fixes #960).
 - ``get_app_settings()`` from ``kinto.core.testing.BaseWebTest`` is now a
   class method (#1144)
-- Upgraded the kinto-admin to version 1.13.1
+- Upgraded the kinto-admin to version 1.13.2
 
 **Protocol**
 
