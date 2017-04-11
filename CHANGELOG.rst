@@ -9,6 +9,7 @@ This document describes changes between each past release.
 **Bug fixes**
 
 - Upgrade the kinto-admin to v1.13.1.
+- Fixed Swagger when routes contain subpath/regexp (fixes #1180)
 
 
 6.0.3 (2017-03-22)
