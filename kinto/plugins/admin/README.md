@@ -1,10 +1,4 @@
 # kinto-admin plugin setup
 
-Update the kinto-admin version you want to use in `package.json`, then:
-
-```
-$ npm install
-$ npm run build
-```
-
-And commit the updated `build` folder.
+Update the `kinto-admin` version you want in the `dependencies` section of the
+`package.json` file.
