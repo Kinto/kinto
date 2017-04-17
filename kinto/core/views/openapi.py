@@ -15,7 +15,7 @@ class OpenAPIResponseSchema(colander.MappingSchema):
 
 openapi_response_schemas = {
     '200': OpenAPIResponseSchema(
-        description='Return an OpenAPI description og the running instance.')
+        description='Return an OpenAPI description of the running instance.')
 }
 
 
