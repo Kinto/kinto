@@ -424,6 +424,11 @@ Protocol is now at version **1.10**. See `API changelog`_.
 4.0.0 (2016-08-17)
 ------------------
 
+**Protocol**
+
+- Add the ``/buckets/bid/stats`` endpoint to provide stats information
+  about the bucket. (#749)
+
 **Breaking changes**
 
 - ``kinto --version`` was renamed ``kinto version``
