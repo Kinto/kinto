@@ -1,0 +1,187 @@
+=================
+pyramid_multiauth
+=================
+
+An authentication policy for Pyramid that proxies to a stack of other
+authentication policies.
+
+
+Overview
+========
+
+MultiAuthenticationPolicy is a Pyramid authentication policy that proxies to
+a stack of *other* IAuthenticationPolicy objects, to provide a combined auth
+solution from individual pieces.  Simply pass it a list of policies that
+should be tried in order::
+
+
+    policies = [
+        IPAuthenticationPolicy("127.0.*.*", principals=["local"])
+        IPAuthenticationPolicy("192.168.*.*", principals=["trusted"])
+    ]
+    authn_policy = MultiAuthenticationPolicy(policies)
+    config.set_authentication_policy(authn_policy)
+
+This example uses the pyramid_ipauth module to assign effective principals
+based on originating IP address of the request.  It combines two such
+policies so that requests originating from "127.0.*.*" will have principal
+"local" while requests originating from "192.168.*.*" will have principal
+"trusted".
+
+In general, the results from the stacked authentication policies are combined
+as follows:
+
+    * authenticated_userid:    return userid from first successful policy
+    * unauthenticated_userid:  return userid from first successful policy
+    * effective_principals:    return union of principals from all policies
+    * remember:                return headers from all policies
+    * forget:                  return headers from all policies
+
+
+Deployment Settings
+===================
+
+It is also possible to specify the authentication policies as part of your
+paste deployment settings.  Consider the following example::
+
+    [app:pyramidapp]
+    use = egg:mypyramidapp
+
+    multiauth.policies = ipauth1 ipauth2 pyramid_browserid
+
+    multiauth.policy.ipauth1.use = pyramid_ipauth.IPAuthentictionPolicy
+    multiauth.policy.ipauth1.ipaddrs = 127.0.*.*
+    multiauth.policy.ipauth1.principals = local
+
+    multiauth.policy.ipauth2.use = pyramid_ipauth.IPAuthentictionPolicy
+    multiauth.policy.ipauth2.ipaddrs = 192.168.*.*
+    multiauth.policy.ipauth2.principals = trusted
+
+To configure authentication from these settings, simply include the multiauth
+module into your configurator::
+
+    config.include("pyramid_multiauth")
+
+In this example you would get a MultiAuthenticationPolicy with three stacked
+auth policies.  The first two, ipauth1 and ipauth2, are defined as the name of
+of a callable along with a set of keyword arguments.  The third is defined as
+the name of a module, pyramid_browserid, which will be procecesed via the
+standard config.include() mechanism.
+
+The end result would be a system that authenticates users via BrowserID, and
+assigns additional principal identifiers based on the originating IP address
+of the request.
+
+If necessary, the *group finder function* and the *authorization policy* can
+also be specified from configuration::
+
+    [app:pyramidapp]
+    use = egg:mypyramidapp
+
+    multiauth.authorization_policy = mypyramidapp.acl.Custom
+    multiauth.groupfinder  = mypyramidapp.acl.groupfinder
+
+    ...
+
+
+MultiAuthPolicySelected Event
+=============================
+
+An event is triggered when one of the multiple policies configured is selected.
+
+::
+
+    from pyramid_multiauth import MultiAuthPolicySelected
+
+
+    # Track policy used, for prefixing user_id and for logging.
+    def on_policy_selected(event):
+        print("%s (%s) authenticated %s for request %s" % (event.policy_name,
+                                                           event.policy,
+                                                           event.userid,
+                                                           event.request))
+
+    config.add_subscriber(on_policy_selected, MultiAuthPolicySelected)
+
+
+0.8.0 (2016-02-11)
+==================
+
+- Nothing changed yet.
+
+
+0.7.0 (2016-02-09)
+==================
+
+- Add ``get_policies()`` method to retrieve the list of contained authentication
+  policies and their respective names.
+
+
+0.6.0 (2016-01-27)
+==================
+
+- Provide the policy name used in settings in the ``MultiAuthPolicySelected``
+  event.
+
+
+0.5.0 - 2015-05-19
+==================
+
+- Read authorization policy from settings if present.
+
+
+0.4.0 - 2014-01-02
+==================
+
+- Make authenticated_userid None when groupfinder returns None.
+
+
+0.3.2 - 2013-05-29
+==================
+
+- Fix some merge bustage; this should contain all the things that were
+  *claimed* to be contained in the 0.3.1 release, but in fact were not.
+
+
+0.3.1 - 2013-05-15
+==================
+
+- MultiAuthPolicySelected events now include the request object, so you
+  can e.g. access the registry from the handler function.
+- Fixed some edge-cases in merging effective_principals with the output
+  of the groupfinder callback.
+
+
+0.3.0 - 2012-11-27
+==================
+
+- Support for Python3 via source-level compatibility.
+- Fire a MultiAuthPolicySelected event when a policy is successfully
+  used for authentication.
+
+
+0.2.0 - 2012-10-04
+==================
+
+- Add get_policy() method, which can be used to look up the loaded
+  sub-policies at runtime.
+
+
+0.1.2 - 2012-01-30
+==================
+
+- Update license to MPL 2.0.
+
+
+0.1.1 - 2011-12-20
+==================
+
+- Compatability with Pyramid 1.3.
+
+
+0.1.0 - 2011-11-11
+==================
+
+- Initial release.
+
+

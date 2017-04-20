@@ -1,0 +1,365 @@
+
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>API &mdash; Kinto 4.3.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="../_static/theme_overrides.css" type="text/css" />
+  
+    <link rel="stylesheet" href="../_static/css/style.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="Kinto 4.3.1 documentation" href="../index.html"/>
+        <link rel="next" title="API Versioning" href="versioning.html"/>
+        <link rel="prev" title="Deployment good practices" href="../configuration/good-practices.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> Kinto
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                4.3
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../kinto-admin.html">Kinto Web Administration Console</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../concepts.html">Concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../community.html">Community</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configuration/index.html">Configuration</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="versioning.html">API Versioning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="1.x/index.html">1.x</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#changelog">Changelog</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id1">1.11 (2016-10-04)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id2">1.10 (2016-09-15)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id3">1.9 (2016-08-17)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id4">1.8 (2016-07-19)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id5">1.7 (2016-06-14)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id6">1.6 (2016-05-24)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id7">1.5 (2016-04-21)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id8">1.4 (2016-03-08)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id9">1.3 (2016-01-28)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id10">1.2 (2016-01-15)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id11">1.1 (2015-12-01)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id12">1.0 (2015-06-17)</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../commandline.html">Command Line</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../core/glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../core/index.html">Kinto Core</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">Kinto</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+    <li>API</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/api/index.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="api">
+<h1>API<a class="headerlink" href="#api" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="versioning.html">API Versioning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="1.x/index.html">1.x</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="1.x/index.html#full-reference">Full reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="1.x/index.html#cheatsheet">Cheatsheet</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="changelog">
+<h2>Changelog<a class="headerlink" href="#changelog" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id1">
+<h3>1.11 (2016-10-04)<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li>Parent attributes are now readable if children creation is allowed</li>
+<li>Return an empty list on the plural endpoint instead of <code class="docutils literal"><span class="pre">401</span> <span class="pre">Forbidden</span></code> if the <code class="docutils literal"><span class="pre">create</span></code>
+permission is allowed</li>
+<li>Now returns a <code class="docutils literal"><span class="pre">412</span> <span class="pre">Precondition</span> <span class="pre">Failed</span></code> instead of a <code class="docutils literal"><span class="pre">401</span> <span class="pre">Forbidden</span></code> if the <code class="docutils literal"><span class="pre">If-None-Match:</span> <span class="pre">*</span></code> header is
+provided and the <code class="docutils literal"><span class="pre">create</span></code> permission is allowed</li>
+<li>The <code class="docutils literal"><span class="pre">permissions</span></code> attribute is now empty in the response if the user does not
+have the permission to write.</li>
+</ul>
+</div>
+<div class="section" id="id2">
+<h3>1.10 (2016-09-15)<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li>Add substring query to filtering on plural endpoints (e.g <code class="docutils literal"><span class="pre">?like_person=Tim</span></code>)</li>
+</ul>
+</div>
+<div class="section" id="id3">
+<h3>1.9 (2016-08-17)<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li>Add new endpoint <code class="docutils literal"><span class="pre">GET</span> <span class="pre">/__version__</span></code> to retrieve the information
+about the deployed version.</li>
+<li>Allow sub-object filtering on plural endpoints (e.g <code class="docutils literal"><span class="pre">?person.name=Eliot</span></code>)</li>
+<li>Allow sub-object sorting on plural endpoints (e.g <code class="docutils literal"><span class="pre">?_sort=person.name</span></code>)</li>
+</ul>
+</div>
+<div class="section" id="id4">
+<h3>1.8 (2016-07-19)<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li>Add new endpoint <code class="docutils literal"><span class="pre">GET</span> <span class="pre">/v1/permissions</span></code> to retrieve the list of permissions
+granted on every kind of object.</li>
+</ul>
+</div>
+<div class="section" id="id5">
+<h3>1.7 (2016-06-14)<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li>Allow record IDs to be any string instead of just UUID.</li>
+</ul>
+</div>
+<div class="section" id="id6">
+<h3>1.6 (2016-05-24)<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li>Added the <code class="docutils literal"><span class="pre">GET</span> <span class="pre">/contribute.json</span></code> endpoint for open-source information.</li>
+</ul>
+</div>
+<div class="section" id="id7">
+<h3>1.5 (2016-04-21)<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li>Allow groups to get arbitrary attributes.</li>
+</ul>
+</div>
+<div class="section" id="id8">
+<h3>1.4 (2016-03-08)<a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li>Allow bucket to get arbitrary attributes.</li>
+<li>Delete every (writable) buckets using <code class="docutils literal"><span class="pre">DELETE</span> <span class="pre">/v1/buckets</span></code></li>
+<li>Delete every (writable) collections using <code class="docutils literal"><span class="pre">DELETE</span> <span class="pre">/v1/buckets/&lt;bucket-id&gt;/collections</span></code></li>
+<li>URLs with trailing slash are redirected only if the current URL does not exist</li>
+<li>Partial responses can now be specified for nested objects.
+For example, <code class="docutils literal"><span class="pre">/records?_fields=address.street</span></code>.</li>
+<li>List responses are now sorted by last_modified descending by default</li>
+<li>Return 415 error response if client cannot accept JSON response</li>
+<li>Return 415 error response if client does not send JSON request</li>
+<li>Add the <code class="docutils literal"><span class="pre">GET</span> <span class="pre">/v1/__lbheartbeat__</span></code> endpoint, for load balancer membership test</li>
+</ul>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The <code class="docutils literal"><span class="pre">capabilities</span></code> object in the <a class="reference internal" href="1.x/utilities.html#api-utilities"><span class="std std-ref">root URL</span></a> response
+now contains some <code class="docutils literal"><span class="pre">flush_endpoint</span></code>, <code class="docutils literal"><span class="pre">schema</span></code>, and <code class="docutils literal"><span class="pre">default_bucket</span></code> entries
+if the features are enabled in settings (#270).</p>
+</div>
+</div>
+<div class="section" id="id9">
+<h3>1.3 (2016-01-28)<a class="headerlink" href="#id9" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li>Forward slashes (<code class="docutils literal"><span class="pre">/</span></code>) are not escaped anymore in JSON responses (#537)</li>
+<li>The API capabilities can be exposed in a <code class="docutils literal"><span class="pre">capabilities</span></code> attribute in the
+root URL (#628). Clients can rely on this to detect optional features on the
+server (e.g. enabled plugins).</li>
+</ul>
+</div>
+<div class="section" id="id10">
+<h3>1.2 (2016-01-15)<a class="headerlink" href="#id10" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li>Fields can be filtered in GET requests using <code class="docutils literal"><span class="pre">_fields=f1,f2</span></code> in querystring</li>
+<li>New collections can be created via <code class="docutils literal"><span class="pre">POST</span></code> requests</li>
+</ul>
+</div>
+<div class="section" id="id11">
+<h3>1.1 (2015-12-01)<a class="headerlink" href="#id11" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li>Renamed fields in the <a class="reference internal" href="1.x/utilities.html#api-utilities"><span class="std std-ref">root URL view</span></a></li>
+<li>Added user information like user id and default bucket id in
+<a class="reference internal" href="1.x/utilities.html#api-utilities"><span class="std std-ref">root URL view</span></a></li>
+</ul>
+</div>
+<div class="section" id="id12">
+<h3>1.0 (2015-06-17)<a class="headerlink" href="#id12" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li>Initial working version.</li>
+</ul>
+</div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="versioning.html" class="btn btn-neutral float-right" title="API Versioning" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="../configuration/good-practices.html" class="btn btn-neutral" title="Deployment good practices" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2015-2016 — Mozilla Services.
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+
+  
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        var disqus_shortname = 'kinto-docs';
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+  
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'4.3.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="../_static/piwik.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

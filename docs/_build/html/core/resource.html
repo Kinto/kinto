@@ -1,0 +1,1314 @@
+
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Resource &mdash; Kinto 4.3.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="../_static/theme_overrides.css" type="text/css" />
+  
+    <link rel="stylesheet" href="../_static/css/style.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="Kinto 4.3.1 documentation" href="../index.html"/>
+        <link rel="up" title="Kinto Core" href="index.html"/>
+        <link rel="next" title="Viewsets" href="viewsets.html"/>
+        <link rel="prev" title="Getting started" href="quickstart.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> Kinto
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                4.3
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../kinto-admin.html">Kinto Web Administration Console</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../concepts.html">Concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../community.html">Community</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configuration/index.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/index.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../commandline.html">Command Line</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="glossary.html">Glossary</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Kinto Core</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="rationale.html">Rationale</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html">Getting started</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Resource</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#full-example">Full example</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#urls">URLs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#schema">Schema</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#permissions">Permissions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#http-methods-and-options">HTTP methods and options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#events">Events</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#model">Model</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#plug-custom-model">Plug custom model</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#relationships">Relationships</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#in-pyramid-views">In Pyramid views</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#outside-views">Outside views</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#custom-record-ids">Custom record ids</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#python-api">Python API</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#resource-class">Resource</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#resource-schema">Schema</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#resource-model">Model</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-kinto.core.storage.generators">Generators</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="viewsets.html">Viewsets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="storage.html">Storage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cache.html">Cache</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notifications.html">Notifications</a></li>
+<li class="toctree-l2"><a class="reference internal" href="permission.html">Permissions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="errors.html">Errors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="testing.html">Testing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html">Utils</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">Kinto</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="index.html">Kinto Core</a> &raquo;</li>
+      
+    <li>Resource</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/core/resource.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="resource">
+<span id="id1"></span><h1>Resource<a class="headerlink" href="#resource" title="Permalink to this headline">¶</a></h1>
+<p><em>Kinto-Core</em> provides a basic component to build resource oriented APIs.
+In most cases, the main customization consists in defining the schema of the
+records for this resource.</p>
+<div class="section" id="full-example">
+<h2>Full example<a class="headerlink" href="#full-example" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">colander</span>
+
+<span class="kn">from</span> <span class="nn">kinto.core</span> <span class="kn">import</span> <span class="n">resource</span>
+<span class="kn">from</span> <span class="nn">kinto.core</span> <span class="kn">import</span> <span class="n">utils</span>
+
+
+<span class="k">class</span> <span class="nc">BookmarkSchema</span><span class="p">(</span><span class="n">resource</span><span class="o">.</span><span class="n">ResourceSchema</span><span class="p">):</span>
+    <span class="n">url</span> <span class="o">=</span> <span class="n">colander</span><span class="o">.</span><span class="n">SchemaNode</span><span class="p">(</span><span class="n">colander</span><span class="o">.</span><span class="n">String</span><span class="p">(),</span> <span class="n">validator</span><span class="o">=</span><span class="n">colander</span><span class="o">.</span><span class="n">url</span><span class="p">)</span>
+    <span class="n">title</span> <span class="o">=</span> <span class="n">colander</span><span class="o">.</span><span class="n">SchemaNode</span><span class="p">(</span><span class="n">colander</span><span class="o">.</span><span class="n">String</span><span class="p">())</span>
+    <span class="n">favorite</span> <span class="o">=</span> <span class="n">colander</span><span class="o">.</span><span class="n">SchemaNode</span><span class="p">(</span><span class="n">colander</span><span class="o">.</span><span class="n">Boolean</span><span class="p">(),</span> <span class="n">missing</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+    <span class="n">device</span> <span class="o">=</span> <span class="n">colander</span><span class="o">.</span><span class="n">SchemaNode</span><span class="p">(</span><span class="n">colander</span><span class="o">.</span><span class="n">String</span><span class="p">(),</span> <span class="n">missing</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+
+    <span class="k">class</span> <span class="nc">Options</span><span class="p">:</span>
+        <span class="n">readonly_fields</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;device&#39;</span><span class="p">,)</span>
+
+
+<span class="nd">@resource.register</span><span class="p">()</span>
+<span class="k">class</span> <span class="nc">Bookmark</span><span class="p">(</span><span class="n">resource</span><span class="o">.</span><span class="n">UserResource</span><span class="p">):</span>
+    <span class="n">mapping</span> <span class="o">=</span> <span class="n">BookmarkSchema</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">process_record</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new</span><span class="p">,</span> <span class="n">old</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="n">new</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">Bookmark</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">process_record</span><span class="p">(</span><span class="n">new</span><span class="p">,</span> <span class="n">old</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">new</span><span class="p">[</span><span class="s1">&#39;device&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">old</span><span class="p">[</span><span class="s1">&#39;device&#39;</span><span class="p">]:</span>
+            <span class="n">new</span><span class="p">[</span><span class="s1">&#39;device&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;User-Agent&#39;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">new</span>
+</pre></div>
+</div>
+<p>See the <a class="reference external" href="https://github.com/mozilla-services/readinglist/">ReadingList</a> and
+<a class="reference external" href="https://github.com/mozilla-services/kinto/">Kinto</a> projects source code for real use cases.</p>
+</div>
+<div class="section" id="urls">
+<span id="resource-urls"></span><h2>URLs<a class="headerlink" href="#urls" title="Permalink to this headline">¶</a></h2>
+<p>By default, a resource defines two URLs:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">/{classname}s</span></code> for the list of records</li>
+<li><code class="docutils literal"><span class="pre">/{classname}s/{id}</span></code> for single records</li>
+</ul>
+<p>Since adding an <code class="docutils literal"><span class="pre">s</span></code> suffix for the plural form might not always be relevant,
+URLs can be specified during registration:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="nd">@resource.register</span><span class="p">(</span><span class="n">collection_path</span><span class="o">=</span><span class="s1">&#39;/user/bookmarks&#39;</span><span class="p">,</span>
+                   <span class="n">record_path</span><span class="o">=</span><span class="s1">&#39;/user/bookmarks/{{id}}&#39;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">Bookmark</span><span class="p">(</span><span class="n">resource</span><span class="o">.</span><span class="n">UserResource</span><span class="p">):</span>
+    <span class="n">mapping</span> <span class="o">=</span> <span class="n">BookmarkSchema</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The same resource can be registered with different URLs.</p>
+</div>
+</div>
+<div class="section" id="schema">
+<h2>Schema<a class="headerlink" href="#schema" title="Permalink to this headline">¶</a></h2>
+<p>Override the base schema to add extra fields using the <a class="reference external" href="http://docs.pylonsproject.org/projects/colander/">Colander API</a>.</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Movie</span><span class="p">(</span><span class="n">ResourceSchema</span><span class="p">):</span>
+    <span class="n">director</span> <span class="o">=</span> <span class="n">colander</span><span class="o">.</span><span class="n">SchemaNode</span><span class="p">(</span><span class="n">colander</span><span class="o">.</span><span class="n">String</span><span class="p">())</span>
+    <span class="n">year</span> <span class="o">=</span> <span class="n">colander</span><span class="o">.</span><span class="n">SchemaNode</span><span class="p">(</span><span class="n">colander</span><span class="o">.</span><span class="n">Int</span><span class="p">(),</span>
+                               <span class="n">validator</span><span class="o">=</span><span class="n">colander</span><span class="o">.</span><span class="n">Range</span><span class="p">(</span><span class="nb">min</span><span class="o">=</span><span class="mi">1850</span><span class="p">))</span>
+    <span class="n">genre</span> <span class="o">=</span> <span class="n">colander</span><span class="o">.</span><span class="n">SchemaNode</span><span class="p">(</span><span class="n">colander</span><span class="o">.</span><span class="n">String</span><span class="p">(),</span>
+                                <span class="n">validator</span><span class="o">=</span><span class="n">colander</span><span class="o">.</span><span class="n">OneOf</span><span class="p">([</span><span class="s1">&#39;Sci-Fi&#39;</span><span class="p">,</span> <span class="s1">&#39;Comedy&#39;</span><span class="p">]))</span>
+</pre></div>
+</div>
+<p>See the <a class="reference internal" href="#resource-schema"><span class="std std-ref">resource schema options</span></a> to define <em>schema-less</em>
+resources or specify rules like readonly fields.</p>
+</div>
+<div class="section" id="permissions">
+<span id="resource-permissions"></span><h2>Permissions<a class="headerlink" href="#permissions" title="Permalink to this headline">¶</a></h2>
+<p>Using the <a class="reference internal" href="#kinto.core.resource.UserResource" title="kinto.core.resource.UserResource"><code class="xref py py-class docutils literal"><span class="pre">kinto.core.resource.UserResource</span></code></a>, the resource is accessible by
+any authenticated request, but the records are isolated by <a class="reference internal" href="glossary.html#term-user-id"><span class="xref std std-term">user id</span></a>.</p>
+<p>In order to define resources whose records are not isolated, open publicly or
+controlled with individual fined-permissions, a <a class="reference internal" href="#kinto.core.resource.ShareableResource" title="kinto.core.resource.ShareableResource"><code class="xref py py-class docutils literal"><span class="pre">kinto.core.resource.ShareableResource</span></code></a>
+could be used.</p>
+<p>But there are other strategies, please refer to <a class="reference internal" href="permission.html#permissions"><span class="std std-ref">dedicated section about permissions</span></a>.</p>
+</div>
+<div class="section" id="http-methods-and-options">
+<h2>HTTP methods and options<a class="headerlink" href="#http-methods-and-options" title="Permalink to this headline">¶</a></h2>
+<p>In order to specify which HTTP verbs (<code class="docutils literal"><span class="pre">GET</span></code>, <code class="docutils literal"><span class="pre">PUT</span></code>, <code class="docutils literal"><span class="pre">PATCH</span></code>, ...)
+are allowed on the resource, as well as specific custom Pyramid (or <a class="reference external" href="https://cornice.readthedocs.io">cornice</a>)
+view arguments, refer to the <a class="reference internal" href="viewsets.html#viewset"><span class="std std-ref">viewset section</span></a>.</p>
+</div>
+<div class="section" id="events">
+<h2>Events<a class="headerlink" href="#events" title="Permalink to this headline">¶</a></h2>
+<p>When a record is created/deleted in a resource, an event is sent.
+See the <a class="reference external" href="notifications">dedicated section about notifications</a> to plug events
+in your Pyramid/<em>Kinto-Core</em> application or plugin.</p>
+</div>
+<div class="section" id="model">
+<h2>Model<a class="headerlink" href="#model" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="plug-custom-model">
+<h3>Plug custom model<a class="headerlink" href="#plug-custom-model" title="Permalink to this headline">¶</a></h3>
+<p>In order to customize the interaction of a HTTP resource with its storage,
+a custom model can be plugged-in:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">kinto.core</span> <span class="kn">import</span> <span class="n">resource</span>
+
+
+<span class="k">class</span> <span class="nc">TrackedModel</span><span class="p">(</span><span class="n">resource</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">create_record</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">record</span><span class="p">,</span> <span class="n">parent_id</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="n">record</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">TrackedModel</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">create_record</span><span class="p">(</span><span class="n">record</span><span class="p">,</span> <span class="n">parent_id</span><span class="p">)</span>
+        <span class="n">trackid</span> <span class="o">=</span> <span class="n">index</span><span class="o">.</span><span class="n">track</span><span class="p">(</span><span class="n">record</span><span class="p">)</span>
+        <span class="n">record</span><span class="p">[</span><span class="s1">&#39;trackid&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">trackid</span>
+        <span class="k">return</span> <span class="n">record</span>
+
+
+<span class="k">class</span> <span class="nc">Payment</span><span class="p">(</span><span class="n">resource</span><span class="o">.</span><span class="n">UserResource</span><span class="p">):</span>
+    <span class="n">default_model</span> <span class="o">=</span> <span class="n">TrackedModel</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="relationships">
+<h3>Relationships<a class="headerlink" href="#relationships" title="Permalink to this headline">¶</a></h3>
+<p>With the default model and storage backend, <em>Kinto-Core</em> does not support complex
+relations.</p>
+<p>However, it is possible to plug a custom <a class="reference internal" href="#resource-model"><span class="std std-ref">model class</span></a>,
+that will take care of saving and retrieving records with relations.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This part deserves more love, <a class="reference external" href="https://github.com/mozilla-services/cliquet/issues/135">please come and discuss</a>!</p>
+</div>
+</div>
+<div class="section" id="in-pyramid-views">
+<h3>In Pyramid views<a class="headerlink" href="#in-pyramid-views" title="Permalink to this headline">¶</a></h3>
+<p>In Pyramid views, a <code class="docutils literal"><span class="pre">request</span></code> object is available and allows to use the storage
+configured in the application:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">kinto.core</span> <span class="kn">import</span> <span class="n">resource</span>
+
+<span class="k">def</span> <span class="nf">view</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="n">registry</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">registry</span>
+
+    <span class="n">flowers</span> <span class="o">=</span> <span class="n">resource</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="n">storage</span><span class="o">=</span><span class="n">registry</span><span class="o">.</span><span class="n">storage</span><span class="p">,</span>
+                             <span class="n">collection_id</span><span class="o">=</span><span class="s1">&#39;app:flowers&#39;</span><span class="p">)</span>
+
+    <span class="n">flowers</span><span class="o">.</span><span class="n">create_record</span><span class="p">({</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;Jonquille&#39;</span><span class="p">,</span> <span class="s1">&#39;size&#39;</span><span class="p">:</span> <span class="mi">30</span><span class="p">})</span>
+    <span class="n">flowers</span><span class="o">.</span><span class="n">create_record</span><span class="p">({</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;Amapola&#39;</span><span class="p">,</span> <span class="s1">&#39;size&#39;</span><span class="p">:</span> <span class="mi">18</span><span class="p">})</span>
+
+    <span class="n">min_size</span> <span class="o">=</span> <span class="n">resource</span><span class="o">.</span><span class="n">Filter</span><span class="p">(</span><span class="s1">&#39;size&#39;</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="n">resource</span><span class="o">.</span><span class="n">COMPARISON</span><span class="o">.</span><span class="n">MIN</span><span class="p">)</span>
+    <span class="n">records</span><span class="p">,</span> <span class="n">total</span> <span class="o">=</span> <span class="n">flowers</span><span class="o">.</span><span class="n">get_records</span><span class="p">(</span><span class="n">filters</span><span class="o">=</span><span class="p">[</span><span class="n">min_size</span><span class="p">])</span>
+
+    <span class="n">flowers</span><span class="o">.</span><span class="n">delete_record</span><span class="p">(</span><span class="n">records</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="outside-views">
+<h3>Outside views<a class="headerlink" href="#outside-views" title="Permalink to this headline">¶</a></h3>
+<p>Outside views, an application context has to be built from scratch.</p>
+<p>As an example, let&#8217;s build a code that will copy a collection into another:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">kinto.core</span> <span class="kn">import</span> <span class="n">resource</span><span class="p">,</span> <span class="n">DEFAULT_SETTINGS</span>
+<span class="kn">from</span> <span class="nn">pyramid</span> <span class="kn">import</span> <span class="n">Configurator</span>
+
+
+<span class="n">config</span> <span class="o">=</span> <span class="n">Configurator</span><span class="p">(</span><span class="n">settings</span><span class="o">=</span><span class="n">DEFAULT_SETTINGS</span><span class="p">)</span>
+<span class="n">config</span><span class="o">.</span><span class="n">add_settings</span><span class="p">({</span>
+    <span class="s1">&#39;kinto.storage_backend&#39;</span><span class="p">:</span> <span class="s1">&#39;kinto.core.storage.postgresql&#39;</span>
+    <span class="s1">&#39;kinto.storage_url&#39;</span><span class="p">:</span> <span class="s1">&#39;postgres://user:pass@db.server.lan:5432/dbname&#39;</span>
+<span class="p">})</span>
+<span class="n">kinto</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">initialize</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;0.0.1&#39;</span><span class="p">)</span>
+
+<span class="n">local</span> <span class="o">=</span> <span class="n">resource</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="n">storage</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">registry</span><span class="o">.</span><span class="n">storage</span><span class="p">,</span>
+                       <span class="n">parent_id</span><span class="o">=</span><span class="s1">&#39;browsing&#39;</span><span class="p">,</span>
+                       <span class="n">collection_id</span><span class="o">=</span><span class="s1">&#39;history&#39;</span><span class="p">)</span>
+
+<span class="n">remote</span> <span class="o">=</span> <span class="n">resource</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="n">storage</span><span class="o">=</span><span class="n">config_remote</span><span class="o">.</span><span class="n">registry</span><span class="o">.</span><span class="n">storage</span><span class="p">,</span>
+                        <span class="n">parent_id</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span>
+                        <span class="n">collection_id</span><span class="o">=</span><span class="s1">&#39;history&#39;</span><span class="p">)</span>
+
+<span class="n">records</span><span class="p">,</span> <span class="n">total</span> <span class="o">=</span> <span class="ow">in</span> <span class="n">remote</span><span class="o">.</span><span class="n">get_records</span><span class="p">():</span>
+<span class="k">for</span> <span class="n">record</span> <span class="ow">in</span> <span class="n">records</span><span class="p">:</span>
+    <span class="n">local</span><span class="o">.</span><span class="n">create_record</span><span class="p">(</span><span class="n">record</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="custom-record-ids">
+<h2>Custom record ids<a class="headerlink" href="#custom-record-ids" title="Permalink to this headline">¶</a></h2>
+<p>By default, records ids are <a class="reference external" href="http://en.wikipedia.org/wiki/Universally_unique_identifier">UUID4</a>.</p>
+<p>A custom record ID generator can be set globally in <a class="reference internal" href="../configuration/index.html#configuration"><span class="std std-ref">Configuration</span></a>,
+or at the resource level:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">kinto.core</span> <span class="kn">import</span> <span class="n">resource</span>
+<span class="kn">from</span> <span class="nn">kinto.core</span> <span class="kn">import</span> <span class="n">utils</span>
+<span class="kn">from</span> <span class="nn">kinto.core.storage</span> <span class="kn">import</span> <span class="n">generators</span>
+
+
+<span class="k">class</span> <span class="nc">MsecId</span><span class="p">(</span><span class="n">generators</span><span class="o">.</span><span class="n">Generator</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">utils</span><span class="o">.</span><span class="n">msec_time</span><span class="p">()</span>
+
+
+<span class="nd">@resource.register</span><span class="p">()</span>
+<span class="k">class</span> <span class="nc">Mushroom</span><span class="p">(</span><span class="n">resource</span><span class="o">.</span><span class="n">UserResource</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Mushroom</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">request</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">id_generator</span> <span class="o">=</span> <span class="n">MsecId</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="python-api">
+<h2>Python API<a class="headerlink" href="#python-api" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="kinto.core.resource.register">
+<code class="descclassname">kinto.core.resource.</code><code class="descname">register</code><span class="sig-paren">(</span><em>depth=1</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.resource.register" title="Permalink to this definition">¶</a></dt>
+<dd><p>Ressource class decorator.</p>
+<p>Register the decorated class in the cornice registry.
+Pass all its keyword arguments to the register_resource
+function.</p>
+</dd></dl>
+
+<div class="section" id="resource-class">
+<span id="id2"></span><h3>Resource<a class="headerlink" href="#resource-class" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="kinto.core.resource.UserResource">
+<em class="property">class </em><code class="descclassname">kinto.core.resource.</code><code class="descname">UserResource</code><span class="sig-paren">(</span><em>request</em>, <em>context=None</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.resource.UserResource" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base resource class providing every endpoint.</p>
+<dl class="attribute">
+<dt id="kinto.core.resource.UserResource.default_viewset">
+<code class="descname">default_viewset</code><a class="headerlink" href="#kinto.core.resource.UserResource.default_viewset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Default <a class="reference internal" href="viewsets.html#kinto.core.resource.viewset.ViewSet" title="kinto.core.resource.viewset.ViewSet"><code class="xref py py-class docutils literal"><span class="pre">kinto.core.resource.viewset.ViewSet</span></code></a> class to use when
+the resource is registered.</p>
+<p>alias of <code class="xref py py-class docutils literal"><span class="pre">ViewSet</span></code></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="kinto.core.resource.UserResource.default_model">
+<code class="descname">default_model</code><a class="headerlink" href="#kinto.core.resource.UserResource.default_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Default <a class="reference internal" href="#kinto.core.resource.model.Model" title="kinto.core.resource.model.Model"><code class="xref py py-class docutils literal"><span class="pre">kinto.core.resource.model.Model</span></code></a> class to use for
+interacting the <a class="reference internal" href="storage.html#module-kinto.core.storage" title="kinto.core.storage"><code class="xref py py-mod docutils literal"><span class="pre">kinto.core.storage</span></code></a> and <a class="reference internal" href="permission.html#module-kinto.core.permission" title="kinto.core.permission"><code class="xref py py-mod docutils literal"><span class="pre">kinto.core.permission</span></code></a>
+backends.</p>
+<p>alias of <code class="xref py py-class docutils literal"><span class="pre">Model</span></code></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="kinto.core.resource.UserResource.mapping">
+<code class="descname">mapping</code><em class="property"> = &lt;kinto.core.resource.schema.ResourceSchema object at 140603377022992 (named )&gt;</em><a class="headerlink" href="#kinto.core.resource.UserResource.mapping" title="Permalink to this definition">¶</a></dt>
+<dd><p>Schema to validate records.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="kinto.core.resource.UserResource.timestamp">
+<code class="descname">timestamp</code><a class="headerlink" href="#kinto.core.resource.UserResource.timestamp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the current collection timestamp.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">int</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="kinto.core.resource.UserResource.get_parent_id">
+<code class="descname">get_parent_id</code><span class="sig-paren">(</span><em>request</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.resource.UserResource.get_parent_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the parent_id of the resource with regards to the current
+request.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>request</strong> &#8211; The request used to create the resource.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">str</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="kinto.core.resource.UserResource.is_known_field">
+<code class="descname">is_known_field</code><span class="sig-paren">(</span><em>field</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.resource.UserResource.is_known_field" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return <code class="docutils literal"><span class="pre">True</span></code> if <cite>field</cite> is defined in the resource schema.
+If the resource schema allows unknown fields, this will always return
+<code class="docutils literal"><span class="pre">True</span></code>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>field</strong> (<em>str</em>) &#8211; Field name</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">bool</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="kinto.core.resource.UserResource.collection_get">
+<code class="descname">collection_get</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.resource.UserResource.collection_get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Model <code class="docutils literal"><span class="pre">GET</span></code> endpoint: retrieve multiple records.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><a class="reference external" href="https://pyramid.readthedocs.io/en/latest/api/httpexceptions.html#pyramid.httpexceptions.HTTPNotModified" title="(in The Pyramid Web Framework v1.7.3)"><code class="xref py py-exc docutils literal"><span class="pre">HTTPNotModified</span></code></a> if
+<code class="docutils literal"><span class="pre">If-None-Match</span></code> header is provided and collection not
+modified in the interim.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><a class="reference external" href="https://pyramid.readthedocs.io/en/latest/api/httpexceptions.html#pyramid.httpexceptions.HTTPPreconditionFailed" title="(in The Pyramid Web Framework v1.7.3)"><code class="xref py py-exc docutils literal"><span class="pre">HTTPPreconditionFailed</span></code></a> if
+<code class="docutils literal"><span class="pre">If-Match</span></code> header is provided and collection modified
+in the iterim.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><a class="reference external" href="https://pyramid.readthedocs.io/en/latest/api/httpexceptions.html#pyramid.httpexceptions.HTTPBadRequest" title="(in The Pyramid Web Framework v1.7.3)"><code class="xref py py-exc docutils literal"><span class="pre">HTTPBadRequest</span></code></a>
+if filters or sorting are invalid.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="kinto.core.resource.UserResource.collection_post">
+<code class="descname">collection_post</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.resource.UserResource.collection_post" title="Permalink to this definition">¶</a></dt>
+<dd><p>Model <code class="docutils literal"><span class="pre">POST</span></code> endpoint: create a record.</p>
+<p>If the new record id conflicts against an existing one, the
+posted record is ignored, and the existing record is returned, with
+a <code class="docutils literal"><span class="pre">200</span></code> status.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><a class="reference external" href="https://pyramid.readthedocs.io/en/latest/api/httpexceptions.html#pyramid.httpexceptions.HTTPPreconditionFailed" title="(in The Pyramid Web Framework v1.7.3)"><code class="xref py py-exc docutils literal"><span class="pre">HTTPPreconditionFailed</span></code></a> if
+<code class="docutils literal"><span class="pre">If-Match</span></code> header is provided and collection modified
+in the iterim.</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last">Add custom behaviour by overriding
+<a class="reference internal" href="#kinto.core.resource.UserResource.process_record" title="kinto.core.resource.UserResource.process_record"><code class="xref py py-meth docutils literal"><span class="pre">kinto.core.resource.UserResource.process_record()</span></code></a></p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="kinto.core.resource.UserResource.collection_delete">
+<code class="descname">collection_delete</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.resource.UserResource.collection_delete" title="Permalink to this definition">¶</a></dt>
+<dd><p>Model <code class="docutils literal"><span class="pre">DELETE</span></code> endpoint: delete multiple records.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><a class="reference external" href="https://pyramid.readthedocs.io/en/latest/api/httpexceptions.html#pyramid.httpexceptions.HTTPPreconditionFailed" title="(in The Pyramid Web Framework v1.7.3)"><code class="xref py py-exc docutils literal"><span class="pre">HTTPPreconditionFailed</span></code></a> if
+<code class="docutils literal"><span class="pre">If-Match</span></code> header is provided and collection modified
+in the iterim.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><a class="reference external" href="https://pyramid.readthedocs.io/en/latest/api/httpexceptions.html#pyramid.httpexceptions.HTTPBadRequest" title="(in The Pyramid Web Framework v1.7.3)"><code class="xref py py-exc docutils literal"><span class="pre">HTTPBadRequest</span></code></a>
+if filters are invalid.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="kinto.core.resource.UserResource.get">
+<code class="descname">get</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.resource.UserResource.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Record <code class="docutils literal"><span class="pre">GET</span></code> endpoint: retrieve a record.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><a class="reference external" href="https://pyramid.readthedocs.io/en/latest/api/httpexceptions.html#pyramid.httpexceptions.HTTPNotFound" title="(in The Pyramid Web Framework v1.7.3)"><code class="xref py py-exc docutils literal"><span class="pre">HTTPNotFound</span></code></a> if
+the record is not found.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><a class="reference external" href="https://pyramid.readthedocs.io/en/latest/api/httpexceptions.html#pyramid.httpexceptions.HTTPNotModified" title="(in The Pyramid Web Framework v1.7.3)"><code class="xref py py-exc docutils literal"><span class="pre">HTTPNotModified</span></code></a> if
+<code class="docutils literal"><span class="pre">If-None-Match</span></code> header is provided and record not
+modified in the interim.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><a class="reference external" href="https://pyramid.readthedocs.io/en/latest/api/httpexceptions.html#pyramid.httpexceptions.HTTPPreconditionFailed" title="(in The Pyramid Web Framework v1.7.3)"><code class="xref py py-exc docutils literal"><span class="pre">HTTPPreconditionFailed</span></code></a> if
+<code class="docutils literal"><span class="pre">If-Match</span></code> header is provided and record modified
+in the iterim.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="kinto.core.resource.UserResource.put">
+<code class="descname">put</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.resource.UserResource.put" title="Permalink to this definition">¶</a></dt>
+<dd><p>Record <code class="docutils literal"><span class="pre">PUT</span></code> endpoint: create or replace the provided record and
+return it.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><a class="reference external" href="https://pyramid.readthedocs.io/en/latest/api/httpexceptions.html#pyramid.httpexceptions.HTTPPreconditionFailed" title="(in The Pyramid Web Framework v1.7.3)"><code class="xref py py-exc docutils literal"><span class="pre">HTTPPreconditionFailed</span></code></a> if
+<code class="docutils literal"><span class="pre">If-Match</span></code> header is provided and record modified
+in the iterim.</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">If <code class="docutils literal"><span class="pre">If-None-Match:</span> <span class="pre">*</span></code> request header is provided, the
+<code class="docutils literal"><span class="pre">PUT</span></code> will succeed only if no record exists with this id.</p>
+</div>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last">Add custom behaviour by overriding
+<a class="reference internal" href="#kinto.core.resource.UserResource.process_record" title="kinto.core.resource.UserResource.process_record"><code class="xref py py-meth docutils literal"><span class="pre">kinto.core.resource.UserResource.process_record()</span></code></a>.</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="kinto.core.resource.UserResource.patch">
+<code class="descname">patch</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.resource.UserResource.patch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Record <code class="docutils literal"><span class="pre">PATCH</span></code> endpoint: modify a record and return its
+new version.</p>
+<p>If a request header <code class="docutils literal"><span class="pre">Response-Behavior</span></code> is set to <code class="docutils literal"><span class="pre">light</span></code>,
+only the fields whose value was changed are returned.
+If set to <code class="docutils literal"><span class="pre">diff</span></code>, only the fields whose value became different than
+the one provided are returned.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><a class="reference external" href="https://pyramid.readthedocs.io/en/latest/api/httpexceptions.html#pyramid.httpexceptions.HTTPNotFound" title="(in The Pyramid Web Framework v1.7.3)"><code class="xref py py-exc docutils literal"><span class="pre">HTTPNotFound</span></code></a> if
+the record is not found.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><a class="reference external" href="https://pyramid.readthedocs.io/en/latest/api/httpexceptions.html#pyramid.httpexceptions.HTTPPreconditionFailed" title="(in The Pyramid Web Framework v1.7.3)"><code class="xref py py-exc docutils literal"><span class="pre">HTTPPreconditionFailed</span></code></a> if
+<code class="docutils literal"><span class="pre">If-Match</span></code> header is provided and record modified
+in the iterim.</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last">Add custom behaviour by overriding
+<a class="reference internal" href="#kinto.core.resource.UserResource.apply_changes" title="kinto.core.resource.UserResource.apply_changes"><code class="xref py py-meth docutils literal"><span class="pre">kinto.core.resource.UserResource.apply_changes()</span></code></a> or
+<a class="reference internal" href="#kinto.core.resource.UserResource.process_record" title="kinto.core.resource.UserResource.process_record"><code class="xref py py-meth docutils literal"><span class="pre">kinto.core.resource.UserResource.process_record()</span></code></a>.</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="kinto.core.resource.UserResource.delete">
+<code class="descname">delete</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.resource.UserResource.delete" title="Permalink to this definition">¶</a></dt>
+<dd><p>Record <code class="docutils literal"><span class="pre">DELETE</span></code> endpoint: delete a record and return it.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><a class="reference external" href="https://pyramid.readthedocs.io/en/latest/api/httpexceptions.html#pyramid.httpexceptions.HTTPNotFound" title="(in The Pyramid Web Framework v1.7.3)"><code class="xref py py-exc docutils literal"><span class="pre">HTTPNotFound</span></code></a> if
+the record is not found.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><a class="reference external" href="https://pyramid.readthedocs.io/en/latest/api/httpexceptions.html#pyramid.httpexceptions.HTTPPreconditionFailed" title="(in The Pyramid Web Framework v1.7.3)"><code class="xref py py-exc docutils literal"><span class="pre">HTTPPreconditionFailed</span></code></a> if
+<code class="docutils literal"><span class="pre">If-Match</span></code> header is provided and record modified
+in the iterim.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="kinto.core.resource.UserResource.process_record">
+<code class="descname">process_record</code><span class="sig-paren">(</span><em>new</em>, <em>old=None</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.resource.UserResource.process_record" title="Permalink to this definition">¶</a></dt>
+<dd><p>Hook for processing records before they reach storage, to introduce
+specific logics on fields for example.</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">process_record</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new</span><span class="p">,</span> <span class="n">old</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="n">new</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">MyResource</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">process_record</span><span class="p">(</span><span class="n">new</span><span class="p">,</span> <span class="n">old</span><span class="p">)</span>
+    <span class="n">version</span> <span class="o">=</span> <span class="n">old</span><span class="p">[</span><span class="s1">&#39;version&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="n">old</span> <span class="k">else</span> <span class="mi">0</span>
+    <span class="n">new</span><span class="p">[</span><span class="s1">&#39;version&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">version</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="n">new</span>
+</pre></div>
+</div>
+<p>Or add extra validation based on request:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">kinto.core.errors</span> <span class="kn">import</span> <span class="n">raise_invalid</span>
+
+<span class="k">def</span> <span class="nf">process_record</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new</span><span class="p">,</span> <span class="n">old</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="n">new</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">MyResource</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">process_record</span><span class="p">(</span><span class="n">new</span><span class="p">,</span> <span class="n">old</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">new</span><span class="p">[</span><span class="s1">&#39;browser&#39;</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">request</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s1">&#39;User-Agent&#39;</span><span class="p">]:</span>
+        <span class="n">raise_invalid</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;browser&#39;</span><span class="p">,</span> <span class="n">error</span><span class="o">=</span><span class="s1">&#39;Wrong&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">new</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>new</strong> (<em>dict</em>) &#8211; the validated record to be created or updated.</li>
+<li><strong>old</strong> (<em>dict</em>) &#8211; the old record to be updated,
+<code class="docutils literal"><span class="pre">None</span></code> for creation endpoints.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">the processed record.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">dict</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="kinto.core.resource.UserResource.apply_changes">
+<code class="descname">apply_changes</code><span class="sig-paren">(</span><em>record</em>, <em>changes</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.resource.UserResource.apply_changes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Merge <cite>changes</cite> into <cite>record</cite> fields.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This is used in the context of PATCH only.</p>
+</div>
+<p>Override this to control field changes at record level, for example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">apply_changes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">record</span><span class="p">,</span> <span class="n">changes</span><span class="p">):</span>
+    <span class="c1"># Ignore value change if inferior</span>
+    <span class="k">if</span> <span class="n">record</span><span class="p">[</span><span class="s1">&#39;position&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">changes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;position&#39;</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+        <span class="n">changes</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;position&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">MyResource</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">apply_changes</span><span class="p">(</span><span class="n">record</span><span class="p">,</span> <span class="n">changes</span><span class="p">)</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><a class="reference external" href="https://pyramid.readthedocs.io/en/latest/api/httpexceptions.html#pyramid.httpexceptions.HTTPBadRequest" title="(in The Pyramid Web Framework v1.7.3)"><code class="xref py py-exc docutils literal"><span class="pre">HTTPBadRequest</span></code></a>
+if result does not comply with resource schema.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the new record with <cite>changes</cite> applied.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">dict</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="kinto.core.resource.ShareableResource">
+<em class="property">class </em><code class="descclassname">kinto.core.resource.</code><code class="descname">ShareableResource</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.resource.ShareableResource" title="Permalink to this definition">¶</a></dt>
+<dd><p>Shareable resources allow to set permissions on records, in order to
+share their access or protect their modification.</p>
+<dl class="attribute">
+<dt id="kinto.core.resource.ShareableResource.default_model">
+<code class="descname">default_model</code><a class="headerlink" href="#kinto.core.resource.ShareableResource.default_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal"><span class="pre">ShareableModel</span></code></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="kinto.core.resource.ShareableResource.default_viewset">
+<code class="descname">default_viewset</code><a class="headerlink" href="#kinto.core.resource.ShareableResource.default_viewset" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal"><span class="pre">ShareableViewSet</span></code></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="kinto.core.resource.ShareableResource.permissions">
+<code class="descname">permissions</code><em class="property"> = ('read', 'write')</em><a class="headerlink" href="#kinto.core.resource.ShareableResource.permissions" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of allowed permissions names.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="kinto.core.resource.ShareableResource.get_parent_id">
+<code class="descname">get_parent_id</code><span class="sig-paren">(</span><em>request</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.resource.ShareableResource.get_parent_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Unlike <a class="reference internal" href="#kinto.core.resource.UserResource" title="kinto.core.resource.UserResource"><code class="xref py py-class docutils literal"><span class="pre">kinto.core.resource.UserResource</span></code></a>, records are not
+isolated by user.</p>
+<p>See <a class="reference external" href="https://github.com/mozilla-services/cliquet/issues/549">https://github.com/mozilla-services/cliquet/issues/549</a></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A constant empty value.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="kinto.core.resource.ShareableResource.process_record">
+<code class="descname">process_record</code><span class="sig-paren">(</span><em>new</em>, <em>old=None</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.resource.ShareableResource.process_record" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read permissions from request body, and in the case of <code class="docutils literal"><span class="pre">PUT</span></code> every
+existing ACE is removed (using empty list).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="kinto.core.resource.ShareableResource.postprocess">
+<code class="descname">postprocess</code><span class="sig-paren">(</span><em>result</em>, <em>action=&lt;ACTIONS.READ: 'read'&gt;</em>, <em>old=None</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.resource.ShareableResource.postprocess" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add <code class="docutils literal"><span class="pre">permissions</span></code> attribute in response body.</p>
+<p>In the HTTP API, it was decided that <code class="docutils literal"><span class="pre">permissions</span></code> would reside
+outside the <code class="docutils literal"><span class="pre">data</span></code> attribute.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="resource-schema">
+<span id="id3"></span><h3>Schema<a class="headerlink" href="#resource-schema" title="Permalink to this headline">¶</a></h3>
+<span class="target" id="module-kinto.core.resource.schema"></span><dl class="class">
+<dt id="kinto.core.resource.schema.ResourceSchema">
+<em class="property">class </em><code class="descclassname">kinto.core.resource.schema.</code><code class="descname">ResourceSchema</code><span class="sig-paren">(</span><em>*arg</em>, <em>**kw</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.resource.schema.ResourceSchema" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base resource schema, with <em>Cliquet</em> specific built-in options.</p>
+<dl class="class">
+<dt id="kinto.core.resource.schema.ResourceSchema.Options">
+<em class="property">class </em><code class="descname">Options</code><a class="headerlink" href="#kinto.core.resource.schema.ResourceSchema.Options" title="Permalink to this definition">¶</a></dt>
+<dd><p>Resource schema options.</p>
+<p>This is meant to be overriden for changing values:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Product</span><span class="p">(</span><span class="n">ResourceSchema</span><span class="p">):</span>
+    <span class="n">reference</span> <span class="o">=</span> <span class="n">colander</span><span class="o">.</span><span class="n">SchemaNode</span><span class="p">(</span><span class="n">colander</span><span class="o">.</span><span class="n">String</span><span class="p">())</span>
+
+    <span class="k">class</span> <span class="nc">Options</span><span class="p">:</span>
+        <span class="n">readonly_fields</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;reference&#39;</span><span class="p">,)</span>
+</pre></div>
+</div>
+<dl class="attribute">
+<dt id="kinto.core.resource.schema.ResourceSchema.Options.readonly_fields">
+<code class="descname">readonly_fields</code><em class="property"> = ()</em><a class="headerlink" href="#kinto.core.resource.schema.ResourceSchema.Options.readonly_fields" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fields that cannot be updated. Values for fields will have to be
+provided either during record creation, through default values using
+<code class="docutils literal"><span class="pre">missing</span></code> attribute or implementing a custom logic in
+<a class="reference internal" href="#kinto.core.resource.UserResource.process_record" title="kinto.core.resource.UserResource.process_record"><code class="xref py py-meth docutils literal"><span class="pre">kinto.core.resource.UserResource.process_record()</span></code></a>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="kinto.core.resource.schema.ResourceSchema.Options.preserve_unknown">
+<code class="descname">preserve_unknown</code><em class="property"> = True</em><a class="headerlink" href="#kinto.core.resource.schema.ResourceSchema.Options.preserve_unknown" title="Permalink to this definition">¶</a></dt>
+<dd><p>Define if unknown fields should be preserved or not.</p>
+<p>The resource is schema-less by default. In other words, any field name
+will be accepted on records. Set this to <code class="docutils literal"><span class="pre">False</span></code> in order to limit
+the accepted fields to the ones defined in the schema.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="method">
+<dt id="kinto.core.resource.schema.ResourceSchema.is_readonly">
+<code class="descclassname">ResourceSchema.</code><code class="descname">is_readonly</code><span class="sig-paren">(</span><em>field</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.resource.schema.ResourceSchema.is_readonly" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return True if specified field name is read-only.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>field</strong> (<em>str</em>) &#8211; the field name in the schema</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><code class="docutils literal"><span class="pre">True</span></code> if the specified field is read-only,
+<code class="docutils literal"><span class="pre">False</span></code> otherwise.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">bool</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="kinto.core.resource.schema.PermissionsSchema">
+<em class="property">class </em><code class="descclassname">kinto.core.resource.schema.</code><code class="descname">PermissionsSchema</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.resource.schema.PermissionsSchema" title="Permalink to this definition">¶</a></dt>
+<dd><p>A permission mapping defines ACEs.</p>
+<p>It has permission names as keys and principals as values.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s2">&quot;write&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;fxa:af3e077eb9f5444a949ad65aa86e82ff&quot;</span><span class="p">],</span>
+    <span class="s2">&quot;groups:create&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;fxa:70a9335eecfe440fa445ba752a750f3d&quot;</span><span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="kinto.core.resource.schema.TimeStamp">
+<em class="property">class </em><code class="descclassname">kinto.core.resource.schema.</code><code class="descname">TimeStamp</code><span class="sig-paren">(</span><em>*arg</em>, <em>**kw</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.resource.schema.TimeStamp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Basic integer schema field that can be set to current server timestamp
+in milliseconds if no value is provided.</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Book</span><span class="p">(</span><span class="n">ResourceSchema</span><span class="p">):</span>
+    <span class="n">added_on</span> <span class="o">=</span> <span class="n">TimeStamp</span><span class="p">()</span>
+    <span class="n">read_on</span> <span class="o">=</span> <span class="n">TimeStamp</span><span class="p">(</span><span class="n">auto_now</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">missing</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="attribute">
+<dt id="kinto.core.resource.schema.TimeStamp.schema_type">
+<code class="descname">schema_type</code><a class="headerlink" href="#kinto.core.resource.schema.TimeStamp.schema_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal"><span class="pre">Integer</span></code></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="kinto.core.resource.schema.TimeStamp.title">
+<code class="descname">title</code><em class="property"> = 'Epoch timestamp'</em><a class="headerlink" href="#kinto.core.resource.schema.TimeStamp.title" title="Permalink to this definition">¶</a></dt>
+<dd><p>Default field title.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="kinto.core.resource.schema.TimeStamp.auto_now">
+<code class="descname">auto_now</code><em class="property"> = True</em><a class="headerlink" href="#kinto.core.resource.schema.TimeStamp.auto_now" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set to current server timestamp (<em>milliseconds</em>) if not provided.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="kinto.core.resource.schema.TimeStamp.missing">
+<code class="descname">missing</code><em class="property"> = None</em><a class="headerlink" href="#kinto.core.resource.schema.TimeStamp.missing" title="Permalink to this definition">¶</a></dt>
+<dd><p>Default field value if not provided in record.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="kinto.core.resource.schema.URL">
+<em class="property">class </em><code class="descclassname">kinto.core.resource.schema.</code><code class="descname">URL</code><span class="sig-paren">(</span><em>*arg</em>, <em>**kw</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.resource.schema.URL" title="Permalink to this definition">¶</a></dt>
+<dd><p>String field representing a URL, with max length of 2048.
+This is basically a shortcut for string field with
+<cite>~colander:colander.url</cite>.</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">BookmarkSchema</span><span class="p">(</span><span class="n">ResourceSchema</span><span class="p">):</span>
+    <span class="n">url</span> <span class="o">=</span> <span class="n">URL</span><span class="p">()</span>
+</pre></div>
+</div>
+<dl class="attribute">
+<dt id="kinto.core.resource.schema.URL.schema_type">
+<code class="descname">schema_type</code><a class="headerlink" href="#kinto.core.resource.schema.URL.schema_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal"><span class="pre">String</span></code></p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="resource-model">
+<span id="id4"></span><h3>Model<a class="headerlink" href="#resource-model" title="Permalink to this headline">¶</a></h3>
+<span class="target" id="module-kinto.core.resource.model"></span><dl class="class">
+<dt id="kinto.core.resource.model.Model">
+<em class="property">class </em><code class="descclassname">kinto.core.resource.model.</code><code class="descname">Model</code><span class="sig-paren">(</span><em>storage</em>, <em>id_generator=None</em>, <em>collection_id=''</em>, <em>parent_id=''</em>, <em>auth=None</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.resource.model.Model" title="Permalink to this definition">¶</a></dt>
+<dd><p>A collection stores and manipulate records in its attached storage.</p>
+<p>It is not aware of HTTP environment nor HTTP API.</p>
+<p>Records are isolated according to the provided <cite>name</cite> and <cite>parent_id</cite>.</p>
+<p>Those notions have no particular semantic and can represent anything.
+For example, the collection <cite>name</cite> can be the <em>type</em> of objects stored, and
+<cite>parent_id</cite> can be the current <em>user id</em> or <em>a group</em> where the collection
+belongs. If left empty, the collection records are not isolated.</p>
+<dl class="attribute">
+<dt id="kinto.core.resource.model.Model.id_field">
+<code class="descname">id_field</code><em class="property"> = 'id'</em><a class="headerlink" href="#kinto.core.resource.model.Model.id_field" title="Permalink to this definition">¶</a></dt>
+<dd><p>Name of <cite>id</cite> field in records</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="kinto.core.resource.model.Model.modified_field">
+<code class="descname">modified_field</code><em class="property"> = 'last_modified'</em><a class="headerlink" href="#kinto.core.resource.model.Model.modified_field" title="Permalink to this definition">¶</a></dt>
+<dd><p>Name of <cite>last modified</cite> field in records</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="kinto.core.resource.model.Model.deleted_field">
+<code class="descname">deleted_field</code><em class="property"> = 'deleted'</em><a class="headerlink" href="#kinto.core.resource.model.Model.deleted_field" title="Permalink to this definition">¶</a></dt>
+<dd><p>Name of <cite>deleted</cite> field in deleted records</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="kinto.core.resource.model.Model.timestamp">
+<code class="descname">timestamp</code><span class="sig-paren">(</span><em>parent_id=None</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.resource.model.Model.timestamp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fetch the collection current timestamp.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>parent_id</strong> (<em>str</em>) &#8211; optional filter for parent id</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">int</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="kinto.core.resource.model.Model.get_records">
+<code class="descname">get_records</code><span class="sig-paren">(</span><em>filters=None</em>, <em>sorting=None</em>, <em>pagination_rules=None</em>, <em>limit=None</em>, <em>include_deleted=False</em>, <em>parent_id=None</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.resource.model.Model.get_records" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fetch the collection records.</p>
+<p>Override to post-process records after feching them from storage.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>filters</strong> (list of <a class="reference internal" href="storage.html#kinto.core.storage.Filter" title="kinto.core.storage.Filter"><code class="xref py py-class docutils literal"><span class="pre">kinto.core.storage.Filter</span></code></a>) &#8211; Optionally filter the records by their attribute.
+Each filter in this list is a tuple of a field, a value and a
+comparison (see <cite>kinto.core.utils.COMPARISON</cite>). All filters
+are combined using <em>AND</em>.</li>
+<li><strong>sorting</strong> (list of <a class="reference internal" href="storage.html#kinto.core.storage.Sort" title="kinto.core.storage.Sort"><code class="xref py py-class docutils literal"><span class="pre">kinto.core.storage.Sort</span></code></a>) &#8211; Optionnally sort the records by attribute.
+Each sort instruction in this list refers to a field and a
+direction (negative means descending). All sort instructions are
+cumulative.</li>
+<li><strong>pagination_rules</strong> (list of list of
+<a class="reference internal" href="storage.html#kinto.core.storage.Filter" title="kinto.core.storage.Filter"><code class="xref py py-class docutils literal"><span class="pre">kinto.core.storage.Filter</span></code></a>) &#8211; Optionnally paginate the list of records.
+This list of rules aims to reduce the set of records to the current
+page. A rule is a list of filters (see <cite>filters</cite> parameter),
+and all rules are combined using <em>OR</em>.</li>
+<li><strong>limit</strong> (<em>int</em>) &#8211; Optionnally limit the number of records to be
+retrieved.</li>
+<li><strong>include_deleted</strong> (<em>bool</em>) &#8211; Optionnally include the deleted records
+that match the filters.</li>
+<li><strong>parent_id</strong> (<em>str</em>) &#8211; optional filter for parent id</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A tuple with the list of records in the current page,
+the total number of records in the result set.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">tuple</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="kinto.core.resource.model.Model.delete_records">
+<code class="descname">delete_records</code><span class="sig-paren">(</span><em>filters=None</em>, <em>parent_id=None</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.resource.model.Model.delete_records" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete multiple collection records.</p>
+<p>Override to post-process records after their deletion from storage.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>filters</strong> (list of <a class="reference internal" href="storage.html#kinto.core.storage.Filter" title="kinto.core.storage.Filter"><code class="xref py py-class docutils literal"><span class="pre">kinto.core.storage.Filter</span></code></a>) &#8211; Optionally filter the records by their attribute.
+Each filter in this list is a tuple of a field, a value and a
+comparison (see <cite>kinto.core.utils.COMPARISON</cite>). All filters
+are combined using <em>AND</em>.</li>
+<li><strong>parent_id</strong> (<em>str</em>) &#8211; optional filter for parent id</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The list of deleted records from storage.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="kinto.core.resource.model.Model.get_record">
+<code class="descname">get_record</code><span class="sig-paren">(</span><em>record_id</em>, <em>parent_id=None</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.resource.model.Model.get_record" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fetch current view related record, and raise 404 if missing.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>record_id</strong> (<em>str</em>) &#8211; record identifier</li>
+<li><strong>parent_id</strong> (<em>str</em>) &#8211; optional filter for parent id</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">the record from storage</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">dict</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="kinto.core.resource.model.Model.create_record">
+<code class="descname">create_record</code><span class="sig-paren">(</span><em>record</em>, <em>parent_id=None</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.resource.model.Model.create_record" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a record in the collection.</p>
+<p>Override to perform actions or post-process records after their
+creation in storage.</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">create_record</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">record</span><span class="p">):</span>
+    <span class="n">record</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">MyModel</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">create_record</span><span class="p">(</span><span class="n">record</span><span class="p">)</span>
+    <span class="n">idx</span> <span class="o">=</span> <span class="n">index</span><span class="o">.</span><span class="n">store</span><span class="p">(</span><span class="n">record</span><span class="p">)</span>
+    <span class="n">record</span><span class="p">[</span><span class="s1">&#39;index&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">idx</span>
+    <span class="k">return</span> <span class="n">record</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>record</strong> (<em>dict</em>) &#8211; record to store</li>
+<li><strong>parent_id</strong> (<em>str</em>) &#8211; optional filter for parent id</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">the newly created record.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">dict</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="kinto.core.resource.model.Model.update_record">
+<code class="descname">update_record</code><span class="sig-paren">(</span><em>record</em>, <em>parent_id=None</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.resource.model.Model.update_record" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update a record in the collection.</p>
+<p>Override to perform actions or post-process records after their
+modification in storage.</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">update_record</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">record</span><span class="p">,</span> <span class="n">parent_id</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="n">record</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">MyModel</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">update_record</span><span class="p">(</span><span class="n">record</span><span class="p">,</span> <span class="n">parent_id</span><span class="p">)</span>
+    <span class="n">subject</span> <span class="o">=</span> <span class="s1">&#39;Record {} was changed&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">record</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">id_field</span><span class="p">])</span>
+    <span class="n">send_email</span><span class="p">(</span><span class="n">subject</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">record</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>record</strong> (<em>dict</em>) &#8211; record to store</li>
+<li><strong>parent_id</strong> (<em>str</em>) &#8211; optional filter for parent id</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">the updated record.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">dict</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="kinto.core.resource.model.Model.delete_record">
+<code class="descname">delete_record</code><span class="sig-paren">(</span><em>record</em>, <em>parent_id=None</em>, <em>last_modified=None</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.resource.model.Model.delete_record" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete a record in the collection.</p>
+<p>Override to perform actions or post-process records after deletion
+from storage for example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">delete_record</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">record</span><span class="p">):</span>
+    <span class="n">deleted</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">MyModel</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">delete_record</span><span class="p">(</span><span class="n">record</span><span class="p">)</span>
+    <span class="n">erase_media</span><span class="p">(</span><span class="n">record</span><span class="p">)</span>
+    <span class="n">deleted</span><span class="p">[</span><span class="s1">&#39;media&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">return</span> <span class="n">deleted</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>record</strong> (<em>dict</em>) &#8211; the record to delete</li>
+<li><strong>record</strong> &#8211; record to store</li>
+<li><strong>parent_id</strong> (<em>str</em>) &#8211; optional filter for parent id</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">the deleted record.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">dict</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="kinto.core.resource.model.ShareableModel">
+<em class="property">class </em><code class="descclassname">kinto.core.resource.model.</code><code class="descname">ShareableModel</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.resource.model.ShareableModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>A protected collection interacts with the permission backend.</p>
+<dl class="method">
+<dt id="kinto.core.resource.model.ShareableModel.delete_records">
+<code class="descname">delete_records</code><span class="sig-paren">(</span><em>filters=None</em>, <em>parent_id=None</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.resource.model.ShareableModel.delete_records" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete permissions when collection records are deleted in bulk.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="kinto.core.resource.model.ShareableModel.get_record">
+<code class="descname">get_record</code><span class="sig-paren">(</span><em>record_id</em>, <em>parent_id=None</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.resource.model.ShareableModel.get_record" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fetch current permissions and add them to returned record.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="kinto.core.resource.model.ShareableModel.create_record">
+<code class="descname">create_record</code><span class="sig-paren">(</span><em>record</em>, <em>parent_id=None</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.resource.model.ShareableModel.create_record" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create record and set specified permissions.</p>
+<p>The current principal is added to the owner (<code class="docutils literal"><span class="pre">write</span></code> permission).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="kinto.core.resource.model.ShareableModel.update_record">
+<code class="descname">update_record</code><span class="sig-paren">(</span><em>record</em>, <em>parent_id=None</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.resource.model.ShareableModel.update_record" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update record and the specified permissions.</p>
+<p>If no permissions is specified, the current permissions are not
+modified.</p>
+<p>The current principal is added to the owner (<code class="docutils literal"><span class="pre">write</span></code> permission).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="kinto.core.resource.model.ShareableModel.delete_record">
+<code class="descname">delete_record</code><span class="sig-paren">(</span><em>record_id</em>, <em>parent_id=None</em>, <em>last_modified=None</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.resource.model.ShareableModel.delete_record" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete record and its associated permissions.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-kinto.core.storage.generators">
+<span id="generators"></span><span id="resource-generators"></span><h3>Generators<a class="headerlink" href="#module-kinto.core.storage.generators" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="kinto.core.storage.generators.Generator">
+<em class="property">class </em><code class="descclassname">kinto.core.storage.generators.</code><code class="descname">Generator</code><span class="sig-paren">(</span><em>config=None</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.storage.generators.Generator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base generator for records ids.</p>
+<p>Id generators are used by storage backend during record creation, and at
+resource level to validate record id in requests paths.</p>
+<dl class="attribute">
+<dt id="kinto.core.storage.generators.Generator.regexp">
+<code class="descname">regexp</code><em class="property"> = '^[a-zA-Z0-9][a-zA-Z0-9_-]*$'</em><a class="headerlink" href="#kinto.core.storage.generators.Generator.regexp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Default record id pattern. Can be changed to comply with custom ids.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="kinto.core.storage.generators.Generator.match">
+<code class="descname">match</code><span class="sig-paren">(</span><em>record_id</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.storage.generators.Generator.match" title="Permalink to this definition">¶</a></dt>
+<dd><p>Validate that record ids match the generator. This is used mainly
+when a record id is picked arbitrarily (e.g with <code class="docutils literal"><span class="pre">PUT</span></code> requests).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><cite>True</cite> if the specified record id matches expected format.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">bool</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="kinto.core.storage.generators.UUID4">
+<em class="property">class </em><code class="descclassname">kinto.core.storage.generators.</code><code class="descname">UUID4</code><span class="sig-paren">(</span><em>config=None</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.storage.generators.UUID4" title="Permalink to this definition">¶</a></dt>
+<dd><p>UUID4 record id generator.</p>
+<p>UUID block are separated with <code class="docutils literal"><span class="pre">-</span></code>.
+(example: <code class="docutils literal"><span class="pre">'472be9ec-26fe-461b-8282-9c4e4b207ab3'</span></code>)</p>
+<p>UUIDs are very safe in term of unicity. If 1 billion of UUIDs are generated
+every second for the next 100 years, the probability of creating just one
+duplicate would be about 50% (<a class="reference external" href="http://en.wikipedia.org/wiki/Universally_unique_identifier#Random_UUID_probability_of_duplicates">source</a>).</p>
+<dl class="attribute">
+<dt id="kinto.core.storage.generators.UUID4.regexp">
+<code class="descname">regexp</code><em class="property"> = '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'</em><a class="headerlink" href="#kinto.core.storage.generators.UUID4.regexp" title="Permalink to this definition">¶</a></dt>
+<dd><p>UUID4 accurate pattern.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="viewsets.html" class="btn btn-neutral float-right" title="Viewsets" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="quickstart.html" class="btn btn-neutral" title="Getting started" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2015-2016 — Mozilla Services.
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+
+  
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        var disqus_shortname = 'kinto-docs';
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+  
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'4.3.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="../_static/piwik.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

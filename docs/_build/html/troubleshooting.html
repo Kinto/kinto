@@ -1,0 +1,382 @@
+
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Troubleshooting &mdash; Kinto 4.3.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="_static/theme_overrides.css" type="text/css" />
+  
+    <link rel="stylesheet" href="_static/css/style.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="Kinto 4.3.1 documentation" href="index.html"/>
+        <link rel="next" title="Changelog" href="changelog.html"/>
+        <link rel="prev" title="FAQ" href="faq.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Kinto
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                4.3
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="kinto-admin.html">Kinto Web Administration Console</a></li>
+<li class="toctree-l1"><a class="reference internal" href="concepts.html">Concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="community.html">Community</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="configuration/index.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/index.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="commandline.html">Command Line</a></li>
+<li class="toctree-l1"><a class="reference internal" href="faq.html">FAQ</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Troubleshooting</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#module-object-has-no-attribute-register-json">Module object has no attribute &#8216;register_json&#8217;</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#no-module-named-functools">No module named functools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#socket-error-errno-48-address-already-in-use">socket.error: [Errno 48] Address already in use</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#kinto-core-storage-exceptions-backenderror-operationalerror-postgres-service">kinto.core.storage.exceptions.BackendError: OperationalError [Postgres Service]</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#password-authentication-failed-for-user-postgres">password authentication failed for user &#8220;postgres&#8221;</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#bind-no-such-file-or-directory-uwsgi-error">bind(): No such file or directory [uwsgi error]</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#error-importerror-no-module-named-uwsgi-error">ERROR: ImportError: No module named .... [uwsgi error]</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#assertionerror-unexpected-database-encoding-sql-ascii">AssertionError: Unexpected database encoding sql_ascii</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#bind-address-already-in-use">bind: address already in use</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#connectionerror-localhost-6379-nodename-nor-servname-provided-or-not-known">ConnectionError: localhost:6379. nodename nor servname provided, or not known</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#ioerror-errno-24-too-many-open-files">IOError: [Errno 24] Too many open files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#error-interpreternotfound-pypy">ERROR: InterpreterNotFound: pypy</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="core/glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="core/index.html">Kinto Core</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">Kinto</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>Troubleshooting</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/troubleshooting.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="troubleshooting">
+<h1>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permalink to this headline">¶</a></h1>
+<p id="id1">We are doing the best we can so you do not have to read this section.</p>
+<p>That said, we have included solutions (or at least explanations) for
+some common problems below.</p>
+<p>If you do not find a solution to your problem here, please
+<a class="reference internal" href="community.html#communication-channels"><span class="std std-ref">ask for help</span></a>!</p>
+<div class="section" id="module-object-has-no-attribute-register-json">
+<h2>Module object has no attribute &#8216;register_json&#8217;<a class="headerlink" href="#module-object-has-no-attribute-register-json" title="Permalink to this headline">¶</a></h2>
+<p>Kinto uses the <code class="docutils literal"><span class="pre">JSONBin</span></code> feature of PostgreSQL, which is used to
+store native <code class="docutils literal"><span class="pre">JSON</span> <span class="pre">objects</span></code> efficiently. Support for this feature
+was added in PostgreSQL 9.4.</p>
+<p>This is a hard requirement for postgresql backends, therefore you
+will either need to <strong>use PostgreSQL 9.4 (or greater)</strong>, or
+<a class="reference internal" href="configuration/settings.html#configuration-backends"><span class="std std-ref">use a different backend</span></a> entirely.</p>
+</div>
+<div class="section" id="no-module-named-functools">
+<h2>No module named functools<a class="headerlink" href="#no-module-named-functools" title="Permalink to this headline">¶</a></h2>
+<p>With some old version of pip, the jsonschema package does not install properly
+because one if its dependencies is missing.</p>
+<p>To fix this, you can either install it locally or upgrade your version of pip:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ pip install --upgrade pip
+</pre></div>
+</div>
+</div>
+<div class="section" id="socket-error-errno-48-address-already-in-use">
+<h2>socket.error: [Errno 48] Address already in use<a class="headerlink" href="#socket-error-errno-48-address-already-in-use" title="Permalink to this headline">¶</a></h2>
+<p>Another process has occupied Kinto&#8217;s default port 8888.</p>
+<p>To fix this, see which service is running on port 8888:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ sudo lsof -i :8888
+</pre></div>
+</div>
+<p>and kill the process using PID from output:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ kill -kill [PID]
+</pre></div>
+</div>
+</div>
+<div class="section" id="kinto-core-storage-exceptions-backenderror-operationalerror-postgres-service">
+<h2>kinto.core.storage.exceptions.BackendError: OperationalError [Postgres Service]<a class="headerlink" href="#kinto-core-storage-exceptions-backenderror-operationalerror-postgres-service" title="Permalink to this headline">¶</a></h2>
+<p>Make sure that postgres server is running properly.</p>
+</div>
+<div class="section" id="password-authentication-failed-for-user-postgres">
+<h2>password authentication failed for user &#8220;postgres&#8221;<a class="headerlink" href="#password-authentication-failed-for-user-postgres" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">kinto</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">storage</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">BackendError</span><span class="p">:</span> <span class="n">OperationalError</span><span class="p">:</span> <span class="p">(</span><span class="n">psycopg2</span><span class="o">.</span><span class="n">OperationalError</span><span class="p">)</span> <span class="n">FATAL</span><span class="p">:</span>  <span class="n">password</span> <span class="n">authentication</span> <span class="n">failed</span> <span class="k">for</span> <span class="n">user</span> <span class="s2">&quot;postgres&quot;</span>
+<span class="n">FATAL</span><span class="p">:</span>  <span class="n">password</span> <span class="n">authentication</span> <span class="n">failed</span> <span class="k">for</span> <span class="n">user</span> <span class="s2">&quot;postgres&quot;</span>
+</pre></div>
+</div>
+<p>By default, the PostgreSQL Debian package does not setup any password for the <code class="docutils literal"><span class="pre">postgres</span></code> user. You can choose one with:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="o">-</span><span class="n">u</span> <span class="n">postgres</span> <span class="n">psql</span> <span class="n">postgres</span>
+
+<span class="c1"># \password postgres</span>
+
+<span class="n">Enter</span> <span class="n">new</span> <span class="n">password</span><span class="p">:</span>
+<span class="o">...</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="bind-no-such-file-or-directory-uwsgi-error">
+<h2>bind(): No such file or directory [uwsgi error]<a class="headerlink" href="#bind-no-such-file-or-directory-uwsgi-error" title="Permalink to this headline">¶</a></h2>
+<p>Make sure that the path you defined for the socket parameter of the uwsgi
+configuration exists.</p>
+<p>To fix this:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">socket</span> <span class="o">=</span> <span class="o">/</span><span class="n">var</span><span class="o">/</span><span class="n">run</span><span class="o">/</span><span class="n">uwsgi</span><span class="o">/</span><span class="n">kinto</span><span class="o">.</span><span class="n">sock</span>
+</pre></div>
+</div>
+<p>Make sure the directory exists:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">mkdir</span> <span class="o">-</span><span class="n">p</span> <span class="o">/</span><span class="n">var</span><span class="o">/</span><span class="n">run</span><span class="o">/</span><span class="n">uwsgi</span>
+</pre></div>
+</div>
+<p>Also, make sure the user that runs uwsgi can access /var/run/uwsgi and can
+write in the uwsgi directory.</p>
+</div>
+<div class="section" id="error-importerror-no-module-named-uwsgi-error">
+<h2>ERROR: ImportError: No module named .... [uwsgi error]<a class="headerlink" href="#error-importerror-no-module-named-uwsgi-error" title="Permalink to this headline">¶</a></h2>
+<p>You might get some error like:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="ne">ImportError</span><span class="p">:</span> <span class="n">No</span> <span class="n">module</span> <span class="n">named</span> <span class="n">cornice</span>
+<span class="n">unable</span> <span class="n">to</span> <span class="n">load</span> <span class="n">app</span> <span class="mi">0</span> <span class="p">(</span><span class="n">mountpoint</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="p">(</span><span class="n">callable</span> <span class="ow">not</span> <span class="n">found</span> <span class="ow">or</span> <span class="kn">import</span> <span class="nn">error</span><span class="p">)</span>
+<span class="o">***</span> <span class="n">no</span> <span class="n">app</span> <span class="n">loaded</span><span class="o">.</span> <span class="n">going</span> <span class="ow">in</span> <span class="n">full</span> <span class="n">dynamic</span> <span class="n">mode</span> <span class="o">***</span>
+  <span class="n">File</span> <span class="s2">&quot;app.wsgi&quot;</span><span class="p">,</span> <span class="n">line</span> <span class="mi">8</span><span class="p">,</span> <span class="ow">in</span> <span class="o">&lt;</span><span class="n">module</span><span class="o">&gt;</span>
+    <span class="kn">from</span> <span class="nn">kinto</span> <span class="k">import</span> <span class="n">main</span>
+  <span class="n">File</span> <span class="s2">&quot;./kinto/__init__.py&quot;</span><span class="p">,</span> <span class="n">line</span> <span class="mi">4</span><span class="p">,</span> <span class="ow">in</span> <span class="o">&lt;</span><span class="n">module</span><span class="o">&gt;</span>
+    <span class="kn">import</span> <span class="nn">kinto.core</span>
+  <span class="n">File</span> <span class="s2">&quot;./kinto/core/__init__.py&quot;</span><span class="p">,</span> <span class="n">line</span> <span class="mi">5</span><span class="p">,</span> <span class="ow">in</span> <span class="o">&lt;</span><span class="n">module</span><span class="o">&gt;</span>
+    <span class="kn">from</span> <span class="nn">cornice</span> <span class="k">import</span> <span class="n">Service</span> <span class="k">as</span> <span class="n">CorniceService</span>
+<span class="ne">ImportError</span><span class="p">:</span> <span class="n">No</span> <span class="n">module</span> <span class="n">named</span> <span class="n">cornice</span>
+<span class="n">unable</span> <span class="n">to</span> <span class="n">load</span> <span class="n">app</span> <span class="mi">0</span> <span class="p">(</span><span class="n">mountpoint</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="p">(</span><span class="n">callable</span> <span class="ow">not</span> <span class="n">found</span> <span class="ow">or</span> <span class="kn">import</span> <span class="nn">error</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The reason is that the user/group (<code class="docutils literal"><span class="pre">uid</span></code> and <code class="docutils literal"><span class="pre">gid</span></code> specified under [uwsgi] section in kinto.ini) not being able to access the sourcecode.</p>
+<p>To fix this, grant <code class="docutils literal"><span class="pre">kinto</span></code> user/group access to the source folder:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ chgrp kinto -R .
+$ chown kinto -R .
+</pre></div>
+</div>
+</div>
+<div class="section" id="assertionerror-unexpected-database-encoding-sql-ascii">
+<h2>AssertionError: Unexpected database encoding sql_ascii<a class="headerlink" href="#assertionerror-unexpected-database-encoding-sql-ascii" title="Permalink to this headline">¶</a></h2>
+<p>On some configuration, the default encoding is SQL_ASCII instead of UTF-8. This
+can also happen with other database encoding. The encoding expected by kinto is
+&#8220;UTF-8&#8221;.</p>
+<p>To remediate this, you can issue the following command, once <code class="docutils literal"><span class="pre">pgsql</span></code> open:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">update</span> <span class="n">pg_database</span> <span class="nb">set</span> <span class="n">encoding</span> <span class="o">=</span> <span class="n">pg_char_to_encoding</span><span class="p">(</span><span class="s1">&#39;UTF8&#39;</span><span class="p">)</span> <span class="n">where</span> <span class="n">datname</span> <span class="o">=</span> <span class="s1">&#39;&lt;your db name&gt;&#39;</span><span class="p">;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="bind-address-already-in-use">
+<h2>bind: address already in use<a class="headerlink" href="#bind-address-already-in-use" title="Permalink to this headline">¶</a></h2>
+<p>You will probably have a more precise error message telling you which
+port is already in use: <code class="docutils literal"><span class="pre">listen</span> <span class="pre">tcp</span> <span class="pre">0.0.0.0:5432:</span> <span class="pre">bind:</span> <span class="pre">address</span>
+<span class="pre">already</span> <span class="pre">in</span> <span class="pre">use</span></code>.</p>
+<p>This happens when you are trying to start a docker image on the same
+port of an existing service running on your machine.</p>
+<p>For example, with <code class="docutils literal"><span class="pre">postgresql</span></code>, you can either stop the local service:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">service</span> <span class="n">postgresql</span> <span class="n">stop</span>
+</pre></div>
+</div>
+<p>Or you can run your docker on another port (i.e: <code class="docutils literal"><span class="pre">5433</span></code>):</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>postgres=$(sudo docker run -e POSTGRES_PASSWORD=postgres -d -p 5433:5432 postgres)
+</pre></div>
+</div>
+</div>
+<div class="section" id="connectionerror-localhost-6379-nodename-nor-servname-provided-or-not-known">
+<h2>ConnectionError: localhost:6379. nodename nor servname provided, or not known<a class="headerlink" href="#connectionerror-localhost-6379-nodename-nor-servname-provided-or-not-known" title="Permalink to this headline">¶</a></h2>
+<p>Make sure <em>/etc/hosts</em> has correct mapping to localhost.</p>
+</div>
+<div class="section" id="ioerror-errno-24-too-many-open-files">
+<h2>IOError: [Errno 24] Too many open files<a class="headerlink" href="#ioerror-errno-24-too-many-open-files" title="Permalink to this headline">¶</a></h2>
+<p>Make sure that max number of connections to redis-server and the max
+number of file handlers in operating system have access to required
+memory.</p>
+<p>To fix this, increase the open file limit for non-root user:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ ulimit -n 1024
+</pre></div>
+</div>
+</div>
+<div class="section" id="error-interpreternotfound-pypy">
+<h2>ERROR: InterpreterNotFound: pypy<a class="headerlink" href="#error-interpreternotfound-pypy" title="Permalink to this headline">¶</a></h2>
+<p>You need to install <a class="reference external" href="http://pypy.org/">Pypy</a> so that it can be found
+by tox.</p>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="changelog.html" class="btn btn-neutral float-right" title="Changelog" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="faq.html" class="btn btn-neutral" title="FAQ" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2015-2016 — Mozilla Services.
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+
+  
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        var disqus_shortname = 'kinto-docs';
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+  
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'4.3.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="_static/piwik.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

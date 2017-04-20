@@ -1,0 +1,649 @@
+
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Step by step permissions API tutorial &mdash; Kinto 4.3.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="../_static/theme_overrides.css" type="text/css" />
+  
+    <link rel="stylesheet" href="../_static/css/style.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="Kinto 4.3.1 documentation" href="../index.html"/>
+        <link rel="up" title="Tutorials" href="index.html"/>
+        <link rel="next" title="How to write a Kinto plugin?" href="write-plugin.html"/>
+        <link rel="prev" title="How to define and use a custom ID generator?" href="custom-id-generator.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> Kinto
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                4.3
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../kinto-admin.html">Kinto Web Administration Console</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../concepts.html">Concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../community.html">Community</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Tutorials</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="install.html">Install Kinto</a></li>
+<li class="toctree-l2"><a class="reference internal" href="first-steps.html">First steps with Kinto HTTP API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="synchronisation.html">Synchronisation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notifications-websockets.html">How to setup push notifications using WebSockets?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notifications-custom.html">How to run custom code on notifications?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="authentication-github.html">How to setup Github authentication?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="custom-id-generator.html">How to define and use a custom ID generator?</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Step by step permissions API tutorial</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#basic-permission-setup">Basic permission setup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#permissions-and-groups">Permissions and groups</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#listing-records">Listing records</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="write-plugin.html">How to write a Kinto plugin?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="permission-setups.html">Permissions examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="app-examples.html">Application examples</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../configuration/index.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/index.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../commandline.html">Command Line</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../core/glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../core/index.html">Kinto Core</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">Kinto</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="index.html">Tutorials</a> &raquo;</li>
+      
+    <li>Step by step permissions API tutorial</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/tutorials/permissions.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="step-by-step-permissions-api-tutorial">
+<span id="tutorial-permissions"></span><h1>Step by step permissions API tutorial<a class="headerlink" href="#step-by-step-permissions-api-tutorial" title="Permalink to this headline">¶</a></h1>
+<p>Let&#8217;s use one of the <a class="reference internal" href="permission-setups.html#permissions-setups-blog"><span class="std std-ref">application examples</span></a>: using <em>Kinto</em> as
+a storage API for a blog application.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Some general details are provided in the <a class="reference internal" href="../concepts.html#kinto-concepts"><span class="std std-ref">Concepts</span></a> and <a class="reference internal" href="../api/1.x/permissions.html#api-permissions"><span class="std std-ref">Permissions</span></a>
+sections. Make sure you are familiar with main concepts before starting this.</p>
+</div>
+<div class="section" id="basic-permission-setup">
+<h2>Basic permission setup<a class="headerlink" href="#basic-permission-setup" title="Permalink to this headline">¶</a></h2>
+<p>The <code class="docutils literal"><span class="pre">servicedenuages-blog</span></code> bucket will contain two collections: <code class="docutils literal"><span class="pre">articles</span></code> and
+<code class="docutils literal"><span class="pre">comments</span></code>.</p>
+<p>Let&#8217;s start by giving all authenticated users read access to the bucket.</p>
+<div class="highlight-shell"><div class="highlight"><pre><span></span>$ <span class="nb">echo</span> <span class="s1">&#39;{&quot;permissions&quot;: {&quot;read&quot;: [&quot;system.Authenticated&quot;]}}&#39;</span> <span class="p">|</span> <span class="se">\</span>
+    http PUT https://kinto.dev.mozaws.net/v1/buckets/servicedenuages-blog <span class="se">\</span>
+    --auth token:my-secret
+</pre></div>
+</div>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">201</span> <span class="ne">Created</span>
+<span class="na">Access-Control-Expose-Headers</span><span class="o">:</span> <span class="l">Backoff, Retry-After, Alert, Content-Length</span>
+<span class="na">Connection</span><span class="o">:</span> <span class="l">keep-alive</span>
+<span class="na">Content-Length</span><span class="o">:</span> <span class="l">203</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json; charset=UTF-8</span>
+<span class="na">Date</span><span class="o">:</span> <span class="l">Thu, 16 Jul 2015 14:20:37 GMT</span>
+<span class="na">ETag</span><span class="o">:</span> <span class="l">&quot;1437056437581&quot;</span>
+<span class="na">Last-Modified</span><span class="o">:</span> <span class="l">Thu, 16 Jul 2015 14:20:37 GMT</span>
+<span class="na">Server</span><span class="o">:</span> <span class="l">nginx/1.4.6 (Ubuntu)</span>
+
+<span class="p">{</span>
+    <span class="nt">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;servicedenuages-blog&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;last_modified&quot;</span><span class="p">:</span> <span class="mi">1437056437581</span>
+    <span class="p">},</span>
+    <span class="nt">&quot;permissions&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;read&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">&quot;system.Authenticated&quot;</span>
+        <span class="p">],</span>
+        <span class="nt">&quot;write&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">&quot;basicauth:631c2d625ee5726172cf67c6750de10a3e1a04bcd603bc9ad6d6b196fa8257a6&quot;</span>
+        <span class="p">]</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Now, with that same user, let&#8217;s create two collections in this
+buckets: <code class="docutils literal"><span class="pre">articles</span></code> and <code class="docutils literal"><span class="pre">comments</span></code>.</p>
+<div class="highlight-shell"><div class="highlight"><pre><span></span>$ http PUT https://kinto.dev.mozaws.net/v1/buckets/servicedenuages-blog/collections/articles <span class="se">\</span>
+    --auth token:my-secret
+</pre></div>
+</div>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">201</span> <span class="ne">Created</span>
+<span class="na">Access-Control-Expose-Headers</span><span class="o">:</span> <span class="l">Backoff, Retry-After, Alert, Content-Length</span>
+<span class="na">Connection</span><span class="o">:</span> <span class="l">keep-alive</span>
+<span class="na">Content-Length</span><span class="o">:</span> <span class="l">159</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json; charset=UTF-8</span>
+<span class="na">Date</span><span class="o">:</span> <span class="l">Thu, 16 Jul 2015 14:40:39 GMT</span>
+<span class="na">ETag</span><span class="o">:</span> <span class="l">&quot;1437057639758&quot;</span>
+<span class="na">Last-Modified</span><span class="o">:</span> <span class="l">Thu, 16 Jul 2015 14:40:39 GMT</span>
+<span class="na">Server</span><span class="o">:</span> <span class="l">nginx/1.4.6 (Ubuntu)</span>
+
+<span class="p">{</span>
+    <span class="nt">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;articles&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;last_modified&quot;</span><span class="p">:</span> <span class="mi">1437057639758</span>
+    <span class="p">},</span>
+    <span class="nt">&quot;permissions&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;write&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">&quot;basicauth:631c2d625ee5726172cf67c6750de10a3e1a04bcd603bc9ad6d6b196fa8257a6&quot;</span>
+        <span class="p">]</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="highlight-shell"><div class="highlight"><pre><span></span>$ http PUT https://kinto.dev.mozaws.net/v1/buckets/servicedenuages-blog/collections/comments <span class="se">\</span>
+    --auth token:my-secret
+</pre></div>
+</div>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">201</span> <span class="ne">Created</span>
+<span class="na">Access-Control-Expose-Headers</span><span class="o">:</span> <span class="l">Backoff, Retry-After, Alert, Content-Length</span>
+<span class="na">Connection</span><span class="o">:</span> <span class="l">keep-alive</span>
+<span class="na">Content-Length</span><span class="o">:</span> <span class="l">159</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json; charset=UTF-8</span>
+<span class="na">Date</span><span class="o">:</span> <span class="l">Thu, 16 Jul 2015 14:41:39 GMT</span>
+<span class="na">ETag</span><span class="o">:</span> <span class="l">&quot;1437057699755&quot;</span>
+<span class="na">Last-Modified</span><span class="o">:</span> <span class="l">Thu, 16 Jul 2015 14:41:39 GMT</span>
+<span class="na">Server</span><span class="o">:</span> <span class="l">nginx/1.4.6 (Ubuntu)</span>
+
+<span class="p">{</span>
+    <span class="nt">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;comments&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;last_modified&quot;</span><span class="p">:</span> <span class="mi">1437057699755</span>
+    <span class="p">},</span>
+    <span class="nt">&quot;permissions&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;write&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">&quot;basicauth:631c2d625ee5726172cf67c6750de10a3e1a04bcd603bc9ad6d6b196fa8257a6&quot;</span>
+        <span class="p">]</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Thanks to the <cite>read</cite> permission that we set previously, all authenticated users
+will be able to read both collections.</p>
+<p>Let&#8217;s verify that. Create an article:</p>
+<div class="highlight-shell"><div class="highlight"><pre><span></span>$ <span class="nb">echo</span> <span class="s1">&#39;{&quot;data&quot;:{&quot;title&quot;: &quot;My article&quot;, &quot;content&quot;: &quot;my content&quot;, &quot;published_at&quot;: &quot;Thu Jul 16 16:44:15 CEST 2015&quot;}}&#39;</span> <span class="p">|</span> <span class="se">\</span>
+    http POST https://kinto.dev.mozaws.net/v1/buckets/servicedenuages-blog/collections/articles/records <span class="se">\</span>
+    --auth token:my-secret
+</pre></div>
+</div>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">201</span> <span class="ne">Created</span>
+<span class="na">Access-Control-Expose-Headers</span><span class="o">:</span> <span class="l">Backoff, Retry-After, Alert, Content-Length</span>
+<span class="na">Backoff</span><span class="o">:</span> <span class="l">10</span>
+<span class="na">Connection</span><span class="o">:</span> <span class="l">keep-alive</span>
+<span class="na">Content-Length</span><span class="o">:</span> <span class="l">278</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json; charset=UTF-8</span>
+<span class="na">Date</span><span class="o">:</span> <span class="l">Thu, 16 Jul 2015 14:43:45 GMT</span>
+<span class="na">Server</span><span class="o">:</span> <span class="l">nginx/1.4.6 (Ubuntu)</span>
+
+<span class="p">{</span>
+    <span class="nt">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;my content&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;b8c4cc34-f184-4b4d-8cad-e135a3f0308c&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;last_modified&quot;</span><span class="p">:</span> <span class="mi">1437057825171</span><span class="p">,</span>
+        <span class="nt">&quot;published_at&quot;</span><span class="p">:</span> <span class="s2">&quot;Thu Jul 16 16:44:15 CEST 2015&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;My article&quot;</span>
+    <span class="p">},</span>
+    <span class="nt">&quot;permissions&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;write&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">&quot;basicauth:631c2d625ee5726172cf67c6750de10a3e1a04bcd603bc9ad6d6b196fa8257a6&quot;</span>
+        <span class="p">]</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Indeed, using another user like <em>natim</em>, we can read the article:</p>
+<div class="highlight-shell"><div class="highlight"><pre><span></span>$ http GET https://kinto.dev.mozaws.net/v1/buckets/servicedenuages-blog/collections/articles/records/b8c4cc34-f184-4b4d-8cad-e135a3f0308c <span class="se">\</span>
+    --auth token:natim-token
+</pre></div>
+</div>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Access-Control-Expose-Headers</span><span class="o">:</span> <span class="l">Backoff, Retry-After, Alert, Content-Length, Last-Modified, ETag</span>
+<span class="na">Connection</span><span class="o">:</span> <span class="l">keep-alive</span>
+<span class="na">Content-Length</span><span class="o">:</span> <span class="l">278</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json; charset=UTF-8</span>
+<span class="na">Date</span><span class="o">:</span> <span class="l">Thu, 16 Jul 2015 14:46:49 GMT</span>
+<span class="na">ETag</span><span class="o">:</span> <span class="l">&quot;1437057825171&quot;</span>
+<span class="na">Last-Modified</span><span class="o">:</span> <span class="l">Thu, 16 Jul 2015 14:43:45 GMT</span>
+<span class="na">Server</span><span class="o">:</span> <span class="l">nginx/1.4.6 (Ubuntu)</span>
+
+<span class="p">{</span>
+    <span class="nt">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;my content&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;b8c4cc34-f184-4b4d-8cad-e135a3f0308c&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;last_modified&quot;</span><span class="p">:</span> <span class="mi">1437057825171</span><span class="p">,</span>
+        <span class="nt">&quot;published_at&quot;</span><span class="p">:</span> <span class="s2">&quot;Thu Jul 16 16:44:15 CEST 2015&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;My article&quot;</span>
+    <span class="p">},</span>
+    <span class="nt">&quot;permissions&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;write&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">&quot;basicauth:631c2d625ee5726172cf67c6750de10a3e1a04bcd603bc9ad6d6b196fa8257a6&quot;</span>
+        <span class="p">]</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>If we want authenticated users to be able to create a comment, we can PATCH the
+permissions of the <code class="docutils literal"><span class="pre">comments</span></code> collections:</p>
+<div class="highlight-shell"><div class="highlight"><pre><span></span>$ <span class="nb">echo</span> <span class="s1">&#39;{&quot;permissions&quot;: {&quot;record:create&quot;: [&quot;system.Authenticated&quot;]}}&#39;</span> <span class="p">|</span> <span class="se">\</span>
+    http PATCH https://kinto.dev.mozaws.net/v1/buckets/servicedenuages-blog/collections/comments <span class="se">\</span>
+    --auth token:my-secret
+</pre></div>
+</div>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Access-Control-Expose-Headers</span><span class="o">:</span> <span class="l">Backoff, Retry-After, Alert, Content-Length</span>
+<span class="na">Connection</span><span class="o">:</span> <span class="l">keep-alive</span>
+<span class="na">Content-Length</span><span class="o">:</span> <span class="l">200</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json; charset=UTF-8</span>
+<span class="na">Date</span><span class="o">:</span> <span class="l">Thu, 16 Jul 2015 14:49:38 GMT</span>
+<span class="na">ETag</span><span class="o">:</span> <span class="l">&quot;1437057699755&quot;</span>
+<span class="na">Last-Modified</span><span class="o">:</span> <span class="l">Thu, 16 Jul 2015 14:41:39 GMT</span>
+<span class="na">Server</span><span class="o">:</span> <span class="l">nginx/1.4.6 (Ubuntu)</span>
+
+<span class="p">{</span>
+    <span class="nt">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;comments&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;last_modified&quot;</span><span class="p">:</span> <span class="mi">1437057699755</span>
+    <span class="p">},</span>
+    <span class="nt">&quot;permissions&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;record:create&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">&quot;system.Authenticated&quot;</span>
+        <span class="p">],</span>
+        <span class="nt">&quot;write&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">&quot;basicauth:631c2d625ee5726172cf67c6750de10a3e1a04bcd603bc9ad6d6b196fa8257a6&quot;</span>
+        <span class="p">]</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Now every authenticated user, like <em>natim</em> here, can add a comment.</p>
+<div class="highlight-shell"><div class="highlight"><pre><span></span>$ <span class="nb">echo</span> <span class="s1">&#39;{&quot;data&quot;:{&quot;article_id&quot;: &quot;b8c4cc34-f184-4b4d-8cad-e135a3f0308c&quot;, &quot;comment&quot;: &quot;my comment&quot;, &quot;author&quot;: &quot;*natim*&quot;}}&#39;</span> <span class="p">|</span> <span class="se">\</span>
+    http POST https://kinto.dev.mozaws.net/v1/buckets/servicedenuages-blog/collections/comments/records <span class="se">\</span>
+    --auth token:natim-token
+</pre></div>
+</div>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">201</span> <span class="ne">Created</span>
+<span class="na">Access-Control-Expose-Headers</span><span class="o">:</span> <span class="l">Backoff, Retry-After, Alert, Content-Length</span>
+<span class="na">Connection</span><span class="o">:</span> <span class="l">keep-alive</span>
+<span class="na">Content-Length</span><span class="o">:</span> <span class="l">248</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json; charset=UTF-8</span>
+<span class="na">Date</span><span class="o">:</span> <span class="l">Thu, 16 Jul 2015 14:50:44 GMT</span>
+<span class="na">Server</span><span class="o">:</span> <span class="l">nginx/1.4.6 (Ubuntu)</span>
+
+<span class="p">{</span>
+    <span class="nt">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;article_id&quot;</span><span class="p">:</span> <span class="s2">&quot;b8c4cc34-f184-4b4d-8cad-e135a3f0308c&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;author&quot;</span><span class="p">:</span> <span class="s2">&quot;*natim*&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;comment&quot;</span><span class="p">:</span> <span class="s2">&quot;my comment&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;5e2292d5-8818-4cd4-be7d-d5a834d36de6&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;last_modified&quot;</span><span class="p">:</span> <span class="mi">1437058244384</span>
+    <span class="p">},</span>
+    <span class="nt">&quot;permissions&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;write&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">&quot;basicauth:df93ca0ecaeaa3126595f6785b39c408be2539173c991a7b2e3181a9826a69bc&quot;</span>
+        <span class="p">]</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="permissions-and-groups">
+<h2>Permissions and groups<a class="headerlink" href="#permissions-and-groups" title="Permalink to this headline">¶</a></h2>
+<p>So far only the creator of the initial bucket (i.e. the blog admin) can write
+articles. Let&#8217;s invite some writers to create articles!</p>
+<p>We will create a new group called <code class="docutils literal"><span class="pre">writers</span></code> with <em>natim</em> as a principal
+member.</p>
+<div class="highlight-shell"><div class="highlight"><pre><span></span>$ <span class="nb">echo</span> <span class="s1">&#39;{&quot;data&quot;: {&quot;members&quot;: [&quot;basicauth:df93ca0ecaeaa3126595f6785b39c408be2539173c991a7b2e3181a9826a69bc&quot;]}}&#39;</span> <span class="p">|</span> <span class="se">\</span>
+    http PUT https://kinto.dev.mozaws.net/v1/buckets/servicedenuages-blog/groups/writers <span class="se">\</span>
+    --auth token:my-secret
+</pre></div>
+</div>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">201</span> <span class="ne">Created</span>
+<span class="na">Access-Control-Expose-Headers</span><span class="o">:</span> <span class="l">Backoff, Retry-After, Alert, Content-Length</span>
+<span class="na">Connection</span><span class="o">:</span> <span class="l">keep-alive</span>
+<span class="na">Content-Length</span><span class="o">:</span> <span class="l">247</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json; charset=UTF-8</span>
+<span class="na">Date</span><span class="o">:</span> <span class="l">Thu, 16 Jul 2015 14:54:58 GMT</span>
+<span class="na">ETag</span><span class="o">:</span> <span class="l">&quot;1437058498218&quot;</span>
+<span class="na">Last-Modified</span><span class="o">:</span> <span class="l">Thu, 16 Jul 2015 14:54:58 GMT</span>
+<span class="na">Server</span><span class="o">:</span> <span class="l">nginx/1.4.6 (Ubuntu)</span>
+
+<span class="p">{</span>
+    <span class="nt">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;writers&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;last_modified&quot;</span><span class="p">:</span> <span class="mi">1437058498218</span><span class="p">,</span>
+        <span class="nt">&quot;members&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">&quot;basicauth:df93ca0ecaeaa3126595f6785b39c408be2539173c991a7b2e3181a9826a69bc&quot;</span>
+        <span class="p">]</span>
+    <span class="p">},</span>
+    <span class="nt">&quot;permissions&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;write&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">&quot;basicauth:631c2d625ee5726172cf67c6750de10a3e1a04bcd603bc9ad6d6b196fa8257a6&quot;</span>
+        <span class="p">]</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Now we grant the <cite>write</cite> permission on the blog bucket to the <code class="docutils literal"><span class="pre">writers</span></code> group.</p>
+<div class="highlight-shell"><div class="highlight"><pre><span></span>$ <span class="nb">echo</span> <span class="s1">&#39;{&quot;permissions&quot;: {&quot;write&quot;: [&quot;/buckets/servicedenuages-blog/groups/writers&quot;]}}&#39;</span> <span class="p">|</span> <span class="se">\</span>
+    http PATCH https://kinto.dev.mozaws.net/v1/buckets/servicedenuages-blog <span class="se">\</span>
+    --auth token:my-secret
+</pre></div>
+</div>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Access-Control-Expose-Headers</span><span class="o">:</span> <span class="l">Backoff, Retry-After, Alert, Content-Length</span>
+<span class="na">Connection</span><span class="o">:</span> <span class="l">keep-alive</span>
+<span class="na">Content-Length</span><span class="o">:</span> <span class="l">254</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json; charset=UTF-8</span>
+<span class="na">Date</span><span class="o">:</span> <span class="l">Thu, 16 Jul 2015 14:56:55 GMT</span>
+<span class="na">ETag</span><span class="o">:</span> <span class="l">&quot;1437056437581&quot;</span>
+<span class="na">Last-Modified</span><span class="o">:</span> <span class="l">Thu, 16 Jul 2015 14:20:37 GMT</span>
+<span class="na">Server</span><span class="o">:</span> <span class="l">nginx/1.4.6 (Ubuntu)</span>
+
+<span class="p">{</span>
+    <span class="nt">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;servicedenuages-blog&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;last_modified&quot;</span><span class="p">:</span> <span class="mi">1437056437581</span>
+    <span class="p">},</span>
+    <span class="nt">&quot;permissions&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;read&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">&quot;system.Authenticated&quot;</span>
+        <span class="p">],</span>
+        <span class="nt">&quot;write&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">&quot;basicauth:631c2d625ee5726172cf67c6750de10a3e1a04bcd603bc9ad6d6b196fa8257a6&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;/buckets/servicedenuages-blog/groups/writers&quot;</span>
+        <span class="p">]</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Now <em>natim</em> can write new articles!</p>
+<div class="highlight-shell"><div class="highlight"><pre><span></span>$ <span class="nb">echo</span> <span class="s1">&#39;{&quot;data&quot;:{&quot;title&quot;: &quot;natim article&quot;, &quot;content&quot;: &quot;natims content&quot;, &quot;published_at&quot;: &quot;Thu Jul 16 16:59:16 CEST 2015&quot;}}&#39;</span> <span class="p">|</span> <span class="se">\</span>
+    http POST https://kinto.dev.mozaws.net/v1/buckets/servicedenuages-blog/collections/articles/records <span class="se">\</span>
+    --auth token:natim-token
+</pre></div>
+</div>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">201</span> <span class="ne">Created</span>
+<span class="na">Access-Control-Expose-Headers</span><span class="o">:</span> <span class="l">Backoff, Retry-After, Alert, Content-Length</span>
+<span class="na">Connection</span><span class="o">:</span> <span class="l">keep-alive</span>
+<span class="na">Content-Length</span><span class="o">:</span> <span class="l">285</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json; charset=UTF-8</span>
+<span class="na">Date</span><span class="o">:</span> <span class="l">Thu, 16 Jul 2015 14:58:47 GMT</span>
+<span class="na">Server</span><span class="o">:</span> <span class="l">nginx/1.4.6 (Ubuntu)</span>
+
+<span class="p">{</span>
+    <span class="nt">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;natims content&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;f9a61750-f61f-402b-8785-1647c9325a5d&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;last_modified&quot;</span><span class="p">:</span> <span class="mi">1437058727907</span><span class="p">,</span>
+        <span class="nt">&quot;published_at&quot;</span><span class="p">:</span> <span class="s2">&quot;Thu Jul 16 16:59:16 CEST 2015&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;natim article&quot;</span>
+    <span class="p">},</span>
+    <span class="nt">&quot;permissions&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;write&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">&quot;basicauth:df93ca0ecaeaa3126595f6785b39c408be2539173c991a7b2e3181a9826a69bc&quot;</span>
+        <span class="p">]</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="listing-records">
+<h2>Listing records<a class="headerlink" href="#listing-records" title="Permalink to this headline">¶</a></h2>
+<p>One can fetch the list of articles.</p>
+<div class="highlight-shell"><div class="highlight"><pre><span></span>$ http GET <span class="se">\</span>
+    https://kinto.dev.mozaws.net/v1/buckets/servicedenuages-blog/collections/articles/records <span class="se">\</span>
+    --auth token:alice-token
+</pre></div>
+</div>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Access-Control-Expose-Headers</span><span class="o">:</span> <span class="l">Backoff, Retry-After, Alert, Content-Length, Next-Page, Total-Records, Last-Modified, ETag</span>
+<span class="na">Connection</span><span class="o">:</span> <span class="l">keep-alive</span>
+<span class="na">Content-Length</span><span class="o">:</span> <span class="l">351</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json; charset=UTF-8</span>
+<span class="na">Date</span><span class="o">:</span> <span class="l">Thu, 16 Jul 2015 15:06:20 GMT</span>
+<span class="na">ETag</span><span class="o">:</span> <span class="l">&quot;1437058727907&quot;</span>
+<span class="na">Last-Modified</span><span class="o">:</span> <span class="l">Thu, 16 Jul 2015 14:58:47 GMT</span>
+<span class="na">Server</span><span class="o">:</span> <span class="l">nginx/1.4.6 (Ubuntu)</span>
+<span class="na">Total-Records</span><span class="o">:</span> <span class="l">2</span>
+
+<span class="p">{</span>
+    <span class="nt">&quot;data&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span>
+            <span class="nt">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;natims content&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;f9a61750-f61f-402b-8785-1647c9325a5d&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;last_modified&quot;</span><span class="p">:</span> <span class="mi">1437058727907</span><span class="p">,</span>
+            <span class="nt">&quot;published_at&quot;</span><span class="p">:</span> <span class="s2">&quot;Thu Jul 16 16:59:16 CEST 2015&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;natim article&quot;</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="nt">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;my content&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;b8c4cc34-f184-4b4d-8cad-e135a3f0308c&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;last_modified&quot;</span><span class="p">:</span> <span class="mi">1437057825171</span><span class="p">,</span>
+            <span class="nt">&quot;published_at&quot;</span><span class="p">:</span> <span class="s2">&quot;Thu Jul 16 16:44:15 CEST 2015&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;My article&quot;</span>
+        <span class="p">}</span>
+    <span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Or the list of comments.</p>
+<div class="highlight-shell"><div class="highlight"><pre><span></span>$ http GET <span class="se">\</span>
+    https://kinto.dev.mozaws.net/v1/buckets/servicedenuages-blog/collections/comments/records <span class="se">\</span>
+    --auth token:alice-token
+</pre></div>
+</div>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Access-Control-Expose-Headers</span><span class="o">:</span> <span class="l">Backoff, Retry-After, Alert, Content-Length, Next-Page, Total-Records, Last-Modified, ETag</span>
+<span class="na">Connection</span><span class="o">:</span> <span class="l">keep-alive</span>
+<span class="na">Content-Length</span><span class="o">:</span> <span class="l">147</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json; charset=UTF-8</span>
+<span class="na">Date</span><span class="o">:</span> <span class="l">Thu, 16 Jul 2015 15:08:48 GMT</span>
+<span class="na">ETag</span><span class="o">:</span> <span class="l">&quot;1437058244384&quot;</span>
+<span class="na">Last-Modified</span><span class="o">:</span> <span class="l">Thu, 16 Jul 2015 14:50:44 GMT</span>
+<span class="na">Server</span><span class="o">:</span> <span class="l">nginx/1.4.6 (Ubuntu)</span>
+<span class="na">Total-Records</span><span class="o">:</span> <span class="l">1</span>
+
+<span class="p">{</span>
+    <span class="nt">&quot;data&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span>
+            <span class="nt">&quot;article_id&quot;</span><span class="p">:</span> <span class="s2">&quot;b8c4cc34-f184-4b4d-8cad-e135a3f0308c&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;author&quot;</span><span class="p">:</span> <span class="s2">&quot;natim&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;comment&quot;</span><span class="p">:</span> <span class="s2">&quot;my comment&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;5e2292d5-8818-4cd4-be7d-d5a834d36de6&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;last_modified&quot;</span><span class="p">:</span> <span class="mi">1437058244384</span>
+        <span class="p">}</span>
+    <span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="write-plugin.html" class="btn btn-neutral float-right" title="How to write a Kinto plugin?" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="custom-id-generator.html" class="btn btn-neutral" title="How to define and use a custom ID generator?" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2015-2016 — Mozilla Services.
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+
+  
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        var disqus_shortname = 'kinto-docs';
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+  
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'4.3.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="../_static/piwik.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

@@ -1,0 +1,381 @@
+
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>History of changes &mdash; Kinto 4.3.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="../../_static/theme_overrides.css" type="text/css" />
+  
+    <link rel="stylesheet" href="../../_static/css/style.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="Kinto 4.3.1 documentation" href="../../index.html"/>
+        <link rel="up" title="1.x" href="index.html"/>
+        <link rel="next" title="Quotas management" href="quotas.html"/>
+        <link rel="prev" title="Selecting fields" href="selecting_fields.html"/> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> Kinto
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                4.3
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../kinto-admin.html">Kinto Web Administration Console</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../concepts.html">Concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../community.html">Community</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../configuration/index.html">Configuration</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">API</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../versioning.html">API Versioning</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">1.x</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="index.html#full-reference">Full reference</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="authentication.html">Authentication</a></li>
+<li class="toctree-l4"><a class="reference internal" href="buckets.html">Buckets</a></li>
+<li class="toctree-l4"><a class="reference internal" href="collections.html">Collections</a></li>
+<li class="toctree-l4"><a class="reference internal" href="records.html">Records</a></li>
+<li class="toctree-l4"><a class="reference internal" href="groups.html">Groups</a></li>
+<li class="toctree-l4"><a class="reference internal" href="permissions.html">Permissions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="filtering.html">Filtering</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sorting.html">Sorting</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pagination.html">Paginating</a></li>
+<li class="toctree-l4"><a class="reference internal" href="selecting_fields.html">Selecting fields</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">History of changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="quotas.html">Quotas management</a></li>
+<li class="toctree-l4"><a class="reference internal" href="utilities.html">Utility endpoints for OPS and Devs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="batch.html">Batch operations</a></li>
+<li class="toctree-l4"><a class="reference internal" href="timestamps.html">Server timestamps</a></li>
+<li class="toctree-l4"><a class="reference internal" href="backoff.html">Backoff indicators</a></li>
+<li class="toctree-l4"><a class="reference internal" href="errors.html">Error responses</a></li>
+<li class="toctree-l4"><a class="reference internal" href="deprecation.html">Deprecation</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="index.html#cheatsheet">Cheatsheet</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../index.html#changelog">Changelog</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../commandline.html">Command Line</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../faq.html">FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../core/glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../core/index.html">Kinto Core</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../index.html">Kinto</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../index.html">API</a> &raquo;</li>
+      
+          <li><a href="index.html">1.x</a> &raquo;</li>
+      
+    <li>History of changes</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../../_sources/api/1.x/history.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="history-of-changes">
+<span id="api-history"></span><h1>History of changes<a class="headerlink" href="#history-of-changes" title="Permalink to this headline">¶</a></h1>
+<p>When the built-in plugin <code class="docutils literal"><span class="pre">kinto.plugins.history</span></code> is enabled in configuration,
+it becomes possible to track the history of changes via a new endpoint <code class="docutils literal"><span class="pre">GET</span> <span class="pre">/buckets/&lt;bid&gt;/history</span></code>.</p>
+<p>Clients can check for the <code class="docutils literal"><span class="pre">history</span></code> capability in the <a class="reference internal" href="utilities.html#api-utilities"><span class="std std-ref">root URL endpoint</span></a>.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">In terms of performance, enabling this plugin generates three additional queries
+on backends per request (i.e. per transaction).</p>
+</div>
+<ul class="simple">
+<li>Creations/updates/deletions of every kind of object is tracked per bucket;</li>
+<li>Both data and permissions changes are provided in history entries;</li>
+<li>Only the new version of the record is stored in the history entry for each action;</li>
+<li>The history only shows the actions that were performed on objects where the user had read or write permission;</li>
+<li>When requested anonymously, the history only shows actions on publicly readable/writable objects;</li>
+<li>The <code class="docutils literal"><span class="pre">default_bucket</span></code> plugin is supported;</li>
+<li>Entries can be filtered and sorted as any list endpoint.</li>
+</ul>
+<div class="section" id="retrieve-history">
+<span id="history-get"></span><h2>Retrieve history<a class="headerlink" href="#retrieve-history" title="Permalink to this headline">¶</a></h2>
+<dl class="get">
+<dt id="get--buckets-(bucket_id)-history">
+<code class="descname">GET </code><code class="descname">/buckets/</code><span class="sig-paren">(</span><em>bucket_id</em><span class="sig-paren">)</span><code class="descname">/history</code><a class="headerlink" href="#get--buckets-(bucket_id)-history" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">synopsis:</th><td class="field-body">Retrieve the history, ordered by <cite>-last_modified</cite> by default.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Optional authentication</strong></p>
+<p><strong>Example Request</strong></p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ http GET http://localhost:8888/v1/buckets/blog/history --auth<span class="o">=</span><span class="s2">&quot;token:bob-token&quot;</span> --verbose
+</pre></div>
+</div>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="nf">GET</span> <span class="nn">/v1/buckets/blog/history</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Accept</span><span class="o">:</span> <span class="l">*/*</span>
+<span class="na">Accept-Encoding</span><span class="o">:</span> <span class="l">gzip, deflate</span>
+<span class="na">Authorization</span><span class="o">:</span> <span class="l">Basic dG9rZW46Ym9iLXRva2Vu</span>
+<span class="na">Connection</span><span class="o">:</span> <span class="l">keep-alive</span>
+<span class="na">Host</span><span class="o">:</span> <span class="l">localhost:8888</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p><strong>Example Response</strong></p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Access-Control-Expose-Headers</span><span class="o">:</span> <span class="l">Content-Length, Expires, Alert, Retry-After, Last-Modified, Total-Records, ETag, Pragma, Cache-Control, Backoff, Next-Page</span>
+<span class="na">Cache-Control</span><span class="o">:</span> <span class="l">no-cache, no-store</span>
+<span class="na">Content-Length</span><span class="o">:</span> <span class="l">1906</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json; charset=UTF-8</span>
+<span class="na">Date</span><span class="o">:</span> <span class="l">Wed, 20 Jul 2016 09:15:02 GMT</span>
+<span class="na">Etag</span><span class="o">:</span> <span class="l">&quot;1469006098757&quot;</span>
+<span class="na">Last-Modified</span><span class="o">:</span> <span class="l">Wed, 20 Jul 2016 09:14:58 GMT</span>
+<span class="na">Server</span><span class="o">:</span> <span class="l">waitress</span>
+<span class="na">Total-Records</span><span class="o">:</span> <span class="l">4</span>
+
+<span class="p">{</span>
+    <span class="nt">&quot;data&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span>
+            <span class="nt">&quot;action&quot;</span><span class="p">:</span> <span class="s2">&quot;update&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;collection_id&quot;</span><span class="p">:</span> <span class="s2">&quot;articles&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;date&quot;</span><span class="p">:</span> <span class="s2">&quot;2016-07-20T11:18:36.530281&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;cb98ecd7-a66f-4f9d-82c5-73d06930f4f2&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;last_modified&quot;</span><span class="p">:</span> <span class="mi">1469006316530</span><span class="p">,</span>
+            <span class="nt">&quot;record_id&quot;</span><span class="p">:</span> <span class="s2">&quot;b3b76c56-b6df-4195-8189-d79da4a128e1&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;resource_name&quot;</span><span class="p">:</span> <span class="s2">&quot;record&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;target&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="nt">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;b3b76c56-b6df-4195-8189-d79da4a128e1&quot;</span><span class="p">,</span>
+                    <span class="nt">&quot;last_modified&quot;</span><span class="p">:</span> <span class="mi">1469006316529</span><span class="p">,</span>
+                    <span class="nt">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;Modified title&quot;</span>
+                <span class="p">},</span>
+                <span class="nt">&quot;permissions&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="nt">&quot;write&quot;</span><span class="p">:</span> <span class="p">[</span>
+                        <span class="s2">&quot;basicauth:43181ac0ae7581a23288c25a98786ef9db86433c62a04fd6071d11653ee69089&quot;</span>
+                    <span class="p">]</span>
+                <span class="p">}</span>
+            <span class="p">},</span>
+            <span class="nt">&quot;timestamp&quot;</span><span class="p">:</span> <span class="mi">1469006098757</span><span class="p">,</span>
+            <span class="nt">&quot;uri&quot;</span><span class="p">:</span> <span class="s2">&quot;/buckets/blog/collections/articles/records/b3b76c56-b6df-4195-8189-d79da4a128e1&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;user_id&quot;</span><span class="p">:</span> <span class="s2">&quot;basicauth:43181ac0ae7581a23288c25a98786ef9db86433c62a04fd6071d11653ee69089&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<p>As other list endpoints, the entries can be filtered and sorted using the querystring.</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">?_since=&quot;&lt;timestamp&gt;&quot;</span></code> and <code class="docutils literal"><span class="pre">?_before=&quot;&lt;timestamp&gt;&quot;</span></code> to filter by timestamp/last_modified</li>
+<li><code class="docutils literal"><span class="pre">?_limit=&lt;N&gt;</span></code>: limits to N entries (use <code class="docutils literal"><span class="pre">Next-Page</span></code> response header for pagination)</li>
+<li><code class="docutils literal"><span class="pre">?uri=&lt;URI&gt;</span></code>: to filter on a particular object</li>
+<li><code class="docutils literal"><span class="pre">?collection_id=&lt;id&gt;</span></code>: to filter on a particular collection</li>
+<li><code class="docutils literal"><span class="pre">?resource_name=&lt;bucket|group|collection|record&gt;</span></code>: to filter by object type</li>
+<li>See <a class="reference internal" href="filtering.html#filtering"><span class="std std-ref">Filtering</span></a>, <a class="reference internal" href="sorting.html#sorting"><span class="std std-ref">Sorting</span></a>, <a class="reference internal" href="pagination.html#paginating"><span class="std std-ref">Paginating</span></a> and <a class="reference internal" href="selecting_fields.html#selecting-fields"><span class="std std-ref">Selecting fields</span></a>.</li>
+</ul>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">If the server defines a <code class="docutils literal"><span class="pre">kinto.paginate_by</span></code> setting, the list will be limited by default.</p>
+</div>
+</div>
+<div class="section" id="conflict-resolution">
+<h2>Conflict resolution<a class="headerlink" href="#conflict-resolution" title="Permalink to this headline">¶</a></h2>
+<p>Having the journal of operations of an object possibly allows to resolve update conflicts automatically.</p>
+<p>For example, if Alice receives a <code class="docutils literal"><span class="pre">412</span> <span class="pre">Precondition</span> <span class="pre">Failed</span></code> error response when she tries to update a record,
+she can use the history entries for this particular record filtering from a the timestamp of her local copy, in order
+to merge the changes that happened remotely with her local ones.</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ <span class="nv">RECORD_URI</span><span class="o">=</span><span class="s2">&quot;buckets/blog/collections/articles/records/xyz&quot;</span>
+$ <span class="nv">LOCAL_TIMESTAMP</span><span class="o">=</span><span class="s2">&quot;1469006098757&quot;</span>
+$ http GET http://localhost:8888/v1/buckets/blog/history?uri<span class="o">=</span><span class="nv">$RECORD_URI</span><span class="p">&amp;</span><span class="nv">_since</span><span class="o">=</span><span class="nv">$LOCAL_TIMESTAMP</span> --auth<span class="o">=</span><span class="s2">&quot;token:bob-token&quot;</span> --verbose
+</pre></div>
+</div>
+<p>Each entries gives the state in which the record was modified. Computing the difference between
+two steps and applying it to the local record is a possible way of solving conflicts automatically.</p>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="quotas.html" class="btn btn-neutral float-right" title="Quotas management" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="selecting_fields.html" class="btn btn-neutral" title="Selecting fields" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2015-2016 — Mozilla Services.
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+
+  
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        var disqus_shortname = 'kinto-docs';
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+  
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'4.3.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+      <script type="text/javascript" src="../../_static/piwik.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

@@ -1,0 +1,1311 @@
+
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Changelog &mdash; Kinto 4.3.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="_static/theme_overrides.css" type="text/css" />
+  
+    <link rel="stylesheet" href="_static/css/style.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="Kinto 4.3.1 documentation" href="index.html"/>
+        <link rel="next" title="Glossary" href="core/glossary.html"/>
+        <link rel="prev" title="Troubleshooting" href="troubleshooting.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Kinto
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                4.3
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="kinto-admin.html">Kinto Web Administration Console</a></li>
+<li class="toctree-l1"><a class="reference internal" href="concepts.html">Concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="community.html">Community</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="configuration/index.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/index.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="commandline.html">Command Line</a></li>
+<li class="toctree-l1"><a class="reference internal" href="faq.html">FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Changelog</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#unreleased">4.4.0 (unreleased)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id1">4.3.1 (2016-10-06)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id2">4.3.0 (2016-10-04)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id3">4.2.0 (2016-09-15)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id4">4.1.1 (2016-08-29)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id5">4.1.0 (2016-08-22)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id6">4.0.1 (2016-08-22)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id7">4.0.0 (2016-08-17)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id8">3.3.3 (2016-09-12)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id9">3.3.2 (2016-07-21)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id10">3.3.1 (2016-07-19)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id11">3.3.0 (2016-07-18)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id12">3.2.0 (2016-06-14)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id13">3.1.0 (2016-05-24)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id14">3.0.1 (2016-05-20)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id15">3.0.0 (2016-05-18)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id16">2.1.1 (2016-04-29)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id17">2.1.0 (2016-04-19)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id18">2.0.0 (2016-03-08)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id19">1.9.0 (2015-11-18)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id20">1.8.0 (2015-10-30)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id21">1.7.0 (2015-10-28)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id22">1.6.2 (2015-10-22)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id23">1.6.1 (2015-10-22)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id24">1.6.0 (2015-10-14)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id25">1.5.1 (2015-10-07)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id26">1.5.0 (2015-09-23)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id27">1.4.0 (2015-09-04)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id28">1.3.1 (2015-07-15)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id29">1.3.0 (2015-07-13)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id30">1.2.1 (2015-07-08)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id31">1.2.0 (2015-07-03)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id32">1.1.0 (2015-06-29)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id33">1.0.0 (2015-06-17)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id34">0.2.2 (2015-06-04)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id35">0.2.1 (2015-03-25)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id36">0.2 (2015-03-24)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id37">0.1 (2015-03-20)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="core/glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="core/index.html">Kinto Core</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">Kinto</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>Changelog</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/changelog.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="changelog">
+<h1>Changelog<a class="headerlink" href="#changelog" title="Permalink to this headline">¶</a></h1>
+<p>This document describes changes between each past release.</p>
+<div class="section" id="unreleased">
+<h2>4.4.0 (unreleased)<a class="headerlink" href="#unreleased" title="Permalink to this headline">¶</a></h2>
+<p><strong>New features</strong></p>
+<ul class="simple">
+<li>Added a new built-in plugin <code class="docutils literal"><span class="pre">kinto.plugins.admin</span></code> to serve the kinto admin.</li>
+</ul>
+</div>
+<div class="section" id="id1">
+<h2>4.3.1 (2016-10-06)<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<p><strong>Bug fixes</strong></p>
+<ul class="simple">
+<li>Make sure we redirect endpoints with trailing slashes with the default bucket plugin. (#848)</li>
+<li>Fix group association when members contains <code class="docutils literal"><span class="pre">system.Authenticated</span></code> (fixes #776)</li>
+<li>Raise an error when members contains <code class="docutils literal"><span class="pre">system.Everyone</span></code> or a group ID (#850)</li>
+<li>Fix StatsD view counter with 404 responses (#853)</li>
+<li>Fixes filtering on ids with numeric values. (fixes #851)</li>
+</ul>
+</div>
+<div class="section" id="id2">
+<h2>4.3.0 (2016-10-04)<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<p><strong>Protocol</strong></p>
+<ul class="simple">
+<li>Fix error response consistency with safe creations if the <code class="docutils literal"><span class="pre">create</span></code> permission
+is granted (fixes #792). The server now returns a <code class="docutils literal"><span class="pre">412</span></code> instead of a <code class="docutils literal"><span class="pre">403</span></code> if
+the <code class="docutils literal"><span class="pre">If-None-Match:</span> <span class="pre">*</span></code> header is provided and the <code class="docutils literal"><span class="pre">create</span></code> permission is granted.</li>
+<li>The <code class="docutils literal"><span class="pre">permissions</span></code> attribute is now empty in the response if the user has not the permission
+to write on the object (fixes #123)</li>
+<li>Filtering records now works the same on the memory and postgresql backends:
+if we&#8217;re comparing to a number, the filter will now filter out records that
+don&#8217;t have this field. If we&#8217;re comparing to anything else, the record
+without such a field is treated as if it had &#8216;&#8217; as the value for this field.
+(fixes #815)</li>
+<li>Parent <strong>attributes are now readable</strong> if children creation is allowed. That means for example
+that collection attributes are now readable to users with <code class="docutils literal"><span class="pre">record:create</span></code> permission.
+Same applies to bucket attributes and <code class="docutils literal"><span class="pre">collection:create</span></code> and <code class="docutils literal"><span class="pre">group:create</span></code> (fixes #803)</li>
+<li>Return an empty list on the plural endpoint instead of <code class="docutils literal"><span class="pre">403</span></code> if the <code class="docutils literal"><span class="pre">create</span></code>
+permission is allowed</li>
+</ul>
+<p>Protocol is now at version <strong>1.11</strong>. See <a class="reference external" href="https://kinto.readthedocs.io/en/latest/api/">API changelog</a>.</p>
+<p><strong>Bug fixes</strong></p>
+<ul class="simple">
+<li>Fix crash in history plugin when target had no explicit permission defined (fixes #805, #842)</li>
+</ul>
+<p><strong>New features</strong></p>
+<ul class="simple">
+<li>The storage backend now allows <code class="docutils literal"><span class="pre">parent_id</span></code> pattern matching in <code class="docutils literal"><span class="pre">kinto.core.storage.get_all</span></code>. (#821)</li>
+<li>The history and quotas plugins execution time is now monitored on StatsD (<code class="docutils literal"><span class="pre">kinto.plugins.quotas</span></code>
+and <code class="docutils literal"><span class="pre">kinto.plugins.history</span></code>) (#832)
+<code class="docutils literal"><span class="pre">kinto.version_json_path</span></code> settings (fixes #830)</li>
+</ul>
+<p><strong>Internal changes</strong></p>
+<ul class="simple">
+<li>Fixed a failing pypy test by changing the way it was mocking
+<cite>transaction.manager.commit</cite> (fixes #755)</li>
+<li>Moved storage/cache/permissions base tests to <code class="docutils literal"><span class="pre">kinto.core.*.testing</span></code> (fixes #801)</li>
+<li>Now fails with an explicit error when StatsD is configured but not installed.</li>
+<li>Remove redundant fields from data column in PostgreSQL records table (fixes #762)</li>
+</ul>
+</div>
+<div class="section" id="id3">
+<h2>4.2.0 (2016-09-15)<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
+<p><strong>Protocol</strong></p>
+<ul class="simple">
+<li>Support for filtering records based on a text search (#791)</li>
+</ul>
+<p>Protocol is now at version <strong>1.10</strong>. See <a class="reference external" href="https://kinto.readthedocs.io/en/latest/api/">API changelog</a>.</p>
+<p><strong>Bug fixes</strong></p>
+<ul class="simple">
+<li>Fix concurrent writes in the memory backend (fixes #759)</li>
+<li>Fix heartbeat transaction locks with PostgreSQL backends (fixes #804)</li>
+<li>Fix crash with PostgreSQL storage backend when filtering with integer on
+a missing field (fixes #813)</li>
+</ul>
+<p><strong>Internal changes</strong></p>
+<ul class="simple">
+<li>Fix links to comparison table in docs</li>
+</ul>
+</div>
+<div class="section" id="id4">
+<h2>4.1.1 (2016-08-29)<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
+<p><strong>Bug fixes</strong></p>
+<ul class="simple">
+<li>Fix kinto init input function (#796)</li>
+</ul>
+</div>
+<div class="section" id="id5">
+<h2>4.1.0 (2016-08-22)<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h2>
+<p><strong>New features</strong></p>
+<ul class="simple">
+<li>Show warning when <code class="docutils literal"><span class="pre">http_scheme</span></code> is not set to <code class="docutils literal"><span class="pre">https</span></code> (#706, thanks &#64;Prashant-Surya)</li>
+</ul>
+<p><strong>Bug fixes</strong></p>
+<ul class="simple">
+<li>Fix sorting/filtering history entries by <code class="docutils literal"><span class="pre">date</span></code> field</li>
+<li>On subobject filtering, return a 400 error response only if first level field
+is unknown (on resources with strict schema)</li>
+</ul>
+</div>
+<div class="section" id="id6">
+<h2>4.0.1 (2016-08-22)<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h2>
+<p><strong>New features</strong></p>
+<ul class="simple">
+<li>Permissions endpoint (<code class="docutils literal"><span class="pre">GET</span> <span class="pre">/permissions</span></code>) can now be filtered, sorted and paginated.</li>
+</ul>
+<p><strong>Bug fixes</strong></p>
+<ul class="simple">
+<li>Return 400 error response when history is filtered with unknown field</li>
+<li>Fix crash on permissions endpoint when history is enabled (#774)</li>
+<li>Fix crash on history when interacting via the bucket plural endpoint (<code class="docutils literal"><span class="pre">/buckets</span></code>) (fixes #773)</li>
+</ul>
+<p><strong>Internal changes</strong></p>
+<ul class="simple">
+<li>Fix documentation of errors codes (fixes #766)</li>
+<li><code class="docutils literal"><span class="pre">kinto.id_generator</span></code> was removed from documentation since it does not
+behave as expected (fixes #757, thanks &#64;doplumi)
+folder and a <code class="docutils literal"><span class="pre">kinto.core.testing</span></code> module was introduced for tests helpers
+(fixes #605)</li>
+<li>In documentation, link the notion of principals to the permissions page instead
+of glossary</li>
+<li>Add details about <code class="docutils literal"><span class="pre">PATCH</span></code> behaviour (fixes #566)</li>
+</ul>
+</div>
+<div class="section" id="id7">
+<h2>4.0.0 (2016-08-17)<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h2>
+<p><strong>Breaking changes</strong></p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">kinto</span> <span class="pre">--version</span></code> was renamed <code class="docutils literal"><span class="pre">kinto</span> <span class="pre">version</span></code></li>
+<li><code class="docutils literal"><span class="pre">ResourceChanged</span></code> and <code class="docutils literal"><span class="pre">AfterResourceChanged</span></code> events now return
+<code class="docutils literal"><span class="pre">old</span></code> and <code class="docutils literal"><span class="pre">new</span></code> records for the <code class="docutils literal"><span class="pre">delete</span></code> action. (#751)</li>
+<li>Redis backends are not part of the core anymore. (#712).
+Use <code class="docutils literal"><span class="pre">kinto_redis.cache</span></code> instead of <code class="docutils literal"><span class="pre">kinto.core.cache.redis</span></code>
+Use <code class="docutils literal"><span class="pre">kinto_redis.storage</span></code> instead of <code class="docutils literal"><span class="pre">kinto.core.storage.redis</span></code>
+Use <code class="docutils literal"><span class="pre">kinto_redis.permission</span></code> instead of <code class="docutils literal"><span class="pre">kinto.core.permission.redis</span></code></li>
+<li>Redis listener is not part of the core anymore. (#712)
+Use <code class="docutils literal"><span class="pre">kinto.event_listeners.redis.use</span> <span class="pre">=</span> <span class="pre">kinto_redis.listeners</span></code> instead of
+<code class="docutils literal"><span class="pre">kinto.event_listeners.redis.use</span> <span class="pre">=</span> <span class="pre">kinto.core.listeners.redis</span></code></li>
+<li>Notion of unique fields was dropped from <code class="docutils literal"><span class="pre">kinto.core</span></code> resources.</li>
+</ul>
+<p><strong>Protocol</strong></p>
+<ul class="simple">
+<li>Added a <code class="docutils literal"><span class="pre">/__version__</span></code> endpoint with the version that has been deployed. (#747)</li>
+<li>Allow sub-object filtering on plural endpoints (e.g <code class="docutils literal"><span class="pre">?person.name=Eliot</span></code>) (#345)</li>
+<li>Allow sub-object sorting on plural endpoints (e.g <code class="docutils literal"><span class="pre">?_sort=person.name</span></code>) (#345)</li>
+</ul>
+<p>Protocol is now at version <strong>1.9</strong>. See <a class="reference external" href="https://kinto.readthedocs.io/en/latest/api/">API changelog</a>.</p>
+<p><strong>New features</strong></p>
+<ul class="simple">
+<li>Added a new built-in plugin <code class="docutils literal"><span class="pre">kinto.plugins.history</span></code> that keeps track of every action
+that occured within a bucket and serves a stream of changes that can be synced.
+See <a class="reference external" href="https://kinto.readthedocs.io/en/latest/api/1.x/history.html">API documentation</a>.</li>
+<li>Added a new <code class="docutils literal"><span class="pre">--dry-run</span></code> option to command-line script <code class="docutils literal"><span class="pre">migrate</span></code> that will simulate
+migration operation without executing on the backend (thanks &#64;lavish205! #685)</li>
+<li>Added ability to plug custom StatsD backend implementations via a new <code class="docutils literal"><span class="pre">kinto.statsd_backend</span></code>
+setting. Useful for Datadogâ˘ integration for example (fixes #626).</li>
+<li>Added a <code class="docutils literal"><span class="pre">delete-collection</span></code> action to the <code class="docutils literal"><span class="pre">kinto</span></code> command. (#727)</li>
+<li>Added verbosity options to the <code class="docutils literal"><span class="pre">kinto</span></code> command. (#745)</li>
+<li>Added a built-in plugin that allows to define quotas per bucket or collection. (#752)</li>
+</ul>
+<p><strong>Bug fixes</strong></p>
+<ul class="simple">
+<li>Fix bug where the resource events of a request targetting two groups/collection
+from different buckets would be grouped together.</li>
+<li>Fix crash when an invalid UTF-8 character is provided in URL</li>
+<li>Fix crash when provided <code class="docutils literal"><span class="pre">last_modified</span></code> field is not divisible (e.g. string)</li>
+</ul>
+<p><strong>Internal changes</strong></p>
+<ul class="simple">
+<li>Huge rework of documentation after the merge of <em>Cliquet</em> into kinto.core (#731)</li>
+<li>Improve the documentation about generating docs (fixes #615)</li>
+<li>Switch from cliquet-pusher to kinto-pusher in Dockerfile and tutorial.</li>
+<li>List posssible response status on every endpoint documentation (#736)</li>
+<li>Remove duplicated and confusing docs about generic resources</li>
+<li>Replace the term <code class="docutils literal"><span class="pre">protocol</span></code> by <code class="docutils literal"><span class="pre">API</span></code> in documentation (fixes #664)</li>
+<li>Add load tests presets (exhaustive, read, write) in addition to the existing random. Switched integration test <code class="docutils literal"><span class="pre">make</span> <span class="pre">loadtest-check-simulation</span></code> to run the exhaustive one (fixes #258)</li>
+<li>Remove former Cliquet load tests (#733)</li>
+<li>Add a flag to to run simulation load tests on <code class="docutils literal"><span class="pre">default</span></code> bucket. Uses <code class="docutils literal"><span class="pre">blog</span></code>
+bucket by default (#733)</li>
+<li>Add command-line documentation (#727)</li>
+<li>The <code class="docutils literal"><span class="pre">--backend</span></code> command-line option for <code class="docutils literal"><span class="pre">kinto</span> <span class="pre">init</span></code> is not accepted as first
+parameter anymore</li>
+<li>Improved parts of the FAQ (#744)</li>
+<li>Improve 404 and 403 error handling to make them customizable. (#748)</li>
+<li><code class="docutils literal"><span class="pre">kinto.core</span></code> resources are now schemaless by default (fixes #719)</li>
+</ul>
+</div>
+<div class="section" id="id8">
+<h2>3.3.3 (2016-09-12)<a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Fix heartbeat transaction locks with PostgreSQL backends (fixes #804)</li>
+</ul>
+</div>
+<div class="section" id="id9">
+<h2>3.3.2 (2016-07-21)<a class="headerlink" href="#id9" title="Permalink to this headline">¶</a></h2>
+<p><strong>Bug fixes</strong></p>
+<ul class="simple">
+<li>Fix Redis get_accessible_object implementation (#725)</li>
+<li>Fix bug where the resource events of a request targetting two groups/collection
+from different buckets would be grouped together.</li>
+</ul>
+</div>
+<div class="section" id="id10">
+<h2>3.3.1 (2016-07-19)<a class="headerlink" href="#id10" title="Permalink to this headline">¶</a></h2>
+<p><strong>Protocol</strong></p>
+<ul class="simple">
+<li>Add the <code class="docutils literal"><span class="pre">permissions_endpoint</span></code> capability when the <code class="docutils literal"><span class="pre">kinto.experimental_permissions_endpoint</span></code> is set. (#722)</li>
+</ul>
+</div>
+<div class="section" id="id11">
+<h2>3.3.0 (2016-07-18)<a class="headerlink" href="#id11" title="Permalink to this headline">¶</a></h2>
+<p><strong>Protocol</strong></p>
+<ul class="simple">
+<li>Add new <em>experimental</em> endpoint <code class="docutils literal"><span class="pre">GET</span> <span class="pre">/v1/permissions</span></code> to retrieve the list of permissions
+granted on every kind of object (#600).
+Requires setting <code class="docutils literal"><span class="pre">kinto.experimental_permissions_endpoint</span></code> to be set to <code class="docutils literal"><span class="pre">true</span></code>.</li>
+</ul>
+<p>Protocol is now at version <strong>1.8</strong>. See <a class="reference external" href="https://kinto.readthedocs.io/en/latest/api/">API changelog</a>.</p>
+<p><strong>Bug fixes</strong></p>
+<ul class="simple">
+<li>Fix crash in authorization policy when requesting <code class="docutils literal"><span class="pre">GET</span> <span class="pre">/buckets/collections</span></code> (fixes #695)</li>
+<li>Fix crash with PostgreSQL storage backend when provided id in POST is an integer (#688).
+Regression introduced in 3.2.0 with #655.</li>
+<li>Fix crash with PostgreSQL storage backend is configured as read-only and reaching
+the records endpoint of an unknown collection (fixes #693, related #558)</li>
+<li>Fix events payloads for actions in the default bucket (fixes #704)</li>
+<li>Fix bug in object permissions with memory backend</li>
+<li>Make sure the tombstone is deleted when the record is created with PUT. (#715)</li>
+<li>Allow filtering and sorting by any attribute on buckets, collections and groups list endpoints</li>
+<li>Fix crash in memory backend with Python3 when filtering on unknown field</li>
+</ul>
+<p><strong>Internal changes</strong></p>
+<ul class="simple">
+<li>Resource events constructors signatures were changed. The event payload is now
+built immediately when event is fired instead of during transactoin commit (#704).</li>
+<li>Fix crash when a resource is registered without record path.</li>
+<li>Changed behaviour of accessible objects in permissions backend when list of
+bound permissions is empty.</li>
+<li>Bump <code class="docutils literal"><span class="pre">last_modified</span></code> on record when provided value is equal to previous
+in storage <code class="docutils literal"><span class="pre">update()</span></code> method (#713)</li>
+<li>Add ability to delete records and purge tombstones with just the <code class="docutils literal"><span class="pre">parent_id</span></code>
+parameter (#711)</li>
+<li>Buckets deletion is now a lot more efficient, since every sub-objects are
+deleted with a single operation on storage backend (#711)</li>
+<li>Added <code class="docutils literal"><span class="pre">get_objects_permissions()</span></code> method in <code class="docutils literal"><span class="pre">permission</span></code> backend (#714)</li>
+<li>Changed <code class="docutils literal"><span class="pre">get_accessible_objects()</span></code>, <code class="docutils literal"><span class="pre">get_authorized_principals()</span></code> methods
+in <code class="docutils literal"><span class="pre">permission</span></code> backend (#714)</li>
+<li>Simplified and improved the code quality of <code class="docutils literal"><span class="pre">kinto.core.authorization</span></code>,
+mainly by keeping usage of <code class="docutils literal"><span class="pre">get_bound_permissions</span></code> callback in one place only.</li>
+</ul>
+</div>
+<div class="section" id="id12">
+<h2>3.2.0 (2016-06-14)<a class="headerlink" href="#id12" title="Permalink to this headline">¶</a></h2>
+<p><strong>Protocol</strong></p>
+<ul class="simple">
+<li>Allow record IDs to be any string instead of just UUIDs (fixes #655).</li>
+</ul>
+<p>Protocol is now at version <strong>1.7</strong>. See <a class="reference external" href="https://kinto.readthedocs.io/en/latest/api/">API changelog</a>.</p>
+<p><strong>New features</strong></p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">kinto</span> <span class="pre">start</span></code> now accepts a <code class="docutils literal"><span class="pre">--port</span></code> option to specify which port to listen to.
+<strong>Important</strong>: Because of a limitation in <a class="reference external" href="http://stackoverflow.com/a/21228232/147077">Pyramid tooling</a>,
+it won&#8217;t work if the port is hard-coded in your existing <code class="docutils literal"><span class="pre">.ini</span></code> file. Replace
+it by <code class="docutils literal"><span class="pre">%(http_port)s</span></code> or regenerate a new configuration file with <code class="docutils literal"><span class="pre">kinto</span> <span class="pre">init</span></code>.</li>
+<li>Add support for <code class="docutils literal"><span class="pre">pool_timeout</span></code> option in Redis backend (fixes #620)</li>
+<li>Add new setting <code class="docutils literal"><span class="pre">kinto.heartbeat_timeout_seconds</span></code> to control the maximum duration
+of the heartbeat endpoint (fixes #601)</li>
+<li>Ability to define ID generators per object type via the settings</li>
+</ul>
+<p><strong>Bug fixes</strong></p>
+<ul class="simple">
+<li>Fix loss of data attributes when permissions are replaced with <code class="docutils literal"><span class="pre">PUT</span></code> (fixes #601)</li>
+<li>Fix 400 response when posting data with <code class="docutils literal"><span class="pre">id:</span> <span class="pre">&quot;default&quot;</span></code> in default bucket.</li>
+<li>Fix 500 on heartbeat endpoint when a check does not follow the specs and raises instead of
+returning false.</li>
+</ul>
+<p><strong>Internal changes</strong></p>
+<ul class="simple">
+<li>Renamed some permission backend methods for consistency with other classes (fixes #608)</li>
+<li>Removed some deprecated code that had been in <code class="docutils literal"><span class="pre">kinto.core</span></code> for too long.</li>
+</ul>
+<p><strong>Documentation</strong></p>
+<ul class="simple">
+<li>Mention in groups documentation that the principal of a group to be used in a permissions
+definition is the full URI (e.g. <code class="docutils literal"><span class="pre">&quot;write&quot;:</span> <span class="pre">[&quot;/buckets/blog/groups/authors&quot;]</span></code>)</li>
+<li>Fix typo in Github tutorial (thanks &#64;SwhGo_oN, #673)</li>
+<li>New Kinto logo (thanks &#64;AymericFaivre, #676)</li>
+<li>Add a slack badge to the README (#675)</li>
+<li>Add new questions on FAQ (thanks &#64;enguerran, #678)</li>
+<li>Fix links to examples (thanks &#64;maxdow, #680)</li>
+</ul>
+</div>
+<div class="section" id="id13">
+<h2>3.1.0 (2016-05-24)<a class="headerlink" href="#id13" title="Permalink to this headline">¶</a></h2>
+<p><strong>Protocol</strong></p>
+<ul class="simple">
+<li>Added the <code class="docutils literal"><span class="pre">GET</span> <span class="pre">/contribute.json</span></code> endpoint for open-source information (fixes #607)</li>
+</ul>
+<p>Protocol is now at version <strong>1.6</strong>. See <a class="reference external" href="https://kinto.readthedocs.io/en/latest/api/">API changelog</a>.</p>
+<p><strong>Bug fixes</strong></p>
+<ul class="simple">
+<li>Fix internal storage filtering when an empty list of values is provided.</li>
+<li>Authenticated users are now allowed to obtain an empty list of buckets on
+<code class="docutils literal"><span class="pre">GET</span> <span class="pre">/buckets</span></code> even if no bucket is readable (#454)</li>
+<li>Fix enabling flush enpoint with <code class="docutils literal"><span class="pre">KINTO_FLUSH_ENDPOINT_ENABLED</span></code> environment variable (fixes #588)</li>
+<li>Fix reading settings for events listeners from environment variables (fixes #515)</li>
+<li>Fix principal added to <code class="docutils literal"><span class="pre">write</span></code> permission when a publicly writable object
+is created/edited (fixes #645)</li>
+<li>Prevent client to cache and validate authenticated requests (fixes #635)</li>
+<li>Fix bug that prevented startup if old Cliquet configuration values
+were still around (#633)</li>
+</ul>
+<p><strong>Documentation</strong></p>
+<ul class="simple">
+<li>Improved documentation about running in production with uWSGI (#543, #545)</li>
+</ul>
+</div>
+<div class="section" id="id14">
+<h2>3.0.1 (2016-05-20)<a class="headerlink" href="#id14" title="Permalink to this headline">¶</a></h2>
+<p><strong>Bug fixes</strong></p>
+<ul class="simple">
+<li>Fix crash when a cache expires setting is set for a specific bucket or collection. (#597)</li>
+<li>Mark old cliquet backend settings as deprecated (but continue to support them). (#596)</li>
+</ul>
+</div>
+<div class="section" id="id15">
+<h2>3.0.0 (2016-05-18)<a class="headerlink" href="#id15" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Major version update. Merged cliquet into kinto.core. This is
+intended to simplify the experience of people who are new to Kinto.
+Addresses #687.</li>
+<li>Removed <code class="docutils literal"><span class="pre">initialize_cliquet()</span></code>, which has been deprecated for a while.</li>
+<li>Removed <code class="docutils literal"><span class="pre">cliquet_protocol_version</span></code>. Kinto already defines
+incompatible API variations as part of its URL format (e.g. <code class="docutils literal"><span class="pre">/v0</span></code>,
+<code class="docutils literal"><span class="pre">/v1</span></code>). Services based on kinto.core are free to use
+<code class="docutils literal"><span class="pre">http_api_version</span></code> to indicate any additional changes to their
+APIs.</li>
+<li>Simplify settings code. Previously, <code class="docutils literal"><span class="pre">public_settings</span></code> could be
+prefixed with a project name, which would be reflected in the output
+of the <code class="docutils literal"><span class="pre">hello</span></code> view. However, this was never part of the API
+specification, and was meant to be solely a backwards-compatibility
+hack for first-generation Kinto clients. Kinto public settings
+should always be exposed unprefixed. Applications developed against
+kinto.core can continue using these names even after they transition
+clients to the new implementation of their service.</li>
+</ul>
+<p><strong>Bug fixes</strong></p>
+<ul class="simple">
+<li>Add an explicit message when the server is configured as read-only and the
+collection timestamp fails to be saved (ref Kinto/kinto#558)</li>
+<li>Prevent the browser to cache server responses between two sessions. (#593)</li>
+<li>Redirects version prefix to hello page when trailing_slash_redirect is enabled. (#700)</li>
+<li>Fix crash when setting empty permission list with PostgreSQL permission backend (fixes Kinto/kinto#575)</li>
+<li>Fix crash when type of values in querystring for exclude/include is wrong (fixes Kinto/kinto#587)</li>
+<li>Fix crash when providing duplicated principals in permissions with PostgreSQL permission backend (fixes #702)</li>
+<li>Add <code class="docutils literal"><span class="pre">app.wsgi</span></code> to the manifest file. This helps address #543.</li>
+</ul>
+</div>
+<div class="section" id="id16">
+<h2>2.1.1 (2016-04-29)<a class="headerlink" href="#id16" title="Permalink to this headline">¶</a></h2>
+<p><strong>Bug fixes</strong></p>
+<ul class="simple">
+<li>Fix crash in JSON schema validation when additional properties are provided (fixes #548)</li>
+<li>Strip internal fields before validating JSON schema (fixes #549)</li>
+<li>Fix migration of triggers in PostgreSQL storage backend when upgrading from Kinto&lt;2.0.
+Run the <code class="docutils literal"><span class="pre">migrate</span></code> command will basically re-create them (fixes #559)</li>
+</ul>
+<p><strong>Documentation</strong></p>
+<ul class="simple">
+<li>Fix typo in RHEL installation instructions (#552, thanks &#64;enkidulan!)</li>
+<li>Link to english version of kinto presentation article (#553, thanks &#64;glasserc!)</li>
+<li>Document basics about PostgreSQL privileges (#547)</li>
+<li>Change links from readthedocs.org to readthedocs.io (#557)</li>
+<li>Fix Parse server license in docs (#571, thanks &#64;revolunet!)</li>
+</ul>
+</div>
+<div class="section" id="id17">
+<h2>2.1.0 (2016-04-19)<a class="headerlink" href="#id17" title="Permalink to this headline">¶</a></h2>
+<p><strong>Bug fixes</strong></p>
+<ul class="simple">
+<li>Relax content-type validation when no body is posted (fixes #507)</li>
+<li>Fix creation events not sent for implicit creation of objects in the <code class="docutils literal"><span class="pre">default</span></code>
+bucket (fixes #529)</li>
+<li>Fix the Dockerfile pip install (#522)</li>
+<li>Fix concurrency control request headers to recreate deleted objects (#512)</li>
+</ul>
+<p><strong>New features</strong></p>
+<ul class="simple">
+<li>Allow groups to store arbitrary properties. (#469)</li>
+<li>A <code class="docutils literal"><span class="pre">cache_prefix</span></code> setting was added for cache backends. (mozilla-services/cliquet#680)</li>
+</ul>
+<p><strong>Documentation</strong></p>
+<ul class="simple">
+<li>Put the cloud provider links in a comparison table (#514)</li>
+<li>Fix the module name of Redis event listener (thanks &#64;happy-tanuki, #516)</li>
+<li>Add Makefile Documentation (thanks &#64;ayusharma, #483)</li>
+<li>Document how to run Docker with custom config file (#525)</li>
+<li>Fix API version title (#523)</li>
+<li>Add a &#8216;upgrade pip&#8217; command in the getting-started docs (#531)</li>
+<li>Document how to configure the postgresql backend (#533)</li>
+<li>Document how to upgrade Kinto (#537, #538)</li>
+</ul>
+<p>Protocol is now in version <strong>1.5</strong>. See <a class="reference external" href="https://kinto.readthedocs.io/en/latest/api/">API changelog</a>.</p>
+</div>
+<div class="section" id="id18">
+<h2>2.0.0 (2016-03-08)<a class="headerlink" href="#id18" title="Permalink to this headline">¶</a></h2>
+<p><strong>Protocol</strong></p>
+<ul class="simple">
+<li>Allow buckets to store arbitrary properties. (#239, #462)</li>
+<li>Delete every (writable) buckets using <code class="docutils literal"><span class="pre">DELETE</span> <span class="pre">/v1/buckets</span></code></li>
+<li>Delete every (writable) collections using <code class="docutils literal"><span class="pre">DELETE</span> <span class="pre">/v1/buckets/&lt;bucket-id&gt;/collections</span></code></li>
+<li>Clients are redirected to URLs without trailing slash only if the current URL
+does not exist (#656)</li>
+<li>Partial responses can now be specified for nested objects (#445)
+For example, <code class="docutils literal"><span class="pre">/records?_fields=address.street</span></code>.</li>
+<li>List responses are now sorted by last_modified descending by default (#434,
+thanks &#64;ayusharma)</li>
+<li>Server now returns 415 error response if client cannot accept JSON response (#461, mozilla-services/cliquet#667)</li>
+<li>Server now returns 415 error response if client does not send JSON request (#461, mozilla-services/cliquet#667)</li>
+<li>Add the <code class="docutils literal"><span class="pre">__lbheartbeat__</span></code> endpoint, for load balancer membership test.</li>
+<li>Add the <code class="docutils literal"><span class="pre">flush_endpoint</span></code>, <code class="docutils literal"><span class="pre">schema</span></code> and <code class="docutils literal"><span class="pre">default_bucket</span></code> to the capabilities
+if enabled in settings (#270)</li>
+</ul>
+<p>Protocol is now in version <strong>1.4</strong>. See <a class="reference external" href="https://kinto.readthedocs.io/en/latest/api/">API changelog</a>.</p>
+<p><strong>Breaking changes</strong></p>
+<ul>
+<li><p class="first"><code class="docutils literal"><span class="pre">kinto.plugins.default_bucket</span></code> plugin is no longer assumed. We invite users
+to check that the <code class="docutils literal"><span class="pre">kinto.plugins.default_bucket</span></code> is present in the
+<code class="docutils literal"><span class="pre">includes</span></code> setting if they expect it. (ref #495)</p>
+</li>
+<li><p class="first"><code class="docutils literal"><span class="pre">kinto</span> <span class="pre">start</span></code> must be explicitly run with <code class="docutils literal"><span class="pre">--reload</span></code> in order to
+restart the server when code or configuration changes (ref #490).</p>
+</li>
+<li><p class="first">Errors are not swallowed anymore during the execution of <code class="docutils literal"><span class="pre">ResourceChanged</span></code>
+events subscribers.</p>
+<p>Subscribers are still executed within the transaction like before.</p>
+<p>Subscribers are still executed even if the transaction is eventually rolledback.
+Every subscriber execution succeeds, or none.</p>
+<p>Thus, subscribers of these events should only perform operations that are reversed
+on transaction rollback: most likely database storage operations.</p>
+<p>For irreversible operations see the new <code class="docutils literal"><span class="pre">AfterResourceChanged</span></code> event.</p>
+</li>
+</ul>
+<p><strong>New features</strong></p>
+<ul class="simple">
+<li>Event subscribers are now ran synchronously and can thus alter responses (#421)</li>
+<li>Resource events are now merged in batch requests. One event per resource and
+per action is emitted when a transaction is committed (mozilla-services/cliquet#634)</li>
+<li>Monitor time of events listeners execution (mozilla-services/cliquet#503)</li>
+<li>Added a new <code class="docutils literal"><span class="pre">AfterResourceChanged</span></code> event, that is sent only when the commit
+in database is done and successful.
+<a class="reference external" href="https://cliquet.readthedocs.io/en/latest/reference/notifications.html">See more details</a>.</li>
+<li>Track execution time on StatsD for each authentication sub-policy (mozilla-services/cliquet#639)</li>
+<li>Default console log renderer now has colours (mozilla-service/cliquet#671)</li>
+<li>Output Kinto version with <code class="docutils literal"><span class="pre">kinto</span> <span class="pre">--version</span></code> (thanks &#64;ayusharma)</li>
+</ul>
+<p><strong>Bug fixes</strong></p>
+<ul class="simple">
+<li>Fix PostgreSQL backend timestamps when collection is empty (#433)</li>
+<li><code class="docutils literal"><span class="pre">ResourceChanged</span></code> events are not emitted if a batch subrequest fails (mozilla-services/cliquet#634)
+There are still emitted if the whole batch transaction is eventually rolledback.</li>
+<li>Fix a migration of PostgreSQL schema introduced that was never executed (mozilla-services/cliquet#604)</li>
+<li>Fix statsd initialization on storage (mozilla-services/cliquet#637)</li>
+<li>Providing bad last modified values on delete now returns 400 (mozilla-services/cliquet#665)</li>
+<li>Providing last modified in the past for delete now follows behaviour create/update (mozilla-services/cliquet#665)</li>
+<li>Do not always return 412 errors when request header <code class="docutils literal"><span class="pre">If-None-Match:</span> <span class="pre">*</span></code>
+is sent on <code class="docutils literal"><span class="pre">POST</span> <span class="pre">/collection</span></code> (fixes #489, mozilla-service/cliquet#673)</li>
+<li>Fix secret in ini on Python 3 (fixes #341)</li>
+<li>Error when trying to create an empty directory (fixes #475)</li>
+<li>Text plain body should be rejected with an error (#461)</li>
+</ul>
+<p><strong>Documentation</strong></p>
+<ul class="simple">
+<li>Additions in troubleshooting docs (thanks &#64;ayusharma)</li>
+<li>Add uwsgi bind error to troubleshooting (fixes #447)</li>
+<li>Mention python plugin for Uwsgi (#448)</li>
+<li>Add how to troubleshoot psql encoding problems. (#453)</li>
+<li>Add mini checklist for CDN deployment (#450)</li>
+<li>Replace subjective ligthweight by minimalist (fixes #417)</li>
+<li>Improve synchronisation docs (#451)</li>
+<li>Add the requirements in the Readme (#465)</li>
+<li>Add docs about architecture (fixes #430)</li>
+<li>Add a &#8216;why&#8217; paragraph to the docs (Kinto value proposition) (#482)</li>
+<li>Update docs: how to choose the backend (#485, thanks &#64;Enguerran)</li>
+<li>Add a custom id generator tutorial (#464)</li>
+</ul>
+<p><strong>Internal changes</strong></p>
+<ul class="simple">
+<li>Changed default duration between retries on error (<code class="docutils literal"><span class="pre">Retry-After</span></code> header)
+from 30 to 3 seconds.</li>
+<li>Speed-up startup (ref #490)</li>
+<li>Optimized (and cleaned) usage of (un)authenticated_userid (#424, mozilla-services/cliquet#641)</li>
+<li>Fixed usage of virtualenv in Makefile (#443)</li>
+<li>Add a badge for the irc channel (#459)</li>
+<li>Change phrasing for backend selection (#470)</li>
+<li>Add a CONTRIBUTING file (#471, thanks &#64;magopian)</li>
+<li>Add a contribute.json file (#478, #480, thanks &#64;magopian)</li>
+</ul>
+<p>1.11.2 (2016-02-03)
+&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;=</p>
+<p><strong>Bug fixes</strong></p>
+<ul class="simple">
+<li>Expose the ETag header in 304 responses for default bucket (ref mozilla-services/cliquet#631)</li>
+</ul>
+<p><strong>Documentation</strong></p>
+<ul class="simple">
+<li>Add Scalingo <em>one-click deploy</em> button (#418, thanks &#64;yannski)</li>
+<li>Improve introduction of notifications tutorial (#419, thanks &#64;tarekziade)</li>
+<li>Fix typos (thanks &#64;magopian)</li>
+</ul>
+<p>1.11.1 (2016-02-01)
+&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;=</p>
+<p><strong>Bug fixes</strong></p>
+<ul class="simple">
+<li>Fix wheels for Python 3 that were requiring the functools32 package that is
+for Python 2 only (fixes #303).</li>
+</ul>
+<p><strong>Documentation</strong></p>
+<ul class="simple">
+<li>Fix a broken hyperlink in the overview section. (#406, thanks William Hoang)</li>
+<li>Talk about tokens rather than user:password (#393)</li>
+</ul>
+<p>1.11.0 (2016-01-28)
+&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;=</p>
+<p><strong>Protocol</strong></p>
+<ul class="simple">
+<li>Forward slashes (<code class="docutils literal"><span class="pre">/</span></code>) are not escaped anymore in JSON responses (mozilla-services/cliquet#537)</li>
+<li>Fields can be filtered in GET requests using <code class="docutils literal"><span class="pre">_fields=f1,f2</span></code> in querystring (#399)</li>
+<li>New collections can be created via <code class="docutils literal"><span class="pre">POST</span></code> requests (thanks John Giannelos)</li>
+<li>The API capabilities can be exposed in a <code class="docutils literal"><span class="pre">capabilities</span></code> attribute in the
+root URL (#628). Clients can rely on this to detect optional features on the
+server (e.g. enabled plugins)</li>
+</ul>
+<p>Protocol is now version 1.3. See <a class="reference external" href="https://kinto.readthedocs.io/en/latest/api/">API changelog</a>.</p>
+<p><strong>New features</strong></p>
+<ul class="simple">
+<li>Add a Heroku single-clic deploy button (#362)</li>
+<li>Install PostgreSQL libraries on <code class="docutils literal"><span class="pre">kinto</span> <span class="pre">init</span></code> (fixes #313)</li>
+<li>Smaller Docker container image (#375, #376, #383)</li>
+<li>Install major plugins in Dockerfile (fixes #317)</li>
+<li>The policy name used to configure authentication in settings is now used for
+the user id prefix and StatsD <code class="docutils literal"><span class="pre">authn_type</span></code> counters.</li>
+<li>Check backends configuration at startup (#228)</li>
+<li>Output message for config file creation (#351, thanks Aditya Basin)</li>
+<li>Trigger internal event on server flush (#354)</li>
+</ul>
+<p><strong>Bug fixes</strong></p>
+<ul class="simple">
+<li>Fix validation of collection id in default bucket (fixes #260)</li>
+<li>Fix kinto init failure when the config folder already exists (#349)</li>
+<li>Fix Docker compose startup (fixes #325)</li>
+<li>Run migrate command when Docker container starts (fixes #363)</li>
+<li>Fix listener name logging during startup (#626)</li>
+<li>Do not log batch subrequests twice (#264)</li>
+<li>Fix hmac digest with Python 3 (#288)</li>
+<li>Add explicit dependency for functools32 when Kinto is installed with an old
+pip version (fixes #303)</li>
+</ul>
+<p><strong>Documentation</strong></p>
+<p>Highlights:</p>
+<ul class="simple">
+<li>Add tutorials about notifications (ref #353)</li>
+<li>Add tutorial how to write a plugin (#382)</li>
+<li>Add tutorial how to setup Github authentication (#390)</li>
+<li>Move default values to dedicated column in docs (fixes #255)</li>
+<li>Move run-kinto to get-started and remove platform specific installation
+instructions (#373)</li>
+</ul>
+<p>Improved:</p>
+<ul class="simple">
+<li>Update features table in overview</li>
+<li>Update overview comparisons (#294, #324, #328)</li>
+<li>Update FAQ (#397, #398)</li>
+<li>Simplify some aspects of the settings page (#374)</li>
+<li>Sharding documentation (#381)</li>
+</ul>
+<p>Minor:</p>
+<ul class="simple">
+<li>Added missing DELETE endoint for list of records (fixes #238)</li>
+<li>Mention how to restrict private URLs with NGinx (fixes #250)</li>
+<li>Fix link to the freenode #kinto channel in the docs (#333)</li>
+<li>Remove Firefox Account mention from README (fixes #326)</li>
+<li>Move application examples page to wiki (ref #321)</li>
+<li>Move PostgreSQL server docs to wiki (fixes #321)</li>
+<li>Change colors of logo (#359)</li>
+<li>Add invitation for community to point their demos/use cases (fixes #356)</li>
+<li>Remove duplicate glossary in docs (#372)</li>
+<li>Remove troubleshooting paragraph from contributing page (#385)</li>
+<li>Fix wrong groups name and permissions names in the documentation (#389)</li>
+<li>Improve formatting of code block in tutorials (#391, #396)</li>
+</ul>
+<p><strong>Internal changes</strong></p>
+<ul class="simple">
+<li>Default bucket feature is now a built-in plugin (fixes #277, fixes #311, #380)</li>
+<li>Do not require cliquet master branch in dev (#341, #400). Now moved as tox env in TravisCI</li>
+</ul>
+<p>1.10.1 (2015-12-11)
+&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;=</p>
+<p><strong>Bug fixes</strong></p>
+<ul class="simple">
+<li>Fix <code class="docutils literal"><span class="pre">kinto</span> <span class="pre">init</span></code> when containing folder does not exist (fixes #302)</li>
+</ul>
+<p><strong>Internal changes</strong></p>
+<ul class="simple">
+<li>Added Hoodie in the comparison matrix (#282, thanks &#64;Niraj8!)</li>
+<li>Added a get started button in documentation (#315, thanks &#64;Niraj8!)</li>
+</ul>
+<p>1.10.0 (2015-12-01)
+&#8212;&#8212;&#8212;&#8212;&#8212;&#8212;=</p>
+<p><strong>Breaking changes</strong></p>
+<ul class="simple">
+<li>When using <em>cliquet-fxa</em>, the setting <code class="docutils literal"><span class="pre">multiauth.policy.fxa.use</span></code> must now
+be explicitly set to <code class="docutils literal"><span class="pre">cliquet_fxa.authentication.FxAOAuthAuthenticationPolicy</span></code></li>
+<li>Fields in the root view were renamed (mozilla-services/cliquet#600)</li>
+</ul>
+<p><strong>Bug fixes</strong></p>
+<ul class="simple">
+<li>Fix redis default host in kinto init (fixes #289)</li>
+<li>Fix DockerFile with default configuration (fixes #296)</li>
+<li>Include plugins after setting up components (like authn/authz) so that plugins
+can register views with permissions checking</li>
+<li>Remove <code class="docutils literal"><span class="pre">__permissions__</span></code> from impacted records values in <code class="docutils literal"><span class="pre">ResourceChanged</span></code>
+events (mozilla-services/cliquet#586)</li>
+</ul>
+<p><strong>Protocol</strong></p>
+<p>Changed the naming in the root URL (hello view) (mozilla-services/cliquet#600)</p>
+<ul class="simple">
+<li>Added <code class="docutils literal"><span class="pre">http_api_version</span></code></li>
+<li>Renamed <code class="docutils literal"><span class="pre">hello</span></code> to <code class="docutils literal"><span class="pre">project_name</span></code></li>
+<li>Renamed <code class="docutils literal"><span class="pre">protocol_version</span></code> to <code class="docutils literal"><span class="pre">cliquet_protocol_version</span></code></li>
+<li>Renamed <code class="docutils literal"><span class="pre">documentation</span></code> to <code class="docutils literal"><span class="pre">project_docs</span></code></li>
+<li>Renamed <code class="docutils literal"><span class="pre">version</span></code> to <code class="docutils literal"><span class="pre">project_version</span></code></li>
+</ul>
+<p><strong>New features</strong></p>
+<ul class="simple">
+<li>New options in configuration of listeners to specify filtered actions and
+resource names (mozilla-services/cliquet#492, mozilla-services/cliquet#555)</li>
+<li>Add ability to be notified on read actions on a resource (disabled by
+default) (mozilla-services/cliquet#493)</li>
+</ul>
+<p><strong>Internal changes</strong></p>
+<ul class="simple">
+<li>Clarified how Kinto is versionned in the documentation (#305)</li>
+</ul>
+</div>
+<div class="section" id="id19">
+<h2>1.9.0 (2015-11-18)<a class="headerlink" href="#id19" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Upgraded to <em>Cliquet</em> 2.11.0</li>
+</ul>
+<p><strong>Breaking changes</strong></p>
+<ul class="simple">
+<li>For PostgreSQL backends, it is recommended to specify <code class="docutils literal"><span class="pre">postgresql://</span></code>.</li>
+</ul>
+<p><strong>Protocol</strong></p>
+<ul>
+<li><p class="first">In the hello view:</p>
+<blockquote>
+<div><ul class="simple">
+<li>Add a <code class="docutils literal"><span class="pre">bucket</span></code> attribute in <code class="docutils literal"><span class="pre">user</span></code> mapping allowing clients
+to obtain the actual id of their default bucket</li>
+<li>Add the <code class="docutils literal"><span class="pre">protocol_version</span></code> to tell which protocol version is
+implemented by the service. (#324)</li>
+</ul>
+</div></blockquote>
+</li>
+<li><p class="first"><code class="docutils literal"><span class="pre">_since</span></code> and <code class="docutils literal"><span class="pre">_before</span></code> now accepts an integer value between quotes <code class="docutils literal"><span class="pre">&quot;</span></code>,
+as it would be returned in the <code class="docutils literal"><span class="pre">ETag</span></code> response header.</p>
+</li>
+<li><p class="first">A batch request now fails if one of the subrequests fails
+(mozilla-services/cliquet#510) (<em>see new feature about
+transactions</em>)</p>
+</li>
+</ul>
+<p><strong>New features</strong></p>
+<ul class="simple">
+<li>Add a Kinto command for start and migrate operation. (#129)</li>
+<li>Add a Kinto command to create a configuration file. (#278)</li>
+<li>A transaction now covers the whole request/response cycle (#194).
+If an error occurs during the request processing, every operation performed
+is rolled back. <strong>Note:</strong> This is only enabled with <em>PostgreSQL</em> backends. In
+other words, the rollback has no effect on backends like <em>Redis</em> or <em>Memory</em>.</li>
+<li>New settings for backends when using PostgreSQL: <code class="docutils literal"><span class="pre">*_max_backlog</span></code>,
+<code class="docutils literal"><span class="pre">*_max_overflow</span></code>, <code class="docutils literal"><span class="pre">*_pool_recycle</span></code>, <code class="docutils literal"><span class="pre">*_pool_timeout</span></code> to
+control connections pool behaviour.</li>
+</ul>
+<p><strong>Bug fixes</strong></p>
+<ul class="simple">
+<li>Fix 500 error response (instead of 503) when storage backend fails during
+implicit creation of objects on <code class="docutils literal"><span class="pre">default</span></code> bucket. (fixes #236)</li>
+<li>Fixed <code class="docutils literal"><span class="pre">Dockerfile</span></code> for PostgreSQL backends.</li>
+<li>Fix JSON schema crash when no field information is available.</li>
+</ul>
+<p><strong>Internal changes</strong></p>
+<ul class="simple">
+<li>Optimization for retrieval of user principals (#263)</li>
+<li>Do not build the Docker container when using Docker Compose.</li>
+<li>Add Python 3.5 on TravisCI</li>
+<li>Add schema validation loadtest (fixes #201)</li>
+<li>Multiple documentation improvements.</li>
+<li>The PostgreSQL backends now use SQLAlchemy sessions.</li>
+</ul>
+<p>See also <a class="reference external" href="https://github.com/mozilla-services/cliquet/releases/2.11.0">*Cliquet* changes</a></p>
+</div>
+<div class="section" id="id20">
+<h2>1.8.0 (2015-10-30)<a class="headerlink" href="#id20" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Upgraded to <em>Cliquet</em> 2.10.0</li>
+</ul>
+<p><strong>Protocol breaking changes</strong></p>
+<ul class="simple">
+<li>Moved <code class="docutils literal"><span class="pre">userid</span></code> attribute to a dedicated <code class="docutils literal"><span class="pre">user</span></code> mapping in the hello
+view (#242).</li>
+</ul>
+<p><strong>New features</strong></p>
+<ul class="simple">
+<li>Follow redirections in batch subrequests (fixes mozilla-services/cliquet#511)</li>
+<li>Set cache headers only when anonymous (fixes mozilla-services/cliquet#449)</li>
+<li>Add a <code class="docutils literal"><span class="pre">readonly</span></code> setting to run the service in read-only mode. (#241)</li>
+<li>If no client cache is set, add <code class="docutils literal"><span class="pre">Cache-Control:</span> <span class="pre">no-cache</span></code> by default,
+so that clients are forced to revalidate their cache against the server
+(ref Kinto/kinto#231)</li>
+</ul>
+<p><strong>Bug fixes</strong></p>
+<ul class="simple">
+<li>Fixed 503 error message to mention backend errors in addition to unavailability.</li>
+<li>When recreating a record that was previously deleted, status code is now <code class="docutils literal"><span class="pre">201</span></code>
+(ref mozilla-services/cliquet#530).</li>
+<li>Fix PostgreSQL error when deleting an empty collection in a protected
+resource (fixes mozilla-services/cliquet#528)</li>
+<li>Fix PUT not using <code class="docutils literal"><span class="pre">create()</span></code> method in storage backend when tombstone exists
+(fixes mozilla-services/cliquet#530)</li>
+<li>Delete tombstone when record is re-created (fixes mozilla-services/cliquet#518)</li>
+<li>Fix crash with empty body for PATCH (fixes mozilla-services/cliquet#477,
+fixes mozilla-services/cliquet#516)</li>
+<li>Fix english typo in 404 error message (fixes mozilla-services/cliquet#527)</li>
+</ul>
+</div>
+<div class="section" id="id21">
+<h2>1.7.0 (2015-10-28)<a class="headerlink" href="#id21" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Upgraded to <em>Cliquet</em> 2.9.0</li>
+<li>Update cliquet-fxa configuration example for cliquet-fxa 1.4.0</li>
+<li>Improve the documentation to get started</li>
+</ul>
+<p><strong>New features</strong></p>
+<ul class="simple">
+<li>Added Pyramid events, triggered when the content of a resource has changed. (#488)</li>
+<li>Added <code class="docutils literal"><span class="pre">kinto.includes</span></code> setting allowing loading of plugins once Kinto
+is initialized (unlike <code class="docutils literal"><span class="pre">pyramid.includes</span></code>). (#504)</li>
+</ul>
+<p><strong>Protocol</strong></p>
+<ul class="simple">
+<li>Remove the broken git revision <code class="docutils literal"><span class="pre">commit</span></code> field in the hello page. (#495).</li>
+</ul>
+<p><a class="reference external" href="https://github.com/mozilla-services/cliquet/releases/tag/2.9.0">Please read the full Cliquet 2.9.0 changelog for more information</a></p>
+</div>
+<div class="section" id="id22">
+<h2>1.6.2 (2015-10-22)<a class="headerlink" href="#id22" title="Permalink to this headline">¶</a></h2>
+<p><strong>Bug fixes</strong></p>
+<ul class="simple">
+<li>Handle 412 details with default bucket (#226)</li>
+</ul>
+</div>
+<div class="section" id="id23">
+<h2>1.6.1 (2015-10-22)<a class="headerlink" href="#id23" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Upgraded to <em>Cliquet</em> 2.8.2</li>
+</ul>
+<p><strong>Bug fixes</strong></p>
+<ul class="simple">
+<li>Return a JSON body for 405 response on the default bucket (#214)</li>
+</ul>
+<p><strong>Internal changes</strong></p>
+<ul class="simple">
+<li>Improve documentation for new comers (#217)</li>
+<li>Do not force host in default configuration (#219)</li>
+<li>Use tox installed in virtualenv (#221)</li>
+<li>Skip python versions unavailable in tox (#222)</li>
+</ul>
+</div>
+<div class="section" id="id24">
+<h2>1.6.0 (2015-10-14)<a class="headerlink" href="#id24" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Upgraded to <em>Cliquet</em> 2.8.1</li>
+</ul>
+<p><strong>Breaking changes</strong></p>
+<ul class="simple">
+<li>Settings prefixed with <code class="docutils literal"><span class="pre">cliquet.</span></code> are now deprecated, and should be replaced
+with non prefixed version instead.</li>
+<li>In the root url response, public settings are exposed without prefix too
+(e.g. <code class="docutils literal"><span class="pre">batch_max_requests</span></code>).</li>
+</ul>
+</div>
+<div class="section" id="id25">
+<h2>1.5.1 (2015-10-07)<a class="headerlink" href="#id25" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Upgraded to <em>Cliquet</em> 2.7.0</li>
+</ul>
+</div>
+<div class="section" id="id26">
+<h2>1.5.0 (2015-09-23)<a class="headerlink" href="#id26" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Add Disqus comments to documentation (fixes #159)</li>
+</ul>
+<p><strong>New features</strong></p>
+<ul class="simple">
+<li>Allow POST to create buckets (fixes #64)</li>
+<li>Control client cache headers from settings or collection objects (#189)</li>
+</ul>
+<p><strong>Internal changes</strong></p>
+<ul class="simple">
+<li>Remove dead code (#187, ref #53)</li>
+<li>Add pytest-capturelog for better output on test failures (#191)</li>
+<li>Install cliquet middleware (<em>no-op if disabled</em>) (#193)</li>
+<li>Many optimizations on <code class="docutils literal"><span class="pre">default</span></code> bucket (#192, #197)</li>
+<li>Many optimizations on number of storage hits (#203)</li>
+<li>Fix contributing docs about tests (#198)</li>
+<li>Added more batched actions to loadtests (#199)</li>
+</ul>
+</div>
+<div class="section" id="id27">
+<h2>1.4.0 (2015-09-04)<a class="headerlink" href="#id27" title="Permalink to this headline">¶</a></h2>
+<p><strong>New features</strong></p>
+<ul class="simple">
+<li>Partial collection of records when user has no <code class="docutils literal"><span class="pre">read</span></code> permission on collection (fixes #76).
+Alice can now obtain a list of Bob records on which she has individual <code class="docutils literal"><span class="pre">read</span></code> permission!</li>
+<li>Collection can now specify a JSON schema and validate its records (#31).
+The feature is marked as <em>experimental</em> and should be explicitly enabled
+from settings (#181)</li>
+<li>Accept empty payload on buckets and collections creation (#63)</li>
+<li>Allow underscores in Kinto bucket and collection names (#153, fixes #77)</li>
+<li>Collection records can now be filtered using multiple values (<code class="docutils literal"><span class="pre">?in_status=1,2,3</span></code>) (mozilla-services/cliquet#39)</li>
+<li>Collection records can now be filtered excluding multiple values (<code class="docutils literal"><span class="pre">?exclude_status=1,2,3</span></code>) (mozilla-services/readinglist#68)</li>
+<li>Current userid is now provided when requesting the hello endpoint with an <code class="docutils literal"><span class="pre">Authorization</span></code>
+header (mozilla-services/cliquet#319)</li>
+<li>UUID validation now accepts any kind of UUID, not just v4 (mozilla-services/cliquet#387)</li>
+<li>Querystring parameter <code class="docutils literal"><span class="pre">_to</span></code> on collection records was renamed to <code class="docutils literal"><span class="pre">_before</span></code> (<em>the former is now
+deprecated</em>) (mozilla-services/cliquet#391)</li>
+<li>Allow to configure info link in error responses with <code class="docutils literal"><span class="pre">cliquet.error_info_link</span></code>
+setting (mozilla-services/cliquet#395)</li>
+</ul>
+<p><strong>Bug fixes</strong></p>
+<ul class="simple">
+<li>Fix consistency in API to modify permissions with PATCH (fixes #155)
+The list of principals for each specified permission is now replaced by the one
+provided.</li>
+<li>Use correct HTTP Headers encoding in both Python2 and Python3 (#141)</li>
+<li>ETag is now returned on every verb (fixes #110)</li>
+</ul>
+<p><strong>Internal changes</strong></p>
+<ul class="simple">
+<li>When deleting a collection also remove the records tombstones (#136)</li>
+<li>Complete revamp of the documentation (#156 #167 #168 #169 #170)</li>
+<li>Upgraded to <em>Cliquet</em> 2.6.0</li>
+</ul>
+</div>
+<div class="section" id="id28">
+<h2>1.3.1 (2015-07-15)<a class="headerlink" href="#id28" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Upgraded to <em>Cliquet</em> 2.3.1</li>
+</ul>
+<p><strong>Bug fixes</strong></p>
+<ul class="simple">
+<li>Make sure the default route only catch /buckets/default and
+/buckets/default/* routes. (#131)</li>
+</ul>
+</div>
+<div class="section" id="id29">
+<h2>1.3.0 (2015-07-13)<a class="headerlink" href="#id29" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Upgraded to <em>Cliquet</em> 2.3.0</li>
+</ul>
+<p><strong>Bug fixes</strong></p>
+<ul class="simple">
+<li>Handle CORS with the default bucket. (#126, #135)</li>
+<li>Add a test to make sure the tutorial works. (#118)</li>
+</ul>
+<p><strong>Internal changes</strong></p>
+<ul class="simple">
+<li>List StatsD counters and timers in documentation (fixes #73)</li>
+<li>Update virtualenv dependencies on setup.py modification (fixes #130)</li>
+</ul>
+</div>
+<div class="section" id="id30">
+<h2>1.2.1 (2015-07-08)<a class="headerlink" href="#id30" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Upgraded to <em>Cliquet</em> 2.2.1</li>
+</ul>
+<p><strong>Bug fixes</strong></p>
+<ul class="simple">
+<li>Improvements and fixes in the tutorial (#107)</li>
+<li>Querystring handling when using the personal bucket (#119)</li>
+<li>Default buckets ID is now a UUID with dashes (#120)</li>
+<li>Handle unknown permission and fix crash on /buckets (#88)</li>
+<li>Fix permissions handling on PATCH /resource (mozilla-services/cliquet#358)</li>
+</ul>
+<p><strong>Internal changes</strong></p>
+<ul class="simple">
+<li>Test with the normal Kinto authentication policy and remove the fake one (#121)</li>
+</ul>
+</div>
+<div class="section" id="id31">
+<h2>1.2.0 (2015-07-03)<a class="headerlink" href="#id31" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Upgraded to <em>Cliquet</em> 2.2.+</li>
+</ul>
+<p><strong>New features</strong></p>
+<ul class="simple">
+<li>Add the personal bucket <code class="docutils literal"><span class="pre">/buckets/default</span></code>, where collections are created
+implicitly (#71)</li>
+<li><em>Kinto</em> now uses the memory backend by default, which simplifies its usage
+for development (#86, #95)</li>
+<li>Add public settings in hello view (mozilla-services/cliquet#318)</li>
+</ul>
+<p><strong>Bug fixes</strong></p>
+<ul class="simple">
+<li>Fix Docker compose file settings (#100)</li>
+<li>Fix version redirection behaviour for unsupported versions (mozilla-services/cliquet#341)</li>
+<li>Fix overriding backend settings in .ini (mozilla-services/cliquet#343)</li>
+</ul>
+<p><strong>Internal changes</strong></p>
+<ul class="simple">
+<li>Documentation improvements (#75)</li>
+<li>Added tutorial (#79)</li>
+<li>Remove hard dependency on <em>PostgreSQL</em> (#100)</li>
+<li>Add pytest-cache (#98)</li>
+<li>Add Pypy test on Travis (#99)</li>
+<li>Update dependencies on <code class="docutils literal"><span class="pre">make</span> <span class="pre">install</span></code> (#97)</li>
+<li>Fix URL of readthedocs.io (#90)</li>
+</ul>
+</div>
+<div class="section" id="id32">
+<h2>1.1.0 (2015-06-29)<a class="headerlink" href="#id32" title="Permalink to this headline">¶</a></h2>
+<p><strong>New features</strong></p>
+<ul class="simple">
+<li>Polish default kinto configuration and default to memory backend. (#81)</li>
+<li>Add the kinto group finder (#78)</li>
+<li>Flush endpoint now returns 404 is disabled (instead of 405) (#82)</li>
+</ul>
+<p><strong>Bug fixes</strong></p>
+<ul class="simple">
+<li>ETag not updated on collection update (#80)</li>
+</ul>
+<p><strong>Internal changes</strong></p>
+<ul class="simple">
+<li>Use py.test to run tests instead of nose (#85)</li>
+</ul>
+</div>
+<div class="section" id="id33">
+<h2>1.0.0 (2015-06-17)<a class="headerlink" href="#id33" title="Permalink to this headline">¶</a></h2>
+<p><strong>New features</strong></p>
+<ul class="simple">
+<li>Added notion of buckets, user groups and collections (#48, #58)</li>
+<li>Buckets, collections and records can now have permissions (#59)</li>
+</ul>
+<p><strong>Breaking changes</strong></p>
+<ul class="simple">
+<li>Updated <em>Cliquet</em> to 2.0, which introduces a lot of breaking changes
+(<a class="reference external" href="https://github.com/mozilla-services/cliquet/releases/2.0.0">see changelog</a>)</li>
+<li>Firefox Accounts is not a dependency anymore and should be installed and
+included explictly using the python package <code class="docutils literal"><span class="pre">cliquet-fxa</span></code>
+(<a class="reference external" href="https://github.com/mozilla-services/cliquet-fxa/">see documentation</a>)</li>
+<li>API is now served under <code class="docutils literal"><span class="pre">/v1</span></code></li>
+<li>Collections are now managed by bucket, and not by user anymore (#44)</li>
+</ul>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">A list of records cannot be manipulated until its parents objects (bucket and
+collection) are created.</p>
+</div>
+<p>Settings</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">cliquet.permission_backend</span></code> and <code class="docutils literal"><span class="pre">cliquet.permission_url</span></code> are now configured
+to use PostgreSQL instead of <em>Redis</em> (see default <code class="docutils literal"><span class="pre">config/kinto.ini</span></code>)</li>
+<li><code class="docutils literal"><span class="pre">cliquet.basic_auth_enabled</span></code> is now deprecated (<a class="reference external" href="https://cliquet.readthedocs.io/en/latest/reference/configuration.html#basic-auth">see *Cliquet*
+docs to enable authentication backends</a>)</li>
+</ul>
+<p><strong>Internal changes</strong></p>
+<ul class="simple">
+<li>Added documentation about deployment and data durability (#50)</li>
+<li>Added load tests (#30)</li>
+<li>Several improvements in documentation (#51)</li>
+</ul>
+</div>
+<div class="section" id="id34">
+<h2>0.2.2 (2015-06-04)<a class="headerlink" href="#id34" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Upgraded to <em>cliquet</em> 1.8.+</li>
+</ul>
+<p><strong>Breaking changes</strong></p>
+<ul class="simple">
+<li>PostgreSQL database initialization process is not run automatically in
+production. Add this command to deployment procedure:</li>
+</ul>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">cliquet</span> <span class="o">--</span><span class="n">ini</span> <span class="n">config</span><span class="o">/</span><span class="n">kinto</span><span class="o">.</span><span class="n">ini</span> <span class="n">migrate</span>
+</pre></div>
+</div>
+<p><strong>Internal changes</strong></p>
+<ul class="simple">
+<li>Improved documentation (#29)</li>
+<li>Require 100% coverage during tests (#27)</li>
+<li>Basic Auth is now enabled by default in example config</li>
+</ul>
+</div>
+<div class="section" id="id35">
+<h2>0.2.1 (2015-03-25)<a class="headerlink" href="#id35" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Upgraded to <em>cliquet</em> 1.4.1</li>
+</ul>
+<p><strong>Bug fixes</strong></p>
+<ul class="simple">
+<li>Rely on Pyramid API to build pagination Next-Url (#147)</li>
+</ul>
+</div>
+<div class="section" id="id36">
+<h2>0.2 (2015-03-24)<a class="headerlink" href="#id36" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Upgraded to <em>cliquet</em> 1.4</li>
+</ul>
+<p><strong>Bug fixes</strong></p>
+<ul class="simple">
+<li>Fix behaviour of CloudStorage with backslashes in querystring (mozilla-services/cliquet#142)</li>
+<li>Force PostgreSQl session timezone to UTC (mozilla-services/cliquet#122)</li>
+<li>Fix basic auth ofuscation and prefix (mozilla-services/cliquet#128)</li>
+<li>Make sure the <cite>paginate_by</cite> setting overrides the passed <cite>limit</cite>
+argument (mozilla-services/cliquet#129)</li>
+<li>Fix crash of classic logger with unicode (mozilla-services/cliquet#142)</li>
+<li>Fix crash of CloudStorage backend when remote returns 500 (mozilla-services/cliquet#142)</li>
+<li>Fix python3.4 segmentation fault (mozilla-services/cliquet#142)</li>
+<li>Add missing port in Next-Page header (mozilla-services/cliquet#147)</li>
+</ul>
+</div>
+<div class="section" id="id37">
+<h2>0.1 (2015-03-20)<a class="headerlink" href="#id37" title="Permalink to this headline">¶</a></h2>
+<p><strong>Initial version</strong></p>
+<ul class="simple">
+<li>Schemaless storage of records</li>
+<li>Firefox Account authentication</li>
+<li>Kinto as a storage backend for <em>cliquet</em> applications</li>
+</ul>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="core/glossary.html" class="btn btn-neutral float-right" title="Glossary" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="troubleshooting.html" class="btn btn-neutral" title="Troubleshooting" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2015-2016 — Mozilla Services.
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+
+  
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        var disqus_shortname = 'kinto-docs';
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+  
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'4.3.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="_static/piwik.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

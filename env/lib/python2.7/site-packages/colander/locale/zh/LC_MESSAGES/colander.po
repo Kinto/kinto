@@ -1,0 +1,145 @@
+# Chinese translations for colander.
+# Copyright (C) 2010 ORGANIZATION
+# This file is distributed under the same license as the colander project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2010.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: colander 0.8\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2013-05-19 13:15+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: zh <LL@li.org>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 1.3\n"
+
+#: colander/__init__.py:233
+msgid "Invalid value"
+msgstr "无效值"
+
+#: colander/__init__.py:270
+msgid "String does not match expected pattern"
+msgstr "字符串和要求的模式不匹配"
+
+#: colander/__init__.py:287
+msgid "Invalid email address"
+msgstr "无效的邮件地址"
+
+#: colander/__init__.py:315
+msgid "${val} is less than minimum value ${min}"
+msgstr "${val} 低于最低限值 ${min}"
+
+#: colander/__init__.py:316
+msgid "${val} is greater than maximum value ${max}"
+msgstr "${val} 大于最高限值 ${max}"
+
+#: colander/__init__.py:348
+msgid "Shorter than minimum length ${min}"
+msgstr "短于最小长度 ${min}"
+
+#: colander/__init__.py:354
+msgid "Longer than maximum length ${max}"
+msgstr "长于最大长度 ${max}"
+
+#: colander/__init__.py:367
+msgid "\"${val}\" is not one of ${choices}"
+msgstr "\"${val}\" 不是这些值 ${choices} 中的一个"
+
+#: colander/__init__.py:377
+msgid "One or more of the choices you made was not acceptable"
+msgstr ""
+
+#: colander/__init__.py:423
+msgid "Must be a URL"
+msgstr ""
+
+#: colander/__init__.py:519
+msgid "\"${val}\" is not a mapping type: ${err}"
+msgstr "\"${val}\" 不是一个映射类型: ${err}"
+
+#: colander/__init__.py:560
+msgid "Unrecognized keys in mapping: \"${val}\""
+msgstr "无法识别的键: \"${val}\""
+
+#: colander/__init__.py:656 colander/__init__.py:856
+msgid "\"${val}\" is not iterable"
+msgstr "\"${val}\" 不可遍历"
+
+#: colander/__init__.py:664
+msgid ""
+"\"${val}\" has an incorrect number of elements (expected ${exp}, was "
+"${was})"
+msgstr "\"${val}\" 的元素个数不正确 (要求 ${exp}, 实际 ${was})"
+
+#: colander/__init__.py:803
+msgid "${cstruct} is not iterable"
+msgstr "${cstruct} 不可遍历"
+
+#: colander/__init__.py:1075
+msgid "${val} cannot be serialized: ${err}"
+msgstr "${val} 不可序列化: ${err}"
+
+#: colander/__init__.py:1093
+msgid "${val} is not a string: ${err}"
+msgstr "${val} 不是字符串: ${err}"
+
+#: colander/__init__.py:1113 colander/__init__.py:1124
+msgid "\"${val}\" is not a number"
+msgstr "\"${val}\" 不是数字"
+
+#: colander/__init__.py:1268
+msgid "${val} is not a string"
+msgstr "${val} 不是字符串"
+
+#: colander/__init__.py:1279
+msgid "\"${val}\" is neither in (${false_choices}) nor in (${true_choices})"
+msgstr ""
+
+#: colander/__init__.py:1339 colander/__init__.py:1356
+#: colander/__init__.py:1366
+msgid "relative name \"${val}\" irresolveable without package"
+msgstr "相关名字 \"${val}\" 无法找到"
+
+#: colander/__init__.py:1396
+msgid "\"${val}\" has no __name__"
+msgstr "\"${val}\" 没有 __name__"
+
+#: colander/__init__.py:1405
+msgid "\"${val}\" is not a string"
+msgstr "\"${val}\" 不是字符串"
+
+#: colander/__init__.py:1414
+msgid "The dotted name \"${name}\" cannot be imported"
+msgstr "点名字 \"${name}\" 无法导入"
+
+#: colander/__init__.py:1462 colander/__init__.py:1538
+msgid "Invalid date"
+msgstr "无效日期"
+
+#: colander/__init__.py:1478
+msgid "\"${val}\" is not a datetime object"
+msgstr "\"${val}\" 不是一个时间日期对象"
+
+#: colander/__init__.py:1549
+msgid "\"${val}\" is not a date object"
+msgstr "\"${val}\" 不是一个日期对象"
+
+#: colander/__init__.py:1610
+#, fuzzy
+#| msgid "Invalid date"
+msgid "Invalid time"
+msgstr "无效日期"
+
+#: colander/__init__.py:1621
+#, fuzzy
+#| msgid "\"${val}\" is not a datetime object"
+msgid "\"${val}\" is not a time object"
+msgstr "\"${val}\" 不是一个时间日期对象"
+
+#: colander/__init__.py:1878 colander/__init__.py:1880
+msgid "Required"
+msgstr "必需"

@@ -1,0 +1,521 @@
+
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>How to run custom code on notifications? &mdash; Kinto 4.3.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="../_static/theme_overrides.css" type="text/css" />
+  
+    <link rel="stylesheet" href="../_static/css/style.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="Kinto 4.3.1 documentation" href="../index.html"/>
+        <link rel="up" title="Tutorials" href="index.html"/>
+        <link rel="next" title="How to setup Github authentication?" href="authentication-github.html"/>
+        <link rel="prev" title="How to setup push notifications using WebSockets?" href="notifications-websockets.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> Kinto
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                4.3
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../kinto-admin.html">Kinto Web Administration Console</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../concepts.html">Concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../community.html">Community</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Tutorials</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="install.html">Install Kinto</a></li>
+<li class="toctree-l2"><a class="reference internal" href="first-steps.html">First steps with Kinto HTTP API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="synchronisation.html">Synchronisation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notifications-websockets.html">How to setup push notifications using WebSockets?</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">How to run custom code on notifications?</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#run-synchronous-code">Run synchronous code</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#implement-a-listener">Implement a listener</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#add-it-to-python-path">Add it to Python path</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#enable-in-configuration">Enable in configuration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#test-it">Test it</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#run-asynchronous-code">Run asynchronous code</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#run-redis">Run Redis</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#setup-kinto-queue">Setup Kinto queue</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#run-worker-s">Run worker(s)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id1">Test it!</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="authentication-github.html">How to setup Github authentication?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="custom-id-generator.html">How to define and use a custom ID generator?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="permissions.html">Step by step permissions API tutorial</a></li>
+<li class="toctree-l2"><a class="reference internal" href="write-plugin.html">How to write a Kinto plugin?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="permission-setups.html">Permissions examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="app-examples.html">Application examples</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../configuration/index.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/index.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../commandline.html">Command Line</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../core/glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../core/index.html">Kinto Core</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">Kinto</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="index.html">Tutorials</a> &raquo;</li>
+      
+    <li>How to run custom code on notifications?</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/tutorials/notifications-custom.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="how-to-run-custom-code-on-notifications">
+<span id="tutorial-notifications-custom-code"></span><h1>How to run custom code on notifications?<a class="headerlink" href="#how-to-run-custom-code-on-notifications" title="Permalink to this headline">¶</a></h1>
+<p>Kinto is able to execute some custom code when a particular event occurs.
+For example, when a record is created or updated in a particular collection.</p>
+<p>Kinto uses the same thread to trigger notifications on events, so any custom
+code that is executed through a notification will block the incoming
+request until it&#8217;s done.</p>
+<p>This design is useful when we want to ensure that something is done on the
+server before we send back the result to the client. But sometimes it&#8217;s
+preferrable to run the notifications asynchronously.</p>
+<p>For the latter, the simplest way to run our custom code asynchronously
+is to use separate process workers that are notified via a job queue</p>
+<p>This tutorial presents the basic steps to run code both ways:</p>
+<ul class="simple">
+<li>synchronously in Python;</li>
+<li>asynchronously using a Redis queue, consumed via any third-party application.</li>
+</ul>
+<div class="section" id="run-synchronous-code">
+<h2>Run synchronous code<a class="headerlink" href="#run-synchronous-code" title="Permalink to this headline">¶</a></h2>
+<p>In this example, we will send an email to an administrator every time
+a new bucket is created.</p>
+<p>To run this in production, we would rely on a local email server acting as a relay
+in order to avoid bottlenecks. Or use the asynchronous approach otherwise.</p>
+<div class="section" id="implement-a-listener">
+<h3>Implement a listener<a class="headerlink" href="#implement-a-listener" title="Permalink to this headline">¶</a></h3>
+<p>Create a file <code class="file docutils literal"><span class="pre">kinto_email.py</span></code> with the following scaffold:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">kinto.core.listeners</span> <span class="kn">import</span> <span class="n">ListenerBase</span>
+
+<span class="k">class</span> <span class="nc">Listener</span><span class="p">(</span><span class="n">ListenerBase</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="k">print</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">payload</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">load_from_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">Listener</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Then, we will read the email server configuration and recipients from
+the settings.</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">kinto.core.listeners</span> <span class="kn">import</span> <span class="n">ListenerBase</span>
+<span class="hll"><span class="kn">from</span> <span class="nn">pyramid.settings</span> <span class="kn">import</span> <span class="n">aslist</span><span class="p">,</span> <span class="n">asbool</span>
+</span>
+<span class="k">class</span> <span class="nc">Listener</span><span class="p">(</span><span class="n">ListenerBase</span><span class="p">):</span>
+<span class="hll">    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">server</span><span class="p">,</span> <span class="n">tls</span><span class="p">,</span> <span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="p">,</span> <span class="n">sender</span><span class="p">,</span> <span class="n">recipients</span><span class="p">):</span>
+</span><span class="hll">        <span class="bp">self</span><span class="o">.</span><span class="n">server</span> <span class="o">=</span> <span class="n">server</span>
+</span><span class="hll">        <span class="bp">self</span><span class="o">.</span><span class="n">tls</span> <span class="o">=</span> <span class="n">tls</span>
+</span><span class="hll">        <span class="bp">self</span><span class="o">.</span><span class="n">username</span> <span class="o">=</span> <span class="n">username</span>
+</span><span class="hll">        <span class="bp">self</span><span class="o">.</span><span class="n">password</span> <span class="o">=</span> <span class="n">password</span>
+</span><span class="hll">        <span class="bp">self</span><span class="o">.</span><span class="n">sender</span> <span class="o">=</span> <span class="n">sender</span>
+</span><span class="hll">        <span class="bp">self</span><span class="o">.</span><span class="n">recipients</span> <span class="o">=</span> <span class="n">recipients</span>
+</span>
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="k">print</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">payload</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">load_from_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+<span class="hll">    <span class="n">settings</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get_settings</span><span class="p">()</span>
+</span><span class="hll">
+</span><span class="hll">    <span class="n">server</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="n">prefix</span> <span class="o">+</span> <span class="s1">&#39;server&#39;</span><span class="p">]</span>
+</span><span class="hll">    <span class="n">tls</span> <span class="o">=</span> <span class="n">asbool</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="n">prefix</span> <span class="o">+</span> <span class="s1">&#39;tls&#39;</span><span class="p">])</span>
+</span><span class="hll">    <span class="n">username</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="n">prefix</span> <span class="o">+</span> <span class="s1">&#39;username&#39;</span><span class="p">]</span>
+</span><span class="hll">    <span class="n">password</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="n">prefix</span> <span class="o">+</span> <span class="s1">&#39;password&#39;</span><span class="p">]</span>
+</span><span class="hll">    <span class="n">sender</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="n">prefix</span> <span class="o">+</span> <span class="s1">&#39;from&#39;</span><span class="p">]</span>
+</span><span class="hll">    <span class="n">recipients</span> <span class="o">=</span> <span class="n">aslist</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="n">prefix</span> <span class="o">+</span> <span class="s1">&#39;recipients&#39;</span><span class="p">])</span>
+</span><span class="hll">
+</span><span class="hll">    <span class="k">return</span> <span class="n">Listener</span><span class="p">(</span><span class="n">server</span><span class="p">,</span> <span class="n">tls</span><span class="p">,</span> <span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="p">,</span> <span class="n">sender</span><span class="p">,</span> <span class="n">recipients</span><span class="p">)</span>
+</span></pre></div>
+</div>
+<p>Now, every time a new event occurs, we send an email:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="hll"><span class="kn">import</span> <span class="nn">smtplib</span>
+</span><span class="hll"><span class="kn">from</span> <span class="nn">email.mime.text</span> <span class="kn">import</span> <span class="n">MIMEText</span>
+</span>
+<span class="kn">from</span> <span class="nn">kinto.core.listeners</span> <span class="kn">import</span> <span class="n">ListenerBase</span>
+<span class="kn">from</span> <span class="nn">pyramid.settings</span> <span class="kn">import</span> <span class="n">aslist</span><span class="p">,</span> <span class="n">asbool</span>
+
+<span class="k">class</span> <span class="nc">Listener</span><span class="p">(</span><span class="n">ListenerBase</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">server</span><span class="p">,</span> <span class="n">tls</span><span class="p">,</span> <span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="p">,</span> <span class="n">sender</span><span class="p">,</span> <span class="n">recipients</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">server</span> <span class="o">=</span> <span class="n">server</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tls</span> <span class="o">=</span> <span class="n">tls</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">username</span> <span class="o">=</span> <span class="n">username</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">password</span> <span class="o">=</span> <span class="n">password</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sender</span> <span class="o">=</span> <span class="n">sender</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">recipients</span> <span class="o">=</span> <span class="n">recipients</span>
+
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+<span class="hll">        <span class="n">subject</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2">d&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">payload</span><span class="p">[</span><span class="s1">&#39;resource_name&#39;</span><span class="p">],</span>
+</span><span class="hll">                              <span class="n">event</span><span class="o">.</span><span class="n">payload</span><span class="p">[</span><span class="s1">&#39;action&#39;</span><span class="p">])</span>
+</span><span class="hll">        <span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;User id: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">event</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">prefixed_userid</span>
+</span><span class="hll">
+</span><span class="hll">        <span class="n">message</span> <span class="o">=</span> <span class="n">MIMEText</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+</span><span class="hll">        <span class="n">message</span><span class="p">[</span><span class="s1">&#39;Subject&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">subject</span>
+</span><span class="hll">        <span class="n">message</span><span class="p">[</span><span class="s1">&#39;From&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sender</span>
+</span><span class="hll">        <span class="n">message</span><span class="p">[</span><span class="s1">&#39;To&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">recipients</span><span class="p">)</span>
+</span><span class="hll">
+</span><span class="hll">        <span class="n">server</span> <span class="o">=</span> <span class="n">smtplib</span><span class="o">.</span><span class="n">SMTP</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">server</span><span class="p">)</span>
+</span><span class="hll">        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tls</span><span class="p">:</span>
+</span><span class="hll">            <span class="n">server</span><span class="o">.</span><span class="n">starttls</span><span class="p">()</span>
+</span><span class="hll">        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">username</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">password</span><span class="p">:</span>
+</span><span class="hll">            <span class="n">server</span><span class="o">.</span><span class="n">login</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">username</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">password</span><span class="p">)</span>
+</span><span class="hll">        <span class="n">server</span><span class="o">.</span><span class="n">sendmail</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sender</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">recipients</span><span class="p">,</span> <span class="n">message</span><span class="o">.</span><span class="n">as_string</span><span class="p">())</span>
+</span><span class="hll">        <span class="n">server</span><span class="o">.</span><span class="n">quit</span><span class="p">()</span>
+</span>
+<span class="k">def</span> <span class="nf">load_from_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+    <span class="n">settings</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get_settings</span><span class="p">()</span>
+
+    <span class="n">server</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="n">prefix</span> <span class="o">+</span> <span class="s1">&#39;server&#39;</span><span class="p">]</span>
+    <span class="n">tls</span> <span class="o">=</span> <span class="n">asbool</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="n">prefix</span> <span class="o">+</span> <span class="s1">&#39;tls&#39;</span><span class="p">])</span>
+    <span class="n">username</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="n">prefix</span> <span class="o">+</span> <span class="s1">&#39;username&#39;</span><span class="p">]</span>
+    <span class="n">password</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="n">prefix</span> <span class="o">+</span> <span class="s1">&#39;password&#39;</span><span class="p">]</span>
+    <span class="n">sender</span> <span class="o">=</span> <span class="n">settings</span><span class="p">[</span><span class="n">prefix</span> <span class="o">+</span> <span class="s1">&#39;from&#39;</span><span class="p">]</span>
+    <span class="n">recipients</span> <span class="o">=</span> <span class="n">aslist</span><span class="p">(</span><span class="n">settings</span><span class="p">[</span><span class="n">prefix</span> <span class="o">+</span> <span class="s1">&#39;recipients&#39;</span><span class="p">])</span>
+
+    <span class="k">return</span> <span class="n">Listener</span><span class="p">(</span><span class="n">server</span><span class="p">,</span> <span class="n">tls</span><span class="p">,</span> <span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="p">,</span> <span class="n">sender</span><span class="p">,</span> <span class="n">recipients</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="add-it-to-python-path">
+<h3>Add it to Python path<a class="headerlink" href="#add-it-to-python-path" title="Permalink to this headline">¶</a></h3>
+<p>For the simplicity in this tutorial, we will just alter the <code class="docutils literal"><span class="pre">PYTHONPATH</span></code> system
+environment variable. Specify the path to the folder containing the <code class="file docutils literal"><span class="pre">kinto_email.py</span></code>:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ export PYTHONPATH=&quot;/path/to/folder:${PYTHONPATH}&quot;
+</pre></div>
+</div>
+<p>In order to test that it works, simply try to import it from a <code class="docutils literal"><span class="pre">python</span></code> script:</p>
+<div class="highlight-shell"><div class="highlight"><pre><span></span>$ python
+Python 2.7.9 <span class="o">(</span>default, Apr  <span class="m">2</span> 2015, 15:33:21<span class="o">)</span>
+<span class="o">[</span>GCC 4.9.2<span class="o">]</span> on linux2
+Type <span class="s2">&quot;help&quot;</span>, <span class="s2">&quot;copyright&quot;</span>, <span class="s2">&quot;credits&quot;</span> or <span class="s2">&quot;license&quot;</span> <span class="k">for</span> more information.
+<span class="hll">&gt;&gt;&gt; import kinto_email
+</span>&gt;&gt;&gt;
+</pre></div>
+</div>
+</div>
+<div class="section" id="enable-in-configuration">
+<h3>Enable in configuration<a class="headerlink" href="#enable-in-configuration" title="Permalink to this headline">¶</a></h3>
+<p><a class="reference internal" href="../configuration/settings.html#configuring-notifications"><span class="std std-ref">As explained in the settings section</span></a>, just
+enable a new listener pointing to your python module:</p>
+<div class="highlight-ini"><div class="highlight"><pre><span></span><span class="na">kinto.event_listeners</span> <span class="o">=</span> <span class="s">send_email</span>
+
+<span class="na">kinto.event_listeners.send_email.use</span> <span class="o">=</span> <span class="s">kinto_email</span>
+<span class="na">kinto.event_listeners.send_email.server</span> <span class="o">=</span> <span class="s">localhost:1025</span>
+<span class="na">kinto.event_listeners.send_email.tls</span> <span class="o">=</span> <span class="s">false</span>
+<span class="na">kinto.event_listeners.send_email.username</span> <span class="o">=</span>
+<span class="na">kinto.event_listeners.send_email.password</span> <span class="o">=</span>
+<span class="na">kinto.event_listeners.send_email.from</span> <span class="o">=</span> <span class="s">postmaster@localhost</span>
+<span class="na">kinto.event_listeners.send_email.recipients</span> <span class="o">=</span> <span class="s">kinto@yopmail.com</span>
+</pre></div>
+</div>
+<p>Kinto should load the listeners without errors:</p>
+<div class="highlight-shell"><div class="highlight"><pre><span></span>$ kinto start
+Starting subprocess with file monitor
+<span class="hll">2016-01-21 16:21:59,941 INFO  <span class="o">[</span>kinto.core.initialization<span class="o">][</span>MainThread<span class="o">]</span> Setting up <span class="s1">&#39;send_email&#39;</span> listener
+</span></pre></div>
+</div>
+</div>
+<div class="section" id="test-it">
+<h3>Test it<a class="headerlink" href="#test-it" title="Permalink to this headline">¶</a></h3>
+<p>In a separate terminal, run a fake SMTP server on <code class="docutils literal"><span class="pre">localhost:1025</span></code>:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ python -m smtpd -n -c DebuggingServer localhost:1025
+</pre></div>
+</div>
+<p>Create a record (using <a class="reference external" href="http://httpie.org">HTTPie</a>):</p>
+<div class="highlight-shell"><div class="highlight"><pre><span></span>$ <span class="nb">echo</span> <span class="s1">&#39;{&quot;data&quot;: {&quot;note&quot;: &quot;kinto&quot;}}&#39;</span> <span class="p">|</span> <span class="se">\</span>
+    http --auth token:alice-token --verbose POST http://localhost:8888/v1/buckets/default/collections/notes/records
+</pre></div>
+</div>
+<p>And observe the fake server output:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">----------</span> <span class="n">MESSAGE</span> <span class="n">FOLLOWS</span> <span class="o">----------</span>
+<span class="n">Content</span><span class="o">-</span><span class="n">Type</span><span class="p">:</span> <span class="n">text</span><span class="o">/</span><span class="n">plain</span><span class="p">;</span> <span class="n">charset</span><span class="o">=</span><span class="s2">&quot;us-ascii&quot;</span>
+<span class="n">MIME</span><span class="o">-</span><span class="n">Version</span><span class="p">:</span> <span class="mf">1.0</span>
+<span class="n">Content</span><span class="o">-</span><span class="n">Transfer</span><span class="o">-</span><span class="n">Encoding</span><span class="p">:</span> <span class="mi">7</span><span class="n">bit</span>
+<span class="n">Subject</span><span class="p">:</span> <span class="n">record</span> <span class="n">created</span>
+<span class="n">From</span><span class="p">:</span> <span class="n">postmaster</span><span class="nd">@localhost</span>
+<span class="n">To</span><span class="p">:</span> <span class="n">kinto</span><span class="nd">@yopmail</span><span class="o">.</span><span class="n">com</span>
+<span class="n">X</span><span class="o">-</span><span class="n">Peer</span><span class="p">:</span> <span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span>
+
+<span class="n">User</span> <span class="nb">id</span><span class="p">:</span> <span class="n">basicauth</span><span class="p">:</span><span class="n">fea1e21d339299506d89e60f048cefd5b424ea641ba48267c35a4ce921439fa4</span>
+<span class="o">------------</span> <span class="n">END</span> <span class="n">MESSAGE</span> <span class="o">------------</span>
+</pre></div>
+</div>
+<p>It worked!</p>
+</div>
+</div>
+<div class="section" id="run-asynchronous-code">
+<h2>Run asynchronous code<a class="headerlink" href="#run-asynchronous-code" title="Permalink to this headline">¶</a></h2>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">You will need to install <code class="docutils literal"><span class="pre">kinto-redis</span></code> to use this listener.</p>
+</div>
+<p>In this part, we will take advantage of the built-in listener that delivers the events
+into a Redis queue. Separate scripts, also as known as “workers”, then consume
+the queue to execute custom asynchronous code.</p>
+<div class="section" id="run-redis">
+<h3>Run Redis<a class="headerlink" href="#run-redis" title="Permalink to this headline">¶</a></h3>
+<p>Redis is available in most Linux distributions or Mac OS brew. Using Docker it
+is also very easy to run a server on <code class="docutils literal"><span class="pre">localhost:6379</span></code>:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ sudo docker run -p 6379:6379 redis
+</pre></div>
+</div>
+</div>
+<div class="section" id="setup-kinto-queue">
+<h3>Setup Kinto queue<a class="headerlink" href="#setup-kinto-queue" title="Permalink to this headline">¶</a></h3>
+<p>In configuration, we setup the listener to post the message to a queue named
+<code class="docutils literal"><span class="pre">eventqueue</span></code>:</p>
+<div class="highlight-ini"><div class="highlight"><pre><span></span><span class="na">kinto.event_listeners</span> <span class="o">=</span> <span class="s">redis</span>
+
+<span class="na">kinto.event_listeners.redis.use</span> <span class="o">=</span> <span class="s">kinto_redis.listeners</span>
+<span class="na">kinto.event_listeners.redis.url</span> <span class="o">=</span> <span class="s">redis://localhost:6379/0</span>
+<span class="na">kinto.event_listeners.redis.pool_size</span> <span class="o">=</span> <span class="s">5</span>
+<span class="na">kinto.event_listeners.redis.listname</span> <span class="o">=</span> <span class="s">eventqueue</span>
+</pre></div>
+</div>
+<p>Kinto should load the listeners without errors:</p>
+<div class="highlight-shell"><div class="highlight"><pre><span></span>$ kinto start
+Starting subprocess with file monitor
+<span class="hll">2016-01-21 16:21:59,941 INFO  <span class="o">[</span>kinto.core.initialization<span class="o">][</span>MainThread<span class="o">]</span> Setting up <span class="s1">&#39;redis&#39;</span> listener
+</span></pre></div>
+</div>
+</div>
+<div class="section" id="run-worker-s">
+<h3>Run worker(s)<a class="headerlink" href="#run-worker-s" title="Permalink to this headline">¶</a></h3>
+<p>The simplest worker would look like that:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">json</span>
+
+<span class="kn">import</span> <span class="nn">redis</span>
+
+<span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="n">db</span> <span class="o">=</span> <span class="n">redis</span><span class="o">.</span><span class="n">Redis</span><span class="p">()</span>
+    <span class="c1"># Run indefinitely.</span>
+    <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+        <span class="c1"># Wait for new messages (blocking).</span>
+        <span class="n">key</span><span class="p">,</span> <span class="n">payload</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">blpop</span><span class="p">(</span><span class="s2">&quot;eventqueue&quot;</span><span class="p">)</span>
+        <span class="c1"># Decode JSON payload.</span>
+        <span class="n">message</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
+        <span class="c1"># Simulate long task.</span>
+        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+        <span class="k">print</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Run it in a separate terminal:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ python worker.py
+</pre></div>
+</div>
+</div>
+<div class="section" id="id1">
+<h3>Test it!<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<p>Create a record (using <a class="reference external" href="http://httpie.org">HTTPie</a>):</p>
+<div class="highlight-shell"><div class="highlight"><pre><span></span>$ <span class="nb">echo</span> <span class="s1">&#39;{&quot;data&quot;: {&quot;note&quot;: &quot;kinto&quot;}}&#39;</span> <span class="p">|</span> <span class="se">\</span>
+    http --auth token:alice-token --verbose POST http://localhost:8888/v1/buckets/default/collections/notes/records
+</pre></div>
+</div>
+<p>The server response is returned immediately.</p>
+<p>But 2 seconds later, look at the worker output:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">{</span><span class="s1">u&#39;resource_name&#39;</span><span class="p">:</span> <span class="s1">u&#39;record&#39;</span><span class="p">,</span> <span class="s1">u&#39;user_id&#39;</span><span class="p">:</span> <span class="s1">u&#39;basicauth:fea1e21d339299506d89e60f048cefd5b424ea641ba48267c35a4ce921439fa4&#39;</span><span class="p">,</span> <span class="s1">u&#39;timestamp&#39;</span><span class="p">:</span> <span class="mi">1453459942672</span><span class="p">,</span> <span class="s1">u&#39;uri&#39;</span><span class="p">:</span> <span class="s1">u&#39;/buckets/c8c94a74-5bf6-9fb0-5b72-b0777da6718e/collections/assets/records&#39;</span><span class="p">,</span> <span class="s1">u&#39;bucket_id&#39;</span><span class="p">:</span> <span class="s1">u&#39;c8c94a74-5bf6-9fb0-5b72-b0777da6718e&#39;</span><span class="p">,</span> <span class="s1">u&#39;action&#39;</span><span class="p">:</span> <span class="s1">u&#39;create&#39;</span><span class="p">,</span> <span class="s1">u&#39;collection_id&#39;</span><span class="p">:</span> <span class="s1">u&#39;assets&#39;</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>It worked!</p>
+</div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="authentication-github.html" class="btn btn-neutral float-right" title="How to setup Github authentication?" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="notifications-websockets.html" class="btn btn-neutral" title="How to setup push notifications using WebSockets?" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2015-2016 — Mozilla Services.
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+
+  
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        var disqus_shortname = 'kinto-docs';
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+  
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'4.3.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="../_static/piwik.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

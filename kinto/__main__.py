@@ -87,6 +87,30 @@ def main(args=None):
                                    help='Listening port number',
                                    required=False,
                                    default=DEFAULT_PORT)
+	elif command=='init migrate start':
+            subparser.add_argument('--dry-run',
+                                   action='store_true',
+                                   help='Simulate the migration operations '
+                                        'and show information',
+                                   dest='dry_run',
+                                   required=False,
+                                   default=False)
+            subparser.add_argument('--dry-run',
+                                   action='store_true',
+                                   help='Simulate the migration operations '
+                                        'and show information',
+                                   dest='dry_run',
+                                   required=False,
+                                   default=False)
+        elif command == 'delete-collection':
+            subparser.add_argument('--bucket',
+                                   help='The bucket where the collection '
+                                        'belongs to.',
+                                   required=True)
+            subparser.add_argument('--collection',
+                                   help='The collection to remove.',
+                                   required=True)
+            
 
     # Parse command-line arguments
     parsed_args = vars(parser.parse_args(args))

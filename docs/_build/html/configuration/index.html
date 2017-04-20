@@ -1,0 +1,273 @@
+
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Configuration &mdash; Kinto 4.3.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="../_static/theme_overrides.css" type="text/css" />
+  
+    <link rel="stylesheet" href="../_static/css/style.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="Kinto 4.3.1 documentation" href="../index.html"/>
+        <link rel="next" title="Settings" href="settings.html"/>
+        <link rel="prev" title="Application examples" href="../tutorials/app-examples.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> Kinto
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                4.3
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../kinto-admin.html">Kinto Web Administration Console</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../concepts.html">Concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../community.html">Community</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Configuration</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="settings.html">Settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="production.html">Running in production</a></li>
+<li class="toctree-l2"><a class="reference internal" href="good-practices.html">Deployment good practices</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../api/index.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../commandline.html">Command Line</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../core/glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../core/index.html">Kinto Core</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">Kinto</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+    <li>Configuration</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/configuration/index.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="configuration">
+<span id="id1"></span><h1>Configuration<a class="headerlink" href="#configuration" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="settings.html">Settings</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="settings.html#environment-variables">Environment variables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="settings.html#feature-settings">Feature settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="settings.html#backends">Backends</a></li>
+<li class="toctree-l2"><a class="reference internal" href="settings.html#scheme-host-and-port">Scheme, host, and port</a></li>
+<li class="toctree-l2"><a class="reference internal" href="settings.html#logging-and-monitoring">Logging and Monitoring</a></li>
+<li class="toctree-l2"><a class="reference internal" href="settings.html#authentication">Authentication</a></li>
+<li class="toctree-l2"><a class="reference internal" href="settings.html#plugins">Plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="settings.html#notifications">Notifications</a></li>
+<li class="toctree-l2"><a class="reference internal" href="settings.html#cross-origin-requests-cors">Cross Origin requests (CORS)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="settings.html#backoff-indicators">Backoff indicators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="settings.html#enabling-or-disabling-endpoints">Enabling or disabling endpoints</a></li>
+<li class="toctree-l2"><a class="reference internal" href="settings.html#activating-the-flush-endpoint">Activating the flush endpoint</a></li>
+<li class="toctree-l2"><a class="reference internal" href="settings.html#activating-the-permissions-endpoint">Activating the permissions endpoint</a></li>
+<li class="toctree-l2"><a class="reference internal" href="settings.html#client-caching">Client caching</a></li>
+<li class="toctree-l2"><a class="reference internal" href="settings.html#project-information">Project information</a></li>
+<li class="toctree-l2"><a class="reference internal" href="settings.html#application-profiling">Application profiling</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="production.html">Running in production</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="production.html#install-and-setup-postgresql">Install and setup PostgreSQL</a></li>
+<li class="toctree-l2"><a class="reference internal" href="production.html#production-checklist">Production checklist</a></li>
+<li class="toctree-l2"><a class="reference internal" href="production.html#run-the-kinto-application">Run the Kinto application</a></li>
+<li class="toctree-l2"><a class="reference internal" href="production.html#upgrading-kinto">Upgrading Kinto</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="good-practices.html">Deployment good practices</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="good-practices.html#python-stack">Python stack</a></li>
+<li class="toctree-l2"><a class="reference internal" href="good-practices.html#database">Database</a></li>
+<li class="toctree-l2"><a class="reference internal" href="good-practices.html#authentication-service">Authentication service</a></li>
+<li class="toctree-l2"><a class="reference internal" href="good-practices.html#scheduled-down-time">Scheduled down time</a></li>
+<li class="toctree-l2"><a class="reference internal" href="good-practices.html#about-sharding">About sharding</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="settings.html" class="btn btn-neutral float-right" title="Settings" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="../tutorials/app-examples.html" class="btn btn-neutral" title="Application examples" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2015-2016 — Mozilla Services.
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+
+  
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        var disqus_shortname = 'kinto-docs';
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+  
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'4.3.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="../_static/piwik.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

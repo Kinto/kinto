@@ -1,0 +1,733 @@
+
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Permissions &mdash; Kinto 4.3.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="../_static/theme_overrides.css" type="text/css" />
+  
+    <link rel="stylesheet" href="../_static/css/style.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="Kinto 4.3.1 documentation" href="../index.html"/>
+        <link rel="up" title="Kinto Core" href="index.html"/>
+        <link rel="next" title="Errors" href="errors.html"/>
+        <link rel="prev" title="Notifications" href="notifications.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> Kinto
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                4.3
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../kinto-admin.html">Kinto Web Administration Console</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../concepts.html">Concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../community.html">Community</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configuration/index.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/index.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../commandline.html">Command Line</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="glossary.html">Glossary</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Kinto Core</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="rationale.html">Rationale</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html">Getting started</a></li>
+<li class="toctree-l2"><a class="reference internal" href="resource.html">Resource</a></li>
+<li class="toctree-l2"><a class="reference internal" href="viewsets.html">Viewsets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="storage.html">Storage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cache.html">Cache</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notifications.html">Notifications</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Permissions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#user-resource">User resource</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#public-basicauth">Public BasicAuth</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#shareable-resource">Shareable resource</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#basicauth-trickery">BasicAuth trickery</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#related-inherited-permissions">Related/Inherited permissions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#manipulate-permissions">Manipulate permissions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#custom-permission-checking">Custom permission checking</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#backends">Backends</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#postgresql">PostgreSQL</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#redis">Redis</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#memory">Memory</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#api">API</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="errors.html">Errors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="testing.html">Testing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html">Utils</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">Kinto</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="index.html">Kinto Core</a> &raquo;</li>
+      
+    <li>Permissions</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/core/permission.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="permissions">
+<span id="id1"></span><h1>Permissions<a class="headerlink" href="#permissions" title="Permalink to this headline">¶</a></h1>
+<p><em>Kinto-Core</em> provides a mechanism to handle authorization on the stored <a class="reference internal" href="glossary.html#term-objects"><span class="xref std std-term">objects</span></a>.</p>
+<p>This section gives details about the behaviour of resources in regards to
+<a class="reference internal" href="glossary.html#term-permissions"><span class="xref std std-term">permissions</span></a>.</p>
+<div class="section" id="user-resource">
+<span id="permission-user-resource"></span><h2>User resource<a class="headerlink" href="#user-resource" title="Permalink to this headline">¶</a></h2>
+<p>This is the simplest one, as presented in the <a class="reference internal" href="resource.html#resource"><span class="std std-ref">resource section</span></a>.</p>
+<p>When using a <a class="reference internal" href="resource.html#kinto.core.resource.UserResource" title="kinto.core.resource.UserResource"><code class="xref py py-class docutils literal"><span class="pre">kinto.core.resource.UserResource</span></code></a>, every authenticated user
+can manipulate and read their own records. There is no way to restrict this or
+allow sharing of records.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="23%" />
+<col width="38%" />
+<col width="38%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Method</th>
+<th class="head">URL</th>
+<th class="head"><a class="reference internal" href="glossary.html#term-permission"><span class="xref std std-term">permission</span></a></th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>GET / HEAD</td>
+<td>/{collection}</td>
+<td><em>Authenticated</em></td>
+</tr>
+<tr class="row-odd"><td>POST</td>
+<td>/{collection}</td>
+<td><em>Authenticated</em></td>
+</tr>
+<tr class="row-even"><td>DELETE</td>
+<td>/{collection}</td>
+<td><em>Authenticated</em></td>
+</tr>
+<tr class="row-odd"><td>GET / HEAD</td>
+<td>/{collection}/{id}</td>
+<td><em>Authenticated</em></td>
+</tr>
+<tr class="row-even"><td>PUT</td>
+<td>/{collection}/{id}</td>
+<td><em>Authenticated</em></td>
+</tr>
+<tr class="row-odd"><td>PATCH</td>
+<td>/{collection}/{id}</td>
+<td><em>Authenticated</em></td>
+</tr>
+<tr class="row-even"><td>DELETE</td>
+<td>/{collection}/{id}</td>
+<td><em>Authenticated</em></td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">When using only these resources, the permission backend remains unused.
+Its configuration is not necessary.</p>
+</div>
+<div class="section" id="public-basicauth">
+<h3>Public BasicAuth<a class="headerlink" href="#public-basicauth" title="Permalink to this headline">¶</a></h3>
+<p>If <em>Basic Auth</em> authentication is enabled, private user resources can become semi-private or public
+if the <code class="docutils literal"><span class="pre">user:pass</span></code> is publicly known and shared (for example <code class="docutils literal"><span class="pre">public:</span></code> is a valid user:pass combination).
+That&#8217;s how most simple demos of <em>Kinto</em> are built by the way!</p>
+</div>
+</div>
+<div class="section" id="shareable-resource">
+<span id="permission-shareable-resource"></span><h2>Shareable resource<a class="headerlink" href="#shareable-resource" title="Permalink to this headline">¶</a></h2>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">When using this kind of resource, the <code class="docutils literal"><span class="pre">permission_backend</span></code> setting must be
+set, <a class="reference internal" href="../configuration/settings.html#configuration-backends"><span class="std std-ref">as described in the configuration section</span></a>.</p>
+</div>
+<p>To introduce more flexibility, the <a class="reference internal" href="resource.html#kinto.core.resource.ShareableResource" title="kinto.core.resource.ShareableResource"><code class="xref py py-class docutils literal"><span class="pre">kinto.core.resource.ShareableResource</span></code></a>
+can be used instead.</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">kinto.core</span> <span class="kn">import</span> <span class="n">resource</span>
+
+<span class="nd">@resource.register</span><span class="p">()</span>
+<span class="k">class</span> <span class="nc">Toadstool</span><span class="p">(</span><span class="n">resource</span><span class="o">.</span><span class="n">ShareableResource</span><span class="p">):</span>
+    <span class="n">mapping</span> <span class="o">=</span> <span class="n">MushroomSchema</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>With this alternative resource class, <em>Kinto-Core</em> will register the <a class="reference internal" href="glossary.html#term-endpoints"><span class="xref std std-term">endpoints</span></a>
+with a specific <a class="reference external" href="http://docs.pylonsproject.org/projects/pyramid/en/latest/narr/urldispatch.html#route-factories">route factory</a>,
+that will take care of checking the appropriate permission for each action.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="12%" />
+<col width="20%" />
+<col width="22%" />
+<col width="47%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Method</th>
+<th class="head">URL</th>
+<th class="head"><a class="reference internal" href="glossary.html#term-permission"><span class="xref std std-term">permission</span></a></th>
+<th class="head">Comments</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>GET / HEAD</td>
+<td>/{collection}</td>
+<td><code class="docutils literal"><span class="pre">read</span></code></td>
+<td>If not allowed by setting
+<code class="docutils literal"><span class="pre">kinto.{collection}_read_principals</span></code>,
+will return list of records where user
+has <code class="docutils literal"><span class="pre">read</span></code> permission.</td>
+</tr>
+<tr class="row-odd"><td>POST</td>
+<td>/{collection}</td>
+<td><code class="docutils literal"><span class="pre">create</span></code></td>
+<td>Allowed by setting
+<code class="docutils literal"><span class="pre">kinto.{collection}_create_principals</span></code></td>
+</tr>
+<tr class="row-even"><td>DELETE</td>
+<td>/{collection}</td>
+<td><code class="docutils literal"><span class="pre">write</span></code></td>
+<td>If not allowed by setting
+<code class="docutils literal"><span class="pre">kinto.{collection}_write_principals</span></code>,
+will delete the list of records where
+user has <code class="docutils literal"><span class="pre">write</span></code> permission.</td>
+</tr>
+<tr class="row-odd"><td>GET / HEAD</td>
+<td>/{collection}/{id}</td>
+<td><code class="docutils literal"><span class="pre">read</span></code></td>
+<td>If not allowed by setting
+<code class="docutils literal"><span class="pre">kinto.{collection}_read_principals</span></code>,
+will check record permissions</td>
+</tr>
+<tr class="row-even"><td>PUT</td>
+<td>/{collection}/{id}</td>
+<td><code class="docutils literal"><span class="pre">create</span></code> if record
+doesn&#8217;t exist,
+<code class="docutils literal"><span class="pre">write</span></code> otherwise</td>
+<td>Allowed by setting
+<code class="docutils literal"><span class="pre">kinto.{collection}_create_principals</span></code>,
+or <code class="docutils literal"><span class="pre">kinto.{collection}_create_principals</span></code>
+or existing record permissions</td>
+</tr>
+<tr class="row-odd"><td>PATCH</td>
+<td>/{collection}/{id}</td>
+<td><code class="docutils literal"><span class="pre">write</span></code></td>
+<td>If not allowed by setting
+<code class="docutils literal"><span class="pre">kinto.{collection}_write_principals</span></code>,
+will check record permissions</td>
+</tr>
+<tr class="row-even"><td>DELETE</td>
+<td>/{collection}/{id}</td>
+<td><code class="docutils literal"><span class="pre">write</span></code></td>
+<td>If not allowed by setting
+<code class="docutils literal"><span class="pre">kinto.{collection}_write_principals</span></code>,
+will check record permissions</td>
+</tr>
+</tbody>
+</table>
+<p>The record permissions can be manipulated via the <code class="docutils literal"><span class="pre">permissions</span></code> attribute in the
+JSON payload, aside the <code class="docutils literal"><span class="pre">data</span></code> attribute.
+It allows to specify the list of <a class="reference internal" href="../api/1.x/permissions.html#api-principals"><span class="std std-ref">principals</span></a> allowed for each <code class="docutils literal"><span class="pre">permission</span></code>,
+as detailed in the <a class="reference external" href="resource-permissions-attribute">API section</a>.</p>
+<div class="admonition important">
+<p class="first admonition-title">Important</p>
+<p>When defining permissions, there are two specific principals:</p>
+<ul class="last simple">
+<li><code class="docutils literal"><span class="pre">system.Authenticated</span></code>: any authenticated user</li>
+<li><code class="docutils literal"><span class="pre">system.Everyone</span></code>: any user</li>
+</ul>
+</div>
+<p>The <code class="docutils literal"><span class="pre">write</span></code> permission is required to be able to modify the permissions
+of an existing record.</p>
+<p>When a record is created or modified, the <strong>current user is added to
+list of principals</strong> for the <code class="docutils literal"><span class="pre">write</span></code> permission on this object.
+That means that a user is always able to replace or delete the records she created.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Don&#8217;t hesitate to submit a contribution to introduce a way to control the
+current behaviour instead of always granting <code class="docutils literal"><span class="pre">write</span></code> on current user!</p>
+</div>
+<div class="section" id="basicauth-trickery">
+<h3>BasicAuth trickery<a class="headerlink" href="#basicauth-trickery" title="Permalink to this headline">¶</a></h3>
+<p>Like for user resources, if <em>Basic Auth</em> authentication is enabled, the predictable
+user id can be used to define semi-private or public if the <code class="docutils literal"><span class="pre">user:pass</span></code> is
+known and shared (for example <code class="docutils literal"><span class="pre">public:</span></code> is a valid user:pass combination).</p>
+<p>For example, get the user id obtained in the hello <a class="reference internal" href="../api/1.x/utilities.html#api-utilities"><span class="std std-ref">root view</span></a> with a
+user:pass combination and use it in the permissions JSON payloads, or settings:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">kinto</span><span class="o">.</span><span class="p">{</span><span class="n">collection</span><span class="p">}</span><span class="n">_read_principals</span> <span class="o">=</span> <span class="n">basicauth</span><span class="p">:</span><span class="mi">631</span><span class="n">c2d625ee5726172cf67c6750de10a3e1a04bcd603bc9ad6d6b196fa8257a6</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="related-inherited-permissions">
+<h3>Related/Inherited permissions<a class="headerlink" href="#related-inherited-permissions" title="Permalink to this headline">¶</a></h3>
+<p>In the above section, the list of allowed principals for actions on the collection
+(especially <code class="docutils literal"><span class="pre">create</span></code>) is specified via settings.</p>
+<p>It is possible to extend the previously described behavior with related permissions.</p>
+<p>For example, in order to imply that having permission to <code class="docutils literal"><span class="pre">write</span></code> implies
+permission to <code class="docutils literal"><span class="pre">read</span></code>. Or having permission to <code class="docutils literal"><span class="pre">create</span></code> blog articles also means
+permission to <code class="docutils literal"><span class="pre">write</span></code> categories.</p>
+<p>To do so, specify the <code class="docutils literal"><span class="pre">get_bound_permissions</span></code> of the <em>Kinto-Core</em> authorization policy.</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">get_bound_permissions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">permission_object_id</span><span class="p">,</span> <span class="n">permission</span><span class="p">):</span>
+    <span class="n">related</span> <span class="o">=</span> <span class="p">[(</span><span class="n">permission_object_id</span><span class="p">,</span> <span class="n">permission</span><span class="p">)]</span>
+    <span class="c1"># Grant `read` if user can `write`</span>
+    <span class="k">if</span> <span class="n">permission</span> <span class="o">==</span> <span class="s1">&#39;write&#39;</span><span class="p">:</span>
+        <span class="n">related</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">permission_object_id</span><span class="p">,</span> <span class="s1">&#39;read&#39;</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">related</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pyramid.security</span> <span class="kn">import</span> <span class="n">IAuthorizationPolicy</span>
+
+<span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">global_settings</span><span class="p">,</span> <span class="o">**</span><span class="n">settings</span><span class="p">):</span>
+    <span class="o">...</span>
+    <span class="n">kinto</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">initialize</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">__version__</span><span class="p">)</span>
+    <span class="o">...</span>
+<span class="hll">    <span class="n">authz</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">registry</span><span class="o">.</span><span class="n">queryUtility</span><span class="p">(</span><span class="n">IAuthorizationPolicy</span><span class="p">)</span>
+</span><span class="hll">    <span class="n">authz</span><span class="o">.</span><span class="n">get_bound_permissions</span> <span class="o">=</span> <span class="n">get_bound_permissions</span>
+</span></pre></div>
+</div>
+<p>In <a class="reference external" href="https://Kinto/kinto.readthedocs.io">Kinto</a>, this is leveraged to implement an inheritance tree
+of permissions between nested objects. The root objects permissions still have to be specified
+via settings though.</p>
+<p>It is also possible to subclass the default <a class="reference internal" href="#kinto.core.authorization.AuthorizationPolicy" title="kinto.core.authorization.AuthorizationPolicy"><code class="xref py py-class docutils literal"><span class="pre">kinto.core.authorization.AuthorizationPolicy</span></code></a>.</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">kinto.core</span> <span class="kn">import</span> <span class="n">authorization</span>
+<span class="kn">from</span> <span class="nn">pyramid.security</span> <span class="kn">import</span> <span class="n">IAuthorizationPolicy</span>
+<span class="kn">from</span> <span class="nn">zope.interface</span> <span class="kn">import</span> <span class="n">implementer</span>
+
+<span class="nd">@implementer</span><span class="p">(</span><span class="n">IAuthorizationPolicy</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">MyAuthz</span><span class="p">(</span><span class="n">authorization</span><span class="o">.</span><span class="n">AuthorizationPolicy</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">get_bound_permissions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">permission_object_id</span><span class="p">,</span> <span class="n">permission</span><span class="p">):</span>
+        <span class="n">related</span> <span class="o">=</span> <span class="p">[(</span><span class="n">permission_object_id</span><span class="p">,</span> <span class="n">permission</span><span class="p">)]</span>
+        <span class="c1"># Grant permission on `categories` if permission on `articles`</span>
+        <span class="k">if</span> <span class="n">permission_object_id</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;/articles&#39;</span><span class="p">):</span>
+            <span class="n">related</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">permission_object_id</span> <span class="o">+</span> <span class="s1">&#39;/categories&#39;</span><span class="p">,</span> <span class="n">permission</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">related</span>
+</pre></div>
+</div>
+<p>This would require forcing the setting <code class="docutils literal"><span class="pre">multiauth.authorization_policy</span> <span class="pre">=</span> <span class="pre">myapp.authz.MyAuthz</span></code>.</p>
+</div>
+<div class="section" id="manipulate-permissions">
+<h3>Manipulate permissions<a class="headerlink" href="#manipulate-permissions" title="Permalink to this headline">¶</a></h3>
+<p>One way of achieving dynamic permissions is to manipulate the permission backend
+manually.</p>
+<p>For example, in some imaginary admin view:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">admin_view</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="c1"># Custom Pyramid view.</span>
+    <span class="n">permission</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">registry</span><span class="o">.</span><span class="n">permission</span>
+
+    <span class="c1"># Give `create` permission to `user_id` in POST</span>
+    <span class="n">some_user_id</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">[</span><span class="s1">&#39;user_id&#39;</span><span class="p">]</span>
+    <span class="n">permission_object_id</span> <span class="o">=</span> <span class="s1">&#39;/articles&#39;</span>
+    <span class="n">permission</span> <span class="o">=</span> <span class="s1">&#39;create&#39;</span>
+    <span class="n">permission</span><span class="o">.</span><span class="n">add_principal_to_ace</span><span class="p">(</span><span class="n">permission_object_id</span><span class="p">,</span>
+                                    <span class="n">permission</span><span class="p">,</span>
+                                    <span class="n">some_user_id</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Or during application init (or scripts):</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">global_config</span><span class="p">,</span> <span class="o">**</span><span class="n">settings</span><span class="p">):</span>
+    <span class="c1"># ...</span>
+    <span class="n">kinto</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">initialize</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">__version__</span><span class="p">)</span>
+    <span class="c1"># ...</span>
+
+<span class="hll">    <span class="n">some_user_id</span> <span class="o">=</span> <span class="s1">&#39;basicauth:ut082jghnrgnjnj&#39;</span>
+</span><span class="hll">    <span class="n">permission_object_id</span> <span class="o">=</span> <span class="s1">&#39;/articles&#39;</span>
+</span><span class="hll">    <span class="n">permission</span> <span class="o">=</span> <span class="s1">&#39;create&#39;</span>
+</span><span class="hll">    <span class="n">config</span><span class="o">.</span><span class="n">registry</span><span class="o">.</span><span class="n">permission</span><span class="o">.</span><span class="n">add_principal_to_ace</span><span class="p">(</span><span class="n">permission_object_id</span><span class="p">,</span>
+</span><span class="hll">                                                    <span class="n">permission</span><span class="p">,</span>
+</span><span class="hll">                                                    <span class="n">some_user_id</span><span class="p">)</span>
+</span></pre></div>
+</div>
+<p>Since <a class="reference internal" href="glossary.html#term-principals"><span class="xref std std-term">principals</span></a> can be anything, it is also possible to use them to
+define groups:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">add_to_admins</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="c1"># Custom Pyramid view.</span>
+    <span class="n">permission</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">registry</span><span class="o">.</span><span class="n">permission</span>
+
+    <span class="n">some_user_id</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">[</span><span class="s1">&#39;user_id&#39;</span><span class="p">]</span>
+    <span class="n">group_name</span> <span class="o">=</span> <span class="s1">&#39;group:admins&#39;</span>
+    <span class="n">permission</span><span class="o">.</span><span class="n">add_user_principal</span><span class="p">(</span><span class="n">some_user_id</span><span class="p">,</span> <span class="n">group_name</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>And then refer as <code class="docutils literal"><span class="pre">group:admins</span></code> in the list of allowed principals.</p>
+</div>
+<div class="section" id="custom-permission-checking">
+<h3>Custom permission checking<a class="headerlink" href="#custom-permission-checking" title="Permalink to this headline">¶</a></h3>
+<p>The permissions verification in <em>Kinto-Core</em> is done with usual Pyramid authorization
+abstractions. Most notably using an implementation of a <a class="reference external" href="http://docs.pylonsproject.org/projects/pyramid/en/latest/quick_tutorial/authorization.html">RootFactory in conjonction with an Authorization policy</a>.</p>
+<p>In order to completely override (or mimic) the defaults, a custom
+<em>RootFactory</em> and a custom <em>Authorization policy</em> can be plugged
+on the resource during registration.</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">kinto.core</span> <span class="kn">import</span> <span class="n">resource</span>
+
+<span class="k">class</span> <span class="nc">MyViewSet</span><span class="p">(</span><span class="n">resource</span><span class="o">.</span><span class="n">ViewSet</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">get_view_arguments</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">endpoint_type</span><span class="p">,</span> <span class="n">resource_cls</span><span class="p">,</span> <span class="n">method</span><span class="p">):</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">MyViewSet</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">get_view_arguments</span><span class="p">(</span><span class="n">endpoint_type</span><span class="p">,</span>
+                                                         <span class="n">resource_cls</span><span class="p">,</span>
+                                                         <span class="n">method</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">method</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;get&#39;</span><span class="p">,</span> <span class="s1">&#39;head&#39;</span><span class="p">):</span>
+<span class="hll">            <span class="n">args</span><span class="p">[</span><span class="s1">&#39;permission&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;publish&#39;</span>
+</span>        <span class="k">return</span> <span class="n">args</span>
+
+    <span class="k">def</span> <span class="nf">get_service_arguments</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">MyViewSet</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">get_service_arguments</span><span class="p">()</span>
+<span class="hll">        <span class="n">args</span><span class="p">[</span><span class="s1">&#39;factory&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">myapp</span><span class="o">.</span><span class="n">MyRootFactory</span>
+</span>        <span class="k">return</span> <span class="n">args</span>
+
+
+<span class="nd">@resource.register</span><span class="p">(</span><span class="n">viewset</span><span class="o">=</span><span class="n">MyViewSet</span><span class="p">())</span>
+<span class="k">class</span> <span class="nc">Resource</span><span class="p">(</span><span class="n">resource</span><span class="o">.</span><span class="n">UserResource</span><span class="p">):</span>
+    <span class="n">mapping</span> <span class="o">=</span> <span class="n">BookmarkSchema</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>See more details about available customization in the <a class="reference internal" href="viewsets.html#viewset"><span class="std std-ref">viewset section</span></a>.</p>
+<p>A custom RootFactory and AuthorizationPolicy should implement the permission
+checking <a class="reference external" href="http://docs.pylonsproject.org/projects/pyramid/en/latest/tutorials/wiki2/authorization.html">using Pyramid mecanisms</a>.</p>
+<p>For example, a simplistic example with the previous resource viewset:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pyramid.security</span> <span class="kn">import</span> <span class="n">IAuthorizationPolicy</span>
+
+<span class="k">class</span> <span class="nc">MyRootFactory</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_resource</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="n">service</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">current_service</span>
+        <span class="k">if</span> <span class="n">service</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">service</span><span class="p">,</span> <span class="s1">&#39;resource&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">current_resource</span> <span class="o">=</span> <span class="n">service</span><span class="o">.</span><span class="n">resource</span>
+
+
+<span class="nd">@implementer</span><span class="p">(</span><span class="n">IAuthorizationPolicy</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">AuthorizationPolicy</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">permits</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">principals</span><span class="p">,</span> <span class="n">permission</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">context</span><span class="o">.</span><span class="n">current_resource</span> <span class="o">==</span> <span class="n">BlogArticle</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">permission</span> <span class="o">==</span> <span class="s1">&#39;publish&#39;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="p">(</span><span class="s1">&#39;group:publishers&#39;</span> <span class="ow">in</span> <span class="n">principals</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">False</span>
+</pre></div>
+</div>
+<dl class="class">
+<dt id="kinto.core.authorization.AuthorizationPolicy">
+<em class="property">class </em><code class="descclassname">kinto.core.authorization.</code><code class="descname">AuthorizationPolicy</code><a class="headerlink" href="#kinto.core.authorization.AuthorizationPolicy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Default authorization class, that leverages the permission backend
+for shareable resources.</p>
+<dl class="attribute">
+<dt id="kinto.core.authorization.AuthorizationPolicy.get_bound_permissions">
+<code class="descname">get_bound_permissions</code><em class="property"> = None</em><a class="headerlink" href="#kinto.core.authorization.AuthorizationPolicy.get_bound_permissions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Callable that takes an object id and a permission and returns
+a list of tuples (&lt;object id&gt;, &lt;permission&gt;). Useful when objects
+permission depend on others.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="backends">
+<span id="permissions-backend"></span><h2>Backends<a class="headerlink" href="#backends" title="Permalink to this headline">¶</a></h2>
+<p>The <a class="reference internal" href="glossary.html#term-acls"><span class="xref std std-term">ACLs</span></a> are stored in a <a class="reference internal" href="glossary.html#term-permission"><span class="xref std std-term">permission</span></a> backend. Like for
+<a class="reference internal" href="storage.html#storage"><span class="std std-ref">Storage</span></a> and <a class="reference internal" href="cache.html#cache"><span class="std std-ref">Cache</span></a>, it is pluggable from configuration.</p>
+<div class="section" id="postgresql">
+<h3>PostgreSQL<a class="headerlink" href="#postgresql" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="kinto.core.permission.postgresql.Permission">
+<em class="property">class </em><code class="descclassname">kinto.core.permission.postgresql.</code><code class="descname">Permission</code><span class="sig-paren">(</span><em>client</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.permission.postgresql.Permission" title="Permalink to this definition">¶</a></dt>
+<dd><p>Permission backend using PostgreSQL.</p>
+<p>Enable in configuration:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">kinto</span><span class="o">.</span><span class="n">permission_backend</span> <span class="o">=</span> <span class="n">kinto</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">permission</span><span class="o">.</span><span class="n">postgresql</span>
+</pre></div>
+</div>
+<p>Database location URI can be customized:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">kinto</span><span class="o">.</span><span class="n">permission_url</span> <span class="o">=</span> <span class="n">postgres</span><span class="p">:</span><span class="o">//</span><span class="n">user</span><span class="p">:</span><span class="k">pass</span><span class="nd">@db</span><span class="o">.</span><span class="n">server</span><span class="o">.</span><span class="n">lan</span><span class="p">:</span><span class="mi">5432</span><span class="o">/</span><span class="n">dbname</span>
+</pre></div>
+</div>
+<p>Alternatively, username and password could also rely on system user ident
+or even specified in <code class="file docutils literal"><span class="pre">~/.pgpass</span></code> (<em>see PostgreSQL documentation</em>).</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>Some tables and indices are created when <code class="docutils literal"><span class="pre">kinto</span> <span class="pre">migrate</span></code> is run.
+This requires some privileges on the database, or some error will
+be raised.</p>
+<p class="last"><strong>Alternatively</strong>, the schema can be initialized outside the
+python application, using the SQL file located in
+<code class="file docutils literal"><span class="pre">kinto/core/permission/postgresql/schema.sql</span></code>. This allows to
+distinguish schema manipulation privileges from schema usage.</p>
+</div>
+<p>A connection pool is enabled by default:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">kinto</span><span class="o">.</span><span class="n">permission_pool_size</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="n">kinto</span><span class="o">.</span><span class="n">permission_maxoverflow</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="n">kinto</span><span class="o">.</span><span class="n">permission_max_backlog</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+<span class="n">kinto</span><span class="o">.</span><span class="n">permission_pool_recycle</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+<span class="n">kinto</span><span class="o">.</span><span class="n">permission_pool_timeout</span> <span class="o">=</span> <span class="mi">30</span>
+<span class="n">kinto</span><span class="o">.</span><span class="n">cache_poolclass</span> <span class="o">=</span>
+    <span class="n">kinto</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">storage</span><span class="o">.</span><span class="n">postgresql</span><span class="o">.</span><span class="n">pool</span><span class="o">.</span><span class="n">QueuePoolWithMaxBacklog</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal"><span class="pre">max_backlog</span></code>  limits the number of threads that can be in the queue
+waiting for a connection.  Once this limit has been reached, any further
+attempts to acquire a connection will be rejected immediately, instead of
+locking up all threads by keeping them waiting in the queue.</p>
+<p>See <a class="reference external" href="http://docs.sqlalchemy.org/en/rel_1_0/core/engines.html">dedicated section in SQLAlchemy documentation</a>
+for default values and behaviour.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Using a <a class="reference external" href="http://pgpool.net">dedicated connection pool</a> is still
+recommended to allow load balancing, replication or limit the number
+of connections used in a multi-process deployment.</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Noindex:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="redis">
+<h3>Redis<a class="headerlink" href="#redis" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="kinto_redis.permission.Permission">
+<em class="property">class </em><code class="descclassname">kinto_redis.permission.</code><code class="descname">Permission</code><span class="sig-paren">(</span><em>client</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto_redis.permission.Permission" title="Permalink to this definition">¶</a></dt>
+<dd><p>Permission backend implementation using Redis.</p>
+<p>Enable in configuration:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">kinto</span><span class="o">.</span><span class="n">permission_backend</span> <span class="o">=</span> <span class="n">kinto_redis</span><span class="o">.</span><span class="n">permission</span>
+</pre></div>
+</div>
+<p><em>(Optional)</em> Instance location URI can be customized:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">kinto</span><span class="o">.</span><span class="n">permission_url</span> <span class="o">=</span> <span class="n">redis</span><span class="p">:</span><span class="o">//</span><span class="n">localhost</span><span class="p">:</span><span class="mi">6379</span><span class="o">/</span><span class="mi">2</span>
+</pre></div>
+</div>
+<p>A threaded connection pool is enabled by default:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">kinto</span><span class="o">.</span><span class="n">permission_pool_size</span> <span class="o">=</span> <span class="mi">50</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Noindex:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="memory">
+<h3>Memory<a class="headerlink" href="#memory" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="kinto.core.permission.memory.Permission">
+<em class="property">class </em><code class="descclassname">kinto.core.permission.memory.</code><code class="descname">Permission</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.permission.memory.Permission" title="Permalink to this definition">¶</a></dt>
+<dd><p>Permission backend implementation in local process memory.</p>
+<p>Enable in configuration:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">kinto</span><span class="o">.</span><span class="n">permission_backend</span> <span class="o">=</span> <span class="n">kinto</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">permission</span><span class="o">.</span><span class="n">memory</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Noindex:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="api">
+<h2>API<a class="headerlink" href="#api" title="Permalink to this headline">¶</a></h2>
+<p>Implementing a custom permission backend consists in implementating the following
+interface:</p>
+<span class="target" id="module-kinto.core.permission"></span></div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="errors.html" class="btn btn-neutral float-right" title="Errors" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="notifications.html" class="btn btn-neutral" title="Notifications" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2015-2016 — Mozilla Services.
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+
+  
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        var disqus_shortname = 'kinto-docs';
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+  
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'4.3.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="../_static/piwik.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

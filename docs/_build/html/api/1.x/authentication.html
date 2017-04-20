@@ -1,0 +1,454 @@
+
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Authentication &mdash; Kinto 4.3.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="../../_static/theme_overrides.css" type="text/css" />
+  
+    <link rel="stylesheet" href="../../_static/css/style.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="Kinto 4.3.1 documentation" href="../../index.html"/>
+        <link rel="up" title="1.x" href="index.html"/>
+        <link rel="next" title="Buckets" href="buckets.html"/>
+        <link rel="prev" title="1.x" href="index.html"/> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> Kinto
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                4.3
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../kinto-admin.html">Kinto Web Administration Console</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../concepts.html">Concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../community.html">Community</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../configuration/index.html">Configuration</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">API</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../versioning.html">API Versioning</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">1.x</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="index.html#full-reference">Full reference</a><ul class="current">
+<li class="toctree-l4 current"><a class="current reference internal" href="#">Authentication</a></li>
+<li class="toctree-l4"><a class="reference internal" href="buckets.html">Buckets</a></li>
+<li class="toctree-l4"><a class="reference internal" href="collections.html">Collections</a></li>
+<li class="toctree-l4"><a class="reference internal" href="records.html">Records</a></li>
+<li class="toctree-l4"><a class="reference internal" href="groups.html">Groups</a></li>
+<li class="toctree-l4"><a class="reference internal" href="permissions.html">Permissions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="filtering.html">Filtering</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sorting.html">Sorting</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pagination.html">Paginating</a></li>
+<li class="toctree-l4"><a class="reference internal" href="selecting_fields.html">Selecting fields</a></li>
+<li class="toctree-l4"><a class="reference internal" href="history.html">History of changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="quotas.html">Quotas management</a></li>
+<li class="toctree-l4"><a class="reference internal" href="utilities.html">Utility endpoints for OPS and Devs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="batch.html">Batch operations</a></li>
+<li class="toctree-l4"><a class="reference internal" href="timestamps.html">Server timestamps</a></li>
+<li class="toctree-l4"><a class="reference internal" href="backoff.html">Backoff indicators</a></li>
+<li class="toctree-l4"><a class="reference internal" href="errors.html">Error responses</a></li>
+<li class="toctree-l4"><a class="reference internal" href="deprecation.html">Deprecation</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="index.html#cheatsheet">Cheatsheet</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../index.html#changelog">Changelog</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../commandline.html">Command Line</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../faq.html">FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../core/glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../core/index.html">Kinto Core</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../index.html">Kinto</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../index.html">API</a> &raquo;</li>
+      
+          <li><a href="index.html">1.x</a> &raquo;</li>
+      
+    <li>Authentication</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../../_sources/api/1.x/authentication.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="authentication">
+<h1>Authentication<a class="headerlink" href="#authentication" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="a-word-about-users">
+<span id="id1"></span><h2>A word about users<a class="headerlink" href="#a-word-about-users" title="Permalink to this headline">¶</a></h2>
+<p>First of all, Kinto <strong>doesn&#8217;t provide users management</strong>. There is no such thing
+as user sign-up, password modification, etc.</p>
+<p>However, since Kinto handles permissions on objects, users are uniquely
+identified.</p>
+<div class="section" id="how-is-that-possible">
+<h3>How is that possible?<a class="headerlink" href="#how-is-that-possible" title="Permalink to this headline">¶</a></h3>
+<p>Kinto uses the request headers to authenticate the current user.</p>
+<p>Depending on the authentication methods enabled in configuration,
+the HTTP method to authenticate requests may differ.</p>
+<p>Kinto can rely on a third-party called «<a class="reference external" href="https://en.wikipedia.org/wiki/Identity_provider">Identity provider</a>»
+to authenticate the request and assign a <a class="reference internal" href="../../core/glossary.html#term-user-id"><span class="xref std std-term">user id</span></a>.</p>
+<p>There are many identity providers solutions in the wild. The most common are OAuth,
+JWT, SAML, x509, Hawk sessions...</p>
+<p>A policy based on <em>OAuth2 bearer tokens</em> is recommended, but not mandatory.</p>
+</div>
+<div class="section" id="low-tech-included">
+<h3>Low tech included<a class="headerlink" href="#low-tech-included" title="Permalink to this headline">¶</a></h3>
+<p>Kinto has no third-party policy included (yet!), and only provides a policy based on
+Basic Authentication.</p>
+<p>Depending on your use case, you may want to plug Github, Facebook, Google, or your
+company identity provider. It is rather easy, <a class="reference internal" href="../../tutorials/authentication-github.html#tutorial-github"><span class="std std-ref">follow our tutorial</span></a>!</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>If you believe that Kinto must provide some third parties providers by default,
+please come reach us!</p>
+<p class="last">There are many tools in the Python/Pyramid ecosystem, it is probably just
+a matter of documenting their setup.</p>
+</div>
+</div>
+<div class="section" id="multiple-policies">
+<h3>Multiple policies<a class="headerlink" href="#multiple-policies" title="Permalink to this headline">¶</a></h3>
+<p>It is possible to enable several authentication methods.
+See <a class="reference internal" href="../../configuration/settings.html#configuration-authentication"><span class="std std-ref">configuration</span></a>.</p>
+<p>In the current implementation, when multiple policies are configured,
+the first one in the list that succeeds is picked.</p>
+<p><a class="reference internal" href="../../core/glossary.html#term-user-identifiers"><span class="xref std std-term">User identifiers</span></a> are prefixed with the policy name being used.</p>
+</div>
+</div>
+<div class="section" id="basic-auth">
+<h2>Basic Auth<a class="headerlink" href="#basic-auth" title="Permalink to this headline">¶</a></h2>
+<p>In most examples in this documentation we use the built-in Basic Authentication,
+which computes a user id based on the token provided in the request.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">This method has many limitations but has the advantage of not needing
+specific setup or third-party services before you get started.</p>
+</div>
+<p>When using arbitrary tokens make sure that:</p>
+<blockquote>
+<div><ul class="simple">
+<li>each user has a different one;</li>
+<li>a user always uses the same token.</li>
+</ul>
+</div></blockquote>
+<div class="section" id="how-to-authenticate-with-basic-auth">
+<h3>How to Authenticate with Basic Auth?<a class="headerlink" href="#how-to-authenticate-with-basic-auth" title="Permalink to this headline">¶</a></h3>
+<p>Depending on configuration (<em>enabled by default</em>), using a <em>Basic Auth</em> token
+will associate a unique <a class="reference internal" href="../../core/glossary.html#term-user-identifier"><span class="xref std std-term">user identifier</span></a> to any username/password combination.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">Authorization</span><span class="p">:</span> <span class="n">Basic</span> <span class="o">&lt;</span><span class="n">basic_token</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>The token shall be built using this formula <code class="docutils literal"><span class="pre">base64(&quot;token:&lt;secret&gt;&quot;)</span></code>.</p>
+<p>Since any string is accepted, here we use <code class="docutils literal"><span class="pre">token</span></code> only by convention.
+Empty secrets are accepted and can be anything (custom, UUID, etc.)</p>
+<p>If the header has an invalid format, or if <em>Basic Auth</em> is not enabled,
+this will result in a <code class="docutils literal"><span class="pre">401</span> <span class="pre">Unauthorized</span></code> error response.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Since <a class="reference internal" href="../../core/glossary.html#term-user-id"><span class="xref std std-term">user id</span></a> is derived from the token, there is no way
+to change the token without &#8220;losing&#8221; permissions on existing records.
+See below for more information.</p>
+</div>
+</div>
+<div class="section" id="how-does-kinto-know-it-is-a-valid-basic-auth-token">
+<h3>How does Kinto know it is a valid Basic Auth token?<a class="headerlink" href="#how-does-kinto-know-it-is-a-valid-basic-auth-token" title="Permalink to this headline">¶</a></h3>
+<p>For each token, Kinto will calculate a unique user ID which is
+related to your Kinto instance. It uses a bit of cryptography and the value of
+the <code class="docutils literal"><span class="pre">user_hmac_secret</span></code> setting.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Two Kinto instances using the same <code class="docutils literal"><span class="pre">user_hmac_secret</span></code> will
+generate the same user ID for a given Basic Auth token.</p>
+</div>
+<p>You can obtain the <a class="reference internal" href="../../core/glossary.html#term-user-id"><span class="xref std std-term">user ID</span></a> generated for your token on the <a class="reference internal" href="utilities.html#api-utilities"><span class="std std-ref">Kinto root URL</span></a>:</p>
+<div class="highlight-shell"><div class="highlight"><pre><span></span>$ http https://kinto.dev.mozaws.net/v1/ --auth <span class="s2">&quot;token:my-secret&quot;</span>
+</pre></div>
+</div>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Access-Control-Expose-Headers</span><span class="o">:</span> <span class="l">Retry-After, Content-Length, Alert, Backoff</span>
+<span class="na">Connection</span><span class="o">:</span> <span class="l">keep-alive</span>
+<span class="na">Content-Length</span><span class="o">:</span> <span class="l">498</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json; charset=UTF-8</span>
+<span class="na">Date</span><span class="o">:</span> <span class="l">Fri, 29 Jan 2016 09:13:33 GMT</span>
+<span class="na">Server</span><span class="o">:</span> <span class="l">nginx</span>
+
+<span class="p">{</span>
+    <span class="nt">&quot;http_api_version&quot;</span><span class="p">:</span> <span class="s2">&quot;1.0&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;project_docs&quot;</span><span class="p">:</span> <span class="s2">&quot;https://kinto.readthedocs.io/&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;project_name&quot;</span><span class="p">:</span> <span class="s2">&quot;kinto&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;project_version&quot;</span><span class="p">:</span> <span class="s2">&quot;1.10.0&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;settings&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;attachment.base_url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://kinto.dev.mozaws.net/attachments/&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;batch_max_requests&quot;</span><span class="p">:</span> <span class="mi">25</span><span class="p">,</span>
+        <span class="nt">&quot;readonly&quot;</span><span class="p">:</span> <span class="kc">false</span>
+    <span class="p">},</span>
+    <span class="nt">&quot;url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://kinto.dev.mozaws.net/v1/&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;user&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;bucket&quot;</span><span class="p">:</span> <span class="s2">&quot;e777874f-2936-11a1-3269-68a6c1648a92&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;basicauth:c635be9375673027e9b2f357a3955a0a46b58aeface61930838b61e946008ab0&quot;</span>
+    <span class="p">}</span>
+<span class="hll"><span class="p">}</span>
+</span></pre></div>
+</div>
+<p>As soon as this user ID is used to give permission on an object
+(buckets, groups, collections, records), the user will be granted that
+permission when using this token.</p>
+</div>
+<div class="section" id="how-can-we-generate-strong-unique-tokens">
+<h3>How can we generate strong unique tokens?<a class="headerlink" href="#how-can-we-generate-strong-unique-tokens" title="Permalink to this headline">¶</a></h3>
+<p>For certain use cases, tokens can be public and shared publicly. For others, they must
+be kept secret.</p>
+<p>For the latter, we recommend using at least a 16 random bytes strings, such as UUIDs:</p>
+<p>Using the <code class="docutils literal"><span class="pre">uuidgen</span></code> CLI tool:</p>
+<div class="highlight-shell"><div class="highlight"><pre><span></span>$ uuidgen
+3a96294b-4e75-4e32-958d-fea44f2fe5aa
+</pre></div>
+</div>
+<p>Using Python:</p>
+<div class="highlight-pycon"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">uuid</span> <span class="kn">import</span> <span class="n">uuid4</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">uuid4</span><span class="p">())</span>
+<span class="go">6f8dfa43-668c-4e5c-89bc-eaabcb866342</span>
+</pre></div>
+</div>
+<p>Using Node:</p>
+<div class="highlight-js"><div class="highlight"><pre><span></span><span class="o">&gt;</span> <span class="kd">var</span> <span class="nx">uuid</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;node-uuid&#39;</span><span class="p">);</span>
+<span class="o">&gt;</span> <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">uuid</span><span class="p">.</span><span class="nx">v4</span><span class="p">());</span>
+<span class="mi">0</span><span class="nx">a859a0e</span><span class="o">-</span><span class="mi">4</span><span class="nx">e6e</span><span class="o">-</span><span class="mi">4014</span><span class="o">-</span><span class="mi">896</span><span class="nx">a</span><span class="o">-</span><span class="nx">aa85d9587c48</span>
+</pre></div>
+</div>
+<p>Then the string obtained can be used as it is:</p>
+<div class="highlight-shell"><div class="highlight"><pre><span></span>$ http GET https://kinto.dev.mozaws.net/v1/ <span class="se">\</span>
+    --auth <span class="s2">&quot;token:6f8dfa43-668c-4e5c-89bc-eaabcb866342&quot;</span>
+</pre></div>
+</div>
+<p>And observe the user ID in the response.</p>
+</div>
+<div class="section" id="how-can-i-change-the-token-for-a-given-user">
+<h3>How can I change the token for a given user?<a class="headerlink" href="#how-can-i-change-the-token-for-a-given-user" title="Permalink to this headline">¶</a></h3>
+<p>Asking yourself this question is a first sign that you should not be
+using the Basic Auth authentication method for your use case.</p>
+<p>Because the user ID is computed from the token, changing the token
+will change the user ID.</p>
+<p>Some possible strategies:</p>
+<ul class="simple">
+<li>You can generate new tokens and give the <code class="docutils literal"><span class="pre">write</span></code> permission to their
+respective user id.</li>
+<li>You can also create a group per « user » whose members are the different
+user IDs obtained from tokens. And then use this group in permission
+definitions on objects.</li>
+<li>Most likely, you would use an identity provider which will be in
+charge of user and token management (generate, refresh, validate, ...).
+<a class="reference external" href="https://django-oauth-toolkit.readthedocs.io/en/latest/tutorial/tutorial_01.html">See this example with Django</a>.</li>
+</ul>
+<p>You can also read our <a class="reference internal" href="../../tutorials/authentication-github.html#tutorial-github"><span class="std std-ref">tutorial about how to plug the Github authorisation backend</span></a>.</p>
+</div>
+</div>
+<div class="section" id="oauth-bearer-token">
+<h2>OAuth Bearer token<a class="headerlink" href="#oauth-bearer-token" title="Permalink to this headline">¶</a></h2>
+<p>If the configured authentication policy uses <em>OAuth2 bearer tokens</em>, authentication
+shall be done using this header:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">Authorization</span><span class="p">:</span> <span class="n">Bearer</span> <span class="o">&lt;</span><span class="n">oauth_token</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>The policy will verify the provided <em>OAuth2 bearer token</em> on a remote server.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">notes:</th><td class="field-body">If the token is not valid, this will result in a <code class="docutils literal"><span class="pre">401</span> <span class="pre">Unauthorized</span></code> error response.</td>
+</tr>
+</tbody>
+</table>
+<div class="section" id="firefox-accounts">
+<h3>Firefox Accounts<a class="headerlink" href="#firefox-accounts" title="Permalink to this headline">¶</a></h3>
+<p>In order to enable authentication with <a class="reference internal" href="../../core/glossary.html#term-firefox-accounts"><span class="xref std std-term">Firefox Accounts</span></a>, install and
+configure <a class="reference external" href="https://github.com/mozilla-services/kinto-fxa/">mozilla-services/kinto-fxa</a>.</p>
+</div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="buckets.html" class="btn btn-neutral float-right" title="Buckets" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="index.html" class="btn btn-neutral" title="1.x" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2015-2016 — Mozilla Services.
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+
+  
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        var disqus_shortname = 'kinto-docs';
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+  
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'4.3.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+      <script type="text/javascript" src="../../_static/piwik.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

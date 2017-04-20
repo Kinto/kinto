@@ -1,0 +1,635 @@
+
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>FAQ &mdash; Kinto 4.3.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="_static/theme_overrides.css" type="text/css" />
+  
+    <link rel="stylesheet" href="_static/css/style.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="Kinto 4.3.1 documentation" href="index.html"/>
+        <link rel="next" title="Troubleshooting" href="troubleshooting.html"/>
+        <link rel="prev" title="Command Line" href="commandline.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Kinto
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                4.3
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="kinto-admin.html">Kinto Web Administration Console</a></li>
+<li class="toctree-l1"><a class="reference internal" href="concepts.html">Concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="community.html">Community</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="configuration/index.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/index.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="commandline.html">Command Line</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">FAQ</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#how-does-kinto-compare-to-other-solutions">How does Kinto compare to other solutions?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#why-the-name-kinto">Why the name «Kinto»?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#i-am-seeing-an-exception-error-what-s-wrong">I am seeing an Exception error, what&#8217;s wrong?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#can-i-encrypt-my-data">Can I encrypt my data?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#is-there-a-package-for-my-operating-system">Is there a package for my Operating System?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#why-did-you-chose-to-use-python-rather-than-x">Why did you chose to use Python rather than X?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#is-it-web-scale">Is it Web Scale?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#can-i-store-files-inside-kinto">Can I store files inside Kinto?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#i-want-to-add-business-logic-to-kinto">I want to add business logic to Kinto!</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#how-does-kinto-authenticate-users">How does Kinto authenticate users?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#how-to-disable-the-permissions-system-for-development">How to disable the permissions system (for development)?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#if-two-users-modify-the-same-collection-offline-how-does-that-conflict-get-resolved">If two users modify the same collection offline, how does that conflict get resolved?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#would-you-recommend-redis-or-postgresql">Would you recommend Redis or PostgreSQL?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#why-postgresql-to-store-arbitrary-json">Why PostgreSQL to store arbitrary JSON?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#why-did-you-chose-to-use-pyramid-rather-than-x">Why did you chose to use Pyramid rather than X?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#what-about-aggregation-reporting-around-data-is-kinto-ready-for-that">What about aggregation/reporting around data, is Kinto ready for that?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#say-i-wanted-to-move-all-my-kinto-data-out-of-the-database-would-the-best-way-to-be-via-the-backend">Say I wanted to move all my Kinto data out of the database, would the best way to be via the backend?</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="core/glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="core/index.html">Kinto Core</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">Kinto</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>FAQ</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/faq.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="faq">
+<span id="id1"></span><h1>FAQ<a class="headerlink" href="#faq" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="how-does-kinto-compare-to-other-solutions">
+<h2>How does Kinto compare to other solutions?<a class="headerlink" href="#how-does-kinto-compare-to-other-solutions" title="Permalink to this headline">¶</a></h2>
+<p>Before we started building our own data storage service, we took a look at what
+was already out there. Our initial intent was to use and possibly extend
+an existing community project rather than reinventing the wheel.</p>
+<p>However, since none of the existing solutions we tried was a perfect fit for the
+problems we needed to solve, notably regarding fine-grained permissions, we started
+our own stack using the experience we gained from building Firefox Sync.</p>
+<p>What follows is a comparison table showing how Kinto stacks up compared to some
+other projects in this space.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="30%" />
+<col width="7%" />
+<col width="7%" />
+<col width="9%" />
+<col width="8%" />
+<col width="8%" />
+<col width="15%" />
+<col width="8%" />
+<col width="10%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>Project</td>
+<td>Kinto</td>
+<td>Parse</td>
+<td>Firebase</td>
+<td>CouchDB</td>
+<td>Kuzzle</td>
+<td>Remote-Storage</td>
+<td>Hoodie</td>
+<td>BrowserFS</td>
+</tr>
+<tr class="row-even"><td>Offline-first client</td>
+<td>✔</td>
+<td>✔</td>
+<td>✔</td>
+<td>✔</td>
+<td>✔</td>
+<td>✔</td>
+<td>✔</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td>Fine-grained permissions</td>
+<td>✔</td>
+<td>✔</td>
+<td>✔</td>
+<td>&nbsp;</td>
+<td>~</td>
+<td>&nbsp;</td>
+<td><a class="footnote-reference" href="#id9" id="id2">[1]</a></td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-even"><td>Easy query mechanism</td>
+<td>✔</td>
+<td>✔</td>
+<td>✔</td>
+<td><a class="footnote-reference" href="#id10" id="id3">[2]</a></td>
+<td>✔</td>
+<td><a class="footnote-reference" href="#id11" id="id4">[3]</a></td>
+<td>✔</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td>Conflict resolution</td>
+<td>✔</td>
+<td>✔</td>
+<td>✔</td>
+<td>✔</td>
+<td>✔</td>
+<td>✔ <a class="footnote-reference" href="#id12" id="id5">[4]</a></td>
+<td>✔</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-even"><td>Validation</td>
+<td>✔</td>
+<td>✔</td>
+<td>✔</td>
+<td>✔</td>
+<td>✔</td>
+<td>&nbsp;</td>
+<td>✔</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td>Revision history</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>✔</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>✔</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-even"><td>File storage</td>
+<td>✔</td>
+<td>✔</td>
+<td>&nbsp;</td>
+<td>✔</td>
+<td>&nbsp;</td>
+<td>✔</td>
+<td>✔</td>
+<td>✔</td>
+</tr>
+<tr class="row-odd"><td>Batch/bulk operations</td>
+<td>✔</td>
+<td>✔</td>
+<td>&nbsp;</td>
+<td>✔</td>
+<td>✔</td>
+<td>&nbsp;</td>
+<td>✔</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-even"><td>Changes stream</td>
+<td>✔</td>
+<td>✔</td>
+<td>✔</td>
+<td>✔</td>
+<td>✔</td>
+<td>&nbsp;</td>
+<td>✔</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td>Pluggable authentication</td>
+<td>✔</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>✔</td>
+<td>&nbsp;</td>
+<td><a class="footnote-reference" href="#id13" id="id6">[5]</a></td>
+<td>✔</td>
+<td>✔</td>
+</tr>
+<tr class="row-even"><td>Pluggable storage / cache</td>
+<td>✔</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>✔</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td>Self-hostable</td>
+<td>✔</td>
+<td>✔</td>
+<td>&nbsp;</td>
+<td>✔</td>
+<td>✔</td>
+<td>✔</td>
+<td>✔</td>
+<td>✔</td>
+</tr>
+<tr class="row-even"><td>Decentralised discovery</td>
+<td><a class="footnote-reference" href="#id14" id="id7">[6]</a></td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>✔</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td>Open source</td>
+<td>✔</td>
+<td>✔</td>
+<td>&nbsp;</td>
+<td>✔</td>
+<td>✔</td>
+<td>✔</td>
+<td>✔</td>
+<td>✔</td>
+</tr>
+<tr class="row-even"><td>Language</td>
+<td>Python</td>
+<td>&nbsp;</td>
+<td>&nbsp;</td>
+<td>Erlang</td>
+<td>Node.js</td>
+<td>Node.js <a class="footnote-reference" href="#id15" id="id8">[7]</a></td>
+<td>Node.js</td>
+<td>Node.js</td>
+</tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id9" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id2">[1]</a></td><td>Currently, user plugin in Hoodie auto-approves users, but they are working on it.</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id10" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id3">[2]</a></td><td>CouchDB uses Map/Reduce as a query mechanism, which isn&#8217;t easy to
+understand for newcomers.</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id11" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id4">[3]</a></td><td>Remote Storage allows &#8220;ls&#8221; on a folder, but items are not sorted or
+paginated.</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id12" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id5">[4]</a></td><td>Kinto uses the same mechanisms as Remote storage for conflict handling.</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id13" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id6">[5]</a></td><td>Remote Storage supports OAuth2.0 implicit grant flow.</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id14" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id7">[6]</a></td><td>Support for decentralised discovery
+<a class="reference external" href="https://github.com/Kinto/kinto/issues/125">is planned</a> but not
+implemented yet.</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id15" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id8">[7]</a></td><td>Remote Storage doesn&#8217;t define any default implementation (as it is
+a procol) but makes it easy to start with JavaScript and Node.js.</td></tr>
+</tbody>
+</table>
+<p>You can also read <a class="reference external" href="http://www.servicedenuages.fr/en/generic-storage-ecosystem">a longer explanation of our choices and motivations behind the
+creation of Kinto</a>
+on our blog.</p>
+</div>
+<div class="section" id="why-the-name-kinto">
+<h2>Why the name «Kinto»?<a class="headerlink" href="#why-the-name-kinto" title="Permalink to this headline">¶</a></h2>
+<p>«<em>Kinto-Un</em>» is the name of the <a class="reference external" href="http://dragonball.wikia.com/wiki/Flying_Nimbus">flying nimbus of San Goku</a>.
+It is a small personal cloud, that flies at high speed and that you can share with
+pure heart riders :)</p>
+</div>
+<div class="section" id="i-am-seeing-an-exception-error-what-s-wrong">
+<h2>I am seeing an Exception error, what&#8217;s wrong?<a class="headerlink" href="#i-am-seeing-an-exception-error-what-s-wrong" title="Permalink to this headline">¶</a></h2>
+<p>Have a look at the <a class="reference internal" href="troubleshooting.html#id1"><span class="std std-ref">Troubleshooting section</span></a> to
+see what to do.</p>
+</div>
+<div class="section" id="can-i-encrypt-my-data">
+<h2>Can I encrypt my data?<a class="headerlink" href="#can-i-encrypt-my-data" title="Permalink to this headline">¶</a></h2>
+<p>Kinto server stores any data you pass to it, whether it&#8217;s encrypted or not. We believe
+encryption should always be done on the client-side, and we make it <a class="reference external" href="http://www.servicedenuages.fr/en/kinto-encryption-example">easy to use encryption in our Kinto.js client</a>.</p>
+</div>
+<div class="section" id="is-there-a-package-for-my-operating-system">
+<h2>Is there a package for my Operating System?<a class="headerlink" href="#is-there-a-package-for-my-operating-system" title="Permalink to this headline">¶</a></h2>
+<p>No, but it&#8217;s a great idea. Maintaining packages for several platforms is time-consuming
+and we&#8217;re a small team.</p>
+<p>Currently we make sure it&#8217;s <a class="reference internal" href="tutorials/install.html#install"><span class="std std-ref">easy to run with Docker or Python pip</span></a>.</p>
+<p>We also have a <a class="reference internal" href="tutorials/install.html#deploy-an-instance"><span class="std std-ref">single-click deployment</span></a> on some cloud providers.</p>
+<div class="admonition important">
+<p class="first admonition-title">Important</p>
+<p class="last">If you&#8217;d like to help us out by maintaining packages for your favourite OS,
+we&#8217;d be delighted to collaborate with you!</p>
+</div>
+</div>
+<div class="section" id="why-did-you-chose-to-use-python-rather-than-x">
+<h2>Why did you chose to use Python rather than X?<a class="headerlink" href="#why-did-you-chose-to-use-python-rather-than-x" title="Permalink to this headline">¶</a></h2>
+<p>We love <a class="reference external" href="https://python.org">Python</a> because it&#8217;s a concise &amp; expressive
+language with powerful data structures &amp; easy to learn,
+so it was an obvious choice for the development team.</p>
+<p>In addition, the Operations team at Mozilla is comfortable with deploying and
+managing Python applications in production.</p>
+<p>However, Python is just an implementation detail <em>per se</em>. Kinto is
+defined by an HTTP API that could be implemented in any language.</p>
+</div>
+<div class="section" id="is-it-web-scale">
+<h2>Is it Web Scale?<a class="headerlink" href="#is-it-web-scale" title="Permalink to this headline">¶</a></h2>
+<p>YES™. Have a look at the <code class="docutils literal"><span class="pre">/dev/null</span></code> backend. ;-)</p>
+</div>
+<div class="section" id="can-i-store-files-inside-kinto">
+<h2>Can I store files inside Kinto?<a class="headerlink" href="#can-i-store-files-inside-kinto" title="Permalink to this headline">¶</a></h2>
+<p>Yes, using the <a class="reference external" href="https://github.com/Kinto/kinto-attachment/">Kinto/kinto-attachment</a> plugin.</p>
+</div>
+<div class="section" id="i-want-to-add-business-logic-to-kinto">
+<h2>I want to add business logic to Kinto!<a class="headerlink" href="#i-want-to-add-business-logic-to-kinto" title="Permalink to this headline">¶</a></h2>
+<p>By default, Kinto has no domain-specific logic. When we need some, we usually
+start by <a class="reference internal" href="tutorials/write-plugin.html#tutorial-write-plugin"><span class="std std-ref">writing a plugin</span></a>.</p>
+<p>Plugins can hook in many parts of the API. Events subscribers are the most frequently
+used hooks, and allow you to perform extra checks or operations, or even raise HTTP
+exceptions if necessary. Plugins can also add new URLs to the API etc.</p>
+<p>If you eventually hit a point where you need even more logic on the server
+side, you can build your own Kinto-esque service using the REST resources abstractions
+from <a class="reference internal" href="core/index.html#kinto-core"><span class="std std-ref">kinto.core</span></a>. In this way, your service will inherit all the best
+practices and conventions that Kinto itself has, and you can seamlessly migrate.</p>
+<p>Maybe Kinto is not what you need after all, <a class="reference internal" href="community.html#community"><span class="std std-ref">don&#8217;t hesitate to start a conversation</span></a>!</p>
+</div>
+<div class="section" id="how-does-kinto-authenticate-users">
+<h2>How does Kinto authenticate users?<a class="headerlink" href="#how-does-kinto-authenticate-users" title="Permalink to this headline">¶</a></h2>
+<p>Kinto authentication system is pluggable and controlled from settings.</p>
+<p>By default it ships with a very simple (but limited) <em>Basic Authentication</em> policy, which
+distinguishes users using the value provided in the header. In other words, any
+combination of user:password will be accepted. Kinto will encrypt them and determine a
+unique <a class="reference internal" href="core/glossary.html#term-user-id"><span class="xref std std-term">user id</span></a> from them.</p>
+<p>See also:</p>
+<ul class="simple">
+<li><a class="reference internal" href="tutorials/authentication-github.html#tutorial-github"><span class="std std-ref">How to implement a custom authentication</span></a></li>
+<li><a class="reference internal" href="api/1.x/authentication.html#id1"><span class="std std-ref">Kinto API documentation about authentication</span></a></li>
+</ul>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">We&#8217;d be delighted to add more built-in authentication methods into Kinto.
+Please reach out if you&#8217;re interested!</p>
+</div>
+</div>
+<div class="section" id="how-to-disable-the-permissions-system-for-development">
+<h2>How to disable the permissions system (for development)?<a class="headerlink" href="#how-to-disable-the-permissions-system-for-development" title="Permalink to this headline">¶</a></h2>
+<p>By default, only the creator of the object has permission to write into it.</p>
+<p>During development, it can be convenient to give the permission to write to
+any user.</p>
+<p>Just create the bucket (or the collection) with <code class="docutils literal"><span class="pre">system.Everyone</span></code> in the
+<code class="docutils literal"><span class="pre">write</span></code> principals. For example, using <code class="docutils literal"><span class="pre">httpie</span></code>:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span><span class="nb">echo</span> <span class="s1">&#39;{&quot;permissions&quot;: {&quot;write&quot;: [&quot;system.Everyone&quot;]}}&#39;</span> <span class="p">|</span> <span class="se">\</span>
+    http PUT http://localhost:8888/v1/buckets/a-bucket --auth user:pass
+</pre></div>
+</div>
+</div>
+<div class="section" id="if-two-users-modify-the-same-collection-offline-how-does-that-conflict-get-resolved">
+<h2>If two users modify the same collection offline, how does that conflict get resolved?<a class="headerlink" href="#if-two-users-modify-the-same-collection-offline-how-does-that-conflict-get-resolved" title="Permalink to this headline">¶</a></h2>
+<p>When using <a class="reference internal" href="api/1.x/timestamps.html#concurrency-control"><span class="std std-ref">concurrency control</span></a> request headers,
+the conflicting operation will be rejected by the server.</p>
+<p>The application developer can implement custom conflict resolution strategies,
+using the <a class="reference internal" href="api/1.x/errors.html#error-responses-precondition"><span class="std std-ref">two versions of the object</span></a>,
+or the <a class="reference internal" href="api/1.x/history.html#api-history"><span class="std std-ref">history of actions</span></a> of that object.</p>
+<p>Some helpers are provided in the <a class="reference external" href="https://github.com/Kinto/kinto.js/">Kinto/kinto.js</a> client. The three
+provided conflict resolution strategies are:</p>
+<ul class="simple">
+<li>SERVER_WINS: local changes are overridden by remote ones ;</li>
+<li>CLIENT_WINS: remote changes are overriden by local ones ;</li>
+<li>MANUAL (default): handle them on your own.</li>
+</ul>
+<p>Then there is, of course, a <a class="reference external" href="https://kintojs.readthedocs.io/en/latest/api/#resolving-conflicts-manually">convenient helper to handle conflict one by one</a>.</p>
+</div>
+<div class="section" id="would-you-recommend-redis-or-postgresql">
+<h2>Would you recommend Redis or PostgreSQL?<a class="headerlink" href="#would-you-recommend-redis-or-postgresql" title="Permalink to this headline">¶</a></h2>
+<p>You can use both of them:</p>
+<ul class="simple">
+<li><em>Redis</em> is usually easier to install and run than PostgreSQL. But you will have a
+database running in memory which means your data should be smaller than your server RAM.
+<em>Redis</em> is great for the <code class="docutils literal"><span class="pre">cache</span></code> backend.</li>
+<li><em>PostgreSQL</em> is the recommended backend for <code class="docutils literal"><span class="pre">storage</span></code> and <code class="docutils literal"><span class="pre">permission</span></code> in production.
+Mainly because data integrity is guaranteed, thanks to «per-request» transactions.
+It&#8217;s also usually easier to backup and export data out of a PostgreSQL database.</li>
+</ul>
+</div>
+<div class="section" id="why-postgresql-to-store-arbitrary-json">
+<h2>Why PostgreSQL to store arbitrary JSON?<a class="headerlink" href="#why-postgresql-to-store-arbitrary-json" title="Permalink to this headline">¶</a></h2>
+<p><em>Kinto</em> backends are pluggable.</p>
+<p>We provide an implementation for PostgreSQL that relies on <code class="docutils literal"><span class="pre">JSONB</span></code> (version &gt;=9.4).
+It is very performant, allows sorting/filtering on arbitrary JSON fields, the
+eco-system is rich and strong, and above all it is a rock-solid standard.</p>
+<p>If you prefer MongoDB, RethinkDB or X, don&#8217;t hesitate to start a storage, permission or
+cache backend, we&#8217;ll be delighted to give you a hand!</p>
+</div>
+<div class="section" id="why-did-you-chose-to-use-pyramid-rather-than-x">
+<h2>Why did you chose to use Pyramid rather than X?<a class="headerlink" href="#why-did-you-chose-to-use-pyramid-rather-than-x" title="Permalink to this headline">¶</a></h2>
+<p>Flask or Django Rest Framework could have been very good candidates!</p>
+<p>We chose the Pyramid framework because we like <a class="reference external" href="http://kinto.github.io/kinto-slides/2016.07.pybcn/index.html#slide25">its flexibility and extensibility</a>.
+Plus, we could <a class="reference internal" href="concepts.html#technical-architecture"><span class="std std-ref">leverage Cornice helpers</span></a>, which
+bring HTTP best practices out-of-the-box.</p>
+</div>
+<div class="section" id="what-about-aggregation-reporting-around-data-is-kinto-ready-for-that">
+<h2>What about aggregation/reporting around data, is Kinto ready for that?<a class="headerlink" href="#what-about-aggregation-reporting-around-data-is-kinto-ready-for-that" title="Permalink to this headline">¶</a></h2>
+<p>This is not available from the main API — and probably never will.</p>
+<p>However, this is something that can be done aside or on top of Kinto.</p>
+<p>For example, you could use ElasticSearch. There is <a class="reference internal" href="tutorials/write-plugin.html#tutorial-write-plugin"><span class="std std-ref">tutorial for that</span></a>!</p>
+<p>Also, if you use PostgreSQL for storage, you can create custom views in the database
+that can be consumed for custom reporting.</p>
+</div>
+<div class="section" id="say-i-wanted-to-move-all-my-kinto-data-out-of-the-database-would-the-best-way-to-be-via-the-backend">
+<h2>Say I wanted to move all my Kinto data out of the database, would the best way to be via the backend?<a class="headerlink" href="#say-i-wanted-to-move-all-my-kinto-data-out-of-the-database-would-the-best-way-to-be-via-the-backend" title="Permalink to this headline">¶</a></h2>
+<p>It really depends on how you setup things, and what kind of data is there. One really
+simple way is to use the HTTP API.  But depending the access you have to the user&#8217;s data,
+it might or might not be the solution you&#8217;re looking for. If you have access to the
+server, then  doing a dump would get you the data out, but it won&#8217;t be in any documented
+format (it will be in an internal representation).</p>
+<p>Nevertheless you can use the Kinto HTTP API to sync two databases.</p>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="troubleshooting.html" class="btn btn-neutral float-right" title="Troubleshooting" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="commandline.html" class="btn btn-neutral" title="Command Line" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2015-2016 — Mozilla Services.
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+
+  
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        var disqus_shortname = 'kinto-docs';
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+  
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'4.3.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="_static/piwik.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

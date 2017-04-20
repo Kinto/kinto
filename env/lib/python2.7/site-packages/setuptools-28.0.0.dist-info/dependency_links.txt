@@ -1,0 +1,2 @@
+https://pypi.python.org/packages/source/c/certifi/certifi-2016.8.31.tar.gz#md5=2f22d484a36d38d98be74f9eeb2846ec
+https://pypi.python.org/packages/source/w/wincertstore/wincertstore-0.2.zip#md5=ae728f2f007185648d0c7a8679b361e2

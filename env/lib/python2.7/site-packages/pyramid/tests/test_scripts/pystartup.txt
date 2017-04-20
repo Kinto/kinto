@@ -1,0 +1,3 @@
+# this file has a .txt extension to avoid coverage reports
+# since it is not imported but rather the contents are read and exec'd
+foo = 1

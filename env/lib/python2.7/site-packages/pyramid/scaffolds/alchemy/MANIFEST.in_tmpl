@@ -1,0 +1,2 @@
+include *.txt *.ini *.cfg *.rst
+recursive-include {{package}} *.ico *.png *.css *.gif *.jpg *.jinja2 *.pt *.txt *.mak *.mako *.js *.html *.xml

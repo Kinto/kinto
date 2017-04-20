@@ -1,0 +1,408 @@
+
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Notifications &mdash; Kinto 4.3.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="../_static/theme_overrides.css" type="text/css" />
+  
+    <link rel="stylesheet" href="../_static/css/style.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="Kinto 4.3.1 documentation" href="../index.html"/>
+        <link rel="up" title="Kinto Core" href="index.html"/>
+        <link rel="next" title="Permissions" href="permission.html"/>
+        <link rel="prev" title="Cache" href="cache.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> Kinto
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                4.3
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../kinto-admin.html">Kinto Web Administration Console</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../concepts.html">Concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../community.html">Community</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configuration/index.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/index.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../commandline.html">Command Line</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="glossary.html">Glossary</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Kinto Core</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="rationale.html">Rationale</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html">Getting started</a></li>
+<li class="toctree-l2"><a class="reference internal" href="resource.html">Resource</a></li>
+<li class="toctree-l2"><a class="reference internal" href="viewsets.html">Viewsets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="storage.html">Storage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cache.html">Cache</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Notifications</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#transactions">Transactions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#filtering">Filtering</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#payload">Payload</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#event-listeners">Event listeners</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="permission.html">Permissions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="errors.html">Errors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="testing.html">Testing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html">Utils</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">Kinto</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="index.html">Kinto Core</a> &raquo;</li>
+      
+    <li>Notifications</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/core/notifications.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="notifications">
+<span id="id1"></span><h1>Notifications<a class="headerlink" href="#notifications" title="Permalink to this headline">¶</a></h1>
+<p>Knowing some records have been modified in a resource is very
+useful to integrate a Kinto-Core-based application with other services.</p>
+<p>For example, a search service that gets notified everytime something
+has changed, can continuously update its index.</p>
+<p>Kinto-Core leverages Pyramid&#8217;s built-in event system and produces the following
+events:</p>
+<ul>
+<li><p class="first"><a class="reference internal" href="#kinto.core.events.ResourceRead" title="kinto.core.events.ResourceRead"><code class="xref py py-class docutils literal"><span class="pre">kinto.core.events.ResourceRead</span></code></a>: a read operation occured on the resource.</p>
+</li>
+<li><p class="first"><a class="reference internal" href="#kinto.core.events.ResourceChanged" title="kinto.core.events.ResourceChanged"><code class="xref py py-class docutils literal"><span class="pre">kinto.core.events.ResourceChanged</span></code></a>: a resource <strong>is being changed</strong>. This
+event occurs synchronously within the transaction and within the
+request/response cycle. Commit is not yet done and rollback is still possible.</p>
+<p>Subscribers of this event are likely to perform database operations,
+alter the server response, or cancel the transaction (by raising an HTTP
+exception for example).
+Do not subscribe to this event for operations that will not be rolled-back
+automatically.</p>
+</li>
+<li><p class="first"><a class="reference internal" href="#kinto.core.events.AfterResourceChanged" title="kinto.core.events.AfterResourceChanged"><code class="xref py py-class docutils literal"><span class="pre">kinto.core.events.AfterResourceChanged</span></code></a>: a resource <strong>was changed</strong> and
+<strong>committed</strong>.</p>
+<p>Subscribers of this event can fail, errors are swallowed and logged. The
+final transaction result (or response) cannot be altered.</p>
+<p>Subscribers of this event are likely to perform irreversible actions that
+requires data to be committed in database
+(like sending messages, deleting files on disk, or run asynchronous tasks).</p>
+</li>
+</ul>
+<p>Event subscribers can then pick up those events and act upon them.</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">kinto.core.events</span> <span class="kn">import</span> <span class="n">AfterResourceChanged</span>
+
+
+<span class="k">def</span> <span class="nf">on_resource_changed</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">change</span> <span class="ow">in</span> <span class="n">event</span><span class="o">.</span><span class="n">impacted_records</span><span class="p">:</span>
+        <span class="n">start_download</span><span class="p">(</span><span class="n">change</span><span class="p">[</span><span class="s1">&#39;new&#39;</span><span class="p">][</span><span class="s1">&#39;url&#39;</span><span class="p">])</span>
+
+<span class="n">config</span><span class="o">.</span><span class="n">add_subscriber</span><span class="p">(</span><span class="n">on_resource_changed</span><span class="p">,</span> <span class="n">AfterResourceChanged</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="class">
+<dt id="kinto.core.events.ResourceRead">
+<em class="property">class </em><code class="descclassname">kinto.core.events.</code><code class="descname">ResourceRead</code><span class="sig-paren">(</span><em>payload</em>, <em>read_records</em>, <em>request</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.events.ResourceRead" title="Permalink to this definition">¶</a></dt>
+<dd><p>Triggered when a resource is being read.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="kinto.core.events.ResourceChanged">
+<em class="property">class </em><code class="descclassname">kinto.core.events.</code><code class="descname">ResourceChanged</code><span class="sig-paren">(</span><em>payload</em>, <em>impacted_records</em>, <em>request</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.events.ResourceChanged" title="Permalink to this definition">¶</a></dt>
+<dd><p>Triggered when a resource is being changed.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="kinto.core.events.AfterResourceChanged">
+<em class="property">class </em><code class="descclassname">kinto.core.events.</code><code class="descname">AfterResourceChanged</code><span class="sig-paren">(</span><em>payload</em>, <em>impacted_records</em>, <em>request</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.events.AfterResourceChanged" title="Permalink to this definition">¶</a></dt>
+<dd><p>Triggered after a resource was successfully changed.</p>
+</dd></dl>
+
+<div class="section" id="transactions">
+<h2>Transactions<a class="headerlink" href="#transactions" title="Permalink to this headline">¶</a></h2>
+<p>Only one event is sent per transaction, per resource and per action.</p>
+<p>In other words, if every requests of a <a class="reference internal" href="../api/1.x/batch.html#batch"><span class="std std-ref">batch requests</span></a>
+perform the same action on the same resource, only one event will be sent.</p>
+<p>The <code class="docutils literal"><span class="pre">AfterResourceChanged</span></code> is sent only if the transaction was comitted
+successfully.</p>
+<p>It is possible to cancel the current transaction by raising an HTTP Exception
+from a <code class="docutils literal"><span class="pre">ResourceChanged</span></code> event. For example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">kinto.core.events</span> <span class="kn">import</span> <span class="n">ResourceChanged</span>
+<span class="kn">from</span> <span class="nn">pyramid</span> <span class="kn">import</span> <span class="n">httpexceptions</span>
+
+<span class="k">def</span> <span class="nf">check_quota</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
+     <span class="n">max_quota</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">registry</span><span class="o">.</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;max_quota&#39;</span><span class="p">]</span>
+     <span class="k">if</span> <span class="n">check_quota</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">max_quota</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">httpexceptions</span><span class="o">.</span><span class="n">HTTPInsufficientStorage</span><span class="p">()</span>
+
+<span class="n">config</span><span class="o">.</span><span class="n">add_subscriber</span><span class="p">(</span><span class="n">check_quota</span><span class="p">,</span> <span class="n">ResourceChanged</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="filtering">
+<h2>Filtering<a class="headerlink" href="#filtering" title="Permalink to this headline">¶</a></h2>
+<p>It is possible to filter events based on its action or the name of the resource where
+it occured.</p>
+<p>For example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">kinto.core.events</span> <span class="kn">import</span> <span class="n">ResourceChanged</span><span class="p">,</span> <span class="n">ACTIONS</span>
+
+<span class="n">config</span><span class="o">.</span><span class="n">add_subscriber</span><span class="p">(</span><span class="n">on_mushroom_changed</span><span class="p">,</span> <span class="n">ResourceChanged</span><span class="p">,</span> <span class="n">for_resources</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;mushroom&#39;</span><span class="p">,))</span>
+<span class="n">config</span><span class="o">.</span><span class="n">add_subscriber</span><span class="p">(</span><span class="n">on_record_deleted</span><span class="p">,</span> <span class="n">ResourceChanged</span><span class="p">,</span> <span class="n">for_actions</span><span class="o">=</span><span class="p">(</span><span class="n">ACTIONS</span><span class="o">.</span><span class="n">DELETE</span><span class="p">,))</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="payload">
+<h2>Payload<a class="headerlink" href="#payload" title="Permalink to this headline">¶</a></h2>
+<p>The <a class="reference internal" href="#kinto.core.events.ResourceChanged" title="kinto.core.events.ResourceChanged"><code class="xref py py-class docutils literal"><span class="pre">kinto.core.events.ResourceChanged</span></code></a> and <a class="reference internal" href="#kinto.core.events.AfterResourceChanged" title="kinto.core.events.AfterResourceChanged"><code class="xref py py-class docutils literal"><span class="pre">kinto.core.events.AfterResourceChanged</span></code></a>
+events contain a <code class="docutils literal"><span class="pre">payload</span></code> attribute with the following information:</p>
+<ul class="simple">
+<li><strong>timestamp</strong>: the time of the event</li>
+<li><strong>action</strong>: what happened. &#8216;create&#8217;, &#8216;update&#8217; or &#8216;delete&#8217;</li>
+<li><strong>uri</strong>: the uri of the impacted resource</li>
+<li><strong>user_id</strong>: the authenticated user id</li>
+<li><strong>resource_name</strong>: the name of the impacted resouce (e.g. &#8216;article&#8217;, &#8216;bookmark&#8217;, bucket&#8217;,
+&#8216;group&#8217; etc.)</li>
+<li><strong>&lt;resource_name&gt;_id</strong>: id of the impacted record</li>
+<li><strong>&lt;matchdict value&gt;</strong>: every value matched by each URL pattern name (see
+<a class="reference external" href="http://docs.pylonsproject.org/projects/pyramid/en/latest/glossary.html#term-matchdict">Pyramid request matchdict</a>)</li>
+</ul>
+<p>And provides the list of affected records in the <code class="docutils literal"><span class="pre">impacted_records</span></code> attribute.
+This list contains dictionnaries with <code class="docutils literal"><span class="pre">new</span></code> and <code class="docutils literal"><span class="pre">old</span></code> keys. For creation
+events, only <code class="docutils literal"><span class="pre">new</span></code> is provided. For deletion events, only <code class="docutils literal"><span class="pre">old</span></code> is provided.
+This also allows listeners to react on particular field change or handle <em>diff</em>
+between versions.</p>
+<p>Example, when deleting a collection with two records:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">event</span><span class="o">.</span><span class="n">impacted_records</span>
+<span class="go">[{&#39;old&#39;: {&#39;deleted&#39;: True, &#39;last_modified&#39;: 1447240896769, &#39;id&#39;: u&#39;a1f4af60-ddf5-4c49-933f-4cfeff18ad07&#39;}},</span>
+<span class="go"> {&#39;old&#39;: {&#39;deleted&#39;: True, &#39;last_modified&#39;: 1447240896770, &#39;id&#39;: u&#39;7a6916aa-0ea1-42a7-9741-c24fe13cb70b&#39;}}]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="event-listeners">
+<h2>Event listeners<a class="headerlink" href="#event-listeners" title="Permalink to this headline">¶</a></h2>
+<p>It is possible for an application or a plugin to listen to events and execute
+some code. Triggered code on events is synchronously called when a request is handled.</p>
+<p><em>Kinto-Core</em> offers custom listeners that can be activated through configuration,
+so that every Kinto-Core-based application can benefit from <strong>pluggable listeners</strong>
+without using <cite>config.add_subscriber()</cite> explicitely.</p>
+<p>Currently, a simple built-in listener is available, that just delivers the
+events into a Redis queue, allowing asynchronous event handling:</p>
+<dl class="class">
+<dt id="kinto_redis.listeners.Listener">
+<em class="property">class </em><code class="descclassname">kinto_redis.listeners.</code><code class="descname">Listener</code><span class="sig-paren">(</span><em>client</em>, <em>listname</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto_redis.listeners.Listener" title="Permalink to this definition">¶</a></dt>
+<dd><p>A Redis-based event listener that simply pushes the events payloads into
+the specified Redis list as they happen.</p>
+<p>This listener allows actions to be performed asynchronously, using Redis
+Pub/Sub notifications, or scheduled inspections of the queue.</p>
+</dd></dl>
+
+<p>To activate it, look at <a class="reference internal" href="../configuration/settings.html#configuring-notifications"><span class="std std-ref">the dedicated configuration</span></a>.</p>
+<p>Implementing a custom listener consists on implementing the following
+interface:</p>
+<dl class="class">
+<dt id="kinto.core.listeners.ListenerBase">
+<em class="property">class </em><code class="descclassname">kinto.core.listeners.</code><code class="descname">ListenerBase</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.listeners.ListenerBase" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="kinto.core.listeners.ListenerBase.__call__">
+<code class="descname">__call__</code><span class="sig-paren">(</span><em>event</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.listeners.ListenerBase.__call__" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>event</strong> &#8211; Incoming event</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="permission.html" class="btn btn-neutral float-right" title="Permissions" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="cache.html" class="btn btn-neutral" title="Cache" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2015-2016 — Mozilla Services.
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+
+  
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        var disqus_shortname = 'kinto-docs';
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+  
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'4.3.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="../_static/piwik.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

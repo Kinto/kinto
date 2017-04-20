@@ -1,0 +1,376 @@
+
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Viewsets &mdash; Kinto 4.3.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="../_static/theme_overrides.css" type="text/css" />
+  
+    <link rel="stylesheet" href="../_static/css/style.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="Kinto 4.3.1 documentation" href="../index.html"/>
+        <link rel="up" title="Kinto Core" href="index.html"/>
+        <link rel="next" title="Storage" href="storage.html"/>
+        <link rel="prev" title="Resource" href="resource.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> Kinto
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                4.3
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../kinto-admin.html">Kinto Web Administration Console</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../concepts.html">Concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../community.html">Community</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configuration/index.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/index.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../commandline.html">Command Line</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="glossary.html">Glossary</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Kinto Core</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="rationale.html">Rationale</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html">Getting started</a></li>
+<li class="toctree-l2"><a class="reference internal" href="resource.html">Resource</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Viewsets</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#override-defaults">Override defaults</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#subclassing">Subclassing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#viewset-class">ViewSet class</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="storage.html">Storage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cache.html">Cache</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notifications.html">Notifications</a></li>
+<li class="toctree-l2"><a class="reference internal" href="permission.html">Permissions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="errors.html">Errors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="testing.html">Testing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html">Utils</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">Kinto</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="index.html">Kinto Core</a> &raquo;</li>
+      
+    <li>Viewsets</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/core/viewsets.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="viewsets">
+<span id="viewset"></span><h1>Viewsets<a class="headerlink" href="#viewsets" title="Permalink to this headline">¶</a></h1>
+<p><em>Kinto-Core</em> maps URLs, <a class="reference internal" href="glossary.html#term-endpoints"><span class="xref std std-term">endpoints</span></a> and <a class="reference internal" href="glossary.html#term-permissions"><span class="xref std std-term">permissions</span></a> to resources
+using <em>ViewSets</em>.</p>
+<p>Since a resource defines two URLs with several HTTP methods, a view set can
+be considered as a set of rules for registring the resource views into the
+routing mechanism of Pyramid.</p>
+<p>To use <em>Kinto-Core</em> in a basic fashion, there is no need to understand how
+viewsets work in full detail.</p>
+<div class="section" id="override-defaults">
+<h2>Override defaults<a class="headerlink" href="#override-defaults" title="Permalink to this headline">¶</a></h2>
+<p>Viewsets defaults can be overriden by passing arguments to the
+<a class="reference internal" href="resource.html#kinto.core.resource.register" title="kinto.core.resource.register"><code class="xref py py-func docutils literal"><span class="pre">kinto.core.resource.register()</span></code></a> class decorator:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">kinto.core</span> <span class="kn">import</span> <span class="n">resource</span>
+
+
+<span class="nd">@resource.register</span><span class="p">(</span><span class="n">collection_methods</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;GET&#39;</span><span class="p">,))</span>
+<span class="k">class</span> <span class="nc">Resource</span><span class="p">(</span><span class="n">resource</span><span class="o">.</span><span class="n">UserResource</span><span class="p">):</span>
+    <span class="n">mapping</span> <span class="o">=</span> <span class="n">BookmarkSchema</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="subclassing">
+<h2>Subclassing<a class="headerlink" href="#subclassing" title="Permalink to this headline">¶</a></h2>
+<p>In case this isn&#8217;t enough, the <a class="reference internal" href="#kinto.core.resource.viewset.ViewSet" title="kinto.core.resource.viewset.ViewSet"><code class="xref py py-class docutils literal"><span class="pre">kinto.core.resource.viewset.ViewSet</span></code></a> class
+can be subclassed and specified during registration:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">kinto.core</span> <span class="kn">import</span> <span class="n">resource</span>
+
+
+<span class="k">class</span> <span class="nc">NoSchemaViewSet</span><span class="p">(</span><span class="n">resource</span><span class="o">.</span><span class="n">ViewSet</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">get_record_schema</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resource_cls</span><span class="p">,</span> <span class="n">method</span><span class="p">):</span>
+        <span class="n">simple_mapping</span> <span class="o">=</span> <span class="n">colander</span><span class="o">.</span><span class="n">MappingSchema</span><span class="p">(</span><span class="n">unknown</span><span class="o">=</span><span class="s1">&#39;preserve&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">simple_mapping</span>
+
+<span class="hll">
+</span><span class="nd">@resource.register</span><span class="p">(</span><span class="n">viewset</span><span class="o">=</span><span class="n">NoSchemaViewSet</span><span class="p">())</span>
+<span class="k">class</span> <span class="nc">Resource</span><span class="p">(</span><span class="n">resource</span><span class="o">.</span><span class="n">UserResource</span><span class="p">):</span>
+    <span class="n">mapping</span> <span class="o">=</span> <span class="n">BookmarkSchema</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="viewset-class">
+<h2>ViewSet class<a class="headerlink" href="#viewset-class" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="kinto.core.resource.viewset.ViewSet">
+<em class="property">class </em><code class="descclassname">kinto.core.resource.viewset.</code><code class="descname">ViewSet</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.resource.viewset.ViewSet" title="Permalink to this definition">¶</a></dt>
+<dd><p>The default ViewSet object.</p>
+<p>A viewset contains all the information needed to register
+any resource in the Cornice registry.</p>
+<p>It provides the same features as <code class="docutils literal"><span class="pre">cornice.resource()</span></code>, except
+that it is much more flexible and extensible.</p>
+<dl class="method">
+<dt id="kinto.core.resource.viewset.ViewSet.update">
+<code class="descname">update</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.resource.viewset.ViewSet.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update viewset attributes with provided values.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="kinto.core.resource.viewset.ViewSet.get_view_arguments">
+<code class="descname">get_view_arguments</code><span class="sig-paren">(</span><em>endpoint_type</em>, <em>resource_cls</em>, <em>method</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.resource.viewset.ViewSet.get_view_arguments" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the Pyramid/Cornice view arguments for the given endpoint
+type and method.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>endpoint_type</strong> (<em>str</em>) &#8211; either &#8220;collection&#8221; or &#8220;record&#8221;.</li>
+<li><strong>resource_cls</strong> &#8211; the resource class.</li>
+<li><strong>method</strong> (<em>str</em>) &#8211; the HTTP method.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="kinto.core.resource.viewset.ViewSet.get_record_schema">
+<code class="descname">get_record_schema</code><span class="sig-paren">(</span><em>resource_cls</em>, <em>method</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.resource.viewset.ViewSet.get_record_schema" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the Cornice schema for the given method.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="kinto.core.resource.viewset.ViewSet.get_view">
+<code class="descname">get_view</code><span class="sig-paren">(</span><em>endpoint_type</em>, <em>method</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.resource.viewset.ViewSet.get_view" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the view method name located on the resource object, for the
+given type and method.</p>
+<ul class="simple">
+<li>For collections, this will be &#8220;collection_{method|lower}</li>
+<li>For records, this will be &#8220;{method|lower}.</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="kinto.core.resource.viewset.ViewSet.get_name">
+<code class="descname">get_name</code><span class="sig-paren">(</span><em>resource_cls</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.resource.viewset.ViewSet.get_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the name of the resource.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="kinto.core.resource.viewset.ViewSet.get_service_name">
+<code class="descname">get_service_name</code><span class="sig-paren">(</span><em>endpoint_type</em>, <em>resource_cls</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.resource.viewset.ViewSet.get_service_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the name of the service, depending a given type and
+resource.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="kinto.core.resource.viewset.ViewSet.is_endpoint_enabled">
+<code class="descname">is_endpoint_enabled</code><span class="sig-paren">(</span><em>endpoint_type</em>, <em>resource_name</em>, <em>method</em>, <em>settings</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.resource.viewset.ViewSet.is_endpoint_enabled" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns if the given endpoint is enabled or not.</p>
+<p>Uses the settings to tell so.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="kinto.core.resource.viewset.ShareableViewSet">
+<em class="property">class </em><code class="descclassname">kinto.core.resource.viewset.</code><code class="descname">ShareableViewSet</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.resource.viewset.ShareableViewSet" title="Permalink to this definition">¶</a></dt>
+<dd><p>A ShareableViewSet will register the given resource with a schema
+that supports permissions.</p>
+<p>The views will rely on dynamic permissions (e.g. create with PUT if
+record does not exist), and solicit the cliquet RouteFactory.</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="storage.html" class="btn btn-neutral float-right" title="Storage" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="resource.html" class="btn btn-neutral" title="Resource" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2015-2016 — Mozilla Services.
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+
+  
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        var disqus_shortname = 'kinto-docs';
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+  
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'4.3.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="../_static/piwik.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

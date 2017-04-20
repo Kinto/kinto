@@ -1,0 +1,749 @@
+
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Storage &mdash; Kinto 4.3.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="../_static/theme_overrides.css" type="text/css" />
+  
+    <link rel="stylesheet" href="../_static/css/style.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="Kinto 4.3.1 documentation" href="../index.html"/>
+        <link rel="up" title="Kinto Core" href="index.html"/>
+        <link rel="next" title="Cache" href="cache.html"/>
+        <link rel="prev" title="Viewsets" href="viewsets.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> Kinto
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                4.3
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../kinto-admin.html">Kinto Web Administration Console</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../concepts.html">Concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../community.html">Community</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configuration/index.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/index.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../commandline.html">Command Line</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="glossary.html">Glossary</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Kinto Core</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="rationale.html">Rationale</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html">Getting started</a></li>
+<li class="toctree-l2"><a class="reference internal" href="resource.html">Resource</a></li>
+<li class="toctree-l2"><a class="reference internal" href="viewsets.html">Viewsets</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Storage</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#backends">Backends</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#postgresql">PostgreSQL</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#redis">Redis</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#memory">Memory</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#api">API</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#module-kinto.core.storage.exceptions">Exceptions</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#store-custom-data">Store custom data</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="cache.html">Cache</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notifications.html">Notifications</a></li>
+<li class="toctree-l2"><a class="reference internal" href="permission.html">Permissions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="errors.html">Errors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="testing.html">Testing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html">Utils</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">Kinto</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="index.html">Kinto Core</a> &raquo;</li>
+      
+    <li>Storage</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/core/storage.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="storage">
+<span id="id1"></span><h1>Storage<a class="headerlink" href="#storage" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="backends">
+<h2>Backends<a class="headerlink" href="#backends" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="postgresql">
+<h3>PostgreSQL<a class="headerlink" href="#postgresql" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="kinto.core.storage.postgresql.Storage">
+<em class="property">class </em><code class="descclassname">kinto.core.storage.postgresql.</code><code class="descname">Storage</code><span class="sig-paren">(</span><em>client</em>, <em>max_fetch_size</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.storage.postgresql.Storage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Storage backend using PostgreSQL.</p>
+<p>Recommended in production (<em>requires PostgreSQL 9.4 or higher</em>).</p>
+<p>Enable in configuration:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">kinto</span><span class="o">.</span><span class="n">storage_backend</span> <span class="o">=</span> <span class="n">kinto</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">storage</span><span class="o">.</span><span class="n">postgresql</span>
+</pre></div>
+</div>
+<p>Database location URI can be customized:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">kinto</span><span class="o">.</span><span class="n">storage_url</span> <span class="o">=</span> <span class="n">postgres</span><span class="p">:</span><span class="o">//</span><span class="n">user</span><span class="p">:</span><span class="k">pass</span><span class="nd">@db</span><span class="o">.</span><span class="n">server</span><span class="o">.</span><span class="n">lan</span><span class="p">:</span><span class="mi">5432</span><span class="o">/</span><span class="n">dbname</span>
+</pre></div>
+</div>
+<p>Alternatively, username and password could also rely on system user ident
+or even specified in <code class="file docutils literal"><span class="pre">~/.pgpass</span></code> (<em>see PostgreSQL documentation</em>).</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>Some tables and indices are created when <code class="docutils literal"><span class="pre">kinto</span> <span class="pre">migrate</span></code> is run.
+This requires some privileges on the database, or some error will
+be raised.</p>
+<p class="last"><strong>Alternatively</strong>, the schema can be initialized outside the
+python application, using the SQL file located in
+<code class="file docutils literal"><span class="pre">kinto/core/storage/postgresql/schema.sql</span></code>. This allows to
+distinguish schema manipulation privileges from schema usage.</p>
+</div>
+<p>A connection pool is enabled by default:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">kinto</span><span class="o">.</span><span class="n">storage_pool_size</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="n">kinto</span><span class="o">.</span><span class="n">storage_maxoverflow</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="n">kinto</span><span class="o">.</span><span class="n">storage_max_backlog</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+<span class="n">kinto</span><span class="o">.</span><span class="n">storage_pool_recycle</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+<span class="n">kinto</span><span class="o">.</span><span class="n">storage_pool_timeout</span> <span class="o">=</span> <span class="mi">30</span>
+<span class="n">kinto</span><span class="o">.</span><span class="n">cache_poolclass</span> <span class="o">=</span>
+    <span class="n">kinto</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">storage</span><span class="o">.</span><span class="n">postgresql</span><span class="o">.</span><span class="n">pool</span><span class="o">.</span><span class="n">QueuePoolWithMaxBacklog</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal"><span class="pre">max_backlog</span></code>  limits the number of threads that can be in the queue
+waiting for a connection.  Once this limit has been reached, any further
+attempts to acquire a connection will be rejected immediately, instead of
+locking up all threads by keeping them waiting in the queue.</p>
+<p>See <a class="reference external" href="http://docs.sqlalchemy.org/en/rel_1_0/core/engines.html">dedicated section in SQLAlchemy documentation</a>
+for default values and behaviour.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Using a <a class="reference external" href="http://pgpool.net">dedicated connection pool</a> is still
+recommended to allow load balancing, replication or limit the number
+of connections used in a multi-process deployment.</p>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="redis">
+<h3>Redis<a class="headerlink" href="#redis" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="kinto_redis.storage.Storage">
+<em class="property">class </em><code class="descclassname">kinto_redis.storage.</code><code class="descname">Storage</code><span class="sig-paren">(</span><em>client</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto_redis.storage.Storage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Storage backend implementation using Redis.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Useful for very low server load, but won&#8217;t scale since records sorting
+and filtering are performed in memory.</p>
+</div>
+<p>Enable in configuration:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">kinto</span><span class="o">.</span><span class="n">storage_backend</span> <span class="o">=</span> <span class="n">kinto_redis</span><span class="o">.</span><span class="n">storage</span>
+</pre></div>
+</div>
+<p><em>(Optional)</em> Instance location URI can be customized:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">kinto</span><span class="o">.</span><span class="n">storage_url</span> <span class="o">=</span> <span class="n">redis</span><span class="p">:</span><span class="o">//</span><span class="n">localhost</span><span class="p">:</span><span class="mi">6379</span><span class="o">/</span><span class="mi">0</span>
+</pre></div>
+</div>
+<p>A threaded connection pool is enabled by default:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">kinto</span><span class="o">.</span><span class="n">storage_pool_size</span> <span class="o">=</span> <span class="mi">50</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="memory">
+<h3>Memory<a class="headerlink" href="#memory" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="kinto.core.storage.memory.Storage">
+<em class="property">class </em><code class="descclassname">kinto.core.storage.memory.</code><code class="descname">Storage</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.storage.memory.Storage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Storage backend implementation in memory.</p>
+<p>Useful for development or testing purposes, but records are lost after
+each server restart.</p>
+<p>Enable in configuration:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">kinto</span><span class="o">.</span><span class="n">storage_backend</span> <span class="o">=</span> <span class="n">kinto</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">storage</span><span class="o">.</span><span class="n">memory</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="api">
+<h2>API<a class="headerlink" href="#api" title="Permalink to this headline">¶</a></h2>
+<p>Implementing a custom storage backend consists in implementating the following
+interface:</p>
+<span class="target" id="module-kinto.core.storage"></span><dl class="class">
+<dt id="kinto.core.storage.Filter">
+<em class="property">class </em><code class="descclassname">kinto.core.storage.</code><code class="descname">Filter</code><span class="sig-paren">(</span><em>field</em>, <em>value</em>, <em>operator</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.storage.Filter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filtering properties.</p>
+<dl class="attribute">
+<dt id="kinto.core.storage.Filter.field">
+<code class="descname">field</code><a class="headerlink" href="#kinto.core.storage.Filter.field" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 0</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="kinto.core.storage.Filter.operator">
+<code class="descname">operator</code><a class="headerlink" href="#kinto.core.storage.Filter.operator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 2</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="kinto.core.storage.Filter.value">
+<code class="descname">value</code><a class="headerlink" href="#kinto.core.storage.Filter.value" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 1</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="kinto.core.storage.Sort">
+<em class="property">class </em><code class="descclassname">kinto.core.storage.</code><code class="descname">Sort</code><span class="sig-paren">(</span><em>field</em>, <em>direction</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.storage.Sort" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sorting properties.</p>
+<dl class="attribute">
+<dt id="kinto.core.storage.Sort.direction">
+<code class="descname">direction</code><a class="headerlink" href="#kinto.core.storage.Sort.direction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 1</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="kinto.core.storage.Sort.field">
+<code class="descname">field</code><a class="headerlink" href="#kinto.core.storage.Sort.field" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 0</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="kinto.core.storage.StorageBase">
+<em class="property">class </em><code class="descclassname">kinto.core.storage.</code><code class="descname">StorageBase</code><a class="headerlink" href="#kinto.core.storage.StorageBase" title="Permalink to this definition">¶</a></dt>
+<dd><p>Storage abstraction used by resource views.</p>
+<p>It is meant to be instantiated at application startup.
+Any operation may raise a <cite>HTTPServiceUnavailable</cite> error if an error
+occurs with the underlying service.</p>
+<p>Configuration can be changed to choose which storage backend will
+persist the objects.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><a class="reference external" href="https://pyramid.readthedocs.io/en/latest/api/httpexceptions.html#pyramid.httpexceptions.HTTPServiceUnavailable" title="(in The Pyramid Web Framework v1.7.3)"><code class="xref py py-exc docutils literal"><span class="pre">HTTPServiceUnavailable</span></code></a></td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="kinto.core.storage.StorageBase.id_generator">
+<code class="descname">id_generator</code><em class="property"> = &lt;kinto.core.storage.generators.UUID4 object&gt;</em><a class="headerlink" href="#kinto.core.storage.StorageBase.id_generator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Id generator used when no one is provided for create.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="kinto.core.storage.StorageBase.initialize_schema">
+<code class="descname">initialize_schema</code><span class="sig-paren">(</span><em>dry_run=False</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.storage.StorageBase.initialize_schema" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create every necessary objects (like tables or indices) in the
+backend.</p>
+<p>This is executed when the <code class="docutils literal"><span class="pre">kinto</span> <span class="pre">migrate</span></code> command is run.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>dry_run</strong> (<em>bool</em>) &#8211; simulate instead of executing the operations.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="kinto.core.storage.StorageBase.flush">
+<code class="descname">flush</code><span class="sig-paren">(</span><em>auth=None</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.storage.StorageBase.flush" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove <strong>every</strong> object from this storage.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="kinto.core.storage.StorageBase.collection_timestamp">
+<code class="descname">collection_timestamp</code><span class="sig-paren">(</span><em>collection_id</em>, <em>parent_id</em>, <em>auth=None</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.storage.StorageBase.collection_timestamp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the highest timestamp of every objects in this <cite>collection_id</cite> for
+this <cite>parent_id</cite>.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This should take deleted objects into account.</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>collection_id</strong> (<em>str</em>) &#8211; the collection id.</li>
+<li><strong>parent_id</strong> (<em>str</em>) &#8211; the collection parent.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">the latest timestamp of the collection.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">int</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="kinto.core.storage.StorageBase.create">
+<code class="descname">create</code><span class="sig-paren">(</span><em>collection_id</em>, <em>parent_id</em>, <em>record</em>, <em>id_generator=None</em>, <em>id_field='id'</em>, <em>modified_field='last_modified'</em>, <em>auth=None</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.storage.StorageBase.create" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create the specified <cite>object</cite> in this <cite>collection_id</cite> for this <cite>parent_id</cite>.
+Assign the id to the object, using the attribute
+<a class="reference internal" href="resource.html#kinto.core.resource.model.Model.id_field" title="kinto.core.resource.model.Model.id_field"><code class="xref py py-attr docutils literal"><span class="pre">kinto.core.resource.model.Model.id_field</span></code></a>.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This will update the collection timestamp.</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><a class="reference internal" href="#kinto.core.storage.exceptions.UnicityError" title="kinto.core.storage.exceptions.UnicityError"><code class="xref py py-exc docutils literal"><span class="pre">kinto.core.storage.exceptions.UnicityError</span></code></a></p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>collection_id</strong> (<em>str</em>) &#8211; the collection id.</li>
+<li><strong>parent_id</strong> (<em>str</em>) &#8211; the collection parent.</li>
+<li><strong>record</strong> (<em>dict</em>) &#8211; the object to create.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">the newly created object.</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">dict</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="kinto.core.storage.StorageBase.get">
+<code class="descname">get</code><span class="sig-paren">(</span><em>collection_id</em>, <em>parent_id</em>, <em>object_id</em>, <em>id_field='id'</em>, <em>modified_field='last_modified'</em>, <em>auth=None</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.storage.StorageBase.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve the object with specified <cite>object_id</cite>, or raise error
+if not found.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><a class="reference internal" href="#kinto.core.storage.exceptions.RecordNotFoundError" title="kinto.core.storage.exceptions.RecordNotFoundError"><code class="xref py py-exc docutils literal"><span class="pre">kinto.core.storage.exceptions.RecordNotFoundError</span></code></a></p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>collection_id</strong> (<em>str</em>) &#8211; the collection id.</li>
+<li><strong>parent_id</strong> (<em>str</em>) &#8211; the collection parent.</li>
+<li><strong>object_id</strong> (<em>str</em>) &#8211; unique identifier of the object</li>
+</ul>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">the object object.</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">dict</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="kinto.core.storage.StorageBase.update">
+<code class="descname">update</code><span class="sig-paren">(</span><em>collection_id</em>, <em>parent_id</em>, <em>object_id</em>, <em>record</em>, <em>id_field='id'</em>, <em>modified_field='last_modified'</em>, <em>auth=None</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.storage.StorageBase.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overwrite the <cite>object</cite> with the specified <cite>object_id</cite>.</p>
+<p>If the specified id is not found, the object is created with the
+specified id.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This will update the collection timestamp.</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>collection_id</strong> (<em>str</em>) &#8211; the collection id.</li>
+<li><strong>parent_id</strong> (<em>str</em>) &#8211; the collection parent.</li>
+<li><strong>object_id</strong> (<em>str</em>) &#8211; unique identifier of the object</li>
+<li><strong>record</strong> (<em>dict</em>) &#8211; the object to update or create.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">the updated object.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">dict</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="kinto.core.storage.StorageBase.delete">
+<code class="descname">delete</code><span class="sig-paren">(</span><em>collection_id</em>, <em>parent_id</em>, <em>object_id</em>, <em>id_field='id'</em>, <em>with_deleted=True</em>, <em>modified_field='last_modified'</em>, <em>deleted_field='deleted'</em>, <em>auth=None</em>, <em>last_modified=None</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.storage.StorageBase.delete" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete the object with specified <cite>object_id</cite>, and raise error
+if not found.</p>
+<p>Deleted objects must be removed from the database, but their ids and
+timestamps of deletion must be tracked for synchronization purposes.
+(See <a class="reference internal" href="#kinto.core.storage.StorageBase.get_all" title="kinto.core.storage.StorageBase.get_all"><code class="xref py py-meth docutils literal"><span class="pre">kinto.core.storage.StorageBase.get_all()</span></code></a>)</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This will update the collection timestamp.</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><a class="reference internal" href="#kinto.core.storage.exceptions.RecordNotFoundError" title="kinto.core.storage.exceptions.RecordNotFoundError"><code class="xref py py-exc docutils literal"><span class="pre">kinto.core.storage.exceptions.RecordNotFoundError</span></code></a></p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>collection_id</strong> (<em>str</em>) &#8211; the collection id.</li>
+<li><strong>parent_id</strong> (<em>str</em>) &#8211; the collection parent.</li>
+<li><strong>object_id</strong> (<em>str</em>) &#8211; unique identifier of the object</li>
+<li><strong>with_deleted</strong> (<em>bool</em>) &#8211; track deleted record with a tombstone</li>
+</ul>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">the deleted object, with minimal set of attributes.</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">dict</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="kinto.core.storage.StorageBase.delete_all">
+<code class="descname">delete_all</code><span class="sig-paren">(</span><em>collection_id</em>, <em>parent_id</em>, <em>filters=None</em>, <em>id_field='id'</em>, <em>with_deleted=True</em>, <em>modified_field='last_modified'</em>, <em>deleted_field='deleted'</em>, <em>auth=None</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.storage.StorageBase.delete_all" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete all objects in this <cite>collection_id</cite> for this <cite>parent_id</cite>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>collection_id</strong> (<em>str</em>) &#8211; the collection id.</li>
+<li><strong>parent_id</strong> (<em>str</em>) &#8211; the collection parent.</li>
+<li><strong>filters</strong> (list of <a class="reference internal" href="#kinto.core.storage.Filter" title="kinto.core.storage.Filter"><code class="xref py py-class docutils literal"><span class="pre">kinto.core.storage.Filter</span></code></a>) &#8211; Optionnally filter the objects to delete.</li>
+<li><strong>with_deleted</strong> (<em>bool</em>) &#8211; track deleted records with a tombstone</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">the list of deleted objects, with minimal set of attributes.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">list</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="kinto.core.storage.StorageBase.purge_deleted">
+<code class="descname">purge_deleted</code><span class="sig-paren">(</span><em>collection_id</em>, <em>parent_id</em>, <em>before=None</em>, <em>id_field='id'</em>, <em>modified_field='last_modified'</em>, <em>auth=None</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.storage.StorageBase.purge_deleted" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete all deleted object tombstones in this <cite>collection_id</cite>
+for this <cite>parent_id</cite>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>collection_id</strong> (<em>str</em>) &#8211; the collection id.</li>
+<li><strong>parent_id</strong> (<em>str</em>) &#8211; the collection parent.</li>
+<li><strong>before</strong> (<em>int</em>) &#8211; Optionnal timestamp to limit deletion (exclusive)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The number of deleted objects.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">int</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="kinto.core.storage.StorageBase.get_all">
+<code class="descname">get_all</code><span class="sig-paren">(</span><em>collection_id</em>, <em>parent_id</em>, <em>filters=None</em>, <em>sorting=None</em>, <em>pagination_rules=None</em>, <em>limit=None</em>, <em>include_deleted=False</em>, <em>id_field='id'</em>, <em>modified_field='last_modified'</em>, <em>deleted_field='deleted'</em>, <em>auth=None</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.storage.StorageBase.get_all" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve all objects in this <cite>collection_id</cite> for this <cite>parent_id</cite>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>collection_id</strong> (<em>str</em>) &#8211; the collection id.</li>
+<li><strong>parent_id</strong> (<em>str</em>) &#8211; the collection parent.</li>
+<li><strong>filters</strong> (list of <a class="reference internal" href="#kinto.core.storage.Filter" title="kinto.core.storage.Filter"><code class="xref py py-class docutils literal"><span class="pre">kinto.core.storage.Filter</span></code></a>) &#8211; Optionally filter the objects by their attribute.
+Each filter in this list is a tuple of a field, a value and a
+comparison (see <cite>kinto.core.utils.COMPARISON</cite>). All filters
+are combined using <em>AND</em>.</li>
+<li><strong>sorting</strong> (list of <a class="reference internal" href="#kinto.core.storage.Sort" title="kinto.core.storage.Sort"><code class="xref py py-class docutils literal"><span class="pre">kinto.core.storage.Sort</span></code></a>) &#8211; Optionnally sort the objects by attribute.
+Each sort instruction in this list refers to a field and a
+direction (negative means descending). All sort instructions are
+cumulative.</li>
+<li><strong>pagination_rules</strong> (list of list of
+<a class="reference internal" href="#kinto.core.storage.Filter" title="kinto.core.storage.Filter"><code class="xref py py-class docutils literal"><span class="pre">kinto.core.storage.Filter</span></code></a>) &#8211; Optionnally paginate the list of objects.
+This list of rules aims to reduce the set of objects to the current
+page. A rule is a list of filters (see <cite>filters</cite> parameter),
+and all rules are combined using <em>OR</em>.</li>
+<li><strong>limit</strong> (<em>int</em>) &#8211; Optionnally limit the number of objects to be
+retrieved.</li>
+<li><strong>include_deleted</strong> (<em>bool</em>) &#8211; Optionnally include the deleted objects
+that match the filters.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">the limited list of objects, and the total number of
+matching objects in the collection (deleted ones excluded).</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">tuple</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<div class="section" id="module-kinto.core.storage.exceptions">
+<span id="exceptions"></span><h3>Exceptions<a class="headerlink" href="#module-kinto.core.storage.exceptions" title="Permalink to this headline">¶</a></h3>
+<p>Exceptions raised by storage backend.</p>
+<dl class="exception">
+<dt id="kinto.core.storage.exceptions.BackendError">
+<em class="property">exception </em><code class="descclassname">kinto.core.storage.exceptions.</code><code class="descname">BackendError</code><span class="sig-paren">(</span><em>original=None</em>, <em>message=None</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.storage.exceptions.BackendError" title="Permalink to this definition">¶</a></dt>
+<dd><p>A generic exception raised by storage on error.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>original</strong> (<em>Exception</em>) &#8211; the wrapped exception raised by underlying
+library.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="exception">
+<dt id="kinto.core.storage.exceptions.RecordNotFoundError">
+<em class="property">exception </em><code class="descclassname">kinto.core.storage.exceptions.</code><code class="descname">RecordNotFoundError</code><a class="headerlink" href="#kinto.core.storage.exceptions.RecordNotFoundError" title="Permalink to this definition">¶</a></dt>
+<dd><p>An exception raised when a specific record could not be found.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="kinto.core.storage.exceptions.UnicityError">
+<em class="property">exception </em><code class="descclassname">kinto.core.storage.exceptions.</code><code class="descname">UnicityError</code><span class="sig-paren">(</span><em>field</em>, <em>record</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#kinto.core.storage.exceptions.UnicityError" title="Permalink to this definition">¶</a></dt>
+<dd><p>An exception raised on unicity constraint violation.</p>
+<p>Raised by storage backend when the creation or the modification of a
+record violates the unicity constraints defined by the resource.</p>
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="store-custom-data">
+<h2>Store custom data<a class="headerlink" href="#store-custom-data" title="Permalink to this headline">¶</a></h2>
+<p>Storage can be used to store arbitrary data.</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;subscribed&#39;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()}</span>
+<span class="n">user_id</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">authenticated_userid</span>
+
+<span class="n">storage</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">registry</span><span class="o">.</span><span class="n">storage</span>
+<span class="n">storage</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">collection_id</span><span class="o">=</span><span class="s1">&#39;__custom&#39;</span><span class="p">,</span> <span class="n">parent_id</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">record</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>See the <a class="reference internal" href="resource.html#resource-model"><span class="std std-ref">Model</span></a> class to manipulate collections of records.</p>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="cache.html" class="btn btn-neutral float-right" title="Cache" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="viewsets.html" class="btn btn-neutral" title="Viewsets" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2015-2016 — Mozilla Services.
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+
+  
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        var disqus_shortname = 'kinto-docs';
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+  
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'4.3.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="../_static/piwik.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

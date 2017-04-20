@@ -1,0 +1,394 @@
+
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Rationale &mdash; Kinto 4.3.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="../_static/theme_overrides.css" type="text/css" />
+  
+    <link rel="stylesheet" href="../_static/css/style.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="Kinto 4.3.1 documentation" href="../index.html"/>
+        <link rel="up" title="Kinto Core" href="index.html"/>
+        <link rel="next" title="Getting started" href="quickstart.html"/>
+        <link rel="prev" title="Kinto Core" href="index.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> Kinto
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                4.3
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../kinto-admin.html">Kinto Web Administration Console</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../concepts.html">Concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../community.html">Community</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../configuration/index.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/index.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../commandline.html">Command Line</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="glossary.html">Glossary</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Kinto Core</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Rationale</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#philosophy">Philosophy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#features">Features</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#records-and-synchronization">Records and synchronization</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#generic-endpoints">Generic endpoints</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#toolkit">Toolkit</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#dependencies">Dependencies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#built-with-kinto-core">Built with Kinto-Core</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#similar-projects">Similar projects</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html">Getting started</a></li>
+<li class="toctree-l2"><a class="reference internal" href="resource.html">Resource</a></li>
+<li class="toctree-l2"><a class="reference internal" href="viewsets.html">Viewsets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="storage.html">Storage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cache.html">Cache</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notifications.html">Notifications</a></li>
+<li class="toctree-l2"><a class="reference internal" href="permission.html">Permissions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="errors.html">Errors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="testing.html">Testing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html">Utils</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">Kinto</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="index.html">Kinto Core</a> &raquo;</li>
+      
+    <li>Rationale</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/core/rationale.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="rationale">
+<h1>Rationale<a class="headerlink" href="#rationale" title="Permalink to this headline">¶</a></h1>
+<p><em>Kinto-Core</em> is a toolkit to ease the implementation of HTTP <a class="reference external" href="http://en.wikipedia.org/wiki/Microservices">microservices</a>.
+It is mainly focused on data-driven REST APIs (aka <a class="reference internal" href="glossary.html#term-crud"><span class="xref std std-term">CRUD</span></a>).</p>
+<div class="section" id="philosophy">
+<h2>Philosophy<a class="headerlink" href="#philosophy" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><a class="reference internal" href="glossary.html#term-kiss"><span class="xref std std-term">KISS</span></a>;</li>
+<li>No magic;</li>
+<li>Works with defaults;</li>
+<li>Easy customization;</li>
+<li>Straightforward component substitution.</li>
+</ul>
+<p><em>Kinto-Core</em> doesn&#8217;t try to be a framework: any project built with <em>Kinto-Core</em> will
+expose a well defined HTTP API for:</p>
+<ul class="simple">
+<li>Collection and records manipulation;</li>
+<li>HTTP status and headers handling;</li>
+<li>API versioning and deprecation;</li>
+<li>Errors formatting.</li>
+</ul>
+<p><a class="reference internal" href="../api/1.x/index.html#kinto-api-endpoints"><span class="std std-ref">This HTTP API</span></a> is an implementation of a series of good
+practices (followed at <a class="reference external" href="https://wiki.mozilla.org/CloudServices">Mozilla Services</a> and <a class="reference external" href="http://www.vinaysahni.com/best-practices-for-a-pragmatic-restful-api">elsewhere</a>).</p>
+<p>The goal is to produce standardized APIs, which follow some
+well known patterns, encouraging genericity in clients code <a class="footnote-reference" href="#id2" id="id1">[1]</a>.</p>
+<p>Of course, <em>Kinto-Core</em> can be <a class="reference internal" href="glossary.html#term-extensible"><span class="xref std std-term">extended</span></a> and customized in
+many ways. It can also be used in any kind of project, for its tooling, utilities
+and helpers.</p>
+</div>
+<div class="section" id="features">
+<h2>Features<a class="headerlink" href="#features" title="Permalink to this headline">¶</a></h2>
+<p>It is built around the notion of resources: resources are defined by sub-classing,
+and <em>Kinto-Core</em> brings up the HTTP endpoints automatically.</p>
+<div class="section" id="records-and-synchronization">
+<h3>Records and synchronization<a class="headerlink" href="#records-and-synchronization" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li>Collection of records by user;</li>
+<li>Optional validation from schema;</li>
+<li>Sorting and filtering;</li>
+<li>Pagination using continuation tokens;</li>
+<li>Polling for collection changes;</li>
+<li>Record race conditions handling using preconditions headers;</li>
+<li>Notifications channel (e.g. run asynchronous tasks on changes).</li>
+</ul>
+</div>
+<div class="section" id="generic-endpoints">
+<h3>Generic endpoints<a class="headerlink" href="#generic-endpoints" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li>Hello view at root url;</li>
+<li>Heartbeat for monitoring;</li>
+<li>Batch operations;</li>
+<li>API versioning and deprecation;</li>
+<li>Errors formatting;</li>
+<li><code class="docutils literal"><span class="pre">Backoff</span></code> and <code class="docutils literal"><span class="pre">Retry-After</span></code> headers.</li>
+</ul>
+</div>
+<div class="section" id="toolkit">
+<h3>Toolkit<a class="headerlink" href="#toolkit" title="Permalink to this headline">¶</a></h3>
+<div class="figure align-center" id="id3">
+<img alt="../_images/cliquet-base.png" src="../_images/cliquet-base.png" />
+<p class="caption"><span class="caption-text"><em>Kinto-Core</em> brings a set of simple but essential features to build APIs.</span></p>
+</div>
+<ul class="simple">
+<li>Configuration through INI files or environment variables;</li>
+<li>Pluggable storage and cache backends;</li>
+<li>Pluggable authentication and user groups management;</li>
+<li>Pluggable authorization and permissions management;</li>
+<li>Structured logging;</li>
+<li>Monitoring tools;</li>
+<li>Profiling tools.</li>
+</ul>
+<p><a class="reference internal" href="glossary.html#term-pluggable"><span class="xref std std-term">Pluggable</span></a> components can be replaced by another one via configuration.</p>
+</div>
+</div>
+<div class="section" id="dependencies">
+<h2>Dependencies<a class="headerlink" href="#dependencies" title="Permalink to this headline">¶</a></h2>
+<p><em>Kinto-Core</em> is built on the shoulders of giants:</p>
+<ul class="simple">
+<li><a class="reference external" href="https://cornice.readthedocs.io">Cornice</a> for the REST helpers;</li>
+<li><a class="reference external" href="https://pyramid.readthedocs.io">Pyramid</a> for the heavy HTTP stuff;</li>
+<li><a class="reference external" href="http://docs.sqlalchemy.org">SQLAlchemy</a> core, for database sessions and
+pooling;</li>
+</ul>
+<p>Everything else is meant to be <strong>pluggable and optional</strong>.</p>
+<div class="figure align-center" id="id4">
+<img alt="../_images/cliquet-mozilla.png" src="../_images/cliquet-mozilla.png" />
+<p class="caption"><span class="caption-text">Examples of configuration for a <em>Kinto-Core</em> application in production.</span></p>
+</div>
+<ul class="simple">
+<li><em>Basic Auth</em>, <em>FxA OAuth2</em> or any other source of authentication;</li>
+<li><em>Default</em> or custom class for authorization logics;</li>
+<li><em>PostgreSQL</em> for storage;</li>
+<li><em>Redis</em> for key-value cache with expiration;</li>
+<li><em>StatsD</em> metrics;</li>
+<li><em>Sentry</em> reporting via logging;</li>
+<li><em>NewRelic</em> database profiling (<em>for development</em>);</li>
+<li><em>Werkzeug</em> Python code profiling (<em>for development</em>).</li>
+</ul>
+<p>A <em>Kinto-Core</em> application can change or force default values for any setting.</p>
+</div>
+<div class="section" id="built-with-kinto-core">
+<h2>Built with Kinto-Core<a class="headerlink" href="#built-with-kinto-core" title="Permalink to this headline">¶</a></h2>
+<p>Some applications in the wild built with <em>Kinto-Core</em>:</p>
+<ul class="simple">
+<li><a class="reference external" href="https://readinglist.readthedocs.io">Reading List</a>, a service to synchronize articles between
+devices;</li>
+<li><a class="reference external" href="https://kinto.readthedocs.io">Kinto</a>, a service to store and synchronize schema-less data.</li>
+<li><a class="reference external" href="https://syncto.readthedocs.io">Syncto</a>, a service to access <em>Firefox Sync</em> using <em>kinto.js</em>.</li>
+<li><em>Please contact us to add yours</em>.</li>
+</ul>
+<p>Any application built with <em>Kinto-Core</em>:</p>
+<ul class="simple">
+<li>follows the same conventions regarding the HTTP API;</li>
+<li>takes advantage of its component <a class="reference internal" href="glossary.html#term-pluggable"><span class="xref std std-term">pluggability</span></a>;</li>
+<li>can be <a class="reference internal" href="glossary.html#term-extensible"><span class="xref std std-term">extended</span></a> using custom code or Pyramid external
+packages;</li>
+</ul>
+</div>
+<div class="section" id="similar-projects">
+<h2>Similar projects<a class="headerlink" href="#similar-projects" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><a class="reference external" href="http://python-eve.org/">Python Eve</a>, built on Flask and MongoDB;</li>
+<li><em>Please contact us to add more if any</em>.</li>
+</ul>
+<p>Since the HTTP API is language independant and follows good HTTP/REST principles,
+in the long term <em>Kinto-Core</em> should become only one among several server implementations.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">We encourage you to implement a clone of this project — using Node.js, Asyncio,
+Go, Twisted, Django or anything else — following <a class="reference internal" href="../api/1.x/index.html#kinto-api-endpoints"><span class="std std-ref">the same HTTP API</span></a>!</p>
+</div>
+<table class="docutils footnote" frame="void" id="id2" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td>Switch from custom API to <a class="reference external" href="http://jsonapi.org/">JSON-API spec</a> is <a class="reference external" href="https://github.com/mozilla-services/cliquet/issues/254">being discussed</a>.</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="quickstart.html" class="btn btn-neutral float-right" title="Getting started" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="index.html" class="btn btn-neutral" title="Kinto Core" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2015-2016 — Mozilla Services.
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+
+  
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        var disqus_shortname = 'kinto-docs';
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+  
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'4.3.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="../_static/piwik.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

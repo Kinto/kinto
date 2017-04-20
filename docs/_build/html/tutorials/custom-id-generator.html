@@ -1,0 +1,336 @@
+
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>How to define and use a custom ID generator? &mdash; Kinto 4.3.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="../_static/theme_overrides.css" type="text/css" />
+  
+    <link rel="stylesheet" href="../_static/css/style.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="Kinto 4.3.1 documentation" href="../index.html"/>
+        <link rel="up" title="Tutorials" href="index.html"/>
+        <link rel="next" title="Step by step permissions API tutorial" href="permissions.html"/>
+        <link rel="prev" title="How to setup Github authentication?" href="authentication-github.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> Kinto
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                4.3
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../kinto-admin.html">Kinto Web Administration Console</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../concepts.html">Concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../community.html">Community</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Tutorials</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="install.html">Install Kinto</a></li>
+<li class="toctree-l2"><a class="reference internal" href="first-steps.html">First steps with Kinto HTTP API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="synchronisation.html">Synchronisation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notifications-websockets.html">How to setup push notifications using WebSockets?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notifications-custom.html">How to run custom code on notifications?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="authentication-github.html">How to setup Github authentication?</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">How to define and use a custom ID generator?</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#enable-in-configuration">Enable in configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#kinto-js-client">Kinto.js client</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="permissions.html">Step by step permissions API tutorial</a></li>
+<li class="toctree-l2"><a class="reference internal" href="write-plugin.html">How to write a Kinto plugin?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="permission-setups.html">Permissions examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="app-examples.html">Application examples</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../configuration/index.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/index.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../commandline.html">Command Line</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../core/glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../core/index.html">Kinto Core</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">Kinto</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="index.html">Tutorials</a> &raquo;</li>
+      
+    <li>How to define and use a custom ID generator?</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/tutorials/custom-id-generator.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="how-to-define-and-use-a-custom-id-generator">
+<span id="tutorial-id-generator"></span><h1>How to define and use a custom ID generator?<a class="headerlink" href="#how-to-define-and-use-a-custom-id-generator" title="Permalink to this headline">¶</a></h1>
+<p>By default, Kinto uses UUID4 as <code class="docutils literal"><span class="pre">id</span></code> for its records. In some cases, it might
+not be what you want. But you&#8217;re not out of luck, there is a way to configure
+Kinto to use a different <code class="docutils literal"><span class="pre">id_generator</span></code> than the default one.</p>
+<p>Let&#8217;s define a &#8220;name generator&#8221;, which will output 8 random characters
+(uppercase or lowercase).</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">string</span>
+
+<span class="kn">from</span> <span class="nn">kinto.core.storage</span> <span class="kn">import</span> <span class="n">generators</span>
+
+
+<span class="k">class</span> <span class="nc">NameGenerator</span><span class="p">(</span><span class="n">generators</span><span class="o">.</span><span class="n">Generator</span><span class="p">):</span>
+
+    <span class="n">regexp</span> <span class="o">=</span> <span class="s1">r&#39;^[a-zA-Z0-9-_]{8}$&#39;</span>
+
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">ascii_letters</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;abcdefghijklmopqrstuvwxyz&#39;</span>
+                         <span class="s1">&#39;ABCDEFGHIJKLMOPQRSTUVWXYZ&#39;</span><span class="p">)</span>
+        <span class="n">alphabet</span> <span class="o">=</span> <span class="n">ascii_letters</span> <span class="o">+</span> <span class="n">string</span><span class="o">.</span><span class="n">digits</span> <span class="o">+</span> <span class="s1">&#39;-_&#39;</span>
+        <span class="n">letters</span> <span class="o">=</span> <span class="p">[</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">ascii_letters</span> <span class="o">+</span> <span class="n">string</span><span class="o">.</span><span class="n">digits</span><span class="p">)]</span>
+        <span class="n">letters</span> <span class="o">+=</span> <span class="p">[</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">alphabet</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">7</span><span class="p">)]</span>
+        <span class="k">return</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">letters</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Note that you actually need to define both the generator <strong>and</strong> the validator,
+which can be provided as a regexp.</p>
+<div class="admonition important">
+<p class="first admonition-title">Important</p>
+<p>The id generator should be random enough to avoid collisions.</p>
+<p class="last">The random approach here serves the purpose of this tutorial, but for a production
+ready implementation, have a look at <a class="reference external" href="https://github.com/dylang/shortid/">dylang/shortid</a> for example.</p>
+</div>
+<div class="section" id="enable-in-configuration">
+<h2>Enable in configuration<a class="headerlink" href="#enable-in-configuration" title="Permalink to this headline">¶</a></h2>
+<p>Okay, once we&#8217;ve got this new generator, we can put it in a file named
+<code class="docutils literal"><span class="pre">name_generator.py</span></code>, and then configure the Kinto server to use this
+generator to actually generate the record IDs.</p>
+<p>In your <code class="file docutils literal"><span class="pre">config/kinto.ini</span></code> configuration file, set the <code class="docutils literal"><span class="pre">kinto.id_generator</span></code>
+setting:</p>
+<div class="highlight-ini"><div class="highlight"><pre><span></span><span class="na">kinto.id_generator</span> <span class="o">=</span> <span class="s">name_generator.NameGenerator</span>
+</pre></div>
+</div>
+<p>And then run your server as usual</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ kinto --ini config/kinto.ini start
+</pre></div>
+</div>
+<p>Now, if you try to generate a new record, you should have the new ID used,
+well done!</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ <span class="nb">echo</span> <span class="s1">&#39;{&quot;data&quot;: {&quot;yeah&quot;: &quot;oh&quot;}}&#39;</span> <span class="p">|</span> http POST http://localhost:8888/v1/buckets/default/collections/tasks/records --auth user:pass
+</pre></div>
+</div>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">201</span> <span class="ne">Created</span>
+<span class="na">Access-Control-Expose-Headers</span><span class="o">:</span> <span class="l">Retry-After, Content-Length, Alert, Backoff</span>
+<span class="na">Content-Length</span><span class="o">:</span> <span class="l">171</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json; charset=UTF-8</span>
+<span class="na">Date</span><span class="o">:</span> <span class="l">Thu, 25 Feb 2016 22:13:20 GMT</span>
+<span class="na">Server</span><span class="o">:</span> <span class="l">waitress</span>
+
+<span class="p">{</span>
+    <span class="nt">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span>
+<span class="hll">        <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;fm64GtdA&quot;</span><span class="p">,</span>
+</span>        <span class="nt">&quot;last_modified&quot;</span><span class="p">:</span> <span class="mi">1456438400719</span><span class="p">,</span>
+        <span class="nt">&quot;yeah&quot;</span><span class="p">:</span> <span class="s2">&quot;oh&quot;</span>
+    <span class="p">},</span>
+    <span class="nt">&quot;permissions&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;write&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">&quot;basicauth:2025f72e6967625e3e878288b55d8946839e51968d11991b8a7dd0f040d4b6f0&quot;</span>
+        <span class="p">]</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>If you need to define different name generator per type of object, the setting name must be prefixed by the object type.
+For example:</p>
+<div class="highlight-ini"><div class="highlight"><pre><span></span><span class="na">kinto.bucket_id_generator</span> <span class="o">=</span> <span class="s">name_generator.BucketNameGenerator</span>
+<span class="na">kinto.group_id_generator</span> <span class="o">=</span> <span class="s">name_generator.GroupNameGenerator</span>
+<span class="na">kinto.collection_id_generator</span> <span class="o">=</span> <span class="s">name_generator.CollectionNameGenerator</span>
+<span class="na">kinto.record_id_generator</span> <span class="o">=</span> <span class="s">kinto.core.storage.generators.UUID4</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="kinto-js-client">
+<h2>Kinto.js client<a class="headerlink" href="#kinto-js-client" title="Permalink to this headline">¶</a></h2>
+<p>The offline-first client <a class="reference external" href="https://github.com/Kinto/kinto.js/">Kinto/kinto.js</a> can also be configured to
+generate custom ids. See <a class="reference external" href="https://kintojs.readthedocs.io/en/latest/api/#custom-id-generation-using-an-id-schema">its documentation</a> for more details.</p>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="permissions.html" class="btn btn-neutral float-right" title="Step by step permissions API tutorial" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="authentication-github.html" class="btn btn-neutral" title="How to setup Github authentication?" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2015-2016 — Mozilla Services.
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+
+  
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        var disqus_shortname = 'kinto-docs';
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+  
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'4.3.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="../_static/piwik.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

@@ -1,0 +1,708 @@
+
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Running in production &mdash; Kinto 4.3.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="../_static/theme_overrides.css" type="text/css" />
+  
+    <link rel="stylesheet" href="../_static/css/style.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="Kinto 4.3.1 documentation" href="../index.html"/>
+        <link rel="up" title="Configuration" href="index.html"/>
+        <link rel="next" title="Deployment good practices" href="good-practices.html"/>
+        <link rel="prev" title="Settings" href="settings.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> Kinto
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                4.3
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../kinto-admin.html">Kinto Web Administration Console</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../concepts.html">Concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../community.html">Community</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Configuration</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="settings.html">Settings</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Running in production</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#install-and-setup-postgresql">Install and setup PostgreSQL</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#postgresql-client">PostgreSQL client</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#install-postgresql-python-dependencies">Install PostgreSQL Python Dependencies</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#run-a-postgresql-server">Run a PostgreSQL server</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#database-setup">Database setup</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#privileges-basics">Privileges basics</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#creating-a-configuration-file">Creating a configuration file</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#creating-tables-and-indices">Creating tables and indices</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#production-checklist">Production checklist</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#recommended-settings">Recommended settings</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#handling-cdn">Handling CDN</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#monitoring">Monitoring</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#heka-logging">Heka Logging</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#run-the-kinto-application">Run the Kinto application</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#using-apache-mod-wsgi">Using Apache mod wsgi</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#using-nginx">Using nginx</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#running-with-uwsgi">Running with uWSGI</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#nginx-as-cache-server">Nginx as cache server</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#upgrading-kinto">Upgrading Kinto</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#using-backoff">Using backoff</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="good-practices.html">Deployment good practices</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../api/index.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../commandline.html">Command Line</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../core/glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../core/index.html">Kinto Core</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">Kinto</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="index.html">Configuration</a> &raquo;</li>
+      
+    <li>Running in production</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/configuration/production.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="running-in-production">
+<span id="run-production"></span><h1>Running in production<a class="headerlink" href="#running-in-production" title="Permalink to this headline">¶</a></h1>
+<p><em>Kinto</em> is a standard Python application.</p>
+<p>Recommended settings for production are listed below. Some <a class="reference internal" href="good-practices.html#deployment"><span class="std std-ref">general insights about deployment strategies</span></a> are also provided.</p>
+<p>Because we use it for most of our deploys, <em>PostgreSQL</em> is the recommended
+backend for production.</p>
+<div class="section" id="install-and-setup-postgresql">
+<span id="postgresql-install"></span><h2>Install and setup PostgreSQL<a class="headerlink" href="#install-and-setup-postgresql" title="Permalink to this headline">¶</a></h2>
+<p>(<em>requires PostgreSQL 9.4 or higher</em>).</p>
+<p><em>Kinto</em> dependencies do not include <em>PostgreSQL</em> tooling and drivers by default, which should be installed and configured before proceeding to the next steps. More information is available at the <a class="reference external" href="http://www.postgresql.org/docs">PostgreSQL Documentation</a>.</p>
+<div class="section" id="postgresql-client">
+<h3>PostgreSQL client<a class="headerlink" href="#postgresql-client" title="Permalink to this headline">¶</a></h3>
+<p>Before installing the Python libraries for Postgres we need to first install the header files for the PostgreSQL database backend.</p>
+<p>On Debian / Ubuntu based systems:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ sudo apt-get install libpq-dev
+</pre></div>
+</div>
+<p>On RedHat / Fedora / Mint based systems:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ yum install postgresql-devel
+</pre></div>
+</div>
+<p>On Mac OS X, <a class="reference external" href="http://superuser.com/questions/296873/install-libpq-dev-on-mac-os">install a server or use port</a>.</p>
+</div>
+<div class="section" id="install-postgresql-python-dependencies">
+<h3>Install PostgreSQL Python Dependencies<a class="headerlink" href="#install-postgresql-python-dependencies" title="Permalink to this headline">¶</a></h3>
+<p>Kinto PostgreSQL backends rely on specific Python packages (like <a class="reference external" href="http://www.sqlalchemy.org/">SQLAlchemy</a> and <a class="reference external" href="http://initd.org/psycopg/">pscopg2</a>), which can be installed with a single <em>pip</em> command</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ pip install -U kinto[postgresql]
+</pre></div>
+</div>
+</div>
+<div class="section" id="run-a-postgresql-server">
+<h3>Run a PostgreSQL server<a class="headerlink" href="#run-a-postgresql-server" title="Permalink to this headline">¶</a></h3>
+<p>The instructions to run a local PostgreSQL database are out of scope here.</p>
+<p>A detailed guide is <a class="reference external" href="https://github.com/Kinto/kinto/wiki/How-to-run-a-PostgreSQL-server%3F/">available on the Kinto Wiki</a>.</p>
+</div>
+<div class="section" id="database-setup">
+<h3>Database setup<a class="headerlink" href="#database-setup" title="Permalink to this headline">¶</a></h3>
+<p><em>Kinto</em> default database name is set to <code class="docutils literal"><span class="pre">postgres</span></code> on <code class="docutils literal"><span class="pre">localhost:5432</span></code>. To change it refer to <a class="reference internal" href="#creating-a-configuration-file">Creating a configuration file</a>.</p>
+<p>To create a specific database:</p>
+<div class="highlight-sql"><div class="highlight"><pre><span></span><span class="k">CREATE</span> <span class="k">DATABASE</span> <span class="n">dbname</span> <span class="k">WITH</span> <span class="k">ENCODING</span> <span class="n">UTF8</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>By default <em>Kinto</em> uses <em>UTC timezone</em>, so make sure that the assigned database for kinto is set to UTC with:</p>
+<div class="highlight-sql"><div class="highlight"><pre><span></span><span class="k">ALTER</span> <span class="k">DATABASE</span> <span class="n">dbname</span> <span class="k">SET</span> <span class="n">TIMEZONE</span> <span class="k">TO</span> <span class="n">UTC</span><span class="p">;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="privileges-basics">
+<h3>Privileges basics<a class="headerlink" href="#privileges-basics" title="Permalink to this headline">¶</a></h3>
+<p><em>Kinto</em> default user is set to <code class="docutils literal"><span class="pre">postgres</span></code> with password <code class="docutils literal"><span class="pre">postgres</span></code>. To change that refer to <a class="reference internal" href="#creating-a-configuration-file">Creating a configuration file</a>.</p>
+<p>In order to initialize the database tables and objects, the specified user must
+have some privileges. For example, to create a user from scratch:</p>
+<div class="highlight-sql"><div class="highlight"><pre><span></span><span class="k">CREATE</span> <span class="k">USER</span> <span class="n">dbuser</span> <span class="k">WITH</span> <span class="n">PASSWORD</span> <span class="s1">&#39;dbpassword&#39;</span><span class="p">;</span>
+<span class="k">GRANT</span> <span class="k">ALL</span> <span class="k">PRIVILEGES</span> <span class="k">ON</span> <span class="k">DATABASE</span> <span class="n">dbname</span> <span class="k">TO</span> <span class="n">dbuser</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>For a read-only setup, it is possible to define a user that only has the privilege
+to read the tables:</p>
+<div class="highlight-sql"><div class="highlight"><pre><span></span><span class="k">CREATE</span> <span class="k">USER</span> <span class="n">dbuser</span> <span class="k">WITH</span> <span class="n">PASSWORD</span> <span class="s1">&#39;dbpassword&#39;</span><span class="p">;</span>
+<span class="k">GRANT</span> <span class="k">USAGE</span> <span class="k">ON</span> <span class="k">SCHEMA</span> <span class="k">public</span> <span class="k">TO</span> <span class="n">dbuser</span><span class="p">;</span>
+<span class="k">GRANT</span> <span class="k">SELECT</span> <span class="k">ON</span> <span class="k">ALL</span> <span class="n">TABLES</span> <span class="k">IN</span> <span class="k">SCHEMA</span> <span class="k">public</span> <span class="k">TO</span> <span class="n">dbuser</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>Even if the stack is read-only, some internal values like authentication tokens
+may still be to be stored in cache. If the cache backend is configured to use
+PostgreSQL, then write operations still must be granted on the <code class="docutils literal"><span class="pre">cache</span></code> table:</p>
+<div class="highlight-sql"><div class="highlight"><pre><span></span><span class="k">GRANT</span> <span class="k">UPDATE</span><span class="p">,</span> <span class="k">INSERT</span><span class="p">,</span> <span class="k">DELETE</span> <span class="k">ON</span> <span class="k">cache</span> <span class="k">TO</span> <span class="n">dbuser</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>Also, in future versions of Kinto, some new tables may be created. It is possible to
+change the default privileges to allow reading the future tables:</p>
+<div class="highlight-sql"><div class="highlight"><pre><span></span><span class="k">ALTER</span> <span class="k">DEFAULT</span> <span class="k">PRIVILEGES</span> <span class="k">IN</span> <span class="k">SCHEMA</span> <span class="k">public</span> <span class="k">GRANT</span> <span class="k">SELECT</span> <span class="k">ON</span> <span class="n">TABLES</span> <span class="k">TO</span> <span class="n">dbuser</span><span class="p">;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="creating-a-configuration-file">
+<h3>Creating a configuration file<a class="headerlink" href="#creating-a-configuration-file" title="Permalink to this headline">¶</a></h3>
+<p>Once a PostgreSQL is up and running somewhere, you should edit your configuration file or create a new one with the <code class="docutils literal"><span class="pre">init</span></code> command and select the PostgreSQL option. The file is created by default as <code class="docutils literal"><span class="pre">config/kinto.ini</span></code>, to specify another filename use the <code class="docutils literal"><span class="pre">--ini</span></code> parameter.</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ kinto --ini production.ini init
+</pre></div>
+</div>
+<p>Select your database server address, name and user by editing the configuration file. Also make sure that the PostgreSQL <a class="reference internal" href="settings.html#configuration-backends"><span class="std std-ref">backend settings</span></a> are selected. For our example, the backend configuration would be:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">kinto</span><span class="o">.</span><span class="n">storage_backend</span> <span class="o">=</span> <span class="n">kinto</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">storage</span><span class="o">.</span><span class="n">postgresql</span>
+<span class="n">kinto</span><span class="o">.</span><span class="n">storage_url</span> <span class="o">=</span> <span class="n">postgres</span><span class="p">:</span><span class="o">//</span><span class="n">dbuser</span><span class="p">:</span><span class="n">dbpassword</span><span class="nd">@localhost</span><span class="o">/</span><span class="n">dbname</span>
+<span class="n">kinto</span><span class="o">.</span><span class="n">cache_backend</span> <span class="o">=</span> <span class="n">kinto</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">postgresql</span>
+<span class="n">kinto</span><span class="o">.</span><span class="n">cache_url</span> <span class="o">=</span> <span class="n">postgres</span><span class="p">:</span><span class="o">//</span><span class="n">dbuser</span><span class="p">:</span><span class="n">dbpassword</span><span class="nd">@localhost</span><span class="o">/</span><span class="n">dbname</span>
+<span class="n">kinto</span><span class="o">.</span><span class="n">permission_backend</span> <span class="o">=</span> <span class="n">kinto</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">permission</span><span class="o">.</span><span class="n">postgresql</span>
+<span class="n">kinto</span><span class="o">.</span><span class="n">permission_url</span> <span class="o">=</span> <span class="n">postgres</span><span class="p">:</span><span class="o">//</span><span class="n">dbuser</span><span class="p">:</span><span class="n">dbpassword</span><span class="nd">@localhost</span><span class="o">/</span><span class="n">dbname</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="creating-tables-and-indices">
+<h3>Creating tables and indices<a class="headerlink" href="#creating-tables-and-indices" title="Permalink to this headline">¶</a></h3>
+<p>The last step consists in creating the necessary tables and indices, run the <code class="docutils literal"><span class="pre">migrate</span></code> command:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ kinto --ini production.ini migrate
+</pre></div>
+</div>
+<div class="admonition important">
+<p class="first admonition-title">Important</p>
+<p class="last">You should run <code class="docutils literal"><span class="pre">migrate</span></code> every time you change the configuration file or kinto is upgraded.</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Alternatively the SQL initialization files can be found in the
+<em>Kinto</em> <a class="reference external" href="https://github.com/Kinto/kinto/">source code</a>.</p>
+</div>
+</div>
+</div>
+<div class="section" id="production-checklist">
+<h2>Production checklist<a class="headerlink" href="#production-checklist" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="recommended-settings">
+<h3>Recommended settings<a class="headerlink" href="#recommended-settings" title="Permalink to this headline">¶</a></h3>
+<p>Most default setting values in the application code base are suitable
+for production.</p>
+<p>Also, the set of settings mentionned below might deserve some review or
+adjustments:</p>
+<div class="highlight-ini"><div class="highlight"><pre><span></span><span class="na">kinto.flush_endpoint_enabled</span> <span class="o">=</span> <span class="s">false</span>
+<span class="na">kinto.http_scheme</span> <span class="o">=</span> <span class="s">https</span>
+<span class="na">kinto.paginate_by</span> <span class="o">=</span> <span class="s">100</span>
+<span class="na">kinto.batch_max_requests</span> <span class="o">=</span> <span class="s">25</span>
+<span class="na">kinto.storage_pool_size</span> <span class="o">=</span> <span class="s">50</span>
+<span class="na">kinto.cache_pool_size</span> <span class="o">=</span> <span class="s">50</span>
+<span class="na">kinto.permission_pool_size</span> <span class="o">=</span> <span class="s">50</span>
+<span class="na">fxa-oauth.cache_ttl_seconds</span> <span class="o">=</span> <span class="s">3600</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">For an exhaustive list of available settings and their default values,
+refer to the <em>Kinto</em> <a class="reference external" href="https://github.com/Kinto/kinto/blob/4.1.1/kinto/core/__init__.py#L23-L90/">source code</a>.</p>
+</div>
+<p>By default, nobody can read buckets list. You can change that using:</p>
+<div class="highlight-ini"><div class="highlight"><pre><span></span><span class="na">kinto.bucket_read_principals</span> <span class="o">=</span> <span class="s">system.Authenticated</span>
+</pre></div>
+</div>
+<p>Beware that if you do so, everyone will be able to list bucket
+information (including user&#8217;s personal buckets).</p>
+</div>
+<div class="section" id="handling-cdn">
+<h3>Handling CDN<a class="headerlink" href="#handling-cdn" title="Permalink to this headline">¶</a></h3>
+<p>If you want to put your Kinto behind a CDN you must make sure to define the
+right host or you will leak the main server host.</p>
+<div class="highlight-ini"><div class="highlight"><pre><span></span><span class="na">kinto.http_host</span> <span class="o">=</span> <span class="s">cdn.firefox.com</span>
+</pre></div>
+</div>
+<p>You can make sure your service is correctly configured by looking at the service URL
+returned on the service home page. It should be your CDN service URL.</p>
+<p>It might also be relevant to set your main server <a class="reference internal" href="settings.html#configuration-features"><span class="std std-ref">as readonly</span></a>.</p>
+<p>In the configuration of the CDN service, you should also:</p>
+<ul class="simple">
+<li>Allow <code class="docutils literal"><span class="pre">OPTIONS</span></code> requests (CORS)</li>
+<li>Pass through cache and concurrency control headers: <code class="docutils literal"><span class="pre">ETag</span></code>, <code class="docutils literal"><span class="pre">Last-Modified</span></code>, <code class="docutils literal"><span class="pre">Expire</span></code></li>
+<li>Pass through pagination header: <code class="docutils literal"><span class="pre">Next-Page</span></code></li>
+<li>Cached responses should depend on querystring parameters (e.g. try with different <code class="docutils literal"><span class="pre">?_limit=</span></code> values)</li>
+</ul>
+</div>
+<div class="section" id="monitoring">
+<h3>Monitoring<a class="headerlink" href="#monitoring" title="Permalink to this headline">¶</a></h3>
+<p>In order to enable monitoring features like <em>statsd</em>, install
+extra requirements:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="n">install</span><span class="o">-</span><span class="n">monitoring</span>
+</pre></div>
+</div>
+<p>And configure its URL:</p>
+<div class="highlight-ini"><div class="highlight"><pre><span></span><span class="c1"># StatsD</span>
+<span class="na">kinto.statsd_url</span> <span class="o">=</span> <span class="s">udp://carbon.server:8125</span>
+</pre></div>
+</div>
+<div class="section" id="counters">
+<h4>Counters<a class="headerlink" href="#counters" title="Permalink to this headline">¶</a></h4>
+<table border="1" class="docutils">
+<colgroup>
+<col width="9%" />
+<col width="91%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Name</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">users</span></code></td>
+<td>Number of unique user IDs.</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">authn_type.basicauth</span></code></td>
+<td>Number of basic authentication requests</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">authn_type.fxa</span></code></td>
+<td>Number of FxA authentications</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="timers">
+<h4>Timers<a class="headerlink" href="#timers" title="Permalink to this headline">¶</a></h4>
+<table border="1" class="docutils">
+<colgroup>
+<col width="9%" />
+<col width="91%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Name</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">authentication.permits</span></code></td>
+<td>Time needed by the permissions backend to allow or reject a request</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">view.hello.GET</span></code></td>
+<td>Time needed to return the hello view</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">view.heartbeat.GET</span></code></td>
+<td>Time needed to return the heartbeat page</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">view.batch.POST</span></code></td>
+<td>Time needed to process a batch request</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">view.{resource}-{type}.{method}</span></code></td>
+<td>Time needed to process the specified <em>{method}</em> on a <em>{resource}</em> (e.g. bucket, collection or record). Different timers exists for the different type of resources (record or collection)</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">cache.{method}</span></code></td>
+<td>Time needed to execute a method of the cache backend. Methods are <code class="docutils literal"><span class="pre">ping</span></code>, <code class="docutils literal"><span class="pre">ttl</span></code>, <code class="docutils literal"><span class="pre">expire</span></code>, <code class="docutils literal"><span class="pre">set</span></code>, <code class="docutils literal"><span class="pre">get</span></code> and <code class="docutils literal"><span class="pre">delete</span></code></td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">storage.{method}</span></code></td>
+<td>Time needed to execute a method of the storage backend. Methods are <code class="docutils literal"><span class="pre">ping</span></code>, <code class="docutils literal"><span class="pre">collection_timestamp</span></code>, <code class="docutils literal"><span class="pre">create</span></code>, <code class="docutils literal"><span class="pre">get</span></code>, <code class="docutils literal"><span class="pre">update</span></code>, <code class="docutils literal"><span class="pre">delete</span></code>, <code class="docutils literal"><span class="pre">delete_all</span></code>, <code class="docutils literal"><span class="pre">get_all</span></code></td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">permission.{method}</span></code></td>
+<td>Time needed to execute a method of the permission backend. Methods are <code class="docutils literal"><span class="pre">add_user_principal</span></code>, <code class="docutils literal"><span class="pre">remove_user_principal</span></code>, <code class="docutils literal"><span class="pre">get_user_principals</span></code>, <code class="docutils literal"><span class="pre">add_principal_to_ace</span></code>, <code class="docutils literal"><span class="pre">remove_principal_from_ace</span></code>, <code class="docutils literal"><span class="pre">get_object_permission_principals</span></code>, <code class="docutils literal"><span class="pre">check_permission</span></code></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="section" id="heka-logging">
+<h3>Heka Logging<a class="headerlink" href="#heka-logging" title="Permalink to this headline">¶</a></h3>
+<p>At Mozilla, applications log files follow a specific JSON schema, that is
+processed through <a class="reference external" href="https://hekad.readthedocs.io">Heka</a>.</p>
+<p>In order to enable Mozilla <em>Heka</em> logging output:</p>
+<div class="highlight-ini"><div class="highlight"><pre><span></span><span class="c1"># Heka</span>
+<span class="na">kinto.logging_renderer</span> <span class="o">=</span> <span class="s">kinto.core.logs.MozillaHekaRenderer</span>
+</pre></div>
+</div>
+<p>With the following configuration, all logs are structured in JSON and
+redirected to standard output (See <a class="reference external" href="http://12factor.net/logs">12factor app</a>).
+A <a class="reference external" href="https://getsentry.com">Sentry</a> logger is also enabled.</p>
+<div class="highlight-ini"><div class="highlight"><pre><span></span><span class="k">[loggers]</span>
+<span class="na">keys</span> <span class="o">=</span> <span class="s">root, kinto</span>
+
+<span class="k">[handlers]</span>
+<span class="na">keys</span> <span class="o">=</span> <span class="s">console, sentry</span>
+
+<span class="k">[formatters]</span>
+<span class="na">keys</span> <span class="o">=</span> <span class="s">generic, heka</span>
+
+<span class="k">[logger_root]</span>
+<span class="na">level</span> <span class="o">=</span> <span class="s">INFO</span>
+<span class="na">handlers</span> <span class="o">=</span> <span class="s">console, sentry</span>
+
+<span class="k">[logger_kinto]</span>
+<span class="na">level</span> <span class="o">=</span> <span class="s">INFO</span>
+<span class="na">handlers</span> <span class="o">=</span> <span class="s">console, sentry</span>
+<span class="na">qualname</span> <span class="o">=</span> <span class="s">kinto</span>
+
+<span class="k">[handler_console]</span>
+<span class="na">class</span> <span class="o">=</span> <span class="s">StreamHandler</span>
+<span class="na">args</span> <span class="o">=</span> <span class="s">(sys.stdout,)</span>
+<span class="na">level</span> <span class="o">=</span> <span class="s">INFO</span>
+<span class="na">formatter</span> <span class="o">=</span> <span class="s">heka</span>
+
+<span class="k">[handler_sentry]</span>
+<span class="na">class</span> <span class="o">=</span> <span class="s">raven.handlers.logging.SentryHandler</span>
+<span class="na">args</span> <span class="o">=</span> <span class="s">(&#39;http://public:secret@example.com/1&#39;,)</span>
+<span class="na">level</span> <span class="o">=</span> <span class="s">INFO</span>
+<span class="na">formatter</span> <span class="o">=</span> <span class="s">generic</span>
+
+<span class="k">[formatter_generic]</span>
+<span class="na">format</span> <span class="o">=</span> <span class="s">%(asctime)s %(levelname)-5.5s [%(name)s][%(threadName)s] %(message)s</span>
+
+<span class="k">[formatter_heka]</span>
+<span class="na">format</span> <span class="o">=</span> <span class="s">%(message)s</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="run-the-kinto-application">
+<h2>Run the Kinto application<a class="headerlink" href="#run-the-kinto-application" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="using-apache-mod-wsgi">
+<h3>Using Apache mod wsgi<a class="headerlink" href="#using-apache-mod-wsgi" title="Permalink to this headline">¶</a></h3>
+<p>This is probably the easiest way to setup a production server.</p>
+<p>With the following configuration for the site, Apache should be able to
+run the Kinto application:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">WSGIScriptAlias</span> <span class="o">/</span>         <span class="o">/</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">kinto</span><span class="o">/</span><span class="n">app</span><span class="o">.</span><span class="n">wsgi</span>
+<span class="n">WSGIPythonPath</span>            <span class="o">/</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">kinto</span>
+<span class="n">SetEnv</span>          <span class="n">KINTO_INI</span> <span class="o">/</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">kinto</span><span class="o">.</span><span class="n">ini</span>
+
+<span class="o">&lt;</span><span class="n">Directory</span> <span class="o">/</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">kinto</span><span class="o">&gt;</span>
+  <span class="o">&lt;</span><span class="n">Files</span> <span class="n">app</span><span class="o">.</span><span class="n">wsgi</span><span class="o">&gt;</span>
+    <span class="n">Require</span> <span class="nb">all</span> <span class="n">granted</span>
+  <span class="o">&lt;/</span><span class="n">Files</span><span class="o">&gt;</span>
+<span class="o">&lt;/</span><span class="n">Directory</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="using-nginx">
+<h3>Using nginx<a class="headerlink" href="#using-nginx" title="Permalink to this headline">¶</a></h3>
+<p>nginx can act as a <em>reverse proxy</em> in front of <a class="reference external" href="https://uwsgi-docs.readthedocs.io">uWSGI</a>
+(or any other wsgi server like <a class="reference external" href="http://gunicorn.org">Gunicorn</a> or <a class="reference external" href="https://circus.readthedocs.io">Circus</a>).</p>
+<p>Download the <code class="docutils literal"><span class="pre">uwsgi_params</span></code> file:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">wget</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">raw</span><span class="o">.</span><span class="n">githubusercontent</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">nginx</span><span class="o">/</span><span class="n">nginx</span><span class="o">/</span><span class="n">master</span><span class="o">/</span><span class="n">conf</span><span class="o">/</span><span class="n">uwsgi_params</span>
+</pre></div>
+</div>
+<p>Configure nginx to listen to a uwsgi running:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">upstream</span> <span class="n">kinto</span> <span class="p">{</span>
+    <span class="n">server</span> <span class="n">unix</span><span class="p">:</span><span class="o">///</span><span class="n">var</span><span class="o">/</span><span class="n">uwsgi</span><span class="o">/</span><span class="n">kinto</span><span class="o">.</span><span class="n">sock</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="n">server</span> <span class="p">{</span>
+    <span class="n">listen</span>      <span class="mi">8000</span><span class="p">;</span>
+    <span class="n">server_name</span> <span class="o">.</span><span class="n">my</span><span class="o">-</span><span class="n">kinto</span><span class="o">.</span><span class="n">org</span><span class="p">;</span> <span class="c1"># substitute your machine&#39;s IP address or FQDN</span>
+    <span class="n">charset</span>     <span class="n">utf</span><span class="o">-</span><span class="mi">8</span><span class="p">;</span>
+
+    <span class="c1"># max upload size</span>
+    <span class="n">client_max_body_size</span> <span class="mi">75</span><span class="n">M</span><span class="p">;</span>   <span class="c1"># adjust to taste</span>
+
+    <span class="n">location</span> <span class="o">/</span> <span class="p">{</span>
+        <span class="n">uwsgi_pass</span>  <span class="n">kinto</span><span class="p">;</span>
+        <span class="n">include</span>     <span class="o">/</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">uwsgi_params</span><span class="p">;</span> <span class="c1"># the uwsgi_params file previously downloaded</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>It is also wise to restrict the private URLs (like for <code class="docutils literal"><span class="pre">__heartbeat__</span></code>):</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">location</span> <span class="o">~</span> <span class="o">/</span><span class="n">v1</span><span class="o">/</span><span class="n">__</span><span class="p">(</span><span class="o">.+</span><span class="p">)</span><span class="n">__</span> <span class="p">{</span>
+    <span class="n">allow</span> <span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span><span class="p">;</span>
+    <span class="n">allow</span> <span class="mf">172.31</span><span class="o">.</span><span class="mf">17.16</span><span class="p">;</span>
+    <span class="n">deny</span> <span class="nb">all</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="running-with-uwsgi">
+<h3>Running with uWSGI<a class="headerlink" href="#running-with-uwsgi" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">uwsgi</span>
+</pre></div>
+</div>
+<p>To run the application using uWSGI, an <strong>app.wsgi</strong> file must be picked up.
+It is available in the <em>Kinto</em> Python package or can be downloaded from Github:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">wget</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">raw</span><span class="o">.</span><span class="n">githubusercontent</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">Kinto</span><span class="o">/</span><span class="n">kinto</span><span class="o">/</span><span class="n">master</span><span class="o">/</span><span class="n">app</span><span class="o">.</span><span class="n">wsgi</span>
+</pre></div>
+</div>
+<p>uWSGI can be configured from the main <code class="docutils literal"><span class="pre">.ini</span></code> file. Just run it with:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">uwsgi</span> <span class="o">--</span><span class="n">ini</span> <span class="n">config</span><span class="o">/</span><span class="n">kinto</span><span class="o">.</span><span class="n">ini</span>
+</pre></div>
+</div>
+<p>uWSGI configuration can be tweaked in the ini file in the dedicated
+<code class="docutils literal"><span class="pre">[uwsgi]</span></code> section.</p>
+<p>Here&#8217;s an example, where <code class="docutils literal"><span class="pre">app.wsgi</span></code> is in the current folder, a <code class="docutils literal"><span class="pre">.venv</span></code> folder
+contains the installed app and <code class="docutils literal"><span class="pre">/var/uwsgi</span></code> is writable for the <code class="docutils literal"><span class="pre">kinto</span></code> user:</p>
+<div class="highlight-ini"><div class="highlight"><pre><span></span><span class="k">[uwsgi]</span>
+<span class="hll"><span class="na">wsgi-file</span> <span class="o">=</span> <span class="s">app.wsgi</span>
+</span><span class="hll"><span class="na">virtualenv</span> <span class="o">=</span> <span class="s">.venv</span>
+</span><span class="hll"><span class="na">socket</span> <span class="o">=</span> <span class="s">/var/uwsgi/kinto.sock</span>
+</span><span class="hll"><span class="na">uid</span> <span class="o">=</span> <span class="s">kinto</span>
+</span><span class="hll"><span class="na">gid</span> <span class="o">=</span> <span class="s">kinto</span>
+</span><span class="na">enable-threads</span> <span class="o">=</span> <span class="s">true</span>
+<span class="na">chmod-socket</span> <span class="o">=</span> <span class="s">666</span>
+<span class="na">processes</span> <span class="o">=</span> <span class="s">3</span>
+<span class="na">master</span> <span class="o">=</span> <span class="s">true</span>
+<span class="na">module</span> <span class="o">=</span> <span class="s">kinto</span>
+<span class="na">harakiri</span> <span class="o">=</span> <span class="s">120</span>
+<span class="na">lazy</span> <span class="o">=</span> <span class="s">true</span>
+<span class="na">lazy-apps</span> <span class="o">=</span> <span class="s">true</span>
+<span class="na">single-interpreter</span> <span class="o">=</span> <span class="s">true</span>
+<span class="na">buffer-size</span> <span class="o">=</span> <span class="s">65535</span>
+<span class="na">post-buffering</span> <span class="o">=</span> <span class="s">65535</span>
+<span class="na">plugin</span> <span class="o">=</span> <span class="s">python</span>
+</pre></div>
+</div>
+<p>To use a different ini file, the <code class="docutils literal"><span class="pre">KINTO_INI</span></code> environment variable
+should be present with a path to it.</p>
+</div>
+<div class="section" id="nginx-as-cache-server">
+<span id="production-cache-server"></span><h3>Nginx as cache server<a class="headerlink" href="#nginx-as-cache-server" title="Permalink to this headline">¶</a></h3>
+<p>If <em>Nginx</em> is used as a reverse proxy, it can also <a class="reference external" href="https://serversforhackers.com/nginx-caching">act as a cache server</a>
+by taking advantage of <em>Kinto</em> optional cache control response headers
+(forced <a class="reference internal" href="settings.html#configuration-client-caching"><span class="std std-ref">in settings</span></a>
+or set <a class="reference internal" href="../api/1.x/collections.html#collection-caching"><span class="std std-ref">on collections</span></a>).</p>
+<p>The sample <em>Nginx</em> configuration file shown above will look like so:</p>
+<div class="highlight-none"><div class="highlight"><pre><span></span><span class="hll">proxy_cache_path /tmp/nginx levels=1:2 keys_zone=my_zone:100m inactive=200m;
+</span><span class="hll">proxy_cache_key &quot;$scheme$request_method$host$request_uri$&quot;;
+</span>
+server {
+    ...
+
+    location / {
+<span class="hll">        proxy_cache my_zone;
+</span>
+        uwsgi_pass  kinto;
+        include     /path/to/uwsgi_params; # the uwsgi_params file previously downloaded
+    }
+}
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="upgrading-kinto">
+<h2>Upgrading Kinto<a class="headerlink" href="#upgrading-kinto" title="Permalink to this headline">¶</a></h2>
+<div class="admonition important">
+<p class="first admonition-title">Important</p>
+<p>We follow <a class="reference external" href="http://semver.org/">semver</a> for version numbers.</p>
+<p>Before upgrading, read the release notes about potential breaking changes.</p>
+<p class="last">See also ref:<cite>API versioning &lt;api-versioning&gt;</cite>.</p>
+</div>
+<p>First, make the potential changes to the configuration file, as described in
+the release notes.</p>
+<p>If installed as Python package, make sure the virtualenv is activated:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">source</span> <span class="n">env</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">activate</span>
+</pre></div>
+</div>
+<p>Now upgrade Kinto (and its dependencies) using the following command:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="o">--</span><span class="n">upgrade</span> <span class="n">kinto</span>
+</pre></div>
+</div>
+<p>Since there might be some database schema changes, do not forget to run the migration with:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">kinto</span> <span class="n">migrate</span>
+</pre></div>
+</div>
+<p>Once done, restart the server. For example, with uwsgi:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">killall</span> <span class="o">-</span><span class="n">HUP</span> <span class="n">uwsgi</span>
+</pre></div>
+</div>
+<div class="section" id="using-backoff">
+<h3>Using backoff<a class="headerlink" href="#using-backoff" title="Permalink to this headline">¶</a></h3>
+<p>The <a class="reference internal" href="../api/1.x/backoff.html#id1"><span class="std std-ref">backoff feature</span></a> of the HTTP API allows
+to reduce the hits of clients during a period of time.</p>
+<p>In order to leverage this, change the <code class="docutils literal"><span class="pre">kinto.backoff</span></code> setting to a number of
+seconds (e.g. 3600) and reload/restart the server some time before starting
+the upgrade process.</p>
+<p>Do not forget to revert it once the upgrade is done ;)</p>
+</div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="good-practices.html" class="btn btn-neutral float-right" title="Deployment good practices" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="settings.html" class="btn btn-neutral" title="Settings" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2015-2016 — Mozilla Services.
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+
+  
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        var disqus_shortname = 'kinto-docs';
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+  
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'4.3.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="../_static/piwik.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

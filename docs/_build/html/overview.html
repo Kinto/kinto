@@ -1,0 +1,389 @@
+
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Overview &mdash; Kinto 4.3.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="_static/theme_overrides.css" type="text/css" />
+  
+    <link rel="stylesheet" href="_static/css/style.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="Kinto 4.3.1 documentation" href="index.html"/>
+        <link rel="next" title="Kinto Web Administration Console" href="kinto-admin.html"/>
+        <link rel="prev" title="Table of content" href="index.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Kinto
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                4.3
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Overview</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#why-use-kinto">Why use Kinto?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#use-cases">Use cases</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#key-features">Key features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#synchronisation">Synchronisation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#notifications">Notifications</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="kinto-admin.html">Kinto Web Administration Console</a></li>
+<li class="toctree-l1"><a class="reference internal" href="concepts.html">Concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="community.html">Community</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="configuration/index.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/index.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="commandline.html">Command Line</a></li>
+<li class="toctree-l1"><a class="reference internal" href="faq.html">FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="core/glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="core/index.html">Kinto Core</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">Kinto</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>Overview</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/overview.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="overview">
+<h1>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h1>
+<img alt="_images/overview-use-cases.png" class="align-right" src="_images/overview-use-cases.png" />
+<p><em>Kinto</em> is a minimalist JSON storage service with synchronisation and sharing
+abilities. It is meant to be <strong>easy to use</strong> and <strong>easy to self-host</strong>.</p>
+<p><em>Kinto</em> is used at Mozilla and released under the Apache v2 licence.</p>
+<div class="section" id="why-use-kinto">
+<span id="why"></span><h2>Why use Kinto?<a class="headerlink" href="#why-use-kinto" title="Permalink to this headline">¶</a></h2>
+<p>We believe data belongs to the users, and not to the application authors. When
+writing applications, data should be made available to any device, connected or
+offline, and everything should be in sync.</p>
+<p>Rather than spending a non-trivial amount of time and expertise on implementing
+all that (and then maintaining it!), you could use Kinto, that does all that
+for you:</p>
+<ul class="simple">
+<li>Expose your data over an HTTP interface, unlike databases like PostgreSQL</li>
+<li>Use simple HTTP requests rather than SQL</li>
+<li>Use <a class="reference external" href="https://kintojs.readthedocs.io/en/latest/">Kinto.js</a> to easily
+implement offline first clients</li>
+<li>Choose the database you want from those that Kinto supports, and use a
+unified API to access its data</li>
+<li>Manage your data using the handy
+<a class="reference external" href="http://kinto.github.io/kinto-admin/">admin UI</a></li>
+<li>Easily
+<a class="reference internal" href="tutorials/notifications-websockets.html#tutorial-notifications-websockets"><span class="std std-ref">set up live push notifications</span></a>
+for live updates of your application</li>
+<li>Make it possible to
+<a class="reference internal" href="api/1.x/permissions.html#api-permissions"><span class="std std-ref">share data between users</span></a>
+(using fine-grained permissions)</li>
+<li>Take advantage of
+<a class="reference internal" href="api/1.x/collections.html#collection-json-schema"><span class="std std-ref">schema validation</span></a>
+if you need it</li>
+<li><a class="reference internal" href="api/1.x/history.html#api-history"><span class="std std-ref">Track changes</span></a> on your application data</li>
+</ul>
+</div>
+<div class="section" id="use-cases">
+<span id="id1"></span><h2>Use cases<a class="headerlink" href="#use-cases" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>A generic Web database for frontend applications.</li>
+<li>Build collaborative applications with fine-grained permissions.</li>
+<li>Store encrypted data at a location you control.</li>
+<li>Synchronise application data between different devices.</li>
+</ul>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">At Mozilla, <em>Kinto</em> is used in <em>Firefox</em> for global synchronization
+of frequently changed settings like blocklists, and the Web Extensions storage.sync API;
+as well as in <em>Firefox for Android</em> for A/B testing and delivering extra
+assets like fonts or hyphenation dictionnaries.</p>
+</div>
+</div>
+<div class="section" id="key-features">
+<h2>Key features<a class="headerlink" href="#key-features" title="Permalink to this headline">¶</a></h2>
+<table border="1" class="docutils">
+<colgroup>
+<col width="54%" />
+<col width="46%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="_images/logo-synchronisation.svg"><img alt="https://thenounproject.com/search/?q=syncing&amp;i=31170" src="_images/logo-synchronisation.svg" width="70px" /></a>
+Synchronisation</td>
+<td><a class="reference internal" href="_images/logo-permissions.svg"><img alt="https://thenounproject.com/search/?q=permissions&amp;i=23303" src="_images/logo-permissions.svg" width="70px" /></a>
+Fined grained permissions</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="_images/logo-jsonschema.svg"><img alt="https://thenounproject.com/search/?q=quality+control&amp;i=170795" src="_images/logo-jsonschema.svg" width="70px" /></a>
+JSON Schema validation</td>
+<td><a class="reference internal" href="_images/logo-multiapps.svg"><img alt="https://thenounproject.com/search/?q=community&amp;i=189189" src="_images/logo-multiapps.svg" width="70px" /></a>
+Universal and multi clients</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="_images/logo-selfhostable.svg"><img alt="https://thenounproject.com/search/?q=free&amp;i=669" src="_images/logo-selfhostable.svg" width="70px" /></a>
+Open Source and Self-hostable</td>
+<td><a class="reference internal" href="_images/logo-community.svg"><img alt="https://thenounproject.com/search/?q=community&amp;i=189189" src="_images/logo-community.svg" width="70px" /></a>
+Designed in the open</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Also</strong></p>
+<ul class="simple">
+<li>HTTP best practices</li>
+<li>Pluggable authentication</li>
+<li><a class="reference internal" href="configuration/settings.html#configuration-backends"><span class="std std-ref">Pluggable storage, cache, and permission backends</span></a></li>
+<li>Configuration via a INI file or environment variables</li>
+<li>Built-in monitoring</li>
+<li>Cache control</li>
+</ul>
+<p><strong>Ecosystem</strong></p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="_images/logo-javascript.svg"><img alt="" src="_images/logo-javascript.svg" width="50px" /></a>
+<a class="reference external" href="https://github.com/Kinto/kinto-http.js//">JavaScript HTTP API client</a></td>
+<td><a class="reference internal" href="_images/logo-python.svg"><img alt="" src="_images/logo-python.svg" width="50px" /></a>
+<a class="reference external" href="https://github.com/Kinto/kinto.py/">Python HTTP API client</a></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="_images/logo-offline.svg"><img alt="https://thenounproject.com/search/?q=offline&amp;i=90580" src="_images/logo-offline.svg" width="50px" /></a>
+Offline-first <a class="reference external" href="https://kintojs.readthedocs.io">JavaScript client</a></td>
+<td><a class="reference internal" href="_images/logo-admin.svg"><img alt="control panel by Gregor Črešnar from the Noun Project" src="_images/logo-admin.svg" width="50px" /></a>
+<a class="reference external" href="https://github.com/Kinto/kinto-admin/">Web Admin UI</a></td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="_images/logo-history.svg"><img alt="restore by Francesco Terzini from the Noun Project" src="_images/logo-history.svg" width="50px" /></a>
+<a class="reference internal" href="api/1.x/history.html#api-history"><span class="std std-ref">History of changes and authorship</span></a></td>
+<td><a class="reference internal" href="_images/logo-livesync.svg"><img alt="https://thenounproject.com/search/?q=refresh&amp;i=110628" src="_images/logo-livesync.svg" width="50px" /></a>
+Live <a class="reference internal" href="tutorials/index.html#tutorials"><span class="std std-ref">Push notifications</span></a></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="_images/logo-attachment.svg"><img alt="https://thenounproject.com/search/?q=attachment&amp;i=169265" src="_images/logo-attachment.svg" width="50px" /></a>
+<a class="reference external" href="https://github.com/Kinto/kinto-attachment/">File attachments on records</a></td>
+<td><a class="reference internal" href="_images/logo-signature.svg"><img alt="approved by Gregor Črešnar from the Noun Project" src="_images/logo-signature.svg" width="50px" /></a>
+<a class="reference external" href="https://github.com/Kinto/kinto-signer/">Digital signature and workflows</a></td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="_images/logo-react.svg"><img alt="https://commons.wikimedia.org/wiki/File:React.js_logo.svg" src="_images/logo-react.svg" width="50px" /></a>
+<a class="reference external" href="https://github.com/Kinto/kinto-react-boilerplate/">Kinto+React boilerplate</a></td>
+<td><a class="reference internal" href="_images/logo-demos.svg"><img alt="https://thenounproject.com/search/?q=tutorial&amp;i=24313" src="_images/logo-demos.svg" width="50px" /></a>
+<a class="reference internal" href="tutorials/app-examples.html#app-examples"><span class="std std-ref">Example applications</span></a></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Coming soon</strong></p>
+<ul class="simple">
+<li>Push notifications using <a class="reference external" href="https://developer.mozilla.org/en-US/docs/Web/API/Push_API">the Push API</a> (<a class="reference external" href="https://github.com/Kinto/kinto-webpush/">under construction</a>)</li>
+<li><a class="reference external" href="https://github.com/Kinto/kinto/wiki/Quotas">Storage quotas</a></li>
+<li><a class="reference external" href="https://github.com/Kinto/kinto/wiki/SignOff">Review and validation workflows</a></li>
+</ul>
+<p>(See <a class="reference external" href="https://github.com/Kinto/kinto/wiki/Roadmap">our roadmap</a>)</p>
+</div>
+<div class="section" id="synchronisation">
+<span id="overview-synchronisation"></span><h2>Synchronisation<a class="headerlink" href="#synchronisation" title="Permalink to this headline">¶</a></h2>
+<p>Bi-directional synchronisation of records is a very hard topic.</p>
+<p><em>Kinto</em> takes some shortcuts by only providing the basics for concurrency control
+and polling for changes, and not trying to resolve conflicts automatically.</p>
+<p>Basically, each object has a revision number which is guaranteed to be incremented after
+each modification. Unless the <a class="reference internal" href="api/1.x/history.html#api-history"><span class="std std-ref">history plugin</span></a> is activated,
+<em>Kinto</em> does not keep old revisions of objects.</p>
+<p>Clients can retrieve the list of changes that occurred on a collection of records
+since a specified revision. <em>Kinto</em> can also use it to avoid accidental updates
+of objects.</p>
+<img alt="_images/overview-synchronisation.png" class="align-center" src="_images/overview-synchronisation.png" />
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><em>Kinto</em> synchronisation was designed and built by the <a class="reference external" href="https://en.wikipedia.org/wiki/Firefox_Sync">Mozilla Firefox Sync</a> team.</p>
+</div>
+</div>
+<div class="section" id="notifications">
+<span id="overview-notifications"></span><h2>Notifications<a class="headerlink" href="#notifications" title="Permalink to this headline">¶</a></h2>
+<p><em>Kinto</em> can execute some code when a particular event occurs.
+For example, when a record is created or updated in a particular collection.</p>
+<p>It can send a notification to clients using <a class="reference external" href="https://en.wikipedia.org/wiki/WebSocket">WebSockets</a>
+or fill a queue of messages in <a class="reference external" href="http://redis.io/">Redis</a> or execute any custom code of your choice,
+like for sending emails or pinging a third-party.</p>
+<p>See <a class="reference internal" href="tutorials/index.html#tutorials"><span class="std std-ref">our tutorials</span></a> for more in-depth information on
+these topics.</p>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="kinto-admin.html" class="btn btn-neutral float-right" title="Kinto Web Administration Console" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="index.html" class="btn btn-neutral" title="Table of content" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2015-2016 — Mozilla Services.
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+
+  
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        var disqus_shortname = 'kinto-docs';
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+  
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'4.3.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="_static/piwik.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

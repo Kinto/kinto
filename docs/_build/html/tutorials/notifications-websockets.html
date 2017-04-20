@@ -1,0 +1,345 @@
+
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>How to setup push notifications using WebSockets? &mdash; Kinto 4.3.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="../_static/theme_overrides.css" type="text/css" />
+  
+    <link rel="stylesheet" href="../_static/css/style.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="Kinto 4.3.1 documentation" href="../index.html"/>
+        <link rel="up" title="Tutorials" href="index.html"/>
+        <link rel="next" title="How to run custom code on notifications?" href="notifications-custom.html"/>
+        <link rel="prev" title="Synchronisation" href="synchronisation.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> Kinto
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                4.3
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../kinto-admin.html">Kinto Web Administration Console</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../concepts.html">Concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../community.html">Community</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Tutorials</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="install.html">Install Kinto</a></li>
+<li class="toctree-l2"><a class="reference internal" href="first-steps.html">First steps with Kinto HTTP API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="synchronisation.html">Synchronisation</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">How to setup push notifications using WebSockets?</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#setup-a-pusher-account">Setup a Pusher account</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#configure-kinto">Configure Kinto</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#test-pusher-events">Test Pusher events</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#consume-events-in-javascript">Consume events in JavaScript</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#demos">Demos</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="notifications-custom.html">How to run custom code on notifications?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="authentication-github.html">How to setup Github authentication?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="custom-id-generator.html">How to define and use a custom ID generator?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="permissions.html">Step by step permissions API tutorial</a></li>
+<li class="toctree-l2"><a class="reference internal" href="write-plugin.html">How to write a Kinto plugin?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="permission-setups.html">Permissions examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="app-examples.html">Application examples</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../configuration/index.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/index.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../commandline.html">Command Line</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../core/glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../core/index.html">Kinto Core</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">Kinto</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="index.html">Tutorials</a> &raquo;</li>
+      
+    <li>How to setup push notifications using WebSockets?</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/tutorials/notifications-websockets.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="how-to-setup-push-notifications-using-websockets">
+<span id="tutorial-notifications-websockets"></span><h1>How to setup push notifications using WebSockets?<a class="headerlink" href="#how-to-setup-push-notifications-using-websockets" title="Permalink to this headline">¶</a></h1>
+<p>This tutorial presents the basic steps to implement live synchronisation of
+records between clients.</p>
+<p>Currently, it relies on a plugin that sends events through WebSockets using <a class="reference external" href="https://pusher.com">Pusher.com</a>.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Another plugin is under construction for WebPush: <a class="reference external" href="https://github.com/Kinto/kinto-webpush/">Kinto/kinto-webpush</a></p>
+</div>
+<div class="section" id="setup-a-pusher-account">
+<h2>Setup a Pusher account<a class="headerlink" href="#setup-a-pusher-account" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Go to <a class="reference external" href="https://pusher.com">https://pusher.com</a></li>
+<li>Create a new app</li>
+<li>Get your app credentials (<code class="docutils literal"><span class="pre">app_id</span></code>, <code class="docutils literal"><span class="pre">key</span></code>, <code class="docutils literal"><span class="pre">secret</span></code>)</li>
+</ul>
+</div>
+<div class="section" id="configure-kinto">
+<h2>Configure Kinto<a class="headerlink" href="#configure-kinto" title="Permalink to this headline">¶</a></h2>
+<p>The plugin is already installed in the Docker image. But if you run the
+Python version, first install it:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ pip install kinto-pusher
+</pre></div>
+</div>
+<p><a class="reference internal" href="../configuration/settings.html#configuring-notifications"><span class="std std-ref">As explained in the settings section</span></a>,
+add these lines to setup a listener, and be notified of record updates per collection:</p>
+<div class="highlight-ini"><div class="highlight"><pre><span></span><span class="na">kinto.includes</span> <span class="o">=</span> <span class="s">kinto_pusher</span>
+
+<span class="na">kinto.event_listeners</span> <span class="o">=</span> <span class="s">pusher</span>
+<span class="na">kinto.event_listeners.pusher.use</span> <span class="o">=</span> <span class="s">kinto_pusher.listener</span>
+<span class="na">kinto.event_listeners.pusher.resources</span> <span class="o">=</span> <span class="s">record</span>
+<span class="na">kinto.event_listeners.pusher.channel</span> <span class="o">=</span> <span class="s">{bucket_id}-{collection_id}-{resource_name}</span>
+
+<span class="na">pusher.app_id</span> <span class="o">=</span> <span class="s">&lt;pusher-app-id&gt;</span>
+<span class="na">pusher.key</span> <span class="o">=</span> <span class="s">&lt;pusher-key&gt;</span>
+<span class="na">pusher.secret</span> <span class="o">=</span> <span class="s">&lt;pusher-secret&gt;</span>
+</pre></div>
+</div>
+<p>And (re)start Kinto with this new configuration.</p>
+</div>
+<div class="section" id="test-pusher-events">
+<h2>Test Pusher events<a class="headerlink" href="#test-pusher-events" title="Permalink to this headline">¶</a></h2>
+<p>Now that <em>Kinto</em> runs locally and is configured to send events to <em>Pusher</em>, you
+should be able to see them in the <em>Debug Console</em> of your <em>Pusher dashboard</em>.</p>
+<p>For example, create an arbitrary record with <a class="reference external" href="http://httpie.org">httpie</a></p>
+<div class="highlight-shell"><div class="highlight"><pre><span></span>$ <span class="nb">echo</span> <span class="s1">&#39;{&quot;data&quot;:{&quot;name&quot;:&quot;bob&quot;}}&#39;</span> <span class="p">|</span> <span class="se">\</span>
+    http POST http://localhost:8888/v1/buckets/default/collections/tasks/records --auth token:alice-token
+</pre></div>
+</div>
+<p>This created a record, and you should see the generated event in the dashboard.</p>
+</div>
+<div class="section" id="consume-events-in-javascript">
+<h2>Consume events in JavaScript<a class="headerlink" href="#consume-events-in-javascript" title="Permalink to this headline">¶</a></h2>
+<p>The Pusher documentation is full of examples for a variety of languages.
+For JavaScript, just add the Pusher library to your page:</p>
+<div class="highlight-html"><div class="highlight"><pre><span></span><span class="p">&lt;</span><span class="nt">script</span> <span class="na">src</span><span class="o">=</span><span class="s">&quot;//js.pusher.com/3.0/pusher.min.js&quot;</span><span class="p">&gt;&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+</pre></div>
+</div>
+<p>And listen to the events:</p>
+<div class="highlight-javascript"><div class="highlight"><pre><span></span><span class="c1">// Pusher credentials</span>
+<span class="kd">var</span> <span class="nx">pusher_key</span> <span class="o">=</span> <span class="s1">&#39;your key&#39;</span><span class="p">;</span>
+
+<span class="kd">var</span> <span class="nx">pusher</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Pusher</span><span class="p">(</span><span class="nx">pusher_key</span><span class="p">,</span> <span class="p">{</span>
+  <span class="nx">encrypted</span><span class="o">:</span> <span class="kc">true</span>
+<span class="p">});</span>
+
+<span class="c1">// The channel name. It should match the setting</span>
+<span class="c1">// `kinto.event_listeners.pusher.channel`</span>
+<span class="kd">var</span> <span class="nx">channelName</span> <span class="o">=</span> <span class="nx">bucket_id</span> <span class="o">+</span> <span class="s1">&#39;-&#39;</span> <span class="o">+</span> <span class="nx">collection_id</span> <span class="o">+</span> <span class="s1">&#39;-record&#39;</span><span class="p">;</span>
+
+<span class="kd">var</span> <span class="nx">channel</span> <span class="o">=</span> <span class="nx">pusher</span><span class="p">.</span><span class="nx">subscribe</span><span class="p">(</span><span class="nx">channelName</span><span class="p">);</span>
+<span class="nx">channel</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="s1">&#39;create&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">data</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;New records created&quot;</span><span class="p">,</span> <span class="nx">data</span><span class="p">);</span>
+<span class="p">});</span>
+<span class="nx">channel</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="s1">&#39;update&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">data</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;Records updated&quot;</span><span class="p">,</span> <span class="nx">data</span><span class="p">);</span>
+<span class="p">});</span>
+<span class="nx">channel</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="s1">&#39;delete&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">data</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;Records deleted&quot;</span><span class="p">,</span> <span class="nx">data</span><span class="p">);</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="demos">
+<h2>Demos<a class="headerlink" href="#demos" title="Permalink to this headline">¶</a></h2>
+<p>We&#8217;ve made several demos with live sync.</p>
+<p>For example, open these in several browser windows and observe the
+live changes:</p>
+<ul class="simple">
+<li><a class="reference external" href="https://kinto.github.io/kinto-pusher/">Online map</a></li>
+<li><a class="reference external" href="https://leplatrem.github.io/kinto-demo-calendar/">Calendar</a></li>
+</ul>
+<p><a class="reference internal" href="app-examples.html#app-examples"><span class="std std-ref">More demos are available.</span></a></p>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="notifications-custom.html" class="btn btn-neutral float-right" title="How to run custom code on notifications?" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="synchronisation.html" class="btn btn-neutral" title="Synchronisation" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2015-2016 — Mozilla Services.
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+
+  
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        var disqus_shortname = 'kinto-docs';
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+  
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'4.3.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="../_static/piwik.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

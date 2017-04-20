@@ -1,0 +1,467 @@
+
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Install Kinto &mdash; Kinto 4.3.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="../_static/theme_overrides.css" type="text/css" />
+  
+    <link rel="stylesheet" href="../_static/css/style.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="Kinto 4.3.1 documentation" href="../index.html"/>
+        <link rel="up" title="Tutorials" href="index.html"/>
+        <link rel="next" title="First steps with Kinto HTTP API" href="first-steps.html"/>
+        <link rel="prev" title="Tutorials" href="index.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> Kinto
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                4.3
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../kinto-admin.html">Kinto Web Administration Console</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../concepts.html">Concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../community.html">Community</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Tutorials</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Install Kinto</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#mozilla-demo-server">Mozilla demo server</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#deploying-on-cloud-providers">Deploying on cloud providers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#using-docker">Using Docker</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#environment-variables">Environment variables</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#custom-configuration-file">Custom configuration file</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#using-docker-compose">Using Docker Compose</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#using-the-python-package">Using the Python package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#system-requirements">System requirements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#quick-start">Quick start</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#from-sources">From sources</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#go-further">Go further</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="first-steps.html">First steps with Kinto HTTP API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="synchronisation.html">Synchronisation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notifications-websockets.html">How to setup push notifications using WebSockets?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notifications-custom.html">How to run custom code on notifications?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="authentication-github.html">How to setup Github authentication?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="custom-id-generator.html">How to define and use a custom ID generator?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="permissions.html">Step by step permissions API tutorial</a></li>
+<li class="toctree-l2"><a class="reference internal" href="write-plugin.html">How to write a Kinto plugin?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="permission-setups.html">Permissions examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="app-examples.html">Application examples</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../configuration/index.html">Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/index.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../commandline.html">Command Line</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../core/glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../core/index.html">Kinto Core</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">Kinto</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="index.html">Tutorials</a> &raquo;</li>
+      
+    <li>Install Kinto</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/tutorials/install.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="install-kinto">
+<span id="install"></span><h1>Install Kinto<a class="headerlink" href="#install-kinto" title="Permalink to this headline">¶</a></h1>
+<p>To get the most out of the <a class="reference internal" href="index.html#tutorials"><span class="std std-ref">tutorials</span></a>, it helps to
+have a Kinto server running. You can use the Mozilla demo server, or
+set up your own instance.</p>
+<div class="contents local topic" id="contents">
+<ul class="simple">
+<li><a class="reference internal" href="#mozilla-demo-server" id="id1">Mozilla demo server</a></li>
+<li><a class="reference internal" href="#deploying-on-cloud-providers" id="id2">Deploying on cloud providers</a></li>
+<li><a class="reference internal" href="#using-docker" id="id3">Using Docker</a><ul>
+<li><a class="reference internal" href="#environment-variables" id="id4">Environment variables</a></li>
+<li><a class="reference internal" href="#custom-configuration-file" id="id5">Custom configuration file</a></li>
+<li><a class="reference internal" href="#using-docker-compose" id="id6">Using Docker Compose</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#using-the-python-package" id="id7">Using the Python package</a><ul>
+<li><a class="reference internal" href="#system-requirements" id="id8">System requirements</a><ul>
+<li><a class="reference internal" href="#linux" id="id9">Linux</a></li>
+<li><a class="reference internal" href="#os-x" id="id10">OS X</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#quick-start" id="id11">Quick start</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#from-sources" id="id12">From sources</a></li>
+<li><a class="reference internal" href="#go-further" id="id13">Go further</a></li>
+</ul>
+</div>
+<div class="section" id="mozilla-demo-server">
+<span id="run-kinto-mozilla-demo"></span><h2><a class="toc-backref" href="#id1">Mozilla demo server</a><a class="headerlink" href="#mozilla-demo-server" title="Permalink to this headline">¶</a></h2>
+<p>A Kinto instance is running at <a class="reference external" href="https://kinto.dev.mozaws.net/v1/">https://kinto.dev.mozaws.net/v1/</a></p>
+<p>It should be enough to get started, but the records are flushed every
+day at 7:00 AM UTC.</p>
+</div>
+<div class="section" id="deploying-on-cloud-providers">
+<span id="deploy-an-instance"></span><h2><a class="toc-backref" href="#id2">Deploying on cloud providers</a><a class="headerlink" href="#deploying-on-cloud-providers" title="Permalink to this headline">¶</a></h2>
+<p>You want to get started with a working online Kinto server right now? You&#8217;ve
+got a few different options:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="18%" />
+<col width="55%" />
+<col width="27%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Provider</th>
+<th class="head">What you get / Plan</th>
+<th class="head">Link / Install button</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Heroku</td>
+<td>Free plan for up to 10.000 rows on PostgreSQL.</td>
+<td><a class="reference external" href="https://dashboard.heroku.com/new?button-url=https%3A%2F%2Fgithub.com%2FKinto%2Fkinto-heroku&amp;template=https%3A%2F%2Fgithub.com%2FKinto%2Fkinto-heroku&gt;"><img alt="Deploy on Heroku" src="../_images/heroku-button.png" /></a></td>
+</tr>
+<tr class="row-odd"><td>Scalingo</td>
+<td>3 months free trial with 512MB RAM, 512MB
+storage and a PostgreSQL database.</td>
+<td><a class="reference external" href="https://my.scalingo.com/deploy?source=https://github.com/Scalingo/kinto-scalingo"><img alt="Deploy on Scalingo" src="../_images/scalingo-button.svg" /></a></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="using-docker">
+<span id="run-kinto-docker"></span><h2><a class="toc-backref" href="#id3">Using Docker</a><a class="headerlink" href="#using-docker" title="Permalink to this headline">¶</a></h2>
+<p>If you have <a class="reference external" href="https://docker.com/">Docker</a>, <em>Kinto</em> can be started locally with a single command:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">docker</span> <span class="n">run</span> <span class="o">-</span><span class="n">p</span> <span class="mi">8888</span><span class="p">:</span><span class="mi">8888</span> <span class="n">kinto</span><span class="o">/</span><span class="n">kinto</span><span class="o">-</span><span class="n">server</span>
+</pre></div>
+</div>
+<p>The server should now be running on <a class="reference external" href="http://localhost:8888">http://localhost:8888</a></p>
+<div class="section" id="environment-variables">
+<h3><a class="toc-backref" href="#id4">Environment variables</a><a class="headerlink" href="#environment-variables" title="Permalink to this headline">¶</a></h3>
+<p>It is possible to specify most Kinto settings through environment variables.
+For example, using an environment file:</p>
+<div class="highlight-shell"><div class="highlight"><pre><span></span><span class="c1"># kinto.env</span>
+<span class="nv">KINTO_USERID_HMAC_SECRET</span> <span class="o">=</span> tr0ub4d@ur
+<span class="nv">KINTO_BATCH_MAX_REQUESTS</span> <span class="o">=</span> 200
+<span class="c1"># KINTO_STORAGE_BACKEND = kinto.core.storage.postgresql</span>
+<span class="c1"># KINTO_STORAGE_URL = postgres://user:pass@localhost/kintodb</span>
+</pre></div>
+</div>
+<p>And running the container with:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">docker</span> <span class="n">run</span> <span class="o">--</span><span class="n">env</span><span class="o">-</span><span class="n">file</span> <span class="o">./</span><span class="n">kinto</span><span class="o">.</span><span class="n">env</span> <span class="o">-</span><span class="n">p</span> <span class="mi">8888</span><span class="p">:</span><span class="mi">8888</span> <span class="n">kinto</span><span class="o">/</span><span class="n">kinto</span><span class="o">-</span><span class="n">server</span>
+</pre></div>
+</div>
+<p>The server should now be running on <a class="reference external" href="http://localhost:8888">http://localhost:8888</a></p>
+</div>
+<div class="section" id="custom-configuration-file">
+<h3><a class="toc-backref" href="#id5">Custom configuration file</a><a class="headerlink" href="#custom-configuration-file" title="Permalink to this headline">¶</a></h3>
+<p>Sometimes it is more convenient to specify the settings via an INI file.</p>
+<p>Suppose you have a settings file locally in <code class="docutils literal"><span class="pre">config/dev.ini</span></code>. With Docker, you can mount
+local folders into the container. Therefore you can mount the <code class="docutils literal"><span class="pre">config</span></code> folder
+into the container on <code class="docutils literal"><span class="pre">/etc/kinto</span></code>, and specify that <code class="docutils literal"><span class="pre">/etc/kinto/dev.ini</span></code> is your
+config file:</p>
+<div class="highlight-shell"><div class="highlight"><pre><span></span>sudo docker run -v <span class="sb">`</span><span class="nb">pwd</span><span class="sb">`</span>/config:/etc/kinto <span class="se">\</span>
+                -e <span class="nv">KINTO_INI</span><span class="o">=</span>/etc/kinto/dev.ini <span class="se">\</span>
+                -p 8888:8888 <span class="se">\</span>
+                kinto/kinto-server
+</pre></div>
+</div>
+</div>
+<div class="section" id="using-docker-compose">
+<h3><a class="toc-backref" href="#id6">Using Docker Compose</a><a class="headerlink" href="#using-docker-compose" title="Permalink to this headline">¶</a></h3>
+<p>A sample configuration for <a class="reference external" href="http://docs.docker.com/compose/">Docker Compose</a>
+is provided in the Kinto repository. It pulls the <em>Kinto</em> container and runs it
+with a <em>PostgreSQL</em> container.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">wget</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">raw</span><span class="o">.</span><span class="n">githubusercontent</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">Kinto</span><span class="o">/</span><span class="n">kinto</span><span class="o">/</span><span class="n">master</span><span class="o">/</span><span class="n">docker</span><span class="o">-</span><span class="n">compose</span><span class="o">.</span><span class="n">yml</span>
+<span class="n">sudo</span> <span class="n">docker</span><span class="o">-</span><span class="n">compose</span> <span class="n">up</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="using-the-python-package">
+<span id="run-kinto-python"></span><h2><a class="toc-backref" href="#id7">Using the Python package</a><a class="headerlink" href="#using-the-python-package" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="system-requirements">
+<h3><a class="toc-backref" href="#id8">System requirements</a><a class="headerlink" href="#system-requirements" title="Permalink to this headline">¶</a></h3>
+<p>Depending on the platform and chosen configuration, some libraries or
+extra services are required.</p>
+<p>The following commands will install necessary tools for cryptography
+and Python packaging like <a class="reference external" href="https://virtualenv.pypa.io/">Virtualenv</a>.</p>
+<div class="section" id="linux">
+<h4><a class="toc-backref" href="#id9">Linux</a><a class="headerlink" href="#linux" title="Permalink to this headline">¶</a></h4>
+<p>On Debian / Ubuntu based systems:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">install</span> <span class="n">libffi</span><span class="o">-</span><span class="n">dev</span> <span class="n">libssl</span><span class="o">-</span><span class="n">dev</span> <span class="n">python</span><span class="o">-</span><span class="n">dev</span> <span class="n">python</span><span class="o">-</span><span class="n">virtualenv</span>
+</pre></div>
+</div>
+<p>On RHEL-derivatives:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">dnf</span> <span class="n">install</span> <span class="n">libffi</span><span class="o">-</span><span class="n">devel</span> <span class="n">openssl</span><span class="o">-</span><span class="n">devel</span> <span class="n">python</span><span class="o">-</span><span class="n">devel</span> <span class="n">python</span><span class="o">-</span><span class="n">virtualenv</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="os-x">
+<h4><a class="toc-backref" href="#id10">OS X</a><a class="headerlink" href="#os-x" title="Permalink to this headline">¶</a></h4>
+<p>Assuming <a class="reference external" href="http://brew.sh/">brew</a> is installed:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">brew</span> <span class="n">install</span> <span class="n">libffi</span> <span class="n">openssl</span> <span class="n">pkg</span><span class="o">-</span><span class="n">config</span> <span class="n">python</span>
+
+<span class="n">pip</span> <span class="n">install</span> <span class="n">virtualenv</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="quick-start">
+<h3><a class="toc-backref" href="#id11">Quick start</a><a class="headerlink" href="#quick-start" title="Permalink to this headline">¶</a></h3>
+<p>By default, for convenience, <em>Kinto</em> persists the records, permissions and
+internal cache in a <strong>volatile</strong> memory backend. On every restart, the server
+will lose its data, and multiple processes are not handled properly.</p>
+<p>But it should be enough to get started!</p>
+<p>Create a Python isolated environment (<em>optional</em>):</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">virtualenv</span> <span class="n">env</span><span class="o">/</span>
+<span class="n">source</span> <span class="n">env</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">activate</span>
+</pre></div>
+</div>
+<p>Then install the package using the default configuration:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="o">--</span><span class="n">upgrade</span> <span class="n">pip</span>
+<span class="n">pip</span> <span class="n">install</span> <span class="n">kinto</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">kinto</span> <span class="n">init</span>
+<span class="n">kinto</span> <span class="n">migrate</span>
+<span class="n">kinto</span> <span class="n">start</span>
+</pre></div>
+</div>
+<p>The server should now be running on <a class="reference external" href="http://localhost:8888">http://localhost:8888</a></p>
+</div>
+</div>
+<div class="section" id="from-sources">
+<span id="run-kinto-from-source"></span><h2><a class="toc-backref" href="#id12">From sources</a><a class="headerlink" href="#from-sources" title="Permalink to this headline">¶</a></h2>
+<p>If you plan on contributing, this is the way to go!</p>
+<p>This will install every necessary packages to run the tests, build the
+documentation etc.</p>
+<p>Make sure you have the system requirements listed in the
+<a class="reference internal" href="#run-kinto-python"><span class="std std-ref">Python package</span></a> section.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">clone</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">Kinto</span><span class="o">/</span><span class="n">kinto</span><span class="o">.</span><span class="n">git</span>
+<span class="n">cd</span> <span class="n">kinto</span><span class="o">/</span>
+<span class="n">make</span> <span class="n">serve</span>
+</pre></div>
+</div>
+<p>During the installation, you will be asked which backend you would like to use:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ Select the backend you would like to use: (1 - postgresql, 2 - redis, default - memory)
+</pre></div>
+</div>
+<p>If you don&#8217;t know, just push &#8220;enter&#8221; to choose the default Memory backend.
+You can always change your backend selection
+<a class="reference external" href="https://kinto.readthedocs.io/en/latest/configuration/settings.html#backends">later on</a>.</p>
+<p>The server should now be running with the default configuration on <a class="reference external" href="http://localhost:8888">http://localhost:8888</a></p>
+<p>In order to specify a particular settings file:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="n">serve</span> <span class="n">SERVER_CONFIG</span><span class="o">=</span><span class="n">config</span><span class="o">/</span><span class="n">dev</span><span class="o">.</span><span class="n">ini</span>
+</pre></div>
+</div>
+<p>With <cite>make</cite>, it is also possible to specify arguments from environment variables:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">export</span> <span class="n">SERVER_CONFIG</span><span class="o">=</span><span class="n">config</span><span class="o">/</span><span class="n">dev</span><span class="o">.</span><span class="n">ini</span>
+
+<span class="n">make</span> <span class="n">serve</span> <span class="o">-</span><span class="n">e</span>
+</pre></div>
+</div>
+<p>See our <a class="reference internal" href="../community.html#how-to-contribute"><span class="std std-ref">dedicated section about contributing</span></a>!</p>
+</div>
+<div class="section" id="go-further">
+<h2><a class="toc-backref" href="#id13">Go further</a><a class="headerlink" href="#go-further" title="Permalink to this headline">¶</a></h2>
+<p>Some suggestions for the next steps:</p>
+<ul class="simple">
+<li><a class="reference internal" href="index.html#tutorials"><span class="std std-ref">Follow our tutorials</span></a></li>
+<li><a class="reference internal" href="../configuration/production.html#postgresql-install"><span class="std std-ref">Configure PostgreSQL</span></a></li>
+<li><a class="reference internal" href="../configuration/production.html#run-production"><span class="std std-ref">Run in production</span></a></li>
+</ul>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="first-steps.html" class="btn btn-neutral float-right" title="First steps with Kinto HTTP API" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="index.html" class="btn btn-neutral" title="Tutorials" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2015-2016 — Mozilla Services.
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+
+  
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        var disqus_shortname = 'kinto-docs';
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+  
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'4.3.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="../_static/piwik.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

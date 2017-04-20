@@ -1,0 +1,1141 @@
+
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Settings &mdash; Kinto 4.3.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="../_static/theme_overrides.css" type="text/css" />
+  
+    <link rel="stylesheet" href="../_static/css/style.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="Kinto 4.3.1 documentation" href="../index.html"/>
+        <link rel="up" title="Configuration" href="index.html"/>
+        <link rel="next" title="Running in production" href="production.html"/>
+        <link rel="prev" title="Configuration" href="index.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> Kinto
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                4.3
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../kinto-admin.html">Kinto Web Administration Console</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../concepts.html">Concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../community.html">Community</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Configuration</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Settings</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#environment-variables">Environment variables</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#feature-settings">Feature settings</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#backends">Backends</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#storage">Storage</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cache">Cache</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#permissions">Permissions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#bypass-permissions-with-configuration">Bypass permissions with configuration</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#scheme-host-and-port">Scheme, host, and port</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#logging-and-monitoring">Logging and Monitoring</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#logging-with-heka">Logging with Heka</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#handling-exceptions-with-sentry">Handling exceptions with Sentry</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#monitoring-with-statsd">Monitoring with StatsD</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#monitoring-with-new-relic">Monitoring with New Relic</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#authentication">Authentication</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#authentication-setup">Authentication setup</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#basic-auth">Basic Auth</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#custom-authentication">Custom Authentication</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#firefox-accounts">Firefox Accounts</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#plugins">Plugins</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#pluggable-components">Pluggable components</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#notifications">Notifications</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#filtering">Filtering</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#third-party">Third-party</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#cross-origin-requests-cors">Cross Origin requests (CORS)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#backoff-indicators">Backoff indicators</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#enabling-or-disabling-endpoints">Enabling or disabling endpoints</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#activating-the-flush-endpoint">Activating the flush endpoint</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#activating-the-permissions-endpoint">Activating the permissions endpoint</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#client-caching">Client caching</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#project-information">Project information</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#application-profiling">Application profiling</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="production.html">Running in production</a></li>
+<li class="toctree-l2"><a class="reference internal" href="good-practices.html">Deployment good practices</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../api/index.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../commandline.html">Command Line</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faq.html">FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../core/glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../core/index.html">Kinto Core</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">Kinto</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="index.html">Configuration</a> &raquo;</li>
+      
+    <li>Settings</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/configuration/settings.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="settings">
+<span id="id1"></span><h1>Settings<a class="headerlink" href="#settings" title="Permalink to this headline">¶</a></h1>
+<img alt="../_images/overview-features.png" class="align-center" src="../_images/overview-features.png" />
+<p>If you are looking for installation instructions, please refer to <a class="reference internal" href="../tutorials/install.html#install"><span class="std std-ref">Install Kinto</span></a>.</p>
+<p>Kinto is built to be highly configurable. As a result, the related
+configuration can be verbose, but don&#8217;t worry, all configuration flags are
+listed below.</p>
+<div class="section" id="environment-variables">
+<span id="configuration-environment"></span><h2>Environment variables<a class="headerlink" href="#environment-variables" title="Permalink to this headline">¶</a></h2>
+<p>In order to ease deployment or testing strategies, <em>Kinto</em> reads settings
+from environment variables, in addition to <code class="docutils literal"><span class="pre">.ini</span></code> files.</p>
+<p>The environment variables are exactly the same as the settings, but they
+are capitalised and <code class="docutils literal"><span class="pre">.</span></code> are replaced by <code class="docutils literal"><span class="pre">_</span></code>.</p>
+<p>For example, <code class="docutils literal"><span class="pre">kinto.storage_backend</span></code> is read from environment variable
+<code class="docutils literal"><span class="pre">KINTO_STORAGE_BACKEND</span></code> (if defined of course).</p>
+<p>All settings are read first from the environment variables, then from
+application <code class="docutils literal"><span class="pre">.ini</span></code>, and finally from internal defaults.</p>
+</div>
+<div class="section" id="feature-settings">
+<span id="configuration-features"></span><h2>Feature settings<a class="headerlink" href="#feature-settings" title="Permalink to this headline">¶</a></h2>
+<table border="1" class="docutils">
+<colgroup>
+<col width="36%" />
+<col width="10%" />
+<col width="54%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Setting name</th>
+<th class="head">Default</th>
+<th class="head">What does it do?</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>kinto.readonly</td>
+<td><code class="docutils literal"><span class="pre">False</span></code></td>
+<td>If set to true, the whole service will reject every write operation.
+Note that with this option, the <code class="docutils literal"><span class="pre">default</span></code> bucket cannot be used and
+request will be rejected with a <code class="docutils literal"><span class="pre">405</span> <span class="pre">Method</span> <span class="pre">Not</span> <span class="pre">Allowed</span></code> error response.</td>
+</tr>
+<tr class="row-odd"><td>kinto.batch_max_requests</td>
+<td><code class="docutils literal"><span class="pre">25</span></code></td>
+<td>The maximum number of requests that can be sent to the batch endpoint.</td>
+</tr>
+<tr class="row-even"><td>kinto.paginate_by</td>
+<td><code class="docutils literal"><span class="pre">None</span></code></td>
+<td>The maximum number of items to include on a response before enabling
+pagination. If set to <code class="docutils literal"><span class="pre">None</span></code>, no pagination will be used.
+It is recommended to set-up pagination if the server is under high load.
+If not defined, a collection response cannot contain
+more elements than defined by the
+<code class="docutils literal"><span class="pre">kinto.storage_max_fetch_size</span></code> setting.</td>
+</tr>
+<tr class="row-odd"><td>kinto.&lt;object-type&gt;_id_generator</td>
+<td><code class="docutils literal"><span class="pre">UUID4</span></code></td>
+<td>The Python <em>dotted</em> location of the generator class that should be used
+to generate identifiers on a POST endpoint.
+Object type is one of <code class="docutils literal"><span class="pre">bucket</span></code>, <code class="docutils literal"><span class="pre">collection</span></code>, <code class="docutils literal"><span class="pre">group</span></code>, <code class="docutils literal"><span class="pre">record</span></code>.
+See <a class="reference internal" href="../tutorials/custom-id-generator.html#tutorial-id-generator"><span class="std std-ref">How to define and use a custom ID generator?</span></a>.</td>
+</tr>
+<tr class="row-even"><td>kinto.experimental_collection_schema_validation</td>
+<td><code class="docutils literal"><span class="pre">False</span></code></td>
+<td><em>Experimental</em>: Allow definition of JSON schema at the collection level,
+in order to <a class="reference internal" href="../api/1.x/collections.html#collection-json-schema"><span class="std std-ref">validate submitted records</span></a>.
+It is marked as experimental because the API might be subject to changes.</td>
+</tr>
+<tr class="row-odd"><td>kinto.experimental_permissions_endpoint</td>
+<td><code class="docutils literal"><span class="pre">False</span></code></td>
+<td><em>Experimental</em>: Add a new <code class="docutils literal"><span class="pre">/permissions</span></code> endpoint to let the user grab
+the list of objects (buckets, collections, groups, records) on which they
+have read or write permission.
+It is marked as experimental because the API might be subject to changes.</td>
+</tr>
+<tr class="row-even"><td>kinto.trailing_slash_redirect_enabled</td>
+<td><code class="docutils literal"><span class="pre">True</span></code></td>
+<td>Try to redirect resources removing slash or adding it for the root URL
+endpoint: <code class="docutils literal"><span class="pre">/v1</span></code> redirects to <code class="docutils literal"><span class="pre">/v1/</span></code> and <code class="docutils literal"><span class="pre">/buckets/default/</span></code>
+to <code class="docutils literal"><span class="pre">/buckets/default</span></code>. No redirections are made when turned off.</td>
+</tr>
+<tr class="row-odd"><td>kinto.heartbeat_timeout_seconds</td>
+<td><code class="docutils literal"><span class="pre">10</span></code></td>
+<td>The maximum duration of each heartbeat entry, in seconds.</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p><code class="docutils literal"><span class="pre">kinto.readonly</span></code> will disable every endpoint that is not accessed with one of
+<code class="docutils literal"><span class="pre">GET</span></code>, <code class="docutils literal"><span class="pre">OPTIONS</span></code>, or <code class="docutils literal"><span class="pre">HEAD</span></code> HTTP methods. Requests will receive a
+<code class="docutils literal"><span class="pre">405</span> <span class="pre">Method</span> <span class="pre">Not</span> <span class="pre">Allowed</span></code> error response.</p>
+<p class="last">The cache backend will still needs read-write privileges, in order to
+cache OAuth authentication states and tokens for example.</p>
+</div>
+</div>
+<div class="section" id="backends">
+<span id="configuration-backends"></span><h2>Backends<a class="headerlink" href="#backends" title="Permalink to this headline">¶</a></h2>
+<p>Kinto relies on three types of backends: storage, cache and permission. The
+settings names have a different prefix for each.</p>
+<p>For each of them, the supported services are currently PostgreSQL, Redis, and Memory.</p>
+<div class="section" id="storage">
+<h3>Storage<a class="headerlink" href="#storage" title="Permalink to this headline">¶</a></h3>
+<table border="1" class="docutils">
+<colgroup>
+<col width="22%" />
+<col width="23%" />
+<col width="55%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Setting name</th>
+<th class="head">Default</th>
+<th class="head">What does it do?</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>kinto.storage_backend</td>
+<td><code class="docutils literal"><span class="pre">kinto.core.storage.memory</span></code></td>
+<td>The Python <em>dotted</em> location of the storage backend to use.</td>
+</tr>
+<tr class="row-odd"><td>kinto.storage_url</td>
+<td><code class="docutils literal"><span class="pre">''</span></code></td>
+<td>The URL to use to authenticate to the storage backend. e.g.
+<code class="docutils literal"><span class="pre">redis://localhost:6378/1</span></code> or <code class="docutils literal"><span class="pre">postgres://user:pass&#64;database/db</span></code></td>
+</tr>
+<tr class="row-even"><td>kinto.storage_max_fetch_size</td>
+<td><code class="docutils literal"><span class="pre">10000</span></code></td>
+<td>The maximum number of items that can be returned by one request to the
+storage backend. If no pagination is enabled, this is the maximum number
+of items that can be stored in a collection (otherwise some of them
+won&#8217;t be returned). With pagination enabled, this limitation doesn&#8217;t
+apply.</td>
+</tr>
+<tr class="row-odd"><td>kinto.storage_pool_size</td>
+<td><code class="docutils literal"><span class="pre">25</span></code></td>
+<td>The size of the pool of connections to use for the storage backend.</td>
+</tr>
+<tr class="row-even"><td>kinto.storage_max_overflow</td>
+<td><code class="docutils literal"><span class="pre">5</span></code></td>
+<td>Number of connections that can be opened beyond pool size.</td>
+</tr>
+<tr class="row-odd"><td>kinto.storage_pool_recycle</td>
+<td><code class="docutils literal"><span class="pre">-1</span></code></td>
+<td>Recycle connections after the given number of seconds has passed.</td>
+</tr>
+<tr class="row-even"><td>kinto.storage_pool_timeout</td>
+<td><code class="docutils literal"><span class="pre">30</span></code></td>
+<td>Number of seconds to wait before giving up on getting a connection from
+the pool.</td>
+</tr>
+<tr class="row-odd"><td>kinto.storage_max_backlog</td>
+<td><code class="docutils literal"><span class="pre">-1</span></code></td>
+<td>Number of threads that can be in the queue waiting for a connection.</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-ini"><div class="highlight"><pre><span></span><span class="na">kinto.storage_backend</span> <span class="o">=</span> <span class="s">kinto.core.storage.postgresql</span>
+<span class="na">kinto.storage_url</span> <span class="o">=</span> <span class="s">postgres://postgres:postgres@localhost/postgres</span>
+
+<span class="c1"># Safety limit while fetching from storage</span>
+<span class="c1"># kinto.storage_max_fetch_size = 10000</span>
+
+<span class="c1"># Control number of pooled connections</span>
+<span class="c1"># kinto.storage_pool_size = 50</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="cache">
+<h3>Cache<a class="headerlink" href="#cache" title="Permalink to this headline">¶</a></h3>
+<table border="1" class="docutils">
+<colgroup>
+<col width="20%" />
+<col width="22%" />
+<col width="59%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Setting name</th>
+<th class="head">Default</th>
+<th class="head">What does it do?</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>kinto.cache_backend</td>
+<td><code class="docutils literal"><span class="pre">kinto.core.cache.memory</span></code></td>
+<td>The Python <em>dotted</em> location of the cache backend to use.</td>
+</tr>
+<tr class="row-odd"><td>kinto.cache_url</td>
+<td><code class="docutils literal"><span class="pre">''</span></code></td>
+<td>The URL to use to authenticate to the cache backend. e.g.
+<code class="docutils literal"><span class="pre">redis://localhost:6378/1</span></code> or <code class="docutils literal"><span class="pre">postgres://user:pass&#64;database/db</span></code></td>
+</tr>
+<tr class="row-even"><td>kinto.cache_prefix</td>
+<td><code class="docutils literal"><span class="pre">''</span></code></td>
+<td>A prefix added to each key. Useful when having multiple Kinto using the same
+cache database.</td>
+</tr>
+<tr class="row-odd"><td>kinto.cache_pool_size</td>
+<td><code class="docutils literal"><span class="pre">25</span></code></td>
+<td>The size of the pool of connections to use for the cache backend.</td>
+</tr>
+<tr class="row-even"><td>kinto.cache_max_overflow</td>
+<td><code class="docutils literal"><span class="pre">5</span></code></td>
+<td>Number of connections that can be opened beyond pool size.</td>
+</tr>
+<tr class="row-odd"><td>kinto.cache_pool_recycle</td>
+<td><code class="docutils literal"><span class="pre">-1</span></code></td>
+<td>Recycle connections after the given number of seconds has passed.</td>
+</tr>
+<tr class="row-even"><td>kinto.cache_pool_timeout</td>
+<td><code class="docutils literal"><span class="pre">30</span></code></td>
+<td>Number of seconds to wait before giving up on getting a connection from
+the pool.</td>
+</tr>
+<tr class="row-odd"><td>kinto.cache_max_backlog</td>
+<td><code class="docutils literal"><span class="pre">-1</span></code></td>
+<td>Number of threads that can be in the queue waiting for a connection.</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-ini"><div class="highlight"><pre><span></span><span class="na">kinto.cache_backend</span> <span class="o">=</span> <span class="s">kinto.core.cache.postgresql</span>
+<span class="na">kinto.cache_url</span> <span class="o">=</span> <span class="s">postgres://postgres:postgres@localhost/postgres</span>
+
+<span class="c1"># Control number of pooled connections</span>
+<span class="c1"># kinto.cache_pool_size = 50</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="permissions">
+<h3>Permissions<a class="headerlink" href="#permissions" title="Permalink to this headline">¶</a></h3>
+<table border="1" class="docutils">
+<colgroup>
+<col width="23%" />
+<col width="24%" />
+<col width="53%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Setting name</th>
+<th class="head">Default</th>
+<th class="head">What does it do?</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>kinto.permission_backend</td>
+<td><code class="docutils literal"><span class="pre">kinto.core.permission.memory</span></code></td>
+<td>The Python <em>dotted</em> location of the permission backend to use.</td>
+</tr>
+<tr class="row-odd"><td>kinto.permission_url</td>
+<td><code class="docutils literal"><span class="pre">''</span></code></td>
+<td>The URL to use to authenticate to the permission backend. e.g.
+<code class="docutils literal"><span class="pre">redis://localhost:6379/1</span></code></td>
+</tr>
+<tr class="row-even"><td>kinto.permission_pool_size</td>
+<td><code class="docutils literal"><span class="pre">25</span></code></td>
+<td>The size of the pool of connections to use for the permission backend.</td>
+</tr>
+<tr class="row-odd"><td>kinto.permission_max_overflow</td>
+<td><code class="docutils literal"><span class="pre">5</span></code></td>
+<td>Number of connections that can be opened beyond pool size.</td>
+</tr>
+<tr class="row-even"><td>kinto.permission_pool_recycle</td>
+<td><code class="docutils literal"><span class="pre">-1</span></code></td>
+<td>Recycle connections after the given number of seconds has passed.</td>
+</tr>
+<tr class="row-odd"><td>kinto.permission_pool_timeout</td>
+<td><code class="docutils literal"><span class="pre">30</span></code></td>
+<td>Number of seconds to wait before giving up on getting a connection from
+the pool.</td>
+</tr>
+<tr class="row-even"><td>kinto.permission_max_backlog</td>
+<td><code class="docutils literal"><span class="pre">-1</span></code></td>
+<td>Number of threads that can be in the queue waiting for a connection.</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-ini"><div class="highlight"><pre><span></span><span class="na">kinto.permission_backend</span> <span class="o">=</span> <span class="s">kinto.core.permission.postgresql</span>
+<span class="na">kinto.permission_url</span> <span class="o">=</span> <span class="s">postgres://postgres:postgres@localhost/postgres</span>
+
+<span class="c1"># Control number of pooled connections</span>
+<span class="c1"># kinto.permission_pool_size = 50</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="bypass-permissions-with-configuration">
+<h3>Bypass permissions with configuration<a class="headerlink" href="#bypass-permissions-with-configuration" title="Permalink to this headline">¶</a></h3>
+<p>Permissions are usually retrieved from the permission backend. However, it is
+also possible to configure them from settings, and it will <strong>bypass</strong> the
+permission backend.</p>
+<p>For example, for a resource named &#8220;bucket&#8221;, the following setting will enable
+authenticated people to create bucket records:</p>
+<div class="highlight-ini"><div class="highlight"><pre><span></span><span class="na">kinto.bucket_create_principals</span> <span class="o">=</span> <span class="s">system.Authenticated</span>
+</pre></div>
+</div>
+<p>The format of these permission settings is
+<code class="docutils literal"><span class="pre">&lt;resource_name&gt;_&lt;permission&gt;_principals</span> <span class="pre">=</span> <span class="pre">comma,separated,principals</span></code>.</p>
+</div>
+</div>
+<div class="section" id="scheme-host-and-port">
+<h2>Scheme, host, and port<a class="headerlink" href="#scheme-host-and-port" title="Permalink to this headline">¶</a></h2>
+<p>By default, Kinto relies on WSGI for underlying details like host, port, or
+request scheme. Tuning these settings may be necessary when the application
+runs behind proxies or load balancers, but most implementations
+(such as uWSGI) provide adequate values automatically.</p>
+<p>That said, if ever these items need to be controlled at the application layer,
+the following settings are available:</p>
+<p>Check the behaviour of the server with the <code class="docutils literal"><span class="pre">url</span></code> value returned in <a class="reference internal" href="../api/1.x/utilities.html#api-utilities"><span class="std std-ref">the
+hello view</span></a>.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="18%" />
+<col width="10%" />
+<col width="72%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Setting name</th>
+<th class="head">Default</th>
+<th class="head">What does it do?</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>kinto.http_host</td>
+<td><code class="docutils literal"><span class="pre">None</span></code></td>
+<td>The HTTP Host used by Kinto to refer to itself. If set to <cite>None</cite>, the
+HTTP host is read from HTTP headers or WSGI environment.</td>
+</tr>
+<tr class="row-odd"><td>kinto.http_scheme</td>
+<td><code class="docutils literal"><span class="pre">None</span></code></td>
+<td>The HTTP scheme used by Kinto to refer to itself. If set to <cite>None</cite>, the
+HTTP scheme is read from the HTTP headers or WSGI environment.</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-ini"><div class="highlight"><pre><span></span><span class="c1"># kinto.http_scheme = https</span>
+<span class="c1"># kinto.http_host = production.server.com:7777</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="logging-and-monitoring">
+<h2>Logging and Monitoring<a class="headerlink" href="#logging-and-monitoring" title="Permalink to this headline">¶</a></h2>
+<table border="1" class="docutils">
+<colgroup>
+<col width="17%" />
+<col width="29%" />
+<col width="54%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Setting name</th>
+<th class="head">Default</th>
+<th class="head">What does it do?</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>kinto.logging_renderer</td>
+<td><code class="docutils literal"><span class="pre">kinto.core.logs.ClassicLogRenderer</span></code></td>
+<td>The Python <em>dotted</em> location of the renderer class that should be used
+to render the logs to the standard output.</td>
+</tr>
+<tr class="row-odd"><td>kinto.statsd_backend</td>
+<td><code class="docutils literal"><span class="pre">kinto.core.statsd</span></code></td>
+<td>The Python <strong>dotted</strong> location of the StatsD module that should be used
+for monitoring. Useful to plug custom implementations like Datadog™.</td>
+</tr>
+<tr class="row-even"><td>kinto.statsd_prefix</td>
+<td><code class="docutils literal"><span class="pre">kinto</span></code></td>
+<td>The prefix to use when sending data to statsd.</td>
+</tr>
+<tr class="row-odd"><td>kinto.statsd_url</td>
+<td><code class="docutils literal"><span class="pre">None</span></code></td>
+<td>The fully qualified URL to use to connect to the statsd host. e.g.
+<code class="docutils literal"><span class="pre">udp://localhost:8125</span></code></td>
+</tr>
+</tbody>
+</table>
+<div class="section" id="logging-with-heka">
+<h3>Logging with Heka<a class="headerlink" href="#logging-with-heka" title="Permalink to this headline">¶</a></h3>
+<p>Heka is an open source stream processing software system developed by Mozilla.
+Heka is a &#8220;Swiss Army Knife&#8221; type tool for data processing, and is useful for
+a wide variety of different tasks.</p>
+<p>For more information, see <a class="reference external" href="https://hekad.readthedocs.io/">https://hekad.readthedocs.io/</a></p>
+<p>Heka logging format can be enabled using:</p>
+<div class="highlight-ini"><div class="highlight"><pre><span></span><span class="na">kinto.logging_renderer</span> <span class="o">=</span> <span class="s">kinto.core.logs.MozillaHekaRenderer</span>
+</pre></div>
+</div>
+<p>With the following configuration, all logs are redirected to standard output
+(See <a class="reference external" href="http://12factor.net/logs">12factor app</a>):</p>
+<div class="highlight-ini"><div class="highlight"><pre><span></span><span class="k">[loggers]</span>
+<span class="na">keys</span> <span class="o">=</span> <span class="s">root</span>
+
+<span class="k">[handlers]</span>
+<span class="na">keys</span> <span class="o">=</span> <span class="s">console</span>
+
+<span class="k">[formatters]</span>
+<span class="na">keys</span> <span class="o">=</span> <span class="s">heka</span>
+
+<span class="k">[logger_root]</span>
+<span class="na">level</span> <span class="o">=</span> <span class="s">INFO</span>
+<span class="na">handlers</span> <span class="o">=</span> <span class="s">console</span>
+<span class="na">formatter</span> <span class="o">=</span> <span class="s">heka</span>
+
+<span class="k">[handler_console]</span>
+<span class="na">class</span> <span class="o">=</span> <span class="s">StreamHandler</span>
+<span class="na">args</span> <span class="o">=</span> <span class="s">(sys.stdout,)</span>
+<span class="na">level</span> <span class="o">=</span> <span class="s">NOTSET</span>
+
+<span class="k">[formatter_heka]</span>
+<span class="na">format</span> <span class="o">=</span> <span class="s">%(message)s</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="handling-exceptions-with-sentry">
+<h3>Handling exceptions with Sentry<a class="headerlink" href="#handling-exceptions-with-sentry" title="Permalink to this headline">¶</a></h3>
+<p>Requires the <code class="docutils literal"><span class="pre">raven</span></code> package.</p>
+<p>Sentry logging can be enabled <a class="reference external" href="https://raven.readthedocs.io/en/latest/integrations/pyramid.html#logger-setup">as explained in official documentation</a>.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The application sends an <em>INFO</em> message on startup (mainly for setup check).</p>
+</div>
+</div>
+<div class="section" id="monitoring-with-statsd">
+<h3>Monitoring with StatsD<a class="headerlink" href="#monitoring-with-statsd" title="Permalink to this headline">¶</a></h3>
+<p>Requires the <code class="docutils literal"><span class="pre">statsd</span></code> package.</p>
+<p>StatsD metrics can be enabled (disabled by default):</p>
+<div class="highlight-ini"><div class="highlight"><pre><span></span><span class="na">kinto.statsd_url</span> <span class="o">=</span> <span class="s">udp://localhost:8125</span>
+<span class="c1"># kinto.statsd_prefix = kinto-prod</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="monitoring-with-new-relic">
+<h3>Monitoring with New Relic<a class="headerlink" href="#monitoring-with-new-relic" title="Permalink to this headline">¶</a></h3>
+<p>Requires the <code class="docutils literal"><span class="pre">newrelic</span></code> package.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="21%" />
+<col width="9%" />
+<col width="69%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Setting name</th>
+<th class="head">Default</th>
+<th class="head">What does it do?</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>kinto.newrelic_config</td>
+<td><code class="docutils literal"><span class="pre">None</span></code></td>
+<td>Location of the newrelic configuration file.</td>
+</tr>
+<tr class="row-odd"><td>kinto.newrelic_env</td>
+<td><code class="docutils literal"><span class="pre">dev</span></code></td>
+<td>The environment the server runs into</td>
+</tr>
+</tbody>
+</table>
+<p>New Relic can be enabled (disabled by default):</p>
+<div class="highlight-ini"><div class="highlight"><pre><span></span><span class="na">kinto.newrelic_config</span> <span class="o">=</span> <span class="s">/location/of/newrelic.ini</span>
+<span class="na">kinto.newrelic_env</span> <span class="o">=</span> <span class="s">prod</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="authentication">
+<span id="configuration-authentication"></span><h2>Authentication<a class="headerlink" href="#authentication" title="Permalink to this headline">¶</a></h2>
+<p>By default, <em>Kinto</em> relies on <em>Basic Auth</em> to authenticate users.</p>
+<p>User registration is not necessary. A unique user idenfier will be created
+for each <code class="docutils literal"><span class="pre">username:password</span></code> pair.</p>
+<p><em>Kinto</em> is compatible with any third-party authentication service.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="20%" />
+<col width="34%" />
+<col width="46%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Setting name</th>
+<th class="head">Default</th>
+<th class="head">What does it do?</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>kinto.userid_hmac_secret</td>
+<td><code class="docutils literal"><span class="pre">''</span></code></td>
+<td>The secret used to create the user ID from a <code class="docutils literal"><span class="pre">username:password</span></code> pair.
+This value should be unique to each instance and kept secret.</td>
+</tr>
+<tr class="row-odd"><td>multiauth.policies</td>
+<td><code class="docutils literal"><span class="pre">basicauth</span></code></td>
+<td>The list of authentication policies aliases that are enabled.
+Each alias is configuration using dedicated settings as explained
+below.</td>
+</tr>
+<tr class="row-even"><td>multiauth.authorization_policy</td>
+<td><code class="docutils literal"><span class="pre">kinto.authorization.AuthorizationPolicy</span></code></td>
+<td>Python <em>dotted</em> path the authorisation policy to use for the permission
+mecanism.</td>
+</tr>
+</tbody>
+</table>
+<div class="section" id="authentication-setup">
+<h3>Authentication setup<a class="headerlink" href="#authentication-setup" title="Permalink to this headline">¶</a></h3>
+<p><em>Kinto</em> relies on <a class="reference external" href="https://github.com/mozilla-services/pyramid_multiauth/">pyramid multiauth</a>
+to initialise authentication.</p>
+<p>Therefore, any authentication policy can be specified through configuration.</p>
+<p>In the following example, Basic Auth, Persona, and IP Auth are all enabled:</p>
+<div class="highlight-ini"><div class="highlight"><pre><span></span><span class="na">multiauth.policies</span> <span class="o">=</span> <span class="s">basicauth pyramid_persona ipauth</span>
+
+<span class="na">multiauth.policy.ipauth.use</span> <span class="o">=</span> <span class="s">pyramid_ipauth.IPAuthentictionPolicy</span>
+<span class="na">multiauth.policy.ipauth.ipaddrs</span> <span class="o">=</span> <span class="s">192.168.0.*</span>
+<span class="na">multiauth.policy.ipauth.userid</span> <span class="o">=</span> <span class="s">LAN-user</span>
+<span class="na">multiauth.policy.ipauth.principals</span> <span class="o">=</span> <span class="s">trusted</span>
+</pre></div>
+</div>
+<p>Permission handling and authorisation mechanisms are specified directly via
+configuration. This allows for customised solutions ranging from very simple
+to highly complex.</p>
+</div>
+<div class="section" id="basic-auth">
+<h3>Basic Auth<a class="headerlink" href="#basic-auth" title="Permalink to this headline">¶</a></h3>
+<p><code class="docutils literal"><span class="pre">basicauth</span></code> is enabled via <code class="docutils literal"><span class="pre">multiauth.policies</span></code> by default.</p>
+<div class="highlight-ini"><div class="highlight"><pre><span></span><span class="na">multiauth.policies</span> <span class="o">=</span> <span class="s">basicauth</span>
+</pre></div>
+</div>
+<p>By default an internal <em>Basic Auth</em> policy is used, where any <cite>login:password</cite> pair
+will be accepted, meaning that no account creation is required.</p>
+<p>In order to replace it by another one:</p>
+<div class="highlight-ini"><div class="highlight"><pre><span></span><span class="na">multiauth.policies</span> <span class="o">=</span> <span class="s">basicauth</span>
+<span class="na">multiauth.policy.basicauth.use</span> <span class="o">=</span> <span class="s">myproject.authn.BasicAuthPolicy</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="custom-authentication">
+<h3>Custom Authentication<a class="headerlink" href="#custom-authentication" title="Permalink to this headline">¶</a></h3>
+<p>Using the various <a class="reference external" href="https://github.com/ITCase/awesome-pyramid#authentication">Pyramid authentication packages</a>, it is possible
+to plug in any kind of authentication.</p>
+</div>
+<div class="section" id="firefox-accounts">
+<h3>Firefox Accounts<a class="headerlink" href="#firefox-accounts" title="Permalink to this headline">¶</a></h3>
+<p>Enabling <a class="reference internal" href="../core/glossary.html#term-firefox-accounts"><span class="xref std std-term">Firefox Accounts</span></a> consists of including <code class="docutils literal"><span class="pre">kinto_fxa</span></code> in
+configuration, mentioning <code class="docutils literal"><span class="pre">fxa</span></code> among policies, and providing appropriate
+values for OAuth2 client settings.</p>
+<p>See <a class="reference external" href="https://github.com/mozilla-services/kinto-fxa/">mozilla-services/kinto-fxa</a>.</p>
+</div>
+</div>
+<div class="section" id="plugins">
+<span id="configuration-plugins"></span><h2>Plugins<a class="headerlink" href="#plugins" title="Permalink to this headline">¶</a></h2>
+<p>It is possible to extend the default Kinto behaviors by using &#8220;plugins&#8221;.</p>
+<p>The list of plugins to load at startup can be specified in the settings, as a
+list of Python modules:</p>
+<div class="highlight-ini"><div class="highlight"><pre><span></span><span class="na">kinto.includes</span> <span class="o">=</span> <span class="s">kinto.plugins.default_bucket</span>
+<span class="s">                 kinto.plugins.history</span>
+<span class="s">                 kinto.plugins.admin</span>
+<span class="s">                 kinto-attachment</span>
+<span class="s">                 custom-myplugin</span>
+</pre></div>
+</div>
+<table border="1" class="docutils">
+<colgroup>
+<col width="35%" />
+<col width="65%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Built-in plugins</th>
+<th class="head">What does it do?</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">kinto.plugins.default_bucket</span></code></td>
+<td>It enables a personnal bucket <code class="docutils literal"><span class="pre">default</span></code>, where collections are created
+implicitly (<a class="reference internal" href="../api/1.x/buckets.html#buckets-default-id"><span class="std std-ref">more details</span></a>).</td>
+</tr>
+<tr class="row-odd"><td><code class="docutils literal"><span class="pre">kinto.plugins.history</span></code></td>
+<td>It tracks every action performed on objects within a bucket
+(<a class="reference internal" href="../api/1.x/history.html#api-history"><span class="std std-ref">more details</span></a>).</td>
+</tr>
+<tr class="row-even"><td><code class="docutils literal"><span class="pre">kinto.plugins.admin</span></code></td>
+<td>It is a Web admin UI to manage data from a Kinto server.
+(<a class="reference internal" href="../api/1.x/history.html#api-history"><span class="std std-ref">more details</span></a>).</td>
+</tr>
+</tbody>
+</table>
+<p>There are <a class="reference external" href="https://github.com/ITCase/awesome-pyramid">many available packages</a> in Pyramid ecosystem, and it is straightforward to build one,
+since the specified module must just define an <code class="docutils literal"><span class="pre">includeme(config)</span></code> function.</p>
+<p>See <a class="reference external" href="https://github.com/Kinto/kinto/wiki/Plugins">our list of community plugins</a>.</p>
+<p>See also: <a class="reference internal" href="../tutorials/write-plugin.html#tutorial-write-plugin"><span class="std std-ref">How to write a Kinto plugin?</span></a> for more in-depth informations on how
+to create your own plugin.</p>
+<div class="section" id="pluggable-components">
+<h3>Pluggable components<a class="headerlink" href="#pluggable-components" title="Permalink to this headline">¶</a></h3>
+<p><a class="reference internal" href="../core/glossary.html#term-pluggable"><span class="xref std std-term">Pluggable</span></a> components can be substituted from configuration files,
+as long as the replacement follows the original component API.</p>
+<div class="highlight-ini"><div class="highlight"><pre><span></span><span class="na">kinto.logging_renderer</span> <span class="o">=</span> <span class="s">your_log_renderer.CustomRenderer</span>
+</pre></div>
+</div>
+<p>This is the simplest way to extend <em>Kinto</em>, but will be limited to its
+existing components (cache, storage, log renderer, ...).</p>
+<p>In order to add extra features, including external packages is the way to go!</p>
+</div>
+</div>
+<div class="section" id="notifications">
+<span id="configuring-notifications"></span><h2>Notifications<a class="headerlink" href="#notifications" title="Permalink to this headline">¶</a></h2>
+<p><em>Kinto</em> has a notification system, and the event listeners are configured using
+the <em>event_handlers</em> setting, which takes a list of aliases.</p>
+<p>In the example below, the Redis listener is activated and will send events
+data in the <code class="docutils literal"><span class="pre">queue</span></code> Redis list.</p>
+<div class="highlight-ini"><div class="highlight"><pre><span></span><span class="na">kinto.event_listeners</span> <span class="o">=</span> <span class="s">redis</span>
+
+<span class="na">kinto.event_listeners.redis.use</span> <span class="o">=</span> <span class="s">kinto_redis.listeners</span>
+<span class="na">kinto.event_listeners.redis.url</span> <span class="o">=</span> <span class="s">redis://localhost:6379/0</span>
+<span class="na">kinto.event_listeners.redis.pool_size</span> <span class="o">=</span> <span class="s">5</span>
+<span class="na">kinto.event_listeners.redis.listname</span> <span class="o">=</span> <span class="s">queue</span>
+</pre></div>
+</div>
+<div class="section" id="filtering">
+<h3>Filtering<a class="headerlink" href="#filtering" title="Permalink to this headline">¶</a></h3>
+<p>It is possible to filter events by action and/or types of object. By
+default actions <code class="docutils literal"><span class="pre">create</span></code>, <code class="docutils literal"><span class="pre">update</span></code> and <code class="docutils literal"><span class="pre">delete</span></code> are notified
+for every kinds of objects.</p>
+<div class="highlight-ini"><div class="highlight"><pre><span></span><span class="na">kinto.event_listeners.redis.actions</span> <span class="o">=</span> <span class="s">create</span>
+<span class="na">kinto.event_listeners.redis.resources</span> <span class="o">=</span> <span class="s">bucket collection</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="third-party">
+<h3>Third-party<a class="headerlink" href="#third-party" title="Permalink to this headline">¶</a></h3>
+<p>Enabling push notifications to clients consists in enabling an event listener
+that will be in charge of forwarding events data to remote clients.</p>
+<p>A Kinto plugin was made using the <em>Pusher</em> (commercial) service.
+See <a class="reference internal" href="../tutorials/notifications-websockets.html#tutorial-notifications-websockets"><span class="std std-ref">How to setup push notifications using WebSockets?</span></a>.</p>
+</div>
+</div>
+<div class="section" id="cross-origin-requests-cors">
+<h2>Cross Origin requests (CORS)<a class="headerlink" href="#cross-origin-requests-cors" title="Permalink to this headline">¶</a></h2>
+<p>Kinto supports <a class="reference external" href="http://www.w3.org/TR/cors/">CORS</a> out of the box. Use the
+<cite>cors_origins</cite> setting to change the list of accepted origins.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="19%" />
+<col width="9%" />
+<col width="72%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Setting name</th>
+<th class="head">Default</th>
+<th class="head">What does it do?</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>kinto.cors_origins</td>
+<td><code class="docutils literal"><span class="pre">*</span></code></td>
+<td>This List of CORS origins to support on all endpoints. By default allow
+all cross origin requests.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="backoff-indicators">
+<span id="configuring-backoff"></span><h2>Backoff indicators<a class="headerlink" href="#backoff-indicators" title="Permalink to this headline">¶</a></h2>
+<p>In order to tell clients to back-off (on heavy load for instance), the
+following flags can be used. Read more about this at <a class="reference internal" href="../api/1.x/backoff.html#id1"><span class="std std-ref">Backoff header on heavy load</span></a>.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="24%" />
+<col width="9%" />
+<col width="67%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Setting name</th>
+<th class="head">Default</th>
+<th class="head">What does it do?</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>kinto.backoff</td>
+<td><code class="docutils literal"><span class="pre">None</span></code></td>
+<td>The Backoff time to use. If set to <cite>None</cite>, no backoff flag is sent to
+the clients. If set, provides the client with a number of seconds during
+which it should avoid doing unnecessary requests.</td>
+</tr>
+<tr class="row-odd"><td>kinto.retry_after_seconds</td>
+<td><code class="docutils literal"><span class="pre">30</span></code></td>
+<td>The number of seconds after which the client should issue requests.</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-ini"><div class="highlight"><pre><span></span><span class="c1"># kinto.backoff = 10</span>
+<span class="na">kinto.retry_after_seconds</span> <span class="o">=</span> <span class="s">30</span>
+</pre></div>
+</div>
+<p>Similarly, the end of service date can be specified by using these settings.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="18%" />
+<col width="10%" />
+<col width="72%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Setting name</th>
+<th class="head">Default</th>
+<th class="head">What does it do?</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>kinto.eos</td>
+<td><code class="docutils literal"><span class="pre">None</span></code></td>
+<td>The End of Service Deprecation date. If the date specified is in the
+future, an alert will be sent to clients. If it’s in the past, the
+service will be declared as decomissionned. If set to <cite>None</cite>, no End of
+Service information will be sent to the client.</td>
+</tr>
+<tr class="row-odd"><td>kinto.eos_message</td>
+<td><code class="docutils literal"><span class="pre">None</span></code></td>
+<td>The End of Service message. If set to <cite>None</cite>, no End of Service message
+will be sent to the clients.</td>
+</tr>
+<tr class="row-even"><td>kinto.eos_url</td>
+<td><code class="docutils literal"><span class="pre">None</span></code></td>
+<td>The End of Service information URL.</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-ini"><div class="highlight"><pre><span></span><span class="na">kinto.eos</span> <span class="o">=</span> <span class="s">2015-01-22</span>
+<span class="na">kinto.eos_message</span> <span class="o">=</span> <span class="s">&quot;Client is too old&quot;</span>
+<span class="na">kinto.eos_url</span> <span class="o">=</span> <span class="s">http://website/info-shutdown.html</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="enabling-or-disabling-endpoints">
+<h2>Enabling or disabling endpoints<a class="headerlink" href="#enabling-or-disabling-endpoints" title="Permalink to this headline">¶</a></h2>
+<p>Specific resource operations can be disabled.</p>
+<p>To do so, a setting key must be defined for the disabled resources endpoints:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="s1">&#39;kinto.</span><span class="si">{endpoint_type}</span><span class="s1">_</span><span class="si">{resource_name}</span><span class="s1">_</span><span class="si">{method}</span><span class="s1">_enabled&#39;</span>
+</pre></div>
+</div>
+<p>Where:
+- <strong>endpoint_type</strong> is either collection or record;
+- <strong>resource_name</strong> is the name of the resource (by default, <em>Kinto</em> uses the name of the class);
+- <strong>method</strong> is the http method (in lower case): For instance <code class="docutils literal"><span class="pre">put</span></code>.</p>
+<p>For example, to disable the PUT on records for the <em>Mushrooms</em> resource, the
+following setting should be declared in the <code class="docutils literal"><span class="pre">.ini</span></code> file:</p>
+<div class="highlight-ini"><div class="highlight"><pre><span></span><span class="c1"># Disable article collection DELETE endpoint</span>
+<span class="na">kinto.collection_article_delete_enabled</span> <span class="o">=</span> <span class="s">false</span>
+
+<span class="c1"># Disable mushroom record PATCH endpoint</span>
+<span class="na">kinto.record_mushroom_patch_enabled</span> <span class="o">=</span> <span class="s">false</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="activating-the-flush-endpoint">
+<h2>Activating the flush endpoint<a class="headerlink" href="#activating-the-flush-endpoint" title="Permalink to this headline">¶</a></h2>
+<p>The Flush endpoint is used to flush (completely remove) all data from the
+database backend. While this can be useful during development, it&#8217;s too
+dangerous to leave on by default, and must therefore be enabled explicitly.</p>
+<div class="highlight-ini"><div class="highlight"><pre><span></span><span class="na">kinto.flush_endpoint_enabled</span> <span class="o">=</span> <span class="s">true</span>
+</pre></div>
+</div>
+<p>Then, issue a <code class="docutils literal"><span class="pre">POST</span></code> request to the <code class="docutils literal"><span class="pre">/__flush__</span></code> endpoint to flush all
+the data.</p>
+</div>
+<div class="section" id="activating-the-permissions-endpoint">
+<h2>Activating the permissions endpoint<a class="headerlink" href="#activating-the-permissions-endpoint" title="Permalink to this headline">¶</a></h2>
+<p>The Permissions endpoint is used to get a list of all user accessible
+objects in the server as well as their permissions. It enables
+applications such as the kinto-admin to discover what the user is
+allowed to do and which data can be managed.</p>
+<div class="highlight-ini"><div class="highlight"><pre><span></span><span class="na">kinto.permissions_endpoint_enabled</span> <span class="o">=</span> <span class="s">true</span>
+</pre></div>
+</div>
+<p>Then, issue a <code class="docutils literal"><span class="pre">GET</span></code> request to the <code class="docutils literal"><span class="pre">/permissions</span></code> endpoint to get the
+list of the user permissions on the server ressources.</p>
+</div>
+<div class="section" id="client-caching">
+<span id="configuration-client-caching"></span><h2>Client caching<a class="headerlink" href="#client-caching" title="Permalink to this headline">¶</a></h2>
+<p>In addition to <a class="reference internal" href="../api/1.x/collections.html#collection-caching"><span class="std std-ref">per-collection caching</span></a>, it is possible
+to add cache control headers for every <em>Kinto</em> object.
+The client (or cache server or proxy) will use them to cache the collection
+records for a certain amount of time, in seconds.</p>
+<p>The setting can be set for any kind of object (<code class="docutils literal"><span class="pre">bucket</span></code>, <code class="docutils literal"><span class="pre">group</span></code>, <code class="docutils literal"><span class="pre">collection</span></code>, <code class="docutils literal"><span class="pre">record</span></code>),
+and concerns GET requests (<code class="docutils literal"><span class="pre">GET</span> <span class="pre">/buckets</span></code>, <code class="docutils literal"><span class="pre">GET</span> <span class="pre">/buckets/{}/groups</span></code>, <code class="docutils literal"><span class="pre">GET</span> <span class="pre">/buckets/{}/collections</span></code>,
+<code class="docutils literal"><span class="pre">GET</span> <span class="pre">/buckets/{}/collections/{}/records</span></code>).</p>
+<div class="highlight-ini"><div class="highlight"><pre><span></span><span class="c1"># kinto.bucket_cache_expires_seconds = 3600</span>
+<span class="c1"># kinto.group_cache_expires_seconds = 3600</span>
+<span class="c1"># kinto.collection_cache_expires_seconds = 3600</span>
+<span class="na">kinto.record_cache_expires_seconds</span> <span class="o">=</span> <span class="s">3600</span>
+</pre></div>
+</div>
+<p>It can also be specified per bucket or collections for records:</p>
+<div class="highlight-ini"><div class="highlight"><pre><span></span><span class="na">kinto.blog_record_cache_expires_seconds</span> <span class="o">=</span> <span class="s">30</span>
+<span class="na">kinto.blog_articles_record_cache_expires_seconds</span> <span class="o">=</span> <span class="s">3600</span>
+</pre></div>
+</div>
+<p>If set to <code class="docutils literal"><span class="pre">0</span></code> then the resource becomes uncacheable (<code class="docutils literal"><span class="pre">no-cache</span></code>).</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">In production, <a class="reference internal" href="production.html#production-cache-server"><span class="std std-ref">Nginx can act as a cache-server</span></a>
+using those client cache control headers.</p>
+</div>
+</div>
+<div class="section" id="project-information">
+<h2>Project information<a class="headerlink" href="#project-information" title="Permalink to this headline">¶</a></h2>
+<table border="1" class="docutils">
+<colgroup>
+<col width="25%" />
+<col width="28%" />
+<col width="47%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Setting name</th>
+<th class="head">Default</th>
+<th class="head">What does it do?</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>kinto.version_json_path</td>
+<td><code class="docutils literal"><span class="pre">./version.json</span></code></td>
+<td>Location of the file containing the information to be shown in the
+<a class="reference internal" href="../api/1.x/utilities.html#api-utilities-version"><span class="std std-ref">version endpoint</span></a>.</td>
+</tr>
+<tr class="row-odd"><td>kinto.error_info_link</td>
+<td><code class="docutils literal"><span class="pre">https://github.com/kinto/kinto/issues/</span></code></td>
+<td>The HTTP link returned when uncaught errors are triggered on the server.</td>
+</tr>
+<tr class="row-even"><td>kinto.project_docs</td>
+<td><code class="docutils literal"><span class="pre">https://kinto.readthedocs.io</span></code></td>
+<td>The URL where the documentation of the Kinto instance can be found. Will
+be returned in <a class="reference internal" href="../api/1.x/utilities.html#api-utilities"><span class="std std-ref">the hello view</span></a>.</td>
+</tr>
+<tr class="row-odd"><td>kinto.project_version</td>
+<td><code class="docutils literal"><span class="pre">''</span></code></td>
+<td>The version of the project. Will be returned in <a class="reference internal" href="../api/1.x/utilities.html#api-utilities"><span class="std std-ref">the hello view</span></a>. By default, this is the major version of Kinto.</td>
+</tr>
+<tr class="row-even"><td>kinto.version_prefix_redirect_enabled</td>
+<td><code class="docutils literal"><span class="pre">True</span></code></td>
+<td>By default, all endpoints exposed by Kinto are prefixed by a
+<a class="reference internal" href="../api/versioning.html#api-versioning"><span class="std std-ref">version number</span></a>. If this flag is enabled, the
+server will redirect all requests not matching the supported version
+to the supported one.</td>
+</tr>
+</tbody>
+</table>
+<p>Example:</p>
+<div class="highlight-ini"><div class="highlight"><pre><span></span><span class="na">kinto.project_docs</span> <span class="o">=</span> <span class="s">https://project.readthedocs.io/</span>
+<span class="c1"># kinto.project_version = 1.0</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="application-profiling">
+<h2>Application profiling<a class="headerlink" href="#application-profiling" title="Permalink to this headline">¶</a></h2>
+<p>It is possible to profile the stack while its running. This is especially
+useful when trying to find bottlenecks.</p>
+<p>Update the configuration file with the following values:</p>
+<div class="highlight-ini"><div class="highlight"><pre><span></span><span class="na">kinto.profiler_enabled</span> <span class="o">=</span> <span class="s">true</span>
+<span class="na">kinto.profiler_dir</span> <span class="o">=</span> <span class="s">/tmp/profiling</span>
+</pre></div>
+</div>
+<p>Run a load test (<em>for example</em>):</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">loadtests</span><span class="o">/</span>
+<span class="n">SERVER_URL</span><span class="o">=</span><span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="n">localhost</span><span class="p">:</span><span class="mi">8888</span> <span class="n">make</span> <span class="n">bench</span> <span class="o">-</span><span class="n">e</span>
+</pre></div>
+</div>
+<p>Render execution graphs using GraphViz:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">install</span> <span class="n">graphviz</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">gprof2dot</span>
+<span class="n">gprof2dot</span> <span class="o">-</span><span class="n">f</span> <span class="n">pstats</span> <span class="n">POST</span><span class="o">.</span><span class="n">v1</span><span class="o">.</span><span class="n">batch</span><span class="o">.</span><span class="mi">000176</span><span class="n">ms</span><span class="o">.</span><span class="mf">1427458675.</span><span class="n">prof</span> <span class="o">|</span> <span class="n">dot</span> <span class="o">-</span><span class="n">Tpng</span> <span class="o">-</span><span class="n">o</span> <span class="n">output</span><span class="o">.</span><span class="n">png</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="production.html" class="btn btn-neutral float-right" title="Running in production" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="index.html" class="btn btn-neutral" title="Configuration" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2015-2016 — Mozilla Services.
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+
+  
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        var disqus_shortname = 'kinto-docs';
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+  
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'4.3.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="../_static/piwik.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

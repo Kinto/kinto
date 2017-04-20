@@ -1,0 +1,789 @@
+
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Records &mdash; Kinto 4.3.1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="stylesheet" href="../../_static/theme_overrides.css" type="text/css" />
+  
+    <link rel="stylesheet" href="../../_static/css/style.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="Kinto 4.3.1 documentation" href="../../index.html"/>
+        <link rel="up" title="1.x" href="index.html"/>
+        <link rel="next" title="Groups" href="groups.html"/>
+        <link rel="prev" title="Collections" href="collections.html"/> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> Kinto
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                4.3
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../kinto-admin.html">Kinto Web Administration Console</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../concepts.html">Concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../community.html">Community</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../configuration/index.html">Configuration</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">API</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../versioning.html">API Versioning</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">1.x</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="index.html#full-reference">Full reference</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="authentication.html">Authentication</a></li>
+<li class="toctree-l4"><a class="reference internal" href="buckets.html">Buckets</a></li>
+<li class="toctree-l4"><a class="reference internal" href="collections.html">Collections</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">Records</a></li>
+<li class="toctree-l4"><a class="reference internal" href="groups.html">Groups</a></li>
+<li class="toctree-l4"><a class="reference internal" href="permissions.html">Permissions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="filtering.html">Filtering</a></li>
+<li class="toctree-l4"><a class="reference internal" href="sorting.html">Sorting</a></li>
+<li class="toctree-l4"><a class="reference internal" href="pagination.html">Paginating</a></li>
+<li class="toctree-l4"><a class="reference internal" href="selecting_fields.html">Selecting fields</a></li>
+<li class="toctree-l4"><a class="reference internal" href="history.html">History of changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="quotas.html">Quotas management</a></li>
+<li class="toctree-l4"><a class="reference internal" href="utilities.html">Utility endpoints for OPS and Devs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="batch.html">Batch operations</a></li>
+<li class="toctree-l4"><a class="reference internal" href="timestamps.html">Server timestamps</a></li>
+<li class="toctree-l4"><a class="reference internal" href="backoff.html">Backoff indicators</a></li>
+<li class="toctree-l4"><a class="reference internal" href="errors.html">Error responses</a></li>
+<li class="toctree-l4"><a class="reference internal" href="deprecation.html">Deprecation</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="index.html#cheatsheet">Cheatsheet</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../index.html#changelog">Changelog</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../commandline.html">Command Line</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../faq.html">FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../core/glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../core/index.html">Kinto Core</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../index.html">Kinto</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../index.html">API</a> &raquo;</li>
+      
+          <li><a href="index.html">1.x</a> &raquo;</li>
+      
+    <li>Records</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../../_sources/api/1.x/records.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="records">
+<span id="id1"></span><h1>Records<a class="headerlink" href="#records" title="Permalink to this headline">¶</a></h1>
+<p>Records belong to a collection. It is the data being stored and
+synchronised.</p>
+<p>A record is a mapping with the following attributes:</p>
+<ul>
+<li><dl class="first docutils">
+<dt><code class="docutils literal"><span class="pre">data</span></code>: attributes of the record object</dt>
+<dd><ul class="first last simple">
+<li><code class="docutils literal"><span class="pre">id</span></code>: the record object id</li>
+<li><code class="docutils literal"><span class="pre">last_modified</span></code>: the timestamp of the last modification</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p class="first"><code class="docutils literal"><span class="pre">permissions</span></code>: the <a class="reference internal" href="../../core/glossary.html#term-acl"><span class="xref std std-term">ACLs</span></a> for the collection object</p>
+</li>
+</ul>
+<div class="section" id="uploading-a-record">
+<span id="records-post"></span><h2>Uploading a record<a class="headerlink" href="#uploading-a-record" title="Permalink to this headline">¶</a></h2>
+<dl class="post">
+<dt id="post--buckets-(bucket_id)-collections-(collection_id)-records">
+<code class="descname">POST </code><code class="descname">/buckets/</code><span class="sig-paren">(</span><em>bucket_id</em><span class="sig-paren">)</span><code class="descname">/collections/</code><span class="sig-paren">(</span><em>collection_id</em><span class="sig-paren">)</span><code class="descname">/records</code><a class="headerlink" href="#post--buckets-(bucket_id)-collections-(collection_id)-records" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">synopsis:</th><td class="field-body">Store a record in the collection. The ID will be assigned automatically.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Requires authentication</strong></p>
+<p><strong>Example Request</strong></p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ <span class="nb">echo</span> <span class="s1">&#39;{&quot;data&quot;: {&quot;foo&quot;: &quot;bar&quot;}}&#39;</span> <span class="p">|</span> http post http://localhost:8888/v1/buckets/blog/collections/articles/records --auth<span class="o">=</span><span class="s2">&quot;token:bob-token&quot;</span> --verbose
+</pre></div>
+</div>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="nf">POST</span> <span class="nn">/v1/buckets/blog/collections/articles/records</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Accept</span><span class="o">:</span> <span class="l">application/json</span>
+<span class="na">Accept-Encoding</span><span class="o">:</span> <span class="l">gzip, deflate</span>
+<span class="na">Authorization</span><span class="o">:</span> <span class="l">Basic Ym9iOg==</span>
+<span class="na">Connection</span><span class="o">:</span> <span class="l">keep-alive</span>
+<span class="na">Content-Length</span><span class="o">:</span> <span class="l">25</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+<span class="na">Host</span><span class="o">:</span> <span class="l">localhost:8888</span>
+<span class="na">User-Agent</span><span class="o">:</span> <span class="l">HTTPie/0.9.2</span>
+
+<span class="p">{</span>
+    <span class="nt">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;foo&quot;</span><span class="p">:</span> <span class="s2">&quot;bar&quot;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p><strong>Example Response</strong></p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">201</span> <span class="ne">Created</span>
+<span class="na">Access-Control-Expose-Headers</span><span class="o">:</span> <span class="l">Backoff, Retry-After, Alert</span>
+<span class="na">Content-Length</span><span class="o">:</span> <span class="l">199</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json; charset=UTF-8</span>
+<span class="na">Date</span><span class="o">:</span> <span class="l">Thu, 18 Jun 2015 17:02:23 GMT</span>
+<span class="na">Server</span><span class="o">:</span> <span class="l">waitress</span>
+
+<span class="p">{</span>
+    <span class="nt">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;foo&quot;</span><span class="p">:</span> <span class="s2">&quot;bar&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;89881454-e4e9-4ef0-99a9-404d95900352&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;last_modified&quot;</span><span class="p">:</span> <span class="mi">1434646943915</span>
+    <span class="p">},</span>
+    <span class="nt">&quot;permissions&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;write&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">&quot;basicauth:206691a25679e4e1135f16aa77ebcf211c767393c4306cfffe6cc228ac0886b6&quot;</span>
+        <span class="p">]</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<p>If the <code class="docutils literal"><span class="pre">If-Match:</span> <span class="pre">&quot;&lt;timestamp&gt;&quot;</span></code> request header is provided as described in
+the <a class="reference internal" href="timestamps.html#server-timestamps"><span class="std std-ref">section about timestamps</span></a>, and if the list has
+changed meanwhile, a <code class="docutils literal"><span class="pre">412</span> <span class="pre">Precondition</span> <span class="pre">Failed</span></code> error is returned.</p>
+<p>If the <code class="docutils literal"><span class="pre">If-None-Match:</span> <span class="pre">*</span></code> request header is provided, and if the provided <code class="docutils literal"><span class="pre">data</span></code>
+contains an <code class="docutils literal"><span class="pre">id</span></code> field, and if there is already an existing object with this <code class="docutils literal"><span class="pre">id</span></code>,
+a <code class="docutils literal"><span class="pre">412</span> <span class="pre">Precondition</span> <span class="pre">Failed</span></code> error is returned.</p>
+<div class="admonition important">
+<p class="first admonition-title">Important</p>
+<p>If the posted object has an <code class="docutils literal"><span class="pre">id</span></code> field, it will be taken into account.</p>
+<p class="last">However, if a object already exists with the same <code class="docutils literal"><span class="pre">id</span></code>, a <code class="docutils literal"><span class="pre">200</span> <span class="pre">OK</span></code> response
+is returned with the existing object in body (instead of <code class="docutils literal"><span class="pre">201</span> <span class="pre">Created</span></code>).
+See <a class="reference external" href="https://github.com/Kinto/kinto/issues/140">https://github.com/Kinto/kinto/issues/140</a></p>
+</div>
+<div class="section" id="validation">
+<h3>Validation<a class="headerlink" href="#validation" title="Permalink to this headline">¶</a></h3>
+<p>If the posted values are invalid (e.g. <em>field value is not an integer</em>)
+an error response is returned with <code class="docutils literal"><span class="pre">400</span> <span class="pre">Bad</span> <span class="pre">Request</span></code>.</p>
+<p>See <a class="reference internal" href="errors.html#error-responses"><span class="std std-ref">details on error responses</span></a>.</p>
+</div>
+<div class="section" id="permissions">
+<h3>Permissions<a class="headerlink" href="#permissions" title="Permalink to this headline">¶</a></h3>
+<p>In the JSON request payloads, an optional <code class="docutils literal"><span class="pre">permissions</span></code> attribute can be provided.</p>
+<p>The <a class="reference internal" href="permissions.html#api-current-userid"><span class="std std-ref">current user id</span></a> <strong>is always added</strong> among the <code class="docutils literal"><span class="pre">write</span></code> principals.</p>
+<p>See <a class="reference internal" href="permissions.html#api-permissions-payload"><span class="std std-ref">Permissions request payload</span></a>.</p>
+</div>
+<div class="section" id="http-status-codes">
+<h3>HTTP Status Codes<a class="headerlink" href="#http-status-codes" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">200</span> <span class="pre">OK</span></code>: This object already exists, the one stored on the database is returned</li>
+<li><code class="docutils literal"><span class="pre">201</span> <span class="pre">Created</span></code>: The object was created</li>
+<li><code class="docutils literal"><span class="pre">400</span> <span class="pre">Bad</span> <span class="pre">Request</span></code>: The request body is invalid</li>
+<li><code class="docutils literal"><span class="pre">401</span> <span class="pre">Unauthorized</span></code>: The request is missing authentication headers</li>
+<li><code class="docutils literal"><span class="pre">401</span> <span class="pre">Forbidden</span></code>: The user is not allowed to perform the operation, or the resource is not accessible</li>
+<li><code class="docutils literal"><span class="pre">406</span> <span class="pre">Not</span> <span class="pre">Acceptable</span></code>: The client doesn&#8217;t accept supported responses Content-Type</li>
+<li><code class="docutils literal"><span class="pre">412</span> <span class="pre">Precondition</span> <span class="pre">Failed</span></code>: List has changed since value in <code class="docutils literal"><span class="pre">If-Match</span></code> header</li>
+<li><code class="docutils literal"><span class="pre">415</span> <span class="pre">Unsupported</span> <span class="pre">Media</span> <span class="pre">Type</span></code>: The client request was not sent with a correct Content-Type</li>
+</ul>
+</div>
+</div>
+<div class="section" id="replacing-a-record">
+<span id="record-put"></span><h2>Replacing a record<a class="headerlink" href="#replacing-a-record" title="Permalink to this headline">¶</a></h2>
+<dl class="put">
+<dt id="put--buckets-(bucket_id)-collections-(collection_id)-records-(record_id)">
+<code class="descname">PUT </code><code class="descname">/buckets/</code><span class="sig-paren">(</span><em>bucket_id</em><span class="sig-paren">)</span><code class="descname">/collections/</code><span class="sig-paren">(</span><em>collection_id</em><span class="sig-paren">)</span><code class="descname">/records/</code><span class="sig-paren">(</span><em>record_id</em><span class="sig-paren">)</span><a class="headerlink" href="#put--buckets-(bucket_id)-collections-(collection_id)-records-(record_id)" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Synopsis:</th><td class="field-body">Create or update a record in the collection.</td>
+</tr>
+</tbody>
+</table>
+<p>The POST body is a JSON mapping containing:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">data</span></code>: the fields of the record;</li>
+<li><code class="docutils literal"><span class="pre">permissions</span></code>: <em>optional</em> a json dict containing the permissions for
+the record to be created.</li>
+</ul>
+<p><strong>Requires authentication</strong></p>
+<p><strong>Example Request</strong></p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ <span class="nb">echo</span> <span class="s1">&#39;{&quot;data&quot;: {&quot;foo&quot;: &quot;baz&quot;}}&#39;</span> <span class="p">|</span> http put http://localhost:8888/v1/buckets/blog/collections/articles/records/89881454-e4e9-4ef0-99a9-404d95900352 --auth<span class="o">=</span><span class="s2">&quot;token:bob-token&quot;</span> --verbose
+</pre></div>
+</div>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="nf">PUT</span> <span class="nn">/v1/buckets/blog/collections/articles/records/89881454-e4e9-4ef0-99a9-404d95900352</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Accept</span><span class="o">:</span> <span class="l">application/json</span>
+<span class="na">Accept-Encoding</span><span class="o">:</span> <span class="l">gzip, deflate</span>
+<span class="na">Authorization</span><span class="o">:</span> <span class="l">Basic Ym9iOg==</span>
+<span class="na">Connection</span><span class="o">:</span> <span class="l">keep-alive</span>
+<span class="na">Content-Length</span><span class="o">:</span> <span class="l">25</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+<span class="na">Host</span><span class="o">:</span> <span class="l">localhost:8888</span>
+<span class="na">User-Agent</span><span class="o">:</span> <span class="l">HTTPie/0.9.2</span>
+
+<span class="p">{</span>
+  <span class="nt">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&quot;foo&quot;</span><span class="p">:</span> <span class="s2">&quot;baz&quot;</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Example Response</strong></p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Access-Control-Expose-Headers</span><span class="o">:</span> <span class="l">Backoff, Retry-After, Alert</span>
+<span class="na">Content-Length</span><span class="o">:</span> <span class="l">199</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json; charset=UTF-8</span>
+<span class="na">Date</span><span class="o">:</span> <span class="l">Thu, 18 Jun 2015 17:16:22 GMT</span>
+<span class="na">Server</span><span class="o">:</span> <span class="l">waitress</span>
+
+<span class="p">{</span>
+  <span class="nt">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&quot;foo&quot;</span><span class="p">:</span> <span class="s2">&quot;baz&quot;</span><span class="p">,</span>
+      <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;89881454-e4e9-4ef0-99a9-404d95900352&quot;</span><span class="p">,</span>
+      <span class="nt">&quot;last_modified&quot;</span><span class="p">:</span> <span class="mi">1434647782623</span>
+  <span class="p">},</span>
+  <span class="nt">&quot;permissions&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&quot;write&quot;</span><span class="p">:</span> <span class="p">[</span>
+          <span class="s2">&quot;basicauth:206691a25679e4e1135f16aa77ebcf211c767393c4306cfffe6cc228ac0886b6&quot;</span>
+      <span class="p">]</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<p>Validation and conflicts behaviour is similar to creating objects (<code class="docutils literal"><span class="pre">POST</span></code>).</p>
+<p>If the <code class="docutils literal"><span class="pre">If-Match:</span> <span class="pre">&quot;&lt;timestamp&gt;&quot;</span></code> request header is provided as described in
+the <a class="reference internal" href="timestamps.html#server-timestamps"><span class="std std-ref">section about timestamps</span></a>, and if the object has
+changed meanwhile, a <code class="docutils literal"><span class="pre">412</span> <span class="pre">Precondition</span> <span class="pre">Failed</span></code> error is returned.</p>
+<p>If the <code class="docutils literal"><span class="pre">If-None-Match:</span> <span class="pre">*</span></code> request header is provided  and if there is already
+an existing object with this <code class="docutils literal"><span class="pre">id</span></code>, a <code class="docutils literal"><span class="pre">412</span> <span class="pre">Precondition</span> <span class="pre">Failed</span></code> error is returned.</p>
+<div class="section" id="id2">
+<h3>Permissions<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
+<p>In the JSON request payloads, at least one of <code class="docutils literal"><span class="pre">data</span></code> and <code class="docutils literal"><span class="pre">permissions</span></code> must be provided. Permissions can thus be replaced independently from data.</p>
+<p>In the case of creation, if only <code class="docutils literal"><span class="pre">permissions</span></code> is provided, an empty object is created.</p>
+<p>The <a class="reference internal" href="permissions.html#api-current-userid"><span class="std std-ref">current user id</span></a> <strong>is always added</strong> among the <code class="docutils literal"><span class="pre">write</span></code> principals.</p>
+<p>See <a class="reference internal" href="permissions.html#api-permissions-payload"><span class="std std-ref">Permissions request payload</span></a>.</p>
+</div>
+<div class="section" id="http-status-code">
+<h3>HTTP Status Code<a class="headerlink" href="#http-status-code" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">201</span> <span class="pre">Created</span></code>: The object was created</li>
+<li><code class="docutils literal"><span class="pre">200</span> <span class="pre">OK</span></code>: The object was replaced</li>
+<li><code class="docutils literal"><span class="pre">400</span> <span class="pre">Bad</span> <span class="pre">Request</span></code>: The request body is invalid</li>
+<li><code class="docutils literal"><span class="pre">401</span> <span class="pre">Unauthorized</span></code>: The request is missing authentication headers</li>
+<li><code class="docutils literal"><span class="pre">401</span> <span class="pre">Forbidden</span></code>: The user is not allowed to perform the operation, or the resource is not accessible</li>
+<li><code class="docutils literal"><span class="pre">406</span> <span class="pre">Not</span> <span class="pre">Acceptable</span></code>: The client doesn&#8217;t accept supported responses Content-Type.</li>
+<li><code class="docutils literal"><span class="pre">412</span> <span class="pre">Precondition</span> <span class="pre">Failed</span></code>: Record was changed or deleted since value in <code class="docutils literal"><span class="pre">If-Match</span></code> header.</li>
+<li><code class="docutils literal"><span class="pre">415</span> <span class="pre">Unsupported</span> <span class="pre">Media</span> <span class="pre">Type</span></code>: The client request was not sent with a correct Content-Type.</li>
+</ul>
+</div>
+</div>
+<div class="section" id="updating-a-record">
+<span id="record-patch"></span><h2>Updating a record<a class="headerlink" href="#updating-a-record" title="Permalink to this headline">¶</a></h2>
+<dl class="patch">
+<dt id="patch--buckets-(bucket_id)-collections-(collection_id)-records-(record_id)">
+<code class="descname">PATCH </code><code class="descname">/buckets/</code><span class="sig-paren">(</span><em>bucket_id</em><span class="sig-paren">)</span><code class="descname">/collections/</code><span class="sig-paren">(</span><em>collection_id</em><span class="sig-paren">)</span><code class="descname">/records/</code><span class="sig-paren">(</span><em>record_id</em><span class="sig-paren">)</span><a class="headerlink" href="#patch--buckets-(bucket_id)-collections-(collection_id)-records-(record_id)" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Synopsis:</th><td class="field-body">Update a record in the collection. Specify only the fields to be
+modified (all the rest will remain intact).</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Requires authentication</strong></p>
+<p><strong>Example Request</strong></p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ <span class="nb">echo</span> <span class="s1">&#39;{&quot;data&quot;: {&quot;status&quot;: &quot;done&quot;}}&#39;</span> <span class="p">|</span> http patch http://localhost:8888/v1/buckets/blog/collections/articles/records/89881454-e4e9-4ef0-99a9-404d95900352 --auth<span class="o">=</span><span class="s2">&quot;token:bob-token&quot;</span> --verbose
+</pre></div>
+</div>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="nf">PATCH</span> <span class="nn">/v1/buckets/blog/collections/articles/records/89881454-e4e9-4ef0-99a9-404d95900352</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Accept</span><span class="o">:</span> <span class="l">application/json</span>
+<span class="na">Accept-Encoding</span><span class="o">:</span> <span class="l">gzip, deflate</span>
+<span class="na">Authorization</span><span class="o">:</span> <span class="l">Basic Ym9iOg==</span>
+<span class="na">Connection</span><span class="o">:</span> <span class="l">keep-alive</span>
+<span class="na">Content-Length</span><span class="o">:</span> <span class="l">25</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+<span class="na">Host</span><span class="o">:</span> <span class="l">localhost:8888</span>
+<span class="na">User-Agent</span><span class="o">:</span> <span class="l">HTTPie/0.9.2</span>
+
+<span class="p">{</span>
+  <span class="nt">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;done&quot;</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Example Response</strong></p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Access-Control-Expose-Headers</span><span class="o">:</span> <span class="l">Backoff, Retry-After, Alert</span>
+<span class="na">Content-Length</span><span class="o">:</span> <span class="l">211</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json; charset=UTF-8</span>
+<span class="na">Date</span><span class="o">:</span> <span class="l">Thu, 18 Jun 2015 17:19:56 GMT</span>
+<span class="na">Server</span><span class="o">:</span> <span class="l">waitress</span>
+
+<span class="p">{</span>
+  <span class="nt">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;done&quot;</span><span class="p">,</span>
+      <span class="nt">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;Midnight in Paris&quot;</span><span class="p">,</span>
+      <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;89881454-e4e9-4ef0-99a9-404d95900352&quot;</span><span class="p">,</span>
+      <span class="nt">&quot;last_modified&quot;</span><span class="p">:</span> <span class="mi">1434647996969</span>
+  <span class="p">},</span>
+  <span class="nt">&quot;permissions&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&quot;write&quot;</span><span class="p">:</span> <span class="p">[</span>
+          <span class="s2">&quot;basicauth:206691a25679e4e1135f16aa77ebcf211c767393c4306cfffe6cc228ac0886b6&quot;</span>
+      <span class="p">]</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<p>If the object is missing (or already deleted), a <code class="docutils literal"><span class="pre">404</span> <span class="pre">Not</span> <span class="pre">Found</span></code> error is returned.
+The consumer might decide to ignore it.</p>
+<p>If the <code class="docutils literal"><span class="pre">If-Match:</span> <span class="pre">&quot;&lt;timestamp&gt;&quot;</span></code> request header is provided as described in
+the <a class="reference internal" href="timestamps.html#server-timestamps"><span class="std std-ref">section about timestamps</span></a>, and if the object has
+changed meanwhile, a <code class="docutils literal"><span class="pre">412</span> <span class="pre">Precondition</span> <span class="pre">Failed</span></code> error is returned.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><code class="docutils literal"><span class="pre">last_modified</span></code> is updated to the current server timestamp, only if a
+field value was changed.</p>
+</div>
+<div class="section" id="attributes-merge">
+<h3>Attributes merge<a class="headerlink" href="#attributes-merge" title="Permalink to this headline">¶</a></h3>
+<p>The provided values are merged with the existing object. For example:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">{&quot;a&quot;:&quot;b&quot;}</span></code> + <code class="docutils literal"><span class="pre">{&quot;a&quot;:&quot;c&quot;}</span></code> → <code class="docutils literal"><span class="pre">{&quot;a&quot;:&quot;c&quot;}</span></code></li>
+<li><code class="docutils literal"><span class="pre">{&quot;a&quot;:&quot;b&quot;}</span></code> + <code class="docutils literal"><span class="pre">{&quot;b&quot;:&quot;c&quot;}</span></code> → <code class="docutils literal"><span class="pre">{&quot;a&quot;:&quot;b&quot;,</span> <span class="pre">&quot;b&quot;:&quot;c&quot;}</span></code></li>
+<li><code class="docutils literal"><span class="pre">{&quot;a&quot;:&quot;b&quot;}</span></code> + <code class="docutils literal"><span class="pre">{&quot;a&quot;:null}</span></code> → <code class="docutils literal"><span class="pre">{&quot;a&quot;:null}</span></code> : <em>attributes can&#8217;t be removed with patch</em></li>
+<li><code class="docutils literal"><span class="pre">{&quot;a&quot;:</span> <span class="pre">{&quot;b&quot;:&quot;c&quot;}}</span></code> + <code class="docutils literal"><span class="pre">{&quot;a&quot;:{&quot;d&quot;:&quot;e&quot;}}</span></code> → <code class="docutils literal"><span class="pre">{&quot;a&quot;:{&quot;d&quot;:&quot;e&quot;}}</span></code> : <em>sub-objects are replaced, not merged</em></li>
+</ul>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><a class="reference external" href="http://jsonpatch.com">JSON-Patch</a> or <a class="reference external" href="https://tools.ietf.org/html/rfc7396">JSON merge</a>
+are currently not supported. Any help is welcomed though!
+See <a class="reference external" href="https://github.com/Kinto/kinto/issues/623">https://github.com/Kinto/kinto/issues/623</a></p>
+</div>
+</div>
+<div class="section" id="light-response-body">
+<h3>Light response body<a class="headerlink" href="#light-response-body" title="Permalink to this headline">¶</a></h3>
+<p>If a <code class="docutils literal"><span class="pre">Response-Behavior</span></code> request header is set to <code class="docutils literal"><span class="pre">light</span></code>,
+only the fields whose value was changed are returned. If set to
+<code class="docutils literal"><span class="pre">diff</span></code>, only the fields whose value became different than
+the one provided are returned.</p>
+</div>
+<div class="section" id="id3">
+<h3>Permissions<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
+<p>In the JSON request payloads, at least one of <code class="docutils literal"><span class="pre">data</span></code> and <code class="docutils literal"><span class="pre">permissions</span></code> must be provided. Permissions can thus be modified independently from data.</p>
+<p>The <a class="reference internal" href="permissions.html#api-current-userid"><span class="std std-ref">current user id</span></a> <strong>is always added</strong> among the <code class="docutils literal"><span class="pre">write</span></code> principals.</p>
+<p>See <a class="reference internal" href="permissions.html#api-permissions-payload"><span class="std std-ref">Permissions request payload</span></a>.</p>
+</div>
+<div class="section" id="id4">
+<h3>HTTP Status Codes<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">200</span> <span class="pre">OK</span></code>: The object was modified</li>
+<li><code class="docutils literal"><span class="pre">400</span> <span class="pre">Bad</span> <span class="pre">Request</span></code>: The request body is invalid, or a read-only field was modified</li>
+<li><code class="docutils literal"><span class="pre">401</span> <span class="pre">Unauthorized</span></code>: The request is missing authentication headers</li>
+<li><code class="docutils literal"><span class="pre">401</span> <span class="pre">Forbidden</span></code>: The user is not allowed to perform the operation, or the resource is not accessible</li>
+<li><code class="docutils literal"><span class="pre">401</span> <span class="pre">Forbidden</span></code>: The object does not exist or was deleted</li>
+<li><code class="docutils literal"><span class="pre">406</span> <span class="pre">Not</span> <span class="pre">Acceptable</span></code>: The client doesn&#8217;t accept supported responses Content-Type.</li>
+<li><code class="docutils literal"><span class="pre">412</span> <span class="pre">Precondition</span> <span class="pre">Failed</span></code>: Record changed since value in <code class="docutils literal"><span class="pre">If-Match</span></code> header</li>
+<li><code class="docutils literal"><span class="pre">415</span> <span class="pre">Unsupported</span> <span class="pre">Media</span> <span class="pre">Type</span></code>: The client request was not sent with a correct Content-Type.</li>
+</ul>
+</div>
+</div>
+<div class="section" id="retrieving-stored-records">
+<span id="records-get"></span><h2>Retrieving stored records<a class="headerlink" href="#retrieving-stored-records" title="Permalink to this headline">¶</a></h2>
+<dl class="get">
+<dt id="get--buckets-(bucket_id)-collections-(collection_id)-records">
+<code class="descname">GET </code><code class="descname">/buckets/</code><span class="sig-paren">(</span><em>bucket_id</em><span class="sig-paren">)</span><code class="descname">/collections/</code><span class="sig-paren">(</span><em>collection_id</em><span class="sig-paren">)</span><code class="descname">/records</code><a class="headerlink" href="#get--buckets-(bucket_id)-collections-(collection_id)-records" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Synopsis:</th><td class="field-body">Retrieve all the records in the collection.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Requires authentication</strong></p>
+<p><strong>Example Request</strong></p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ http get http://localhost:8888/v1/buckets/blog/collections/articles/records --auth<span class="o">=</span><span class="s2">&quot;token:bob-token&quot;</span> --verbose
+</pre></div>
+</div>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="nf">GET</span> <span class="nn">/v1/buckets/blog/collections/articles/records</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Accept</span><span class="o">:</span> <span class="l">*/*</span>
+<span class="na">Accept-Encoding</span><span class="o">:</span> <span class="l">gzip, deflate</span>
+<span class="na">Authorization</span><span class="o">:</span> <span class="l">Basic Ym9iOg==</span>
+<span class="na">Connection</span><span class="o">:</span> <span class="l">keep-alive</span>
+<span class="na">Host</span><span class="o">:</span> <span class="l">localhost:8888</span>
+<span class="na">User-Agent</span><span class="o">:</span> <span class="l">HTTPie/0.9.2</span>
+</pre></div>
+</div>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Access-Control-Expose-Headers</span><span class="o">:</span> <span class="l">Backoff, Retry-After, Alert, Next-Page, Total-Records, Last-Modified, ETag</span>
+<span class="na">Content-Length</span><span class="o">:</span> <span class="l">110</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json; charset=UTF-8</span>
+<span class="na">Date</span><span class="o">:</span> <span class="l">Thu, 18 Jun 2015 17:24:38 GMT</span>
+<span class="na">Etag</span><span class="o">:</span> <span class="l">&quot;1434648278603&quot;</span>
+<span class="na">Last-Modified</span><span class="o">:</span> <span class="l">Thu, 18 Jun 2015 17:24:38 GMT</span>
+<span class="na">Server</span><span class="o">:</span> <span class="l">waitress</span>
+<span class="na">Total-Records</span><span class="o">:</span> <span class="l">1</span>
+
+<span class="p">{</span>
+    <span class="nt">&quot;data&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span>
+            <span class="nt">&quot;baz&quot;</span><span class="p">:</span> <span class="s2">&quot;bar&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;foo&quot;</span><span class="p">:</span> <span class="s2">&quot;baz&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;89881454-e4e9-4ef0-99a9-404d95900352&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;last_modified&quot;</span><span class="p">:</span> <span class="mi">1434647996969</span>
+        <span class="p">}</span>
+    <span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="retrieving-a-specific-record">
+<span id="record-get"></span><h2>Retrieving a specific record<a class="headerlink" href="#retrieving-a-specific-record" title="Permalink to this headline">¶</a></h2>
+<dl class="get">
+<dt id="get--buckets-(bucket_id)-collections-(collection_id)-records-(record_id)">
+<code class="descname">GET </code><code class="descname">/buckets/</code><span class="sig-paren">(</span><em>bucket_id</em><span class="sig-paren">)</span><code class="descname">/collections/</code><span class="sig-paren">(</span><em>collection_id</em><span class="sig-paren">)</span><code class="descname">/records/</code><span class="sig-paren">(</span><em>record_id</em><span class="sig-paren">)</span><a class="headerlink" href="#get--buckets-(bucket_id)-collections-(collection_id)-records-(record_id)" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Synopsis:</th><td class="field-body">Retrieve a specific record by its ID.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Requires authentication</strong></p>
+<p><strong>Example Request</strong></p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ http get http://localhost:8888/v1/buckets/blog/collections/articles/records/89881454-e4e9-4ef0-99a9-404d95900352 --auth<span class="o">=</span><span class="s2">&quot;token:bob-token&quot;</span> --verbose
+</pre></div>
+</div>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="nf">GET</span> <span class="nn">/v1/buckets/blog/collections/articles/records/89881454-e4e9-4ef0-99a9-404d95900352</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Accept</span><span class="o">:</span> <span class="l">*/*</span>
+<span class="na">Accept-Encoding</span><span class="o">:</span> <span class="l">gzip, deflate</span>
+<span class="na">Authorization</span><span class="o">:</span> <span class="l">Basic Ym9iOg==</span>
+<span class="na">Connection</span><span class="o">:</span> <span class="l">keep-alive</span>
+<span class="na">Host</span><span class="o">:</span> <span class="l">localhost:8888</span>
+<span class="na">User-Agent</span><span class="o">:</span> <span class="l">HTTPie/0.9.2</span>
+</pre></div>
+</div>
+<p><strong>Example Response</strong></p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Access-Control-Expose-Headers</span><span class="o">:</span> <span class="l">Backoff, Retry-After, Alert, Last-Modified, ETag</span>
+<span class="na">Content-Length</span><span class="o">:</span> <span class="l">211</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json; charset=UTF-8</span>
+<span class="na">Date</span><span class="o">:</span> <span class="l">Thu, 18 Jun 2015 17:29:59 GMT</span>
+<span class="na">Etag</span><span class="o">:</span> <span class="l">&quot;1434648599199&quot;</span>
+<span class="na">Last-Modified</span><span class="o">:</span> <span class="l">Thu, 18 Jun 2015 17:29:59 GMT</span>
+<span class="na">Server</span><span class="o">:</span> <span class="l">waitress</span>
+
+<span class="p">{</span>
+    <span class="nt">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;baz&quot;</span><span class="p">:</span> <span class="s2">&quot;bar&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;foo&quot;</span><span class="p">:</span> <span class="s2">&quot;baz&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;89881454-e4e9-4ef0-99a9-404d95900352&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;last_modified&quot;</span><span class="p">:</span> <span class="mi">1434647996969</span>
+    <span class="p">},</span>
+    <span class="nt">&quot;permissions&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;write&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">&quot;basicauth:206691a25679e4e1135f16aa77ebcf211c767393c4306cfffe6cc228ac0886b6&quot;</span>
+        <span class="p">]</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="delete-stored-records">
+<span id="records-delete"></span><h2>Delete stored records<a class="headerlink" href="#delete-stored-records" title="Permalink to this headline">¶</a></h2>
+<dl class="delete">
+<dt id="delete--buckets-(bucket_id)-collections-(collection_id)-records">
+<code class="descname">DELETE </code><code class="descname">/buckets/</code><span class="sig-paren">(</span><em>bucket_id</em><span class="sig-paren">)</span><code class="descname">/collections/</code><span class="sig-paren">(</span><em>collection_id</em><span class="sig-paren">)</span><code class="descname">/records</code><a class="headerlink" href="#delete--buckets-(bucket_id)-collections-(collection_id)-records" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Synopsis:</th><td class="field-body">Delete all the records in the collection.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Requires authentication</strong></p>
+<p><strong>Example Request</strong></p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ http delete http://localhost:8888/v1/buckets/blog/collections/articles/records --auth<span class="o">=</span><span class="s2">&quot;token:bob-token&quot;</span> --verbose
+</pre></div>
+</div>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="nf">DELETE</span> <span class="nn">/v1/buckets/blog/collections/articles/records</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Accept</span><span class="o">:</span> <span class="l">*/*</span>
+<span class="na">Accept-Encoding</span><span class="o">:</span> <span class="l">gzip, deflate</span>
+<span class="na">Authorization</span><span class="o">:</span> <span class="l">Basic Ym9iOg==</span>
+<span class="na">Connection</span><span class="o">:</span> <span class="l">keep-alive</span>
+<span class="na">Host</span><span class="o">:</span> <span class="l">localhost:8888</span>
+<span class="na">User-Agent</span><span class="o">:</span> <span class="l">HTTPie/0.9.2</span>
+</pre></div>
+</div>
+<p><strong>Example Response</strong></p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Access-Control-Expose-Headers</span><span class="o">:</span> <span class="l">Backoff, Retry-After, Alert, Last-Modified, ETag</span>
+<span class="na">Content-Length</span><span class="o">:</span> <span class="l">211</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json; charset=UTF-8</span>
+<span class="na">Date</span><span class="o">:</span> <span class="l">Thu, 18 Jun 2015 17:29:59 GMT</span>
+<span class="na">Etag</span><span class="o">:</span> <span class="l">&quot;1434648599199&quot;</span>
+<span class="na">Last-Modified</span><span class="o">:</span> <span class="l">Thu, 18 Jun 2015 17:29:59 GMT</span>
+<span class="na">Server</span><span class="o">:</span> <span class="l">waitress</span>
+
+<span class="p">{</span>
+    <span class="nt">&quot;data&quot;</span><span class="p">:</span> <span class="p">[{</span>
+        <span class="nt">&quot;deleted&quot;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+        <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;89881454-e4e9-4ef0-99a9-404d95900352&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;last_modified&quot;</span><span class="p">:</span> <span class="mi">1434648749173</span>
+    <span class="p">}]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="deleting-a-single-record">
+<span id="record-delete"></span><h2>Deleting a single record<a class="headerlink" href="#deleting-a-single-record" title="Permalink to this headline">¶</a></h2>
+<dl class="delete">
+<dt id="delete--buckets-(bucket_id)-collections-(collection_id)-records-(record_id)">
+<code class="descname">DELETE </code><code class="descname">/buckets/</code><span class="sig-paren">(</span><em>bucket_id</em><span class="sig-paren">)</span><code class="descname">/collections/</code><span class="sig-paren">(</span><em>collection_id</em><span class="sig-paren">)</span><code class="descname">/records/</code><span class="sig-paren">(</span><em>record_id</em><span class="sig-paren">)</span><a class="headerlink" href="#delete--buckets-(bucket_id)-collections-(collection_id)-records-(record_id)" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Synopsis:</th><td class="field-body">Delete a record by its ID.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Example Request</strong></p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>$ http delete http://localhost:8888/v1/buckets/blog/collections/articles/records/89881454-e4e9-4ef0-99a9-404d95900352 --auth<span class="o">=</span><span class="s2">&quot;token:bob-token&quot;</span> --verbose
+</pre></div>
+</div>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="nf">DELETE</span> <span class="nn">/v1/buckets/blog/collections/articles/records/89881454-e4e9-4ef0-99a9-404d95900352</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Accept</span><span class="o">:</span> <span class="l">*/*</span>
+<span class="na">Accept-Encoding</span><span class="o">:</span> <span class="l">gzip, deflate</span>
+<span class="na">Authorization</span><span class="o">:</span> <span class="l">Basic Ym9iOg==</span>
+<span class="na">Connection</span><span class="o">:</span> <span class="l">keep-alive</span>
+<span class="na">Content-Length</span><span class="o">:</span> <span class="l">0</span>
+<span class="na">Host</span><span class="o">:</span> <span class="l">localhost:8888</span>
+<span class="na">User-Agent</span><span class="o">:</span> <span class="l">HTTPie/0.9.2</span>
+</pre></div>
+</div>
+<p><strong>Example Response</strong></p>
+<div class="highlight-http"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Access-Control-Expose-Headers</span><span class="o">:</span> <span class="l">Backoff, Retry-After, Alert</span>
+<span class="na">Content-Length</span><span class="o">:</span> <span class="l">99</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json; charset=UTF-8</span>
+<span class="na">Date</span><span class="o">:</span> <span class="l">Thu, 18 Jun 2015 17:32:29 GMT</span>
+<span class="na">Server</span><span class="o">:</span> <span class="l">waitress</span>
+
+<span class="p">{</span>
+    <span class="nt">&quot;data&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;deleted&quot;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+        <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;89881454-e4e9-4ef0-99a9-404d95900352&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;last_modified&quot;</span><span class="p">:</span> <span class="mi">1434648749173</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="groups.html" class="btn btn-neutral float-right" title="Groups" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="collections.html" class="btn btn-neutral" title="Collections" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2015-2016 — Mozilla Services.
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+
+  
+    <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        var disqus_shortname = 'kinto-docs';
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+  
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'4.3.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+      <script type="text/javascript" src="../../_static/piwik.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
