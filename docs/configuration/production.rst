@@ -48,7 +48,42 @@ Kinto PostgreSQL backends rely on specific Python packages (like `SQLAlchemy <ht
 Run a PostgreSQL server
 -----------------------
 
-The instructions to run a local PostgreSQL database are out of scope here.
+The instructions to run a local PostgreSQL database.
+
+In Ubuntu/Debian based::
+
+You need to add the latest PostgreSQL repository for the latest version, otherwise It will install PostgreSQL 9.3. This is for trusty version.
+
+::
+
+    $ sudo add-apt-repository "deb https://apt.postgresql.org/pub/repos/apt/ trusty-pgdg main"
+
+Update and Install PostgreSQL 9.4:
+
+    $ sudo apt-get update
+    $ sudo apt-get install postgresql-9.4
+
+By default, the postgres user has no password and can hence only connect if ran by the postgres system user. The following command will assign it:
+
+::
+
+    $ sudo -u postgres psql -c "ALTER USER postgres PASSWORD 'postgres';"
+    $ sudo -u postgres psql -c "CREATE DATABASE testdb;"
+    $ sudo -u postgres psql -c "ALTER DATABASE testdb SET TIMEZONE TO 'UTC';"
+
+Start ::
+
+    $  sudo service postgresql start
+
+Initialize kinto:
+
+    $  kinto init
+
+You will be asked which backend you would like to use:
+
+    $ Select the backend you would like to use: (1 - postgresql, 2 - redis, default - memory)
+
+Select either 1 or 2 and click enter.In this case we are supposed to use postgresql so select 1 and click enter.    
 
 A detailed guide is :github:`available on the Kinto Wiki <Kinto/kinto/wiki/How-to-run-a-PostgreSQL-server%3F>`.
 
