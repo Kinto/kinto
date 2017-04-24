@@ -703,7 +703,8 @@ class Storage(StorageBase):
                 sql_field = "coalesce({}, '')".format(column_name)
                 # Cast when comparing to number (eg. '4' < '12')
                 try:
-                    if is_numeric(value) or all([is_numeric(v) for v in value]):
+                    # all([]) is True while all(None) raises a TypeError.
+                    if is_numeric(value) or all([is_numeric(v) for v in value] or None):
                         sql_field = "({})::numeric".format(column_name)
                 except TypeError:  # not iterable
                     pass

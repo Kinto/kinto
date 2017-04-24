@@ -407,6 +407,7 @@ class BaseTestStorage:
         filters = [Filter('phone', "", utils.COMPARISON.EQ)]
         records, _ = self.storage.get_all(filters=filters,
                                           **self.storage_kw)
+        self.assertEqual(len(records), 0)
 
     def test_get_all_can_filter_with_float_values(self):
         for l in [10, 11.5, 8.5, 6, 7.5]:
