@@ -193,3 +193,15 @@ def send_alert(request, message=None, url=None, code='soft-eol'):
         'message': message,
         'url': url
     })
+
+
+def request_GET(request):
+    """Catches a UnicodeDecode error in request.GET in case a wrong request was received."""
+    try:
+        return request.GET
+    except UnicodeDecodeError as e:
+        raise http_error(
+            httpexceptions.HTTPBadRequest(),
+            errno=ERRORS.INVALID_PARAMETERS,
+            message="A request with an incorrect encoding in the querystring was"
+            "received. Please make sure your requests are encoded in UTF-8")

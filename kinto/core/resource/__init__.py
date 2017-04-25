@@ -12,7 +12,7 @@ from pyramid.httpexceptions import (HTTPNotModified, HTTPPreconditionFailed,
                                     HTTPNotFound, HTTPServiceUnavailable)
 
 from kinto.core import Service
-from kinto.core.errors import http_error, raise_invalid, send_alert, ERRORS
+from kinto.core.errors import http_error, raise_invalid, send_alert, ERRORS, request_GET
 from kinto.core.events import ACTIONS
 from kinto.core.storage import exceptions as storage_exceptions, Filter, Sort
 from kinto.core.utils import (
@@ -1062,7 +1062,7 @@ class UserResource:
         """Build the Next-Page header from where we stopped."""
         token = self._build_pagination_token(sorting, last_record, offset)
 
-        params = {**self.request.GET, '_limit': limit, '_token': token}
+        params = {**request_GET(self.request), '_limit': limit, '_token': token}
 
         service = self.request.current_service
         next_page_url = self.request.route_url(service.name, _query=params,
