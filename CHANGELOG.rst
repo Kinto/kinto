@@ -70,7 +70,7 @@ Protocol is now at version **1.16**. See `API changelog`_.
   bucket (#1137)
 - Removed Structlog binding and bottlenecks (fixes #603)
 - Fixed Swagger output with subpath and regex in pyramid routes (fixes #1180)
-- Fixed Postgresql errors when trying to compare numeric value with an empty string. (fixes #1194)
+- Fixed Postgresql errors when specifying empty values in querystring numeric filters. (fixes #1194)
 
 **Internal changes**
 
