@@ -205,7 +205,7 @@ def request_GET(request):
     except UnicodeDecodeError as e:
         querystring = request.environ.get('QUERY_STRING', '')
         logger = logging.getLogger(__name__)
-        logger.warn('Error decoding QUERY_STRING: %s' % querystring)
+        logger.warn('Error decoding QUERY_STRING: %s' % request.environ)
         raise http_error(
             httpexceptions.HTTPBadRequest(),
             errno=ERRORS.INVALID_PARAMETERS,
