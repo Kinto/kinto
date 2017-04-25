@@ -196,7 +196,9 @@ def send_alert(request, message=None, url=None, code='soft-eol'):
 
 
 def request_GET(request):
-    """Catches a UnicodeDecode error in request.GET in case a wrong request was received."""
+    """Catches a UnicodeDecode error in request.GET in case a wrong request was received.
+    Fixing a webob long term issue: https://github.com/Pylons/webob/issues/161
+    """
     try:
         return request.GET
     except UnicodeDecodeError as e:
