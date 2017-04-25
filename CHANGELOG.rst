@@ -6,8 +6,9 @@ This document describes changes between each past release.
 6.0.6 (unreleased)
 ------------------
 
-- Nothing changed yet.
+**Bug fixes**
 
+- Return a 400 Bad Request instead of crashing when the querystring contains bad characters. (fixes #1195)
 
 6.0.5 (2017-04-12)
 ------------------
