@@ -10,6 +10,7 @@ This document describes changes between each past release.
 
 - Return a 400 Bad Request instead of crashing when the querystring contains bad characters. (fixes #1195)
 - Fixed Postgresql errors when specifying empty values in querystring numeric filters. (fixes #1194)
+- Upgrade the kinto-admin to v1.13.3
 
 
 6.0.5 (2017-04-12)
