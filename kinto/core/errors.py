@@ -1,5 +1,4 @@
 import colander
-import logging
 from pyramid import httpexceptions
 from enum import Enum
 
@@ -207,7 +206,6 @@ def request_GET(request):
         return request.GET
     except UnicodeDecodeError as e:
         querystring = request.environ.get('QUERY_STRING', '')
-        logger = logging.getLogger(__name__)
         logger.warn('Error decoding QUERY_STRING: %s' % request.environ)
         raise http_error(
             httpexceptions.HTTPBadRequest(),

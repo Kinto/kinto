@@ -29,7 +29,7 @@ REQUIREMENTS = [
     'transaction',
     'pyramid_tm < 2',
     'requests',
-    'structlog >= 16.1.0',
+    'structlog >= 16.1.0, < 17',
     'waitress',
     'ujson >= 1.35'
 ]
