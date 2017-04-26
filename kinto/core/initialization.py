@@ -351,7 +351,7 @@ def setup_logging(config):
         logger.new(agent=request.headers.get('User-Agent'),
                    path=request_path,
                    method=request.method,
-                   querystring=dict(request.GET),
+                   querystring=dict(errors.request_GET(request)),
                    lang=request.headers.get('Accept-Language'),
                    uid=None,
                    authn_type=None,

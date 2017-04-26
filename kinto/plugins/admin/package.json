@@ -1,6 +1,6 @@
 {
   "name": "kwac",
-  "version": "1.13.2",
+  "version": "1.13.3",
   "private": true,
   "homepage": "http://localhost:8888/v1/admin/",
   "devDependencies": {
@@ -8,7 +8,7 @@
   },
   "dependencies": {
     "babel-polyfill": "^6.23.0",
-    "kinto-admin": "1.13.2",
+    "kinto-admin": "1.13.3",
     "react": "^15.3.2",
     "react-dom": "^15.3.2"
   },
