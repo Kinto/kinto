@@ -3,10 +3,12 @@ Changelog
 
 This document describes changes between each past release.
 
-6.0.7 (unreleased)
+6.0.7 (2017-04-27)
 ------------------
 
-- Nothing changed yet.
+**Bug fixes**
+
+- Upgrade kinto-admin with kinto-http@4.3.3.
 
 
 6.0.6 (2017-04-25)
