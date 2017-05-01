@@ -1,3 +1,5 @@
+import logging
+
 from pyramid import httpexceptions
 from pyramid.httpexceptions import HTTPTemporaryRedirect
 from pyramid.settings import asbool
@@ -5,9 +7,11 @@ from pyramid.security import forget, NO_PERMISSION_REQUIRED, Authenticated
 from pyramid.view import view_config
 
 from kinto.core.errors import http_error, ERRORS
-from kinto.core.logs import logger
 from kinto.core.storage import exceptions as storage_exceptions
 from kinto.core.utils import reapply_cors
+
+
+logger = logging.getLogger()
 
 
 @view_config(context=httpexceptions.HTTPForbidden,
@@ -17,10 +21,11 @@ def authorization_required(response, request):
     not allowed (``403 Forbidden``).
     """
     if Authenticated not in request.effective_principals:
-        error_msg = "Please authenticate yourself to use this endpoint."
-        response = http_error(httpexceptions.HTTPUnauthorized(),
-                              errno=ERRORS.MISSING_AUTH_TOKEN,
-                              message=error_msg)
+        if response.content_type != "application/json":
+            error_msg = "Please authenticate yourself to use this endpoint."
+            response = http_error(httpexceptions.HTTPUnauthorized(),
+                                  errno=ERRORS.MISSING_AUTH_TOKEN,
+                                  message=error_msg)
         response.headers.extend(forget(request))
         return response
 
@@ -103,6 +108,15 @@ def error(context, request):
     """Catch server errors and trace them."""
     if isinstance(context, httpexceptions.Response):
         return reapply_cors(request, context)
+
+    if isinstance(context, storage_exceptions.IntegrityError):
+        error_msg = "Integrity constraint violated, please retry."
+        response = http_error(httpexceptions.HTTPConflict(),
+                              errno=ERRORS.CONSTRAINT_VIOLATED,
+                              message=error_msg)
+        retry_after = request.registry.settings['retry_after_seconds']
+        response.headers["Retry-After"] = str(retry_after)
+        return reapply_cors(request, response)
 
     if isinstance(context, storage_exceptions.BackendError):
         logger.critical(context.original, exc_info=True)

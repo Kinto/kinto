@@ -1,3 +1,4 @@
+import logging
 import re
 import functools
 
@@ -10,19 +11,21 @@ from pyramid.security import Everyone
 from pyramid.httpexceptions import (HTTPNotModified, HTTPPreconditionFailed,
                                     HTTPNotFound, HTTPServiceUnavailable)
 
-from kinto.core import logger
 from kinto.core import Service
-from kinto.core.errors import http_error, raise_invalid, send_alert, ERRORS
+from kinto.core.errors import http_error, raise_invalid, send_alert, ERRORS, request_GET
 from kinto.core.events import ACTIONS
 from kinto.core.storage import exceptions as storage_exceptions, Filter, Sort
 from kinto.core.utils import (
-    COMPARISON, classname, decode64, encode64, json,
+    COMPARISON, classname, decode64, encode64, json, find_nested_value,
     dict_subset, recursive_update_dict, apply_json_patch
 )
 
 from .model import Model, ShareableModel
 from .schema import PathSchema, ResourceSchema, JsonPatchRequestSchema
 from .viewset import ViewSet, ShareableViewSet
+
+
+logger = logging.getLogger(__name__)
 
 
 def register(depth=1, **kwargs):
@@ -161,7 +164,7 @@ class UserResource:
     """Schema to validate records."""
 
     def __init__(self, request, context=None):
-
+      
         self.request = request
         self.context = context
 
@@ -169,21 +172,18 @@ class UserResource:
         # before fetching any model, so we can't wait for regular colander validation.
         self._raise_400_if_invalid_path()
 
+        self.record_id = self.request.matchdict.get('id')
+        self.force_patch_update = False
+
         # Models are isolated by user.
         parent_id = self.get_parent_id(request)
 
         # Authentication to storage is transmitted as is (cf. cloud_storage).
         auth = request.headers.get('Authorization')
 
-        # ID generator by resource name in settings.
-        default_id_generator = request.registry.id_generators['']
-        resource_name = context.resource_name if context else ''
-        id_generator = request.registry.id_generators.get(resource_name,
-                                                          default_id_generator)
-
         self.model = self.default_model(
             storage=request.registry.storage,
-            id_generator=id_generator,
+            id_generator=self.id_generator,
             collection_id=classname(self),
             parent_id=parent_id,
             auth=auth)
@@ -193,10 +193,18 @@ class UserResource:
 
         content_type = str(self.request.headers.get('Content-Type')).lower()
         self._is_json_patch = content_type == 'application/json-patch+json'
+        
+        # Initialize timestamp as soon as possible.
+        self.timestamp
 
-        # Log resource context.
-        logger.bind(collection_id=self.model.collection_id,
-                    collection_timestamp=self.timestamp)
+    @reify
+    def id_generator(self):
+        # ID generator by resource name in settings.
+        default_id_generator = self.request.registry.id_generators['']
+        resource_name = self.request.current_resource_name
+        id_generator = self.request.registry.id_generators.get(resource_name,
+                                                               default_id_generator)
+        return id_generator
 
     @reify
     def timestamp(self):
@@ -279,7 +287,8 @@ class UserResource:
         self._add_timestamp_header(self.request.response)
         self._add_cache_header(self.request.response)
         self._raise_304_if_not_modified()
-        self._raise_412_if_modified()
+        # Collections are considered resources that always exist
+        self._raise_412_if_modified(record={})
 
         headers = self.request.response.headers
 
@@ -313,8 +322,6 @@ class UserResource:
                 for record in records
             ]
 
-        # Bind metric about response size.
-        logger.bind(nb_records=len(records), limit=limit)
         headers['Total-Records'] = str(total_records)
 
         return self.postprocess(records)
@@ -373,7 +380,8 @@ class UserResource:
         :raises: :exc:`~pyramid:pyramid.httpexceptions.HTTPBadRequest`
             if filters are invalid.
         """
-        self._raise_412_if_modified()
+        # Collections are considered resources that always exist
+        self._raise_412_if_modified(record={})
 
         filters = self._extract_filters()
         limit = self._extract_limit()
@@ -455,30 +463,27 @@ class UserResource:
             Add custom behaviour by overriding
             :meth:`kinto.core.resource.UserResource.process_record`.
         """
+        self._raise_400_if_invalid_id(self.record_id)
+  
         id_field = self.model.id_field
         existing = None
         tombstones = None
         try:
             existing = self._get_record_or_404(self.record_id)
         except HTTPNotFound:
-            # Look if this record used to exist (for preconditions check).
-            filter_by_id = Filter(id_field, self.record_id, COMPARISON.EQ)
-            tombstones, _ = self.model.get_records(filters=[filter_by_id],
-                                                   include_deleted=True)
-            if len(tombstones) > 0:
-                existing = tombstones[0]
-        finally:
-            if existing:
-                self._raise_412_if_modified(existing)
+            existing = None
+
+        self._raise_412_if_modified(record=existing)
 
         # If `data` is not provided, use existing record (or empty if creation)
         post_record = self.request.validated['body'].get('data', existing) or {}
-
-        post_record.setdefault(id_field, self.record_id)
-
+        
+        record_id = post_record.setdefault(self.model.id_field, self.record_id)
+        self._raise_400_if_id_mismatch(record_id, self.record_id)
+        
         new_record = self.process_record(post_record, old=existing)
 
-        if existing and not tombstones:
+        if existing:
             record = self.model.update_record(new_record)
         else:
             record = self.model.create_record(new_record)
@@ -710,7 +715,7 @@ class UserResource:
             # Transform the errors we got from colander into Cornice errors.
             # We could not rely on Service schema because the record should be
             # validated only once the changes are applied
-            for field, error in e.asdict().items():
+            for field, error in e.asdict().items():  # pragma: no branch
                 raise_invalid(self.request, name=field, description=error)
 
         return validated, applied_changes
@@ -836,7 +841,7 @@ class UserResource:
         else:
             current_timestamp = self.model.timestamp()
 
-        if current_timestamp <= if_none_match:
+        if current_timestamp == if_none_match:
             response = HTTPNotModified()
             self._add_timestamp_header(response, timestamp=current_timestamp)
             raise response
@@ -851,18 +856,27 @@ class UserResource:
         if_match = self.request.validated['header'].get('If-Match')
         if_none_match = self.request.validated['header'].get('If-None-Match')
 
+        # Check if record exists
+        record_exists = record is not None
+
+        # If no precondition headers, just ignore
         if not if_match and not if_none_match:
             return
 
-        if record and if_none_match == '*':
-            if record.get(self.model.deleted_field, False):
-                # Tombstones should not prevent creation.
-                return
+        # If-None-Match: * should always raise if a record exists
+        if if_none_match == '*' and record_exists:
             modified_since = -1  # Always raise.
+
+        # If-Match should always raise if a record doesn't exist
+        elif if_match and not record_exists:
+            modified_since = -1
+
+        # If-Match with ETag value on existing records should compare ETag
         elif if_match and if_match != '*':
             modified_since = if_match
+
+        # If none of the above applies, don't raise
         else:
-            # In case _raise_304_if_not_modified() did not raise.
             return
 
         if record:
@@ -870,7 +884,7 @@ class UserResource:
         else:
             current_timestamp = self.model.timestamp()
 
-        if current_timestamp > modified_since:
+        if current_timestamp != modified_since:
             error_msg = 'Resource was modified meanwhile'
             details = {'existing': record} if record else {}
             response = http_error(HTTPPreconditionFailed(),
@@ -914,10 +928,9 @@ class UserResource:
 
         return limit
 
-    def _extract_filters(self, queryparams=None):
+    def _extract_filters(self):
         """Extracts filters from QueryString parameters."""
-        if not queryparams:
-            queryparams = self.request.validated['querystring']
+        queryparams = self.request.validated['querystring']
 
         filters = []
 
@@ -1066,7 +1079,7 @@ class UserResource:
         """Build the Next-Page header from where we stopped."""
         token = self._build_pagination_token(sorting, last_record, offset)
 
-        params = {**self.request.GET, '_limit': limit, '_token': token}
+        params = {**request_GET(self.request), '_limit': limit, '_token': token}
 
         service = self.request.current_service
         next_page_url = self.request.route_url(service.name, _query=params,
@@ -1086,7 +1099,9 @@ class UserResource:
         }
 
         for field, _ in sorting:
-            token['last_record'][field] = last_record[field]
+            last_value = find_nested_value(last_record, field)
+            if last_value is not None:
+                token['last_record'][field] = last_value
 
         return encode64(json.dumps(token))
 
@@ -1131,13 +1146,13 @@ class ShareableResource(UserResource):
         """
         return ''
 
-    def _extract_filters(self, queryparams=None):
+    def _extract_filters(self):
         """Override default filters extraction from QueryString to allow
         partial collection of records.
 
         XXX: find more elegant approach to add custom filters.
         """
-        filters = super()._extract_filters(queryparams)
+        filters = super()._extract_filters()
 
         ids = self.context.shared_ids
         if ids is not None:

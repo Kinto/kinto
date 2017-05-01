@@ -1,6 +1,8 @@
+import logging
 import random
 
-from kinto.core.logs import logger
+
+logger = logging.getLogger(__name__)
 
 
 _HEARTBEAT_DELETE_RATE = 0.5
@@ -45,9 +47,8 @@ class CacheBase:
         """
         raise NotImplementedError
 
-    def set(self, key, value, ttl=None):
-        """Store a value with the specified `key`. If `ttl` is provided,
-        set an expiration value.
+    def set(self, key, value, ttl):
+        """Store a value with the specified `key`.
 
         :param str key: key
         :param str value: value to store

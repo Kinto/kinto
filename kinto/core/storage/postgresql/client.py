@@ -1,24 +1,21 @@
 import contextlib
+import logging
 import warnings
 from collections import defaultdict
 
-from kinto.core import logger
 from kinto.core.storage import exceptions
 from kinto.core.utils import sqlalchemy
 import transaction as zope_transaction
 
 
+logger = logging.getLogger(__name__)
+
+
 class PostgreSQLClient:
-    def __init__(self, session_factory, commit_manually=True, invalidate=None):
+    def __init__(self, session_factory, commit_manually, invalidate):
         self.session_factory = session_factory
         self.commit_manually = commit_manually
-        self.invalidate = invalidate or (lambda session: None)
-
-        # # Register ujson, globally for all futur cursors
-        # with self.connect() as cursor:
-        #     psycopg2.extras.register_json(cursor,
-        #                                   globally=True,
-        #                                   loads=json.loads)
+        self.invalidate = invalidate
 
     @contextlib.contextmanager
     def connect(self, readonly=False, force_commit=False):
@@ -29,7 +26,7 @@ class PostgreSQLClient:
         A COMMIT is performed on the current transaction if everything went
         well. Otherwise transaction is ROLLBACK, and everything cleaned up.
         """
-        with_transaction = not readonly and self.commit_manually
+        commit_manually = self.commit_manually and not readonly
         session = None
         try:
             # Pull connection from pool.
@@ -40,15 +37,20 @@ class PostgreSQLClient:
                 # Mark session as dirty.
                 self.invalidate(session)
             # Success
-            if with_transaction:
+            if commit_manually:
                 session.commit()
             elif force_commit:
                 # Commit like would do a succesful request.
                 zope_transaction.commit()
 
+        except sqlalchemy.exc.IntegrityError as e:
+            logger.error(e)
+            if commit_manually:  # pragma: no branch
+                session.rollback()
+            raise exceptions.IntegrityError(original=e) from e
         except sqlalchemy.exc.SQLAlchemyError as e:
             logger.error(e)
-            if session and with_transaction:
+            if session and commit_manually:
                 session.rollback()
             raise exceptions.BackendError(original=e) from e
         finally:

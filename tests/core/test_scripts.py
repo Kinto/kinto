@@ -15,6 +15,14 @@ class InitSchemaTest(unittest.TestCase):
         self.assertTrue(self.registry.cache.initialize_schema.called)
         self.assertTrue(self.registry.permission.initialize_schema.called)
 
+    def test_migrate_skips_missing_backends(self):
+        class FakeRegistry:
+            settings = dict()
+            storage = mock.MagicMock()
+        registry = FakeRegistry()
+        scripts.migrate({'registry': registry})
+        self.assertTrue(registry.storage.initialize_schema.called)
+
     def test_migrate_in_read_only_display_an_error(self):
         with mock.patch('kinto.core.scripts.logger') as mocked:
             self.registry.settings = {'readonly': 'true'}

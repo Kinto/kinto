@@ -48,7 +48,9 @@ class DeactivatedSchemaTest(BaseWebTest, unittest.TestCase):
 
 
 class BaseWebTestWithSchema(BaseWebTest):
-    def get_app_settings(self, extras=None):
+
+    @classmethod
+    def get_app_settings(cls, extras=None):
         settings = super().get_app_settings(extras)
         settings['experimental_collection_schema_validation'] = 'True'
         return settings

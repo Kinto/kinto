@@ -122,6 +122,12 @@ class PutTest(BaseTest):
             self.resource.put()
             self.assertFalse(get.called)
 
+    def test_put_over_tombstone_create_new_record(self):
+        self.resource.delete()
+        result = self.resource.put()
+        self.assertNotIn("old", result)
+        self.assertNotIn("deleted", result)
+
 
 class DeleteTest(BaseTest):
     def test_delete_record_returns_last_timestamp(self):

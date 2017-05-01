@@ -1,4 +1,5 @@
 import functools
+import logging
 
 from pyramid.settings import aslist
 from pyramid.security import IAuthorizationPolicy, Authenticated
@@ -7,6 +8,8 @@ from zope.interface import implementer
 from kinto.core import utils
 from kinto.core.storage import exceptions as storage_exceptions
 
+
+logger = logging.getLogger(__name__)
 
 # A permission is called "dynamic" when it's computed at request time.
 DYNAMIC = 'dynamic'
@@ -83,17 +86,22 @@ class AuthorizationPolicy:
         # The ShareableResource class will take care of the filtering.
         is_list_operation = (context.on_collection and not permission.endswith('create'))
         if not allowed and is_list_operation:
-            shared = context.fetch_shared_records(permission,
-                                                  principals,
-                                                  self.get_bound_permissions)
-            # If allowed to create this kind of object on parent, then allow to obtain the list.
-            if len(bound_perms) > 0:
-                parent_create_perm = [(parent_uri, create_permission)]
-            else:
-                parent_create_perm = [('', 'create')]  # Root object.
-            allowed_to_create = context.check_permission(principals, parent_create_perm)
+            allowed = bool(context.fetch_shared_records(permission,
+                                                        principals,
+                                                        self.get_bound_permissions))
+            if not allowed:
+                # If allowed to create this kind of object on parent,
+                # then allow to obtain the list.
+                if len(bound_perms) > 0:
+                    bound_perms = [(parent_uri, create_permission)]
+                else:
+                    bound_perms = [('', 'create')]  # Root object.
+                allowed = context.check_permission(principals, bound_perms)
 
-            allowed = shared or allowed_to_create
+        if not allowed:
+            logger.warn("Permission %r on %r not granted to %r.",
+                        permission, object_id, principals[0],
+                        extra=dict(userid=principals[0], uri=object_id, perm=permission))
 
         return allowed
 

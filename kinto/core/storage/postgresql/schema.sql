@@ -39,8 +39,6 @@ CREATE TABLE IF NOT EXISTS records (
 );
 CREATE UNIQUE INDEX IF NOT EXISTS idx_records_parent_id_collection_id_last_modified
     ON records(parent_id, collection_id, last_modified DESC);
-CREATE UNIQUE INDEX IF NOT EXISTS idx_records_parent_id_collection_id_last_modified
-  ON records(parent_id, collection_id, last_modified DESC);
 CREATE INDEX IF NOT EXISTS idx_records_last_modified_epoch
     ON records(as_epoch(last_modified));
 
@@ -77,18 +75,20 @@ RETURNS TIMESTAMP AS $$
 DECLARE
     ts TIMESTAMP;
 BEGIN
-    ts := NULL;
-
-    SELECT last_modified INTO ts
-      FROM timestamps
-     WHERE parent_id = uid
-       AND collection_id = resource;
-
-    IF ts IS NULL THEN
-      ts := clock_timestamp();
+    WITH create_if_missing AS (
       INSERT INTO timestamps (parent_id, collection_id, last_modified)
-      VALUES (uid, resource, ts);
-    END IF;
+      VALUES (uid, resource, clock_timestamp())
+      ON CONFLICT (parent_id, collection_id) DO NOTHING
+      RETURNING last_modified
+    ),
+    get_or_create AS (
+      SELECT last_modified FROM create_if_missing
+      UNION
+      SELECT last_modified FROM timestamps
+       WHERE parent_id = uid
+         AND collection_id = resource
+    )
+    SELECT last_modified INTO ts FROM get_or_create;
 
     RETURN ts;
 END;
@@ -142,14 +142,10 @@ BEGIN
     --
     -- Upsert current collection timestamp.
     --
-    WITH upsert AS (
-        UPDATE timestamps SET last_modified = current
-         WHERE parent_id = NEW.parent_id AND collection_id = NEW.collection_id
-        RETURNING *
-    )
     INSERT INTO timestamps (parent_id, collection_id, last_modified)
-    SELECT NEW.parent_id, NEW.collection_id, current
-    WHERE NOT EXISTS (SELECT * FROM upsert);
+    VALUES (NEW.parent_id, NEW.collection_id, current)
+    ON CONFLICT (parent_id, collection_id) DO UPDATE
+      SET last_modified = current;
 
     RETURN NEW;
 END;
@@ -175,4 +171,4 @@ INSERT INTO metadata (name, value) VALUES ('created_at', NOW()::TEXT);
 
 -- Set storage schema version.
 -- Should match ``kinto.core.storage.postgresql.PostgreSQL.schema_version``
-INSERT INTO metadata (name, value) VALUES ('storage_schema_version', '14');
+INSERT INTO metadata (name, value) VALUES ('storage_schema_version', '15');

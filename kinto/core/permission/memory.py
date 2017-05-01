@@ -145,7 +145,7 @@ class Permission(PermissionBase):
             permission_key = 'permission:{}:{}'.format(object_id, permission)
             if permission_key in self._store and len(principals) == 0:
                 del self._store[permission_key]
-            else:
+            elif principals:
                 self._store[permission_key] = set(principals)
         return permissions
 

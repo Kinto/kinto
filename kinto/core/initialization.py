@@ -1,9 +1,9 @@
+import logging
 import re
 import warnings
 from datetime import datetime
 from dateutil import parser as dateparser
 
-import structlog
 from pyramid.events import NewRequest, NewResponse
 from pyramid.exceptions import ConfigurationError
 from pyramid.httpexceptions import (HTTPTemporaryRedirect, HTTPGone,
@@ -30,8 +30,11 @@ from kinto.core import utils
 from kinto.core import cache
 from kinto.core import storage
 from kinto.core import permission
-from kinto.core.logs import logger
 from kinto.core.events import ResourceRead, ResourceChanged, ACTIONS
+
+
+logger = logging.getLogger(__name__)
+summary_logger = logging.getLogger('request.summary')
 
 
 def setup_request_bound_data(config):
@@ -109,11 +112,12 @@ def setup_authentication(config):
 
     # Track policy used, for prefixing user_id and for logging.
     def on_policy_selected(event):
+        request = event.request
         authn_type = event.policy_name.lower()
-        event.request.authn_type = authn_type
-        event.request.selected_userid = event.userid
+        request.authn_type = authn_type
+        request.selected_userid = event.userid
         # Add authentication info to context.
-        logger.bind(uid=event.userid, authn_type=authn_type)
+        request.log_context(uid=event.userid, authn_type=authn_type)
 
     config.add_subscriber(on_policy_selected, MultiAuthPolicySelected)
 
@@ -315,24 +319,6 @@ def setup_logging(config):
     * https://mana.mozilla.org/wiki/display/CLOUDSERVICES/Logging+Standard
     * http://12factor.net/logs
     """
-    settings = config.get_settings()
-
-    renderer_klass = config.maybe_dotted(settings['logging_renderer'])
-    renderer = renderer_klass(settings)
-
-    structlog.configure(
-        # Share the logger context by thread.
-        context_class=structlog.threadlocal.wrap_dict(dict),
-        # Integrate with Pyramid logging facilities.
-        logger_factory=structlog.stdlib.LoggerFactory(),
-        wrapper_class=structlog.stdlib.BoundLogger,
-        # Setup logger output format.
-        processors=[
-            structlog.stdlib.filter_by_level,
-            structlog.processors.format_exc_info,
-            renderer,
-        ])
-
     def on_new_request(event):
         request = event.request
         # Save the time the request was received by the server.
@@ -347,15 +333,14 @@ def setup_logging(config):
                 errno=errors.ERRORS.INVALID_PARAMETERS,
                 message="Invalid URL path.")
 
-        # New logger context, with infos for request summary logger.
-        logger.new(agent=request.headers.get('User-Agent'),
-                   path=request_path,
-                   method=request.method,
-                   querystring=dict(request.GET),
-                   lang=request.headers.get('Accept-Language'),
-                   uid=None,
-                   authn_type=None,
-                   errno=None)
+        request.log_context(agent=request.headers.get('User-Agent'),
+                            path=request_path,
+                            method=request.method,
+                            querystring=dict(errors.request_GET(request)),
+                            lang=request.headers.get('Accept-Language'),
+                            uid=None,
+                            authn_type=None,
+                            errno=None)
 
     config.add_subscriber(on_new_request, NewRequest)
 
@@ -369,13 +354,19 @@ def setup_logging(config):
         isotimestamp = datetime.fromtimestamp(current/1000).isoformat()
 
         # Bind infos for request summary logger.
-        logger.bind(time=isotimestamp,
-                    code=response.status_code,
-                    t=duration)
+        request.log_context(time=isotimestamp,
+                            code=response.status_code,
+                            t=duration)
 
-        # Ouput application request summary.
+        try:
+            # If error response, bind errno.
+            request.log_context(errno=response.errno)
+        except AttributeError:
+            pass
+
         if not hasattr(request, 'parent'):
-            logger.info('request.summary')
+            # Ouput application request summary.
+            summary_logger.info('', extra=request.log_context())
 
     config.add_subscriber(on_new_response, NewResponse)
 
@@ -499,25 +490,6 @@ def load_default_settings(config, default_settings):
         if len(defined) > 1 and len(distinct_values) > 1:
             names = "', '".join(defined)
             raise ValueError("Settings '{}' are in conflict.".format(names))
-
-        # Maintain backwards compatibility with old settings files that
-        # have backend settings like cliquet.foo (which is now
-        # kinto.core.foo).
-        unprefixed, _, _ = _prefixed_keys(key)
-        CONTAIN_CLIQUET_MODULE_NAMES = [
-            'storage_backend',
-            'cache_backend',
-            'permission_backend',
-            'logging_renderer',
-        ]
-        if unprefixed in CONTAIN_CLIQUET_MODULE_NAMES and \
-                value.startswith('cliquet.'):
-            new_value = value.replace('cliquet.', 'kinto.core.')
-            logger.warn(
-                "Backend settings referring to cliquet are DEPRECATED. "
-                "Please update your {} setting to {} (was: {}).".format(
-                    key, new_value, value))
-            value = new_value
 
         # Override settings from OS env values.
         # e.g. HTTP_PORT, READINGLIST_HTTP_PORT, KINTO_HTTP_PORT

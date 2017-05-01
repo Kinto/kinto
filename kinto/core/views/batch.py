@@ -1,15 +1,17 @@
-import colander
+import logging
 
+import colander
 from cornice.validators import colander_validator
 from pyramid import httpexceptions
 from pyramid.security import NO_PERMISSION_REQUIRED
 
 from kinto.core import errors
-from kinto.core import logger
 from kinto.core import Service
 from kinto.core.errors import ErrorSchema
 from kinto.core.utils import merge_dicts, build_request, build_response
 
+
+subrequest_logger = logging.getLogger("subrequest.summary")
 
 valid_http_method = colander.OneOf(('GET', 'HEAD', 'DELETE', 'TRACE',
                                     'POST', 'PUT', 'PATCH'))
@@ -40,11 +42,19 @@ class BatchRequestSchema(colander.MappingSchema):
     body = colander.SchemaNode(colander.Mapping(unknown='preserve'),
                                missing=colander.drop)
 
+    @staticmethod
+    def schema_type():
+        return colander.Mapping(unknown='raise')
+
 
 class BatchPayloadSchema(colander.MappingSchema):
     defaults = BatchRequestSchema(missing=colander.drop).clone()
     requests = colander.SchemaNode(colander.Sequence(),
                                    BatchRequestSchema())
+
+    @staticmethod
+    def schema_type():
+        return colander.Mapping(unknown='raise')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -107,7 +117,8 @@ batch = Service(name="batch", path='/batch',
             response_schemas=batch_responses)
 def post_batch(request):
     requests = request.validated['body']['requests']
-    batch_size = len(requests)
+
+    request.log_context(batch_size=len(requests))
 
     limit = request.registry.settings['batch_max_requests']
     if limit and len(requests) > int(limit):
@@ -122,13 +133,12 @@ def post_batch(request):
 
     responses = []
 
-    sublogger = logger.new()
-
     for subrequest_spec in requests:
         subrequest = build_request(request, subrequest_spec)
 
-        sublogger.bind(path=subrequest.path,
-                       method=subrequest.method)
+        log_context = {'path': subrequest.path,
+                       'method': subrequest.method,
+                       **request.log_context()}
         try:
             # Invoke subrequest without individual transaction.
             resp, subrequest = request.follow_subrequest(subrequest,
@@ -140,17 +150,10 @@ def post_batch(request):
                 # JSONify raw Pyramid errors.
                 resp = errors.http_error(e)
 
-        sublogger.bind(code=resp.status_code)
-        sublogger.info('subrequest.summary')
+        subrequest_logger.info('subrequest.summary', extra=log_context)
 
         dict_resp = build_response(resp, subrequest)
         responses.append(dict_resp)
-
-    # Rebing batch request for summary
-    logger.bind(path=batch.path,
-                method=request.method,
-                batch_size=batch_size,
-                agent=request.headers.get('User-Agent'),)
 
     return {
         'responses': responses

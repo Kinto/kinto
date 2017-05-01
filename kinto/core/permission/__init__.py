@@ -1,6 +1,9 @@
+import logging
+
 from pyramid.settings import asbool
 
-from kinto.core.logs import logger
+
+logger = logging.getLogger(__name__)
 
 
 __HEARTBEAT_KEY__ = '__heartbeat__'

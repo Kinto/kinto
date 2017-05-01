@@ -34,6 +34,31 @@ class GroupViewTest(FormattedErrorMixin, BaseWebTest, unittest.TestCase):
         self.assertIn('id', resp.json['data'])
         self.assertEqual(resp.json['data']['members'], ['fxa:user'])
 
+    def test_groups_can_be_put_with_empty_body(self):
+        self.app.put('/buckets/beers/groups/simple', headers=self.headers)
+
+    def test_groups_can_be_created_with_just_permissions(self):
+        group = {'permissions': {'write': ['github:me']}}
+        resp = self.app.put_json('/buckets/beers/groups/g',
+                                 group,
+                                 headers=self.headers)
+        self.assertNotIn('members', resp.json['data'])
+
+    def test_groups_can_be_create_without_members_attribute(self):
+        group = {'data': {'alias': 'admins'}}
+        resp = self.app.put_json(self.record_url,
+                                 group,
+                                 headers=self.headers)
+        self.assertEqual(resp.json['data']['members'], [])
+
+    def test_groups_can_be_patched_without_members_attribute(self):
+        group = {'data': {'alias': 'admins'}}
+        resp = self.app.patch_json(self.record_url,
+                                   group,
+                                   headers=self.headers)
+        self.assertEqual(resp.json['data']['members'], ['fxa:user'])
+        self.assertEqual(resp.json['data']['alias'], 'admins')
+
     def test_groups_can_be_put_with_simple_name(self):
         self.assertEqual(self.record['id'], 'moderators')
 
@@ -230,28 +255,3 @@ class GroupManagementTest(BaseWebTest, unittest.TestCase):
         self.app.patch_json(self.group_url,
                             valid,
                             headers=self.headers)
-
-
-class InvalidGroupTest(BaseWebTest, unittest.TestCase):
-
-    group_url = '/buckets/beers/groups/moderators'
-
-    def setUp(self):
-        super().setUp()
-        self.create_bucket('beers')
-
-    def test_groups_data_is_required_with_put(self):
-        invalid = {'permissions': {'write': ['github:me']}}
-        resp = self.app.put_json(self.group_url,
-                                 invalid,
-                                 headers=self.headers,
-                                 status=400)
-        self.assertEqual(resp.json['message'], "data in body: Required")
-
-    def test_groups_must_have_members_attribute(self):
-        invalid = {'data': {'alias': 'admins'}}
-        resp = self.app.put_json(self.group_url,
-                                 invalid,
-                                 headers=self.headers,
-                                 status=400)
-        self.assertIn('data.members in body', resp.json['message'])

@@ -11,7 +11,23 @@ API
 Changelog
 ---------
 
-1.14 (Unreleased)
+1.16 (unreleased)
+'''''''''''''''''
+
+- Groups can now be created with a simple ``PUT`` (fixes #793)
+- Batch requests now raise ``400`` on unknown attributes (#1163).
+
+1.15 (2017-03-03)
+'''''''''''''''''
+
+- ``If-Match`` and ``If-None-Match`` precondition headers now check the ETag for
+  strict equality. Previous versions would allow requests if they seemed
+  to be more recent than the current version.
+- ``If-Match`` now raises ``412`` if a record doesn't exist.
+- A |status-409| error response is now returned when some backend integrity
+  constraint is violated (instead of |status-503|).
+
+1.14 (2017-01-11)
 '''''''''''''''''
 
 - Add an OpenAPI 2.0 specification on ``GET /__api__`` endpoint.

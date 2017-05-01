@@ -1,11 +1,14 @@
+import logging
 from concurrent.futures import ThreadPoolExecutor, wait
 
 import colander
 import transaction
 from pyramid.security import NO_PERMISSION_REQUIRED
 
-from kinto import logger
 from kinto.core import Service
+
+
+logger = logging.getLogger(__name__)
 
 
 heartbeat = Service(name="heartbeat", path='/__heartbeat__',

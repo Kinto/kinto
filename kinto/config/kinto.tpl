@@ -25,6 +25,21 @@ kinto.permission_backend = {permission_backend}
 kinto.permission_url = {permission_url}
 
 #
+# Features.
+#
+# kinto.readonly = false
+# kinto.bucket_create_principals = system.Authenticated
+# kinto.batch_max_requests = 25
+
+# Experimental JSON-schema on collection
+# kinto.experimental_collection_schema_validation = true
+
+#
+# Plugins
+#
+kinto.includes = kinto.plugins.default_bucket
+
+#
 # Auth configuration.
 #
 # https://kinto.readthedocs.io/en/latest/configuration/settings.html#authentication
@@ -33,18 +48,19 @@ kinto.userid_hmac_secret = {secret}
 multiauth.policies = basicauth
 # multiauth.policies = fxa basicauth
 
-# kinto.readonly = false
-# kinto.bucket_create_principals = system.Authenticated
-# kinto.batch_max_requests = 25
-
 #
-# Experimental JSON-schema on collection
-# kinto.experimental_collection_schema_validation = true
-
+# Accounts API configuration.
 #
-# Plugins
-#
-kinto.includes = kinto.plugins.default_bucket
+# Enable built-in plugin.
+# kinto.includes = kinto.plugins.accounts
+# Enable authenticated policy.
+# multiauth.policies = account
+# multiauth.policy.account.use = kinto.plugins.accounts.authentication.AccountsAuthenticationPolicy
+# Allow anyone to create accounts.
+# kinto.account_create_principals = system.Everyone
+# Set user 'account:admin' as the administrator.
+# kinto.account_write_principals = account:admin
+# kinto.account_read_principals = account:admin
 
 #
 # Firefox Accounts configuration.
@@ -122,8 +138,6 @@ kinto.includes = kinto.plugins.default_bucket
 # Logging configuration
 #
 
-# kinto.logging_renderer = kinto.core.logs.ClassicLogRenderer
-
 [loggers]
 keys = root, kinto
 
@@ -131,7 +145,7 @@ keys = root, kinto
 keys = console
 
 [formatters]
-keys = generic
+keys = color
 
 [logger_root]
 level = INFO
@@ -139,14 +153,14 @@ handlers = console
 
 [logger_kinto]
 level = DEBUG
-handlers =
+handlers = console
 qualname = kinto
 
 [handler_console]
 class = StreamHandler
 args = (sys.stderr,)
 level = NOTSET
-formatter = generic
+formatter = color
 
-[formatter_generic]
-format = %(asctime)s %(levelname)-5.5s [%(name)s][%(threadName)s] %(message)s
+[formatter_color]
+class = logging_color_formatter.ColorFormatter

@@ -14,7 +14,8 @@ from ..support import BaseWebTest, MINIMALIST_RECORD
 
 class DefaultBucketWebTest(BaseWebTest, unittest.TestCase):
 
-    def get_app_settings(self, extras=None):
+    @classmethod
+    def get_app_settings(cls, extras=None):
         settings = super().get_app_settings(extras)
         settings['includes'] = 'kinto.plugins.default_bucket'
         return settings
@@ -40,6 +41,20 @@ class DefaultBucketViewTest(FormattedErrorMixin, DefaultBucketWebTest):
         resp = self.app.put_json(self.bucket_url, bucket, headers=self.headers)
         result = resp.json
         self.assertIn('system.Everyone', result['permissions']['read'])
+
+    def test_default_bucket_collection_can_still_be_explicitly_created(self):
+        collection = {'data': {'synced': True}}
+        resp = self.app.put_json(self.collection_url, collection, headers=self.headers)
+        result = resp.json
+        self.assertIn('synced', result['data'])
+        self.assertTrue(result['data']['synced'])
+        resp = self.app.get(self.collection_url, headers=self.headers)
+        result = resp.json
+        self.assertIn('synced', result['data'])
+        self.assertTrue('synced', result['data']['synced'])
+
+    def test_default_bucket_can_be_created_with_simple_put(self):
+        self.app.put(self.bucket_url, headers=get_user_headers('bob'), status=201)
 
     def test_default_bucket_collections_are_automatically_created(self):
         self.app.get(self.collection_url, headers=self.headers, status=200)
@@ -159,11 +174,11 @@ class DefaultBucketViewTest(FormattedErrorMixin, DefaultBucketWebTest):
                        'body': MINIMALIST_RECORD}
             batch['requests'].append(request)
 
-        with mock.patch.object(self.storage, 'get',
-                               wraps=self.storage.get) as patched:
+        with mock.patch.object(self.storage, 'create',
+                               wraps=self.storage.create) as patched:
             self.app.post_json('/batch', batch, headers=self.headers)
             # Called twice only: bucket + collection ids unicity.
-            self.assertEqual(patched.call_count, 2)
+            self.assertEqual(patched.call_count, 25 + 2)
 
     def test_parent_collection_is_taken_from_the_one_checked_in_batch(self):
         # Create it first.
@@ -177,11 +192,11 @@ class DefaultBucketViewTest(FormattedErrorMixin, DefaultBucketWebTest):
                        'body': MINIMALIST_RECORD}
             batch['requests'].append(request)
 
-        with mock.patch.object(self.storage, 'get',
-                               wraps=self.storage.get) as patched:
+        with mock.patch.object(self.storage, 'create',
+                               wraps=self.storage.create) as patched:
             self.app.post_json('/batch', batch, headers=self.headers)
             # Called twice only: bucket + collection ids unicity.
-            self.assertEqual(patched.call_count, 2)
+            self.assertEqual(patched.call_count, 25 + 2)
 
     def test_collection_id_is_validated(self):
         collection_url = '/buckets/default/collections/__files__/records'
@@ -268,7 +283,8 @@ class EventsTest(DefaultBucketWebTest):
         super().tearDown()
         del _events[:]
 
-    def get_app_settings(self, extras=None):
+    @classmethod
+    def get_app_settings(cls, extras=None):
         settings = super().get_app_settings(extras)
         settings = {**settings, 'event_listeners': 'testevent',
                     'event_listeners.testevent.use': 'tests.plugins.test_default_bucket'}
@@ -278,6 +294,7 @@ class EventsTest(DefaultBucketWebTest):
         bucket_url = '/buckets/default'
         self.app.get(bucket_url, headers=self.headers)
         assert len(_events) == 1
+        assert 'last_modified' in _events[-1].impacted_records[0]['new']
         payload = _events[-1].payload
         assert payload['resource_name'] == 'bucket'
         assert payload['action'] == 'create'
@@ -324,7 +341,8 @@ class EventsTest(DefaultBucketWebTest):
 
 class ReadonlyDefaultBucket(DefaultBucketWebTest):
 
-    def get_app_settings(self, extras=None):
+    @classmethod
+    def get_app_settings(cls, extras=None):
         settings = super().get_app_settings(extras)
         settings['readonly'] = True
         return settings

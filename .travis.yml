@@ -2,7 +2,6 @@ dist: trusty
 language: python
 python: 3.5
 cache: pip
-services: redis-server
 addons:
   postgresql: "9.5"
 env:
@@ -33,5 +32,7 @@ matrix:
     - env: ENV=functional
       before_install:
         - make install-dev
+        - make install-postgres
+      script:
         - make runkinto & sleep 5
-      script: make functional
+        - make functional

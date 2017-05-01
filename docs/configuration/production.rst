@@ -115,7 +115,7 @@ Once a PostgreSQL is up and running somewhere, you should edit your configuratio
 
 .. code-block:: bash
 
-    $ kinto --ini production.ini init
+    $ kinto init --ini production.ini
 
 
 Select your database server address, name and user by editing the configuration file. Also make sure that the PostgreSQL :ref:`backend settings<configuration-backends>` are selected. For our example, the backend configuration would be:
@@ -137,7 +137,7 @@ The last step consists in creating the necessary tables and indices, run the ``m
 
 .. code-block:: bash
 
-    $ kinto --ini production.ini migrate
+    $ kinto migrate --ini production.ini
 
 .. important::
     You should run ``migrate`` every time you change the configuration file or kinto is upgraded.
@@ -163,7 +163,6 @@ adjustments:
 
 .. code-block :: ini
 
-    kinto.flush_endpoint_enabled = false
     kinto.http_scheme = https
     kinto.paginate_by = 100
     kinto.batch_max_requests = 25
@@ -256,63 +255,54 @@ Timers
    "``permission.{method}``", "Time needed to execute a method of the permission backend. Methods are ``add_user_principal``, ``remove_user_principal``, ``get_user_principals``, ``add_principal_to_ace``, ``remove_principal_from_ace``, ``get_object_permission_principals``, ``check_permission``"
 
 
-Heka Logging
+JSON Logging
 ------------
 
 At Mozilla, applications log files follow a specific JSON schema, that is
-processed through `Heka <https://hekad.readthedocs.io>`_.
-
-In order to enable Mozilla *Heka* logging output:
-
-.. code-block :: ini
-
-    # Heka
-    kinto.logging_renderer = kinto.core.logs.MozillaHekaRenderer
-
+processed through `Kibana <https://github.com/elastic/kibana>`_ or
+`Heka <https://hekad.readthedocs.io>`_.
 
 With the following configuration, all logs are structured in JSON and
 redirected to standard output (See `12factor app <http://12factor.net/logs>`_).
 A `Sentry <https://getsentry.com>`_ logger is also enabled.
 
+.. note::
+
+    You must install the ``mozilla-cloud-services-logger`` package.
 
 .. code-block:: ini
 
     [loggers]
-    keys = root, kinto
+    keys = root
 
     [handlers]
     keys = console, sentry
 
     [formatters]
-    keys = generic, heka
+    keys = generic, json
 
     [logger_root]
     level = INFO
     handlers = console, sentry
 
-    [logger_kinto]
-    level = INFO
-    handlers = console, sentry
-    qualname = kinto
-
     [handler_console]
     class = StreamHandler
     args = (sys.stdout,)
-    level = INFO
-    formatter = heka
+    level = NOTSET
+    formatter = json
 
     [handler_sentry]
     class = raven.handlers.logging.SentryHandler
-    args = ('http://public:secret@example.com/1',)
-    level = INFO
+    args = ('https://<key>:<secret>@app.getsentry.com/<project>',)
+    level = WARNING
     formatter = generic
 
+    [formatter_json]
+    class = mozilla_cloud_services_logger.formatters.JsonLogFormatter
+
     [formatter_generic]
-    format = %(asctime)s %(levelname)-5.5s [%(name)s][%(threadName)s] %(message)s
-
-    [formatter_heka]
-    format = %(message)s
-
+    format = %(asctime)s,%(msecs)03d %(levelname)-5.5s [%(name)s] %(message)s
+    datefmt = %H:%M:%S
 
 
 Run the Kinto application

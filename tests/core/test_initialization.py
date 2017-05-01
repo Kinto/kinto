@@ -67,8 +67,13 @@ class InitializationTest(unittest.TestCase):
                          'kinto')
 
     def test_warns_if_not_https(self):
-        config = Configurator(settings={'kinto.http_scheme': 'http'})
         with mock.patch('kinto.core.initialization.warnings.warn') as mocked:
+            config = Configurator(settings={'project_name': 'kinto',
+                                            'kinto.http_scheme': 'https'})
+            kinto.core.initialize(config, '0.0.1')
+            self.assertFalse(mocked.called)
+
+            config = Configurator(settings={'kinto.http_scheme': 'http'})
             kinto.core.initialize(config, '0.0.1')
             error_msg = 'HTTPS is not enabled'
             mocked.assert_any_call(error_msg)
@@ -174,22 +179,6 @@ class ProjectSettingsTest(unittest.TestCase):
         value = self.settings(settings)['storage_backend']
         os.environ.pop(envkey)
         self.assertEqual(value, 'kinto_redis.storage')
-
-    def test_can_continue_to_use_cliquet_names(self):
-        settings = {
-            'kinto.permission_backend': 'cliquet.permission.memory'
-        }
-        with mock.patch('kinto.core.logger.warn') as mocked:
-            new_settings = self.settings(settings)
-            warning_message = ''.join([
-                "Backend settings referring to cliquet are DEPRECATED. ",
-                "Please update your kinto.permission_backend setting to ",
-                "kinto.core.permission.memory ",
-                "(was: cliquet.permission.memory).",
-                ])
-            mocked.assert_called_once_with(warning_message)
-            self.assertEqual(new_settings['permission_backend'],
-                             'kinto.core.permission.memory')
 
 
 class ApplicationWrapperTest(unittest.TestCase):

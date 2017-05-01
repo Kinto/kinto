@@ -1,5 +1,6 @@
 """Main entry point
 """
+import logging
 import pkg_resources
 import tempfile
 
@@ -13,8 +14,10 @@ from kinto.core.initialization import (  # NOQA
     load_default_settings)
 from kinto.core.utils import (
     follow_subrequest, current_service, current_resource_name,
-    prefixed_userid, prefixed_principals)
-from kinto.core.logs import logger
+    prefixed_userid, prefixed_principals, log_context)
+
+
+logger = logging.getLogger(__name__)
 
 
 # Module version, as defined in PEP-0396.
@@ -56,7 +59,6 @@ DEFAULT_SETTINGS = {
     ),
     'event_listeners': '',
     'heartbeat_timeout_seconds': 10,
-    'logging_renderer': 'kinto.core.logs.ClassicLogRenderer',
     'newrelic_config': None,
     'newrelic_env': 'dev',
     'paginate_by': None,
@@ -89,7 +91,6 @@ DEFAULT_SETTINGS = {
                                        'BasicAuthAuthenticationPolicy'),
     'multiauth.authorization_policy': ('kinto.core.authorization.'
                                        'AuthorizationPolicy'),
-    'swagger_file': 'swagger.yaml',
 }
 
 
@@ -158,6 +159,7 @@ def includeme(config):
         step_func(config)
 
     # Custom helpers.
+    config.add_request_method(log_context)
     config.add_request_method(follow_subrequest)
     config.add_request_method(prefixed_userid, property=True)
     config.add_request_method(prefixed_principals, reify=True)

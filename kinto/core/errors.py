@@ -1,8 +1,8 @@
 import colander
+import logging
 from pyramid import httpexceptions
 from enum import Enum
 
-from kinto.core.logs import logger
 from kinto.core.schema import Any
 from kinto.core.utils import json, reapply_cors
 
@@ -103,9 +103,6 @@ def http_error(httpexception, errno=None,
     if isinstance(errno, Enum):
         errno = errno.value
 
-    # Track error number for request summary
-    logger.bind(errno=errno)
-
     body = {
         "code": code or httpexception.code,
         "errno": errno,
@@ -116,6 +113,7 @@ def http_error(httpexception, errno=None,
     }
 
     response = httpexception
+    response.errno = errno
     response.json = ErrorSchema().deserialize(body)
     response.content_type = 'application/json'
     return response
@@ -196,3 +194,20 @@ def send_alert(request, message=None, url=None, code='soft-eol'):
         'message': message,
         'url': url
     })
+
+
+def request_GET(request):
+    """Catches a UnicodeDecode error in request.GET in case a wrong request was received.
+    Fixing a webob long term issue: https://github.com/Pylons/webob/issues/161
+    """
+    try:
+        return request.GET
+    except UnicodeDecodeError as e:
+        querystring = request.environ.get('QUERY_STRING', '')
+        logger = logging.getLogger(__name__)
+        logger.warn('Error decoding QUERY_STRING: %s' % request.environ)
+        raise http_error(
+            httpexceptions.HTTPBadRequest(),
+            errno=ERRORS.INVALID_PARAMETERS,
+            message="A request with an incorrect encoding in the querystring was"
+            "received. Please make sure your requests are encoded in UTF-8: %s" % querystring)

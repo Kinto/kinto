@@ -1,15 +1,26 @@
+import json
+import os
+
 from pyramid.static import static_view
 from pyramid.httpexceptions import HTTPTemporaryRedirect
+
 from .views import admin_home_view
+
+
+HERE = os.path.dirname(__file__)
 
 
 def includeme(config):
     # Process settings to remove storage wording.
 
+    # Read version from package.json
+    package_json = json.load(open(os.path.join(HERE, "package.json")))
+    admin_version = package_json["dependencies"]["kinto-admin"]
+
     # Expose capability.
     config.add_api_capability(
         "admin",
-        version="1.9.0",
+        version=admin_version,
         description="Serves the admin console.",
         url="https://github.com/Kinto/kinto-admin/",
     )

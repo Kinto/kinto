@@ -6,7 +6,6 @@ from collections import defaultdict
 import mock
 import webtest
 from cornice import errors as cornice_errors
-from enum import Enum
 from pyramid.url import parse_url_overrides
 
 from kinto.core import DEFAULT_SETTINGS
@@ -40,6 +39,7 @@ class DummyRequest(mock.MagicMock):
         self.prefixed_principals = self.effective_principals + [self.prefixed_userid]
         self.json = {}
         self.validated = {}
+        self.log_context = lambda **kw: kw
         self.matchdict = {}
         self.response = mock.MagicMock(headers={})
 
@@ -72,12 +72,9 @@ class FormattedErrorMixin:
 
     def assertFormattedError(self, response, code, errno, error,
                              message=None, info=None):
-        if isinstance(errno, Enum):
-            errno = errno.value
-
         self.assertIn('application/json', response.headers['Content-Type'])
         self.assertEqual(response.json['code'], code)
-        self.assertEqual(response.json['errno'], errno)
+        self.assertEqual(response.json['errno'], errno.value)
         self.assertEqual(response.json['error'], error)
         if message is not None:
             self.assertIn(message, response.json['message'])
@@ -90,13 +87,13 @@ class FormattedErrorMixin:
             self.assertNotIn('info', response.json)
 
 
-def get_user_headers(user):
+def get_user_headers(user, password='secret'):
     """Helper to obtain a Basic Auth authorization headers from the specified
     `user` (e.g. ``"user:pass"``)
 
     :rtype: dict
     """
-    credentials = "{}:secret".format(user)
+    credentials = "{}:{}".format(user, password)
     authorization = 'Basic {}'.format(encode64(credentials))
     return {
         'Authorization': authorization
@@ -115,22 +112,23 @@ class BaseWebTest:
     entry_point = None
     """Main application entry"""
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.app = self.make_app()
-        self.storage = self.app.app.registry.storage
-        self.cache = self.app.app.registry.cache
-        self.permission = self.app.app.registry.permission
+    headers = {
+        'Content-Type': 'application/json'
+    }
 
-        self.storage.initialize_schema()
-        self.permission.initialize_schema()
-        self.cache.initialize_schema()
+    @classmethod
+    def setUpClass(cls):
+        cls.app = cls.make_app()
+        cls.storage = cls.app.app.registry.storage
+        cls.cache = cls.app.app.registry.cache
+        cls.permission = cls.app.app.registry.permission
 
-        self.headers = {
-            'Content-Type': 'application/json'
-        }
+        cls.storage.initialize_schema()
+        cls.permission.initialize_schema()
+        cls.cache.initialize_schema()
 
-    def make_app(self, settings=None, config=None):
+    @classmethod
+    def make_app(cls, settings=None, config=None):
         """Instantiate the application and setup requests to use the api
         prefix.
 
@@ -138,19 +136,17 @@ class BaseWebTest:
         :param pyramid.config.Configurator config: already initialized config
         :returns: webtest application instance
         """
-        settings = self.get_app_settings(extras=settings)
+        settings = cls.get_app_settings(extras=settings)
 
-        try:
-            main = self.entry_point.__func__
-        except AttributeError:  # pragma: no cover
-            main = self.entry_point.im_func
+        main = cls.entry_point
 
         wsgi_app = main({}, config=config, **settings)
         app = webtest.TestApp(wsgi_app)
-        app.RequestClass = get_request_class(self.api_prefix)
+        app.RequestClass = get_request_class(cls.api_prefix)
         return app
 
-    def get_app_settings(self, extras=None):
+    @classmethod
+    def get_app_settings(cls, extras=None):
         """Application settings to be used. Override to tweak default settings
         for the tests.
 
@@ -163,8 +159,7 @@ class BaseWebTest:
         settings['cache_backend'] = 'kinto.core.cache.memory'
         settings['permission_backend'] = 'kinto.core.permission.memory'
 
-        if extras is not None:
-            settings.update(extras)
+        settings.update(extras or None)
 
         return settings
 

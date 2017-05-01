@@ -1,13 +1,16 @@
+import logging
 import os
 import warnings
 from collections import defaultdict
 
-from kinto.core import logger
 from kinto.core.storage import (
     StorageBase, exceptions,
     DEFAULT_ID_FIELD, DEFAULT_MODIFIED_FIELD, DEFAULT_DELETED_FIELD)
 from kinto.core.storage.postgresql.client import create_from_config
-from kinto.core.utils import COMPARISON, json
+from kinto.core.utils import COMPARISON, json, is_numeric
+
+
+logger = logging.getLogger(__name__)
 
 
 class Storage(StorageBase):
@@ -65,7 +68,7 @@ class Storage(StorageBase):
 
     """  # NOQA
 
-    schema_version = 14
+    schema_version = 15
 
     def __init__(self, client, max_fetch_size, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -73,7 +76,8 @@ class Storage(StorageBase):
         self._max_fetch_size = max_fetch_size
 
     def _execute_sql_file(self, filepath):
-        schema = open(filepath).read()
+        with open(filepath) as f:
+            schema = f.read()
         # Since called outside request, force commit.
         with self.client.connect(force_commit=True) as conn:
             conn.execute(schema)
@@ -214,13 +218,15 @@ class Storage(StorageBase):
     def create(self, collection_id, parent_id, record, id_generator=None,
                id_field=DEFAULT_ID_FIELD,
                modified_field=DEFAULT_MODIFIED_FIELD,
-               auth=None):
+               auth=None, ignore_conflict=False):
         id_generator = id_generator or self.id_generator
         record = {**record}
         if id_field in record:
             # Raise unicity error if record with same id already exists.
             try:
                 existing = self.get(collection_id, parent_id, record[id_field])
+                if ignore_conflict:
+                    return existing
                 raise exceptions.UnicityError(id_field, existing)
             except exceptions.RecordNotFoundError:
                 pass
@@ -243,15 +249,28 @@ class Storage(StorageBase):
         VALUES (:object_id, :parent_id,
                 :collection_id, (:data)::JSONB,
                 from_epoch(:last_modified))
+        %(on_conflict)s
         RETURNING id, as_epoch(last_modified) AS last_modified;
         """
+
+        safe_holders = {"on_conflict": ""}
+
+        if ignore_conflict:
+            # We use DO UPDATE so that the RETURNING clause works
+            # but we don't update anything and keep the previous
+            # last_modified value already stored.
+            safe_holders["on_conflict"] = """
+            ON CONFLICT (id, parent_id, collection_id) DO UPDATE
+            SET last_modified = EXCLUDED.last_modified
+            """
+
         placeholders = dict(object_id=record[id_field],
                             parent_id=parent_id,
                             collection_id=collection_id,
                             last_modified=record.get(modified_field),
                             data=json.dumps(query_record))
         with self.client.connect() as conn:
-            result = conn.execute(query, placeholders)
+            result = conn.execute(query % safe_holders, placeholders)
             inserted = result.fetchone()
 
         record[modified_field] = inserted['last_modified']
@@ -683,16 +702,21 @@ class Storage(StorageBase):
                 # If field is missing, we default to ''.
                 sql_field = "coalesce({}, '')".format(column_name)
                 # Cast when comparing to number (eg. '4' < '12')
-                if isinstance(value, (int, float)) and \
-                   value not in (True, False):
-                    sql_field = "({})::numeric".format(column_name)
+                try:
+                    if value and (is_numeric(value) or all([is_numeric(v) for v in value])):
+                        sql_field = "({})::numeric".format(column_name)
+                except TypeError:  # not iterable
+                    pass
 
             if filtr.operator not in (COMPARISON.IN, COMPARISON.EXCLUDE):
                 # For the IN operator, let psycopg escape the values list.
                 # Otherwise JSON-ify the native value (e.g. True -> 'true')
-                if not isinstance(filtr.value, str):
-                    value = json.dumps(filtr.value).strip('"')
+                if not isinstance(value, str):
+                    value = json.dumps(value).strip('"')
             else:
+                # If not all numeric, fallback to string comparison.
+                if not all([is_numeric(v) for v in value]):
+                    value = [str(v) for v in value]
                 value = tuple(value)
                 # WHERE field IN ();  -- Fails with syntax error.
                 if len(value) == 0:

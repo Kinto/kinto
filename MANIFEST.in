@@ -5,3 +5,4 @@ recursive-include kinto *.sql *.html *.ini *.yaml
 recursive-include docs *.rst *.png *.svg *.css *.html conf.py piwik.js
 recursive-include kinto/plugins/admin/build *
 prune docs/_build/*
+prune kinto/plugins/admin/node_modules/*

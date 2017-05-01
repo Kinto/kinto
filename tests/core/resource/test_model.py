@@ -62,6 +62,7 @@ class DeleteModelTest(BaseTest):
 class IsolatedModelsTest(BaseTest):
     def setUp(self):
         super().setUp()
+        self.resource.request.validated = {'header': {}, 'querystring': {}}
         self.stored = self.model.create_record({}, parent_id='bob')
         self.resource.record_id = self.stored['id']
 
@@ -81,7 +82,7 @@ class IsolatedModelsTest(BaseTest):
         self.assertEquals(len(records), 0)
 
     def test_update_record_of_another_user_will_create_it(self):
-        self.resource.request.validated = {'body': {'data': {'some': 'record'}}}
+        self.resource.request.validated['body'] = {'data': {'some': 'record'}}
         self.resource.put()
         self.model.get_record(record_id=self.stored['id'],
                               parent_id='basicauth:alice')  # not raising

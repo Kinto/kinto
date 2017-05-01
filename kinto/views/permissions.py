@@ -56,6 +56,9 @@ class PermissionsModel:
     def __init__(self, request):
         self.request = request
 
+    def timestamp(self, parent_id=None):
+        return 0
+
     def get_records(self, filters=None, sorting=None, pagination_rules=None,
                     limit=None, include_deleted=False, parent_id=None):
         # Invert the permissions inheritance tree.
@@ -171,8 +174,8 @@ class Permissions(resource.ShareableResource):
                                  if s.field != self.model.modified_field]
         return without_last_modified
 
-    def _extract_filters(self, queryparams=None):
-        result = super()._extract_filters(queryparams)
+    def _extract_filters(self):
+        result = super()._extract_filters()
         without_last_modified = [s for s in result
                                  if s.field != self.model.modified_field]
         return without_last_modified

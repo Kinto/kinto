@@ -1,9 +1,12 @@
+import logging
 import os
 
-from kinto.core import logger
 from kinto.core.cache import CacheBase
 from kinto.core.storage.postgresql.client import create_from_config
 from kinto.core.utils import json
+
+
+logger = logging.getLogger(__name__)
 
 
 class Cache(CacheBase):
@@ -85,7 +88,8 @@ class Cache(CacheBase):
             return
 
         # Since called outside request, force commit.
-        schema = open(sql_file).read()
+        with open(sql_file) as f:
+            schema = f.read()
         with self.client.connect(force_commit=True) as conn:
             conn.execute(schema)
         logger.info('Created PostgreSQL cache tables')
@@ -119,9 +123,10 @@ class Cache(CacheBase):
         with self.client.connect() as conn:
             conn.execute(query, dict(ttl=ttl, key=self.prefix + key))
 
-    def set(self, key, value, ttl=None):
-        if ttl is None:
-            logger.warning("No TTL for cache key '{}'".format(key))
+    def set(self, key, value, ttl):
+        if isinstance(value, bytes):
+            raise TypeError("a string-like object is required, not 'bytes'")
+
         query = """
         INSERT INTO cache (key, value, ttl)
         VALUES (:key, :value, sec2ttl(:ttl))

@@ -58,6 +58,14 @@ def classname(obj):
     return obj.__class__.__name__.lower()
 
 
+def is_numeric(value):
+    """Check if the provided value is a numeric value.
+
+    :rtype: bool
+    """
+    return isinstance(value, (int, float)) and not isinstance(value, bool)
+
+
 def merge_dicts(a, b):
     """Merge b into a recursively, without overwriting values.
 
@@ -182,6 +190,36 @@ def dict_merge(a, b):
     return result
 
 
+def find_nested_value(d, path, default=None):
+    """Finds a nested value in a dict from a dotted path key string.
+
+    :param dict d: the dict to retrieve nested value from
+    :param str path: the path to the nested value, in dot notation
+    :returns: the nested value if any was found, or None
+    """
+    if path in d:
+        return d.get(path)
+
+    # the challenge is to identify what is the root key, as dict keys may
+    # contain dot characters themselves
+    parts = path.split('.')
+
+    # build a list of all possible root keys from all the path parts
+    candidates = ['.'.join(parts[:i + 1]) for i in range(len(parts))]
+
+    # we start with the longest candidate paths as they're most likely to be the
+    # ones we want if they match
+    root = next((key for key in reversed(candidates) if key in d), None)
+
+    # if no valid root candidates were found, the path is invalid; abandon
+    if root is None or not isinstance(d.get(root), dict):
+        return default
+
+    # we have our root key, extract the new subpath and recur
+    subpath = path.replace(root + '.', '', 1)
+    return find_nested_value(d.get(root), subpath, default=default)
+
+
 class COMPARISON(Enum):
     LT = '<'
     MIN = '>='
@@ -218,10 +256,20 @@ def reapply_cors(request, response):
 
         # Import service here because kinto.core import utils
         from kinto.core import Service
-        if Service.default_cors_headers:
+        if Service.default_cors_headers:  # pragma: no branch
             headers = ','.join(Service.default_cors_headers)
             response.headers['Access-Control-Expose-Headers'] = headers
     return response
+
+
+def log_context(request, **kwargs):
+    """Bind information to the current request summary log.
+    """
+    try:
+        request._log_context.update(**kwargs)
+    except AttributeError:
+        request._log_context = kwargs
+    return request._log_context
 
 
 def current_service(request):
@@ -277,13 +325,11 @@ def prefixed_principals(request):
 
     # Remove unprefixed user id on effective_principals to avoid conflicts.
     # (it is added via Pyramid Authn policy effective principals)
-    userid = request.prefixed_userid
-    if ':' in userid:
-        prefix, userid = userid.split(':', 1)
+    prefix, userid = request.prefixed_userid.split(':', 1)
     principals = [p for p in principals if p != userid]
 
     if request.prefixed_userid not in principals:
-        principals.append(request.prefixed_userid)
+        principals = [request.prefixed_userid] + principals
 
     return principals
 
@@ -481,10 +527,10 @@ def apply_json_patch(record, ops):
 
     # Allow patch permissions without value since key and value are equal on sets
     for op in ops:
-        if 'path' in op:
-            if op['path'].startswith(('/permissions/read/',
-                                      '/permissions/write/')):
-                op['value'] = op['path'].split('/')[-1]
+        # 'path' is here since it was validated.
+        if op['path'].startswith(('/permissions/read/',
+                                  '/permissions/write/')):
+            op['value'] = op['path'].split('/')[-1]
 
     try:
         result = jsonpatch.apply_patch(resource, ops)

@@ -1,12 +1,15 @@
 """
 kinto.core.scripts: utilities to build admin scripts for kinto-based services
 """
+import logging
 
 import transaction as current_transaction
 from pyramid.settings import asbool
 
-from kinto import logger
 from kinto.core.storage import exceptions as storage_exceptions
+
+
+logger = logging.getLogger(__name__)
 
 
 def migrate(env, dry_run=False):

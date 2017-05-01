@@ -173,13 +173,16 @@ Validate token while obtaining user id from Github
 We will simply make a call to the Github user API and try to obtain the ``login`` attribute (i.e. user name).
 
 .. code-block:: python
-    :emphasize-lines: 30-38
+    :emphasize-lines: 33-41
+
+    import logging
 
     import requests
-    from kinto.core import logger
     from pyramid.authentication import CallbackAuthenticationPolicy
     from pyramid.interfaces import IAuthenticationPolicy
     from zope.interface import implementer
+
+    logger = logging.getLogger(__name__)
 
     GITHUB_METHOD = 'Github+Bearer'
 
@@ -256,7 +259,7 @@ Create a *Personal access token* using the Github API using your user/pass:
 It is returned in the ``token`` attribute in the JSON response:
 
 .. code-block:: http
-    :emphasize-lines: 19
+    :emphasize-lines: 18
 
     HTTP/1.1 201 Created
     Access-Control-Allow-Credentials: true
@@ -295,7 +298,7 @@ Check your user id
     $ http http://localhost:8888/v1/ "Authorization: github+Bearer 7f7f911969279d8b16a12f44b8bc6e2d216dc51e"
 
 .. code-block:: http
-    :emphasize-lines: 23
+    :emphasize-lines: 21
 
     HTTP/1.1 200 OK
     Access-Control-Expose-Headers: Retry-After, Content-Length, Alert, Backoff

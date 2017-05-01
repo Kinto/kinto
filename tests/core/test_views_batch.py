@@ -175,9 +175,8 @@ class BatchSchemaTest(unittest.TestCase):
     def test_requests_is_mandatory(self):
         self.assertInvalid({})
 
-    def test_unknown_attributes_are_dropped(self):
-        deserialized = self.schema.deserialize({'requests': [], 'unknown': 42})
-        self.assertNotIn('unknown', deserialized)
+    def test_raise_invalid_on_unknown_attributes(self):
+        self.assertInvalid({'requests': [], 'unknown': 42})
 
     def test_list_of_requests_can_be_empty(self):
         self.schema.deserialize({'requests': []})
@@ -187,7 +186,7 @@ class BatchSchemaTest(unittest.TestCase):
 
     def test_list_of_requests_must_be_dicts(self):
         request = 42
-        self.assertInvalid({'requests': [request]})
+        self.assertInvalid({'defaults': {'path': '/'}, 'requests': [request]})
 
     def test_request_path_must_start_with_slash(self):
         request = {'path': 'http://localhost'}
@@ -199,6 +198,10 @@ class BatchSchemaTest(unittest.TestCase):
 
     def test_request_method_must_be_known_uppercase_word(self):
         request = {'path': '/', 'method': 'get'}
+        self.assertInvalid({'requests': [request]})
+
+    def test_raise_invalid_on_request_unknown_attributes(self):
+        request = {'path': '/', 'method': 'GET', 'foo': 42}
         self.assertInvalid({'requests': [request]})
 
     #
@@ -247,12 +250,10 @@ class BatchSchemaTest(unittest.TestCase):
         batch_payload = {'requests': [request], 'defaults': defaults}
         self.assertInvalid(batch_payload)
 
-    def test_unknown_defaults_are_ignored_silently(self):
+    def test_raise_invalid_on_default_unknown_attributes(self):
         request = {'path': '/'}
         defaults = {'foo': 'bar'}
-        batch_payload = {'requests': [request], 'defaults': defaults}
-        result = self.schema.deserialize(batch_payload)
-        self.assertNotIn('foo', result['requests'][0])
+        self.assertInvalid({'requests': [request], 'defaults': defaults})
 
     def test_defaults_can_be_specified_empty(self):
         request = {'path': '/'}

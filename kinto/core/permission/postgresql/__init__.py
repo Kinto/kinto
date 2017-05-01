@@ -1,10 +1,13 @@
+import logging
 import os
 
 from collections import OrderedDict
 
-from kinto.core import logger
 from kinto.core.permission import PermissionBase
 from kinto.core.storage.postgresql.client import create_from_config
+
+
+logger = logging.getLogger(__name__)
 
 
 class Permission(PermissionBase):
@@ -86,7 +89,8 @@ class Permission(PermissionBase):
             return
 
         # Since called outside request, force commit.
-        schema = open(sql_file).read()
+        with open(sql_file) as f:
+            schema = f.read()
         with self.client.connect(force_commit=True) as conn:
             conn.execute(schema)
         logger.info('Created PostgreSQL permission tables')

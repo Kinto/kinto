@@ -3,7 +3,8 @@ import uuid
 
 from kinto.core.storage import exceptions as storage_exceptions
 from kinto.core.errors import ERRORS
-from kinto.core.testing import unittest
+from kinto.core.testing import unittest, FormattedErrorMixin
+
 
 from ..support import BaseWebTest
 
@@ -514,9 +515,8 @@ class IgnoredFieldsTest(BaseWebTest, unittest.TestCase):
 
 
 class InvalidBodyTest(BaseWebTest, unittest.TestCase):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.invalid_body = "{'foo>}"
+
+    invalid_body = "{'foo>}"
 
     def setUp(self):
         super().setUp()
@@ -647,7 +647,8 @@ class InvalidPermissionsTest(BaseWebTest, unittest.TestCase):
 class CacheControlTest(BaseWebTest, unittest.TestCase):
     collection_url = '/toadstools'
 
-    def get_app_settings(self, extras=None):
+    @classmethod
+    def get_app_settings(cls, extras=None):
         settings = super().get_app_settings(extras)
         settings['toadstool_cache_expires_seconds'] = 3600
         settings['toadstool_read_principals'] = 'system.Everyone'
@@ -773,3 +774,14 @@ class SchemaLessPartialResponseTest(BaseWebTest, unittest.TestCase):
         resp = self.app.get(self.collection_url + '?_fields=nationality')
         result = resp.json['data'][0]
         self.assertNotIn('nationality', result)
+
+
+class UnicodeDecodeErrorTest(BaseWebTest, FormattedErrorMixin, unittest.TestCase):
+    collection_url = '/spores'
+
+    def test_wrong_filter_encoding_raise_a_400_bad_request(self):
+        resp = self.app.get(self.collection_url + '?foo\xe2\xfc\xa7bar',
+                            headers=self.headers, status=400)
+        self.assertFormattedError(resp, 400, ERRORS.INVALID_PARAMETERS, "Bad Request",
+                                  "A request with an incorrect encoding in the querystring was"
+                                  "received. Please make sure your requests are encoded in UTF-8")

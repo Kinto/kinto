@@ -1,7 +1,11 @@
 Kinto
 =====
 
-|irc| |slack| |readthedocs| |pypi| |travis| |master-coverage|
+|coc| |irc| |slack| |readthedocs| |pypi| |travis| |master-coverage|
+
+.. |coc| image:: https://img.shields.io/badge/%E2%9D%A4-code%20of%20conduct-blue.svg
+    :target: https://github.com/Kinto/kinto/blob/master/CODE_OF_CONDUCT.md
+    :alt: Code of conduct
 
 .. |irc| image:: https://img.shields.io/badge/Live%20chat-%23kinto%20on%20freenode-blue.svg
     :target: https://kiwiirc.com/client/irc.freenode.net/?#kinto
