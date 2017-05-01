@@ -180,11 +180,11 @@ Linux
 
 On Debian / Ubuntu based systems::
 
-    apt-get install libffi-dev libssl-dev python-dev python-virtualenv
+    apt-get install libffi-dev libssl-dev python3-dev python-virtualenv
 
 On RHEL-derivatives::
 
-    dnf install libffi-devel openssl-devel python-devel python-virtualenv
+    dnf install libffi-devel openssl-devel python3-devel python-virtualenv
 
 OS X
 ''''
@@ -212,7 +212,7 @@ Create a Python isolated environment (*optional*):
 
 ::
 
-    virtualenv env/
+    virtualenv -p python3 env/
     source env/bin/activate
 
 Then install the package using the default configuration:
