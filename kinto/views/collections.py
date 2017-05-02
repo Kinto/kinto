@@ -58,9 +58,9 @@ def on_collections_deleted(event):
         parent_id = utils.instance_uri(event.request, 'collection',
                                        bucket_id=bucket_id,
                                        id=collection['id'])
-        storage.delete_all(collection_id='record',
+        storage.delete_all(collection_id=None,
                            parent_id=parent_id,
                            with_deleted=False)
-        storage.purge_deleted(collection_id='record',
+        storage.purge_deleted(collection_id=None,
                               parent_id=parent_id)
         permission.delete_object_permissions(parent_id + '*')
