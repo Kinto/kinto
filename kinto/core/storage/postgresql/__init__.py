@@ -312,7 +312,7 @@ class Storage(StorageBase):
         query_record.pop(id_field, None)
         query_record.pop(modified_field, None)
 
-        query_create = """
+        query = """
         WITH delete_potential_tombstone AS (
             DELETE FROM deleted
              WHERE id = :object_id
@@ -323,15 +323,10 @@ class Storage(StorageBase):
         VALUES (:object_id, :parent_id,
                 :collection_id, (:data)::JSONB,
                 from_epoch(:last_modified))
-        RETURNING as_epoch(last_modified) AS last_modified;
-        """
-
-        query_update = """
-        UPDATE records SET data=(:data)::JSONB,
-                           last_modified=from_epoch(:last_modified)
-        WHERE id = :object_id
-           AND parent_id = :parent_id
-           AND collection_id = :collection_id
+        ON CONFLICT (id, parent_id, collection_id) DO UPDATE
+            SET data=(:data)::JSONB,
+                last_modified = GREATEST(from_epoch(:last_modified),
+                                         EXCLUDED.last_modified)
         RETURNING as_epoch(last_modified) AS last_modified;
         """
         placeholders = dict(object_id=object_id,
@@ -340,22 +335,11 @@ class Storage(StorageBase):
                             last_modified=record.get(modified_field),
                             data=json.dumps(query_record))
 
-        record = {**record, id_field: object_id}
-
         with self.client.connect() as conn:
-            # Create or update ?
-            query = """
-            SELECT id FROM records
-            WHERE id = :object_id
-              AND parent_id = :parent_id
-              AND collection_id = :collection_id;
-            """
-            result = conn.execute(query, placeholders)
-            query = query_update if result.rowcount > 0 else query_create
-
             result = conn.execute(query, placeholders)
             updated = result.fetchone()
 
+        record = {**record, id_field: object_id}
         record[modified_field] = updated['last_modified']
         return record
 
