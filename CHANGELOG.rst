@@ -11,6 +11,9 @@ This document describes changes between each past release.
 - Fix PostgreSQL backend from deleting records of the same name in
   other buckets and collections when deleting a bucket. (fixes #1209)
 
+**Internal changes**
+
+- Fix tests with Pyramid 1.9a
 
 
 6.0.7 (2017-04-27)
