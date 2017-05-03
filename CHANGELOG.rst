@@ -80,6 +80,7 @@ Protocol is now at version **1.16**. See `API changelog`_.
 - Removed useless logging info from resource (ref #603)
 - Make sure prefixed userid is always first in principals
 - Run functional tests on PostgreSQL
+- Fix tests with Pyramid 1.9a
 
 
 6.0.0 (2017-03-03)
