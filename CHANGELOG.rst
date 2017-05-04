@@ -83,6 +83,7 @@ Protocol is now at version **1.16**. See `API changelog`_.
 - Make sure prefixed userid is always first in principals
 - Run functional tests on PostgreSQL
 - Fix tests with Pyramid 1.9a
+- Removed useless deletions in quota plugin
 
 
 6.0.0 (2017-03-03)
