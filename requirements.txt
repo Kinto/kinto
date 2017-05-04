@@ -9,7 +9,7 @@ iso8601==0.1.11
 jsonpatch==1.15
 jsonpointer==1.10
 jsonschema==2.6.0
-newrelic==2.84.0.64
+newrelic==2.86.0.65
 packaging==16.8
 PasteDeploy==1.5.2
 psycopg2==2.7.1
