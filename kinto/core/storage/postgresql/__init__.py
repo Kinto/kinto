@@ -412,17 +412,23 @@ class Storage(StorageBase):
         if with_deleted:
             query = """
             WITH deleted_records AS (
+                WITH matching_records AS (
+                    SELECT id, parent_id, collection_id
+                        FROM records
+                        WHERE {parent_id_filter}
+                              {collection_id_filter}
+                              {conditions_filter}
+                              {pagination_rules}
+                        {sorting}
+                        {pagination_limit}
+                )
                 DELETE
                 FROM records
-                WHERE id IN (SELECT id
-                             FROM records
-                             WHERE {parent_id_filter}
-                                   {collection_id_filter}
-                                   {conditions_filter}
-                                   {pagination_rules}
-                             {sorting}
-                             {pagination_limit})
-                RETURNING id, parent_id, collection_id
+                USING matching_records
+                WHERE records.id = matching_records.id
+                  AND records.parent_id = matching_records.parent_id
+                  AND records.collection_id = matching_records.collection_id
+                RETURNING records.id, records.parent_id, records.collection_id
             )
             INSERT INTO deleted (id, parent_id, collection_id)
             SELECT id, parent_id, collection_id
@@ -431,17 +437,23 @@ class Storage(StorageBase):
             """
         else:
             query = """
+            WITH matching_records AS (
+                SELECT id, parent_id, collection_id
+                    FROM records
+                    WHERE {parent_id_filter}
+                          {collection_id_filter}
+                          {conditions_filter}
+                          {pagination_rules}
+                    {sorting}
+                    {pagination_limit}
+            )
             DELETE
             FROM records
-            WHERE id IN (SELECT id
-                         FROM records
-                         WHERE {parent_id_filter}
-                               {collection_id_filter}
-                               {conditions_filter}
-                               {pagination_rules}
-                         {sorting}
-                         {pagination_limit})
-            RETURNING id, as_epoch(last_modified) AS last_modified;
+            USING matching_records
+            WHERE records.id = matching_records.id
+              AND records.parent_id = matching_records.parent_id
+              AND records.collection_id = matching_records.collection_id
+            RETURNING records.id, as_epoch(last_modified) AS last_modified;
             """
 
         id_field = id_field or self.id_field

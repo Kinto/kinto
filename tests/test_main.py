@@ -12,7 +12,7 @@ from io import StringIO
 from kinto import __version__ as kinto_version
 from kinto.__main__ import main, DEFAULT_LOG_FORMAT
 
-_, TEMP_KINTO_INI = tempfile.mkstemp(prefix='kinto_config')
+_, TEMP_KINTO_INI = tempfile.mkstemp(prefix='kinto_config', suffix='.ini')
 
 
 class TestMain(unittest.TestCase):
