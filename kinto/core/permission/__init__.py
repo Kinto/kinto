@@ -153,10 +153,21 @@ class PermissionBase:
         raise NotImplementedError
 
     def replace_object_permissions(self, object_id, permissions):
-        """Replace given object permissions.
+        """Update the set of principals allowed to perform some actions on an
+        object.
 
-        :param str object_id: The object to replace permissions to.
-        :param str permissions: The permissions dict to replace.
+        The only update of permissions allowed by Kinto's API is
+        complete replacement of some permission (e.g. I don't know who
+        was previously allowed to read this object, but now it's Joe,
+        Frank, and Paul). This method implements that, completely
+        replacing the set of principals who are granted the given
+        permissions (while leaving other permissions alone).
+
+        :param str object_id: The object to replace permissions on.
+        :param permissions: A dict of perm -> principals (where
+        principals is an iterable of individuals) to be granted on
+        this object.
+
         """
         raise NotImplementedError
 

@@ -72,6 +72,8 @@ Protocol is now at version **1.16**. See `API changelog`_.
 - Fixed Swagger output with subpath and regex in pyramid routes (fixes #1180)
 - Fixed Postgresql errors when specifying empty values in querystring numeric filters. (fixes #1194)
 - Return a 400 Bad Request instead of crashing when the querystring contains bad characters. (fixes #1195)
+- Fix PostgreSQL backend from deleting records of the same name in
+  other buckets and collections when deleting a bucket. (Fixes #1209.)
 
 **Internal changes**
 
