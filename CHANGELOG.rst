@@ -17,6 +17,7 @@ This document describes changes between each past release.
   events for buckets and collections that already exist. This causes
   the ``quotas`` plugin to no longer leak "quota" when used with the
   ``default_bucket`` plugin. (#1226)
+- Fix race conditions on deletions with upsert in PostgreSQL ``storage.update()`` (fixes #1202).
 
 
 6.0.8 (2017-05-04)
