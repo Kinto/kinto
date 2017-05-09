@@ -372,8 +372,6 @@ class Permission(PermissionBase):
                 placeholders['principal_{}'.format(j)] = principal
                 new_aces.append("(:perm_{}, :principal_{})".format(i, j))
 
-        print(placeholders, specified_perms, new_aces)
-
         if not new_aces:
             query = """
             WITH specified_perms AS (
@@ -393,14 +391,18 @@ class Permission(PermissionBase):
               DELETE FROM access_control_entries
                USING specified_perms
                WHERE object_id = :object_id AND permission = column1
-               RETURNING *
+               RETURNING object_id
+            ),
+            affected_object AS (
+              SELECT object_id FROM delete_specified
+              UNION SELECT :object_id
             ),
             new_aces AS (
               VALUES {new_aces}
             )
             INSERT INTO access_control_entries(object_id, permission, principal)
               SELECT DISTINCT d.object_id, n.column1, n.column2
-                FROM new_aces AS n, delete_specified AS d;
+                FROM new_aces AS n, affected_object AS d;
             """.format(specified_perms=','.join(specified_perms),
                        new_aces=','.join(new_aces))
 
