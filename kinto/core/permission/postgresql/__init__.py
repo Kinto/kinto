@@ -359,38 +359,52 @@ class Permission(PermissionBase):
             'object_id': object_id
         }
 
-        new_perms = []
+        new_aces = []
         specified_perms = []
         for i, (perm, principals) in enumerate(permissions.items()):
             placeholders['perm_{}'.format(i)] = perm
             specified_perms.append("(:perm_{})".format(i))
             for principal in set(principals):
-                j = len(new_perms)
+                j = len(new_aces)
                 placeholders['principal_{}'.format(j)] = principal
-                new_perms.append("(:perm_{}, :principal_{})".format(i, j))
+                new_aces.append("(:perm_{}, :principal_{})".format(i, j))
 
-        delete_query = """
-        WITH specified_perms AS (
-          VALUES {specified_perms}
-        )
-        DELETE FROM access_control_entries
-         USING specified_perms
-         WHERE object_id = :object_id AND permission = column1
-        """.format(specified_perms=','.join(specified_perms))
+        if not new_aces:
+            query = """
+            WITH specified_perms AS (
+              VALUES {specified_perms}
+            )
+            DELETE FROM access_control_entries
+             USING specified_perms
+             WHERE object_id = :object_id AND permission = column1
+            """.format(specified_perms=','.join(specified_perms))
 
-        insert_query = """
-        WITH new_aces AS (
-          VALUES {new_perms}
-        )
-        INSERT INTO access_control_entries(object_id, permission, principal)
-          SELECT :object_id, column1, column2
-            FROM new_aces;
-        """.format(new_perms=','.join(new_perms))
+        else:
+            query = """
+            WITH specified_perms AS (
+              VALUES {specified_perms}
+            ),
+            delete_specified AS (
+              DELETE FROM access_control_entries
+               USING specified_perms
+               WHERE object_id = :object_id AND permission = column1
+               RETURNING object_id
+            ),
+            affected_object AS (
+              SELECT object_id FROM delete_specified
+              UNION SELECT :object_id
+            ),
+            new_aces AS (
+              VALUES {new_aces}
+            )
+            INSERT INTO access_control_entries(object_id, permission, principal)
+              SELECT DISTINCT d.object_id, n.column1, n.column2
+                FROM new_aces AS n, affected_object AS d;
+            """.format(specified_perms=','.join(specified_perms),
+                       new_aces=','.join(new_aces))
 
         with self.client.connect() as conn:
-            conn.execute(delete_query, placeholders)
-            if new_perms:
-                conn.execute(insert_query, placeholders)
+            conn.execute(query, placeholders)
 
     def delete_object_permissions(self, *object_id_list):
         if len(object_id_list) == 0:

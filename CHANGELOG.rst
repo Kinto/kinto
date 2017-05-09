@@ -18,6 +18,7 @@ This document describes changes between each past release.
   the ``quotas`` plugin to no longer leak "quota" when used with the
   ``default_bucket`` plugin. (#1226)
 - Fix race conditions on deletions with upsert in PostgreSQL ``storage.update()`` (fixes #1202).
+- Fix PostgreSQL backend race condition when replacing permissions of an object (fixes #1210)
 
 
 6.0.8 (2017-05-04)
