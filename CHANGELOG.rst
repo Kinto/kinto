@@ -75,6 +75,7 @@ Protocol is now at version **1.16**. See `API changelog`_.
 - Fix PostgreSQL backend from deleting records of the same name in
   other buckets and collections when deleting a bucket. (fixes #1209)
 - Fix race conditions on deletions with upsert in PostgreSQL ``storage.update()`` (fixes #1202)
+- Fix PostgreSQL backend race condition when replacing permissions of an object (fixes #1210)
 
 **Internal changes**
 
