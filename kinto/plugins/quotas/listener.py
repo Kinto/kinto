@@ -41,10 +41,15 @@ def on_resource_changed(event):
     payload = event.payload
     action = payload['action']
     resource_name = payload['resource_name']
-    event_uri = payload['uri']
+
+    if action == 'delete' and resource_name == 'bucket':
+        # Deleting a bucket already deletes everything underneath (including
+        # quotas info). See kinto/views/bucket.
+        return
 
     settings = event.request.registry.settings
 
+    event_uri = payload['uri']
     bucket_id = payload['bucket_id']
     bucket_uri = instance_uri(event.request, 'bucket', id=bucket_id)
     collection_id = None
@@ -71,11 +76,6 @@ def on_resource_changed(event):
                           bucket_max_bytes_per_item)
 
     storage = event.request.registry.storage
-
-    if action == 'delete' and resource_name == 'bucket':
-        # Deleting a bucket already deletes everything underneath (including
-        # quotas info). See kinto/views/bucket.
-        return
 
     targets = []
     for impacted in event.impacted_records:

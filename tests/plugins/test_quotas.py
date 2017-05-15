@@ -129,6 +129,17 @@ class QuotaListenerTest(QuotaWebTest):
             "storage_size": storage_size
         })
 
+    def test_delete_all_buckets_destroys_all_quota_entries(self):
+        self.app.put("/buckets/a", headers=self.headers)
+        self.app.put("/buckets/b", headers=self.headers)
+
+        self.app.delete("/buckets", headers=self.headers)
+
+        stored_in_backend, _ = self.storage.get_all(
+            parent_id='/buckets/*',
+            collection_id=QUOTA_RESOURCE_NAME)
+        assert len(stored_in_backend) == 0
+
     def test_bucket_delete_destroys_its_quota_entries(self):
         self.create_bucket()
         self.app.delete(self.bucket_uri, headers=self.headers)
