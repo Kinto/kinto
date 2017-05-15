@@ -1,6 +1,7 @@
 import logging
 import re
 import functools
+from uuid import uuid4
 
 import colander
 import venusian
@@ -1041,14 +1042,27 @@ class UserResource:
         filters = []
         offset = 0
         if token:
+            error_msg = None
             try:
                 tokeninfo = json.loads(decode64(token))
                 if not isinstance(tokeninfo, dict):
                     raise ValueError()
                 last_record = tokeninfo['last_record']
                 offset = tokeninfo['offset']
+                nonce = tokeninfo['nonce']
             except (ValueError, KeyError, TypeError):
                 error_msg = '_token has invalid content'
+
+            # We don't want pagination tokens to be reused several times (#1171).
+            # The cache backend is used to keep track of "nonces".
+            if self.request.method.lower() == "delete" and error_msg is None:
+                registry = self.request.registry
+                if registry.cache.get(nonce) is None:
+                    error_msg = '_token was already used or has expired.'
+                else:
+                    registry.cache.delete(nonce)
+
+            if error_msg:
                 error_details = {
                     'location': 'querystring',
                     'description': error_msg
@@ -1056,6 +1070,7 @@ class UserResource:
                 raise_invalid(self.request, **error_details)
 
             filters = self._build_pagination_rules(sorting, last_record)
+
         return filters, offset
 
     def _next_page_url(self, sorting, limit, last_record, offset):
@@ -1076,9 +1091,16 @@ class UserResource:
         the last_record.
 
         """
+        nonce = "pagination-token-{}".format(uuid4())
+        if self.request.method.lower() == "delete":
+            registry = self.request.registry
+            validity = registry.settings["pagination_token_validity_seconds"]
+            registry.cache.set(nonce, "", validity)
+
         token = {
             'last_record': {},
-            'offset': offset
+            'offset': offset,
+            'nonce': nonce,
         }
 
         for field, _ in sorting:
