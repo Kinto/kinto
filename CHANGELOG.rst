@@ -19,6 +19,7 @@ This document describes changes between each past release.
   ``default_bucket`` plugin. (#1226)
 - Fix race conditions on deletions with upsert in PostgreSQL ``storage.update()`` (fixes #1202).
 - Fix PostgreSQL backend race condition when replacing permissions of an object (fixes #1210)
+- Fix missing package.json file in package. (#1222)
 
 
 6.0.8 (2017-05-04)
