@@ -3,10 +3,16 @@ Changelog
 
 This document describes changes between each past release.
 
-7.1.0 (unreleased)
+7.0.1 (unreleased)
 ------------------
 
-- Nothing changed yet.
+**Bug fixes**
+
+- Fix missing package.json file in package. (#1222)
+
+**Internal changes**
+
+- Upgraded the kinto-admin to version 1.13.3
 
 
 7.0.0 (2017-05-15)
