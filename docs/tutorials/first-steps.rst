@@ -79,6 +79,10 @@ Using the `httpie <http://httpie.org>`_ tool we can post a sample record in the
         http POST https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks/records \
              -v --auth 'token:my-secret'
 
+Here's a quick link to test the same request from your browser using the
+`hurl.it <https://www.hurl.it>`_ web service:
+`post a sample record <https://www.hurl.it/?method=POST&url=https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks/records&username=token&password=my-secret&headers={%22Content-Type%22:[%22application/json%22]}&body={%22data%22:%20{%22description%22:%20%22Write%20a%20tutorial%20explaining%20Kinto%22,%20%22status%22:%20%22todo%22}}>`_.
+
 .. code-block:: http
 
     HTTP/1.1 201 Created
@@ -122,6 +126,8 @@ Let us fetch our new collection of tasks:
     $ http GET https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks/records \
            -v --auth 'token:my-secret'
 
+`Get the collection of tasks <https://www.hurl.it/?method=GET&url=https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks/records&username=token&password=my-secret>`_.
+
 .. code-block:: http
 
     HTTP/1.1 200 OK
@@ -159,6 +165,9 @@ We can also update one of our tasks using its ``id``:
     $ echo '{"data": {"status": "doing"}}' | \
          http PATCH https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks/records/a5f490b2-218e-4d71-ac5a-f046ae285c55 \
               -v  --auth 'token:my-secret'
+
+`Update one of our tasks <https://www.hurl.it/?method=PATCH&url=https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks/records/a5f490b2-218e-4d71-ac5a-f046ae285c55&username=token&password=my-secret&headers={%22Content-Type%22:[%22application/json%22]}&body={%22data%22:%20{%20%22status%22:%20%22doing%22}}>`_
+(make sure to update the id in the `Destination` field).
 
 .. code-block:: http
 
@@ -210,6 +219,9 @@ while we fetched the collection earlier - you kept a note, didn't you?):
             If-Match:'"1434641515332"' \
             -v  --auth 'token:my-secret'
 
+`Update one of our tasks with an obsolete value of ETag <https://www.hurl.it/?method=PATCH&url=https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks/records/a5f490b2-218e-4d71-ac5a-f046ae285c55&username=token&password=my-secret&headers={%22Content-Type%22:[%22application/json%22],%22If-Match%22:[%22%5c%221434641515332%5c%22%22]}&body={%22data%22:%20{%20%22status%22:%20%22doing%22}}>`_
+(make sure to update the id in the `Destination` field).
+
 .. code-block:: http
 
     HTTP/1.1 412 Precondition Failed
@@ -238,6 +250,8 @@ single record and merge attributes locally:
 
     $ http GET https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks/records/a5f490b2-218e-4d71-ac5a-f046ae285c55 \
            -v  --auth 'token:my-secret'
+
+`Fetch the last version of a task <https://www.hurl.it/?method=GET&url=https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks/records/a5f490b2-218e-4d71-ac5a-f046ae285c55&username=token&password=my-secret>`_.
 
 .. code-block:: http
 
@@ -289,6 +303,8 @@ record ``ETag`` value:
             If-Match:'"1436172229372"' \
             -v  --auth 'token:my-secret'
 
+`Update again using the last record ETag value <https://www.hurl.it/?method=PATCH&url=https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks/records/a5f490b2-218e-4d71-ac5a-f046ae285c55&username=token&password=my-secret&headers={%22Content-Type%22:[%22application/json%22],%22If-Match%22:[%22%5c%221436172229372%5c%22%22]}&body={%22data%22:%20{%20%22status%22:%20%22done%22}}>`_
+
 .. code-block:: http
 
     HTTP/1.1 200 OK
@@ -323,6 +339,8 @@ You can also delete the record and use the same mechanism to avoid conflicts:
            If-Match:'"1436172442466"' \
            -v  --auth 'token:my-secret'
 
+`Delete the record <https://www.hurl.it/?method=DELETE&url=https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks/records/a5f490b2-218e-4d71-ac5a-f046ae285c55&username=token&password=my-secret&headers={%22If-Match%22:[%22%5c%221436172442466%5c%22%22]}>`_
+
 .. code-block:: http
 
     HTTP/1.1 200 OK
@@ -353,6 +371,8 @@ Just add the ``_since`` querystring filter, using the value of any ``ETag`` (or
 
     $ http GET https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks/records?_since="1434642603605" \
            -v  --auth 'token:my-secret'
+
+`Query the list of changes <https://www.hurl.it/?method=DELETE&url=https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks/records?_since=%221434642603605%22&username=token&password=my-secret>`_
 
 .. code-block:: http
 
