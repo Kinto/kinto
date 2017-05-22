@@ -89,9 +89,11 @@ class Account(resource.ShareableResource):
     def process_record(self, new, old=None):
         new = super(Account, self).process_record(new, old)
 
-        # Store password safely in database.
+        # Store password safely in database as str
+        # (bcrypt.hashpw returns base64 bytes).
         pwd_str = new["password"].encode(encoding='utf-8')
-        new["password"] = bcrypt.hashpw(pwd_str, bcrypt.gensalt())
+        hashed = bcrypt.hashpw(pwd_str, bcrypt.gensalt())
+        new["password"] = hashed.decode(encoding='utf-8')
 
         # Administrators can reach other accounts and anonymous have no
         # selected_userid. So do not try to enforce.

@@ -17,6 +17,7 @@ This document describes changes between each past release.
   the ``quotas`` plugin to no longer leak "quota" when used with the
   ``default_bucket`` plugin. (#1226)
 - Do not allow to reuse deletion tokens (fixes #1171)
+- ``accounts`` plugin: fix exception on authentication. (#1224)
 
 
 7.0.1 (2017-05-17)
