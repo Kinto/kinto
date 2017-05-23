@@ -160,6 +160,31 @@ BEFORE INSERT ON deleted
 FOR EACH ROW EXECUTE PROCEDURE bump_timestamp();
 
 --
+-- Purge timestamps of objects that were deleted and purged.
+--
+DROP TRIGGER IF EXISTS tgr_deleted_purge ON deleted;
+
+CREATE OR REPLACE FUNCTION purge_timestamps()
+RETURNS trigger AS $$
+BEGIN
+  WITH existing AS (
+    SELECT parent_id, collection_id FROM records GROUP BY parent_id, collection_id
+    UNION
+    SELECT parent_id, collection_id FROM deleted GROUP BY parent_id, collection_id
+  )
+  DELETE FROM timestamps AS t
+  WHERE (parent_id, collection_id) NOT IN (
+    SELECT parent_id, collection_id FROM existing GROUP BY parent_id, collection_id
+  );
+  RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER tgr_deleted_purge
+AFTER DELETE ON deleted
+FOR EACH STATEMENT EXECUTE PROCEDURE purge_timestamps();
+
+--
 -- Metadata table
 --
 CREATE TABLE IF NOT EXISTS metadata (

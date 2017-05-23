@@ -982,17 +982,18 @@ class DeletedRecordsTest:
         self.assertEqual(num_removed, 2)
 
     def test_purge_deleted_removes_timestamps_by_parent_id(self):
-        self.create_record(parent_id='abc', collection_id='c')
-        self.create_record(parent_id='abc', collection_id='c')
+        self.create_record(parent_id='/abc/a', collection_id='c')
+        self.create_record(parent_id='/abc/a', collection_id='c')
         self.create_record(parent_id='efg', collection_id='c')
 
-        before1 = self.storage.collection_timestamp(parent_id='abc', collection_id='c')
+        before1 = self.storage.collection_timestamp(parent_id='/abc/a', collection_id='c')
+        # Different parent_id with record.
         before2 = self.storage.collection_timestamp(parent_id='efg', collection_id='c')
 
-        self.storage.delete_all(parent_id='ab*', collection_id=None)
-        self.storage.purge_deleted(parent_id='ab*', collection_id=None)
+        self.storage.delete_all(parent_id='/abc/*', collection_id=None, with_deleted=False)
+        self.storage.purge_deleted(parent_id='/abc/*', collection_id=None)
 
-        after1 = self.storage.collection_timestamp(parent_id='abc', collection_id='c')
+        after1 = self.storage.collection_timestamp(parent_id='/abc/a', collection_id='c')
         after2 = self.storage.collection_timestamp(parent_id='efg', collection_id='c')
 
         self.assertNotEqual(before1, after1)
