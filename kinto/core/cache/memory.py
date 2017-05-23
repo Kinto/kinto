@@ -82,6 +82,7 @@ class Cache(CacheBase):
         self._created_at.pop(key, None)
         value = self._store.pop(key, None)
         self._quota -= size_of(key, value)
+        return value
 
 
 def load_from_config(config):

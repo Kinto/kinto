@@ -107,12 +107,14 @@ class CacheTest:
 
     def test_delete_removes_the_record(self):
         self.cache.set('foobar', 'toto', 42)
-        self.cache.delete('foobar')
-        retrieved = self.cache.get('foobar')
-        self.assertIsNone(retrieved)
+        returned = self.cache.delete('foobar')
+        self.assertEqual(returned, 'toto')
+        missing = self.cache.get('foobar')
+        self.assertIsNone(missing)
 
     def test_delete_does_not_fail_if_record_is_unknown(self):
-        self.cache.delete('foobar')
+        returned = self.cache.delete('foobar')
+        self.assertIsNone(returned)
 
     def test_expire_expires_the_value(self):
         self.cache.set('foobar', 'toto', 42)
