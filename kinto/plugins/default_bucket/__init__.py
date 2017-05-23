@@ -6,6 +6,7 @@ from pyramid.security import NO_PERMISSION_REQUIRED, Authenticated
 
 from kinto.core.errors import raise_invalid
 from kinto.core.events import ACTIONS
+from kinto.core.storage.exceptions import UnicityError
 from kinto.core.utils import (
     build_request, reapply_cors, hmac_digest, instance_uri, view_lookup)
 
@@ -100,7 +101,12 @@ def resource_create_object(request, resource_cls, uri):
         raise_invalid(resource.request, **error_details)
 
     data = {'id': obj_id}
-    obj = resource.model.create_record(data, ignore_conflict=True)
+    try:
+        obj = resource.model.create_record(data)
+    except UnicityError as e:
+        # The record already exists; skip running events
+        return e.record
+
     # Since the current request is not a resource (but a straight Service),
     # we simulate a request on a resource.
     # This will be used in the resource event payload.

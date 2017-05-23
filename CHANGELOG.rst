@@ -10,6 +10,13 @@ This document describes changes between each past release.
 
 - ``delete()`` method from cache backend now returns the deleted value (fixes #1231)
 
+**Bug fixes**
+
+- The ``default_bucket`` plugin no longer sends spurious "created"
+  events for buckets and collections that already exist. This causes
+  the ``quotas`` plugin to no longer leak "quota" when used with the
+  ``default_bucket`` plugin. (#1226)
+
 
 7.0.1 (2017-05-17)
 ------------------

@@ -338,6 +338,20 @@ class EventsTest(DefaultBucketWebTest):
         assert _events[2].payload['uri'] == records_uri.replace('default',
                                                                 bucket_id)
 
+    def test_second_call_on_default_bucket_doesnt_send_create_events(self):
+        bucket_url = '/buckets/default'
+        self.app.get(bucket_url, headers=self.headers)
+        assert len(_events) == 1
+        self.app.get(bucket_url, headers=self.headers)
+        assert len(_events) == 1
+
+    def test_second_call_on_default_bucket_collection_doesnt_send_create_events(self):
+        collection_url = '/buckets/default/collections/articles'
+        self.app.get(collection_url, headers=self.headers)
+        assert len(_events) == 2
+        self.app.get(collection_url, headers=self.headers)
+        assert len(_events) == 2
+
 
 class ReadonlyDefaultBucket(DefaultBucketWebTest):
 
