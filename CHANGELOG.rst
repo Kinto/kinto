@@ -6,7 +6,9 @@ This document describes changes between each past release.
 7.1.0 (unreleased)
 ------------------
 
-- Nothing changed yet.
+**Bug fixes**
+
+- Fix removal of timestamps when parent object is deleted (fixes #1233)
 
 
 7.0.1 (2017-05-17)
