@@ -6,7 +6,9 @@ This document describes changes between each past release.
 7.1.0 (unreleased)
 ------------------
 
-- Nothing changed yet.
+**New feature**
+
+- ``delete()`` method from cache backend now returns the deleted value (fixes #1231)
 
 
 7.0.1 (2017-05-17)

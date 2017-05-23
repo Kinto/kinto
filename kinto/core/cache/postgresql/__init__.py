@@ -150,9 +150,13 @@ class Cache(CacheBase):
                 return json.loads(value)
 
     def delete(self, key):
-        query = "DELETE FROM cache WHERE key = :key"
+        query = "DELETE FROM cache WHERE key = :key RETURNING value;"
         with self.client.connect() as conn:
-            conn.execute(query, dict(key=self.prefix + key))
+            result = conn.execute(query, dict(key=self.prefix + key))
+            if result.rowcount > 0:
+                value = result.fetchone()['value']
+                return json.loads(value)
+        return None
 
 
 def load_from_config(config):
