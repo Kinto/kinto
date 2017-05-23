@@ -1,6 +1,8 @@
 import mock
 
 from kinto.core import scripts
+from kinto.core.storage import Filter, Sort
+from kinto.core.utils import COMPARISON
 from kinto.core.storage.exceptions import RecordNotFoundError
 from kinto.core.testing import unittest
 
@@ -119,3 +121,183 @@ class DeleteCollectionTest(unittest.TestCase):
         mocked.error.assert_called_with(
             "Collection '/buckets/test_bucket/collections/test_collection' "
             "does not exist.")
+
+class RebuildQuotasTest(unittest.TestCase):
+    OLDEST_FIRST = Sort('last_modified', 1)
+    BATCH_SIZE = 25
+
+    def setUp(self):
+        self.registry = mock.MagicMock()
+
+    def test_rebuild_quotas_in_read_only_display_an_error(self):
+        with mock.patch('kinto.core.scripts.logger') as mocked:
+            self.registry.settings = {'readonly': 'true'}
+            code = scripts.rebuild_quotas({'registry': self.registry})
+            assert code == 31
+            mocked.error.assert_any_call('Cannot rebuild quotas while '
+                                         'in readonly mode.')
+
+    def test_rebuild_quotas_updates_records(self):
+        get_all_data = [
+            ([{"id": "bucket-1", "last_modified": 10}], 1),   # get buckets
+            ([{"id": "collection-1", "last_modified": 100}, {"id": "collection-2", "last_modified": 200}], 2),   # get collections for first bucket
+            # get records for first collection
+            ([{"id": "record-1", "last_modified": 110}], 1),
+            ([], 0),
+
+            # get records for second collection
+            ([{"id": "record-1b", "last_modified": 210}], 1),
+            ([], 0),
+
+            # trying to get remaining page of collections
+            ([], 0),
+
+            # getting remaining page of buckets
+            ([], 0),
+        ]
+        self.registry.storage.get_all.side_effect = lambda *args, **kwargs: get_all_data.pop(0)
+
+        with mock.patch('kinto.core.scripts.logger') as mocked:
+            scripts.rebuild_quotas({'registry': self.registry})
+
+        self.registry.storage.get_all.assert_any_call(
+            collection_id='bucket',
+            limit=self.BATCH_SIZE,
+            parent_id='',
+            pagination_rules=None,
+            sorting=[self.OLDEST_FIRST],
+            )
+        self.registry.storage.get_all.assert_any_call(
+            collection_id='collection',
+            limit=self.BATCH_SIZE,
+            parent_id='/buckets/bucket-1',
+            pagination_rules=None,
+            sorting=[self.OLDEST_FIRST],
+            )
+        self.registry.storage.get_all.assert_any_call(
+            collection_id='record',
+            limit=self.BATCH_SIZE,
+            parent_id='/buckets/bucket-1/collections/collection-1',
+            pagination_rules=None,
+            sorting=[self.OLDEST_FIRST],
+            )
+        self.registry.storage.get_all.assert_any_call(
+            collection_id='record',
+            limit=self.BATCH_SIZE,
+            parent_id='/buckets/bucket-1/collections/collection-1',
+            pagination_rules=[[Filter('last_modified', 110, COMPARISON.GT)]],
+            sorting=[self.OLDEST_FIRST],
+            )
+        self.registry.storage.get_all.assert_any_call(
+            collection_id='record',
+            limit=self.BATCH_SIZE,
+            parent_id='/buckets/bucket-1/collections/collection-2',
+            pagination_rules=None,
+            sorting=[self.OLDEST_FIRST],
+            )
+        self.registry.storage.get_all.assert_any_call(
+            collection_id='record',
+            limit=self.BATCH_SIZE,
+            parent_id='/buckets/bucket-1/collections/collection-2',
+            pagination_rules=[[Filter('last_modified', 210, COMPARISON.GT)]],
+            sorting=[self.OLDEST_FIRST],
+            )
+        self.registry.storage.get_all.assert_any_call(
+            collection_id='collection',
+            limit=self.BATCH_SIZE,
+            parent_id='/buckets/bucket-1',
+            pagination_rules=[[Filter('last_modified', 200, COMPARISON.GT)]],
+            sorting=[self.OLDEST_FIRST],
+            )
+        self.registry.storage.get_all.assert_any_call(
+            collection_id='bucket',
+            limit=self.BATCH_SIZE,
+            parent_id='',
+            pagination_rules=[[Filter('last_modified', 10, COMPARISON.GT)]],
+            sorting=[self.OLDEST_FIRST],
+            )
+        self.registry.storage.update.assert_any_call(
+            collection_id='quota',
+            parent_id='/buckets/bucket-1',
+            object_id='bucket_info',
+            record={'record_count': 2, 'storage_size': 160})
+        self.registry.storage.update.assert_any_call(
+            collection_id='quota',
+            parent_id='/buckets/bucket-1/collections/collection-1',
+            object_id='collection_info',
+            record={'record_count': 1, 'storage_size': 160})
+        self.registry.storage.update.assert_any_call(
+            collection_id='quota',
+            parent_id='/buckets/bucket-1/collections/collection-2',
+            object_id='collection_info',
+            record={'record_count': 1, 'storage_size': 160})
+
+        mocked.info.assert_any_call('Bucket bucket-1, collection collection-1. Final size: 1 records, 78 bytes.')
+        mocked.info.assert_any_call('Bucket bucket-1, collection collection-2. Final size: 1 records, 79 bytes.')
+        mocked.info.assert_any_call('Bucket bucket-1. Final size: 2 records, 193 bytes.')
+
+    def test_rebuild_quotas_doesnt_update_if_dry_run(self):
+        get_all_data = [
+            ([{"id": "bucket-1", "last_modified": 10}], 1),   # get buckets
+            ([{"id": "collection-1", "last_modified": 100}], 1),   # get collections for first bucket
+            # get records for first collection
+            ([{"id": "record-1", "last_modified": 110}], 1),
+            ([], 0),
+
+            # trying to get remaining page of collections
+            ([], 0),
+
+            # getting remaining page of buckets
+            ([], 0),
+        ]
+        self.registry.storage.get_all.side_effect = lambda *args, **kwargs: get_all_data.pop(0)
+
+        with mock.patch('kinto.core.scripts.logger') as mocked:
+            scripts.rebuild_quotas({'registry': self.registry})
+
+        self.registry.storage.get_all.assert_any_call(
+            collection_id='bucket',
+            limit=self.BATCH_SIZE,
+            parent_id='',
+            pagination_rules=None,
+            sorting=[self.OLDEST_FIRST],
+            )
+        self.registry.storage.get_all.assert_any_call(
+            collection_id='collection',
+            limit=self.BATCH_SIZE,
+            parent_id='/buckets/bucket-1',
+            pagination_rules=None,
+            sorting=[self.OLDEST_FIRST],
+            )
+        self.registry.storage.get_all.assert_any_call(
+            collection_id='record',
+            limit=self.BATCH_SIZE,
+            parent_id='/buckets/bucket-1/collections/collection-1',
+            pagination_rules=None,
+            sorting=[self.OLDEST_FIRST],
+            )
+        self.registry.storage.get_all.assert_any_call(
+            collection_id='record',
+            limit=self.BATCH_SIZE,
+            parent_id='/buckets/bucket-1/collections/collection-1',
+            pagination_rules=[[Filter('last_modified', 110, COMPARISON.GT)]],
+            sorting=[self.OLDEST_FIRST],
+            )
+        self.registry.storage.get_all.assert_any_call(
+            collection_id='collection',
+            limit=self.BATCH_SIZE,
+            parent_id='/buckets/bucket-1',
+            pagination_rules=[[Filter('last_modified', 100, COMPARISON.GT)]],
+            sorting=[self.OLDEST_FIRST],
+            )
+        self.registry.storage.get_all.assert_any_call(
+            collection_id='bucket',
+            limit=self.BATCH_SIZE,
+            parent_id='',
+            pagination_rules=[[Filter('last_modified', 10, COMPARISON.GT)]],
+            sorting=[self.OLDEST_FIRST],
+            )
+        assert not self.registry.storage.update.called
+
+        mocked.info.assert_any_call('Bucket bucket-1, collection collection-1. Final size: 1 records, 78 bytes.')
+        mocked.info.assert_any_call('Bucket bucket-1. Final size: 1 records, 114 bytes.')

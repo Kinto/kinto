@@ -7,6 +7,9 @@ import transaction as current_transaction
 from pyramid.settings import asbool
 
 from kinto.core.storage import exceptions as storage_exceptions
+from kinto.core.storage import Filter, Sort
+from kinto.core.utils import COMPARISON
+from kinto.plugins.quotas.utils import record_size
 
 
 logger = logging.getLogger(__name__)
@@ -88,3 +91,110 @@ def delete_collection(env, bucket_id, collection_id):
     current_transaction.commit()
 
     return 0
+
+
+OLDEST_FIRST = Sort("last_modified", 1)
+BATCH_SIZE = 25
+
+
+def rebuild_quotas(env, dry_run=False):
+    """Administrative command to rebuild quota usage information.
+
+    This command recomputes the amount of space used by all
+    collections and all buckets and updates the quota records in the
+    storage backend to their correct values. This can be useful when
+    cleaning up after a bug like e.g.
+    https://github.com/Kinto/kinto/issues/1226.
+    """
+    registry = env['registry']
+    settings = registry.settings
+    readonly_mode = asbool(settings.get('readonly', False))
+
+    if readonly_mode:
+        # FIXME: there is the possibility of race conditions if under
+        # normal operation while the rebuild operation
+        # happens. Shouldn't we *enforce* readonly mode?
+        message = ('Cannot rebuild quotas while in readonly mode.')
+        logger.error(message)
+        return 31
+
+    bucket_pagination = None
+    while True:
+        (buckets, _) = registry.storage.get_all(collection_id='bucket',
+                                                parent_id='',
+                                                sorting=[OLDEST_FIRST],
+                                                pagination_rules=bucket_pagination,
+                                                limit=BATCH_SIZE)
+        if not buckets:
+            break
+
+        collection_pagination = None
+        for bucket in buckets:
+            bucket_id = bucket['id']
+
+            bucket_record_count = 0
+            bucket_storage_size = record_size(bucket)
+
+            while True:
+                (collections, _) = registry.storage.get_all(
+                    collection_id='collection',
+                    parent_id='/buckets/{}'.format(bucket['id']),
+                    sorting=[OLDEST_FIRST],
+                    pagination_rules=collection_pagination,
+                    limit=BATCH_SIZE)
+
+                if not collections: break
+
+                for collection in collections:
+                    collection_info = rebuild_quotas_collection(env, bucket_id, collection, dry_run)
+                    bucket_record_count += collection_info['record_count']
+                    bucket_storage_size += collection_info['storage_size']
+
+                collection_pagination = [
+                    [Filter('last_modified', collection['last_modified'], COMPARISON.GT)]
+                ]
+
+        # FIXME: Store bucket_record_count, bucket_storage_size
+        logger.info("Bucket {}. Final size: {} records, {} bytes.".format(
+            bucket_id, bucket_record_count, bucket_storage_size))
+
+        bucket_pagination = [
+            [Filter('last_modified', bucket['last_modified'], COMPARISON.GT)]
+        ]
+
+    current_transaction.commit()
+    return 0
+
+
+def rebuild_quotas_collection(env, bucket_id, collection, dry_run=False):
+    """Helper method for rebuild_quotas that updates a single collection."""
+    registry = env['registry']
+    record_pagination = None
+    collection_id = collection['id']
+    collection_record_count = 0
+    collection_storage_size = record_size(collection)
+    while True:
+        (records, _) = registry.storage.get_all(
+            collection_id='record',
+            parent_id='/buckets/{}/collections/{}'.format(bucket_id, collection_id),
+            sorting=[OLDEST_FIRST],
+            pagination_rules=record_pagination,
+            limit=BATCH_SIZE)
+
+        if not records:
+            break
+
+        for record in records:
+            collection_record_count += 1
+            collection_storage_size += record_size(record)
+
+        record_pagination = [
+            [Filter('last_modified', record['last_modified'], COMPARISON.GT)]
+        ]
+
+    logger.info("Bucket {}, collection {}. Final size: {} records, {} bytes.".format(
+        bucket_id, collection_id, collection_record_count, collection_storage_size))
+    return {
+        "record_count": collection_record_count,
+        "storage_size": collection_storage_size,
+    }
