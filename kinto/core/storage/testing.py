@@ -981,6 +981,23 @@ class DeletedRecordsTest:
                                                  collection_id=None)
         self.assertEqual(num_removed, 2)
 
+    def test_purge_deleted_removes_timestamps_by_parent_id(self):
+        self.create_record(parent_id='abc', collection_id='c')
+        self.create_record(parent_id='abc', collection_id='c')
+        self.create_record(parent_id='efg', collection_id='c')
+
+        before1 = self.storage.collection_timestamp(parent_id='abc', collection_id='c')
+        before2 = self.storage.collection_timestamp(parent_id='efg', collection_id='c')
+
+        self.storage.delete_all(parent_id='ab*', collection_id=None)
+        self.storage.purge_deleted(parent_id='ab*', collection_id=None)
+
+        after1 = self.storage.collection_timestamp(parent_id='abc', collection_id='c')
+        after2 = self.storage.collection_timestamp(parent_id='efg', collection_id='c')
+
+        self.assertNotEqual(before1, after1)
+        self.assertEqual(before2, after2)
+
     def test_purge_deleted_works_when_no_tombstones(self):
         num_removed = self.storage.purge_deleted(**self.storage_kw)
         self.assertEqual(num_removed, 0)
