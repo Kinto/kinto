@@ -6,7 +6,12 @@ This document describes changes between each past release.
 6.0.9 (unreleased)
 ------------------
 
-- Nothing changed yet.
+**Bug fixes**
+
+- The ``default_bucket`` plugin no longer sends spurious "created"
+  events for buckets and collections that already exist. This causes
+  the ``quotas`` plugin to no longer leak "quota" when used with the
+  ``default_bucket`` plugin. (#1226)
 
 
 6.0.8 (2017-05-04)
