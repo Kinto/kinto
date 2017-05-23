@@ -1057,10 +1057,9 @@ class UserResource:
             # The cache backend is used to keep track of "nonces".
             if self.request.method.lower() == "delete" and error_msg is None:
                 registry = self.request.registry
-                if registry.cache.get(nonce) is None:
+                deleted = registry.cache.delete(nonce)
+                if deleted is None:
                     error_msg = '_token was already used or has expired.'
-                else:
-                    registry.cache.delete(nonce)
 
             if error_msg:
                 error_details = {
