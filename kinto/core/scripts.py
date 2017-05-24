@@ -7,8 +7,8 @@ import transaction as current_transaction
 from pyramid.settings import asbool
 
 from kinto.core.storage import exceptions as storage_exceptions
-from kinto.core.storage import Filter, Sort
-from kinto.core.utils import COMPARISON
+from kinto.core.storage import Sort
+from kinto.core.storage.utils import paginated
 from kinto.plugins.quotas.utils import record_size
 
 
@@ -94,7 +94,6 @@ def delete_collection(env, bucket_id, collection_id):
 
 
 OLDEST_FIRST = Sort("last_modified", 1)
-BATCH_SIZE = 25
 
 
 def rebuild_quotas(env, dry_run=False):
@@ -118,49 +117,22 @@ def rebuild_quotas(env, dry_run=False):
         logger.error(message)
         return 31
 
-    bucket_pagination = None
-    while True:
-        (buckets, _) = registry.storage.get_all(collection_id='bucket',
-                                                parent_id='',
-                                                sorting=[OLDEST_FIRST],
-                                                pagination_rules=bucket_pagination,
-                                                limit=BATCH_SIZE)
-        if not buckets:
-            break
+    for bucket in paginated(registry.storage, collection_id='bucket',
+                            parent_id='', sorting=[OLDEST_FIRST]):
+        bucket_id = bucket['id']
+        bucket_path = '/buckets/{}'.format(bucket['id'])
+        bucket_record_count = 0
+        bucket_storage_size = record_size(bucket)
 
-        collection_pagination = None
-        for bucket in buckets:
-            bucket_id = bucket['id']
-
-            bucket_record_count = 0
-            bucket_storage_size = record_size(bucket)
-
-            while True:
-                (collections, _) = registry.storage.get_all(
-                    collection_id='collection',
-                    parent_id='/buckets/{}'.format(bucket['id']),
-                    sorting=[OLDEST_FIRST],
-                    pagination_rules=collection_pagination,
-                    limit=BATCH_SIZE)
-
-                if not collections: break
-
-                for collection in collections:
-                    collection_info = rebuild_quotas_collection(env, bucket_id, collection, dry_run)
-                    bucket_record_count += collection_info['record_count']
-                    bucket_storage_size += collection_info['storage_size']
-
-                collection_pagination = [
-                    [Filter('last_modified', collection['last_modified'], COMPARISON.GT)]
-                ]
+        for collection in paginated(registry.storage, collection_id='collection',
+                                    parent_id=bucket_path, sorting=[OLDEST_FIRST]):
+            collection_info = rebuild_quotas_collection(env, bucket_id, collection, dry_run)
+            bucket_record_count += collection_info['record_count']
+            bucket_storage_size += collection_info['storage_size']
 
         # FIXME: Store bucket_record_count, bucket_storage_size
         logger.info("Bucket {}. Final size: {} records, {} bytes.".format(
             bucket_id, bucket_record_count, bucket_storage_size))
-
-        bucket_pagination = [
-            [Filter('last_modified', bucket['last_modified'], COMPARISON.GT)]
-        ]
 
     current_transaction.commit()
     return 0
@@ -169,28 +141,14 @@ def rebuild_quotas(env, dry_run=False):
 def rebuild_quotas_collection(env, bucket_id, collection, dry_run=False):
     """Helper method for rebuild_quotas that updates a single collection."""
     registry = env['registry']
-    record_pagination = None
     collection_id = collection['id']
     collection_record_count = 0
     collection_storage_size = record_size(collection)
-    while True:
-        (records, _) = registry.storage.get_all(
-            collection_id='record',
-            parent_id='/buckets/{}/collections/{}'.format(bucket_id, collection_id),
-            sorting=[OLDEST_FIRST],
-            pagination_rules=record_pagination,
-            limit=BATCH_SIZE)
-
-        if not records:
-            break
-
-        for record in records:
-            collection_record_count += 1
-            collection_storage_size += record_size(record)
-
-        record_pagination = [
-            [Filter('last_modified', record['last_modified'], COMPARISON.GT)]
-        ]
+    collection_path = '/buckets/{}/collections/{}'.format(bucket_id, collection_id)
+    for record in paginated(registry.storage, collection_id='record',
+                            parent_id=collection_path, sorting=[OLDEST_FIRST]):
+        collection_record_count += 1
+        collection_storage_size += record_size(record)
 
     logger.info("Bucket {}, collection {}. Final size: {} records, {} bytes.".format(
         bucket_id, collection_id, collection_record_count, collection_storage_size))

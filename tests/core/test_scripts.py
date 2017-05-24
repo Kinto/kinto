@@ -124,7 +124,6 @@ class DeleteCollectionTest(unittest.TestCase):
 
 class RebuildQuotasTest(unittest.TestCase):
     OLDEST_FIRST = Sort('last_modified', 1)
-    BATCH_SIZE = 25
 
     def setUp(self):
         self.registry = mock.MagicMock()
@@ -138,82 +137,44 @@ class RebuildQuotasTest(unittest.TestCase):
                                          'in readonly mode.')
 
     def test_rebuild_quotas_updates_records(self):
-        get_all_data = [
-            ([{"id": "bucket-1", "last_modified": 10}], 1),   # get buckets
-            ([{"id": "collection-1", "last_modified": 100}, {"id": "collection-2", "last_modified": 200}], 2),   # get collections for first bucket
+        paginated_data = [
+            # get buckets
+            iter([{"id": "bucket-1", "last_modified": 10}]),
+            # get collections for first bucket
+            iter([{"id": "collection-1", "last_modified": 100}, {"id": "collection-2", "last_modified": 200}]),
             # get records for first collection
-            ([{"id": "record-1", "last_modified": 110}], 1),
-            ([], 0),
-
+            iter([{"id": "record-1", "last_modified": 110}]),
             # get records for second collection
-            ([{"id": "record-1b", "last_modified": 210}], 1),
-            ([], 0),
-
-            # trying to get remaining page of collections
-            ([], 0),
-
-            # getting remaining page of buckets
-            ([], 0),
+            iter([{"id": "record-1b", "last_modified": 210}]),
         ]
-        self.registry.storage.get_all.side_effect = lambda *args, **kwargs: get_all_data.pop(0)
+        paginated_mock = lambda *args, **kwargs: paginated_data.pop(0)
 
-        with mock.patch('kinto.core.scripts.logger') as mocked:
-            scripts.rebuild_quotas({'registry': self.registry})
+        with mock.patch('kinto.core.scripts.logger') as mocked_logger:
+            with mock.patch('kinto.core.scripts.paginated', side_effect=paginated_mock) as mocked_paginated:
+                scripts.rebuild_quotas({'registry': self.registry})
 
-        self.registry.storage.get_all.assert_any_call(
+        mocked_paginated.assert_any_call(
+            self.registry.storage,
             collection_id='bucket',
-            limit=self.BATCH_SIZE,
             parent_id='',
-            pagination_rules=None,
             sorting=[self.OLDEST_FIRST],
             )
-        self.registry.storage.get_all.assert_any_call(
+        mocked_paginated.assert_any_call(
+            self.registry.storage,
             collection_id='collection',
-            limit=self.BATCH_SIZE,
             parent_id='/buckets/bucket-1',
-            pagination_rules=None,
             sorting=[self.OLDEST_FIRST],
             )
-        self.registry.storage.get_all.assert_any_call(
+        mocked_paginated.assert_any_call(
+            self.registry.storage,
             collection_id='record',
-            limit=self.BATCH_SIZE,
             parent_id='/buckets/bucket-1/collections/collection-1',
-            pagination_rules=None,
             sorting=[self.OLDEST_FIRST],
             )
-        self.registry.storage.get_all.assert_any_call(
+        mocked_paginated.assert_any_call(
+            self.registry.storage,
             collection_id='record',
-            limit=self.BATCH_SIZE,
-            parent_id='/buckets/bucket-1/collections/collection-1',
-            pagination_rules=[[Filter('last_modified', 110, COMPARISON.GT)]],
-            sorting=[self.OLDEST_FIRST],
-            )
-        self.registry.storage.get_all.assert_any_call(
-            collection_id='record',
-            limit=self.BATCH_SIZE,
             parent_id='/buckets/bucket-1/collections/collection-2',
-            pagination_rules=None,
-            sorting=[self.OLDEST_FIRST],
-            )
-        self.registry.storage.get_all.assert_any_call(
-            collection_id='record',
-            limit=self.BATCH_SIZE,
-            parent_id='/buckets/bucket-1/collections/collection-2',
-            pagination_rules=[[Filter('last_modified', 210, COMPARISON.GT)]],
-            sorting=[self.OLDEST_FIRST],
-            )
-        self.registry.storage.get_all.assert_any_call(
-            collection_id='collection',
-            limit=self.BATCH_SIZE,
-            parent_id='/buckets/bucket-1',
-            pagination_rules=[[Filter('last_modified', 200, COMPARISON.GT)]],
-            sorting=[self.OLDEST_FIRST],
-            )
-        self.registry.storage.get_all.assert_any_call(
-            collection_id='bucket',
-            limit=self.BATCH_SIZE,
-            parent_id='',
-            pagination_rules=[[Filter('last_modified', 10, COMPARISON.GT)]],
             sorting=[self.OLDEST_FIRST],
             )
         self.registry.storage.update.assert_any_call(
@@ -237,64 +198,36 @@ class RebuildQuotasTest(unittest.TestCase):
         mocked.info.assert_any_call('Bucket bucket-1. Final size: 2 records, 193 bytes.')
 
     def test_rebuild_quotas_doesnt_update_if_dry_run(self):
-        get_all_data = [
-            ([{"id": "bucket-1", "last_modified": 10}], 1),   # get buckets
-            ([{"id": "collection-1", "last_modified": 100}], 1),   # get collections for first bucket
+        paginated_data = [
+            # get buckets
+            iter([{"id": "bucket-1", "last_modified": 10}]),
+            # get collections for first bucket
+            iter([{"id": "collection-1", "last_modified": 100}]),
             # get records for first collection
-            ([{"id": "record-1", "last_modified": 110}], 1),
-            ([], 0),
-
-            # trying to get remaining page of collections
-            ([], 0),
-
-            # getting remaining page of buckets
-            ([], 0),
+            iter([{"id": "record-1", "last_modified": 110}]),
         ]
-        self.registry.storage.get_all.side_effect = lambda *args, **kwargs: get_all_data.pop(0)
+        paginated_mock = lambda *args, **kwargs: paginated_data.pop(0)
 
         with mock.patch('kinto.core.scripts.logger') as mocked:
-            scripts.rebuild_quotas({'registry': self.registry})
+            with mock.patch('kinto.core.scripts.paginated', side_effect=paginated_mock) as mocked_paginated:
+                scripts.rebuild_quotas({'registry': self.registry})
 
-        self.registry.storage.get_all.assert_any_call(
+        mocked_paginated.assert_any_call(
+            self.registry.storage,
             collection_id='bucket',
-            limit=self.BATCH_SIZE,
             parent_id='',
-            pagination_rules=None,
             sorting=[self.OLDEST_FIRST],
             )
-        self.registry.storage.get_all.assert_any_call(
+        mocked_paginated.assert_any_call(
+            self.registry.storage,
             collection_id='collection',
-            limit=self.BATCH_SIZE,
             parent_id='/buckets/bucket-1',
-            pagination_rules=None,
             sorting=[self.OLDEST_FIRST],
             )
-        self.registry.storage.get_all.assert_any_call(
+        mocked_paginated.assert_any_call(
+            self.registry.storage,
             collection_id='record',
-            limit=self.BATCH_SIZE,
             parent_id='/buckets/bucket-1/collections/collection-1',
-            pagination_rules=None,
-            sorting=[self.OLDEST_FIRST],
-            )
-        self.registry.storage.get_all.assert_any_call(
-            collection_id='record',
-            limit=self.BATCH_SIZE,
-            parent_id='/buckets/bucket-1/collections/collection-1',
-            pagination_rules=[[Filter('last_modified', 110, COMPARISON.GT)]],
-            sorting=[self.OLDEST_FIRST],
-            )
-        self.registry.storage.get_all.assert_any_call(
-            collection_id='collection',
-            limit=self.BATCH_SIZE,
-            parent_id='/buckets/bucket-1',
-            pagination_rules=[[Filter('last_modified', 100, COMPARISON.GT)]],
-            sorting=[self.OLDEST_FIRST],
-            )
-        self.registry.storage.get_all.assert_any_call(
-            collection_id='bucket',
-            limit=self.BATCH_SIZE,
-            parent_id='',
-            pagination_rules=[[Filter('last_modified', 10, COMPARISON.GT)]],
             sorting=[self.OLDEST_FIRST],
             )
         assert not self.registry.storage.update.called
