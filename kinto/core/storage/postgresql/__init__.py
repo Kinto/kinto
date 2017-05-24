@@ -503,11 +503,23 @@ class Storage(StorageBase):
                       modified_field=DEFAULT_MODIFIED_FIELD,
                       auth=None):
         delete_tombstones = """
-        DELETE
-        FROM deleted
-        WHERE {parent_id_filter}
-              {collection_id_filter}
-              {conditions_filter}
+        WITH delete_tombstones AS (
+            DELETE
+            FROM deleted
+            WHERE {parent_id_filter_tombstones}
+                  {collection_id_filter}
+                  {conditions_filter}
+            RETURNING parent_id
+        ),
+        delete_timestamps AS (
+            DELETE
+            FROM timestamps
+            WHERE {parent_id_filter_timestamps}
+            RETURNING parent_id
+        )
+        SELECT * FROM delete_tombstones
+        UNION
+        SELECT * FROM delete_timestamps
         """
         id_field = id_field or self.id_field
         modified_field = modified_field or self.modified_field
@@ -517,10 +529,18 @@ class Storage(StorageBase):
         safeholders = defaultdict(str)
         # Handle parent_id as a regex only if it contains *
         if '*' in parent_id:
-            safeholders['parent_id_filter'] = 'parent_id LIKE :parent_id'
+            safeholders['parent_id_filter_tombstones'] = 'parent_id LIKE :parent_id'
             placeholders['parent_id'] = parent_id.replace('*', '%')
         else:
-            safeholders['parent_id_filter'] = 'parent_id = :parent_id'
+            safeholders['parent_id_filter_tombstones'] = 'parent_id = :parent_id'
+
+        # If purging everything from a parent_id, then it means we won't have
+        # anything left for this resource. We can wipe out timestamps.
+        if collection_id is None and before is None:
+            safeholders['parent_id_filter_timestamps'] = safeholders['parent_id_filter_tombstones']
+        else:
+            safeholders['parent_id_filter_timestamps'] = '0 = 1'  # never true.
+
         # If collection is None, remove it from query.
         if collection_id is None:
             safeholders['collection_id_filter'] = ''
@@ -534,18 +554,7 @@ class Storage(StorageBase):
 
         with self.client.connect() as conn:
             result = conn.execute(delete_tombstones.format_map(safeholders), placeholders)
-            deleted = result.rowcount
-
-            # If purging everything from a parent_id, then clear timestamps.
-            if collection_id is None and before is None:
-                delete_timestamps = """
-                DELETE
-                FROM timestamps
-                WHERE {parent_id_filter}
-                """
-                conn.execute(delete_timestamps.format_map(safeholders), placeholders)
-
-        return deleted
+            return result.rowcount
 
     def get_all(self, collection_id, parent_id, filters=None, sorting=None,
                 pagination_rules=None, limit=None, include_deleted=False,
