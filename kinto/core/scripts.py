@@ -112,6 +112,11 @@ def rebuild_quotas(env, dry_run=False):
         logger.error(message)
         return 31
 
+    if 'kinto.plugins.quotas' not in settings['includes']:
+        message = ('Cannot rebuild quotas when quotas plugin is not installed.')
+        logger.error(message)
+        return 32
+
     quotas.rebuild_quotas(registry.storage, dry_run=dry_run)
     current_transaction.commit()
     return 0
