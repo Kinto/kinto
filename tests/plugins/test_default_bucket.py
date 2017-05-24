@@ -338,6 +338,28 @@ class EventsTest(DefaultBucketWebTest):
         assert _events[2].payload['uri'] == records_uri.replace('default',
                                                                 bucket_id)
 
+    def test_second_call_on_default_bucket_doesnt_send_create_events(self):
+        bucket_url = '/buckets/default'
+        self.app.get(bucket_url, headers=self.headers)
+        # An event is generated -- it's the same event from
+        # test_an_event_is_sent_on_implicit_bucket_creation.
+        assert len(_events) == 1
+        self.app.get(bucket_url, headers=self.headers)
+        # Bucket shouldn't be created again, so there shouldn't be any
+        # more events.
+        assert len(_events) == 1
+
+    def test_second_call_on_default_bucket_collection_doesnt_send_create_events(self):
+        collection_url = '/buckets/default/collections/articles'
+        self.app.get(collection_url, headers=self.headers)
+        # Events are generated -- they're the same event from
+        # test_an_event_is_sent_on_implicit_collection_creation.
+        assert len(_events) == 2
+        self.app.get(collection_url, headers=self.headers)
+        # Neither the bucket nor the collection should be created
+        # again, so there shouldn't be any more events.
+        assert len(_events) == 2
+
 
 class ReadonlyDefaultBucket(DefaultBucketWebTest):
 

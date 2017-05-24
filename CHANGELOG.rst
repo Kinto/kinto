@@ -6,9 +6,18 @@ This document describes changes between each past release.
 7.1.0 (unreleased)
 ------------------
 
+**New feature**
+
+- ``delete()`` method from cache backend now returns the deleted value (fixes #1231)
+
 **Bug fixes**
 
+- The ``default_bucket`` plugin no longer sends spurious "created"
+  events for buckets and collections that already exist. This causes
+  the ``quotas`` plugin to no longer leak "quota" when used with the
+  ``default_bucket`` plugin. (#1226)
 - Fix removal of timestamps when parent object is deleted (fixes #1233)
+- Do not allow to reuse deletion tokens (fixes #1171)
 
 
 7.0.1 (2017-05-17)

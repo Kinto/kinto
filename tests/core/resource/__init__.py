@@ -3,7 +3,8 @@ import unittest
 
 from kinto.core import resource
 from kinto.core.authorization import RouteFactory
-from kinto.core.storage import memory
+from kinto.core.storage import memory as storage_memory
+from kinto.core.cache import memory as cache_memory
 from kinto.core.testing import DummyRequest
 
 
@@ -16,7 +17,8 @@ class BaseTest(unittest.TestCase):
     resource_class = resource.UserResource
 
     def setUp(self):
-        self.storage = memory.Storage()
+        self.storage = storage_memory.Storage()
+        self.cache = cache_memory.Cache(cache_prefix="", cache_max_size_bytes=1000)
         self.resource = self.resource_class(request=self.get_request(),
                                             context=self.get_context())
         self.resource.schema = StrictSchema
@@ -32,6 +34,7 @@ class BaseTest(unittest.TestCase):
     def get_request(self, resource_name=''):
         request = DummyRequest(method='GET')
         request.current_resource_name = resource_name
+        request.registry.cache = self.cache
         request.registry.storage = self.storage
         return request
 
