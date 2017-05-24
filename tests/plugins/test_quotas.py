@@ -1099,25 +1099,26 @@ class QuotasScriptsTest(unittest.TestCase):
             parent_id='/buckets/bucket-1/collections/collection-2',
             sorting=[self.OLDEST_FIRST],
             )
+
         self.storage.update.assert_any_call(
             collection_id='quota',
             parent_id='/buckets/bucket-1',
             object_id='bucket_info',
-            record={'record_count': 2, 'storage_size': 160})
+            record={'record_count': 2, 'storage_size': 193})
         self.storage.update.assert_any_call(
             collection_id='quota',
             parent_id='/buckets/bucket-1/collections/collection-1',
             object_id='collection_info',
-            record={'record_count': 1, 'storage_size': 160})
+            record={'record_count': 1, 'storage_size': 78})
         self.storage.update.assert_any_call(
             collection_id='quota',
             parent_id='/buckets/bucket-1/collections/collection-2',
             object_id='collection_info',
-            record={'record_count': 1, 'storage_size': 160})
+            record={'record_count': 1, 'storage_size': 79})
 
-        mocked.info.assert_any_call('Bucket bucket-1, collection collection-1. Final size: 1 records, 78 bytes.')
-        mocked.info.assert_any_call('Bucket bucket-1, collection collection-2. Final size: 1 records, 79 bytes.')
-        mocked.info.assert_any_call('Bucket bucket-1. Final size: 2 records, 193 bytes.')
+        mocked_logger.info.assert_any_call('Bucket bucket-1, collection collection-1. Final size: 1 records, 78 bytes.')
+        mocked_logger.info.assert_any_call('Bucket bucket-1, collection collection-2. Final size: 1 records, 79 bytes.')
+        mocked_logger.info.assert_any_call('Bucket bucket-1. Final size: 2 records, 193 bytes.')
 
     def test_rebuild_quotas_doesnt_update_if_dry_run(self):
         paginated_data = [
