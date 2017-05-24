@@ -105,9 +105,6 @@ def rebuild_quotas(env, dry_run=False):
     readonly_mode = asbool(settings.get('readonly', False))
 
     if readonly_mode:
-        # FIXME: there is the possibility of race conditions if under
-        # normal operation while the rebuild operation
-        # happens. Shouldn't we *enforce* readonly mode?
         message = ('Cannot rebuild quotas while in readonly mode.')
         logger.error(message)
         return 31
