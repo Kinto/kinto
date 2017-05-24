@@ -1134,24 +1134,6 @@ class QuotasScriptsTest(unittest.TestCase):
             with mock.patch('kinto.plugins.quotas.scripts.paginated', side_effect=paginated_mock) as mocked_paginated:
                 scripts.rebuild_quotas(self.storage, dry_run=True)
 
-        mocked_paginated.assert_any_call(
-            self.storage,
-            collection_id='bucket',
-            parent_id='',
-            sorting=[self.OLDEST_FIRST],
-            )
-        mocked_paginated.assert_any_call(
-            self.storage,
-            collection_id='collection',
-            parent_id='/buckets/bucket-1',
-            sorting=[self.OLDEST_FIRST],
-            )
-        mocked_paginated.assert_any_call(
-            self.storage,
-            collection_id='record',
-            parent_id='/buckets/bucket-1/collections/collection-1',
-            sorting=[self.OLDEST_FIRST],
-            )
         assert not self.storage.update.called
 
         mocked.info.assert_any_call('Bucket bucket-1, collection collection-1. Final size: 1 records, 78 bytes.')
