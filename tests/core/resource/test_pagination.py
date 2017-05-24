@@ -101,11 +101,11 @@ class PaginationTest(BasePaginationTest):
 
     def test_twice_the_same_next_page(self):
         self.validated['querystring'] = {'_limit': 10}
-        self.resource.collection_get()
-        first_next = self.last_response.headers['Next-Page']
-        self.resource.collection_get()
-        second_next = self.last_response.headers['Next-Page']
-        self.assertEqual(first_next, second_next)
+        records = self.resource.collection_get()
+        first_ids = [r['id'] for r in records['data']]
+        records = self.resource.collection_get()
+        second_ids = [r['id'] for r in records['data']]
+        self.assertEqual(first_ids, second_ids)
 
     def test_stops_giving_next_page_at_the_end_of_first_page(self):
         self.resource.collection_get()
@@ -227,6 +227,15 @@ class PaginatedDeleteTest(BasePaginationTest):
         headers = self.last_response.headers
         count = headers['Total-Records']
         self.assertEquals(int(count), 20)
+
+    def test_token_cannot_be_reused_twice(self):
+        self.resource.request.method = "DELETE"
+        self.validated['querystring']['_limit'] = 3
+        self.resource.collection_delete()
+        self._setup_next_page()
+        self.resource.collection_delete()
+        # Reuse previous token.
+        self.assertRaises(HTTPBadRequest, self.resource.collection_delete)
 
 
 class BuildPaginationTokenTest(BaseTest):

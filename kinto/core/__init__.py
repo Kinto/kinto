@@ -62,6 +62,7 @@ DEFAULT_SETTINGS = {
     'newrelic_config': None,
     'newrelic_env': 'dev',
     'paginate_by': None,
+    'pagination_token_validity_seconds': 10 * 60,
     'permission_backend': '',
     'permission_url': '',
     'permission_pool_size': 25,
