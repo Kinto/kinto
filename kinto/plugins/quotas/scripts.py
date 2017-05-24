@@ -23,8 +23,9 @@ def rebuild_quotas(storage, dry_run=False):
         for collection in paginated(storage, collection_id='collection',
                                     parent_id=bucket_path, sorting=[OLDEST_FIRST]):
             collection_info = rebuild_quotas_collection(storage, bucket_id, collection, dry_run)
-            bucket_record_count += collection_info['record_count']
-            bucket_storage_size += collection_info['storage_size']
+            (collection_record_count, collection_storage_size) = collection_info
+            bucket_record_count += collection_record_count
+            bucket_storage_size += collection_storage_size
 
         # FIXME: Store bucket_record_count, bucket_storage_size
         logger.info("Bucket {}. Final size: {} records, {} bytes.".format(
@@ -44,7 +45,9 @@ def rebuild_quotas_collection(storage, bucket_id, collection, dry_run=False):
 
     logger.info("Bucket {}, collection {}. Final size: {} records, {} bytes.".format(
         bucket_id, collection_id, collection_record_count, collection_storage_size))
-    return {
+    new_quota_info = {
         "record_count": collection_record_count,
         "storage_size": collection_storage_size,
     }
+
+    return (collection_record_count, collection_storage_size)
