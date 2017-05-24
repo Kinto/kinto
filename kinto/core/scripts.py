@@ -7,9 +7,7 @@ import transaction as current_transaction
 from pyramid.settings import asbool
 
 from kinto.core.storage import exceptions as storage_exceptions
-from kinto.core.storage import Sort
-from kinto.core.storage.utils import paginated
-from kinto.plugins.quotas.utils import record_size
+from kinto.plugins.quotas import scripts as quotas
 
 
 logger = logging.getLogger(__name__)
@@ -93,9 +91,6 @@ def delete_collection(env, bucket_id, collection_id):
     return 0
 
 
-OLDEST_FIRST = Sort("last_modified", 1)
-
-
 def rebuild_quotas(env, dry_run=False):
     """Administrative command to rebuild quota usage information.
 
@@ -117,42 +112,6 @@ def rebuild_quotas(env, dry_run=False):
         logger.error(message)
         return 31
 
-    for bucket in paginated(registry.storage, collection_id='bucket',
-                            parent_id='', sorting=[OLDEST_FIRST]):
-        bucket_id = bucket['id']
-        bucket_path = '/buckets/{}'.format(bucket['id'])
-        bucket_record_count = 0
-        bucket_storage_size = record_size(bucket)
-
-        for collection in paginated(registry.storage, collection_id='collection',
-                                    parent_id=bucket_path, sorting=[OLDEST_FIRST]):
-            collection_info = rebuild_quotas_collection(env, bucket_id, collection, dry_run)
-            bucket_record_count += collection_info['record_count']
-            bucket_storage_size += collection_info['storage_size']
-
-        # FIXME: Store bucket_record_count, bucket_storage_size
-        logger.info("Bucket {}. Final size: {} records, {} bytes.".format(
-            bucket_id, bucket_record_count, bucket_storage_size))
-
+    quotas.rebuild_quotas(registry.storage, dry_run=dry_run)
     current_transaction.commit()
     return 0
-
-
-def rebuild_quotas_collection(env, bucket_id, collection, dry_run=False):
-    """Helper method for rebuild_quotas that updates a single collection."""
-    registry = env['registry']
-    collection_id = collection['id']
-    collection_record_count = 0
-    collection_storage_size = record_size(collection)
-    collection_path = '/buckets/{}/collections/{}'.format(bucket_id, collection_id)
-    for record in paginated(registry.storage, collection_id='record',
-                            parent_id=collection_path, sorting=[OLDEST_FIRST]):
-        collection_record_count += 1
-        collection_storage_size += record_size(record)
-
-    logger.info("Bucket {}, collection {}. Final size: {} records, {} bytes.".format(
-        bucket_id, collection_id, collection_record_count, collection_storage_size))
-    return {
-        "record_count": collection_record_count,
-        "storage_size": collection_storage_size,
-    }
