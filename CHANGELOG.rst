@@ -9,6 +9,8 @@ This document describes changes between each past release.
 **New feature**
 
 - ``delete()`` method from cache backend now returns the deleted value (fixes #1231)
+- ``kinto rebuild-quotas`` script was written that can be run to
+  repair the damage caused by #1226 (fixes #1230).
 
 **Bug fixes**
 

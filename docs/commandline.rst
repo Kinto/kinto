@@ -10,7 +10,7 @@ and a set of «sub commands» are available.
 
 ::
 
-    usage: kinto [-h] {init,start,migrate,delete-collection,version} ...
+    usage: kinto [-h] {init,start,migrate,delete-collection,version,rebuild-quotas} ...
 
     Kinto Command-Line Interface
 
@@ -20,7 +20,7 @@ and a set of «sub commands» are available.
     subcommands:
       Main Kinto CLI commands
 
-      {init,start,migrate,delete-collection,version}
+      {init,start,migrate,delete-collection,version,rebuild-quotas}
                             Choose and run with --help
 
 
@@ -110,3 +110,30 @@ For example:
 
     This command does not go through the HTTP API and won't trigger
     :class:`kinto.core.events.ResourceChanged` events.
+
+Rebuild quotas
+--------------
+
+Recalculate the amount of storage taken up by buckets and collections
+and update quota records to match reality. This can be useful if
+you've been bitten by
+https://github.com/Kinto/kinto/issues/1226. However, this isn't
+intended to be a reoccurring maintenance task -- if your quota records
+are regularly becoming inaccurate, please file a bug!
+
+::
+
+    usage: kinto rebuild-quotas [-h] [--ini INI_FILE] [-q] [-v] [--dry-run]
+
+    optional arguments:
+      -h, --help      show this help message and exit
+      --ini INI_FILE  Application configuration file
+      -q, --quiet     Show only critical errors.
+      -v, --debug     Show all messages, including debug messages.
+      --dry-run       Simulate the rebuild operation and show information
+
+For example:
+
+::
+
+    kinto rebuild-quotas --ini=config/postgresql.ini
