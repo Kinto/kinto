@@ -1063,16 +1063,20 @@ class QuotasScriptsTest(unittest.TestCase):
             # get buckets
             iter([{"id": "bucket-1", "last_modified": 10}]),
             # get collections for first bucket
-            iter([{"id": "collection-1", "last_modified": 100}, {"id": "collection-2", "last_modified": 200}]),
+            iter([{"id": "collection-1", "last_modified": 100},
+                  {"id": "collection-2", "last_modified": 200}]),
             # get records for first collection
             iter([{"id": "record-1", "last_modified": 110}]),
             # get records for second collection
             iter([{"id": "record-1b", "last_modified": 210}]),
         ]
-        paginated_mock = lambda *args, **kwargs: paginated_data.pop(0)
+
+        def paginated_mock(*args, **kwargs):
+            return paginated_data.pop(0)
 
         with mock.patch('kinto.plugins.quotas.scripts.logger') as mocked_logger:
-            with mock.patch('kinto.plugins.quotas.scripts.paginated', side_effect=paginated_mock) as mocked_paginated:
+            with mock.patch('kinto.plugins.quotas.scripts.paginated',
+                            side_effect=paginated_mock) as mocked_paginated:
                 scripts.rebuild_quotas(self.storage)
 
         mocked_paginated.assert_any_call(
@@ -1116,8 +1120,10 @@ class QuotasScriptsTest(unittest.TestCase):
             object_id='collection_info',
             record={'record_count': 1, 'storage_size': 79})
 
-        mocked_logger.info.assert_any_call('Bucket bucket-1, collection collection-1. Final size: 1 records, 78 bytes.')
-        mocked_logger.info.assert_any_call('Bucket bucket-1, collection collection-2. Final size: 1 records, 79 bytes.')
+        mocked_logger.info.assert_any_call('Bucket bucket-1, collection collection-1. '
+                                           'Final size: 1 records, 78 bytes.')
+        mocked_logger.info.assert_any_call('Bucket bucket-1, collection collection-2. '
+                                           'Final size: 1 records, 79 bytes.')
         mocked_logger.info.assert_any_call('Bucket bucket-1. Final size: 2 records, 193 bytes.')
 
     def test_rebuild_quotas_doesnt_update_if_dry_run(self):
@@ -1129,13 +1135,16 @@ class QuotasScriptsTest(unittest.TestCase):
             # get records for first collection
             iter([{"id": "record-1", "last_modified": 110}]),
         ]
-        paginated_mock = lambda *args, **kwargs: paginated_data.pop(0)
+
+        def paginated_mock(*args, **kwargs):
+            return paginated_data.pop(0)
 
         with mock.patch('kinto.plugins.quotas.scripts.logger') as mocked:
-            with mock.patch('kinto.plugins.quotas.scripts.paginated', side_effect=paginated_mock) as mocked_paginated:
+            with mock.patch('kinto.plugins.quotas.scripts.paginated', side_effect=paginated_mock):
                 scripts.rebuild_quotas(self.storage, dry_run=True)
 
         assert not self.storage.update.called
 
-        mocked.info.assert_any_call('Bucket bucket-1, collection collection-1. Final size: 1 records, 78 bytes.')
+        mocked.info.assert_any_call('Bucket bucket-1, collection collection-1. '
+                                    'Final size: 1 records, 78 bytes.')
         mocked.info.assert_any_call('Bucket bucket-1. Final size: 1 records, 114 bytes.')

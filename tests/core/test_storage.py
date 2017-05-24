@@ -202,7 +202,11 @@ class PaginatedTest(unittest.TestCase):
             {"id": "record-04", "flavor": "plain"},
             {"id": "record-05", "flavor": "peanut"},
         ]
-        self.storage.get_all.side_effect = lambda *args, **kwargs: (self.sample_records, len(self.sample_records))
+
+        def sample_records_side_effect(*args, **kwargs):
+            return (self.sample_records, len(self.sample_records))
+
+        self.storage.get_all.side_effect = sample_records_side_effect
 
     def test_paginated_passes_sort(self):
         i = paginated(self.storage, sorting=[Sort('id', -1)])
@@ -223,6 +227,7 @@ class PaginatedTest(unittest.TestCase):
     def test_paginated_fetches_next_page(self):
         records = self.sample_records
         records.reverse()
+
         def get_all_mock(*args, **kwargs):
             this_records = records[:3]
             del records[:3]

@@ -1,8 +1,6 @@
 import mock
 
 from kinto.core import scripts
-from kinto.core.storage import Filter, Sort
-from kinto.core.utils import COMPARISON
 from kinto.core.storage.exceptions import RecordNotFoundError
 from kinto.core.testing import unittest
 
@@ -121,6 +119,7 @@ class DeleteCollectionTest(unittest.TestCase):
         mocked.error.assert_called_with(
             "Collection '/buckets/test_bucket/collections/test_collection' "
             "does not exist.")
+
 
 class RebuildQuotasTest(unittest.TestCase):
     def setUp(self):
