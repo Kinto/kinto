@@ -153,8 +153,8 @@ class FunctionalTest(unittest.TestCase):
         resp = self.session.put(bucket_url)
         # In case of concurrent execution, it may have been created already.
         self.assertIn(resp.status_code, (200, 201))
-        record = resp.json()
-        self.assertIn('write', record['permissions'])
+        bucket = resp.json()
+        self.assertIn('write', bucket['permissions'])
 
         # Create a new collection and check for permissions
         permissions = {"record:create": ['system.Authenticated']}
@@ -163,10 +163,10 @@ class FunctionalTest(unittest.TestCase):
             json={'permissions': permissions})
         # In case of concurrent execution, it may have been created already.
         self.assertIn(resp.status_code, (200, 201))
-        record = resp.json()
-        self.assertIn('record:create', record['permissions'])
+        collection = resp.json()
+        self.assertIn('record:create', collection['permissions'])
         self.assertIn('system.Authenticated',
-                      record['permissions']['record:create'])
+                      collection['permissions']['record:create'])
 
         # Create a new tasks for Alice
         alice_auth = ('token', 'alice-secret-%s' % uuid.uuid4())
@@ -176,9 +176,9 @@ class FunctionalTest(unittest.TestCase):
             json={'data': alice_task},
             auth=alice_auth)
         self.assertEqual(resp.status_code, 201)
-        record = resp.json()
-        self.assertIn('write', record['permissions'])
-        alice_task_id = record['data']['id']
+        collection = resp.json()
+        self.assertIn('write', collection['permissions'])
+        alice_task_id = collection['data']['id']
 
         bob_auth = ('token', 'bob-secret-%s' % uuid.uuid4())
 
@@ -194,10 +194,10 @@ class FunctionalTest(unittest.TestCase):
             json={'data': bob_task},
             auth=bob_auth)
         self.assertEqual(resp.status_code, 201)
-        record = resp.json()
-        self.assertIn('write', record['permissions'])
-        bob_user_id = record['permissions']['write'][0]
-        bob_task_id = record['data']['id']
+        collection = resp.json()
+        self.assertIn('write', collection['permissions'])
+        bob_user_id = collection['permissions']['write'][0]
+        bob_task_id = collection['data']['id']
 
         # Now that he has a task, he should see his.
         resp = self.session.get(collection_url, auth=bob_auth)
@@ -225,18 +225,18 @@ class FunctionalTest(unittest.TestCase):
         mary_auth = ('token', 'mary-secret-%s' % uuid.uuid4())
         resp = self.session.get('{}/'.format(self.server_url), auth=mary_auth)
         self.assertEqual(resp.status_code, 200)
-        record = resp.json()
-        mary_user_id = record['user']['id']
+        hello = resp.json()
+        mary_user_id = hello['user']['id']
 
         # Allow group creation on bucket
         permissions = {"group:create": ['system.Authenticated']}
         resp = self.session.put(bucket_url,
                                 json={'permissions': permissions})
         self.assertEqual(resp.status_code, 200)
-        record = resp.json()
-        self.assertIn('group:create', record['permissions'])
+        bucket = resp.json()
+        self.assertIn('group:create', bucket['permissions'])
         self.assertIn('system.Authenticated',
-                      record['permissions']['group:create'])
+                      bucket['permissions']['group:create'])
 
         # Create Alice's friend group with Bob and Mary
         group_url = '{}/groups/alices-friends'.format(bucket_url)

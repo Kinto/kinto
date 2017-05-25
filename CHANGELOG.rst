@@ -3,10 +3,24 @@ Changelog
 
 This document describes changes between each past release.
 
-6.0.9 (unreleased)
+6.1.0 (2017-05-25)
 ------------------
 
-- Nothing changed yet.
+**New feature**
+
+- ``kinto rebuild-quotas`` script was written that can be run to
+  repair the damage caused by #1226 (fixes #1230).
+
+**Bug fixes**
+
+- The ``default_bucket`` plugin no longer sends spurious "created"
+  events for buckets and collections that already exist. This causes
+  the ``quotas`` plugin to no longer leak "quota" when used with the
+  ``default_bucket`` plugin. (#1226)
+- Fix race conditions on deletions with upsert in PostgreSQL ``storage.update()`` (fixes #1202).
+- Fix PostgreSQL backend race condition when replacing permissions of an object (fixes #1210)
+- Fix missing package.json file in package. (#1222)
+- Fix removal of timestamps when parent object is deleted (fixes #1233)
 
 
 6.0.8 (2017-05-04)

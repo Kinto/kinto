@@ -309,7 +309,7 @@ class Storage(StorageBase):
         query_record.pop(id_field, None)
         query_record.pop(modified_field, None)
 
-        query_create = """
+        query = """
         WITH delete_potential_tombstone AS (
             DELETE FROM deleted
              WHERE id = :object_id
@@ -320,15 +320,10 @@ class Storage(StorageBase):
         VALUES (:object_id, :parent_id,
                 :collection_id, (:data)::JSONB,
                 from_epoch(:last_modified))
-        RETURNING as_epoch(last_modified) AS last_modified;
-        """
-
-        query_update = """
-        UPDATE records SET data=(:data)::JSONB,
-                           last_modified=from_epoch(:last_modified)
-        WHERE id = :object_id
-           AND parent_id = :parent_id
-           AND collection_id = :collection_id
+        ON CONFLICT (id, parent_id, collection_id) DO UPDATE
+            SET data=(:data)::JSONB,
+                last_modified = GREATEST(from_epoch(:last_modified),
+                                         EXCLUDED.last_modified)
         RETURNING as_epoch(last_modified) AS last_modified;
         """
         placeholders = dict(object_id=object_id,
@@ -337,22 +332,11 @@ class Storage(StorageBase):
                             last_modified=record.get(modified_field),
                             data=json.dumps(query_record))
 
-        record = {**record, id_field: object_id}
-
         with self.client.connect() as conn:
-            # Create or update ?
-            query = """
-            SELECT id FROM records
-            WHERE id = :object_id
-              AND parent_id = :parent_id
-              AND collection_id = :collection_id;
-            """
-            result = conn.execute(query, placeholders)
-            query = query_update if result.rowcount > 0 else query_create
-
             result = conn.execute(query, placeholders)
             updated = result.fetchone()
 
+        record = {**record, id_field: object_id}
         record[modified_field] = updated['last_modified']
         return record
 
@@ -515,12 +499,12 @@ class Storage(StorageBase):
                       id_field=DEFAULT_ID_FIELD,
                       modified_field=DEFAULT_MODIFIED_FIELD,
                       auth=None):
-        query = """
+        delete_tombstones = """
         DELETE
         FROM deleted
         WHERE {parent_id_filter}
               {collection_id_filter}
-              {conditions_filter};
+              {conditions_filter}
         """
         id_field = id_field or self.id_field
         modified_field = modified_field or self.modified_field
@@ -546,9 +530,19 @@ class Storage(StorageBase):
             placeholders['before'] = before
 
         with self.client.connect() as conn:
-            result = conn.execute(query.format_map(safeholders), placeholders)
+            result = conn.execute(delete_tombstones.format_map(safeholders), placeholders)
+            deleted = result.rowcount
 
-        return result.rowcount
+            # If purging everything from a parent_id, then clear timestamps.
+            if collection_id is None and before is None:
+                delete_timestamps = """
+                DELETE
+                FROM timestamps
+                WHERE {parent_id_filter}
+                """
+                conn.execute(delete_timestamps.format_map(safeholders), placeholders)
+
+        return deleted
 
     def get_all(self, collection_id, parent_id, filters=None, sorting=None,
                 pagination_rules=None, limit=None, include_deleted=False,

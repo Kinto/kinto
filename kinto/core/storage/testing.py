@@ -677,13 +677,13 @@ class TimestampsTest:
         # Check that record timestamp is the one specified.
         retrieved = self.storage.get(object_id=record_id, **self.storage_kw)
         self.assertGreater(retrieved[self.modified_field], timestamp_before)
-        self.assertEquals(retrieved[self.modified_field],
-                          stored[self.modified_field])
+        self.assertGreaterEqual(retrieved[self.modified_field],
+                                stored[self.modified_field])
 
         # Check that collection timestamp took the one specified (in future).
         timestamp = self.storage.collection_timestamp(**self.storage_kw)
         self.assertGreater(timestamp, timestamp_before)
-        self.assertEquals(timestamp, stored[self.modified_field])
+        self.assertEquals(timestamp, retrieved[self.modified_field])
 
     def test_update_ignores_specified_last_modified_if_in_the_past(self):
         stored = self.create_record()
@@ -980,6 +980,28 @@ class DeletedRecordsTest:
         num_removed = self.storage.purge_deleted(parent_id='ab*',
                                                  collection_id=None)
         self.assertEqual(num_removed, 2)
+
+    def test_purge_deleted_removes_timestamps_by_parent_id(self):
+        self.create_record(parent_id='/abc/a', collection_id='c')
+        self.create_record(parent_id='/abc/a', collection_id='c')
+        self.create_record(parent_id='/efg', collection_id='c')
+
+        before1 = self.storage.collection_timestamp(parent_id='/abc/a', collection_id='c')
+        # Different parent_id with record.
+        before2 = self.storage.collection_timestamp(parent_id='/efg', collection_id='c')
+        # Different parent_id without record.
+        before3 = self.storage.collection_timestamp(parent_id='/ijk', collection_id='c')
+
+        self.storage.delete_all(parent_id='/abc/*', collection_id=None, with_deleted=False)
+        self.storage.purge_deleted(parent_id='/abc/*', collection_id=None)
+
+        after1 = self.storage.collection_timestamp(parent_id='/abc/a', collection_id='c')
+        after2 = self.storage.collection_timestamp(parent_id='/efg', collection_id='c')
+        after3 = self.storage.collection_timestamp(parent_id='/ijk', collection_id='c')
+
+        self.assertNotEqual(before1, after1)
+        self.assertEqual(before2, after2)
+        self.assertEqual(before3, after3)
 
     def test_purge_deleted_works_when_no_tombstones(self):
         num_removed = self.storage.purge_deleted(**self.storage_kw)

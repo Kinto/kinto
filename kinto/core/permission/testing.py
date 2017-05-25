@@ -432,6 +432,14 @@ class PermissionTest:
             "obj:del": {"user1"}
         })
 
+    def test_replace_object_permission_supports_empty_existing_entries(self):
+        self.permission.replace_object_permissions('/url/a/id/1',
+                                                   {'write': ['user1']})
+        permissions = self.permission.get_object_permissions('/url/a/id/1')
+        self.assertDictEqual(permissions, {
+            "write": {"user1"}
+        })
+
     def test_replace_object_permission_supports_empty_input(self):
         self.permission.add_principal_to_ace('/url/a/id/1', 'write', 'user1')
         self.permission.replace_object_permissions('/url/a/id/1', {})
