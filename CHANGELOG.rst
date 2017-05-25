@@ -6,6 +6,11 @@ This document describes changes between each past release.
 6.0.9 (unreleased)
 ------------------
 
+**New feature**
+
+- ``kinto rebuild-quotas`` script was written that can be run to
+  repair the damage caused by #1226 (fixes #1230).
+
 **Bug fixes**
 
 - The ``default_bucket`` plugin no longer sends spurious "created"

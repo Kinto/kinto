@@ -23,7 +23,8 @@ def main(args=None):
 
     parser = argparse.ArgumentParser(description="Kinto Command-Line "
                                                  "Interface")
-    commands = ('init', 'start', 'migrate', 'delete-collection', 'version')
+    commands = ('init', 'start', 'migrate', 'delete-collection', 'version',
+                'rebuild-quotas')
     subparsers = parser.add_subparsers(title='subcommands',
                                        description='Main Kinto CLI commands',
                                        dest='subcommand',
@@ -75,6 +76,15 @@ def main(args=None):
             subparser.add_argument('--collection',
                                    help='The collection to remove.',
                                    required=True)
+
+        elif command == 'rebuild-quotas':
+            subparser.add_argument('--dry-run',
+                                   action='store_true',
+                                   help='Simulate the rebuild operation '
+                                        'and show information',
+                                   dest='dry_run',
+                                   required=False,
+                                   default=False)
 
         elif command == 'start':
             subparser.add_argument('--reload',
@@ -142,6 +152,11 @@ def main(args=None):
         return scripts.delete_collection(env,
                                          parsed_args['bucket'],
                                          parsed_args['collection'])
+
+    elif which_command == 'rebuild-quotas':
+        dry_run = parsed_args['dry_run']
+        env = bootstrap(config_file)
+        return scripts.rebuild_quotas(env, dry_run=dry_run)
 
     elif which_command == 'start':
         pserve_argv = ['pserve']
