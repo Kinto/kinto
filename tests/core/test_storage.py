@@ -1,9 +1,11 @@
 import mock
 
-from kinto.core.utils import sqlalchemy
+from kinto.core.utils import COMPARISON, sqlalchemy
 from kinto.core.storage import generators, memory, postgresql, exceptions, StorageBase
-from kinto.core.testing import (unittest, skip_if_no_postgresql)
+from kinto.core.storage import Filter, Sort
 from kinto.core.storage.testing import StorageTest
+from kinto.core.storage.utils import paginated
+from kinto.core.testing import (unittest, skip_if_no_postgresql)
 
 
 class GeneratorTest(unittest.TestCase):
@@ -188,3 +190,58 @@ class PostgreSQLStorageTest(StorageTest, unittest.TestCase):
         with client.connect() as conn:
             result = conn.execute("SELECT FROM metadata WHERE name = 'roll';")
         self.assertEqual(result.rowcount, 0)
+
+
+class PaginatedTest(unittest.TestCase):
+    def setUp(self):
+        self.storage = mock.Mock()
+        self.sample_records = [
+            {"id": "record-01", "flavor": "strawberry"},
+            {"id": "record-02", "flavor": "banana"},
+            {"id": "record-03", "flavor": "mint"},
+            {"id": "record-04", "flavor": "plain"},
+            {"id": "record-05", "flavor": "peanut"},
+        ]
+
+        def sample_records_side_effect(*args, **kwargs):
+            return (self.sample_records, len(self.sample_records))
+
+        self.storage.get_all.side_effect = sample_records_side_effect
+
+    def test_paginated_passes_sort(self):
+        i = paginated(self.storage, sorting=[Sort('id', -1)])
+        next(i)   # make the generator do anything
+        self.storage.get_all.assert_called_with(sorting=[Sort('id', -1)],
+                                                limit=25, pagination_rules=None)
+
+    def test_paginated_passes_batch_size(self):
+        i = paginated(self.storage, sorting=[Sort('id', -1)], batch_size=17)
+        next(i)   # make the generator do anything
+        self.storage.get_all.assert_called_with(sorting=[Sort('id', -1)],
+                                                limit=17, pagination_rules=None)
+
+    def test_paginated_yields_records(self):
+        iter = paginated(self.storage, sorting=[Sort('id', -1)])
+        assert next(iter) == {"id": "record-01", "flavor": "strawberry"}
+
+    def test_paginated_fetches_next_page(self):
+        records = self.sample_records
+        records.reverse()
+
+        def get_all_mock(*args, **kwargs):
+            this_records = records[:3]
+            del records[:3]
+            return this_records, len(this_records)
+
+        self.storage.get_all.side_effect = get_all_mock
+
+        list(paginated(self.storage, sorting=[Sort('id', -1)]))
+        assert self.storage.get_all.call_args_list == [
+            mock.call(sorting=[Sort('id', -1)], limit=25, pagination_rules=None),
+            mock.call(sorting=[Sort('id', -1)], limit=25, pagination_rules=[
+                [Filter('id', 'record-03', COMPARISON.LT)]
+            ]),
+            mock.call(sorting=[Sort('id', -1)], limit=25, pagination_rules=[
+                [Filter('id', 'record-01', COMPARISON.LT)]
+            ]),
+        ]

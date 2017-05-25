@@ -7,6 +7,7 @@ import transaction as current_transaction
 from pyramid.settings import asbool
 
 from kinto.core.storage import exceptions as storage_exceptions
+from kinto.plugins.quotas import scripts as quotas
 
 
 logger = logging.getLogger(__name__)
@@ -87,4 +88,32 @@ def delete_collection(env, bucket_id, collection_id):
 
     current_transaction.commit()
 
+    return 0
+
+
+def rebuild_quotas(env, dry_run=False):
+    """Administrative command to rebuild quota usage information.
+
+    This command recomputes the amount of space used by all
+    collections and all buckets and updates the quota records in the
+    storage backend to their correct values. This can be useful when
+    cleaning up after a bug like e.g.
+    https://github.com/Kinto/kinto/issues/1226.
+    """
+    registry = env['registry']
+    settings = registry.settings
+    readonly_mode = asbool(settings.get('readonly', False))
+
+    if readonly_mode:
+        message = ('Cannot rebuild quotas while in readonly mode.')
+        logger.error(message)
+        return 31
+
+    if 'kinto.plugins.quotas' not in settings['includes']:
+        message = ('Cannot rebuild quotas when quotas plugin is not installed.')
+        logger.error(message)
+        return 32
+
+    quotas.rebuild_quotas(registry.storage, dry_run=dry_run)
+    current_transaction.commit()
     return 0

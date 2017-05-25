@@ -7,8 +7,10 @@ from pyramid import testing
 
 from kinto import main as kinto_main
 from kinto.core.errors import ERRORS
+from kinto.core.storage import Sort
 from kinto.core.storage.exceptions import RecordNotFoundError
 from kinto.core.testing import FormattedErrorMixin, sqlalchemy, skip_if_no_statsd
+from kinto.plugins.quotas import scripts
 from kinto.plugins.quotas.listener import (
     QUOTA_RESOURCE_NAME, BUCKET_QUOTA_OBJECT_ID, COLLECTION_QUOTA_OBJECT_ID)
 from kinto.plugins.quotas.utils import record_size
@@ -1047,3 +1049,102 @@ class QuotaMaxBytesPerItemExceededBucketCollectionSettingsListenerTest(
         settings = super().get_app_settings(extras)
         settings['quotas.collection_test_col_max_bytes_per_item'] = '80'
         return settings
+
+
+class QuotasScriptsTest(unittest.TestCase):
+    OLDEST_FIRST = Sort('last_modified', 1)
+    BATCH_SIZE = 25
+
+    def setUp(self):
+        self.storage = mock.Mock()
+
+    def test_rebuild_quotas_updates_records(self):
+        paginated_data = [
+            # get buckets
+            iter([{"id": "bucket-1", "last_modified": 10}]),
+            # get collections for first bucket
+            iter([{"id": "collection-1", "last_modified": 100},
+                  {"id": "collection-2", "last_modified": 200}]),
+            # get records for first collection
+            iter([{"id": "record-1", "last_modified": 110}]),
+            # get records for second collection
+            iter([{"id": "record-1b", "last_modified": 210}]),
+        ]
+
+        def paginated_mock(*args, **kwargs):
+            return paginated_data.pop(0)
+
+        with mock.patch('kinto.plugins.quotas.scripts.logger') as mocked_logger:
+            with mock.patch('kinto.plugins.quotas.scripts.paginated',
+                            side_effect=paginated_mock) as mocked_paginated:
+                scripts.rebuild_quotas(self.storage)
+
+        mocked_paginated.assert_any_call(
+            self.storage,
+            collection_id='bucket',
+            parent_id='',
+            sorting=[self.OLDEST_FIRST],
+            )
+        mocked_paginated.assert_any_call(
+            self.storage,
+            collection_id='collection',
+            parent_id='/buckets/bucket-1',
+            sorting=[self.OLDEST_FIRST],
+            )
+        mocked_paginated.assert_any_call(
+            self.storage,
+            collection_id='record',
+            parent_id='/buckets/bucket-1/collections/collection-1',
+            sorting=[self.OLDEST_FIRST],
+            )
+        mocked_paginated.assert_any_call(
+            self.storage,
+            collection_id='record',
+            parent_id='/buckets/bucket-1/collections/collection-2',
+            sorting=[self.OLDEST_FIRST],
+            )
+
+        self.storage.update.assert_any_call(
+            collection_id='quota',
+            parent_id='/buckets/bucket-1',
+            object_id='bucket_info',
+            record={'record_count': 2, 'storage_size': 193})
+        self.storage.update.assert_any_call(
+            collection_id='quota',
+            parent_id='/buckets/bucket-1/collections/collection-1',
+            object_id='collection_info',
+            record={'record_count': 1, 'storage_size': 78})
+        self.storage.update.assert_any_call(
+            collection_id='quota',
+            parent_id='/buckets/bucket-1/collections/collection-2',
+            object_id='collection_info',
+            record={'record_count': 1, 'storage_size': 79})
+
+        mocked_logger.info.assert_any_call('Bucket bucket-1, collection collection-1. '
+                                           'Final size: 1 records, 78 bytes.')
+        mocked_logger.info.assert_any_call('Bucket bucket-1, collection collection-2. '
+                                           'Final size: 1 records, 79 bytes.')
+        mocked_logger.info.assert_any_call('Bucket bucket-1. Final size: 2 records, 193 bytes.')
+
+    def test_rebuild_quotas_doesnt_update_if_dry_run(self):
+        paginated_data = [
+            # get buckets
+            iter([{"id": "bucket-1", "last_modified": 10}]),
+            # get collections for first bucket
+            iter([{"id": "collection-1", "last_modified": 100}]),
+            # get records for first collection
+            iter([{"id": "record-1", "last_modified": 110}]),
+        ]
+
+        def paginated_mock(*args, **kwargs):
+            return paginated_data.pop(0)
+
+        with mock.patch('kinto.plugins.quotas.scripts.logger') as mocked:
+            with mock.patch('kinto.plugins.quotas.scripts.paginated', side_effect=paginated_mock):
+                scripts.rebuild_quotas(self.storage, dry_run=True)
+
+        assert not self.storage.update.called
+
+        mocked.info.assert_any_call('Bucket bucket-1, collection collection-1. '
+                                    'Final size: 1 records, 78 bytes.')
+        mocked.info.assert_any_call('Bucket bucket-1. Final size: 1 records, 114 bytes.')
