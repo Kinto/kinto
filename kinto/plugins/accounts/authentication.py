@@ -13,7 +13,7 @@ def account_check(username, password, request):
     except storage_exceptions.RecordNotFoundError:
         return None
 
-    hashed = existing['password']
+    hashed = existing['password'].encode(encoding='utf-8')
     pwd_str = password.encode(encoding='utf-8')
     if hashed == bcrypt.hashpw(pwd_str, hashed):
         return True  # Match! Return anything but None.

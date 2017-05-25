@@ -20,6 +20,7 @@ This document describes changes between each past release.
   ``default_bucket`` plugin. (#1226)
 - Fix removal of timestamps when parent object is deleted (fixes #1233)
 - Do not allow to reuse deletion tokens (fixes #1171)
+- ``accounts`` plugin: fix exception on authentication. (#1224)
 
 
 7.0.1 (2017-05-17)
