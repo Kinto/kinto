@@ -5,7 +5,7 @@ import logging
 
 from kinto.core.storage import Sort
 from kinto.core.storage.utils import paginated
-from .listener import BUCKET_QUOTA_OBJECT_ID, COLLECTION_QUOTA_OBJECT_ID
+from .listener import QUOTA_BUCKET_ID, QUOTA_COLLECTION_ID
 from .utils import record_size
 
 logger = logging.getLogger(__name__)
@@ -31,7 +31,7 @@ def rebuild_quotas(storage, dry_run=False):
         bucket_record = {"record_count": bucket_record_count, "storage_size": bucket_storage_size}
         if not dry_run:
             storage.update(collection_id='quota', parent_id=bucket_path,
-                           object_id=BUCKET_QUOTA_OBJECT_ID, record=bucket_record)
+                           object_id=QUOTA_BUCKET_ID, record=bucket_record)
 
         logger.info("Bucket {}. Final size: {} records, {} bytes.".format(
             bucket_id, bucket_record_count, bucket_storage_size))
@@ -56,5 +56,5 @@ def rebuild_quotas_collection(storage, bucket_id, collection, dry_run=False):
     }
     if not dry_run:
         storage.update(collection_id='quota', parent_id=collection_path,
-                       object_id=COLLECTION_QUOTA_OBJECT_ID, record=new_quota_info)
+                       object_id=QUOTA_COLLECTION_ID, record=new_quota_info)
     return (collection_record_count, collection_storage_size)
