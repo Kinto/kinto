@@ -502,12 +502,12 @@ class Storage(StorageBase):
                       id_field=DEFAULT_ID_FIELD,
                       modified_field=DEFAULT_MODIFIED_FIELD,
                       auth=None):
-        query = """
+        delete_tombstones = """
         DELETE
         FROM deleted
         WHERE {parent_id_filter}
               {collection_id_filter}
-              {conditions_filter};
+              {conditions_filter}
         """
         id_field = id_field or self.id_field
         modified_field = modified_field or self.modified_field
@@ -533,9 +533,19 @@ class Storage(StorageBase):
             placeholders['before'] = before
 
         with self.client.connect() as conn:
-            result = conn.execute(query.format_map(safeholders), placeholders)
+            result = conn.execute(delete_tombstones.format_map(safeholders), placeholders)
+            deleted = result.rowcount
 
-        return result.rowcount
+            # If purging everything from a parent_id, then clear timestamps.
+            if collection_id is None and before is None:
+                delete_timestamps = """
+                DELETE
+                FROM timestamps
+                WHERE {parent_id_filter}
+                """
+                conn.execute(delete_timestamps.format_map(safeholders), placeholders)
+
+        return deleted
 
     def get_all(self, collection_id, parent_id, filters=None, sorting=None,
                 pagination_rules=None, limit=None, include_deleted=False,
