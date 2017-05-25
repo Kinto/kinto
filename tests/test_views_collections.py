@@ -110,10 +110,11 @@ class CollectionDeletionTest(BaseWebTest, unittest.TestCase):
                           headers=self.headers)
         self.app.put_json(self.collection_url, MINIMALIST_COLLECTION,
                           headers=self.headers)
-        r = self.app.post_json(self.collection_url + '/records',
-                               MINIMALIST_RECORD,
-                               headers=self.headers)
-        record_id = r.json['data']['id']
+        resp = self.app.post_json(self.collection_url + '/records',
+                                  MINIMALIST_RECORD,
+                                  headers=self.headers)
+        self.previous_ts = resp.headers['ETag']
+        record_id = resp.json['data']['id']
         self.record_url = self.collection_url + '/records/{}'.format(record_id)
         self.app.delete(self.collection_url, headers=self.headers)
 
@@ -142,6 +143,15 @@ class CollectionDeletionTest(BaseWebTest, unittest.TestCase):
         resp = self.app.get('{}/records?_since=0'.format(self.collection_url),
                             headers=self.headers)
         self.assertEqual(len(resp.json['data']), 0)
+
+    def test_timestamps_are_refreshed_when_collection_is_recreated(self):
+        # Kinto/kinto#1223
+        # Recreate with same name.
+        self.app.put_json(self.collection_url, MINIMALIST_COLLECTION,
+                          headers=self.headers)
+        resp = self.app.get(self.collection_url + '/records', headers=self.headers)
+        records_ts = resp.headers['ETag']
+        self.assertNotEqual(self.previous_ts, records_ts)
 
     def test_can_be_created_after_deletion_with_if_none_match_star(self):
         headers = {**self.headers, 'If-None-Match': '*'}

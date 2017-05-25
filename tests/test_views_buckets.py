@@ -189,10 +189,11 @@ class BucketDeletionTest(BaseWebTest, unittest.TestCase):
                           headers=self.headers)
         self.app.put_json(self.collection_url, MINIMALIST_COLLECTION,
                           headers=self.headers)
-        r = self.app.post_json(self.collection_url + '/records',
-                               MINIMALIST_RECORD,
-                               headers=self.headers)
-        record_id = r.json['data']['id']
+        resp = self.app.post_json(self.collection_url + '/records',
+                                  MINIMALIST_RECORD,
+                                  headers=self.headers)
+        record_id = resp.json['data']['id']
+        self.previous_ts = resp.headers['ETag']
         self.record_url = self.collection_url + '/records/{}'.format(record_id)
         # Delete the bucket.
         self.app.delete(self.bucket_url, headers=self.headers)
@@ -233,6 +234,17 @@ class BucketDeletionTest(BaseWebTest, unittest.TestCase):
         resp = self.app.get('{}/collections?_since=0'.format(self.bucket_url),
                             headers=self.headers)
         self.assertEqual(len(resp.json['data']), 0)
+
+    def test_timestamps_are_refreshed_when_collection_is_recreated(self):
+        # Kinto/kinto#1223
+        # Recreate with same name.
+        self.app.put_json(self.bucket_url, MINIMALIST_BUCKET,
+                          headers=self.headers)
+        self.app.put_json(self.collection_url, MINIMALIST_COLLECTION,
+                          headers=self.headers)
+        resp = self.app.get(self.collection_url + '/records', headers=self.headers)
+        records_ts = resp.headers['ETag']
+        self.assertNotEqual(self.previous_ts, records_ts)
 
     def test_every_groups_are_deleted_too(self):
         self.app.put_json(self.bucket_url, MINIMALIST_BUCKET,
