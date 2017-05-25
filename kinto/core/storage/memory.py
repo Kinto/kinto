@@ -9,6 +9,7 @@ from kinto.core.storage import (
     DEFAULT_ID_FIELD, DEFAULT_MODIFIED_FIELD, DEFAULT_DELETED_FIELD)
 from kinto.core.utils import (COMPARISON, find_nested_value)
 
+import ujson
 
 def tree():
     return defaultdict(tree)
@@ -150,6 +151,7 @@ class Storage(MemoryBasedStorage):
         self.set_record_timestamp(collection_id, parent_id, record,
                                   modified_field=modified_field)
         _id = record[id_field]
+        record = ujson.loads(ujson.dumps(record))
         self._store[parent_id][collection_id][_id] = record
         self._cemetery[parent_id][collection_id].pop(_id, None)
         return record
@@ -171,6 +173,7 @@ class Storage(MemoryBasedStorage):
                auth=None):
         record = {**record}
         record[id_field] = object_id
+        record = ujson.loads(ujson.dumps(record))
 
         self.set_record_timestamp(collection_id, parent_id, record,
                                   modified_field=modified_field)

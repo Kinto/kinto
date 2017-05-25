@@ -1238,6 +1238,22 @@ class ParentRecordAccessTest:
                                        **self.storage_kw)
         self.assertNotIn("another", not_updated)
 
+    def test_bytes_value_gets_back_str(self):
+        data = {'steak': 'haché'.encode(encoding='utf-8')}
+        self.assertIsInstance(data['steak'], bytes)
+
+        record = self.create_record(data)
+
+        back_record = self.storage.get(object_id=record['id'],
+                                       **self.storage_kw)
+        self.assertIsInstance(back_record['steak'], str)
+
+    def test_bytes_value_bad_encoding_raises(self):
+        self.assertRaises(Exception,
+                           self.create_record,
+                           {'steak': 'haché'.encode(encoding='iso-8859-1')}
+       )
+
 
 class StorageTest(ThreadMixin,
                   TimestampsTest,
