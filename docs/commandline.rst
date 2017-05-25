@@ -116,8 +116,8 @@ Rebuild quotas
 
 Recalculate the amount of storage taken up by buckets and collections
 and update quota records to match reality. This can be useful if
-you've been bitten by
-https://github.com/Kinto/kinto/issues/1226. However, this isn't
+you've been bitten by `bug #1226
+<https://github.com/Kinto/kinto/issues/1226>`_. However, this isn't
 intended to be a reoccurring maintenance task -- if your quota records
 are regularly becoming inaccurate, please file a bug!
 
