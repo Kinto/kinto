@@ -92,6 +92,9 @@ to read the tables:
     GRANT USAGE ON SCHEMA public TO dbuser;
     GRANT SELECT ON ALL TABLES IN SCHEMA public TO dbuser;
 
+In this case, you should use the ``kinto.readonly`` setting to tell
+Kinto that the database is read-only.
+
 Even if the stack is read-only, some internal values like authentication tokens
 may still be to be stored in cache. If the cache backend is configured to use
 PostgreSQL, then write operations still must be granted on the ``cache`` table:

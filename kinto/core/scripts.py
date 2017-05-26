@@ -104,6 +104,10 @@ def rebuild_quotas(env, dry_run=False):
     settings = registry.settings
     readonly_mode = asbool(settings.get('readonly', False))
 
+    # FIXME: readonly_mode is not meant to be a "maintenance mode" but
+    # rather used with a database user that has read-only permissions.
+    # If we ever introduce a maintenance mode, we should maybe enforce
+    # it here.
     if readonly_mode:
         message = ('Cannot rebuild quotas while in readonly mode.')
         logger.error(message)
