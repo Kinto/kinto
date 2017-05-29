@@ -1251,9 +1251,9 @@ class ParentRecordAccessTest:
 
     def test_create_bytes_value_bad_encoding_raises(self):
         self.assertRaises(Exception,
-                           self.create_record,
-                           {'steak': 'haché'.encode(encoding='iso-8859-1')}
-       )
+                          self.create_record,
+                          {'steak': 'haché'.encode(encoding='iso-8859-1')}
+                          )
 
     def test_update_bytes_value_gets_back_str(self):
         record = self.create_record()
@@ -1262,8 +1262,8 @@ class ParentRecordAccessTest:
         self.assertIsInstance(new_record['steak'], bytes)
 
         self.storage.update(object_id=record['id'],
-                             record=new_record,
-                             **self.storage_kw)
+                            record=new_record,
+                            **self.storage_kw)
 
         back_record = self.storage.get(object_id=record['id'],
                                        **self.storage_kw)
@@ -1275,11 +1275,11 @@ class ParentRecordAccessTest:
 
         new_record = {'steak': 'haché'.encode(encoding='iso-8859-1')}
         self.assertRaises(Exception,
-                           self.storage.update,
-                           object_id=record['id'],
-                           record=new_record,
-                           **self.storage_kw
-       )
+                          self.storage.update,
+                          object_id=record['id'],
+                          record=new_record,
+                          **self.storage_kw
+                          )
 
 
 class StorageTest(ThreadMixin,

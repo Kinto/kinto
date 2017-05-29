@@ -11,6 +11,7 @@ from kinto.core.utils import (COMPARISON, find_nested_value)
 
 import ujson
 
+
 def tree():
     return defaultdict(tree)
 
