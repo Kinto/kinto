@@ -1250,7 +1250,7 @@ class ParentRecordAccessTest:
         self.assertEqual(back_record['steak'], 'haché')
 
     def test_create_bytes_value_bad_encoding_raises(self):
-        self.assertRaises(Exception,
+        self.assertRaises(OverflowError,
                           self.create_record,
                           {'steak': 'haché'.encode(encoding='iso-8859-1')}
                           )
@@ -1274,7 +1274,7 @@ class ParentRecordAccessTest:
         record = self.create_record()
 
         new_record = {'steak': 'haché'.encode(encoding='iso-8859-1')}
-        self.assertRaises(Exception,
+        self.assertRaises(OverflowError,
                           self.storage.update,
                           object_id=record['id'],
                           record=new_record,
