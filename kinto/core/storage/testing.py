@@ -1238,6 +1238,49 @@ class ParentRecordAccessTest:
                                        **self.storage_kw)
         self.assertNotIn("another", not_updated)
 
+    def test_create_bytes_value_gets_back_str(self):
+        data = {'steak': 'haché'.encode(encoding='utf-8')}
+        self.assertIsInstance(data['steak'], bytes)
+
+        record = self.create_record(data)
+
+        back_record = self.storage.get(object_id=record['id'],
+                                       **self.storage_kw)
+        self.assertIsInstance(back_record['steak'], str)
+        self.assertEqual(back_record['steak'], 'haché')
+
+    def test_create_bytes_value_bad_encoding_raises(self):
+        self.assertRaises(OverflowError,
+                          self.create_record,
+                          {'steak': 'haché'.encode(encoding='iso-8859-1')}
+                          )
+
+    def test_update_bytes_value_gets_back_str(self):
+        record = self.create_record()
+
+        new_record = {'steak': 'haché'.encode(encoding='utf-8')}
+        self.assertIsInstance(new_record['steak'], bytes)
+
+        self.storage.update(object_id=record['id'],
+                            record=new_record,
+                            **self.storage_kw)
+
+        back_record = self.storage.get(object_id=record['id'],
+                                       **self.storage_kw)
+        self.assertIsInstance(back_record['steak'], str)
+        self.assertEqual(back_record['steak'], 'haché')
+
+    def test_update_bytes_value_bad_encoding_raises(self):
+        record = self.create_record()
+
+        new_record = {'steak': 'haché'.encode(encoding='iso-8859-1')}
+        self.assertRaises(OverflowError,
+                          self.storage.update,
+                          object_id=record['id'],
+                          record=new_record,
+                          **self.storage_kw
+                          )
+
 
 class StorageTest(ThreadMixin,
                   TimestampsTest,
