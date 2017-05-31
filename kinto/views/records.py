@@ -67,12 +67,8 @@ class Record(resource.ShareableResource):
         except jsonschema_exceptions.ValidationError as e:
             if e.validator_value:
                 field = e.validator_value[-1]
-            elif e.path:
-                field = e.path[-1]
-            elif e.schema_path:
-                field = e.schema_path[-1]
             else:
-                field = None
+                field = e.schema_path[-1]
             raise_invalid(self.request, name=field, description=e.message)
 
         new[self.schema_field] = collection_timestamp
