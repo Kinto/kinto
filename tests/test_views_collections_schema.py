@@ -92,18 +92,23 @@ class InvalidSchemaTest(BaseWebTestWithSchema, unittest.TestCase):
 
     def test_extra_unknown_required_property(self):
         schema = {**SCHEMA, "required": ["unknown"]}
-        resp = self.app.put_json(COLLECTION_URL,
-                                 {'data': {'schema': schema}},
-                                 headers=self.headers)
+        self.app.put_json(COLLECTION_URL,
+                          {'data': {'schema': schema}},
+                          headers=self.headers)
+
         record = {'title': 'bug 1243'}
+        r = self.app.post_json(RECORDS_URL,
+                               {'data': record},
+                               headers=self.headers,
+                               status=400)
+        self.assertEqual("'unknown' is a required property", r.json["message"])
+
+        # With bug Kinto/kinto#1243, the second call would crash.
         self.app.post_json(RECORDS_URL,
                            {'data': record},
                            headers=self.headers,
                            status=400)
-        self.app.post_json(RECORDS_URL,
-                           {'data': record},
-                           headers=self.headers,
-                           status=400)
+
 
 class RecordsValidationTest(BaseWebTestWithSchema, unittest.TestCase):
     def setUp(self):

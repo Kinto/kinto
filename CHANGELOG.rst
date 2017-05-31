@@ -21,6 +21,7 @@ This document describes changes between each past release.
 - Fix removal of timestamps when parent object is deleted (fixes #1233)
 - Do not allow to reuse deletion tokens (fixes #1171)
 - ``accounts`` plugin: fix exception on authentication. (#1224)
+- Fix crash with JSONSchema validation of unknown required properties (fixes #1243)
 
 
 7.0.1 (2017-05-17)

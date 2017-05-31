@@ -65,9 +65,13 @@ class Record(resource.ShareableResource):
             stripped.pop(self.schema_field, None)
             jsonschema.validate(stripped, schema)
         except jsonschema_exceptions.ValidationError as e:
-            try:
-                field = e.path.pop() if e.path else e.validator_value.pop()
-            except AttributeError:
+            if e.validator_value:
+                field = e.validator_value[-1]
+            elif e.path:
+                field = e.path[-1]
+            elif e.schema_path:
+                field = e.schema_path[-1]
+            else:
                 field = None
             raise_invalid(self.request, name=field, description=e.message)
 
