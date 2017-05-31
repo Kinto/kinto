@@ -90,6 +90,20 @@ class InvalidSchemaTest(BaseWebTestWithSchema, unittest.TestCase):
         error_msg = "'Washmachine' is not valid under any of the given schemas"
         self.assertIn(error_msg, resp.json['message'])
 
+    def test_extra_unknown_required_property(self):
+        schema = {**SCHEMA, "required": ["unknown"]}
+        resp = self.app.put_json(COLLECTION_URL,
+                                 {'data': {'schema': schema}},
+                                 headers=self.headers)
+        record = {'title': 'bug 1243'}
+        self.app.post_json(RECORDS_URL,
+                           {'data': record},
+                           headers=self.headers,
+                           status=400)
+        self.app.post_json(RECORDS_URL,
+                           {'data': record},
+                           headers=self.headers,
+                           status=400)
 
 class RecordsValidationTest(BaseWebTestWithSchema, unittest.TestCase):
     def setUp(self):
