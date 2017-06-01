@@ -3,7 +3,7 @@ Changelog
 
 This document describes changes between each past release.
 
-7.1.0 (unreleased)
+7.1.0 (2017-05-31)
 ------------------
 
 **New feature**
@@ -26,6 +26,11 @@ This document describes changes between each past release.
   started with the same id
 - Fix permissions of accounts created with PUT by admin (ref #1248)
 - Fix ownership of accounts created with POST by admin (fixes #1248)
+
+**Internal changes**
+
+- Make memory storage consistent with PostgreSQL with regard to bytes (#1237)
+- Some minor cleanups about the use of kinto.readonly (#1241)
 
 
 7.0.1 (2017-05-17)
