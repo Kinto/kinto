@@ -10,6 +10,23 @@ from kinto.core import resource
 from kinto.core.errors import raise_invalid, http_error
 
 
+def _extract_posted_body_id(request):
+    try:
+        # Anonymous creation with POST.
+        return request.json['data']['id']
+    except (ValueError, KeyError):
+        # Bad POST data.
+        if request.method.lower() == 'post':
+            error_details = {
+                'name': 'data.id',
+                'description': 'data.id in body: Required'
+            }
+            raise_invalid(request, **error_details)
+        # Anonymous GET
+        error_msg = 'Cannot read accounts.'
+        raise http_error(httpexceptions.HTTPUnauthorized(), error=error_msg)
+
+
 class AccountSchema(resource.ResourceSchema):
     password = colander.SchemaNode(colander.String())
 
@@ -48,8 +65,12 @@ class Account(resource.ShareableResource):
         # to the same value they would obtain when authenticated.
         if self.context.is_administrator:
             if self.context.on_collection:
-                # Admin see all accounts.
-                return '*'
+                # Accounts created by admin should have userid as parent.
+                if request.method.lower() == 'post':
+                    return _extract_posted_body_id(request)
+                else:
+                    # Admin see all accounts.
+                    return '*'
             else:
                 # No pattern matching for admin on single record.
                 return request.matchdict['id']
@@ -62,20 +83,7 @@ class Account(resource.ShareableResource):
         if 'id' in request.matchdict:
             return request.matchdict['id']
 
-        try:
-            # Anonymous creation with POST.
-            return request.json['data']['id']
-        except (ValueError, KeyError):
-            # Bad POST data.
-            if request.method.lower() == 'post':
-                error_details = {
-                    'name': 'data.id',
-                    'description': 'data.id in body: Required'
-                }
-                raise_invalid(request, **error_details)
-            # Anonymous GET
-            error_msg = 'Cannot read accounts.'
-            raise http_error(httpexceptions.HTTPUnauthorized(), error=error_msg)
+        return _extract_posted_body_id(request)
 
     def collection_post(self):
         result = super(Account, self).collection_post()
