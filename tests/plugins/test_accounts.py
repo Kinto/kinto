@@ -235,3 +235,10 @@ class AdminTest(AccountsWebTest):
 
         resp = self.app.get('/accounts/alice', headers=get_user_headers('alice', 'bouh'))
         assert resp.json['permissions'] == {'write': ['account:alice']}
+
+    def test_user_created_by_admin_can_delete_her_record(self):
+        self.app.post_json('/accounts',
+                           {'data': {'id': 'alice', 'password': 'bouh'}},
+                           headers=self.admin_headers)
+
+        self.app.delete('/accounts/alice', headers=get_user_headers('alice', 'bouh'))
