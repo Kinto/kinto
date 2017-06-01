@@ -24,6 +24,7 @@ This document describes changes between each past release.
 - Fix crash with JSONSchema validation of unknown required properties (fixes #1243)
 - Fix bug on bucket deletion where other buckets could be deleted too if their id
   started with the same id
+- Fix permissions of accounts created with PUT by admin (ref #1248)
 
 
 7.0.1 (2017-05-17)
