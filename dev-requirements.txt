@@ -13,3 +13,4 @@ werkzeug
 wheel
 zest.releaser
 zope.sqlalchemy
+setuptools<36
