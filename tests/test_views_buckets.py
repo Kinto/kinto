@@ -273,3 +273,14 @@ class BucketDeletionTest(BaseWebTest, unittest.TestCase):
         headers = {**self.headers, 'If-None-Match': '*'}
         self.app.put_json(self.bucket_url, MINIMALIST_BUCKET,
                           headers=headers, status=201)
+
+    def test_does_not_delete_buckets_with_similar_names(self):
+        self.app.put("/buckets/a", headers=self.headers)
+        body = {"permissions": {"read": ["system.Everyone"]}}
+        resp = self.app.put_json("/buckets/ab", body, headers=self.headers)
+        before = resp.json
+
+        self.app.delete("/buckets/a", headers=self.headers)
+
+        resp = self.app.get("/buckets/ab", headers=self.headers, status=200)
+        self.assertEqual(resp.json, before)

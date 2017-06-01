@@ -27,13 +27,15 @@ def on_buckets_deleted(event):
     for change in event.impacted_records:
         bucket = change['old']
         bucket_uri = instance_uri(event.request, 'bucket', id=bucket['id'])
-        # Delete everything whose parent_id starts with bucket_uri.
-        parent_pattern = bucket_uri + '*'
-        storage.delete_all(parent_id=parent_pattern,
-                           collection_id=None,
-                           with_deleted=False)
-        # Remove remaining tombstones too.
-        storage.purge_deleted(parent_id=parent_pattern,
-                              collection_id=None)
-        # Remove related permissions
-        permission.delete_object_permissions(parent_pattern)
+
+        # Delete everything with current parent id (eg. collections, groups)
+        # and descending children objects (eg. records).
+        for pattern in (bucket_uri, bucket_uri + '/*'):
+            storage.delete_all(parent_id=pattern,
+                               collection_id=None,
+                               with_deleted=False)
+            # Remove remaining tombstones too.
+            storage.purge_deleted(parent_id=pattern,
+                                  collection_id=None)
+            # Remove related permissions
+            permission.delete_object_permissions(pattern)
