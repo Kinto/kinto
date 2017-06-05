@@ -680,6 +680,8 @@ class Storage(StorageBase):
             COMPARISON.IN: 'IN',
             COMPARISON.EXCLUDE: 'NOT IN',
             COMPARISON.LIKE: 'ILIKE',
+            COMPARISON.STARTSWITH: 'ILIKE',
+            COMPARISON.ENDSWITH: 'ILIKE',
         }
 
         conditions = []
@@ -730,6 +732,12 @@ class Storage(StorageBase):
 
             if filtr.operator == COMPARISON.LIKE:
                 value = '%{}%'.format(value)
+
+            elif filtr.operator == COMPARISON.STARTSWITH:
+                value = '{}%'.format(value)
+
+            elif filtr.operator == COMPARISON.ENDSWITH:
+                value = '%{}'.format(value)
 
             # Safely escape value
             value_holder = '{}_value_{}'.format(prefix, i)

@@ -525,6 +525,24 @@ class BaseTestStorage:
         self.assertEqual(total_records, 10)
         self.assertEqual(len(records), 4)
 
+    def test_records_filtered_when_searched_for_startswith_on_string_field(self):
+        self.create_record({'name': 'barfoo'})
+        self.create_record({'name': 'foobar'})
+        self.create_record({'name': 'FOOBAR'})
+
+        filters = [Filter('name', 'FoO', utils.COMPARISON.STARTSWITH)]
+        results, count = self.storage.get_all(filters=filters, **self.storage_kw)
+        self.assertEqual(len(results), 2)
+
+    def test_records_filtered_when_searched_for_endswith_on_string_field(self):
+        self.create_record({'name': 'barfoo'})
+        self.create_record({'name': 'foobar'})
+        self.create_record({'name': 'FOOBAR'})
+
+        filters = [Filter('name', 'BaR', utils.COMPARISON.ENDSWITH)]
+        results, count = self.storage.get_all(filters=filters, **self.storage_kw)
+        self.assertEqual(len(results), 2)
+
 
 class TimestampsTest:
     def test_timestamp_are_incremented_on_create(self):

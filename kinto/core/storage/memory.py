@@ -323,6 +323,8 @@ def apply_filters(records, filters):
         COMPARISON.IN: operator.contains,
         COMPARISON.EXCLUDE: lambda x, y: not operator.contains(x, y),
         COMPARISON.LIKE: lambda x, y: re.search(y, x, re.IGNORECASE),
+        COMPARISON.STARTSWITH: lambda x, y: x.lower().startswith(y.lower()),
+        COMPARISON.ENDSWITH: lambda x, y: x.lower().endswith(y.lower()),
     }
     for record in records:
         matches = True
