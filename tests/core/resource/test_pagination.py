@@ -23,6 +23,8 @@ class BasePaginationTest(BaseTest):
                 'status': i % 4,
                 'unread': (i % 2 == 0)
             }
+            if i % 3 == 0:
+                record['optional'] = True
             self.model.create_record(record)
 
         self.validated = self.resource.request.validated
@@ -201,6 +203,15 @@ class PaginationTest(BasePaginationTest):
             '_token': b64encode(invalid_token.encode('ascii')).decode('ascii')}
         self.assertRaises(HTTPBadRequest, self.resource.collection_get)
 
+    def test_next_page_url_works_with_optional_fields(self):
+        self.validated['querystring'] = {'_limit': 10, '_sort': '-optional'}
+        results1 = self.resource.collection_get()
+        self._setup_next_page()
+        results2 = self.resource.collection_get()
+        results_id1 = set([x['id'] for x in results1['data']])
+        results_id2 = set([x['id'] for x in results2['data']])
+        self.assertFalse(results_id1.intersection(results_id2))
+
 
 class PaginatedDeleteTest(BasePaginationTest):
     def test_handle_limit_on_delete(self):
@@ -319,3 +330,13 @@ class BuildPaginationTokenTest(BaseTest):
         tokeninfo = json.loads(b64decode(token).decode('ascii'))
         self.assertEqual(tokeninfo['last_record'],
                          {'title': 'Title'})
+
+    def test_can_build_while_sorting_on_missing_field(self):
+        token = self.resource._build_pagination_token([
+            ('unknown', 1),
+            ('title', -1),
+            ('last_modified', -1)
+        ], self.record, 31)
+        tokeninfo = json.loads(b64decode(token).decode('ascii'))
+        self.assertEqual(tokeninfo['last_record'],
+                         {"last_modified": 1234, "title": "Title"})
