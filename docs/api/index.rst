@@ -11,7 +11,12 @@ API
 Changelog
 ---------
 
-1.16 (unreleased)
+1.17 (unreleased)
+'''''''''''''''''
+
+- Add ``startswith`` and ``endswith`` filters (#1254)
+
+1.16 (2017-05-15)
 '''''''''''''''''
 
 - Groups can now be created with a simple ``PUT`` (fixes #793)
