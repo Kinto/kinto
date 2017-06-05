@@ -6,7 +6,10 @@ This document describes changes between each past release.
 7.2.0 (unreleased)
 ------------------
 
-- Nothing changed yet.
+**Bug fixes**
+
+- Handle querystring parameters as JSON encoded values
+  to avoid treating number as number where they should be strings. (#1217)
 
 
 7.1.0 (2017-05-31)

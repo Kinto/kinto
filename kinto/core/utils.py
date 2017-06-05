@@ -1,4 +1,3 @@
-import ast
 import collections
 import hashlib
 import hmac
@@ -11,7 +10,7 @@ from binascii import hexlify
 from urllib.parse import unquote
 from enum import Enum
 
-import ujson as json  # NOQA
+import ujson as json
 
 try:
     import sqlalchemy
@@ -114,14 +113,13 @@ def native_value(value):
     :returns: the value coerced to python type
     """
     if isinstance(value, str):
-        if value.lower() in ['on', 'true', 'yes']:
-            value = True
-        elif value.lower() in ['off', 'false', 'no']:
-            value = False
         try:
-            return ast.literal_eval(value)
-        except (TypeError, ValueError, SyntaxError):
-            pass
+            value = json.loads(value)
+        except ValueError:
+            try:
+                value = json.loads('"{}"'.format(value))
+            except ValueError:
+                return value
     return value
 
 
