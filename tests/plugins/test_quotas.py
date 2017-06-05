@@ -24,7 +24,8 @@ class PluginSetup(unittest.TestCase):
     def test_a_statsd_timer_is_used_for_quotas_if_configured(self):
         settings = {
             "statsd_url": "udp://127.0.0.1:8125",
-            "includes": "kinto.plugins.quotas"
+            "includes": "kinto.plugins.quotas",
+            "storage_strict_json": True
         }
         config = testing.setUp(settings=settings)
         with mock.patch('kinto.core.statsd.Client.timer') as mocked:
