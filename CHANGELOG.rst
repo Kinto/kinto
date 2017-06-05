@@ -6,7 +6,9 @@ This document describes changes between each past release.
 7.2.0 (unreleased)
 ------------------
 
-- Nothing changed yet.
+**Bug fixes**
+
+- Fix pagination token generation on optional fields (#1253)
 
 
 7.1.0 (2017-05-31)

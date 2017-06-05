@@ -347,6 +347,8 @@ def apply_filters(records, filters):
                         continue
                     else:
                         left = ''  # To mimic what we do for postgresql.
+                        if right is None:
+                            right = ''  # To mimic what we do for postgresql.
             matches = matches and operators[f.operator](left, right)
         if matches:
             yield record
