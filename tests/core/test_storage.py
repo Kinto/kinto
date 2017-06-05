@@ -76,6 +76,9 @@ class StorageBaseTest(unittest.TestCase):
 
 class MemoryStorageTest(StorageTest, unittest.TestCase):
     backend = memory
+    settings = {
+        'storage_strict_json': True
+    }
 
     def setUp(self):
         super().setUp()
@@ -100,6 +103,28 @@ class MemoryStorageTest(StorageTest, unittest.TestCase):
         pass
 
 
+class LenientMemoryStorageTest(MemoryStorageTest):
+    settings = {
+        'storage_strict_json': False
+    }
+
+    def test_create_bytes_raises(self):
+        data = {'steak': 'haché'.encode(encoding='utf-8')}
+        self.assertIsInstance(data['steak'], bytes)
+        self.assertIsNotNone(self.create_record(data))
+
+    def test_update_bytes_raises(self):
+        record = self.create_record()
+
+        new_record = {'steak': 'haché'.encode(encoding='utf-8')}
+        self.assertIsInstance(new_record['steak'], bytes)
+
+        self.assertIsNotNone(self.storage.update(
+                                object_id=record['id'],
+                                record=new_record,
+                                **self.storage_kw))
+
+
 @skip_if_no_postgresql
 class PostgreSQLStorageTest(StorageTest, unittest.TestCase):
     backend = postgresql
@@ -108,6 +133,7 @@ class PostgreSQLStorageTest(StorageTest, unittest.TestCase):
         'storage_backend': 'kinto.core.storage.postgresql',
         'storage_poolclass': 'sqlalchemy.pool.StaticPool',
         'storage_url': 'postgres://postgres:postgres@localhost:5432/testdb',
+        'storage_strict_json': True
     }
 
     def setUp(self):
