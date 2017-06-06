@@ -11,6 +11,10 @@ This document describes changes between each past release.
 - Handle querystring parameters as JSON encoded values
   to avoid treating number as number where they should be strings. (#1217)
 
+**Internal changes**
+
+- Add check on account plugin to avoid conflict with default ``basicauth`` policy (fixes #1177)
+
 
 7.1.0 (2017-05-31)
 ------------------
