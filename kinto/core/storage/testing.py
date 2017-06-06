@@ -428,7 +428,7 @@ class BaseTestStorage:
         self.assertEqual(records[1]['name'], "Marie")
         self.assertEqual(len(records), 2)
 
-    def test_get_all_can_filter_with_none_values(self):
+    def test_get_all_can_deal_with_none_values(self):
         self.create_record({"name": "Alexis"})
         self.create_record({"title": "haha"})
         self.create_record({"name": "Mathieu"})
@@ -440,6 +440,16 @@ class BaseTestStorage:
         filters = [Filter("name", "Fanny", utils.COMPARISON.LT)]
         records, _ = self.storage.get_all(filters=filters, **self.storage_kw)
         self.assertEqual(len(records), 2)  # None is less than "Fanny"
+
+    def test_get_all_can_filter_with_none_values(self):
+        self.create_record({"name": "Alexis", "salary": None})
+        self.create_record({"name": "Mathieu", "salary": "null"})
+        self.create_record({"name": "Niko", "salary": ""})
+        self.create_record({"name": "Ethan"})   # missing salary
+        filters = [Filter("salary", None, utils.COMPARISON.EQ)]
+        records, _ = self.storage.get_all(filters=filters, **self.storage_kw)
+        self.assertEqual(len(records), 1)
+        self.assertEqual(records[0]["name"], "Alexis")
 
     def test_get_all_can_filter_with_list_of_values_on_id(self):
         record1 = self.create_record({'code': 'a'})
@@ -488,6 +498,45 @@ class BaseTestStorage:
         records, _ = self.storage.get_all(filters=filters,
                                           **self.storage_kw)
         self.assertEqual(len(records), 1)
+
+    def test_get_all_can_filter_matching_a_list(self):
+        self.create_record({"flavor": "strawberry", "orders": []})
+        self.create_record({"flavor": "blueberry", "orders": [1]})
+        self.create_record({"flavor": "pineapple", "orders": [1, 2]})
+        self.create_record({"flavor": "watermelon", "orders": ""})
+        self.create_record({"flavor": "raspberry", "orders": {}})
+        filters = [Filter("orders", [], utils.COMPARISON.EQ)]
+        records, _ = self.storage.get_all(filters=filters, **self.storage_kw)
+        self.assertEqual(len(records), 1)
+        self.assertEqual(records[0]["flavor"], "strawberry")
+
+        filters = [Filter("orders", [1], utils.COMPARISON.EQ)]
+        records, _ = self.storage.get_all(filters=filters, **self.storage_kw)
+        self.assertEqual(len(records), 1)
+        self.assertEqual(records[0]["flavor"], "blueberry")
+
+    def test_get_all_can_filter_matching_an_object(self):
+        self.create_record({"flavor": "strawberry", "attributes": {}})
+        self.create_record({
+            "flavor": "blueberry",
+            "attributes": {"ibu": 25, "seen_on": "2017-06-01"},
+        })
+        self.create_record({
+            "flavor": "watermelon",
+            "attributes": {"ibu": 25, "seen_on": "2017-06-01", "price": 9.99},
+        })
+        self.create_record({"flavor": "raspberry", "attributes": []})
+        filters = [Filter("attributes", {}, utils.COMPARISON.EQ)]
+        records, _ = self.storage.get_all(filters=filters, **self.storage_kw)
+        self.assertEqual(len(records), 1)
+        self.assertEqual(records[0]["flavor"], "strawberry")
+
+        filters = [Filter("attributes", {"ibu": 25, "seen_on": "2017-06-01"}, utils.COMPARISON.EQ)]
+        records, _ = self.storage.get_all(filters=filters, **self.storage_kw)
+        self.assertEqual(len(records), 1)
+        self.assertEqual(records[0]["flavor"], "blueberry")
+
+
 
     def test_get_all_can_filter_by_subobjects_values(self):
         for l in ['a', 'b', 'c']:

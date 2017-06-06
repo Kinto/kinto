@@ -403,3 +403,49 @@ class RecordsViewPatchTest(BaseWebTest, unittest.TestCase):
                             json,
                             headers=self.patch_headers,
                             status=400)
+
+
+class RecordsViewFilterTest(BaseWebTest, unittest.TestCase):
+    collection_url = '/buckets/beers/collections/barley/records'
+
+    RECORDS = [
+        {
+            "id": "strawberry",
+            "flavor": "strawberry",
+            "attributes": {"ibu": 25, "seen_on": "2017-06-01"},
+            "author": None,
+        },
+        {"id": "raspberry-1", "flavor": "raspberry", "attributes": {}},
+        {"id": "raspberry-2", "flavor": "raspberry", "attributes": []},
+        {
+            "id": "raspberry-3",
+            "flavor": "raspberry",
+            "attributes": {"ibu": 25, "seen_on": "2017-06-01", "price": 9.99},
+        },
+    ]
+
+    def setUp(self):
+        super().setUp()
+        self.app.put_json('/buckets/beers', MINIMALIST_BUCKET,
+                          headers=self.headers)
+        self.app.put_json('/buckets/beers/collections/barley',
+                          MINIMALIST_COLLECTION,
+                          headers=self.headers)
+
+        for record in self.RECORDS:
+            self.app.post_json(self.collection_url,
+                               {"data": record},
+                               headers=self.headers)
+
+    def test_records_can_be_filtered_using_json(self):
+        response = self.app.get(self.collection_url + '?flavor="strawberry"',
+                                headers=self.headers)
+        assert len(response.json['data']) == 1
+        assert response.json['data'][0]['id'] == 'strawberry'
+
+    def test_records_can_be_filtered_with_object(self):
+        query = self.collection_url + '?attributes={"ibu": 25, "seen_on": "2017-06-01"}'
+        response = self.app.get(query,
+                                headers=self.headers)
+        assert len(response.json['data']) == 1
+        assert response.json['data'][0]['id'] == 'strawberry'
