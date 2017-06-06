@@ -718,7 +718,7 @@ class Storage(StorageBase):
                 # For the IN operator, let psycopg escape the values list.
                 # Otherwise JSON-ify the native value (e.g. True -> 'true')
                 if not isinstance(value, str):
-                    value = json.dumps(value).strip('"')
+                    value = json.dumps(value)
             else:
                 # If not all numeric, fallback to string comparison.
                 if not all([is_numeric(v) for v in value]):
