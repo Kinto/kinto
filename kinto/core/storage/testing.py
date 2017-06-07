@@ -350,6 +350,49 @@ class BaseTestStorage:
         self.assertLess(records[0]['person']['age'],
                         records[-1]['person']['age'])
 
+    def test_get_all_sorting_is_consistent_with_filtering(self):
+        self.create_record({'flavor': 'strawberry'})
+        self.create_record({'flavor': 'blueberry', 'author': None})
+        self.create_record({'flavor': 'raspberry', 'author': 1})
+        self.create_record({'flavor': 'watermelon', 'author': 'Ethan'})
+        sorting = [Sort('author', 1)]
+        records, _ = self.storage.get_all(sorting=sorting, **self.storage_kw)
+        # Some interesting values to compare against
+        VALUES = ['A', 'Z', '', 0, 4]
+
+        for value in VALUES:
+            # Together, these filters should provide the entire list
+            filter_less = Filter('author', value, utils.COMPARISON.LT)
+            filter_min = Filter('author', value, utils.COMPARISON.MIN)
+            smaller_records, _ = self.storage.get_all(filters=[filter_less],
+                                                      sorting=sorting,
+                                                      **self.storage_kw)
+            greater_records, _ = self.storage.get_all(filters=[filter_min],
+                                                      sorting=sorting,
+                                                      **self.storage_kw)
+            other_records = smaller_records + greater_records
+            self.assertEqual(records, other_records,
+                             "Filtering is not consistent with sorting when filtering "
+                             "using value {}: {} (LT) + {} (MIN) != {}".format(
+                                 value, smaller_records, greater_records, records))
+
+        # Same test but with MAX and GT
+        for value in VALUES:
+            # Together, these filters should provide the entire list
+            filter_less = Filter('author', value, utils.COMPARISON.MAX)
+            filter_min = Filter('author', value, utils.COMPARISON.GT)
+            smaller_records, _ = self.storage.get_all(filters=[filter_less],
+                                                      sorting=sorting,
+                                                      **self.storage_kw)
+            greater_records, _ = self.storage.get_all(filters=[filter_min],
+                                                      sorting=sorting,
+                                                      **self.storage_kw)
+            other_records = smaller_records + greater_records
+            self.assertEqual(records, other_records,
+                             "Filtering is not consistent with sorting when filtering "
+                             "using value {}: {} (MAX) + {} (GT) != {}".format(
+                                 value, smaller_records, greater_records, records))
+
     def test_get_all_can_filter_with_list_of_values(self):
         for l in ['a', 'b', 'c']:
             self.create_record({'code': l})
