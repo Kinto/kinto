@@ -686,6 +686,7 @@ class Storage(StorageBase):
         holders = {}
         for i, filtr in enumerate(filters):
             value = filtr.value
+            query_is_like = filtr.operator == COMPARISON.LIKE
 
             if filtr.field == id_field:
                 sql_field = 'id'
@@ -701,34 +702,59 @@ class Storage(StorageBase):
                     # Safely escape field name
                     field_holder = '{}_field_{}_{}'.format(prefix, i, j)
                     holders[field_holder] = subfield
-                    # Use ->> to convert the last level to text.
-                    column_name += "->>" if j == len(subfields) - 1 else "->"
+                    # Use ->> to convert the last level to text if
+                    # needed for LIKE query. (Other queries do JSONB comparison.)
+                    column_name += "->>" if j == len(subfields) - 1 and query_is_like else "->"
                     column_name += ":{}".format(field_holder)
 
-                # If field is missing, we default to ''.
-                sql_field = "coalesce({}, '')".format(column_name)
-                # Cast when comparing to number (eg. '4' < '12')
-                try:
-                    if value and (is_numeric(value) or all([is_numeric(v) for v in value])):
-                        sql_field = "({})::numeric".format(column_name)
-                except TypeError:  # not iterable
-                    pass
+                # If the field is missing, column_name will produce
+                # NULL. NULL has strange properties with comparisons
+                # in SQL -- NULL = anything => NULL, NULL <> anything => NULL.
+                # We generally want missing fields to be treated as a
+                # special value that compares as different from
+                # everything, including JSON null. Do this on a
+                # per-operator basis.
+                if filtr.operator in (
+                        # NULLs aren't EQ to anything (definitionally).
+                        COMPARISON.EQ,
+                        # So they can't match anything in an INCLUDE.
+                        COMPARISON.IN,
+                        # Nor can they be LIKE anything.
+                        COMPARISON.LIKE,
+                ):
+                    sql_field = "{} IS NOT NULL AND {}".format(column_name, column_name)
+                elif filtr.operator in (
+                        # NULLs are automatically not equal to everything.
+                        COMPARISON.NOT,
+                        # Thus they can never be excluded.
+                        COMPARISON.EXCLUDE,
+                        # Match Postgres's default sort behavior
+                        # (NULLS LAST) by allowing NULLs to
+                        # automatically be greater than everything.
+                        COMPARISON.GT, COMPARISON.MIN,
+                ):
+                    sql_field = "{} IS NULL OR {}".format(column_name, column_name)
+                else:
+                    # No need to check for LT and MAX because NULL < foo
+                    # is NULL, which is falsy in SQL.
+                    sql_field = column_name
 
-            if filtr.operator not in (COMPARISON.IN, COMPARISON.EXCLUDE):
-                # For the IN operator, let psycopg escape the values list.
-                # Otherwise JSON-ify the native value (e.g. True -> 'true')
-                if not isinstance(value, str):
+            string_field = filtr.field in (id_field, modified_field) or query_is_like
+            if not string_field:
+                # JSONB-ify the value.
+                if filtr.operator not in (COMPARISON.IN, COMPARISON.EXCLUDE):
                     value = json.dumps(value)
-            else:
-                # If not all numeric, fallback to string comparison.
-                if not all([is_numeric(v) for v in value]):
-                    value = [str(v) for v in value]
+                else:
+                    value = [json.dumps(v) for v in value]
+
+            if filtr.operator in (COMPARISON.IN, COMPARISON.EXCLUDE):
                 value = tuple(value)
                 # WHERE field IN ();  -- Fails with syntax error.
                 if len(value) == 0:
                     value = (None,)
 
-            if filtr.operator == COMPARISON.LIKE:
+            if query_is_like:
+                # Operand should be a string.
                 value = '%{}%'.format(value)
 
             # Safely escape value

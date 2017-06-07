@@ -477,12 +477,18 @@ class BaseTestStorage:
         self.create_record({"name": "Mathieu"})
         filters = [Filter("name", "Fanny", utils.COMPARISON.GT)]
         records, _ = self.storage.get_all(filters=filters, **self.storage_kw)
-        self.assertEqual(len(records), 1)  # None is not greater than "Fanny"
-        self.assertEqual(records[0]["name"], "Mathieu")
+        # NULLs compare as greater than everything
+        self.assertEqual(len(records), 2)
+        # But we aren't clear on what the order will be
+        mathieu_record = records[0] if 'name' in records[0] else records[1]
+        haha_record = records[1] if 'name' in records[0] else records[0]
+        self.assertEqual(mathieu_record["name"], "Mathieu")
+        self.assertEqual(haha_record["title"], "haha")
 
         filters = [Filter("name", "Fanny", utils.COMPARISON.LT)]
         records, _ = self.storage.get_all(filters=filters, **self.storage_kw)
-        self.assertEqual(len(records), 2)  # None is less than "Fanny"
+        self.assertEqual(len(records), 1)
+        self.assertEqual(records[0]["name"], "Alexis")
 
     def test_get_all_can_filter_with_none_values(self):
         self.create_record({"name": "Alexis", "salary": None})
