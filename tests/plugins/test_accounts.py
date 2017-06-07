@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 import unittest
 
 from kinto.core.testing import get_user_headers
+from pyramid.exceptions import ConfigurationError
 
 from .. import support
 
@@ -12,14 +13,15 @@ class AccountsWebTest(support.BaseWebTest, unittest.TestCase):
 
     @classmethod
     def get_app_settings(cls, extras=None):
-        settings = super().get_app_settings(extras)
-        settings['includes'] = 'kinto.plugins.accounts'
-        settings['account_create_principals'] = 'system.Everyone'
-        settings['multiauth.policies'] = 'account'
+        if extras is None:
+            extras = {}
+        extras.setdefault('multiauth.policies', 'account')
+        extras.setdefault('includes', 'kinto.plugins.accounts')
+        extras.setdefault('account_create_principals', 'system.Everyone')
         # XXX: this should be a default setting.
-        settings['multiauth.policy.account.use'] = ('kinto.plugins.accounts.authentication.'
-                                                    'AccountsAuthenticationPolicy')
-        return settings
+        extras.setdefault('multiauth.policy.account.use', 'kinto.plugins.accounts.authentication.'
+                                                          'AccountsAuthenticationPolicy')
+        return super().get_app_settings(extras)
 
 
 class HelloViewTest(AccountsWebTest):
@@ -242,3 +244,31 @@ class AdminTest(AccountsWebTest):
                            headers=self.admin_headers)
 
         self.app.delete('/accounts/alice', headers=get_user_headers('alice', 'bouh'))
+
+
+class WithBasicAuthTest(AccountsWebTest):
+
+    @classmethod
+    def get_app_settings(cls, extras=None):
+        if extras is None:
+            extras = {'multiauth.policies': 'account basicauth'}
+        return super().get_app_settings(extras)
+
+    def test_password_field_is_mandatory(self):
+        self.app.post_json('/accounts', {'data': {'id': 'me'}}, status=400)
+
+    def test_id_field_is_mandatory(self):
+        self.app.post_json('/accounts', {'data': {'password': 'pass'}}, status=400)
+
+    def test_fallsback_on_basicauth(self):
+        self.app.post_json('/accounts', {'data': {'id': 'me', 'password': 'bleh'}})
+
+        resp = self.app.get('/', headers=get_user_headers('me', 'wrong'))
+        assert 'basicauth' in resp.json['user']['id']
+
+        resp = self.app.get('/', headers=get_user_headers('me', 'bleh'))
+        assert 'account' in resp.json['user']['id']
+
+    def test_raise_configuration_if_wrong_error(self):
+        with self.assertRaises(ConfigurationError):
+            self.make_app({'multiauth.policies': 'basicauth account'})

@@ -1,4 +1,5 @@
 from kinto.authorization import PERMISSIONS_INHERITANCE_TREE
+from pyramid.exceptions import ConfigurationError
 
 
 def includeme(config):
@@ -16,3 +17,12 @@ def includeme(config):
         'write': {'account': ['write']},
         'read': {'account': ['write', 'read']}
     }
+
+    # Add some safety to avoid weird behaviour with basicauth default policy.
+    settings = config.get_settings()
+    auth_policies = settings['multiauth.policies']
+    if 'basicauth' in auth_policies and 'account' in auth_policies:
+        if auth_policies.index('basicauth') < auth_policies.index('account'):
+            error_msg = ("'basicauth' should not be mentioned before 'account' "
+                         "in 'multiauth.policies' setting.")
+            raise ConfigurationError(error_msg)
