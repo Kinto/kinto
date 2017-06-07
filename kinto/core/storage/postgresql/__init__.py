@@ -710,15 +710,25 @@ class Storage(StorageBase):
                 # Cast when comparing to number (eg. '4' < '12')
                 try:
                     if value and (is_numeric(value) or all([is_numeric(v) for v in value])):
-                        sql_field = "({})::numeric".format(column_name)
+                        sql_field = "CASE WHEN isnumeric({0}) THEN ({0})::numeric ELSE {0} END".format(column_name)
                 except TypeError:  # not iterable
                     pass
+
+            # Safely escape value
+            value_holder = '{}_value_{}'.format(prefix, i)
+
+            sql_operator = operators.setdefault(filtr.operator,
+                                                filtr.operator.value)
+            cond = "{} {} :{}".format(sql_field, sql_operator, value_holder)
 
             if filtr.operator not in (COMPARISON.IN, COMPARISON.EXCLUDE):
                 # For the IN operator, let psycopg escape the values list.
                 # Otherwise JSON-ify the native value (e.g. True -> 'true')
                 if not isinstance(value, str):
                     value = json.dumps(value).strip('"')
+                    if is_numeric(value):
+                        cond = "{field} {op} CASE WHEN isnumeric({field}) THEN :{value} ELSE (:{value})::text END".format(field=sql_field, op=sql_operator, value=value_holder)
+
             else:
                 # If not all numeric, fallback to string comparison.
                 if not all([is_numeric(v) for v in value]):
@@ -731,13 +741,7 @@ class Storage(StorageBase):
             if filtr.operator == COMPARISON.LIKE:
                 value = '%{}%'.format(value)
 
-            # Safely escape value
-            value_holder = '{}_value_{}'.format(prefix, i)
             holders[value_holder] = value
-
-            sql_operator = operators.setdefault(filtr.operator,
-                                                filtr.operator.value)
-            cond = "{} {} :{}".format(sql_field, sql_operator, value_holder)
             conditions.append(cond)
 
         safe_sql = ' AND '.join(conditions)
