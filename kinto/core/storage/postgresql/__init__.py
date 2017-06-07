@@ -7,7 +7,7 @@ from kinto.core.storage import (
     StorageBase, exceptions,
     DEFAULT_ID_FIELD, DEFAULT_MODIFIED_FIELD, DEFAULT_DELETED_FIELD)
 from kinto.core.storage.postgresql.client import create_from_config
-from kinto.core.utils import COMPARISON, json, is_numeric
+from kinto.core.utils import COMPARISON, json
 
 
 logger = logging.getLogger(__name__)
