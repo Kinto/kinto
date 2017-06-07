@@ -91,7 +91,7 @@ class CollectionViewTest(BaseWebTest, unittest.TestCase):
         self.app.put_json('/buckets/beers/collections/moderator',
                           collection,
                           headers=self.headers)
-        resp = self.app.get('/buckets/beers/collections?min_size=2',
+        resp = self.app.get('/buckets/beers/collections?has_size=true&min_size=2',
                             headers=self.headers)
         data = resp.json['data']
         self.assertEqual(len(data), 1)

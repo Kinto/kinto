@@ -757,13 +757,17 @@ class Storage(StorageBase):
                 # Operand should be a string.
                 value = '%{}%'.format(value)
 
-            # Safely escape value
-            value_holder = '{}_value_{}'.format(prefix, i)
-            holders[value_holder] = value
+            if filtr.operator == COMPARISON.HAS:
+                operator = 'IS NOT NULL' if filtr.value else 'IS NULL'
+                cond = "{} {}".format(sql_field, operator)
+            else:
+                # Safely escape value
+                value_holder = '{}_value_{}'.format(prefix, i)
+                holders[value_holder] = value
 
-            sql_operator = operators.setdefault(filtr.operator,
-                                                filtr.operator.value)
-            cond = "{} {} :{}".format(sql_field, sql_operator, value_holder)
+                sql_operator = operators.setdefault(filtr.operator,
+                                                    filtr.operator.value)
+                cond = "{} {} :{}".format(sql_field, sql_operator, value_holder)
             conditions.append(cond)
 
         safe_sql = ' AND '.join(conditions)

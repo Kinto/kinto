@@ -345,10 +345,14 @@ def apply_filters(records, filters):
 
             if f.operator in (COMPARISON.IN, COMPARISON.EXCLUDE):
                 right, left = left, right
-            elif f.operator != COMPARISON.LIKE:
+            elif f.operator not in (COMPARISON.LIKE, COMPARISON.HAS):
                 left = schwartz_transform(left)
                 right = schwartz_transform(right)
-            matches = matches and operators[f.operator](left, right)
+
+            if f.operator == COMPARISON.HAS:
+                matches = left != MISSING if f.value else left == MISSING
+            else:
+                matches = matches and operators[f.operator](left, right)
         if matches:
             yield record
 
