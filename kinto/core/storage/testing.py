@@ -354,6 +354,7 @@ class BaseTestStorage:
         self.create_record({'flavor': 'strawberry'})
         self.create_record({'flavor': 'blueberry', 'author': None})
         self.create_record({'flavor': 'raspberry', 'author': 1})
+        self.create_record({'flavor': 'orange', 'author': True})
         self.create_record({'flavor': 'watermelon', 'author': 'Ethan'})
         sorting = [Sort('author', 1)]
         records, _ = self.storage.get_all(sorting=sorting, **self.storage_kw)

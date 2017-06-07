@@ -374,16 +374,19 @@ def schwartz_transform(value):
         return (0, value)
     if isinstance(value, str):
         return (1, value)
+    if isinstance(value, bool):
+        # This has to be before Number, because bools are a subclass
+        # of int :(
+        return (3, value)
     if isinstance(value, numbers.Number):
         return (2, value)
-    if isinstance(value, bool):
-        return (3, value)
     if isinstance(value, abc.Sequence):
         return (4, value)
     if isinstance(value, abc.Mapping):
         return (5, value)
-    if value == MISSING:
+    if value is MISSING:
         return (6, value)
+    raise ValueError("Unknown value: {}".format(value))   # pragma: no cover
 
 
 def apply_sorting(records, sorting):
