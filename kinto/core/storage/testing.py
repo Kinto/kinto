@@ -585,7 +585,22 @@ class BaseTestStorage:
         self.assertEqual(len(records), 1)
         self.assertEqual(records[0]["flavor"], "blueberry")
 
+    def test_get_all_supports_has(self):
+        self.create_record({"flavor": "strawberry"})
+        self.create_record({"flavor": "blueberry", "author": None})
+        self.create_record({"flavor": "raspberry", "author": ""})
+        self.create_record({"flavor": "watermelon", "author": "hello"})
+        self.create_record({"flavor": "pineapple", "author": "null"})
+        filters = [Filter("author", True, utils.COMPARISON.HAS)]
+        records, _ = self.storage.get_all(filters=filters, **self.storage_kw)
+        self.assertEqual(len(records), 4)
+        self.assertEqual(sorted([r['flavor'] for r in records]),
+                         ["blueberry", "pineapple", "raspberry", "watermelon"])
 
+        filters = [Filter("author", False, utils.COMPARISON.HAS)]
+        records, _ = self.storage.get_all(filters=filters, **self.storage_kw)
+        self.assertEqual(len(records), 1)
+        self.assertEqual(records[0]["flavor"], "strawberry")
 
     def test_get_all_can_filter_by_subobjects_values(self):
         for l in ['a', 'b', 'c']:
