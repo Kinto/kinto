@@ -60,6 +60,18 @@ Prefix field name with ``like_``:
 
 * ``/collection?like_field=foo``
 
+**Search string fields with starting string**
+
+Prefix field name with ``startswith_``:
+
+* ``/collection?startswith_field=foo``
+
+**Search string fields with ending string**
+
+Prefix field name with ``endswith_``:
+
+* ``/collection?endswith_field=foo``
+
 .. note::
 
     Will return an error if a field is unknown.
