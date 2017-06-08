@@ -10,6 +10,11 @@ This document describes changes between each past release.
 
 - Handle querystring parameters as JSON encoded values
   to avoid treating number as number where they should be strings. (#1217)
+- Introduce ``has_`` filter operator (fixes #344).
+- Several changes to the handling of NULLs and how the full range of
+  JSON values is compared in a storage backend (PR #1258). Combined
+  with #1252, this should fix #1215, #1216, #1217 and #1257, as well as
+  possibly some others.
 
 
 7.1.0 (2017-05-31)
