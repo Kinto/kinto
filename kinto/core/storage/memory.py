@@ -1,6 +1,8 @@
 import re
 import operator
 from collections import defaultdict
+from collections import abc
+import numbers
 
 from kinto.core import utils
 from kinto.core.decorators import synchronized
@@ -10,6 +12,13 @@ from kinto.core.storage import (
 from kinto.core.utils import (COMPARISON, find_nested_value)
 
 import ujson
+
+
+class Missing():
+    pass
+
+
+MISSING = Missing()
 
 
 def tree():
@@ -332,24 +341,52 @@ def apply_filters(records, filters):
                 if isinstance(right, int):
                     right = str(right)
 
-            left = find_nested_value(record, f.field)
+            left = find_nested_value(record, f.field, MISSING)
 
             if f.operator in (COMPARISON.IN, COMPARISON.EXCLUDE):
                 right, left = left, right
+            elif f.operator not in (COMPARISON.LIKE, COMPARISON.HAS):
+                left = schwartzian_transform(left)
+                right = schwartzian_transform(right)
+
+            if f.operator == COMPARISON.HAS:
+                matches = left != MISSING if f.value else left == MISSING
             else:
-                if left is None:
-                    right_is_number = (
-                        isinstance(right, (int, float)) and
-                        right not in (True, False))
-                    if right_is_number:
-                        # Python3 cannot compare None to a number.
-                        matches = False
-                        continue
-                    else:
-                        left = ''  # To mimic what we do for postgresql.
-            matches = matches and operators[f.operator](left, right)
+                matches = matches and operators[f.operator](left, right)
         if matches:
             yield record
+
+
+def schwartzian_transform(value):
+    """Decorate a value with a tag that enforces the Postgres sort order.
+
+    The sort order, per https://www.postgresql.org/docs/9.6/static/datatype-json.html, is:
+
+    Object > Array > Boolean > Number > String > Null
+
+    Note that there are more interesting rules for comparing objects
+    and arrays but we probably don't need to be that compatible.
+
+    MISSING represents what would be a SQL NULL, which is "bigger"
+    than everything else.
+    """
+    if value is None:
+        return (0, value)
+    if isinstance(value, str):
+        return (1, value)
+    if isinstance(value, bool):
+        # This has to be before Number, because bools are a subclass
+        # of int :(
+        return (3, value)
+    if isinstance(value, numbers.Number):
+        return (2, value)
+    if isinstance(value, abc.Sequence):
+        return (4, value)
+    if isinstance(value, abc.Mapping):
+        return (5, value)
+    if value is MISSING:
+        return (6, value)
+    raise ValueError("Unknown value: {}".format(value))   # pragma: no cover
 
 
 def apply_sorting(records, sorting):
@@ -360,14 +397,12 @@ def apply_sorting(records, sorting):
     if not result:
         return result
 
-    first_record = result[0]
-
-    def column(first, record, name):
-        return find_nested_value(record, name, default=float('inf'))
+    def column(record, name):
+        return schwartzian_transform(find_nested_value(record, name, default=MISSING))
 
     for sort in reversed(sorting):
         result = sorted(result,
-                        key=lambda r: column(first_record, r, sort.field),
+                        key=lambda r: column(r, sort.field),
                         reverse=(sort.direction < 0))
 
     return result

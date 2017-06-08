@@ -16,6 +16,8 @@ Changelog
 
 - Groups can now be created with a simple ``PUT`` (fixes #793)
 - Batch requests now raise ``400`` on unknown attributes (#1163).
+- New ``has_`` filter operator (fixes #344).
+- JSON values are now accepted as filter values (fixes #1215, #1216, and #1217).
 
 1.15 (2017-03-03)
 '''''''''''''''''

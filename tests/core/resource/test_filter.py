@@ -12,12 +12,12 @@ class FilteringTest(BaseTest):
         records = [
             {'title': 'MoFo', 'status': 0, 'favorite': True},
             {'title': 'MoFo', 'status': 1, 'favorite': False},
-            {'title': 'MoFo', 'status': 2, 'favorite': False},
-            {'title': 'MoFo', 'status': 0, 'favorite': False},
+            {'title': 'MoFo', 'status': 2, 'favorite': False, 'sometimes': 'available'},
+            {'title': 'MoFo', 'status': 0, 'favorite': False, 'sometimes': None},
             {'title': 'MoFo', 'status': 1, 'favorite': True},
             {'title': 'MoFo', 'status': 2, 'favorite': False},
             {'title': 'Foo', 'status': 3, 'favorite': False},
-            {'title': 'Bar', 'status': 3, 'favorite': False},
+            {'title': 'Bar', 'status': 3, 'favorite': False, 'sometimes': 'present'},
         ]
         for r in records:
             self.model.create_record(r)
@@ -175,6 +175,19 @@ class FilteringTest(BaseTest):
         values = [item['status'] for item in result['data']]
         self.assertEqual(sorted(values), [1, 1, 2, 2, 3, 3])
 
+    def test_has_values(self):
+        self.validated['querystring'] = {'has_sometimes': True}
+        result = self.resource.collection_get()
+        values = [item['sometimes'] for item in result['data']]
+        assert None in values
+        self.assertEqual(sorted([v for v in values if v]), ['available', 'present'])
+
+    def test_has_values_false(self):
+        self.validated['querystring'] = {'has_sometimes': False}
+        result = self.resource.collection_get()
+        values = ['sometimes' in item for item in result['data']]
+        self.assertEqual(sorted(values), [False, False, False, False, False])
+
     def test_include_returns_400_if_value_has_wrong_type(self):
         self.validated['querystring'] = {'in_id': [0, 1]}
         with self.assertRaises(httpexceptions.HTTPBadRequest) as cm:
@@ -224,3 +237,62 @@ class SubobjectFilteringTest(BaseTest):
         result = self.resource.collection_get()
         values = [item['party']['voters'] for item in result['data']]
         self.assertEqual(sorted(values), [1, 2, 3])
+
+
+class JSONFilteringTest(BaseTest):
+    def setUp(self):
+        super().setUp()
+        self.validated = self.resource.request.validated
+        self.patch_known_field.start()
+        records = [
+            {
+                "id": "strawberry",
+                "flavor": "strawberry",
+                "orders": [],
+                "attributes": {"ibu": 25, "seen_on": "2017-06-01"},
+                "author": None,
+            },
+            {"id": "blueberry-1", "flavor": "blueberry", "orders": [1]},
+            {"id": "blueberry-2", "flavor": "blueberry", "orders": ""},
+            {"id": "raspberry-1", "flavor": "raspberry", "attributes": {}},
+            {"id": "raspberry-2", "flavor": "raspberry", "attributes": []},
+            {
+                "id": "raspberry-3",
+                "flavor": "raspberry",
+                "attributes": {"ibu": 25, "seen_on": "2017-06-01", "price": 9.99},
+            },
+            {"id": "watermelon-1", "flavor": "watermelon", "author": "null"},
+            {"id": "watermelon-2", "flavor": "watermelon", "author": 0},
+        ]
+        for r in records:
+            self.model.create_record(r)
+
+    def test_filter_by_empty_array(self):
+        self.validated['querystring'] = {'orders': []}
+        result = self.resource.collection_get()
+        assert len(result['data']) == 1
+        assert result['data'][0]['id'] == 'strawberry'
+
+    def test_filter_by_nonempty_array(self):
+        self.validated['querystring'] = {'orders': [1]}
+        result = self.resource.collection_get()
+        assert len(result['data']) == 1
+        assert result['data'][0]['id'] == 'blueberry-1'
+
+    def test_filter_by_empty_object(self):
+        self.validated['querystring'] = {'attributes': {}}
+        result = self.resource.collection_get()
+        assert len(result['data']) == 1
+        assert result['data'][0]['id'] == 'raspberry-1'
+
+    def test_filter_by_nonempty_object(self):
+        self.validated['querystring'] = {'attributes': {'ibu': 25, 'seen_on': '2017-06-01'}}
+        result = self.resource.collection_get()
+        assert len(result['data']) == 1
+        assert result['data'][0]['id'] == 'strawberry'
+
+    def test_filter_by_null(self):
+        self.validated['querystring'] = {'author': None}
+        result = self.resource.collection_get()
+        assert len(result['data']) == 1
+        assert result['data'][0]['id'] == 'strawberry'
