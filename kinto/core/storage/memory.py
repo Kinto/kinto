@@ -346,8 +346,8 @@ def apply_filters(records, filters):
             if f.operator in (COMPARISON.IN, COMPARISON.EXCLUDE):
                 right, left = left, right
             elif f.operator not in (COMPARISON.LIKE, COMPARISON.HAS):
-                left = schwartz_transform(left)
-                right = schwartz_transform(right)
+                left = schwartzian_transform(left)
+                right = schwartzian_transform(right)
 
             if f.operator == COMPARISON.HAS:
                 matches = left != MISSING if f.value else left == MISSING
@@ -357,7 +357,7 @@ def apply_filters(records, filters):
             yield record
 
 
-def schwartz_transform(value):
+def schwartzian_transform(value):
     """Decorate a value with a tag that enforces the Postgres sort order.
 
     The sort order, per https://www.postgresql.org/docs/9.6/static/datatype-json.html, is:
@@ -398,7 +398,7 @@ def apply_sorting(records, sorting):
         return result
 
     def column(record, name):
-        return schwartz_transform(find_nested_value(record, name, default=MISSING))
+        return schwartzian_transform(find_nested_value(record, name, default=MISSING))
 
     for sort in reversed(sorting):
         result = sorted(result,
