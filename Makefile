@@ -81,8 +81,7 @@ version-file:
 	echo '{"name":"$(NAME)","version":"$(VERSION)","source":"$(SOURCE)","commit":"$(COMMIT)"}' > version.json
 
 serve: install-dev $(SERVER_CONFIG) migrate version-file
-# Reload is temporary deactivated because Pylons/pyramid/pull#2962
-	$(VENV)/bin/kinto start --ini $(SERVER_CONFIG) # --reload
+	$(VENV)/bin/kinto start --ini $(SERVER_CONFIG) --reload
 
 migrate: install $(SERVER_CONFIG)
 	$(VENV)/bin/kinto migrate --ini $(SERVER_CONFIG)
