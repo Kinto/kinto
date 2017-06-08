@@ -686,7 +686,7 @@ class Storage(StorageBase):
         holders = {}
         for i, filtr in enumerate(filters):
             value = filtr.value
-            query_is_like = filtr.operator == COMPARISON.LIKE
+            is_like_query = filtr.operator == COMPARISON.LIKE
 
             if filtr.field == id_field:
                 sql_field = 'id'
@@ -704,7 +704,7 @@ class Storage(StorageBase):
                     holders[field_holder] = subfield
                     # Use ->> to convert the last level to text if
                     # needed for LIKE query. (Other queries do JSONB comparison.)
-                    column_name += "->>" if j == len(subfields) - 1 and query_is_like else "->"
+                    column_name += "->>" if j == len(subfields) - 1 and is_like_query else "->"
                     column_name += ":{}".format(field_holder)
 
                 # If the field is missing, column_name will produce
@@ -714,32 +714,35 @@ class Storage(StorageBase):
                 # special value that compares as different from
                 # everything, including JSON null. Do this on a
                 # per-operator basis.
-                if filtr.operator in (
-                        # NULLs aren't EQ to anything (definitionally).
-                        COMPARISON.EQ,
-                        # So they can't match anything in an INCLUDE.
-                        COMPARISON.IN,
-                        # Nor can they be LIKE anything.
-                        COMPARISON.LIKE,
-                ):
+                null_false_operators = (
+                    # NULLs aren't EQ to anything (definitionally).
+                    COMPARISON.EQ,
+                    # So they can't match anything in an INCLUDE.
+                    COMPARISON.IN,
+                    # Nor can they be LIKE anything.
+                    COMPARISON.LIKE,
+                )
+                null_true_operators = (
+                    # NULLs are automatically not equal to everything.
+                    COMPARISON.NOT,
+                    # Thus they can never be excluded.
+                    COMPARISON.EXCLUDE,
+                    # Match Postgres's default sort behavior
+                    # (NULLS LAST) by allowing NULLs to
+                    # automatically be greater than everything.
+                    COMPARISON.GT, COMPARISON.MIN,
+                )
+
+                if filtr.operator in null_false_operators:
                     sql_field = "{} IS NOT NULL AND {}".format(column_name, column_name)
-                elif filtr.operator in (
-                        # NULLs are automatically not equal to everything.
-                        COMPARISON.NOT,
-                        # Thus they can never be excluded.
-                        COMPARISON.EXCLUDE,
-                        # Match Postgres's default sort behavior
-                        # (NULLS LAST) by allowing NULLs to
-                        # automatically be greater than everything.
-                        COMPARISON.GT, COMPARISON.MIN,
-                ):
+                elif filtr.operator in null_true_operators:
                     sql_field = "{} IS NULL OR {}".format(column_name, column_name)
                 else:
                     # No need to check for LT and MAX because NULL < foo
                     # is NULL, which is falsy in SQL.
                     sql_field = column_name
 
-            string_field = filtr.field in (id_field, modified_field) or query_is_like
+            string_field = filtr.field in (id_field, modified_field) or is_like_query
             if not string_field:
                 # JSONB-ify the value.
                 if filtr.operator not in (COMPARISON.IN, COMPARISON.EXCLUDE):
@@ -753,7 +756,7 @@ class Storage(StorageBase):
                 if len(value) == 0:
                     value = (None,)
 
-            if query_is_like:
+            if is_like_query:
                 # Operand should be a string.
                 value = '%{}%'.format(value)
 

@@ -359,9 +359,9 @@ class BaseTestStorage:
         sorting = [Sort('author', 1)]
         records, _ = self.storage.get_all(sorting=sorting, **self.storage_kw)
         # Some interesting values to compare against
-        VALUES = ['A', 'Z', '', 0, 4]
+        values = ['A', 'Z', '', 0, 4]
 
-        for value in VALUES:
+        for value in values:
             # Together, these filters should provide the entire list
             filter_less = Filter('author', value, utils.COMPARISON.LT)
             filter_min = Filter('author', value, utils.COMPARISON.MIN)
@@ -378,7 +378,7 @@ class BaseTestStorage:
                                  value, smaller_records, greater_records, records))
 
         # Same test but with MAX and GT
-        for value in VALUES:
+        for value in values:
             # Together, these filters should provide the entire list
             filter_less = Filter('author', value, utils.COMPARISON.MAX)
             filter_min = Filter('author', value, utils.COMPARISON.GT)
