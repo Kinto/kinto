@@ -9,9 +9,38 @@ be expressed by query parameters. Elements of the plural endpoint
 (such as records) that do not match the predicates are omitted from
 the response.
 
+Most filters are expressed using a query parameter of the form
+``[operator_]field=value``. The (optional) operator is one from the
+list below. The field name can be simple or a dotted field
+name. Values can be any JSON encoded value (e.g. ``24``, ``"hello"``,
+``[1, 2, 4]``, ``{"flavor": "strawberry"}``, ``true``, or
+``null``). Anything not recognized as a JSON value is interpreted as a
+string.
+
 **Single value**
 
 * ``/collection?field=value``
+
+Examples:
+
+* ``/collection?author=2``
+
+  Matches any record whose ``author`` field is equal to the number 2.
+
+* ``/collection?author="Ben"``
+
+  Matches any record whose ``author`` field is equal to the string Ben.
+
+* ``/collection?author=Ben``
+
+  Same as the previous example, but relying on the behavior that
+  anything that isn't JSON is a string.
+
+* ``/collection?author="2.0"``
+
+  Matches any record whose ``author`` field is equal to the string
+  value ``"2.0"``. This is useful if your records contain something
+  numeric-ish but not quite numeric, like a version number.
 
 .. **Multiple values**
 ..
@@ -21,20 +50,31 @@ the response.
 
 * ``/collection?field.subfield=value``
 
-**Minimum and maximum**
+**Comparison**
 
-Prefix field name with ``min_`` or ``max_``:
+The filters ``lt`` and ``gt`` are available to compare against values.
 
-* ``/collection?min_field=4000``
+* ``/collection?gt_orders=100``
 
-.. note::
+  Retrieve any records whose ``orders`` field is (strictly) greater
+  than 100.
 
-    The lower and upper bounds are inclusive (*i.e equivalent to
-    greater or equal*).
+This bound is exclusive (i.e., in the previous example, it would not
+retrieve a record whose ``orders`` field was equal to 100. To check
+"less than or equal", use ``min``. To check "greater than or equal",
+use ``max``.
 
-.. note::
+* ``/collection?min_orders=100``
 
-   ``lt_`` and ``gt_`` can also be used to exclude the bound.
+  Retrieve any records whose ``orders`` field is greater than or equal
+  to 100.
+
+At the present time, the comparison order between values of different
+types is not defined. For example, if you have a record like
+``{"author": 1}`` and another like ``{"author": "2"}``, requesting
+``/collection?gt_author=1`` may return the second one, or it may
+not. However, a comparison operator will match whatever order you get
+by sorting, and the ordering will include all records.
 
 **Multiple values**
 
@@ -60,9 +100,13 @@ Prefix field name with ``like_``:
 
 * ``/collection?like_field=foo``
 
-.. note::
+**Field existence**
 
-    Will return an error if a field is unknown.
+You can request records that have a certain field (for example, ``author``) using ``has_author=true`` or those that don't have that field by using ``has_author=false``.
+
+* ``/collection?has_field=true``
+
+Note that a record like ``{"author": null}`` still counts as "having" that field.
 
 .. note::
 
