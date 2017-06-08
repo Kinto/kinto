@@ -472,6 +472,26 @@ class BaseTestStorage:
         self.assertEqual(records[1]['name'], "Marie")
         self.assertEqual(len(records), 2)
 
+    def test_get_all_can_filter_minimum_value_with_strings(self):
+        for v in ["49.0", "6.0", "53.0b4"]:
+            self.create_record({"product": {"version": v}})
+        sorting = [Sort("product.version", 1)]
+        filters = [Filter("product.version", "50.0", utils.COMPARISON.MIN)]
+        records, _ = self.storage.get_all(sorting=sorting, filters=filters,
+                                          **self.storage_kw)
+        self.assertEqual(records[0]["product"]["version"], "53.0b4")
+        self.assertEqual(records[1]["product"]["version"], "6.0")
+        self.assertEqual(len(records), 2)
+
+    def test_get_all_does_not_implicitly_cast(self):
+        for v in ["49.0", "6.0", "53.0b4"]:
+            self.create_record({"product": {"version": v}})
+        sorting = [Sort("product.version", 1)]
+        filters = [Filter("product.version", 50.0, utils.COMPARISON.MIN)]
+        records, _ = self.storage.get_all(sorting=sorting, filters=filters,
+                                          **self.storage_kw)
+        self.assertEqual(len(records), 0)  # 50 (number) > strings
+
     def test_get_all_can_deal_with_none_values(self):
         self.create_record({"name": "Alexis"})
         self.create_record({"title": "haha"})
