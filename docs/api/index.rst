@@ -15,6 +15,7 @@ Changelog
 '''''''''''''''''
 
 - Filtering with like can now contain wild chars (eg. ``?like_nobody=*you*``)
+  It is thus now impossible to search for the ``*`` character with this operator.
 - Handle querystring parameters as JSON encoded values
   to avoid treating number as number where they should be strings. (#1217)
 - Introduce ``has_`` filter operator (fixes #344).
