@@ -11,7 +11,15 @@ API
 Changelog
 ---------
 
-1.16 (unreleased)
+1.17 (unreleased)
+'''''''''''''''''
+
+- Filtering with like can now contain wild chars (eg. ``?like_nobody=*you*``)
+- Handle querystring parameters as JSON encoded values
+  to avoid treating number as number where they should be strings. (#1217)
+- Introduce ``has_`` filter operator (fixes #344).
+
+1.16 (2017-05-15)
 '''''''''''''''''
 
 - Groups can now be created with a simple ``PUT`` (fixes #793)

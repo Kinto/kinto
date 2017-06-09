@@ -631,6 +631,27 @@ class BaseTestStorage:
                                           **self.storage_kw)
         self.assertEqual(len(records), 1)
 
+    def test_get_all_can_filter_with_like_and_implicit_wildchars(self):
+        self.create_record({'name': 'foo'})
+        self.create_record({'name': 'aafooll'})
+        self.create_record({'name': 'bar'})
+        self.create_record({'name': 'FOOBAR'})
+
+        filters = [Filter('name', 'FoO', utils.COMPARISON.LIKE)]
+        results, count = self.storage.get_all(filters=filters, **self.storage_kw)
+        self.assertEqual(len(results), 3)
+
+    def test_get_all_can_filter_with_wildchars(self):
+        self.create_record({'name': 'eabcg'})
+        self.create_record({'name': 'aabcc'})
+        self.create_record({'name': 'abc'})
+        self.create_record({'name': 'aec'})
+        self.create_record({'name': 'efg'})
+
+        filters = [Filter('name', 'a*b*c', utils.COMPARISON.LIKE)]
+        results, count = self.storage.get_all(filters=filters, **self.storage_kw)
+        self.assertEqual(len(results), 2)
+
     def test_get_all_handle_a_pagination_rules(self):
         for x in range(10):
             record = dict(self.record)
@@ -1423,12 +1444,3 @@ class StorageTest(ThreadMixin,
                   BaseTestStorage):
     """Compound of all storage tests."""
     pass
-
-    def test_records_filtered_when_searched_by_string_field(self):
-        self.create_record({'name': 'foo'})
-        self.create_record({'name': 'bar'})
-        self.create_record({'name': 'FOOBAR'})
-
-        filters = [Filter('name', 'FoO', utils.COMPARISON.LIKE)]
-        results, count = self.storage.get_all(filters=filters, **self.storage_kw)
-        self.assertEqual(len(results), 2)
