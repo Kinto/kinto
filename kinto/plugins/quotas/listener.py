@@ -1,5 +1,6 @@
 import copy
 
+import transaction
 from pyramid.httpexceptions import HTTPInsufficientStorage
 from kinto.core.errors import http_error, ERRORS
 from kinto.core.storage.exceptions import RecordNotFoundError
@@ -11,6 +12,16 @@ from .utils import record_size
 QUOTA_RESOURCE_NAME = 'quota'
 BUCKET_QUOTA_OBJECT_ID = 'bucket_info'
 COLLECTION_QUOTA_OBJECT_ID = 'collection_info'
+
+
+def raise_insufficient_storage(message):
+    # XXX: why exactly, with pyramid-tm 2.X, do we have to explicitly abort() the
+    # transaction? Is it because we raise from a precommit hook? This deserves
+    # some clear explanation.
+    transaction.abort()
+    raise http_error(HTTPInsufficientStorage(),
+                     errno=ERRORS.FORBIDDEN.value,
+                     message=message)
 
 
 def get_bucket_settings(settings, bucket_id, name):
@@ -130,9 +141,7 @@ def on_resource_changed(event):
             if new_size > max_bytes_per_item:
                 message = ("Maximum bytes per object exceeded "
                            "({} > {} Bytes.".format(new_size, max_bytes_per_item))
-                raise http_error(HTTPInsufficientStorage(),
-                                 errno=ERRORS.FORBIDDEN.value,
-                                 message=message)
+                raise_insufficient_storage(message)
 
         if action == 'create':
             bucket_info['storage_size'] += new_size
@@ -177,36 +186,28 @@ def on_resource_changed(event):
             message = ("Bucket maximum total size exceeded "
                        "({} > {} Bytes). ".format(bucket_info['storage_size'],
                                                   bucket_max_bytes))
-            raise http_error(HTTPInsufficientStorage(),
-                             errno=ERRORS.FORBIDDEN.value,
-                             message=message)
+            raise_insufficient_storage(message)
 
     if bucket_max_items is not None:
         if bucket_info['record_count'] > bucket_max_items:
             message = ("Bucket maximum number of objects exceeded "
                        "({} > {} objects).".format(bucket_info['record_count'],
                                                    bucket_max_items))
-            raise http_error(HTTPInsufficientStorage(),
-                             errno=ERRORS.FORBIDDEN.value,
-                             message=message)
+            raise_insufficient_storage(message)
 
     if collection_max_bytes is not None:
         if collection_info['storage_size'] > collection_max_bytes:
             message = ("Collection maximum size exceeded "
                        "({} > {} Bytes).".format(collection_info['storage_size'],
                                                  collection_max_bytes))
-            raise http_error(HTTPInsufficientStorage(),
-                             errno=ERRORS.FORBIDDEN.value,
-                             message=message)
+            raise_insufficient_storage(message)
 
     if collection_max_items is not None:
         if collection_info['record_count'] > collection_max_items:
             message = ("Collection maximum number of objects exceeded "
                        "({} > {} objects).".format(collection_info['record_count'],
                                                    collection_max_items))
-            raise http_error(HTTPInsufficientStorage(),
-                             errno=ERRORS.FORBIDDEN.value,
-                             message=message)
+            raise_insufficient_storage(message)
 
     storage.update(parent_id=bucket_uri,
                    collection_id=QUOTA_RESOURCE_NAME,
