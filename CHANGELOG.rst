@@ -20,6 +20,7 @@ This document describes changes between each past release.
 **Internal changes**
 
 - Add check on account plugin to avoid conflict with default ``basicauth`` policy (fixes #1177)
+- Add documentation about Kinto Admin plugin (fixes #858)
 
 
 7.1.0 (2017-05-31)
