@@ -758,7 +758,10 @@ class Storage(StorageBase):
 
             if is_like_query:
                 # Operand should be a string.
-                value = '%{}%'.format(value)
+                # Add implicit start/end wildchars if none is specified.
+                if "*" not in value:
+                    value = "*{}*".format(value)
+                value = value.replace("*", "%")
 
             if filtr.operator == COMPARISON.HAS:
                 operator = 'IS NOT NULL' if filtr.value else 'IS NULL'

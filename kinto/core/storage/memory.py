@@ -345,7 +345,12 @@ def apply_filters(records, filters):
 
             if f.operator in (COMPARISON.IN, COMPARISON.EXCLUDE):
                 right, left = left, right
-            elif f.operator not in (COMPARISON.LIKE, COMPARISON.HAS):
+            elif f.operator == COMPARISON.LIKE:
+                # Add implicit start/end wildchars if none is specified.
+                if "*" not in right:
+                    right = "*{}*".format(right)
+                right = "^{}$".format(right.replace("*", ".*"))
+            elif f.operator != COMPARISON.HAS:
                 left = schwartzian_transform(left)
                 right = schwartzian_transform(right)
 

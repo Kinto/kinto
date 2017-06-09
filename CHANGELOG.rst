@@ -6,11 +6,18 @@ This document describes changes between each past release.
 7.2.0 (unreleased)
 ------------------
 
-**Bug fixes**
+**API**
 
+- Filtering with like can now contain wild chars (eg. ``?like_nobody=*you*``).
+  It is thus now impossible to search for the ``*`` character with this operator.
 - Handle querystring parameters as JSON encoded values
   to avoid treating number as number where they should be strings. (#1217)
 - Introduce ``has_`` filter operator (fixes #344).
+
+API is now at version **1.17**. See `API changelog`_.
+
+**Bug fixes**
+
 - Several changes to the handling of NULLs and how the full range of
   JSON values is compared in a storage backend (PR #1258). Combined
   with #1252, this should fix #1215, #1216, #1217 and #1257, as well as
