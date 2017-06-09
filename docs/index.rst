@@ -17,6 +17,7 @@ Table of content
    configuration/index
    api/index
    commandline
+   kinto-admin
    faq
    troubleshooting
    changelog
