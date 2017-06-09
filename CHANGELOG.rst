@@ -16,6 +16,7 @@ This document describes changes between each past release.
   with #1252, this should fix #1215, #1216, #1217 and #1257, as well as
   possibly some others.
 - Fix requests output when running with make serve (fixes #1242)
+- Fix pagination on permissions endpoint (fixes #1157)
 
 **Internal changes**
 
