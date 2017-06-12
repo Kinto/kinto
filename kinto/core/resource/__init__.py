@@ -912,7 +912,7 @@ class UserResource:
             limit = min(limit, paginate_by)
 
         # If limit is higher than what storage can retrieve, ignore it.
-        limit = min(limit, max_fetch_size)
+        limit = min(limit, max_fetch_size) if limit else max_fetch_size
 
         return limit
 
