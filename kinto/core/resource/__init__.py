@@ -904,11 +904,15 @@ class UserResource:
     def _extract_limit(self):
         """Extract limit value from QueryString parameters."""
         paginate_by = self.request.registry.settings['paginate_by']
+        max_fetch_size = self.request.registry.settings['storage_max_fetch_size']
         limit = self.request.validated['querystring'].get('_limit', paginate_by)
 
         # If limit is higher than paginate_by setting, ignore it.
         if limit and paginate_by:
             limit = min(limit, paginate_by)
+
+        # If limit is higher than what storage can retrieve, ignore it.
+        limit = min(limit, max_fetch_size)
 
         return limit
 

@@ -480,9 +480,9 @@ class Storage(StorageBase):
             safeholders['pagination_rules'] = 'AND {}'.format(sql)
             placeholders.update(**holders)
 
-        if limit:
-            # We validate the limit value in the resource class as integer.
-            safeholders['pagination_limit'] = 'LIMIT {}'.format(limit)
+        # We validate the limit value in the resource class as integer.
+        limit = min(self._max_fetch_size, limit) if limit else self._max_fetch_size
+        safeholders['pagination_limit'] = 'LIMIT {}'.format(limit)
 
         with self.client.connect() as conn:
             result = conn.execute(query.format_map(safeholders), placeholders)
@@ -567,7 +567,6 @@ class Storage(StorageBase):
              WHERE {parent_id_filter}
                AND collection_id = :collection_id
                {conditions_filter}
-             LIMIT {max_fetch_size}
         ),
         fake_deleted AS (
             SELECT (:deleted_field)::JSONB AS data
@@ -637,15 +636,15 @@ class Storage(StorageBase):
             safeholders['pagination_rules'] = 'WHERE {}'.format(sql)
             placeholders.update(**holders)
 
-        if limit:
-            # We validate the limit value in the resource class as integer.
-            safeholders['pagination_limit'] = 'LIMIT {}'.format(limit)
+        limit = min(self._max_fetch_size, limit) if limit else self._max_fetch_size
+        # We validate the limit value in the resource class as integer.
+        safeholders['pagination_limit'] = 'LIMIT {}'.format(limit)
 
         with self.client.connect(readonly=True) as conn:
             result = conn.execute(query.format_map(safeholders), placeholders)
             retrieved = result.fetchmany(self._max_fetch_size)
 
-        if not len(retrieved):
+        if len(retrieved) == 0:
             return [], 0
 
         count_total = retrieved[0]['count_total']

@@ -24,6 +24,7 @@ API is now at version **1.17**. See `API changelog`_.
   possibly some others.
 - Fix requests output when running with make serve (fixes #1242)
 - Fix pagination on permissions endpoint (fixes #1157)
+- Fix pagination when max fetch storage is reached (fixes #1266)
 
 **Internal changes**
 
