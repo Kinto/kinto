@@ -407,7 +407,7 @@ class Storage(StorageBase):
                               {conditions_filter}
                               {pagination_rules}
                         {sorting}
-                        {pagination_limit}
+                        LIMIT :pagination_limit
                 )
                 DELETE
                 FROM records
@@ -432,7 +432,7 @@ class Storage(StorageBase):
                           {conditions_filter}
                           {pagination_rules}
                     {sorting}
-                    {pagination_limit}
+                    LIMIT :pagination_limit
             )
             DELETE
             FROM records
@@ -480,9 +480,9 @@ class Storage(StorageBase):
             safeholders['pagination_rules'] = 'AND {}'.format(sql)
             placeholders.update(**holders)
 
-        if limit:
-            # We validate the limit value in the resource class as integer.
-            safeholders['pagination_limit'] = 'LIMIT {}'.format(limit)
+        # Limit the number of results (pagination).
+        limit = min(self._max_fetch_size, limit) if limit else self._max_fetch_size
+        placeholders['pagination_limit'] = limit
 
         with self.client.connect() as conn:
             result = conn.execute(query.format_map(safeholders), placeholders)
@@ -567,7 +567,6 @@ class Storage(StorageBase):
              WHERE {parent_id_filter}
                AND collection_id = :collection_id
                {conditions_filter}
-             LIMIT {max_fetch_size}
         ),
         fake_deleted AS (
             SELECT (:deleted_field)::JSONB AS data
@@ -595,7 +594,7 @@ class Storage(StorageBase):
           FROM paginated_records AS p JOIN all_records AS a ON (a.id = p.id),
                total_filtered
           {sorting}
-          {pagination_limit};
+          LIMIT :pagination_limit;
         """
         deleted_field = json.dumps(dict([(deleted_field, True)]))
 
@@ -606,7 +605,6 @@ class Storage(StorageBase):
 
         # Safe strings
         safeholders = defaultdict(str)
-        safeholders['max_fetch_size'] = self._max_fetch_size
 
         # Handle parent_id as a regex only if it contains *
         if '*' in parent_id:
@@ -637,15 +635,15 @@ class Storage(StorageBase):
             safeholders['pagination_rules'] = 'WHERE {}'.format(sql)
             placeholders.update(**holders)
 
-        if limit:
-            # We validate the limit value in the resource class as integer.
-            safeholders['pagination_limit'] = 'LIMIT {}'.format(limit)
+        # Limit the number of results (pagination).
+        limit = min(self._max_fetch_size, limit) if limit else self._max_fetch_size
+        placeholders['pagination_limit'] = limit
 
         with self.client.connect(readonly=True) as conn:
             result = conn.execute(query.format_map(safeholders), placeholders)
             retrieved = result.fetchmany(self._max_fetch_size)
 
-        if not len(retrieved):
+        if len(retrieved) == 0:
             return [], 0
 
         count_total = retrieved[0]['count_total']
