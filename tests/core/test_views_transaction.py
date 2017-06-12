@@ -12,56 +12,7 @@ from kinto.core.utils import sqlalchemy
 from kinto.core import events
 from kinto.core.testing import skip_if_no_postgresql
 
-from .support import BaseWebTest, USER_PRINCIPAL
-
-
-class PostgreSQLTest(BaseWebTest):
-
-    @classmethod
-    def get_app_settings(cls, extras=None):
-        settings = super().get_app_settings(extras)
-        if sqlalchemy is not None:
-            from .test_storage import PostgreSQLStorageTest
-            from .test_cache import PostgreSQLCacheTest
-            from .test_permission import PostgreSQLPermissionTest
-            settings.update(**PostgreSQLStorageTest.settings)
-            settings.update(**PostgreSQLCacheTest.settings)
-            settings.update(**PostgreSQLPermissionTest.settings)
-            settings.pop('storage_poolclass', None)
-            settings.pop('cache_poolclass', None)
-            settings.pop('permission_poolclass', None)
-        return settings
-
-    def run_failing_batch(self):
-        patch = mock.patch.object(
-            self.storage,
-            'delete_all',
-            side_effect=BackendError('boom'))
-        self.addCleanup(patch.stop)
-        patch.start()
-        request_create = {
-            'method': 'POST',
-            'path': '/mushrooms',
-            'body': {'data': {'name': 'Amanite'}}
-        }
-        request_delete = {
-            'method': 'DELETE',
-            'path': '/mushrooms'
-        }
-        body = {'requests': [request_create, request_create, request_delete]}
-        self.app.post_json('/batch', body, headers=self.headers, status=503)
-
-    def run_failing_post(self):
-        patch = mock.patch.object(
-            self.permission,
-            'add_principal_to_ace',
-            side_effect=BackendError('boom'))
-        self.addCleanup(patch.stop)
-        patch.start()
-        self.app.post_json('/psilos',
-                           {'data': {'name': 'Amanite'}},
-                           headers=self.headers,
-                           status=503)
+from .support import PostgreSQLTest, USER_PRINCIPAL
 
 
 @skip_if_no_postgresql
@@ -125,40 +76,6 @@ class TransactionTest(PostgreSQLTest, unittest.TestCase):
 
         resp = self.app.get('/psilos', headers=self.headers)
         self.assertEqual(len(resp.json['data']), 0)
-
-
-@skip_if_no_postgresql
-class PaginationTest(PostgreSQLTest, unittest.TestCase):
-
-    @classmethod
-    def get_app_settings(cls, extras=None):
-        settings = super().get_app_settings(extras)
-        settings["storage_max_fetch_size"] = 4
-        return settings
-
-    def setUp(self):
-        super().setUp()
-        for i in range(10):
-            self.app.post_json('/mushrooms', {'data': {'name': str(i)}},
-                               headers=self.headers)
-
-    def test_storage_max_fetch_size_is_per_page(self):
-        resp = self.app.get('/mushrooms?_limit=6', headers=self.headers)
-        self.assertIn("Next-Page", resp.headers)
-        self.assertEqual(int(resp.headers["Total-Records"]), 10)
-        self.assertEqual(len(resp.json['data']), 4)
-
-        next_page_url = resp.headers["Next-Page"].replace("http://localhost/v0", "")
-        resp = self.app.get(next_page_url, headers=self.headers)
-        self.assertIn("Next-Page", resp.headers)
-        self.assertEqual(int(resp.headers["Total-Records"]), 10)
-        self.assertEqual(len(resp.json['data']), 4)
-
-        next_page_url = resp.headers["Next-Page"].replace("http://localhost/v0", "")
-        resp = self.app.get(next_page_url, headers=self.headers)
-        self.assertNotIn("Next-Page", resp.headers)
-        self.assertEqual(int(resp.headers["Total-Records"]), 10)
-        self.assertEqual(len(resp.json['data']), 2)
 
 
 class IntegrityConstraintTest(PostgreSQLTest, unittest.TestCase):
