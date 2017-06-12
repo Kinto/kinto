@@ -175,7 +175,7 @@ class Permissions(resource.ShareableResource):
                                  if s.field != self.model.modified_field]
         # For pagination, there must be at least one sort criteria.
         # We use ``uri`` because its values are unique.
-        if "uri" not in without_last_modified:
+        if "uri" not in [s.field for s in without_last_modified]:
             without_last_modified.append(Sort("uri", -1))
         return without_last_modified
 
