@@ -69,7 +69,9 @@ class Record(resource.ShareableResource):
         try:
             jsonschema.validate(data, schema)
         except jsonschema_exceptions.ValidationError as e:
-            if e.validator_value:
+            if e.path:
+                field = e.path[-1]
+            elif e.validator_value:
                 field = e.validator_value[-1]
             else:
                 field = e.schema_path[-1]
