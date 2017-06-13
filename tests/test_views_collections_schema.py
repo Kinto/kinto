@@ -240,3 +240,29 @@ class ExtraPropertiesValidationTest(BaseWebTestWithSchema, unittest.TestCase):
                                  headers=self.headers,
                                  status=400)
         assert "'extra' was unexpected)" in resp.json['message']
+
+
+class InternalRequiredProperties(BaseWebTestWithSchema, unittest.TestCase):
+    def setUp(self):
+        super().setUp()
+        # See bug Kinto/kinto#1244
+        schema = {**SCHEMA, 'required': ['id', 'schema', 'last_modified']}
+        self.app.put_json(COLLECTION_URL,
+                          {'data': {'schema': schema}},
+                          headers=self.headers)
+
+    def test_record_can_be_validated_with_minimum_fields(self):
+        self.app.post_json(RECORDS_URL,
+                           {'data': {}},
+                           headers=self.headers)
+
+    def test_record_can_be_validated_with_every_fields(self):
+        self.app.post_json(RECORDS_URL,
+                           {'data': {'id': 'abc', 'last_modified': 1234,
+                                     'schema': 42, 'title': 'b', 'name': 'n'}},
+                           headers=self.headers)
+
+    def test_record_can_be_validated_with_id_and_last_modified(self):
+        self.app.post_json(RECORDS_URL,
+                           {'data': {'id': 'abc', 'last_modified': 1234}},
+                           headers=self.headers)
