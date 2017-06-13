@@ -14,6 +14,17 @@ SCHEMA = {
     "properties": {
         "title": {"type": "string"},
         "body": {"type": "string"},
+        "file": {
+            "type": "object",
+            "properties": {
+                "size": {
+                    "type": "number",
+                },
+                "name": {
+                    "type": "string",
+                }
+            },
+        },
     },
     "required": ["title"]
 }
@@ -165,6 +176,19 @@ class RecordsValidationTest(BaseWebTestWithSchema, unittest.TestCase):
                                   status=400)
         self.assertIn("'title' is a required property", resp.json['message'])
         self.assertEqual(resp.json['details'][0]['name'], 'title')
+
+    def test_validation_error_response_provides_details_and_path(self):
+        resp = self.app.post_json(RECORDS_URL,
+                                  {'data': {
+                                      'title': 'Some title',
+                                      'file': {
+                                          'size': "hi!",
+                                      }
+                                  }},
+                                  headers=self.headers,
+                                  status=400)
+        self.assertIn("size in body: 'hi!' is not of type 'number'", resp.json['message'])
+        self.assertEqual(resp.json['details'][0]['name'], 'size')
 
     def test_records_of_other_bucket_are_not_impacted(self):
         self.app.put_json('/buckets/cms', headers=self.headers)
