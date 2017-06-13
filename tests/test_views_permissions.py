@@ -100,6 +100,31 @@ class EntriesTest(PermissionsViewTest):
         headers = {'If-None-Match': '"123"', **self.headers}
         self.app.get('/permissions', headers=headers)
 
+    def test_permissions_can_be_paginated(self):
+        for i in range(10):
+            self.app.put_json('/buckets/beers/collections/barley/records/r-{}'.format(i),
+                              MINIMALIST_RECORD,
+                              headers=self.headers)
+        resp = self.app.get('/permissions?resource_name=record&_limit=7', headers=self.headers)
+        page1 = resp.json["data"]
+        next_page = resp.headers["Next-Page"].replace("http://localhost/v1", "")
+        resp = self.app.get(next_page, headers=self.headers)
+        page2 = resp.json["data"]
+        assert len(page1 + page2) == 11  # see setup().
+
+    def test_permissions_can_be_paginated_with_uri_in_sorting(self):
+        for i in range(10):
+            self.app.put_json('/buckets/beers/collections/barley/records/r-{}'.format(i),
+                              MINIMALIST_RECORD,
+                              headers=self.headers)
+        resp = self.app.get('/permissions?resource_name=record&_limit=7&_sort=uri',
+                            headers=self.headers)
+        page1 = resp.json["data"]
+        next_page = resp.headers["Next-Page"].replace("http://localhost/v1", "")
+        resp = self.app.get(next_page, headers=self.headers)
+        page2 = resp.json["data"]
+        assert len(page1 + page2) == 11  # see setup().
+
 
 class GroupsPermissionTest(PermissionsViewTest):
 

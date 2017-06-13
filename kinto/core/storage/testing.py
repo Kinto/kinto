@@ -652,34 +652,6 @@ class BaseTestStorage:
         results, count = self.storage.get_all(filters=filters, **self.storage_kw)
         self.assertEqual(len(results), 2)
 
-    def test_get_all_handle_a_pagination_rules(self):
-        for x in range(10):
-            record = dict(self.record)
-            record["number"] = x % 3
-            self.create_record(record)
-
-        records, total_records = self.storage.get_all(
-            limit=5,
-            pagination_rules=[
-                [Filter('number', 1, utils.COMPARISON.GT)]
-            ], **self.storage_kw)
-        self.assertEqual(total_records, 10)
-        self.assertEqual(len(records), 3)
-
-    def test_get_all_handle_all_pagination_rules(self):
-        for x in range(10):
-            record = dict(self.record)
-            record["number"] = x % 3
-            last_record = self.create_record(record)
-
-        records, total_records = self.storage.get_all(
-            limit=5, pagination_rules=[
-                [Filter('number', 1, utils.COMPARISON.GT)],
-                [Filter('id', last_record['id'], utils.COMPARISON.EQ)],
-            ], **self.storage_kw)
-        self.assertEqual(total_records, 10)
-        self.assertEqual(len(records), 4)
-
 
 class TimestampsTest:
     def test_timestamp_are_incremented_on_create(self):
@@ -1106,15 +1078,6 @@ class DeletedRecordsTest:
         self.assertEqual(count, 3)
         self.assertEqual(records[0]['foo'], 2)
 
-    def test_delete_all_supports_pagination_rules(self):
-        for i in range(6):
-            self.create_record({'foo': i})
-
-        pagination_rules = [[Filter('foo', 3, utils.COMPARISON.GT)]]
-        deleted = self.storage.delete_all(limit=4, pagination_rules=pagination_rules,
-                                          **self.storage_kw)
-        self.assertEqual(len(deleted), 2)
-
     def test_purge_deleted_remove_all_tombstones(self):
         self.create_record()
         self.create_record()
@@ -1357,6 +1320,43 @@ class DeletedRecordsTest:
         self.assertEqual(count, 7)
         self.assertIn('deleted', records[0])
         self.assertNotIn('deleted', records[1])
+
+    def test_get_all_handle_a_pagination_rules(self):
+        for x in range(10):
+            record = dict(self.record)
+            record["number"] = x % 3
+            self.create_record(record)
+
+        records, total_records = self.storage.get_all(
+            limit=5,
+            pagination_rules=[
+                [Filter('number', 1, utils.COMPARISON.GT)]
+            ], **self.storage_kw)
+        self.assertEqual(total_records, 10)
+        self.assertEqual(len(records), 3)
+
+    def test_get_all_handle_all_pagination_rules(self):
+        for x in range(10):
+            record = dict(self.record)
+            record["number"] = x % 3
+            last_record = self.create_record(record)
+
+        records, total_records = self.storage.get_all(
+            limit=5, pagination_rules=[
+                [Filter('number', 1, utils.COMPARISON.GT)],
+                [Filter('id', last_record['id'], utils.COMPARISON.EQ)],
+            ], **self.storage_kw)
+        self.assertEqual(total_records, 10)
+        self.assertEqual(len(records), 4)
+
+    def test_delete_all_supports_pagination_rules(self):
+        for i in range(6):
+            self.create_record({'foo': i})
+
+        pagination_rules = [[Filter('foo', 3, utils.COMPARISON.GT)]]
+        deleted = self.storage.delete_all(limit=4, pagination_rules=pagination_rules,
+                                          **self.storage_kw)
+        self.assertEqual(len(deleted), 2)
 
 
 class ParentRecordAccessTest:

@@ -23,6 +23,10 @@ API is now at version **1.17**. See `API changelog`_.
   with #1252, this should fix #1215, #1216, #1217 and #1257, as well as
   possibly some others.
 - Fix requests output when running with make serve (fixes #1242)
+- Fix pagination on permissions endpoint (fixes #1157)
+- Fix pagination when max fetch storage is reached (fixes #1266)
+- Fix schema validation when internal fields like ``id`` or ``last_modified`` are
+  marked as required (fixes #1244)
 - Restore error format for JSON schema validation errors (which was
   changed in #1245).
 
