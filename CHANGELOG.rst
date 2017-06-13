@@ -23,6 +23,8 @@ API is now at version **1.17**. See `API changelog`_.
   with #1252, this should fix #1215, #1216, #1217 and #1257, as well as
   possibly some others.
 - Fix requests output when running with make serve (fixes #1242)
+- Restore error format for JSON schema validation errors (which was
+  changed in #1245).
 
 **Internal changes**
 
