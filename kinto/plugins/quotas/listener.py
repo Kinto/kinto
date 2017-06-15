@@ -1,6 +1,5 @@
 import copy
 
-import transaction
 from pyramid.httpexceptions import HTTPInsufficientStorage
 from kinto.core.errors import http_error, ERRORS
 from kinto.core.storage.exceptions import RecordNotFoundError
@@ -15,10 +14,6 @@ COLLECTION_QUOTA_OBJECT_ID = 'collection_info'
 
 
 def raise_insufficient_storage(message):
-    # XXX: why exactly, with pyramid-tm 2.X, do we have to explicitly abort() the
-    # transaction? Is it because we raise from a precommit hook? This deserves
-    # some clear explanation.
-    transaction.abort()
     raise http_error(HTTPInsufficientStorage(),
                      errno=ERRORS.FORBIDDEN.value,
                      message=message)
