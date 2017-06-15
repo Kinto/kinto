@@ -11,7 +11,7 @@ API
 Changelog
 ---------
 
-1.17 (unreleased)
+1.17 (2017-06-15)
 '''''''''''''''''
 
 - Filtering with like can now contain wild chars (eg. ``?like_nobody=*you*``)
