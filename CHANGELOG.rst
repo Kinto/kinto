@@ -3,7 +3,7 @@ Changelog
 
 This document describes changes between each past release.
 
-7.2.0 (unreleased)
+7.2.0 (2017-06-15)
 ------------------
 
 **API**
