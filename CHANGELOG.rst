@@ -6,7 +6,9 @@ This document describes changes between each past release.
 7.3.0 (unreleased)
 ------------------
 
-- Nothing changed yet.
+**Bug fixes**
+
+- Fix missing ``collection_count`` field in the rebuild-quotas script.
 
 
 7.2.0 (2017-06-15)
