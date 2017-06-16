@@ -28,7 +28,7 @@ REQUIREMENTS = [
     'pyramid > 1.8',
     'pyramid_multiauth >= 0.8',  # User on policy selected event.
     'transaction',
-    'pyramid_tm',
+    'pyramid_tm >= 2.1',
     'requests',
     'waitress',
     'ujson >= 1.35'
