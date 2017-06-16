@@ -20,7 +20,7 @@ psycopg2==2.7.1
 pycparser==2.17
 pyramid==1.8.4
 pyramid-multiauth==0.9.0
-pyramid-tm==1.1.1
+pyramid-tm==2.1
 python-dateutil==2.6.0
 raven==6.1.0
 repoze.lru==0.6
