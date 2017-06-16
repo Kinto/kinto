@@ -10,6 +10,10 @@ This document describes changes between each past release.
 
 - Fix missing ``collection_count`` field in the rebuild-quotas script.
 
+**Internal changes**
+
+- Upgraded to Pyramid-tm 2 (fixes #1187)
+
 
 7.2.0 (2017-06-15)
 ------------------
