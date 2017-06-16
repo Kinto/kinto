@@ -6,6 +6,8 @@ from zope.interface import implementer
 
 from kinto.core.authorization import PRIVATE
 from kinto.core import testing
+from kinto.core.storage.exceptions import BackendError
+from kinto.core.utils import sqlalchemy
 
 from .testapp import main as testapp
 
@@ -82,3 +84,52 @@ def authorize(permits=True, authz_class=None):
                 return f(*args, **kwargs)
         return wrapped
     return wrapper
+
+
+class PostgreSQLTest(BaseWebTest):
+
+    @classmethod
+    def get_app_settings(cls, extras=None):
+        settings = super().get_app_settings(extras)
+        if sqlalchemy is not None:
+            from .test_storage import PostgreSQLStorageTest
+            from .test_cache import PostgreSQLCacheTest
+            from .test_permission import PostgreSQLPermissionTest
+            settings.update(**PostgreSQLStorageTest.settings)
+            settings.update(**PostgreSQLCacheTest.settings)
+            settings.update(**PostgreSQLPermissionTest.settings)
+            settings.pop('storage_poolclass', None)
+            settings.pop('cache_poolclass', None)
+            settings.pop('permission_poolclass', None)
+        return settings
+
+    def run_failing_batch(self):
+        patch = mock.patch.object(
+            self.storage,
+            'delete_all',
+            side_effect=BackendError('boom'))
+        self.addCleanup(patch.stop)
+        patch.start()
+        request_create = {
+            'method': 'POST',
+            'path': '/mushrooms',
+            'body': {'data': {'name': 'Amanite'}}
+        }
+        request_delete = {
+            'method': 'DELETE',
+            'path': '/mushrooms'
+        }
+        body = {'requests': [request_create, request_create, request_delete]}
+        self.app.post_json('/batch', body, headers=self.headers, status=503)
+
+    def run_failing_post(self):
+        patch = mock.patch.object(
+            self.permission,
+            'add_principal_to_ace',
+            side_effect=BackendError('boom'))
+        self.addCleanup(patch.stop)
+        patch.start()
+        self.app.post_json('/psilos',
+                           {'data': {'name': 'Amanite'}},
+                           headers=self.headers,
+                           status=503)

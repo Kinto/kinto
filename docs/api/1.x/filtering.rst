@@ -17,7 +17,8 @@ name. Values can be any JSON encoded value (e.g. ``24``, ``"hello"``,
 ``null``). Anything not recognized as a JSON value is interpreted as a
 string.
 
-**Single value**
+Single value
+------------
 
 * ``/collection?field=value``
 
@@ -42,15 +43,21 @@ Examples:
   value ``"2.0"``. This is useful if your records contain something
   numeric-ish but not quite numeric, like a version number.
 
-.. **Multiple values**
-..
-.. * ``/collection?field=1,2``
+It also works with multiple values:
 
-**Sub-objects**
+* ``/collection?field=[1,2]``
+
+Or even objects:
+
+* ``/collection?field={"checked": true}``
+
+Sub-objects
+-----------
 
 * ``/collection?field.subfield=value``
 
-**Comparison**
+Comparison
+----------
 
 The filters ``lt`` and ``gt`` are available to compare against values.
 
@@ -76,31 +83,42 @@ types is not defined. For example, if you have a record like
 not. However, a comparison operator will match whatever order you get
 by sorting, and the ordering will include all records.
 
-**Multiple values**
+Multiple values
+---------------
 
 Prefix field with ``in_`` and provide comma-separated values.
 
 * ``/collection?in_status=1,2,3``
 
-**Exclude**
+Exclude
+-------
 
 Prefix field name with ``not_``:
 
 * ``/collection?not_field=0``
 
-**Exclude multiple values**
+Exclude multiple values
+-----------------------
 
 Prefix field name with ``exclude_``:
 
 * ``/collection?exclude_field=0,1``
 
-**Search string fields**
+Search string fields
+--------------------
 
 Prefix field name with ``like_``:
 
 * ``/collection?like_field=foo``
 
-**Field existence**
+The specified value can also contain wildchars:
+
+* ``/collection?like_field=foo*`` (starts with ``foo``)
+* ``/collection?like_field=*foo`` (ends with ``foo``)
+* ``/collection?like_field=*foo*`` (equivalent to ``like_field=foo``)
+
+Field existence
+---------------
 
 You can request records that have a certain field (for example, ``author``) using ``has_author=true`` or those that don't have that field by using ``has_author=false``.
 
@@ -108,15 +126,15 @@ You can request records that have a certain field (for example, ``author``) usin
 
 Note that a record like ``{"author": null}`` still counts as "having" that field.
 
+Polling for changes
+-------------------
+
 .. note::
 
     The ``ETag`` and ``Last-Modified`` response headers will always be the same as
     the unfiltered collection.
 
 One important use of this is when polling for changes.
-
-Polling for changes
--------------------
 
 The ``_since`` parameter is provided as an alias for ``gt_last_modified``.
 

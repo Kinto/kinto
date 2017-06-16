@@ -1,5 +1,3 @@
-import copy
-
 import jsonschema
 from kinto.core import resource, utils
 from kinto.core.errors import raise_invalid
@@ -55,23 +53,34 @@ class Record(resource.ShareableResource):
         if not schema or not asbool(settings.get(schema_validation)):
             return new
 
-        collection_timestamp = self._collection[self.model.modified_field]
+        # Remove internal and auto-assigned fields from schema and record.
+        internal_fields = (self.model.id_field,
+                           self.model.modified_field,
+                           self.schema_field,
+                           self.model.permissions_field)
+        required_fields = [f for f in schema.get('required', []) if f not in internal_fields]
+        if required_fields:
+            schema = {**schema, 'required': required_fields}
+        else:
+            schema = {f: v for f, v in new.items() if f != 'required'}
+        data = {f: v for f, v in new.items() if f not in internal_fields}
 
+        # Validate or fail with 400.
         try:
-            stripped = copy.deepcopy(new)
-            stripped.pop(self.model.id_field, None)
-            stripped.pop(self.model.modified_field, None)
-            stripped.pop(self.model.permissions_field, None)
-            stripped.pop(self.schema_field, None)
-            jsonschema.validate(stripped, schema)
+            jsonschema.validate(data, schema)
         except jsonschema_exceptions.ValidationError as e:
-            if e.validator_value:
+            if e.path:
+                field = e.path[-1]
+            elif e.validator_value:
                 field = e.validator_value[-1]
             else:
                 field = e.schema_path[-1]
             raise_invalid(self.request, name=field, description=e.message)
 
+        # Assign the schema version (collection object timestamp) to the record.
+        collection_timestamp = self._collection[self.model.modified_field]
         new[self.schema_field] = collection_timestamp
+
         return new
 
     def collection_get(self):
