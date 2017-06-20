@@ -59,6 +59,9 @@ class Record(resource.ShareableResource):
                            self.schema_field,
                            self.model.permissions_field)
         required_fields = [f for f in schema.get('required', []) if f not in internal_fields]
+        # jsonschema doesn't accept 'required': [] yet.
+        # See https://github.com/Julian/jsonschema/issues/337.
+        # In the meantime, strip out 'required' if no other fields are required.
         if required_fields:
             schema = {**schema, 'required': required_fields}
         else:
