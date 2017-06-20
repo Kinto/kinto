@@ -9,6 +9,7 @@ This document describes changes between each past release.
 **Bug fixes**
 
 - Fix missing ``collection_count`` field in the rebuild-quotas script.
+- Fix bug causing validation to always succeed if no required fields are present.
 
 **Internal changes**
 

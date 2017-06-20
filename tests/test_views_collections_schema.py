@@ -290,3 +290,10 @@ class InternalRequiredProperties(BaseWebTestWithSchema, unittest.TestCase):
         self.app.post_json(RECORDS_URL,
                            {'data': {'id': 'abc', 'last_modified': 1234}},
                            headers=self.headers)
+
+    def test_record_validation_can_reject_records(self):
+        self.app.post_json(RECORDS_URL,
+                           {'data': {'id': 'abc', 'last_modified': 1234,
+                                     'body': 2}},
+                           headers=self.headers,
+                           status=400)

@@ -25,7 +25,7 @@ REQUIREMENTS = [
     'jsonpatch',
     'logging-color-formatter >= 1.0.1',  # Message interpolations.
     'python-dateutil',
-    'pyramid > 1.8',
+    'pyramid > 1.8, < 1.9b1',
     'pyramid_multiauth >= 0.8',  # User on policy selected event.
     'transaction',
     # pyramid_tm changed the location of their tween in 2.x and one of
