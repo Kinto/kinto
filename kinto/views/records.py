@@ -62,7 +62,7 @@ class Record(resource.ShareableResource):
         if required_fields:
             schema = {**schema, 'required': required_fields}
         else:
-            schema = {f: v for f, v in new.items() if f != 'required'}
+            schema = {f: v for f, v in schema.items() if f != 'required'}
         data = {f: v for f, v in new.items() if f not in internal_fields}
 
         # Validate or fail with 400.
