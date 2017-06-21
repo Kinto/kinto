@@ -40,10 +40,9 @@ def allowed_from_settings(settings, principals):
                 resource_name=resource_name,
                 permission=permission)
             resource_name = {  # resource parents.
-                'bucket': '',
                 'collection': 'bucket',
                 'group': 'bucket',
-                'record': 'collection'}[resource_name]
+                'record': 'collection'}.get(resource_name, '')
         # Store them in a convenient way.
         from_settings.setdefault(resource_name, set()).add(permission)
     return from_settings

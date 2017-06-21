@@ -182,6 +182,29 @@ class AccountViewsTest(AccountsWebTest):
                      status=403)
 
 
+class PermissionsEndpointTest(AccountsWebTest):
+    @classmethod
+    def get_app_settings(cls, extras=None):
+        settings = super().get_app_settings(extras)
+        settings['experimental_permissions_endpoint'] = 'True'
+        return settings
+
+    def setUp(self):
+        self.app.put_json('/accounts/alice', {'data': {'password': '123456'}}, status=201)
+        self.headers = get_user_headers('alice', '123456')
+        self.app.put('/buckets/a', headers=self.headers)
+        self.app.put('/buckets/a/collections/b', headers=self.headers)
+        self.app.put('/buckets/a/collections/b/records/c', headers=self.headers)
+
+    def test_permissions_endpoint_is_compatible_with_accounts_plugin(self):
+        resp = self.app.get('/permissions', headers=self.headers)
+        uris = [r["uri"] for r in resp.json["data"]]
+        assert uris == ['/buckets/a/collections/b/records/c',
+                        '/buckets/a/collections/b',
+                        '/buckets/a',
+                        '/accounts/alice']
+
+
 class AdminTest(AccountsWebTest):
 
     @classmethod
