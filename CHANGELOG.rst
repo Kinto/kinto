@@ -6,7 +6,9 @@ This document describes changes between each past release.
 7.2.2 (unreleased)
 ------------------
 
-- Nothing changed yet.
+**Bug fixes**
+
+- Fix permissions endpoint when using account plugin (fixes #1276)
 
 
 7.2.1 (2017-06-20)
