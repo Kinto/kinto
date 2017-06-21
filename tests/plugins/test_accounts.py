@@ -199,7 +199,10 @@ class PermissionsEndpointTest(AccountsWebTest):
     def test_permissions_endpoint_is_compatible_with_accounts_plugin(self):
         resp = self.app.get('/permissions', headers=self.headers)
         uris = [r["uri"] for r in resp.json["data"]]
-        assert uris == ['/buckets/a/collections/b/records/c', '/buckets/a/collections/b', '/buckets/a', '/accounts/alice']
+        assert uris == ['/buckets/a/collections/b/records/c',
+                        '/buckets/a/collections/b',
+                        '/buckets/a',
+                        '/accounts/alice']
 
 
 class AdminTest(AccountsWebTest):
