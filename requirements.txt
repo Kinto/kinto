@@ -10,7 +10,7 @@ cornice-swagger==0.5.1
 hupper==1.0
 idna==2.5
 iso8601==0.1.11
-jsonpatch==1.15
+jsonpatch==1.16
 jsonpointer==1.10
 jsonschema==2.6.0
 logging-color-formatter==1.0.2
@@ -25,9 +25,9 @@ python-dateutil==2.6.0
 raven==6.1.0
 repoze.lru==0.6
 requests==2.18.1
-simplejson==3.10.0
+simplejson==3.11.1
 six==1.10.0
-SQLAlchemy==1.1.10
+SQLAlchemy==1.1.11
 statsd==3.2.1
 transaction==2.1.2
 translationstring==1.3
