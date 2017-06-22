@@ -27,6 +27,12 @@ def _extract_posted_body_id(request):
         raise http_error(httpexceptions.HTTPUnauthorized(), error=error_msg)
 
 
+class AccountIdGenerator(NameGenerator):
+    """Allow @ signs in account IDs."""
+
+    regexp = r'^[a-zA-Z0-9][.@a-zA-Z0-9_-]*$'
+
+
 class AccountSchema(resource.ResourceSchema):
     password = colander.SchemaNode(colander.String())
 
@@ -55,7 +61,7 @@ class Account(resource.ShareableResource):
     @reify
     def id_generator(self):
         # This generator is used for ID validation.
-        return NameGenerator()
+        return AccountIdGenerator()
 
     def get_parent_id(self, request):
         # The whole challenge here is that we want to isolate what

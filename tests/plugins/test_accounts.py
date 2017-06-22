@@ -60,6 +60,10 @@ class AccountCreationTest(AccountsWebTest):
     def test_id_field_is_mandatory(self):
         self.app.post_json('/accounts', {'data': {'password': 'pass'}}, status=400)
 
+    def test_id_can_be_email(self):
+        self.app.put_json('/accounts/alice@example.com', {'data': {'password': '123456'}},
+                          status=201)
+
     def test_account_can_have_metadata(self):
         resp = self.app.post_json('/accounts',
                                   {'data': {'id': 'me', 'password': 'bouh', 'age': 42}},
