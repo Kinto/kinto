@@ -1,4 +1,3 @@
-import warnings
 from kinto.authorization import PERMISSIONS_INHERITANCE_TREE
 from pyramid.exceptions import ConfigurationError
 
@@ -46,4 +45,5 @@ def includeme(config):
                    'If you want these users to be able to create accounts for other users, '
                    'add them to account_write_principals.\n'
                    'Affected users: {}'.format(list(cant_create_anything)))
-        warnings.warn(message)
+
+        raise ConfigurationError(message)
