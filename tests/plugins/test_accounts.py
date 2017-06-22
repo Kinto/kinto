@@ -287,6 +287,21 @@ class WarnAdminCreateTest(AccountsWebTest):
                    'Affected users: [\'account:admin\']')
         mocked.warn.assert_called_with(message)
 
+
+class CreateOtherUserTest(AccountsWebTest):
+    def setUp(self):
+        self.app.put_json('/accounts/bob', {'data': {'password': '123456'}}, status=201)
+        self.bob_headers = get_user_headers('bob', '123456')
+
+    def test_create_other_id_is_still_required(self):
+        self.app.post_json('/accounts', {'data': {'password': 'azerty'}}, status=400,
+                           headers=self.bob_headers)
+
+    def test_create_other_forbidden_without_write(self):
+        self.app.put_json('/accounts/alice', {'data': {'password': 'azerty'}}, status=400,
+                          headers=self.bob_headers)
+
+
 class WithBasicAuthTest(AccountsWebTest):
 
     @classmethod

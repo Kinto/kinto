@@ -114,6 +114,14 @@ class Account(resource.ShareableResource):
         if self.context.is_administrator or self.context.is_anonymous:
             return new
 
+        # Do not let accounts be created without usernames.
+        if self.model.id_field not in new:
+            error_details = {
+                'name': 'data.id',
+                'description': 'Accounts must have an ID.',
+            }
+            raise_invalid(self.request, **error_details)
+
         # Otherwise, we force the id to match the authenticated username.
         if new[self.model.id_field] != self.request.selected_userid:
             error_details = {
