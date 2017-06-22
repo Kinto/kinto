@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 import unittest
 
+import mock
 from kinto.core.testing import get_user_headers
 from pyramid.exceptions import ConfigurationError
 
@@ -272,6 +273,19 @@ class AdminTest(AccountsWebTest):
 
         self.app.delete('/accounts/alice', headers=get_user_headers('alice', 'bouh'))
 
+
+class WarnAdminCreateTest(AccountsWebTest):
+    def test_raise_if_create_but_no_write(self):
+        with mock.patch('kinto.plugins.accounts.warnings') as mocked:
+            self.make_app({'account_create_principals': 'account:admin'})
+
+        message = ('Configuration has some principals in account_create_principals '
+                   'but not in account_write_principals. These principals will only be '
+                   'able to create their own accounts. This may not be what you want.\n'
+                   'If you want these users to be able to create accounts for other users, '
+                   'add them to account_write_principals.\n'
+                   'Affected users: [\'account:admin\']')
+        mocked.warn.assert_called_with(message)
 
 class WithBasicAuthTest(AccountsWebTest):
 
