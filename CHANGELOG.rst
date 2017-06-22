@@ -6,7 +6,16 @@ This document describes changes between each past release.
 7.3.0 (unreleased)
 ------------------
 
-- Nothing changed yet.
+**Bug fixes**
+
+- Account plugin now allows account IDs to be email addresses (fixes
+  #1283).
+- Make it illegal for a principal to be present in
+  ``account_create_principals`` without also being in
+  ``account_write_principals``. Restricting creation of accounts to
+  specified users only makes sense if those users are "admins", which
+  means they're in ``account_write_principals``. (Fixes #1281.)
+- Fix a 500 when accounts without an ID are created (fixes #1280).
 
 
 7.2.2 (2017-06-22)
