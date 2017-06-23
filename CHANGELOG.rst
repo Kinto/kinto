@@ -3,13 +3,16 @@ Changelog
 
 This document describes changes between each past release.
 
-7.3.0 (unreleased)
+7.3.0 (2017-06-23)
 ------------------
 
-**Bug fixes**
+**New features**
 
 - Account plugin now allows account IDs to be email addresses (fixes
   #1283).
+
+**Bug fixes**
+
 - Make it illegal for a principal to be present in
   ``account_create_principals`` without also being in
   ``account_write_principals``. Restricting creation of accounts to
