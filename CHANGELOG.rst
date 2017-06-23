@@ -21,6 +21,10 @@ This document describes changes between each past release.
 - Fix a 500 when accounts without an ID are created (fixes #1280).
 - Fix StatsD unparseable metric packets for the unique user counter (fixes #1282)
 
+**Internal changes**
+
+- Upgraded the kinto-admin to version 1.14.0
+
 
 7.2.2 (2017-06-22)
 ------------------
