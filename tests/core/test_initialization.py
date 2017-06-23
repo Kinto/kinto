@@ -328,7 +328,7 @@ class StatsDConfigurationTest(unittest.TestCase):
         app = webtest.TestApp(self.config.make_wsgi_app())
         headers = {'Authorization': 'Basic bWF0Og=='}
         app.get('/v0/', headers=headers)
-        self.mocked().count.assert_any_call('users', unique='basicauth:mat')
+        self.mocked().count.assert_any_call('users', unique='basicauth.mat')
 
     def test_statsd_counts_authentication_types(self):
         kinto.core.initialize(self.config, '0.0.1', 'project_name')

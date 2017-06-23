@@ -16,6 +16,7 @@ This document describes changes between each past release.
   specified users only makes sense if those users are "admins", which
   means they're in ``account_write_principals``. (Fixes #1281.)
 - Fix a 500 when accounts without an ID are created (fixes #1280).
+- Fix StatsD unparseable metric packets for the unique user counter (fixes #1282)
 
 
 7.2.2 (2017-06-22)
