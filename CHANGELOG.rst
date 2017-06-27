@@ -3,13 +3,16 @@ Changelog
 
 This document describes changes between each past release.
 
-7.3.0 (unreleased)
+7.3.0 (2017-06-23)
 ------------------
 
-**Bug fixes**
+**New features**
 
 - Account plugin now allows account IDs to be email addresses (fixes
   #1283).
+
+**Bug fixes**
+
 - Make it illegal for a principal to be present in
   ``account_create_principals`` without also being in
   ``account_write_principals``. Restricting creation of accounts to
@@ -17,6 +20,10 @@ This document describes changes between each past release.
   means they're in ``account_write_principals``. (Fixes #1281.)
 - Fix a 500 when accounts without an ID are created (fixes #1280).
 - Fix StatsD unparseable metric packets for the unique user counter (fixes #1282)
+
+**Internal changes**
+
+- Upgraded the kinto-admin to version 1.14.0
 
 
 7.2.2 (2017-06-22)
