@@ -6,7 +6,10 @@ This document describes changes between each past release.
 7.4.0 (unreleased)
 ------------------
 
-- Nothing changed yet.
+**Bug fixes**
+
+- Fix bug in Postgres backend regarding the handling of combining
+  filters and NULL values.
 
 
 7.3.0 (2017-06-23)

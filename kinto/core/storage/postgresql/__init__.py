@@ -704,41 +704,7 @@ class Storage(StorageBase):
                     # needed for LIKE query. (Other queries do JSONB comparison.)
                     column_name += "->>" if j == len(subfields) - 1 and is_like_query else "->"
                     column_name += ":{}".format(field_holder)
-
-                # If the field is missing, column_name will produce
-                # NULL. NULL has strange properties with comparisons
-                # in SQL -- NULL = anything => NULL, NULL <> anything => NULL.
-                # We generally want missing fields to be treated as a
-                # special value that compares as different from
-                # everything, including JSON null. Do this on a
-                # per-operator basis.
-                null_false_operators = (
-                    # NULLs aren't EQ to anything (definitionally).
-                    COMPARISON.EQ,
-                    # So they can't match anything in an INCLUDE.
-                    COMPARISON.IN,
-                    # Nor can they be LIKE anything.
-                    COMPARISON.LIKE,
-                )
-                null_true_operators = (
-                    # NULLs are automatically not equal to everything.
-                    COMPARISON.NOT,
-                    # Thus they can never be excluded.
-                    COMPARISON.EXCLUDE,
-                    # Match Postgres's default sort behavior
-                    # (NULLS LAST) by allowing NULLs to
-                    # automatically be greater than everything.
-                    COMPARISON.GT, COMPARISON.MIN,
-                )
-
-                if filtr.operator in null_false_operators:
-                    sql_field = "{} IS NOT NULL AND {}".format(column_name, column_name)
-                elif filtr.operator in null_true_operators:
-                    sql_field = "{} IS NULL OR {}".format(column_name, column_name)
-                else:
-                    # No need to check for LT and MAX because NULL < foo
-                    # is NULL, which is falsy in SQL.
-                    sql_field = column_name
+                sql_field = column_name
 
             string_field = filtr.field in (id_field, modified_field) or is_like_query
             if not string_field:
@@ -772,6 +738,43 @@ class Storage(StorageBase):
                 sql_operator = operators.setdefault(filtr.operator,
                                                     filtr.operator.value)
                 cond = "{} {} :{}".format(sql_field, sql_operator, value_holder)
+
+            # If the field is missing, column_name will produce
+            # NULL. NULL has strange properties with comparisons
+            # in SQL -- NULL = anything => NULL, NULL <> anything => NULL.
+            # We generally want missing fields to be treated as a
+            # special value that compares as different from
+            # everything, including JSON null. Do this on a
+            # per-operator basis.
+            null_false_operators = (
+                # NULLs aren't EQ to anything (definitionally).
+                COMPARISON.EQ,
+                # So they can't match anything in an INCLUDE.
+                COMPARISON.IN,
+                # Nor can they be LIKE anything.
+                COMPARISON.LIKE,
+            )
+            null_true_operators = (
+                # NULLs are automatically not equal to everything.
+                COMPARISON.NOT,
+                # Thus they can never be excluded.
+                COMPARISON.EXCLUDE,
+                # Match Postgres's default sort behavior
+                # (NULLS LAST) by allowing NULLs to
+                # automatically be greater than everything.
+                COMPARISON.GT, COMPARISON.MIN,
+            )
+
+            if not (filtr.field == id_field or filtr.field == modified_field):
+                if filtr.operator in null_false_operators:
+                    cond = "({} IS NOT NULL AND {})".format(sql_field, cond)
+                elif filtr.operator in null_true_operators:
+                    cond = "({} IS NULL OR {})".format(sql_field, cond)
+                else:
+                    # No need to check for LT and MAX because NULL < foo
+                    # is NULL, which is falsy in SQL.
+                    pass
+
             conditions.append(cond)
 
         safe_sql = ' AND '.join(conditions)

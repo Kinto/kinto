@@ -521,6 +521,18 @@ class BaseTestStorage:
         self.assertEqual(len(records), 1)
         self.assertEqual(records[0]["name"], "Alexis")
 
+    def test_filter_none_values_can_be_combined(self):
+        self.create_record({"name": "Alexis", "salary": None})
+        self.create_record({"name": "Mathieu", "salary": "null"})
+        self.create_record({"name": "Niko", "salary": ""})
+        self.create_record({"name": "Ethan"})   # missing salary
+        filters = [
+            Filter("salary", 0, utils.COMPARISON.GT),
+            Filter("salary", True, utils.COMPARISON.HAS)
+        ]
+        records, _ = self.storage.get_all(filters=filters, **self.storage_kw)
+        self.assertEqual(len([r for r in records if 'salary' not in r]), 0)
+
     def test_get_all_can_filter_with_list_of_values_on_id(self):
         record1 = self.create_record({'code': 'a'})
         record2 = self.create_record({'code': 'b'})
