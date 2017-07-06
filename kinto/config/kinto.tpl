@@ -1,5 +1,7 @@
 # Created at {config_file_timestamp}
 # Using Kinto version {kinto_version}
+# Full options list for .ini file
+# https://kinto.readthedocs.io/en/latest/configuration/settings.html
 
 
 [server:main]
@@ -34,8 +36,7 @@ use = egg:kinto
 #
 # kinto.readonly = False
 # kinto.batch_max_requests = 25
-# kinto.paginate_by=None
-# kinto.<object-type>_id_generator=UUID4 <bucket, collection, group, record>
+# kinto.paginate_by =
 # Experimental JSON-schema on collection
 # kinto.experimental_collection_schema_validation = False
 #
@@ -44,6 +45,15 @@ use = egg:kinto
 #
 # kinto.trailing_slash_redirect_enabled = True
 # kinto.heartbeat_timeout_seconds = 10
+
+# Plugins
+# https://kinto.readthedocs.io/en/latest/configuration/settings.html#plugins
+# https://github.com/uralbash/awesome-pyramid
+kinto.includes = kinto.plugins.default_bucket
+#                kinto.plugins.admin
+#                kinto.plugins.accounts
+#                kinto.plugins.history
+#                kinto.plugins.quotas
 
 # Backends
 # https://kinto.readthedocs.io/en/latest/configuration/settings.html#storage
@@ -86,46 +96,8 @@ kinto.permission_url = {permission_url}
 # Scheme, host, and port
 # https://kinto.readthedocs.io/en/latest/configuration/settings.html#scheme-host-and-port
 #
-# kinto.http_host = None
-# kinto.http_scheme = None
-
-# Logging and Monitoring
-#
-# https://kinto.readthedocs.io/en/latest/configuration/settings.html#logging-and-monitoring
-# kinto.statsd_backend = kinto.core.statsd
-# kinto.statsd_prefix = kinto
-# kinto.statsd_url = None
-# kinto.newrelic_config = None
-# kinto.newrelic_env = dev
-
-# Logging configuration
-
-[loggers]
-keys = root, kinto
-
-[handlers]
-keys = console
-
-[formatters]
-keys = color
-
-[logger_root]
-level = INFO
-handlers = console
-
-[logger_kinto]
-level = DEBUG
-handlers = console
-qualname = kinto
-
-[handler_console]
-class = StreamHandler
-args = (sys.stderr,)
-level = NOTSET
-formatter = color
-
-[formatter_color]
-class = logging_color_formatter.ColorFormatter
+# kinto.http_host
+# kinto.http_scheme
 
 # Authentication
 # https://kinto.readthedocs.io/en/latest/configuration/settings.html#authentication
@@ -148,30 +120,14 @@ multiauth.policies = basicauth
 # kinto.account_write_principals = account:admin
 # kinto.account_read_principals = account:admin
 #
-# Firefox Accounts configuration
-# These are working FxA credentials for localhost:8888
-# kinto.includes  = kinto_fxa
-# fxa-oauth.client_id = 61c3f791f740c19a
-# fxa-oauth.client_secret = b13739d8a905315314b09fb7b947aaeb62b47c6a4a5efb00c378fdecacd1e95e
-# fxa-oauth.oauth_uri = https://oauth-stable.dev.lcip.org/v1
-# fxa-oauth.requested_scope = profile kinto
-# fxa-oauth.required_scope = kinto
-# fxa-oauth.relier.enabled = true
-# fxa-oauth.webapp.authorized_domains = *
-
-# Plugins
-# https://kinto.readthedocs.io/en/latest/configuration/settings.html#plugins
-# https://github.com/uralbash/awesome-pyramid
-kinto.includes = kinto.plugins.default_bucket
-#                kinto.plugins.admin
-#                kinto.plugins.accounts
-#                kinto.plugins.history
-#                kinto.plugins.quotas
-
-# Pluggable components
-# https://kinto.readthedocs.io/en/latest/configuration/settings.html#pluggable-components
-#
-# kinto.logging_renderer = your_log_renderer.CustomRenderer
+# Kinto-portier authentication
+# https://github.com/Kinto/kinto-portier
+# multiauth.policies = portier
+# multiauth.policy.portier.use = kinto_portier.authentication.PortierOAuthAuthenticationPolicy
+# kinto.portier.broker_url = https://broker.portier.io
+# kinto.portier.webapp.authorized_domains = *.github.io
+# kinto.portier.cache_ttl_seconds = 300
+# kinto.portier.state.ttl_seconds = 3600
 
 # Notifications
 # https://kinto.readthedocs.io/en/latest/configuration/settings.html#notifications
@@ -182,15 +138,6 @@ kinto.includes = kinto.plugins.default_bucket
 # kinto.event_listeners.redis.url = redis://localhost:6379/0
 # kinto.event_listeners.redis.pool_size = 5
 # kinto.event_listeners.redis.listname = queue
-#
-# Setting up notifications via WebSocket
-# https://kinto.readthedocs.io/en/latest/tutorials/notifications-websockets.html#tutorial-notifications-websockets
-
-# Filtering
-# https://kinto.readthedocs.io/en/latest/configuration/settings.html#filtering
-#
-# It is possible to filter events by action and/or types of object.
-# By default actions create, update and delete are notified for every kinds of objects.
 # kinto.event_listeners.redis.actions = create
 # kinto.event_listeners.redis.resources = bucket collection
 
@@ -203,11 +150,11 @@ kinto.includes = kinto.plugins.default_bucket
 # https://kinto.readthedocs.io/en/latest/configuration/settings.html#backoff-indicators
 # https://kinto.readthedocs.io/en/latest/api/1.x/backoff.html#id1
 #
-# kinto.backoff = None
-# kinto.retry_after_seconds
-# kinto.eos = None
-# kinto.eos_message = None
-# kinto.eos_url = None
+# kinto.backoff =
+# kinto.retry_after_seconds = 3
+# kinto.eos =
+# kinto.eos_message =
+# kinto.eos_url =
 
 # Project information
 # https://kinto.readthedocs.io/en/latest/configuration/settings.html#project-information
@@ -253,6 +200,30 @@ kinto.includes = kinto.plugins.default_bucket
 # Records in a specific collection in a specific bucket
 # kinto.blog_article_record_cache_expires_seconds = 3600
 
+# Production settings
+#
+# https://kinto.readthedocs.io/en/latest/configuration/production.html
+#
+# kinto.statsd_backend = kinto.core.statsd
+# kinto.statsd_url = udp://localhost:8125
+# kinto.statsd_prefix = kinto-prod
+
+# kinto.http_scheme = https
+# kinto.http_host = kinto.services.mozilla.com
+
+# kinto.backoff = 10
+# kinto.retry_after_seconds = 30
+# kinto.eos =
+
+# Custom ID generator for POST Requests
+# https://kinto.readthedocs.io/en/latest/tutorials/custom-id-generator.html#tutorial-id-generator
+#
+# Default generator
+# kinto.bucket_id_generator=kinto.views.NameGenerator
+# Custom example
+# kinto.collection_id_generator=name_generator.CollectionGenerator
+# kinto.group_id_generator=name_generator.GroupGenerator
+# kinto.record_id_generator=name_generator.RecordGenerator
 
 # [uwsgi]
 # wsgi-file = app.wsgi
@@ -272,3 +243,41 @@ kinto.includes = kinto.plugins.default_bucket
 # buffer-size = 65535
 # post-buffering = 65535
 # plugin = python
+
+# Logging and Monitoring
+#
+# https://kinto.readthedocs.io/en/latest/configuration/settings.html#logging-and-monitoring
+# kinto.statsd_backend = kinto.core.statsd
+# kinto.statsd_prefix = kinto
+# kinto.statsd_url
+# kinto.newrelic_config
+# kinto.newrelic_env = dev
+
+# Logging configuration
+
+[loggers]
+keys = root, kinto
+
+[handlers]
+keys = console
+
+[formatters]
+keys = color
+
+[logger_root]
+level = INFO
+handlers = console
+
+[logger_kinto]
+level = DEBUG
+handlers = console
+qualname = kinto
+
+[handler_console]
+class = StreamHandler
+args = (sys.stderr,)
+level = NOTSET
+formatter = color
+
+[formatter_color]
+class = logging_color_formatter.ColorFormatter
