@@ -13,37 +13,19 @@ port = %(http_port)s
 [app:main]
 use = egg:kinto
 
-# Production settings
-#
-# https://kinto.readthedocs.io/en/latest/configuration/production.html
-#
-# kinto.statsd_backend = kinto.core.statsd
-# kinto.statsd_url = udp://localhost:8125
-# kinto.statsd_prefix = kinto-prod
-
-# kinto.http_scheme = https
-# kinto.http_host = kinto.services.mozilla.com
-
-# kinto.backoff = 10
-# kinto.retry_after_seconds = 30
-# kinto.eos =
-
-# Full options list for .ini file
-# https://kinto.readthedocs.io/en/latest/configuration/settings.html
-
 # Feature settings
 # https://kinto.readthedocs.io/en/latest/configuration/settings.html#feature-settings
 #
-# kinto.readonly = False
+# kinto.readonly = false
 # kinto.batch_max_requests = 25
 # kinto.paginate_by =
 # Experimental JSON-schema on collection
-# kinto.experimental_collection_schema_validation = False
+# kinto.experimental_collection_schema_validation = false
 #
 # https://kinto.readthedocs.io/en/latest/configuration/settings.html#activating-the-permissions-endpoint
-# kinto.experimental_permissions_endpoint = False
+# kinto.experimental_permissions_endpoint = false
 #
-# kinto.trailing_slash_redirect_enabled = True
+# kinto.trailing_slash_redirect_enabled = true
 # kinto.heartbeat_timeout_seconds = 10
 
 # Plugins
@@ -72,7 +54,7 @@ kinto.storage_url = {storage_url}
 #
 kinto.cache_backend = {cache_backend}
 kinto.cache_url = {cache_url}
-# kinto.cache_prefix = ''
+# kinto.cache_prefix =
 # kinto.cache_max_size_bytes = 524288
 # kinto.cache_pool_size = 25
 # kinto.cache_max_overflow = 5
@@ -93,12 +75,6 @@ kinto.permission_url = {permission_url}
 # https://kinto.readthedocs.io/en/latest/configuration/settings.html#bypass-permissions-with-configuration
 # kinto.bucket_create_principals = system.Authenticated
 
-# Scheme, host, and port
-# https://kinto.readthedocs.io/en/latest/configuration/settings.html#scheme-host-and-port
-#
-# kinto.http_host
-# kinto.http_scheme
-
 # Authentication
 # https://kinto.readthedocs.io/en/latest/configuration/settings.html#authentication
 #
@@ -110,9 +86,9 @@ multiauth.policies = basicauth
 # Accounts API configuration
 #
 # Enable built-in plugin.
-# kinto.includes = kinto.plugins.accounts
+# Set `kinto.includes` to `kinto.plugins.accounts`
 # Enable authenticated policy.
-# multiauth.policies = account
+# Set `multiauth.policies` to `account`
 # multiauth.policy.account.use = kinto.plugins.accounts.authentication.AccountsAuthenticationPolicy
 # Allow anyone to create accounts.
 # kinto.account_create_principals = system.Everyone
@@ -122,7 +98,7 @@ multiauth.policies = basicauth
 #
 # Kinto-portier authentication
 # https://github.com/Kinto/kinto-portier
-# multiauth.policies = portier
+# Set `multiauth.policies` to `portier`
 # multiauth.policy.portier.use = kinto_portier.authentication.PortierOAuthAuthenticationPolicy
 # kinto.portier.broker_url = https://broker.portier.io
 # kinto.portier.webapp.authorized_domains = *.github.io
@@ -140,6 +116,21 @@ multiauth.policies = basicauth
 # kinto.event_listeners.redis.listname = queue
 # kinto.event_listeners.redis.actions = create
 # kinto.event_listeners.redis.resources = bucket collection
+
+# Production settings
+#
+# https://kinto.readthedocs.io/en/latest/configuration/production.html
+#
+# kinto.statsd_backend = kinto.core.statsd
+# kinto.statsd_url = udp://localhost:8125
+# kinto.statsd_prefix = kinto-prod
+
+# kinto.http_scheme = https
+# kinto.http_host = kinto.services.mozilla.com
+
+# kinto.backoff = 10
+# kinto.retry_after_seconds = 30
+# kinto.eos =
 
 # Cross Origin Requests
 # https://kinto.readthedocs.io/en/latest/configuration/settings.html#cross-origin-requests-cors
@@ -162,17 +153,8 @@ multiauth.policies = basicauth
 # kinto.version_json_path = ./version.json
 # kinto.error_info_link = https://github.com/kinto/kinto/issues/
 # kinto.project_docs = https://kinto.readthedocs.io
-# kinto.project_version = ''
-# kinto.version_prefix_redirect_enabled = True
-
-# Enabling or disabling endpoints
-# https://kinto.readthedocs.io/en/latest/configuration/settings.html#enabling-or-disabling-endpoints
-# Disable article collection DELETE endpoint
-# Where: - endpoint_type is either collection or record; - resource_name is the name of the resource (by default, Kinto uses # the name of the class); - method is the http method (in lower case):
-# Ex:
-# kinto.collection_article_delete_enabled = false
-# kinto.record_mushroom_patch_enabled = false
-# https://kinto.readthedocs.io/en/latest/configuration/settings.html#enabling-or-disabling-endpoints
+# kinto.project_version =
+# kinto.version_prefix_redirect_enabled = true
 
 # Application profilling
 # https://kinto.readthedocs.io/en/latest/configuration/settings.html#application-profiling
@@ -200,21 +182,6 @@ multiauth.policies = basicauth
 # Records in a specific collection in a specific bucket
 # kinto.blog_article_record_cache_expires_seconds = 3600
 
-# Production settings
-#
-# https://kinto.readthedocs.io/en/latest/configuration/production.html
-#
-# kinto.statsd_backend = kinto.core.statsd
-# kinto.statsd_url = udp://localhost:8125
-# kinto.statsd_prefix = kinto-prod
-
-# kinto.http_scheme = https
-# kinto.http_host = kinto.services.mozilla.com
-
-# kinto.backoff = 10
-# kinto.retry_after_seconds = 30
-# kinto.eos =
-
 # Custom ID generator for POST Requests
 # https://kinto.readthedocs.io/en/latest/tutorials/custom-id-generator.html#tutorial-id-generator
 #
@@ -224,6 +191,20 @@ multiauth.policies = basicauth
 # kinto.collection_id_generator=name_generator.CollectionGenerator
 # kinto.group_id_generator=name_generator.GroupGenerator
 # kinto.record_id_generator=name_generator.RecordGenerator
+
+# Enabling or disabling endpoints
+# https://kinto.readthedocs.io/en/latest/configuration/settings.html#enabling-or-disabling-endpoints
+#
+# This is a rather confusing setting due to naming conventions used in kinto.core
+# For a more in depth explanation, refer to https://github.com/Kinto/kinto/issues/710
+# kinto.endpoint_type_resource_name_method_enabled = false
+# Where:
+# endpoint_type: is either ``collection`` (plural, e.g. ``/buckets``) or ``record`` (single, e.g. ``/buckets/abc``);
+# resource_name: is the name of the resource (e.g. ``bucket``, ``group``, ``collection``, ``record``);
+# method: is the http method (in lower case) (e.g. ``get``, ``post``, ``put``, ``patch``, ``delete``).
+# For example, to disable the POST on the list of buckets and DELETE on single records
+# kinto.collection_bucket_post_enabled = false
+# kinto.record_record_delete_enabled = false
 
 # [uwsgi]
 # wsgi-file = app.wsgi
@@ -249,8 +230,8 @@ multiauth.policies = basicauth
 # https://kinto.readthedocs.io/en/latest/configuration/settings.html#logging-and-monitoring
 # kinto.statsd_backend = kinto.core.statsd
 # kinto.statsd_prefix = kinto
-# kinto.statsd_url
-# kinto.newrelic_config
+# kinto.statsd_url =
+# kinto.newrelic_config =
 # kinto.newrelic_env = dev
 
 # Logging configuration
