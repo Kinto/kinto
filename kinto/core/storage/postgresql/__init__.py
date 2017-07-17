@@ -7,7 +7,7 @@ from kinto.core.storage import (
     StorageBase, exceptions,
     DEFAULT_ID_FIELD, DEFAULT_MODIFIED_FIELD, DEFAULT_DELETED_FIELD)
 from kinto.core.storage.postgresql.client import create_from_config
-from kinto.core.utils import COMPARISON, json
+from kinto.core.utils import COMPARISON
 
 
 logger = logging.getLogger(__name__)
@@ -268,7 +268,7 @@ class Storage(StorageBase):
                             parent_id=parent_id,
                             collection_id=collection_id,
                             last_modified=record.get(modified_field),
-                            data=json.dumps(query_record))
+                            data=self.json.dumps(query_record))
         with self.client.connect() as conn:
             result = conn.execute(query % safe_holders, placeholders)
             inserted = result.fetchone()
@@ -333,7 +333,7 @@ class Storage(StorageBase):
                             parent_id=parent_id,
                             collection_id=collection_id,
                             last_modified=record.get(modified_field),
-                            data=json.dumps(query_record))
+                            data=self.json.dumps(query_record))
 
         with self.client.connect() as conn:
             result = conn.execute(query, placeholders)
@@ -596,7 +596,7 @@ class Storage(StorageBase):
           {sorting}
           LIMIT :pagination_limit;
         """
-        deleted_field = json.dumps(dict([(deleted_field, True)]))
+        deleted_field = self.json.dumps(dict([(deleted_field, True)]))
 
         # Unsafe strings escaped by PostgreSQL
         placeholders = dict(parent_id=parent_id,
@@ -710,9 +710,9 @@ class Storage(StorageBase):
             if not string_field:
                 # JSONB-ify the value.
                 if filtr.operator not in (COMPARISON.IN, COMPARISON.EXCLUDE):
-                    value = json.dumps(value)
+                    value = self.json.dumps(value)
                 else:
-                    value = [json.dumps(v) for v in value]
+                    value = [self.json.dumps(v) for v in value]
 
             if filtr.operator in (COMPARISON.IN, COMPARISON.EXCLUDE):
                 value = tuple(value)
@@ -852,5 +852,6 @@ class Storage(StorageBase):
 def load_from_config(config):
     settings = config.get_settings()
     max_fetch_size = int(settings['storage_max_fetch_size'])
+    strict = settings.get('storage_strict_json', False)
     client = create_from_config(config, prefix='storage_')
-    return Storage(client=client, max_fetch_size=max_fetch_size)
+    return Storage(client=client, max_fetch_size=max_fetch_size, strict_json=strict)

@@ -2,6 +2,7 @@ import time
 
 import mock
 from pyramid import testing
+
 from kinto.core import utils
 from kinto.core.testing import skip_if_travis, DummyRequest, ThreadMixin
 from kinto.core.storage import exceptions, Filter, Sort, heartbeat
@@ -1405,43 +1406,22 @@ class ParentRecordAccessTest:
                                        **self.storage_kw)
         self.assertNotIn("another", not_updated)
 
-    def test_create_bytes_value_gets_back_str(self):
+
+class SerializationTest:
+    def test_create_bytes_raises(self):
         data = {'steak': 'haché'.encode(encoding='utf-8')}
         self.assertIsInstance(data['steak'], bytes)
-
-        record = self.create_record(data)
-
-        back_record = self.storage.get(object_id=record['id'],
-                                       **self.storage_kw)
-        self.assertIsInstance(back_record['steak'], str)
-        self.assertEqual(back_record['steak'], 'haché')
-
-    def test_create_bytes_value_bad_encoding_raises(self):
-        self.assertRaises(OverflowError,
+        self.assertRaises(TypeError,
                           self.create_record,
-                          {'steak': 'haché'.encode(encoding='iso-8859-1')}
-                          )
+                          data)
 
-    def test_update_bytes_value_gets_back_str(self):
+    def test_update_bytes_raises(self):
         record = self.create_record()
 
         new_record = {'steak': 'haché'.encode(encoding='utf-8')}
         self.assertIsInstance(new_record['steak'], bytes)
 
-        self.storage.update(object_id=record['id'],
-                            record=new_record,
-                            **self.storage_kw)
-
-        back_record = self.storage.get(object_id=record['id'],
-                                       **self.storage_kw)
-        self.assertIsInstance(back_record['steak'], str)
-        self.assertEqual(back_record['steak'], 'haché')
-
-    def test_update_bytes_value_bad_encoding_raises(self):
-        record = self.create_record()
-
-        new_record = {'steak': 'haché'.encode(encoding='iso-8859-1')}
-        self.assertRaises(OverflowError,
+        self.assertRaises(TypeError,
                           self.storage.update,
                           object_id=record['id'],
                           record=new_record,
@@ -1453,6 +1433,7 @@ class StorageTest(ThreadMixin,
                   TimestampsTest,
                   DeletedRecordsTest,
                   ParentRecordAccessTest,
+                  SerializationTest,
                   BaseTestStorage):
     """Compound of all storage tests."""
     pass

@@ -30,7 +30,7 @@ class MemoryBasedStorage(StorageBase):
     methods for in-memory implementations of sorting and filtering.
     """
     def __init__(self, *args, **kwargs):
-        pass
+        super().__init__(*args, **kwargs)
 
     def initialize_schema(self, dry_run=False):
         # Nothing to do.
@@ -83,6 +83,11 @@ class Storage(MemoryBasedStorage):
     Enable in configuration::
 
         kinto.storage_backend = kinto.core.storage.memory
+
+    Enable strict json validation before saving (instead of the more lenient
+    ujson, see #1238)::
+
+        kinto.storage_strict_json = true
     """
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -161,7 +166,7 @@ class Storage(MemoryBasedStorage):
         self.set_record_timestamp(collection_id, parent_id, record,
                                   modified_field=modified_field)
         _id = record[id_field]
-        record = ujson.loads(ujson.dumps(record))
+        record = ujson.loads(self.json.dumps(record))
         self._store[parent_id][collection_id][_id] = record
         self._cemetery[parent_id][collection_id].pop(_id, None)
         return record
@@ -183,7 +188,7 @@ class Storage(MemoryBasedStorage):
                auth=None):
         record = {**record}
         record[id_field] = object_id
-        record = ujson.loads(ujson.dumps(record))
+        record = ujson.loads(self.json.dumps(record))
 
         self.set_record_timestamp(collection_id, parent_id, record,
                                   modified_field=modified_field)
@@ -437,4 +442,6 @@ def _get_objects_by_parent_id(store, parent_id, collection_id, with_meta=False):
 
 
 def load_from_config(config):
-    return Storage()
+    settings = {**config.get_settings()}
+    strict = settings.get('storage_strict_json', False)
+    return Storage(strict_json=strict)

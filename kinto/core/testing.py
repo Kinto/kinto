@@ -156,6 +156,7 @@ class BaseWebTest:
         settings = {**DEFAULT_SETTINGS}
 
         settings['storage_backend'] = 'kinto.core.storage.memory'
+        settings['storage_strict_json'] = True
         settings['cache_backend'] = 'kinto.core.cache.memory'
         settings['permission_backend'] = 'kinto.core.permission.memory'
 
