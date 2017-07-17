@@ -512,7 +512,7 @@ list of Python modules:
 |                                       | (:ref:`more details <api-history>`).                                     |
 +---------------------------------------+--------------------------------------------------------------------------+
 | ``kinto.plugins.admin``               | It is a Web admin UI to manage data from a Kinto server.                 |
-|                                       | (:ref:`more details <api-history>`).                                     |
+|                                       | (:ref:`more details <kinto-admin>`).                                     |
 +---------------------------------------+--------------------------------------------------------------------------+
 | ``kinto.plugins.flush``               | Adds an endpoint to completely remove all data from the database backend |
 |                                       | for testing/staging purposes. (:ref:`more details <api-flush>`).         |
@@ -658,20 +658,24 @@ To do so, a setting key must be defined for the disabled resources endpoints::
     'kinto.{endpoint_type}_{resource_name}_{method}_enabled'
 
 Where:
-- **endpoint_type** is either collection or record;
-- **resource_name** is the name of the resource (by default, *Kinto* uses the name of the class);
-- **method** is the http method (in lower case): For instance ``put``.
 
-For example, to disable the PUT on records for the *Mushrooms* resource, the
+- **endpoint_type** is either ``collection`` (plural, e.g. ``/buckets``) or ``record`` (single, e.g. ``/buckets/abc``);
+- **resource_name** is the name of the resource (e.g. ``bucket``, ``group``, ``collection``, ``record``);
+- **method** is the http method (in lower case) (e.g. ``get``, ``post``, ``put``, ``patch``, ``delete``).
+
+.. important::
+
+    These settings are confusing because of the naming used in ``kinto.core``.
+    Especially ``collection`` and ``record`` are endpoint types in ``kinto.core`` and resource names in Kinto.
+    We want to solve this in #710.
+
+For example, to disable the POST on the list of buckets and DELETE on single records, the
 following setting should be declared in the ``.ini`` file:
 
 .. code-block:: ini
 
-    # Disable article collection DELETE endpoint
-    kinto.collection_article_delete_enabled = false
-
-    # Disable mushroom record PATCH endpoint
-    kinto.record_mushroom_patch_enabled = false
+    kinto.collection_bucket_post_enabled = false
+    kinto.record_record_delete_enabled = false
 
 
 Activating the permissions endpoint

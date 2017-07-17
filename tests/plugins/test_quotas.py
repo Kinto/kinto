@@ -1109,7 +1109,7 @@ class QuotasScriptsTest(unittest.TestCase):
             collection_id='quota',
             parent_id='/buckets/bucket-1',
             object_id='bucket_info',
-            record={'record_count': 2, 'storage_size': 193})
+            record={'record_count': 2, 'storage_size': 193, 'collection_count': 2})
         self.storage.update.assert_any_call(
             collection_id='quota',
             parent_id='/buckets/bucket-1/collections/collection-1',
@@ -1125,7 +1125,8 @@ class QuotasScriptsTest(unittest.TestCase):
                                            'Final size: 1 records, 78 bytes.')
         mocked_logger.info.assert_any_call('Bucket bucket-1, collection collection-2. '
                                            'Final size: 1 records, 79 bytes.')
-        mocked_logger.info.assert_any_call('Bucket bucket-1. Final size: 2 records, 193 bytes.')
+        mocked_logger.info.assert_any_call('Bucket bucket-1. Final size: '
+                                           '2 collections, 2 records, 193 bytes.')
 
     def test_rebuild_quotas_doesnt_update_if_dry_run(self):
         paginated_data = [
@@ -1148,4 +1149,5 @@ class QuotasScriptsTest(unittest.TestCase):
 
         mocked.info.assert_any_call('Bucket bucket-1, collection collection-1. '
                                     'Final size: 1 records, 78 bytes.')
-        mocked.info.assert_any_call('Bucket bucket-1. Final size: 1 records, 114 bytes.')
+        mocked.info.assert_any_call('Bucket bucket-1. Final size: 1 collections, '
+                                    '1 records, 114 bytes.')

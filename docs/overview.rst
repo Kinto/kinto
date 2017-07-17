@@ -183,8 +183,8 @@ Key features
 | <Kinto/kinto-http.js/>`                     | <Kinto/kinto.py>`                           |
 +---------------------------------------------+---------------------------------------------+
 | |logo-offline|                              | |logo-admin|                                |
-| Offline-first `JavaScript client            | :github:`Web Admin UI                       |
-| <https://kintojs.readthedocs.io>`_          | <Kinto/kinto-admin>`                        |
+| Offline-first `JavaScript client            | :ref:`Web Admin UI                          |
+| <https://kintojs.readthedocs.io>`_          | <kinto-admin>`                              |
 +---------------------------------------------+---------------------------------------------+
 | |logo-history|                              | |logo-livesync|                             |
 | :ref:`History of changes and authorship     | Live :ref:`Push notifications               |

@@ -84,7 +84,7 @@ class GroupViewTest(FormattedErrorMixin, BaseWebTest, unittest.TestCase):
         self.app.put_json('/buckets/beers/groups/moderator',
                           group,
                           headers=self.headers)
-        resp = self.app.get('/buckets/beers/groups?min_size=2',
+        resp = self.app.get('/buckets/beers/groups?has_size=true&min_size=2',
                             headers=self.headers)
         data = resp.json['data']
         self.assertEqual(len(data), 1)

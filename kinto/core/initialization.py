@@ -278,6 +278,8 @@ def setup_statsd(config):
             # Count unique users.
             user_id = request.prefixed_userid
             if user_id:
+                # Get rid of colons in metric packet (see #1282).
+                user_id = user_id.replace(':', '.')
                 client.count('users', unique=user_id)
 
             # Count authentication verifications.

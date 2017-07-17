@@ -14,6 +14,17 @@ SCHEMA = {
     "properties": {
         "title": {"type": "string"},
         "body": {"type": "string"},
+        "file": {
+            "type": "object",
+            "properties": {
+                "size": {
+                    "type": "number",
+                },
+                "name": {
+                    "type": "string",
+                }
+            },
+        },
     },
     "required": ["title"]
 }
@@ -166,6 +177,19 @@ class RecordsValidationTest(BaseWebTestWithSchema, unittest.TestCase):
         self.assertIn("'title' is a required property", resp.json['message'])
         self.assertEqual(resp.json['details'][0]['name'], 'title')
 
+    def test_validation_error_response_provides_details_and_path(self):
+        resp = self.app.post_json(RECORDS_URL,
+                                  {'data': {
+                                      'title': 'Some title',
+                                      'file': {
+                                          'size': "hi!",
+                                      }
+                                  }},
+                                  headers=self.headers,
+                                  status=400)
+        self.assertIn("size in body: 'hi!' is not of type 'number'", resp.json['message'])
+        self.assertEqual(resp.json['details'][0]['name'], 'size')
+
     def test_records_of_other_bucket_are_not_impacted(self):
         self.app.put_json('/buckets/cms', headers=self.headers)
         self.app.put_json('/buckets/cms/collections/articles',
@@ -240,3 +264,36 @@ class ExtraPropertiesValidationTest(BaseWebTestWithSchema, unittest.TestCase):
                                  headers=self.headers,
                                  status=400)
         assert "'extra' was unexpected)" in resp.json['message']
+
+
+class InternalRequiredProperties(BaseWebTestWithSchema, unittest.TestCase):
+    def setUp(self):
+        super().setUp()
+        # See bug Kinto/kinto#1244
+        schema = {**SCHEMA, 'required': ['id', 'schema', 'last_modified']}
+        self.app.put_json(COLLECTION_URL,
+                          {'data': {'schema': schema}},
+                          headers=self.headers)
+
+    def test_record_can_be_validated_with_minimum_fields(self):
+        self.app.post_json(RECORDS_URL,
+                           {'data': {}},
+                           headers=self.headers)
+
+    def test_record_can_be_validated_with_every_fields(self):
+        self.app.post_json(RECORDS_URL,
+                           {'data': {'id': 'abc', 'last_modified': 1234,
+                                     'schema': 42, 'title': 'b', 'name': 'n'}},
+                           headers=self.headers)
+
+    def test_record_can_be_validated_with_id_and_last_modified(self):
+        self.app.post_json(RECORDS_URL,
+                           {'data': {'id': 'abc', 'last_modified': 1234}},
+                           headers=self.headers)
+
+    def test_record_validation_can_reject_records(self):
+        self.app.post_json(RECORDS_URL,
+                           {'data': {'id': 'abc', 'last_modified': 1234,
+                                     'body': 2}},
+                           headers=self.headers,
+                           status=400)

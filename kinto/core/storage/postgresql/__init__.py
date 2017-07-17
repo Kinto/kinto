@@ -7,7 +7,7 @@ from kinto.core.storage import (
     StorageBase, exceptions,
     DEFAULT_ID_FIELD, DEFAULT_MODIFIED_FIELD, DEFAULT_DELETED_FIELD)
 from kinto.core.storage.postgresql.client import create_from_config
-from kinto.core.utils import COMPARISON, is_numeric
+from kinto.core.utils import COMPARISON
 
 
 logger = logging.getLogger(__name__)
@@ -407,7 +407,7 @@ class Storage(StorageBase):
                               {conditions_filter}
                               {pagination_rules}
                         {sorting}
-                        {pagination_limit}
+                        LIMIT :pagination_limit
                 )
                 DELETE
                 FROM records
@@ -432,7 +432,7 @@ class Storage(StorageBase):
                           {conditions_filter}
                           {pagination_rules}
                     {sorting}
-                    {pagination_limit}
+                    LIMIT :pagination_limit
             )
             DELETE
             FROM records
@@ -480,9 +480,9 @@ class Storage(StorageBase):
             safeholders['pagination_rules'] = 'AND {}'.format(sql)
             placeholders.update(**holders)
 
-        if limit:
-            # We validate the limit value in the resource class as integer.
-            safeholders['pagination_limit'] = 'LIMIT {}'.format(limit)
+        # Limit the number of results (pagination).
+        limit = min(self._max_fetch_size, limit) if limit else self._max_fetch_size
+        placeholders['pagination_limit'] = limit
 
         with self.client.connect() as conn:
             result = conn.execute(query.format_map(safeholders), placeholders)
@@ -567,7 +567,6 @@ class Storage(StorageBase):
              WHERE {parent_id_filter}
                AND collection_id = :collection_id
                {conditions_filter}
-             LIMIT {max_fetch_size}
         ),
         fake_deleted AS (
             SELECT (:deleted_field)::JSONB AS data
@@ -595,7 +594,7 @@ class Storage(StorageBase):
           FROM paginated_records AS p JOIN all_records AS a ON (a.id = p.id),
                total_filtered
           {sorting}
-          {pagination_limit};
+          LIMIT :pagination_limit;
         """
         deleted_field = self.json.dumps(dict([(deleted_field, True)]))
 
@@ -606,7 +605,6 @@ class Storage(StorageBase):
 
         # Safe strings
         safeholders = defaultdict(str)
-        safeholders['max_fetch_size'] = self._max_fetch_size
 
         # Handle parent_id as a regex only if it contains *
         if '*' in parent_id:
@@ -637,15 +635,15 @@ class Storage(StorageBase):
             safeholders['pagination_rules'] = 'WHERE {}'.format(sql)
             placeholders.update(**holders)
 
-        if limit:
-            # We validate the limit value in the resource class as integer.
-            safeholders['pagination_limit'] = 'LIMIT {}'.format(limit)
+        # Limit the number of results (pagination).
+        limit = min(self._max_fetch_size, limit) if limit else self._max_fetch_size
+        placeholders['pagination_limit'] = limit
 
         with self.client.connect(readonly=True) as conn:
             result = conn.execute(query.format_map(safeholders), placeholders)
             retrieved = result.fetchmany(self._max_fetch_size)
 
-        if not len(retrieved):
+        if len(retrieved) == 0:
             return [], 0
 
         count_total = retrieved[0]['count_total']
@@ -686,6 +684,7 @@ class Storage(StorageBase):
         holders = {}
         for i, filtr in enumerate(filters):
             value = filtr.value
+            is_like_query = filtr.operator == COMPARISON.LIKE
 
             if filtr.field == id_field:
                 sql_field = 'id'
@@ -701,43 +700,81 @@ class Storage(StorageBase):
                     # Safely escape field name
                     field_holder = '{}_field_{}_{}'.format(prefix, i, j)
                     holders[field_holder] = subfield
-                    # Use ->> to convert the last level to text.
-                    column_name += "->>" if j == len(subfields) - 1 else "->"
+                    # Use ->> to convert the last level to text if
+                    # needed for LIKE query. (Other queries do JSONB comparison.)
+                    column_name += "->>" if j == len(subfields) - 1 and is_like_query else "->"
                     column_name += ":{}".format(field_holder)
+                sql_field = column_name
 
-                # If field is missing, we default to ''.
-                sql_field = "coalesce({}, '')".format(column_name)
-                # Cast when comparing to number (eg. '4' < '12')
-                try:
-                    if value and (is_numeric(value) or all([is_numeric(v) for v in value])):
-                        sql_field = "({})::numeric".format(column_name)
-                except TypeError:  # not iterable
-                    pass
+            string_field = filtr.field in (id_field, modified_field) or is_like_query
+            if not string_field:
+                # JSONB-ify the value.
+                if filtr.operator not in (COMPARISON.IN, COMPARISON.EXCLUDE):
+                    value = self.json.dumps(value)
+                else:
+                    value = [self.json.dumps(v) for v in value]
 
-            if filtr.operator not in (COMPARISON.IN, COMPARISON.EXCLUDE):
-                # For the IN operator, let psycopg escape the values list.
-                # Otherwise JSON-ify the native value (e.g. True -> 'true')
-                if not isinstance(value, str):
-                    value = self.json.dumps(value).strip('"')
-            else:
-                # If not all numeric, fallback to string comparison.
-                if not all([is_numeric(v) for v in value]):
-                    value = [str(v) for v in value]
+            if filtr.operator in (COMPARISON.IN, COMPARISON.EXCLUDE):
                 value = tuple(value)
                 # WHERE field IN ();  -- Fails with syntax error.
                 if len(value) == 0:
                     value = (None,)
 
-            if filtr.operator == COMPARISON.LIKE:
-                value = '%{}%'.format(value)
+            if is_like_query:
+                # Operand should be a string.
+                # Add implicit start/end wildchars if none is specified.
+                if "*" not in value:
+                    value = "*{}*".format(value)
+                value = value.replace("*", "%")
 
-            # Safely escape value
-            value_holder = '{}_value_{}'.format(prefix, i)
-            holders[value_holder] = value
+            if filtr.operator == COMPARISON.HAS:
+                operator = 'IS NOT NULL' if filtr.value else 'IS NULL'
+                cond = "{} {}".format(sql_field, operator)
+            else:
+                # Safely escape value
+                value_holder = '{}_value_{}'.format(prefix, i)
+                holders[value_holder] = value
 
-            sql_operator = operators.setdefault(filtr.operator,
-                                                filtr.operator.value)
-            cond = "{} {} :{}".format(sql_field, sql_operator, value_holder)
+                sql_operator = operators.setdefault(filtr.operator,
+                                                    filtr.operator.value)
+                cond = "{} {} :{}".format(sql_field, sql_operator, value_holder)
+
+            # If the field is missing, column_name will produce
+            # NULL. NULL has strange properties with comparisons
+            # in SQL -- NULL = anything => NULL, NULL <> anything => NULL.
+            # We generally want missing fields to be treated as a
+            # special value that compares as different from
+            # everything, including JSON null. Do this on a
+            # per-operator basis.
+            null_false_operators = (
+                # NULLs aren't EQ to anything (definitionally).
+                COMPARISON.EQ,
+                # So they can't match anything in an INCLUDE.
+                COMPARISON.IN,
+                # Nor can they be LIKE anything.
+                COMPARISON.LIKE,
+            )
+            null_true_operators = (
+                # NULLs are automatically not equal to everything.
+                COMPARISON.NOT,
+                # Thus they can never be excluded.
+                COMPARISON.EXCLUDE,
+                # Match Postgres's default sort behavior
+                # (NULLS LAST) by allowing NULLs to
+                # automatically be greater than everything.
+                COMPARISON.GT, COMPARISON.MIN,
+            )
+
+            if not (filtr.field == id_field or filtr.field == modified_field):
+                if filtr.operator in null_false_operators:
+                    cond = "({} IS NOT NULL AND {})".format(sql_field, cond)
+                elif filtr.operator in null_true_operators:
+                    cond = "({} IS NULL OR {})".format(sql_field, cond)
+                else:
+                    # No need to check for LT and MAX because NULL < foo
+                    # is NULL, which is falsy in SQL.
+                    pass
+
             conditions.append(cond)
 
         safe_sql = ' AND '.join(conditions)

@@ -351,6 +351,50 @@ class BaseTestStorage:
         self.assertLess(records[0]['person']['age'],
                         records[-1]['person']['age'])
 
+    def test_get_all_sorting_is_consistent_with_filtering(self):
+        self.create_record({'flavor': 'strawberry'})
+        self.create_record({'flavor': 'blueberry', 'author': None})
+        self.create_record({'flavor': 'raspberry', 'author': 1})
+        self.create_record({'flavor': 'orange', 'author': True})
+        self.create_record({'flavor': 'watermelon', 'author': 'Ethan'})
+        sorting = [Sort('author', 1)]
+        records, _ = self.storage.get_all(sorting=sorting, **self.storage_kw)
+        # Some interesting values to compare against
+        values = ['A', 'Z', '', 0, 4]
+
+        for value in values:
+            # Together, these filters should provide the entire list
+            filter_less = Filter('author', value, utils.COMPARISON.LT)
+            filter_min = Filter('author', value, utils.COMPARISON.MIN)
+            smaller_records, _ = self.storage.get_all(filters=[filter_less],
+                                                      sorting=sorting,
+                                                      **self.storage_kw)
+            greater_records, _ = self.storage.get_all(filters=[filter_min],
+                                                      sorting=sorting,
+                                                      **self.storage_kw)
+            other_records = smaller_records + greater_records
+            self.assertEqual(records, other_records,
+                             "Filtering is not consistent with sorting when filtering "
+                             "using value {}: {} (LT) + {} (MIN) != {}".format(
+                                 value, smaller_records, greater_records, records))
+
+        # Same test but with MAX and GT
+        for value in values:
+            # Together, these filters should provide the entire list
+            filter_less = Filter('author', value, utils.COMPARISON.MAX)
+            filter_min = Filter('author', value, utils.COMPARISON.GT)
+            smaller_records, _ = self.storage.get_all(filters=[filter_less],
+                                                      sorting=sorting,
+                                                      **self.storage_kw)
+            greater_records, _ = self.storage.get_all(filters=[filter_min],
+                                                      sorting=sorting,
+                                                      **self.storage_kw)
+            other_records = smaller_records + greater_records
+            self.assertEqual(records, other_records,
+                             "Filtering is not consistent with sorting when filtering "
+                             "using value {}: {} (MAX) + {} (GT) != {}".format(
+                                 value, smaller_records, greater_records, records))
+
     def test_get_all_can_filter_with_list_of_values(self):
         for l in ['a', 'b', 'c']:
             self.create_record({'code': l})
@@ -429,18 +473,66 @@ class BaseTestStorage:
         self.assertEqual(records[1]['name'], "Marie")
         self.assertEqual(len(records), 2)
 
-    def test_get_all_can_filter_with_none_values(self):
+    def test_get_all_can_filter_minimum_value_with_strings(self):
+        for v in ["49.0", "6.0", "53.0b4"]:
+            self.create_record({"product": {"version": v}})
+        sorting = [Sort("product.version", 1)]
+        filters = [Filter("product.version", "50.0", utils.COMPARISON.MIN)]
+        records, _ = self.storage.get_all(sorting=sorting, filters=filters,
+                                          **self.storage_kw)
+        self.assertEqual(records[0]["product"]["version"], "53.0b4")
+        self.assertEqual(records[1]["product"]["version"], "6.0")
+        self.assertEqual(len(records), 2)
+
+    def test_get_all_does_not_implicitly_cast(self):
+        for v in ["49.0", "6.0", "53.0b4"]:
+            self.create_record({"product": {"version": v}})
+        sorting = [Sort("product.version", 1)]
+        filters = [Filter("product.version", 50.0, utils.COMPARISON.MIN)]
+        records, _ = self.storage.get_all(sorting=sorting, filters=filters,
+                                          **self.storage_kw)
+        self.assertEqual(len(records), 0)  # 50 (number) > strings
+
+    def test_get_all_can_deal_with_none_values(self):
         self.create_record({"name": "Alexis"})
         self.create_record({"title": "haha"})
         self.create_record({"name": "Mathieu"})
         filters = [Filter("name", "Fanny", utils.COMPARISON.GT)]
         records, _ = self.storage.get_all(filters=filters, **self.storage_kw)
-        self.assertEqual(len(records), 1)  # None is not greater than "Fanny"
-        self.assertEqual(records[0]["name"], "Mathieu")
+        # NULLs compare as greater than everything
+        self.assertEqual(len(records), 2)
+        # But we aren't clear on what the order will be
+        mathieu_record = records[0] if 'name' in records[0] else records[1]
+        haha_record = records[1] if 'name' in records[0] else records[0]
+        self.assertEqual(mathieu_record["name"], "Mathieu")
+        self.assertEqual(haha_record["title"], "haha")
 
         filters = [Filter("name", "Fanny", utils.COMPARISON.LT)]
         records, _ = self.storage.get_all(filters=filters, **self.storage_kw)
-        self.assertEqual(len(records), 2)  # None is less than "Fanny"
+        self.assertEqual(len(records), 1)
+        self.assertEqual(records[0]["name"], "Alexis")
+
+    def test_get_all_can_filter_with_none_values(self):
+        self.create_record({"name": "Alexis", "salary": None})
+        self.create_record({"name": "Mathieu", "salary": "null"})
+        self.create_record({"name": "Niko", "salary": ""})
+        self.create_record({"name": "Ethan"})   # missing salary
+        filters = [Filter("salary", None, utils.COMPARISON.EQ)]
+        records, _ = self.storage.get_all(filters=filters, **self.storage_kw)
+        self.assertEqual(len(records), 1)
+        self.assertEqual(records[0]["name"], "Alexis")
+
+    def test_filter_none_values_can_be_combined(self):
+        self.create_record({"name": "Alexis", "salary": None})
+        self.create_record({"name": "Mathieu", "salary": "null"})
+        self.create_record({"name": "Niko", "salary": ""})
+        self.create_record({"name": "Ethan"})   # missing salary
+        filters = [
+            Filter("salary", 0, utils.COMPARISON.GT),
+            Filter("salary", True, utils.COMPARISON.HAS)
+        ]
+        records, _ = self.storage.get_all(filters=filters, **self.storage_kw)
+        self.assertEqual(len([r for r in records if 'salary' not in r]), 0)
 
     def test_get_all_can_filter_with_list_of_values_on_id(self):
         record1 = self.create_record({'code': 'a'})
@@ -490,6 +582,60 @@ class BaseTestStorage:
                                           **self.storage_kw)
         self.assertEqual(len(records), 1)
 
+    def test_get_all_can_filter_matching_a_list(self):
+        self.create_record({"flavor": "strawberry", "orders": []})
+        self.create_record({"flavor": "blueberry", "orders": [1]})
+        self.create_record({"flavor": "pineapple", "orders": [1, 2]})
+        self.create_record({"flavor": "watermelon", "orders": ""})
+        self.create_record({"flavor": "raspberry", "orders": {}})
+        filters = [Filter("orders", [], utils.COMPARISON.EQ)]
+        records, _ = self.storage.get_all(filters=filters, **self.storage_kw)
+        self.assertEqual(len(records), 1)
+        self.assertEqual(records[0]["flavor"], "strawberry")
+
+        filters = [Filter("orders", [1], utils.COMPARISON.EQ)]
+        records, _ = self.storage.get_all(filters=filters, **self.storage_kw)
+        self.assertEqual(len(records), 1)
+        self.assertEqual(records[0]["flavor"], "blueberry")
+
+    def test_get_all_can_filter_matching_an_object(self):
+        self.create_record({"flavor": "strawberry", "attributes": {}})
+        self.create_record({
+            "flavor": "blueberry",
+            "attributes": {"ibu": 25, "seen_on": "2017-06-01"},
+        })
+        self.create_record({
+            "flavor": "watermelon",
+            "attributes": {"ibu": 25, "seen_on": "2017-06-01", "price": 9.99},
+        })
+        self.create_record({"flavor": "raspberry", "attributes": []})
+        filters = [Filter("attributes", {}, utils.COMPARISON.EQ)]
+        records, _ = self.storage.get_all(filters=filters, **self.storage_kw)
+        self.assertEqual(len(records), 1)
+        self.assertEqual(records[0]["flavor"], "strawberry")
+
+        filters = [Filter("attributes", {"ibu": 25, "seen_on": "2017-06-01"}, utils.COMPARISON.EQ)]
+        records, _ = self.storage.get_all(filters=filters, **self.storage_kw)
+        self.assertEqual(len(records), 1)
+        self.assertEqual(records[0]["flavor"], "blueberry")
+
+    def test_get_all_supports_has(self):
+        self.create_record({"flavor": "strawberry"})
+        self.create_record({"flavor": "blueberry", "author": None})
+        self.create_record({"flavor": "raspberry", "author": ""})
+        self.create_record({"flavor": "watermelon", "author": "hello"})
+        self.create_record({"flavor": "pineapple", "author": "null"})
+        filters = [Filter("author", True, utils.COMPARISON.HAS)]
+        records, _ = self.storage.get_all(filters=filters, **self.storage_kw)
+        self.assertEqual(len(records), 4)
+        self.assertEqual(sorted([r['flavor'] for r in records]),
+                         ["blueberry", "pineapple", "raspberry", "watermelon"])
+
+        filters = [Filter("author", False, utils.COMPARISON.HAS)]
+        records, _ = self.storage.get_all(filters=filters, **self.storage_kw)
+        self.assertEqual(len(records), 1)
+        self.assertEqual(records[0]["flavor"], "strawberry")
+
     def test_get_all_can_filter_by_subobjects_values(self):
         for l in ['a', 'b', 'c']:
             self.create_record({'code': {'sub': l}})
@@ -498,33 +644,26 @@ class BaseTestStorage:
                                           **self.storage_kw)
         self.assertEqual(len(records), 1)
 
-    def test_get_all_handle_a_pagination_rules(self):
-        for x in range(10):
-            record = dict(self.record)
-            record["number"] = x % 3
-            self.create_record(record)
+    def test_get_all_can_filter_with_like_and_implicit_wildchars(self):
+        self.create_record({'name': 'foo'})
+        self.create_record({'name': 'aafooll'})
+        self.create_record({'name': 'bar'})
+        self.create_record({'name': 'FOOBAR'})
 
-        records, total_records = self.storage.get_all(
-            limit=5,
-            pagination_rules=[
-                [Filter('number', 1, utils.COMPARISON.GT)]
-            ], **self.storage_kw)
-        self.assertEqual(total_records, 10)
-        self.assertEqual(len(records), 3)
+        filters = [Filter('name', 'FoO', utils.COMPARISON.LIKE)]
+        results, count = self.storage.get_all(filters=filters, **self.storage_kw)
+        self.assertEqual(len(results), 3)
 
-    def test_get_all_handle_all_pagination_rules(self):
-        for x in range(10):
-            record = dict(self.record)
-            record["number"] = x % 3
-            last_record = self.create_record(record)
+    def test_get_all_can_filter_with_wildchars(self):
+        self.create_record({'name': 'eabcg'})
+        self.create_record({'name': 'aabcc'})
+        self.create_record({'name': 'abc'})
+        self.create_record({'name': 'aec'})
+        self.create_record({'name': 'efg'})
 
-        records, total_records = self.storage.get_all(
-            limit=5, pagination_rules=[
-                [Filter('number', 1, utils.COMPARISON.GT)],
-                [Filter('id', last_record['id'], utils.COMPARISON.EQ)],
-            ], **self.storage_kw)
-        self.assertEqual(total_records, 10)
-        self.assertEqual(len(records), 4)
+        filters = [Filter('name', 'a*b*c', utils.COMPARISON.LIKE)]
+        results, count = self.storage.get_all(filters=filters, **self.storage_kw)
+        self.assertEqual(len(results), 2)
 
 
 class TimestampsTest:
@@ -952,15 +1091,6 @@ class DeletedRecordsTest:
         self.assertEqual(count, 3)
         self.assertEqual(records[0]['foo'], 2)
 
-    def test_delete_all_supports_pagination_rules(self):
-        for i in range(6):
-            self.create_record({'foo': i})
-
-        pagination_rules = [[Filter('foo', 3, utils.COMPARISON.GT)]]
-        deleted = self.storage.delete_all(limit=4, pagination_rules=pagination_rules,
-                                          **self.storage_kw)
-        self.assertEqual(len(deleted), 2)
-
     def test_purge_deleted_remove_all_tombstones(self):
         self.create_record()
         self.create_record()
@@ -1204,6 +1334,43 @@ class DeletedRecordsTest:
         self.assertIn('deleted', records[0])
         self.assertNotIn('deleted', records[1])
 
+    def test_get_all_handle_a_pagination_rules(self):
+        for x in range(10):
+            record = dict(self.record)
+            record["number"] = x % 3
+            self.create_record(record)
+
+        records, total_records = self.storage.get_all(
+            limit=5,
+            pagination_rules=[
+                [Filter('number', 1, utils.COMPARISON.GT)]
+            ], **self.storage_kw)
+        self.assertEqual(total_records, 10)
+        self.assertEqual(len(records), 3)
+
+    def test_get_all_handle_all_pagination_rules(self):
+        for x in range(10):
+            record = dict(self.record)
+            record["number"] = x % 3
+            last_record = self.create_record(record)
+
+        records, total_records = self.storage.get_all(
+            limit=5, pagination_rules=[
+                [Filter('number', 1, utils.COMPARISON.GT)],
+                [Filter('id', last_record['id'], utils.COMPARISON.EQ)],
+            ], **self.storage_kw)
+        self.assertEqual(total_records, 10)
+        self.assertEqual(len(records), 4)
+
+    def test_delete_all_supports_pagination_rules(self):
+        for i in range(6):
+            self.create_record({'foo': i})
+
+        pagination_rules = [[Filter('foo', 3, utils.COMPARISON.GT)]]
+        deleted = self.storage.delete_all(limit=4, pagination_rules=pagination_rules,
+                                          **self.storage_kw)
+        self.assertEqual(len(deleted), 2)
+
 
 class ParentRecordAccessTest:
     def test_parent_cannot_access_other_parent_record(self):
@@ -1270,12 +1437,3 @@ class StorageTest(ThreadMixin,
                   BaseTestStorage):
     """Compound of all storage tests."""
     pass
-
-    def test_records_filtered_when_searched_by_string_field(self):
-        self.create_record({'name': 'foo'})
-        self.create_record({'name': 'bar'})
-        self.create_record({'name': 'FOOBAR'})
-
-        filters = [Filter('name', 'FoO', utils.COMPARISON.LIKE)]
-        results, count = self.storage.get_all(filters=filters, **self.storage_kw)
-        self.assertEqual(len(results), 2)
