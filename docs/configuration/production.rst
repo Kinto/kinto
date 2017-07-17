@@ -40,7 +40,7 @@ On Mac OS X, `install a server or use port <http://superuser.com/questions/29687
 Install PostgreSQL Python Dependencies
 --------------------------------------
 
-Kinto PostgreSQL backends rely on specific Python packages (like `SQLAlchemy <http://www.sqlalchemy.org/>`_ and `pscopg2 <http://initd.org/psycopg/>`_), which can be installed with a single *pip* command ::
+Kinto PostgreSQL backends rely on specific Python packages (like `SQLAlchemy <http://www.sqlalchemy.org/>`_ and `psycopg2 <http://initd.org/psycopg/>`_), which can be installed with a single *pip* command ::
 
     $ pip install -U kinto[postgresql]
 
