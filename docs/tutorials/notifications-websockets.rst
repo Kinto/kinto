@@ -47,7 +47,7 @@ add these lines to setup a listener, and be notified of record updates per colle
     pusher.app_id = <pusher-app-id>
     pusher.key = <pusher-key>
     pusher.secret = <pusher-secret>
-    pusher.cluster = <pusher-cluster>
+    pusher.cluster = eu
 
 And (re)start Kinto with this new configuration.
 
