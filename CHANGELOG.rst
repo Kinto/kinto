@@ -9,6 +9,7 @@ This document describes changes between each past release.
 **Internal changes**
 
 - Use json instead of ujson in storage in tests (#1255)
+- Improve Docker container to follow Dockerflow recommendations (fixes #998)
 
 
 7.3.1 (2017-07-03)
