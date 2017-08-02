@@ -3,24 +3,99 @@ Changelog
 
 This document describes changes between each past release.
 
-7.2.0 (unreleased)
+7.3.2 (unreleased)
+------------------
+
+**Internal changes**
+
+- Use json instead of ujson in storage in tests (#1255)
+- Improve Docker container to follow Dockerflow recommendations (fixes #998)
+
+
+7.3.1 (2017-07-03)
 ------------------
 
 **Bug fixes**
 
+- Fix bug in Postgres backend regarding the handling of combining
+  filters and NULL values.
+
+
+7.3.0 (2017-06-23)
+------------------
+
+**New features**
+
+- Account plugin now allows account IDs to be email addresses (fixes
+  #1283).
+
+**Bug fixes**
+
+- Make it illegal for a principal to be present in
+  ``account_create_principals`` without also being in
+  ``account_write_principals``. Restricting creation of accounts to
+  specified users only makes sense if those users are "admins", which
+  means they're in ``account_write_principals``. (Fixes #1281.)
+- Fix a 500 when accounts without an ID are created (fixes #1280).
+- Fix StatsD unparseable metric packets for the unique user counter (fixes #1282)
+
+**Internal changes**
+
+- Upgraded the kinto-admin to version 1.14.0
+
+
+7.2.2 (2017-06-22)
+------------------
+
+**Bug fixes**
+
+- Fix permissions endpoint when using account plugin (fixes #1276)
+
+
+7.2.1 (2017-06-20)
+------------------
+
+**Bug fixes**
+
+- Fix missing ``collection_count`` field in the rebuild-quotas script.
+- Fix bug causing validation to always succeed if no required fields are present.
+
+**Internal changes**
+
+- Upgraded to Pyramid-tm 2 (fixes #1187)
+
+
+7.2.0 (2017-06-15)
+------------------
+
+**API**
+
+- Filtering with like can now contain wild chars (eg. ``?like_nobody=*you*``).
+  It is thus now impossible to search for the ``*`` character with this operator.
 - Handle querystring parameters as JSON encoded values
   to avoid treating number as number where they should be strings. (#1217)
 - Introduce ``has_`` filter operator (fixes #344).
+
+API is now at version **1.17**. See `API changelog`_.
+
+**Bug fixes**
+
 - Several changes to the handling of NULLs and how the full range of
   JSON values is compared in a storage backend (PR #1258). Combined
   with #1252, this should fix #1215, #1216, #1217 and #1257, as well as
   possibly some others.
 - Fix requests output when running with make serve (fixes #1242)
+- Fix pagination on permissions endpoint (fixes #1157)
+- Fix pagination when max fetch storage is reached (fixes #1266)
+- Fix schema validation when internal fields like ``id`` or ``last_modified`` are
+  marked as required (fixes #1244)
+- Restore error format for JSON schema validation errors (which was
+  changed in #1245).
 
 **Internal changes**
 
 - Add check on account plugin to avoid conflict with default ``basicauth`` policy (fixes #1177)
-- Improve Docker container to follow Dockerflow recommendations (fixes #998)
+- Add documentation about Kinto Admin plugin (fixes #858)
 
 
 7.1.0 (2017-05-31)

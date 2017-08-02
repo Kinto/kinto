@@ -158,6 +158,10 @@ Create account
         }
 
 
+By default, users can only create their own accounts. "Administrators", meaning anyone who matches ``account_write_principals``, can create accounts for other users as well.
+
+You can set ``account_create_principals`` if you want to limit account creation to certain users. The most common situation is when you want to have a small number of administrators, who are responsible for creating accounts for other users. In this case, you should add the administrators to both ``account_create_principals`` and ``account_write_principals``.
+
 .. _accounts-udpate:
 
 Change password

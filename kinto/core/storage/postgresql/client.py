@@ -80,6 +80,7 @@ def create_from_config(config, prefix='', with_transaction=True):
     settings.pop(prefix + 'max_fetch_size', None)
     settings.pop(prefix + 'max_size_bytes', None)
     settings.pop(prefix + 'prefix', None)
+    settings.pop(prefix + 'strict_json', None)
     transaction_per_request = with_transaction and settings.pop('transaction_per_request', False)
 
     url = settings[prefix + 'url']

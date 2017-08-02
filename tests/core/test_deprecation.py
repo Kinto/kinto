@@ -1,9 +1,9 @@
 import datetime
+import json
 
 import mock
 
 from kinto.core.errors import ERRORS
-from kinto.core.utils import json
 from kinto.core.testing import unittest
 
 from .support import BaseWebTest

@@ -26,3 +26,24 @@ def includeme(config):
             error_msg = ("'basicauth' should not be mentioned before 'account' "
                          "in 'multiauth.policies' setting.")
             raise ConfigurationError(error_msg)
+
+    # We assume anyone in account_create_principals is to create
+    # accounts for other people.
+    # No one can create accounts for other people unless they are an
+    # "admin", defined as someone matching account_write_principals.
+    # Therefore any account that is in account_create_principals
+    # should be in account_write_principals too.
+    creators = set(settings.get('account_create_principals', '').split())
+    admins = set(settings.get('account_write_principals', '').split())
+    cant_create_anything = creators.difference(admins)
+    # system.Everyone isn't an account.
+    cant_create_anything.discard('system.Everyone')
+    if cant_create_anything:
+        message = ('Configuration has some principals in account_create_principals '
+                   'but not in account_write_principals. These principals will only be '
+                   'able to create their own accounts. This may not be what you want.\n'
+                   'If you want these users to be able to create accounts for other users, '
+                   'add them to account_write_principals.\n'
+                   'Affected users: {}'.format(list(cant_create_anything)))
+
+        raise ConfigurationError(message)
