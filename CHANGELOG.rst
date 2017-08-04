@@ -1,7 +1,12 @@
 Changelog
 =========
 
-This document describes changes between each past release.
+**Internal changes**
+
+- Now all configuration options appear as commented lines on the configuration
+  template (#895)
+- Added task on PR template about updating the configuration template
+  if a new configuration setting is added.
 
 7.3.2 (unreleased)
 ------------------
