@@ -120,17 +120,9 @@ multiauth.policies = basicauth
 # Production settings
 #
 # https://kinto.readthedocs.io/en/latest/configuration/production.html
-#
-# kinto.statsd_backend = kinto.core.statsd
-# kinto.statsd_url = udp://localhost:8125
-# kinto.statsd_prefix = kinto-prod
 
 # kinto.http_scheme = https
 # kinto.http_host = kinto.services.mozilla.com
-
-# kinto.backoff = 10
-# kinto.retry_after_seconds = 30
-# kinto.eos =
 
 # Cross Origin Requests
 # https://kinto.readthedocs.io/en/latest/configuration/settings.html#cross-origin-requests-cors
@@ -188,9 +180,9 @@ multiauth.policies = basicauth
 # Default generator
 # kinto.bucket_id_generator=kinto.views.NameGenerator
 # Custom example
-# kinto.collection_id_generator=name_generator.CollectionGenerator
-# kinto.group_id_generator=name_generator.GroupGenerator
-# kinto.record_id_generator=name_generator.RecordGenerator
+# kinto.collection_id_generator = name_generator.CollectionGenerator
+# kinto.group_id_generator = name_generator.GroupGenerator
+# kinto.record_id_generator = name_generator.RecordGenerator
 
 # Enabling or disabling endpoints
 # https://kinto.readthedocs.io/en/latest/configuration/settings.html#enabling-or-disabling-endpoints
@@ -231,6 +223,7 @@ multiauth.policies = basicauth
 # kinto.statsd_backend = kinto.core.statsd
 # kinto.statsd_prefix = kinto
 # kinto.statsd_url =
+
 # kinto.newrelic_config =
 # kinto.newrelic_env = dev
 
