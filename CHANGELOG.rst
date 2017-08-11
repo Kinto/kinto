@@ -11,6 +11,11 @@ Changelog
 7.3.2 (unreleased)
 ------------------
 
+**Bug fixes**
+
+- The PostgreSQL cache backend now orders deletes according to keys,
+  which are a well-defined order that never changes. (Fixes #1308.)
+
 **Internal changes**
 
 - Use json instead of ujson in storage in tests (#1255)
