@@ -140,8 +140,17 @@ class Cache(CacheBase):
                                      value=value, ttl=ttl))
 
     def get(self, key):
-        purge = "DELETE FROM cache WHERE ttl IS NOT NULL AND now() > ttl;"
-        query = "SELECT value FROM cache WHERE key = :key;"
+        purge = """
+        DELETE FROM cache c
+        USING (
+            SELECT key
+            FROM cache
+            WHERE ttl IS NOT NULL AND now() > ttl
+            ORDER BY key ASC
+            FOR UPDATE
+        ) del
+        WHERE del.key = c.key;"""
+        query = "SELECT value FROM cache WHERE key = :key AND now() < ttl;"
         with self.client.connect() as conn:
             conn.execute(purge)
             result = conn.execute(query, dict(key=self.prefix + key))
