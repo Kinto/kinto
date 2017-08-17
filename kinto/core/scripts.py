@@ -111,12 +111,12 @@ def rebuild_quotas(env, dry_run=False):
     if readonly_mode:
         message = ('Cannot rebuild quotas while in readonly mode.')
         logger.error(message)
-        return 31
+        return 41
 
     if 'kinto.plugins.quotas' not in settings['includes']:
         message = ('Cannot rebuild quotas when quotas plugin is not installed.')
         logger.error(message)
-        return 32
+        return 42
 
     quotas.rebuild_quotas(registry.storage, dry_run=dry_run)
     current_transaction.commit()
