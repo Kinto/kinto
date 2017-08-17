@@ -2,7 +2,7 @@ import mock
 
 from kinto.core.utils import COMPARISON, sqlalchemy
 from kinto.core.storage import generators, memory, postgresql, exceptions, StorageBase
-from kinto.core.storage import Filter, Sort
+from kinto.core.storage import Filter, Sort, MISSING
 from kinto.core.storage.testing import StorageTest
 from kinto.core.storage.utils import paginated
 from kinto.core.testing import (unittest, skip_if_no_postgresql)
@@ -211,6 +211,11 @@ class PostgreSQLStorageTest(StorageTest, unittest.TestCase):
                         'warnings.warn') as mocked:
             self.backend.load_from_config(self._get_config(settings=settings))
             mocked.assert_any_call(msg)
+
+    def test_get_all_raises_if_missing_on_strange_query(self):
+        with self.assertRaises(ValueError):
+            self.storage.get_all('some-collection', 'some-parent',
+                                 filters=[Filter("author", MISSING, COMPARISON.HAS)])
 
     def test_integrity_error_rollsback_transaction(self):
         client = postgresql.create_from_config(self._get_config(),
