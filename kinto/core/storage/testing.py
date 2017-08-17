@@ -5,7 +5,7 @@ from pyramid import testing
 
 from kinto.core import utils
 from kinto.core.testing import skip_if_travis, DummyRequest, ThreadMixin
-from kinto.core.storage import exceptions, Filter, Sort, heartbeat
+from kinto.core.storage import exceptions, Filter, Sort, heartbeat, MISSING
 
 
 RECORD_ID = '472be9ec-26fe-461b-8282-9c4e4b207ab3'
@@ -360,7 +360,7 @@ class BaseTestStorage:
         sorting = [Sort('author', 1)]
         records, _ = self.storage.get_all(sorting=sorting, **self.storage_kw)
         # Some interesting values to compare against
-        values = ['A', 'Z', '', 0, 4]
+        values = ['A', 'Z', '', 0, 4, MISSING]
 
         for value in values:
             # Together, these filters should provide the entire list

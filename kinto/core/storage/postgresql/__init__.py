@@ -5,7 +5,8 @@ from collections import defaultdict
 
 from kinto.core.storage import (
     StorageBase, exceptions,
-    DEFAULT_ID_FIELD, DEFAULT_MODIFIED_FIELD, DEFAULT_DELETED_FIELD)
+    DEFAULT_ID_FIELD, DEFAULT_MODIFIED_FIELD, DEFAULT_DELETED_FIELD,
+    MISSING)
 from kinto.core.storage.postgresql.client import create_from_config
 from kinto.core.utils import COMPARISON
 
@@ -707,7 +708,7 @@ class Storage(StorageBase):
                 sql_field = column_name
 
             string_field = filtr.field in (id_field, modified_field) or is_like_query
-            if not string_field:
+            if not string_field and value != MISSING:
                 # JSONB-ify the value.
                 if filtr.operator not in (COMPARISON.IN, COMPARISON.EXCLUDE):
                     value = self.json.dumps(value)
@@ -730,8 +731,8 @@ class Storage(StorageBase):
             if filtr.operator == COMPARISON.HAS:
                 operator = 'IS NOT NULL' if filtr.value else 'IS NULL'
                 cond = "{} {}".format(sql_field, operator)
-            else:
-                # Safely escape value
+            elif value != MISSING:
+                # Safely escape value. MISSINGs get handled below.
                 value_holder = '{}_value_{}'.format(prefix, i)
                 holders[value_holder] = value
 
@@ -766,7 +767,40 @@ class Storage(StorageBase):
             )
 
             if not (filtr.field == id_field or filtr.field == modified_field):
-                if filtr.operator in null_false_operators:
+                if value == MISSING:
+                    # Handle MISSING values. The main use case for this is
+                    # pagination, since there's no way to encode MISSING
+                    # at the HTTP API level. Because we only need to cover
+                    # pagination, we don't have to worry about any
+                    # operators besides LT, LE, GT, GE, and EQ, and
+                    # never worry about id_field or modified_field.
+                    #
+                    # Comparing a value against NULL is not the same
+                    # as comparing a NULL against some other value, so
+                    # we need another set of operators for which
+                    # NULLs are OK.
+                    if filtr.operator in (COMPARISON.EQ, COMPARISON.MIN):
+                        # If a row is NULL, then it can be == NULL
+                        # (for the purposes of pagination).
+                        # >= NULL should only match rows that are
+                        # NULL, since there's nothing higher.
+                        cond = "{} IS NULL".format(sql_field)
+                    elif filtr.operator == COMPARISON.LT:
+                        # If we're looking for < NULL, match only
+                        # non-nulls.
+                        cond = "{} IS NOT NULL".format(sql_field)
+                    elif filtr.operator == COMPARISON.MAX:
+                        # <= NULL should include everything -- NULL
+                        # because it's equal, and non-nulls because
+                        # they're <.
+                        cond = "TRUE"
+                    elif filtr.operator == COMPARISON.GT:
+                        # Nothing can be greater than NULL (that is,
+                        # higher in search order).
+                        cond = "FALSE"
+                    else:
+                        raise ValueError("Somehow we got a filter with MISSING value")
+                elif filtr.operator in null_false_operators:
                     cond = "({} IS NOT NULL AND {})".format(sql_field, cond)
                 elif filtr.operator in null_true_operators:
                     cond = "({} IS NULL OR {})".format(sql_field, cond)
