@@ -4,6 +4,7 @@ from pyramid.settings import aslist
 
 from kinto.authorization import PERMISSIONS_INHERITANCE_TREE
 from kinto.core import utils as core_utils, resource
+from kinto.core.storage import Sort
 from kinto.core.storage.memory import extract_record_set
 
 
@@ -39,10 +40,9 @@ def allowed_from_settings(settings, principals):
                 resource_name=resource_name,
                 permission=permission)
             resource_name = {  # resource parents.
-                'bucket': '',
                 'collection': 'bucket',
                 'group': 'bucket',
-                'record': 'collection'}[resource_name]
+                'record': 'collection'}.get(resource_name, '')
         # Store them in a convenient way.
         from_settings.setdefault(resource_name, set()).add(permission)
     return from_settings
@@ -172,6 +172,10 @@ class Permissions(resource.ShareableResource):
         result = super()._extract_sorting(limit)
         without_last_modified = [s for s in result
                                  if s.field != self.model.modified_field]
+        # For pagination, there must be at least one sort criteria.
+        # We use ``uri`` because its values are unique.
+        if "uri" not in [s.field for s in without_last_modified]:
+            without_last_modified.append(Sort("uri", -1))
         return without_last_modified
 
     def _extract_filters(self):

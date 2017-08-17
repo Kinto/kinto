@@ -1,6 +1,8 @@
 import re
 import operator
 from collections import defaultdict
+from collections import abc
+import numbers
 
 from kinto.core import utils
 from kinto.core.decorators import synchronized
@@ -12,6 +14,13 @@ from kinto.core.utils import (COMPARISON, find_nested_value)
 import ujson
 
 
+class Missing():
+    pass
+
+
+MISSING = Missing()
+
+
 def tree():
     return defaultdict(tree)
 
@@ -21,7 +30,7 @@ class MemoryBasedStorage(StorageBase):
     methods for in-memory implementations of sorting and filtering.
     """
     def __init__(self, *args, **kwargs):
-        pass
+        super().__init__(*args, **kwargs)
 
     def initialize_schema(self, dry_run=False):
         # Nothing to do.
@@ -74,6 +83,11 @@ class Storage(MemoryBasedStorage):
     Enable in configuration::
 
         kinto.storage_backend = kinto.core.storage.memory
+
+    Enable strict json validation before saving (instead of the more lenient
+    ujson, see #1238)::
+
+        kinto.storage_strict_json = true
     """
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -152,7 +166,7 @@ class Storage(MemoryBasedStorage):
         self.set_record_timestamp(collection_id, parent_id, record,
                                   modified_field=modified_field)
         _id = record[id_field]
-        record = ujson.loads(ujson.dumps(record))
+        record = ujson.loads(self.json.dumps(record))
         self._store[parent_id][collection_id][_id] = record
         self._cemetery[parent_id][collection_id].pop(_id, None)
         return record
@@ -174,7 +188,7 @@ class Storage(MemoryBasedStorage):
                auth=None):
         record = {**record}
         record[id_field] = object_id
-        record = ujson.loads(ujson.dumps(record))
+        record = ujson.loads(self.json.dumps(record))
 
         self.set_record_timestamp(collection_id, parent_id, record,
                                   modified_field=modified_field)
@@ -332,10 +346,21 @@ def apply_filters(records, filters):
                 if isinstance(right, int):
                     right = str(right)
 
-            left = find_nested_value(record, f.field)
+            left = find_nested_value(record, f.field, MISSING)
 
             if f.operator in (COMPARISON.IN, COMPARISON.EXCLUDE):
                 right, left = left, right
+            elif f.operator == COMPARISON.LIKE:
+                # Add implicit start/end wildchars if none is specified.
+                if "*" not in right:
+                    right = "*{}*".format(right)
+                right = "^{}$".format(right.replace("*", ".*"))
+            elif f.operator != COMPARISON.HAS:
+                left = schwartzian_transform(left)
+                right = schwartzian_transform(right)
+
+            if f.operator == COMPARISON.HAS:
+                matches = left != MISSING if f.value else left == MISSING
             else:
                 if left is None:
                     right_is_number = (
@@ -349,9 +374,41 @@ def apply_filters(records, filters):
                         left = ''  # To mimic what we do for postgresql.
                         if right is None:
                             right = ''  # To mimic what we do for postgresql.
-            matches = matches and operators[f.operator](left, right)
+                matches = matches and operators[f.operator](left, right)
         if matches:
             yield record
+
+
+def schwartzian_transform(value):
+    """Decorate a value with a tag that enforces the Postgres sort order.
+
+    The sort order, per https://www.postgresql.org/docs/9.6/static/datatype-json.html, is:
+
+    Object > Array > Boolean > Number > String > Null
+
+    Note that there are more interesting rules for comparing objects
+    and arrays but we probably don't need to be that compatible.
+
+    MISSING represents what would be a SQL NULL, which is "bigger"
+    than everything else.
+    """
+    if value is None:
+        return (0, value)
+    if isinstance(value, str):
+        return (1, value)
+    if isinstance(value, bool):
+        # This has to be before Number, because bools are a subclass
+        # of int :(
+        return (3, value)
+    if isinstance(value, numbers.Number):
+        return (2, value)
+    if isinstance(value, abc.Sequence):
+        return (4, value)
+    if isinstance(value, abc.Mapping):
+        return (5, value)
+    if value is MISSING:
+        return (6, value)
+    raise ValueError("Unknown value: {}".format(value))   # pragma: no cover
 
 
 def apply_sorting(records, sorting):
@@ -362,14 +419,12 @@ def apply_sorting(records, sorting):
     if not result:
         return result
 
-    first_record = result[0]
-
-    def column(first, record, name):
-        return find_nested_value(record, name, default=float('inf'))
+    def column(record, name):
+        return schwartzian_transform(find_nested_value(record, name, default=MISSING))
 
     for sort in reversed(sorting):
         result = sorted(result,
-                        key=lambda r: column(first_record, r, sort.field),
+                        key=lambda r: column(r, sort.field),
                         reverse=(sort.direction < 0))
 
     return result
@@ -399,4 +454,6 @@ def _get_objects_by_parent_id(store, parent_id, collection_id, with_meta=False):
 
 
 def load_from_config(config):
-    return Storage()
+    settings = {**config.get_settings()}
+    strict = settings.get('storage_strict_json', False)
+    return Storage(strict_json=strict)

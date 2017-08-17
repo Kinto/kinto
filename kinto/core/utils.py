@@ -1,4 +1,3 @@
-import ast
 import collections
 import hashlib
 import hmac
@@ -11,7 +10,7 @@ from binascii import hexlify
 from urllib.parse import unquote
 from enum import Enum
 
-import ujson as json  # NOQA
+import ujson as json
 
 try:
     import sqlalchemy
@@ -56,14 +55,6 @@ def classname(obj):
     :rtype: str
     """
     return obj.__class__.__name__.lower()
-
-
-def is_numeric(value):
-    """Check if the provided value is a numeric value.
-
-    :rtype: bool
-    """
-    return isinstance(value, (int, float)) and not isinstance(value, bool)
 
 
 def merge_dicts(a, b):
@@ -114,14 +105,13 @@ def native_value(value):
     :returns: the value coerced to python type
     """
     if isinstance(value, str):
-        if value.lower() in ['on', 'true', 'yes']:
-            value = True
-        elif value.lower() in ['off', 'false', 'no']:
-            value = False
         try:
-            return ast.literal_eval(value)
-        except (TypeError, ValueError, SyntaxError):
-            pass
+            value = json.loads(value)
+        except ValueError:
+            try:
+                value = json.loads('"{}"'.format(value))
+            except ValueError:
+                return value
     return value
 
 
@@ -230,6 +220,7 @@ class COMPARISON(Enum):
     IN = 'in'
     EXCLUDE = 'exclude'
     LIKE = 'like'
+    HAS = 'has'
 
 
 def reapply_cors(request, response):

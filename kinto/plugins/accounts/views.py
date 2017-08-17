@@ -27,6 +27,12 @@ def _extract_posted_body_id(request):
         raise http_error(httpexceptions.HTTPUnauthorized(), error=error_msg)
 
 
+class AccountIdGenerator(NameGenerator):
+    """Allow @ signs in account IDs."""
+
+    regexp = r'^[a-zA-Z0-9][.@a-zA-Z0-9_-]*$'
+
+
 class AccountSchema(resource.ResourceSchema):
     password = colander.SchemaNode(colander.String())
 
@@ -55,7 +61,7 @@ class Account(resource.ShareableResource):
     @reify
     def id_generator(self):
         # This generator is used for ID validation.
-        return NameGenerator()
+        return AccountIdGenerator()
 
     def get_parent_id(self, request):
         # The whole challenge here is that we want to isolate what
@@ -107,6 +113,14 @@ class Account(resource.ShareableResource):
         # selected_userid. So do not try to enforce.
         if self.context.is_administrator or self.context.is_anonymous:
             return new
+
+        # Do not let accounts be created without usernames.
+        if self.model.id_field not in new:
+            error_details = {
+                'name': 'data.id',
+                'description': 'Accounts must have an ID.',
+            }
+            raise_invalid(self.request, **error_details)
 
         # Otherwise, we force the id to match the authenticated username.
         if new[self.model.id_field] != self.request.selected_userid:

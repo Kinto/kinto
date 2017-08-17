@@ -76,6 +76,9 @@ class StorageBaseTest(unittest.TestCase):
 
 class MemoryStorageTest(StorageTest, unittest.TestCase):
     backend = memory
+    settings = {
+        'storage_strict_json': True
+    }
 
     def setUp(self):
         super().setUp()
@@ -100,6 +103,28 @@ class MemoryStorageTest(StorageTest, unittest.TestCase):
         pass
 
 
+class LenientMemoryStorageTest(MemoryStorageTest):
+    settings = {
+        'storage_strict_json': False
+    }
+
+    def test_create_bytes_raises(self):
+        data = {'steak': 'haché'.encode(encoding='utf-8')}
+        self.assertIsInstance(data['steak'], bytes)
+        self.assertIsNotNone(self.create_record(data))
+
+    def test_update_bytes_raises(self):
+        record = self.create_record()
+
+        new_record = {'steak': 'haché'.encode(encoding='utf-8')}
+        self.assertIsInstance(new_record['steak'], bytes)
+
+        self.assertIsNotNone(self.storage.update(
+                                object_id=record['id'],
+                                record=new_record,
+                                **self.storage_kw))
+
+
 @skip_if_no_postgresql
 class PostgreSQLStorageTest(StorageTest, unittest.TestCase):
     backend = postgresql
@@ -108,6 +133,7 @@ class PostgreSQLStorageTest(StorageTest, unittest.TestCase):
         'storage_backend': 'kinto.core.storage.postgresql',
         'storage_poolclass': 'sqlalchemy.pool.StaticPool',
         'storage_url': 'postgres://postgres:postgres@localhost:5432/testdb',
+        'storage_strict_json': True
     }
 
     def setUp(self):
@@ -129,6 +155,21 @@ class PostgreSQLStorageTest(StorageTest, unittest.TestCase):
         limited = self.backend.load_from_config(config)
 
         results, count = limited.get_all(**self.storage_kw)
+        self.assertEqual(count, 4)
+        self.assertEqual(len(results), 2)
+
+    def test_number_of_fetched_records_is_per_page(self):
+        for i in range(10):
+            self.create_record({'number': i})
+
+        settings = {**self.settings, 'storage_max_fetch_size': 2}
+        config = self._get_config(settings=settings)
+        backend = self.backend.load_from_config(config)
+
+        results, count = backend.get_all(pagination_rules=[
+                                             [Filter('number', 1, COMPARISON.GT)]
+                                         ], **self.storage_kw)
+        self.assertEqual(count, 10)
         self.assertEqual(len(results), 2)
 
     def test_connection_is_rolledback_if_error_occurs(self):

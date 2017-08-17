@@ -3,6 +3,7 @@ from collections import OrderedDict
 
 import transaction
 from pyramid.events import NewRequest
+import pyramid.tweens
 from enum import Enum
 
 from kinto.core.utils import strip_uri_prefix
@@ -65,6 +66,22 @@ class AfterResourceChanged(_ResourceEvent):
         self.impacted_records = impacted_records
 
 
+def notify_resource_events_before(handler, registry):
+    """pyramid_tm "commit veto" hook to run ResourceChanged events.
+
+    This hook being a "commit veto" let us tell pyramid_tm to abort
+    the transaction if the ResourceChanged listeners raise.
+    """
+    def tween(request):
+        response = handler(request)
+        for event in request.get_resource_events():
+            request.registry.notify(event)
+
+        return response
+
+    return tween
+
+
 def setup_transaction_hook(config):
     """
     Resource events are plugged with the transactions of ``pyramid_tm``.
@@ -72,12 +89,6 @@ def setup_transaction_hook(config):
     Once a transaction is committed, ``AfterResourceRead`` and
     ``AfterResourceChanged`` events are sent.
     """
-    def _notify_resource_events_before(request):
-        """Notify the accumulated resource events before end of transaction.
-        """
-        for event in request.get_resource_events():
-            request.registry.notify(event)
-
     def _notify_resource_events_after(success, request):
         """Notify the accumulated resource events if transaction succeeds.
         """
@@ -97,12 +108,12 @@ def setup_transaction_hook(config):
         if hasattr(event.request, 'parent'):
             return
         current = transaction.get()
-        current.addBeforeCommitHook(_notify_resource_events_before,
-                                    args=(event.request,))
         current.addAfterCommitHook(_notify_resource_events_after,
                                    args=(event.request,))
 
     config.add_subscriber(on_new_request, NewRequest)
+    config.add_tween('kinto.core.events.notify_resource_events_before',
+                     under=pyramid.tweens.EXCVIEW)
 
 
 def get_resource_events(request, after_commit=False):

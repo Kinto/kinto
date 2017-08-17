@@ -33,8 +33,23 @@ class NativeValueTest(unittest.TestCase):
     def test_simple_string(self):
         self.assertEqual(native_value('value'), 'value')
 
+    def test_defined_string(self):
+        self.assertEqual(native_value('"value"'), 'value')
+
+    def test_null_value(self):
+        self.assertEqual(native_value('null'), None)
+
+    def test_defined_null_as_text_value(self):
+        self.assertEqual(native_value('"null"'), 'null')
+
     def test_integer(self):
         self.assertEqual(native_value('7'), 7)
+
+    def test_defined_integer_as_text_value(self):
+        self.assertEqual(native_value('"7"'), '7')
+
+    def test_defined_simple_quote_string_as_text_value(self):
+        self.assertEqual(native_value("'7'"), "'7'")
 
     def test_zero_and_one_coerce_to_integers(self):
         self.assertEqual(native_value('1'), 1)
@@ -44,12 +59,12 @@ class NativeValueTest(unittest.TestCase):
         self.assertEqual(native_value('3.14'), 3.14)
 
     def test_true_values(self):
-        true_strings = ['True', 'on', 'true', 'yes']
+        true_strings = ['true']
         true_values = [native_value(s) for s in true_strings]
         self.assertTrue(all(true_values))
 
     def test_false_values(self):
-        false_strings = ['False', 'off', 'false', 'no']
+        false_strings = ['false']
         false_values = [native_value(s) for s in false_strings]
         self.assertFalse(any(false_values))
 

@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 import unittest
 
 from kinto.core.testing import get_user_headers
+from pyramid.exceptions import ConfigurationError
 
 from .. import support
 
@@ -12,14 +13,15 @@ class AccountsWebTest(support.BaseWebTest, unittest.TestCase):
 
     @classmethod
     def get_app_settings(cls, extras=None):
-        settings = super().get_app_settings(extras)
-        settings['includes'] = 'kinto.plugins.accounts'
-        settings['account_create_principals'] = 'system.Everyone'
-        settings['multiauth.policies'] = 'account'
+        if extras is None:
+            extras = {}
+        extras.setdefault('multiauth.policies', 'account')
+        extras.setdefault('includes', 'kinto.plugins.accounts')
+        extras.setdefault('account_create_principals', 'system.Everyone')
         # XXX: this should be a default setting.
-        settings['multiauth.policy.account.use'] = ('kinto.plugins.accounts.authentication.'
-                                                    'AccountsAuthenticationPolicy')
-        return settings
+        extras.setdefault('multiauth.policy.account.use', 'kinto.plugins.accounts.authentication.'
+                                                          'AccountsAuthenticationPolicy')
+        return super().get_app_settings(extras)
 
 
 class HelloViewTest(AccountsWebTest):
@@ -57,6 +59,10 @@ class AccountCreationTest(AccountsWebTest):
 
     def test_id_field_is_mandatory(self):
         self.app.post_json('/accounts', {'data': {'password': 'pass'}}, status=400)
+
+    def test_id_can_be_email(self):
+        self.app.put_json('/accounts/alice@example.com', {'data': {'password': '123456'}},
+                          status=201)
 
     def test_account_can_have_metadata(self):
         resp = self.app.post_json('/accounts',
@@ -180,6 +186,29 @@ class AccountViewsTest(AccountsWebTest):
                      status=403)
 
 
+class PermissionsEndpointTest(AccountsWebTest):
+    @classmethod
+    def get_app_settings(cls, extras=None):
+        settings = super().get_app_settings(extras)
+        settings['experimental_permissions_endpoint'] = 'True'
+        return settings
+
+    def setUp(self):
+        self.app.put_json('/accounts/alice', {'data': {'password': '123456'}}, status=201)
+        self.headers = get_user_headers('alice', '123456')
+        self.app.put('/buckets/a', headers=self.headers)
+        self.app.put('/buckets/a/collections/b', headers=self.headers)
+        self.app.put('/buckets/a/collections/b/records/c', headers=self.headers)
+
+    def test_permissions_endpoint_is_compatible_with_accounts_plugin(self):
+        resp = self.app.get('/permissions', headers=self.headers)
+        uris = [r["uri"] for r in resp.json["data"]]
+        assert uris == ['/buckets/a/collections/b/records/c',
+                        '/buckets/a/collections/b',
+                        '/buckets/a',
+                        '/accounts/alice']
+
+
 class AdminTest(AccountsWebTest):
 
     @classmethod
@@ -242,3 +271,51 @@ class AdminTest(AccountsWebTest):
                            headers=self.admin_headers)
 
         self.app.delete('/accounts/alice', headers=get_user_headers('alice', 'bouh'))
+
+
+class CheckAdminCreateTest(AccountsWebTest):
+    def test_raise_if_create_but_no_write(self):
+        with self.assertRaises(ConfigurationError):
+            self.make_app({'account_create_principals': 'account:admin'})
+
+
+class CreateOtherUserTest(AccountsWebTest):
+    def setUp(self):
+        self.app.put_json('/accounts/bob', {'data': {'password': '123456'}}, status=201)
+        self.bob_headers = get_user_headers('bob', '123456')
+
+    def test_create_other_id_is_still_required(self):
+        self.app.post_json('/accounts', {'data': {'password': 'azerty'}}, status=400,
+                           headers=self.bob_headers)
+
+    def test_create_other_forbidden_without_write(self):
+        self.app.put_json('/accounts/alice', {'data': {'password': 'azerty'}}, status=400,
+                          headers=self.bob_headers)
+
+
+class WithBasicAuthTest(AccountsWebTest):
+
+    @classmethod
+    def get_app_settings(cls, extras=None):
+        if extras is None:
+            extras = {'multiauth.policies': 'account basicauth'}
+        return super().get_app_settings(extras)
+
+    def test_password_field_is_mandatory(self):
+        self.app.post_json('/accounts', {'data': {'id': 'me'}}, status=400)
+
+    def test_id_field_is_mandatory(self):
+        self.app.post_json('/accounts', {'data': {'password': 'pass'}}, status=400)
+
+    def test_fallsback_on_basicauth(self):
+        self.app.post_json('/accounts', {'data': {'id': 'me', 'password': 'bleh'}})
+
+        resp = self.app.get('/', headers=get_user_headers('me', 'wrong'))
+        assert 'basicauth' in resp.json['user']['id']
+
+        resp = self.app.get('/', headers=get_user_headers('me', 'bleh'))
+        assert 'account' in resp.json['user']['id']
+
+    def test_raise_configuration_if_wrong_error(self):
+        with self.assertRaises(ConfigurationError):
+            self.make_app({'multiauth.policies': 'basicauth account'})
