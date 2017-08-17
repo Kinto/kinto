@@ -9,6 +9,17 @@ import ujson
 from . import generators
 
 
+class Missing():
+    """Dummy value to represent a value that is completely absent from a record.
+
+    Handling these correctly is important for pagination.
+    """
+    pass
+
+
+MISSING = Missing()
+
+
 logger = logging.getLogger(__name__)
 
 

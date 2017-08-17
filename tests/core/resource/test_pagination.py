@@ -204,7 +204,7 @@ class PaginationTest(BasePaginationTest):
         self.assertRaises(HTTPBadRequest, self.resource.collection_get)
 
     def test_next_page_url_works_with_optional_fields(self):
-        self.validated['querystring'] = {'_limit': 10, '_sort': '-optional'}
+        self.validated['querystring'] = {'_limit': 10, '_sort': ['-optional']}
         results1 = self.resource.collection_get()
         self._setup_next_page()
         results2 = self.resource.collection_get()

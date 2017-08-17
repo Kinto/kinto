@@ -8,17 +8,11 @@ from kinto.core import utils
 from kinto.core.decorators import synchronized
 from kinto.core.storage import (
     StorageBase, exceptions,
-    DEFAULT_ID_FIELD, DEFAULT_MODIFIED_FIELD, DEFAULT_DELETED_FIELD)
+    DEFAULT_ID_FIELD, DEFAULT_MODIFIED_FIELD, DEFAULT_DELETED_FIELD,
+    MISSING)
 from kinto.core.utils import (COMPARISON, find_nested_value)
 
 import ujson
-
-
-class Missing():
-    pass
-
-
-MISSING = Missing()
 
 
 def tree():
@@ -362,18 +356,6 @@ def apply_filters(records, filters):
             if f.operator == COMPARISON.HAS:
                 matches = left != MISSING if f.value else left == MISSING
             else:
-                if left is None:
-                    right_is_number = (
-                        isinstance(right, (int, float)) and
-                        right not in (True, False))
-                    if right_is_number:
-                        # Python3 cannot compare None to a number.
-                        matches = False
-                        continue
-                    else:
-                        left = ''  # To mimic what we do for postgresql.
-                        if right is None:
-                            right = ''  # To mimic what we do for postgresql.
                 matches = matches and operators[f.operator](left, right)
         if matches:
             yield record
