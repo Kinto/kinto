@@ -50,7 +50,8 @@ environment variable. Specify the path to the folder containing the :file:`kinto
     $ export PYTHONPATH="/path/to/folder:${PYTHONPATH}"
 
 
-In order to test that it works, simply try to import it from a ``python`` script:
+In order to test that it works, simply try to import it from a ``python``
+interactive session:
 
 .. code-block:: shell
     :emphasize-lines: 5
