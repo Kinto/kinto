@@ -29,13 +29,10 @@ def create_user(env, username=None, password=None):
         validator = AccountIdGenerator()
         if username is None:
             username = input('Username: ')
-        while True:
-            if not validator.match(username):
-                print('{} is not a valid username.')
-                print('Username should match {0!r}, please try again.'.format(validator.regexp))
-                username = input('Username: ')
-            else:
-                break
+        while not validator.match(username):
+            print('{} is not a valid username.')
+            print('Username should match {0!r}, please try again.'.format(validator.regexp))
+            username = input('Username: ')
 
         if password is None:
             while True:
