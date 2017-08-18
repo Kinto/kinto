@@ -165,8 +165,8 @@ ETags are provided in response headers, for the collection as well as individual
 records.
 
 Even though it is recommended to consider them as opaque and abstract, it can still
-be useful to notice that ETags are the ``last_modified`` value of the record, quoted
-(``"<record.last_modified>"``)
+be useful to observe that ETags are the quoted ``last_modified`` value of the
+record: ``"<record.last_modified>"``.
 
 
 Protected creation with PUT
