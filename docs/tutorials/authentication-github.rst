@@ -165,7 +165,7 @@ Now using Basic Authentication it should be skipped, but with this request it sh
 
 ::
 
-    $ http http://localhost:8888/v1/ "Authorization: github+Bearer foobartoken"
+    $ http http://localhost:8888/v1/ "Authorization:github+Bearer foobartoken"
 
 
 Validate token while obtaining user id from Github
@@ -224,7 +224,7 @@ Let's try to create an object on Kinto, it should fail using a |status-401| erro
 
 ::
 
-    $ http PUT http://localhost:8888/v1/buckets/test "Authorization: github+Bearer foobartoken"
+    $ http PUT http://localhost:8888/v1/buckets/test "Authorization:github+Bearer foobartoken"
 
 .. code-block:: http
 
@@ -296,7 +296,7 @@ Check your user id
 
 .. code-block:: shell
 
-    $ http http://localhost:8888/v1/ "Authorization: github+Bearer 7f7f911969279d8b16a12f44b8bc6e2d216dc51e"
+    $ http http://localhost:8888/v1/ "Authorization:github+Bearer 7f7f911969279d8b16a12f44b8bc6e2d216dc51e"
 
 .. code-block:: http
     :emphasize-lines: 21
