@@ -341,9 +341,9 @@ It is much more convenient than Basic Auth identifiers!
 Cache the token validation
 ''''''''''''''''''''''''''
 
-Using the following snippet you can cache the association between a token and the user id, in order to avoid requesting Github at each request.
+Using the following snippet you can cache the association between a token and the user id, in order to avoid requesting Github each time.
 
-It uses Kinto internal cache backend (*if configured*):
+It uses Kinto's internal cache backend, if configured:
 
 .. code-block:: python
 
