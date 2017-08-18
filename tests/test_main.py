@@ -163,6 +163,15 @@ class TestMain(unittest.TestCase):
             assert mocked_pserve.call_count == 1
             assert '--reload' in mocked_pserve.call_args[1]['argv']
 
+    def test_cli_create_user_runs_account_script(self):
+        with mock.patch('kinto.__main__.create_user', return_value=0) as mocked_create_user:
+            res = main(['init', '--ini', TEMP_KINTO_INI, '--backend', 'memory'])
+            assert res == 0
+            res = main(['create-user', '--ini', TEMP_KINTO_INI,
+                        '-u', 'username', '-p', 'password'])
+            assert res == 0
+            mocked_create_user.call_count == 1
+
     def test_cli_can_display_kinto_version(self):
         with mock.patch('sys.stdout', new_callable=StringIO) as mock_stdout:
             res = main(['version'])

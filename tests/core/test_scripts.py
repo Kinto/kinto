@@ -132,7 +132,7 @@ class RebuildQuotasTest(unittest.TestCase):
         with mock.patch('kinto.core.scripts.logger') as mocked:
             self.registry.settings['readonly'] = 'true'
             code = scripts.rebuild_quotas({'registry': self.registry})
-            assert code == 31
+            assert code == 41
             mocked.error.assert_any_call('Cannot rebuild quotas while '
                                          'in readonly mode.')
 
@@ -140,7 +140,7 @@ class RebuildQuotasTest(unittest.TestCase):
         with mock.patch('kinto.core.scripts.logger') as mocked:
             self.registry.settings['includes'] = ''
             code = scripts.rebuild_quotas({'registry': self.registry})
-            assert code == 32
+            assert code == 42
             mocked.error.assert_any_call('Cannot rebuild quotas when '
                                          'quotas plugin is not installed.')
 

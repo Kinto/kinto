@@ -14,7 +14,6 @@ def create_user(env, username=None, password=None):
     registry = env['registry']
     settings = registry.settings
     readonly_mode = asbool(settings.get('readonly', False))
-
     if readonly_mode:
         message = ('Cannot create a user with a readonly server.')
         logger.error(message)

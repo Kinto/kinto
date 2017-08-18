@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import mock
 import unittest
 
 from kinto.core.testing import get_user_headers
 from pyramid.exceptions import ConfigurationError
 
+from kinto.plugins.accounts import scripts
 from .. import support
 
 
@@ -319,3 +321,59 @@ class WithBasicAuthTest(AccountsWebTest):
     def test_raise_configuration_if_wrong_error(self):
         with self.assertRaises(ConfigurationError):
             self.make_app({'multiauth.policies': 'basicauth account'})
+
+
+class CreateUserTest(unittest.TestCase):
+    def setUp(self):
+        self.registry = mock.MagicMock()
+        self.registry.settings = {
+            "includes": "kinto.plugins.accounts",
+        }
+
+    def test_create_user_in_read_only_display_an_error(self):
+        with mock.patch('kinto.plugins.accounts.scripts.logger') as mocked:
+            self.registry.settings['readonly'] = 'true'
+            code = scripts.create_user({'registry': self.registry})
+            assert code == 51
+            mocked.error.assert_called_once_with('Cannot create a user with '
+                                                 'a readonly server.')
+
+    def test_create_user_when_not_included_display_an_error(self):
+        with mock.patch('kinto.plugins.accounts.scripts.logger') as mocked:
+            self.registry.settings['includes'] = ''
+            code = scripts.create_user({'registry': self.registry})
+            assert code == 52
+            mocked.error.assert_called_once_with('Cannot create a user when the accounts '
+                                                 'plugin is not installed.')
+
+    def test_create_user_with_an_invalid_username_and_password_confirmation(self):
+        with mock.patch('kinto.plugins.accounts.scripts.input', side_effect=["&zert", "username"]):
+            with mock.patch('kinto.plugins.accounts.scripts.getpass.getpass', side_effect=[
+                    "password", "p4ssw0rd", "password", "password"]):
+                code = scripts.create_user({'registry': self.registry}, None, None)
+                self.registry.storage.create.assert_called_once()
+                self.registry.permission.add_principal_to_ace.assert_called_with(
+                    "/accounts/username", "write", "account:username")
+                assert code == 0
+
+    def test_create_user_with_an_valid_username_and_password_confirmation(self):
+        with mock.patch('kinto.plugins.accounts.scripts.input', return_value="username"):
+            with mock.patch('kinto.plugins.accounts.scripts.getpass.getpass',
+                            return_value="password"):
+                code = scripts.create_user({'registry': self.registry})
+                self.registry.storage.create.assert_called_once()
+                self.registry.permission.add_principal_to_ace.assert_called_with(
+                    "/accounts/username", "write", "account:username")
+                assert code == 0
+
+    def test_create_user_with_an_valid_username_and_password_parameters(self):
+        code = scripts.create_user({'registry': self.registry}, "username", "password")
+        self.registry.storage.create.assert_called_once()
+        self.registry.permission.add_principal_to_ace.assert_called_with(
+            "/accounts/username", "write", "account:username")
+        assert code == 0
+
+    def test_create_user_aborted_by_eof(self):
+        with mock.patch('kinto.plugins.accounts.scripts.input', side_effect=EOFError):
+            code = scripts.create_user({'registry': self.registry})
+            assert code == 53
