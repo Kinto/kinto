@@ -124,7 +124,7 @@ Strategy #3 — Newest first, partially
 -------------------------------------
 
 For very large collections, it could be interesting to perform a first *partial*
-synchronisation, and then fetch old records in background.
+synchronisation, and then fetch old records in the background.
 
 When a new client wants to sync, instead of syncing hundreds of pages on the
 first synchronization, two distinct synchronization processes can be combined.
