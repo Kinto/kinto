@@ -161,7 +161,8 @@ Let's limit this policy to requests with ``github+Bearer`` in ``Authorization`` 
             print('Check Github')
 
 
-Now using Basic Authentication it should be skipped, but with this request it should print it in the server console:
+Now a request with Basic Authentication should not print `Check Github` in the
+server console but this one should:
 
 ::
 
