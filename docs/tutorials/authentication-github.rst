@@ -89,7 +89,6 @@ Since we left ``basicauth`` in settings, it should still be accepted:
     $ http GET http://localhost:8888/v1/ --auth token:alice-token
 
 .. code-block:: javascript
-    :emphasize-lines: 16
 
     {
         "http_api_version": "1.2",
@@ -129,7 +128,7 @@ We don't want to make a call to the Github API if the request does not use a Git
 Let's limit this policy to requests with ``github+Bearer`` in ``Authorization`` header.
 
 .. code-block:: python
-    :emphasize-lines: 21-27
+    :emphasize-lines: 5,21-27
 
     from pyramid.authentication import CallbackAuthenticationPolicy
     from pyramid.interfaces import IAuthenticationPolicy
@@ -174,7 +173,7 @@ Validate token while obtaining user id from Github
 We will simply make a call to the Github user API and try to obtain the ``login`` attribute (i.e. user name).
 
 .. code-block:: python
-    :emphasize-lines: 33-41
+    :emphasize-lines: 1,3,8,33-42
 
     import logging
 
@@ -227,6 +226,7 @@ Let's try to create an object on Kinto, it should fail using a |status-401| erro
     $ http PUT http://localhost:8888/v1/buckets/test "Authorization: github+Bearer foobartoken"
 
 .. code-block:: http
+    :emphasize-lines: 11
 
     HTTP/1.1 401 Unauthorized
     Access-Control-Expose-Headers: Retry-After, Content-Length, Alert, Backoff
