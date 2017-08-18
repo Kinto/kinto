@@ -8,17 +8,11 @@ from kinto.core import utils
 from kinto.core.decorators import synchronized
 from kinto.core.storage import (
     StorageBase, exceptions,
-    DEFAULT_ID_FIELD, DEFAULT_MODIFIED_FIELD, DEFAULT_DELETED_FIELD)
+    DEFAULT_ID_FIELD, DEFAULT_MODIFIED_FIELD, DEFAULT_DELETED_FIELD,
+    MISSING)
 from kinto.core.utils import (COMPARISON, find_nested_value)
 
 import ujson
-
-
-class Missing():
-    pass
-
-
-MISSING = Missing()
 
 
 def tree():
