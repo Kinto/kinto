@@ -34,6 +34,21 @@ Add the following settings to the ``.ini`` file:
     kinto.account_create_principals = system.Everyone
 
 
+You can use the ``create-user`` command to create an admin:
+
+.. code-block:: bash
+
+    kinto create-user --ini /etc/kinto.ini --username admin --password ThisIsN0tASecurePassword
+
+You can then use it in your config:
+
+.. code-block:: ini
+
+    # Allow anyone to create accounts.
+    kinto.account_create_principals = account:admin
+    kinto.account_write_principals = account:admin
+
+	
 .. _accounts-auth:
 
 Authentication
