@@ -34,7 +34,7 @@ def create_user(env, username=None, password=None):
             username = input('Username: ')
 
         if password is None:
-            while "The user didn't entered twice the same password":
+            while True:  # The user didn't entered twice the same password
                 password = getpass.getpass('Please enter a password for {}: '.format(username))
                 confirm = getpass.getpass('Please confirm the password: '.format(username))
 
