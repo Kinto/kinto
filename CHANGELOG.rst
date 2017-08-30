@@ -3,8 +3,12 @@ Changelog
 
 This document describes changes between each past release.
 
-7.3.3 (unreleased)
+7.4.0 (unreleased)
 ------------------
+
+**New features**
+
+- Add a `create-user` kinto command (#1315)
 
 **Bug fixes**
 

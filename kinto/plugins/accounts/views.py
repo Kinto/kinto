@@ -1,4 +1,3 @@
-import bcrypt
 import colander
 from pyramid import httpexceptions
 from pyramid.decorator import reify
@@ -8,6 +7,7 @@ from pyramid.settings import aslist
 from kinto.views import NameGenerator
 from kinto.core import resource
 from kinto.core.errors import raise_invalid, http_error
+from .utils import hash_password
 
 
 def _extract_posted_body_id(request):
@@ -103,11 +103,7 @@ class Account(resource.ShareableResource):
     def process_record(self, new, old=None):
         new = super(Account, self).process_record(new, old)
 
-        # Store password safely in database as str
-        # (bcrypt.hashpw returns base64 bytes).
-        pwd_str = new["password"].encode(encoding='utf-8')
-        hashed = bcrypt.hashpw(pwd_str, bcrypt.gensalt())
-        new["password"] = hashed.decode(encoding='utf-8')
+        new["password"] = hash_password(new["password"])
 
         # Administrators can reach other accounts and anonymous have no
         # selected_userid. So do not try to enforce.

@@ -5,6 +5,7 @@ import logging
 import logging.config
 
 from kinto.core import scripts
+from kinto.plugins.accounts.scripts import create_user
 from pyramid.scripts import pserve
 from pyramid.paster import bootstrap
 from kinto import __version__
@@ -24,7 +25,7 @@ def main(args=None):
     parser = argparse.ArgumentParser(description="Kinto Command-Line "
                                                  "Interface")
     commands = ('init', 'start', 'migrate', 'delete-collection', 'version',
-                'rebuild-quotas')
+                'rebuild-quotas', 'create-user')
     subparsers = parser.add_subparsers(title='subcommands',
                                        description='Main Kinto CLI commands',
                                        dest='subcommand',
@@ -98,6 +99,16 @@ def main(args=None):
                                    required=False,
                                    default=DEFAULT_PORT)
 
+        elif command == 'create-user':
+            subparser.add_argument('-u', '--username',
+                                   help='Superuser username',
+                                   required=False,
+                                   default=None)
+            subparser.add_argument('-p', '--password',
+                                   help='Superuser password',
+                                   required=False,
+                                   default=None)
+
     # Parse command-line arguments
     parsed_args = vars(parser.parse_args(args))
 
@@ -157,6 +168,12 @@ def main(args=None):
         dry_run = parsed_args['dry_run']
         env = bootstrap(config_file)
         return scripts.rebuild_quotas(env, dry_run=dry_run)
+
+    elif which_command == 'create-user':
+        username = parsed_args['username']
+        password = parsed_args['password']
+        env = bootstrap(config_file)
+        return create_user(env, username=username, password=password)
 
     elif which_command == 'start':
         pserve_argv = ['pserve']
