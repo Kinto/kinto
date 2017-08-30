@@ -67,8 +67,8 @@ def create_from_config(config, prefix='', with_transaction=True):
     """Create a PostgreSQLClient client using settings in the provided config.
     """
     if sqlalchemy is None:
-        message = ("PostgreSQL SQLAlchemy dependency missing. "
-                   "Refer to installation section in documentation.")
+        message = ('PostgreSQL SQLAlchemy dependency missing. '
+                   'Refer to installation section in documentation.')
         raise ImportWarning(message)
 
     from zope.sqlalchemy import ZopeTransactionExtension, invalidate
@@ -86,8 +86,8 @@ def create_from_config(config, prefix='', with_transaction=True):
     url = settings[prefix + 'url']
     existing_client = _CLIENTS[transaction_per_request].get(url)
     if existing_client:
-        msg = ("Reuse existing PostgreSQL connection. "
-               "Parameters {}* will be ignored.".format(prefix))
+        msg = ('Reuse existing PostgreSQL connection. '
+               'Parameters {}* will be ignored.'.format(prefix))
         warnings.warn(msg)
         return existing_client
 

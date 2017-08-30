@@ -11,7 +11,7 @@ from kinto.core.errors import ErrorSchema
 from kinto.core.utils import merge_dicts, build_request, build_response
 
 
-subrequest_logger = logging.getLogger("subrequest.summary")
+subrequest_logger = logging.getLogger('subrequest.summary')
 
 valid_http_method = colander.OneOf(('GET', 'HEAD', 'DELETE', 'TRACE',
                                     'POST', 'PUT', 'PATCH'))
@@ -106,8 +106,8 @@ batch_responses = {
     'default': ErrorResponseSchema(description='an unknown error occurred.')
 }
 
-batch = Service(name="batch", path='/batch',
-                description="Batch operations")
+batch = Service(name='batch', path='/batch',
+                description='Batch operations')
 
 
 @batch.post(schema=BatchRequest,

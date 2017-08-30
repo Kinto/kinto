@@ -58,10 +58,10 @@ def main(global_config, config=None, **settings):
     )
     if schema_enabled:
         config.add_api_capability(
-            "schema",
-            description="Validates collection records with JSON schemas.",
-            url="https://kinto.readthedocs.io/en/latest/api/1.x/"
-                "collections.html#collection-json-schema")
+            'schema',
+            description='Validates collection records with JSON schemas.',
+            url='https://kinto.readthedocs.io/en/latest/api/1.x/'
+                'collections.html#collection-json-schema')
 
     # Scan Kinto views.
     kwargs = {}
@@ -73,15 +73,15 @@ def main(global_config, config=None, **settings):
         hasattr(config.registry, 'permission'))
     if permissions_endpoint_enabled:
         config.add_api_capability(
-            "permissions_endpoint",
-            description="The permissions endpoint can be used to list all "
-                        "user objects permissions.",
-            url="https://kinto.readthedocs.io/en/latest/configuration/"
-                "settings.html#activating-the-permissions-endpoint")
+            'permissions_endpoint',
+            description='The permissions endpoint can be used to list all '
+                        'user objects permissions.',
+            url='https://kinto.readthedocs.io/en/latest/configuration/'
+                'settings.html#activating-the-permissions-endpoint')
     else:
         kwargs.setdefault('ignore', []).append('kinto.views.permissions')
 
-    config.scan("kinto.views", **kwargs)
+    config.scan('kinto.views', **kwargs)
 
     app = config.make_wsgi_app()
 

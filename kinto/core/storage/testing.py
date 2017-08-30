@@ -128,7 +128,7 @@ class BaseTestStorage:
         request.registry.settings = {'readonly': 'true'}
         ping = heartbeat(self.storage)
         with mock.patch.object(self.storage, 'get_all',
-                               side_effect=exceptions.BackendError("Boom!")):
+                               side_effect=exceptions.BackendError('Boom!')):
             self.assertFalse(ping(request))
 
     def test_ping_logs_error_if_unavailable(self):
@@ -195,7 +195,7 @@ class BaseTestStorage:
         self.create_record(record=record, ignore_conflict=True)  # not raising
 
     def test_create_keep_existing_if_ignore_conflict_is_set(self):
-        record = {**self.record, "synced": True, self.id_field: RECORD_ID}
+        record = {**self.record, 'synced': True, self.id_field: RECORD_ID}
         self.create_record(record=record)
         new_record = {**self.record, self.id_field: RECORD_ID}
         result = self.create_record(record=new_record, ignore_conflict=True)
@@ -261,13 +261,13 @@ class BaseTestStorage:
 
     def test_delete_works_even_on_second_time(self):
         # Create a record
-        self.storage.create('test', '1234', {"id": "demo"})
+        self.storage.create('test', '1234', {'id': 'demo'})
         # Delete the record
-        self.storage.delete('test', '1234', "demo", with_deleted=True)
+        self.storage.delete('test', '1234', 'demo', with_deleted=True)
         # Update a record (it recreates it.)
-        self.storage.update('test', '1234', "demo", {"id": "demo"})
+        self.storage.update('test', '1234', 'demo', {'id': 'demo'})
         # Delete the record without errors
-        self.storage.delete('test', '1234', "demo", with_deleted=True)
+        self.storage.delete('test', '1234', 'demo', with_deleted=True)
 
     def test_delete_can_specify_the_last_modified(self):
         stored = self.create_record()
@@ -313,7 +313,7 @@ class BaseTestStorage:
     def test_get_all_return_all_values(self):
         for x in range(10):
             record = dict(self.record)
-            record["number"] = x
+            record['number'] = x
             self.create_record(record)
 
         records, total_records = self.storage.get_all(**self.storage_kw)
@@ -323,7 +323,7 @@ class BaseTestStorage:
     def test_get_all_handle_limit(self):
         for x in range(10):
             record = dict(self.record)
-            record["number"] = x
+            record['number'] = x
             self.create_record(record)
 
         records, total_records = self.storage.get_all(include_deleted=True,
@@ -343,7 +343,7 @@ class BaseTestStorage:
     def test_get_all_handle_sorting_on_subobject(self):
         for x in range(10):
             record = dict(**self.record)
-            record["person"] = dict(age=x)
+            record['person'] = dict(age=x)
             self.create_record(record)
         sorting = [Sort('person.age', 1)]
         records, _ = self.storage.get_all(sorting=sorting,
@@ -374,8 +374,8 @@ class BaseTestStorage:
                                                       **self.storage_kw)
             other_records = smaller_records + greater_records
             self.assertEqual(records, other_records,
-                             "Filtering is not consistent with sorting when filtering "
-                             "using value {}: {} (LT) + {} (MIN) != {}".format(
+                             'Filtering is not consistent with sorting when filtering '
+                             'using value {}: {} (LT) + {} (MIN) != {}'.format(
                                  value, smaller_records, greater_records, records))
 
         # Same test but with MAX and GT
@@ -391,8 +391,8 @@ class BaseTestStorage:
                                                       **self.storage_kw)
             other_records = smaller_records + greater_records
             self.assertEqual(records, other_records,
-                             "Filtering is not consistent with sorting when filtering "
-                             "using value {}: {} (MAX) + {} (GT) != {}".format(
+                             'Filtering is not consistent with sorting when filtering '
+                             'using value {}: {} (MAX) + {} (GT) != {}'.format(
                                  value, smaller_records, greater_records, records))
 
     def test_get_all_can_filter_with_list_of_values(self):
@@ -439,17 +439,17 @@ class BaseTestStorage:
         self.assertEqual(len(records), 1)
 
     def test_get_all_can_filter_with_numeric_strings(self):
-        for l in ["0566199093", "0781566199"]:
+        for l in ['0566199093', '0781566199']:
             self.create_record({'phone': l})
-        filters = [Filter('phone', "0566199093", utils.COMPARISON.EQ)]
+        filters = [Filter('phone', '0566199093', utils.COMPARISON.EQ)]
         records, _ = self.storage.get_all(filters=filters,
                                           **self.storage_kw)
         self.assertEqual(len(records), 1)
 
     def test_get_all_can_filter_with_empty_numeric_strings(self):
-        for l in ["0566199093", "0781566199"]:
+        for l in ['0566199093', '0781566199']:
             self.create_record({'phone': l})
-        filters = [Filter('phone', "", utils.COMPARISON.EQ)]
+        filters = [Filter('phone', '', utils.COMPARISON.EQ)]
         records, _ = self.storage.get_all(filters=filters,
                                           **self.storage_kw)
         self.assertEqual(len(records), 0)
@@ -463,73 +463,73 @@ class BaseTestStorage:
         self.assertEqual(len(records), 3)
 
     def test_get_all_can_filter_with_strings(self):
-        for l in ["Rémy", "Alexis", "Marie"]:
+        for l in ['Rémy', 'Alexis', 'Marie']:
             self.create_record({'name': l})
         sorting = [Sort('name', 1)]
-        filters = [Filter('name', "Mathieu", utils.COMPARISON.LT)]
+        filters = [Filter('name', 'Mathieu', utils.COMPARISON.LT)]
         records, _ = self.storage.get_all(sorting=sorting, filters=filters,
                                           **self.storage_kw)
-        self.assertEqual(records[0]['name'], "Alexis")
-        self.assertEqual(records[1]['name'], "Marie")
+        self.assertEqual(records[0]['name'], 'Alexis')
+        self.assertEqual(records[1]['name'], 'Marie')
         self.assertEqual(len(records), 2)
 
     def test_get_all_can_filter_minimum_value_with_strings(self):
-        for v in ["49.0", "6.0", "53.0b4"]:
-            self.create_record({"product": {"version": v}})
-        sorting = [Sort("product.version", 1)]
-        filters = [Filter("product.version", "50.0", utils.COMPARISON.MIN)]
+        for v in ['49.0', '6.0', '53.0b4']:
+            self.create_record({'product': {'version': v}})
+        sorting = [Sort('product.version', 1)]
+        filters = [Filter('product.version', '50.0', utils.COMPARISON.MIN)]
         records, _ = self.storage.get_all(sorting=sorting, filters=filters,
                                           **self.storage_kw)
-        self.assertEqual(records[0]["product"]["version"], "53.0b4")
-        self.assertEqual(records[1]["product"]["version"], "6.0")
+        self.assertEqual(records[0]['product']['version'], '53.0b4')
+        self.assertEqual(records[1]['product']['version'], '6.0')
         self.assertEqual(len(records), 2)
 
     def test_get_all_does_not_implicitly_cast(self):
-        for v in ["49.0", "6.0", "53.0b4"]:
-            self.create_record({"product": {"version": v}})
-        sorting = [Sort("product.version", 1)]
-        filters = [Filter("product.version", 50.0, utils.COMPARISON.MIN)]
+        for v in ['49.0', '6.0', '53.0b4']:
+            self.create_record({'product': {'version': v}})
+        sorting = [Sort('product.version', 1)]
+        filters = [Filter('product.version', 50.0, utils.COMPARISON.MIN)]
         records, _ = self.storage.get_all(sorting=sorting, filters=filters,
                                           **self.storage_kw)
         self.assertEqual(len(records), 0)  # 50 (number) > strings
 
     def test_get_all_can_deal_with_none_values(self):
-        self.create_record({"name": "Alexis"})
-        self.create_record({"title": "haha"})
-        self.create_record({"name": "Mathieu"})
-        filters = [Filter("name", "Fanny", utils.COMPARISON.GT)]
+        self.create_record({'name': 'Alexis'})
+        self.create_record({'title': 'haha'})
+        self.create_record({'name': 'Mathieu'})
+        filters = [Filter('name', 'Fanny', utils.COMPARISON.GT)]
         records, _ = self.storage.get_all(filters=filters, **self.storage_kw)
         # NULLs compare as greater than everything
         self.assertEqual(len(records), 2)
         # But we aren't clear on what the order will be
         mathieu_record = records[0] if 'name' in records[0] else records[1]
         haha_record = records[1] if 'name' in records[0] else records[0]
-        self.assertEqual(mathieu_record["name"], "Mathieu")
-        self.assertEqual(haha_record["title"], "haha")
+        self.assertEqual(mathieu_record['name'], 'Mathieu')
+        self.assertEqual(haha_record['title'], 'haha')
 
-        filters = [Filter("name", "Fanny", utils.COMPARISON.LT)]
+        filters = [Filter('name', 'Fanny', utils.COMPARISON.LT)]
         records, _ = self.storage.get_all(filters=filters, **self.storage_kw)
         self.assertEqual(len(records), 1)
-        self.assertEqual(records[0]["name"], "Alexis")
+        self.assertEqual(records[0]['name'], 'Alexis')
 
     def test_get_all_can_filter_with_none_values(self):
-        self.create_record({"name": "Alexis", "salary": None})
-        self.create_record({"name": "Mathieu", "salary": "null"})
-        self.create_record({"name": "Niko", "salary": ""})
-        self.create_record({"name": "Ethan"})   # missing salary
-        filters = [Filter("salary", None, utils.COMPARISON.EQ)]
+        self.create_record({'name': 'Alexis', 'salary': None})
+        self.create_record({'name': 'Mathieu', 'salary': 'null'})
+        self.create_record({'name': 'Niko', 'salary': ''})
+        self.create_record({'name': 'Ethan'})   # missing salary
+        filters = [Filter('salary', None, utils.COMPARISON.EQ)]
         records, _ = self.storage.get_all(filters=filters, **self.storage_kw)
         self.assertEqual(len(records), 1)
-        self.assertEqual(records[0]["name"], "Alexis")
+        self.assertEqual(records[0]['name'], 'Alexis')
 
     def test_filter_none_values_can_be_combined(self):
-        self.create_record({"name": "Alexis", "salary": None})
-        self.create_record({"name": "Mathieu", "salary": "null"})
-        self.create_record({"name": "Niko", "salary": ""})
-        self.create_record({"name": "Ethan"})   # missing salary
+        self.create_record({'name': 'Alexis', 'salary': None})
+        self.create_record({'name': 'Mathieu', 'salary': 'null'})
+        self.create_record({'name': 'Niko', 'salary': ''})
+        self.create_record({'name': 'Ethan'})   # missing salary
         filters = [
-            Filter("salary", 0, utils.COMPARISON.GT),
-            Filter("salary", True, utils.COMPARISON.HAS)
+            Filter('salary', 0, utils.COMPARISON.GT),
+            Filter('salary', True, utils.COMPARISON.HAS)
         ]
         records, _ = self.storage.get_all(filters=filters, **self.storage_kw)
         self.assertEqual(len([r for r in records if 'salary' not in r]), 0)
@@ -569,7 +569,7 @@ class BaseTestStorage:
     def test_get_all_can_filter_a_list_of_mixed_typed_values(self):
         for l in [1, 2, 3]:
             self.create_record({'code': l})
-        filters = [Filter('code', (1, "b"), utils.COMPARISON.EXCLUDE)]
+        filters = [Filter('code', (1, 'b'), utils.COMPARISON.EXCLUDE)]
         records, _ = self.storage.get_all(filters=filters,
                                           **self.storage_kw)
         self.assertEqual(len(records), 2)
@@ -583,58 +583,58 @@ class BaseTestStorage:
         self.assertEqual(len(records), 1)
 
     def test_get_all_can_filter_matching_a_list(self):
-        self.create_record({"flavor": "strawberry", "orders": []})
-        self.create_record({"flavor": "blueberry", "orders": [1]})
-        self.create_record({"flavor": "pineapple", "orders": [1, 2]})
-        self.create_record({"flavor": "watermelon", "orders": ""})
-        self.create_record({"flavor": "raspberry", "orders": {}})
-        filters = [Filter("orders", [], utils.COMPARISON.EQ)]
+        self.create_record({'flavor': 'strawberry', 'orders': []})
+        self.create_record({'flavor': 'blueberry', 'orders': [1]})
+        self.create_record({'flavor': 'pineapple', 'orders': [1, 2]})
+        self.create_record({'flavor': 'watermelon', 'orders': ''})
+        self.create_record({'flavor': 'raspberry', 'orders': {}})
+        filters = [Filter('orders', [], utils.COMPARISON.EQ)]
         records, _ = self.storage.get_all(filters=filters, **self.storage_kw)
         self.assertEqual(len(records), 1)
-        self.assertEqual(records[0]["flavor"], "strawberry")
+        self.assertEqual(records[0]['flavor'], 'strawberry')
 
-        filters = [Filter("orders", [1], utils.COMPARISON.EQ)]
+        filters = [Filter('orders', [1], utils.COMPARISON.EQ)]
         records, _ = self.storage.get_all(filters=filters, **self.storage_kw)
         self.assertEqual(len(records), 1)
-        self.assertEqual(records[0]["flavor"], "blueberry")
+        self.assertEqual(records[0]['flavor'], 'blueberry')
 
     def test_get_all_can_filter_matching_an_object(self):
-        self.create_record({"flavor": "strawberry", "attributes": {}})
+        self.create_record({'flavor': 'strawberry', 'attributes': {}})
         self.create_record({
-            "flavor": "blueberry",
-            "attributes": {"ibu": 25, "seen_on": "2017-06-01"},
+            'flavor': 'blueberry',
+            'attributes': {'ibu': 25, 'seen_on': '2017-06-01'},
         })
         self.create_record({
-            "flavor": "watermelon",
-            "attributes": {"ibu": 25, "seen_on": "2017-06-01", "price": 9.99},
+            'flavor': 'watermelon',
+            'attributes': {'ibu': 25, 'seen_on': '2017-06-01', 'price': 9.99},
         })
-        self.create_record({"flavor": "raspberry", "attributes": []})
-        filters = [Filter("attributes", {}, utils.COMPARISON.EQ)]
+        self.create_record({'flavor': 'raspberry', 'attributes': []})
+        filters = [Filter('attributes', {}, utils.COMPARISON.EQ)]
         records, _ = self.storage.get_all(filters=filters, **self.storage_kw)
         self.assertEqual(len(records), 1)
-        self.assertEqual(records[0]["flavor"], "strawberry")
+        self.assertEqual(records[0]['flavor'], 'strawberry')
 
-        filters = [Filter("attributes", {"ibu": 25, "seen_on": "2017-06-01"}, utils.COMPARISON.EQ)]
+        filters = [Filter('attributes', {'ibu': 25, 'seen_on': '2017-06-01'}, utils.COMPARISON.EQ)]
         records, _ = self.storage.get_all(filters=filters, **self.storage_kw)
         self.assertEqual(len(records), 1)
-        self.assertEqual(records[0]["flavor"], "blueberry")
+        self.assertEqual(records[0]['flavor'], 'blueberry')
 
     def test_get_all_supports_has(self):
-        self.create_record({"flavor": "strawberry"})
-        self.create_record({"flavor": "blueberry", "author": None})
-        self.create_record({"flavor": "raspberry", "author": ""})
-        self.create_record({"flavor": "watermelon", "author": "hello"})
-        self.create_record({"flavor": "pineapple", "author": "null"})
-        filters = [Filter("author", True, utils.COMPARISON.HAS)]
+        self.create_record({'flavor': 'strawberry'})
+        self.create_record({'flavor': 'blueberry', 'author': None})
+        self.create_record({'flavor': 'raspberry', 'author': ''})
+        self.create_record({'flavor': 'watermelon', 'author': 'hello'})
+        self.create_record({'flavor': 'pineapple', 'author': 'null'})
+        filters = [Filter('author', True, utils.COMPARISON.HAS)]
         records, _ = self.storage.get_all(filters=filters, **self.storage_kw)
         self.assertEqual(len(records), 4)
         self.assertEqual(sorted([r['flavor'] for r in records]),
-                         ["blueberry", "pineapple", "raspberry", "watermelon"])
+                         ['blueberry', 'pineapple', 'raspberry', 'watermelon'])
 
-        filters = [Filter("author", False, utils.COMPARISON.HAS)]
+        filters = [Filter('author', False, utils.COMPARISON.HAS)]
         records, _ = self.storage.get_all(filters=filters, **self.storage_kw)
         self.assertEqual(len(records), 1)
-        self.assertEqual(records[0]["flavor"], "strawberry")
+        self.assertEqual(records[0]['flavor'], 'strawberry')
 
     def test_get_all_can_filter_by_subobjects_values(self):
         for l in ['a', 'b', 'c']:
@@ -1044,8 +1044,8 @@ class DeletedRecordsTest:
         self.assertEqual(len(records), 1)
 
     def test_delete_all_does_proper_matching(self):
-        self.create_record(parent_id='abc', collection_id='c', record={"id": "id1"})
-        self.create_record(parent_id='def', collection_id='g', record={"id": "id1"})
+        self.create_record(parent_id='abc', collection_id='c', record={'id': 'id1'})
+        self.create_record(parent_id='def', collection_id='g', record={'id': 'id1'})
         self.storage.delete_all(parent_id='ab*',
                                 collection_id=None,
                                 with_deleted=False)
@@ -1346,7 +1346,7 @@ class DeletedRecordsTest:
     def test_get_all_handle_a_pagination_rules(self):
         for x in range(10):
             record = dict(self.record)
-            record["number"] = x % 3
+            record['number'] = x % 3
             self.create_record(record)
 
         records, total_records = self.storage.get_all(
@@ -1360,7 +1360,7 @@ class DeletedRecordsTest:
     def test_get_all_handle_all_pagination_rules(self):
         for x in range(10):
             record = dict(self.record)
-            record["number"] = x % 3
+            record['number'] = x % 3
             last_record = self.create_record(record)
 
         records, total_records = self.storage.get_all(
@@ -1405,7 +1405,7 @@ class ParentRecordAccessTest:
     def test_parent_cannot_update_other_parent_record(self):
         record = self.create_record()
 
-        new_record = {"another": "record"}
+        new_record = {'another': 'record'}
         kw = {**self.storage_kw,
               'parent_id': self.other_parent_id,
               'auth': self.other_auth}
@@ -1413,7 +1413,7 @@ class ParentRecordAccessTest:
 
         not_updated = self.storage.get(object_id=record['id'],
                                        **self.storage_kw)
-        self.assertNotIn("another", not_updated)
+        self.assertNotIn('another', not_updated)
 
 
 class SerializationTest:

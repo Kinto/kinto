@@ -14,7 +14,7 @@ def paginated(storage, *args, sorting, batch_size=BATCH_SIZE, **kwargs):
     """
 
     if len(sorting) > 1:
-        raise NotImplementedError("FIXME: only supports one-length sorting")  # pragma: nocover
+        raise NotImplementedError('FIXME: only supports one-length sorting')  # pragma: nocover
     pagination_direction = COMPARISON.GT if sorting[0].direction > 0 else COMPARISON.LT
 
     record_pagination = None

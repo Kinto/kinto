@@ -92,7 +92,7 @@ class FieldList(QueryField):
     """String field representing a list of attributes."""
 
     schema_type = colander.Sequence
-    error_message = "The value should be a list of comma separated attributes"
+    error_message = 'The value should be a list of comma separated attributes'
     missing = colander.drop
     fields = colander.SchemaNode(colander.String(), missing=colander.drop)
 
@@ -106,7 +106,7 @@ class HeaderQuotedInteger(HeaderField):
     """Integer between "" used in precondition headers."""
 
     schema_type = colander.String
-    error_message = "The value should be integer between double quotes."
+    error_message = 'The value should be integer between double quotes.'
     validator = colander.Regex('^"([0-9]+?)"$|\*', msg=error_message)
 
     def deserialize(self, cstruct=colander.null):

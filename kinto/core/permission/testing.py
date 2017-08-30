@@ -68,7 +68,7 @@ class PermissionTest:
         self.request.registry.settings['readonly'] = 'true'
         ping = heartbeat(self.permission)
         with mock.patch.object(self.permission, 'get_user_principals',
-                               side_effect=exceptions.BackendError("Boom!")):
+                               side_effect=exceptions.BackendError('Boom!')):
             self.assertFalse(ping(self.request))
 
     def test_ping_returns_true_if_available_in_readonly_mode(self):
@@ -362,9 +362,9 @@ class PermissionTest:
         self.permission.add_principal_to_ace('/url/a/id/1/sub', 'create', 'me')
         permissions = self.permission.get_object_permissions('/url/a/id/1')
         self.assertDictEqual(permissions, {
-            "write": {"user1", "user2"},
-            "read": {"user3"},
-            "obj:del": {"user1"}
+            'write': {'user1', 'user2'},
+            'read': {'user3'},
+            'obj:del': {'user1'}
         })
 
     def test_object_permissions_return_listed_object_acls(self):
@@ -375,8 +375,8 @@ class PermissionTest:
         object_permissions = self.permission.get_object_permissions(
             '/url/a/id/1', ['write', 'read'])
         self.assertDictEqual(object_permissions, {
-            "write": {"user1", "user2"},
-            "read": {"user3"}
+            'write': {'user1', 'user2'},
+            'read': {'user3'}
         })
 
     def test_objects_permissions_returns_empty_if_unknown(self):
@@ -385,7 +385,7 @@ class PermissionTest:
         objects_permissions = self.permission.get_objects_permissions([
             '/url/a/id/1', '/abc', '/url/a/id/3'])
         self.assertEqual(objects_permissions, [
-            {"write": {"user1"}}, {}, {"read": {"user3"}}])
+            {'write': {'user1'}}, {}, {'read': {'user3'}}])
 
     def test_object_permissions_return_empty_dict(self):
         self.assertDictEqual(self.permission.get_object_permissions('abc'), {})
@@ -398,19 +398,19 @@ class PermissionTest:
         self.permission.add_principal_to_ace('/url/a/id/1', 'obj:del', 'user1')
 
         self.permission.replace_object_permissions('/url/a/id/1', {
-            "write": ["user1"],
-            "read": ["user2"],
-            "update": [],
-            "obj:del": ["user1"],
-            "new": ["user3"]
+            'write': ['user1'],
+            'read': ['user2'],
+            'update': [],
+            'obj:del': ['user1'],
+            'new': ['user3']
         })
 
         permissions = self.permission.get_object_permissions('/url/a/id/1')
         self.assertDictEqual(permissions, {
-            "write": {"user1"},
-            "read": {"user2"},
-            "obj:del": {"user1"},
-            "new": {"user3"}
+            'write': {'user1'},
+            'read': {'user2'},
+            'obj:del': {'user1'},
+            'new': {'user3'}
         })
 
     def test_replace_object_permission_only_replace_given_sets(self):
@@ -420,16 +420,16 @@ class PermissionTest:
         self.permission.add_principal_to_ace('/url/a/id/1', 'obj:del', 'user1')
 
         self.permission.replace_object_permissions('/url/a/id/1', {
-            "write": ["user1"],
-            "new": set(["user2"])
+            'write': ['user1'],
+            'new': set(['user2'])
         })
 
         permissions = self.permission.get_object_permissions('/url/a/id/1')
         self.assertDictEqual(permissions, {
-            "write": {"user1"},
-            "read": {"user3"},
-            "new": {"user2"},
-            "obj:del": {"user1"}
+            'write': {'user1'},
+            'read': {'user3'},
+            'new': {'user2'},
+            'obj:del': {'user1'}
         })
 
     def test_replace_object_permission_supports_empty_existing_entries(self):
@@ -437,7 +437,7 @@ class PermissionTest:
                                                    {'write': ['user1']})
         permissions = self.permission.get_object_permissions('/url/a/id/1')
         self.assertDictEqual(permissions, {
-            "write": {"user1"}
+            'write': {'user1'}
         })
 
     def test_replace_object_permission_supports_empty_input(self):
@@ -445,30 +445,30 @@ class PermissionTest:
         self.permission.replace_object_permissions('/url/a/id/1', {})
         permissions = self.permission.get_object_permissions('/url/a/id/1')
         self.assertDictEqual(permissions, {
-            "write": {"user1"}
+            'write': {'user1'}
         })
 
     def test_replace_object_permission_supports_duplicated_entries(self):
         self.permission.add_principal_to_ace('/url/a/id/1', 'write', 'user1')
         self.permission.replace_object_permissions('/url/a/id/1', {
-            "write": ["user1", "user1"]
+            'write': ['user1', 'user1']
         })
         permissions = self.permission.get_object_permissions('/url/a/id/1')
         self.assertDictEqual(permissions, {
-            "write": {"user1"}
+            'write': {'user1'}
         })
 
     def test_replace_object_permission_supports_empty_list(self):
         self.permission.add_principal_to_ace('/url/a/id/1', 'write', 'user1')
         self.permission.replace_object_permissions('/url/a/id/1', {
-            "write": set()
+            'write': set()
         })
         permissions = self.permission.get_object_permissions('/url/a/id/1')
         self.assertEqual(len(permissions), 0)
 
     def test_replace_object_permission_supports_empty_list_to_new_object(self):
         self.permission.replace_object_permissions('/url/a/id/1', {
-            "write": set()
+            'write': set()
         })
         permissions = self.permission.get_object_permissions('/url/a/id/1')
         self.assertEqual(len(permissions), 0)
@@ -489,7 +489,7 @@ class PermissionTest:
         self.assertDictEqual(self.permission.get_object_permissions(
             '/url/a/id/2'), {})
         self.assertDictEqual(self.permission.get_object_permissions(
-            '/url/a/id/3'), {"create": {"user4"}})
+            '/url/a/id/3'), {'create': {'user4'}})
 
     def test_delete_object_permissions_supports_empty_list(self):
         self.permission.delete_object_permissions()  # Not failing

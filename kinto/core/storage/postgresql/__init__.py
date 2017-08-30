@@ -95,8 +95,8 @@ class Storage(StorageBase):
         version = self._get_installed_version()
         if not version:
             filepath = os.path.join(here, 'schema.sql')
-            logger.info("Create PostgreSQL storage schema at version "
-                        "{} from {}".format(self.schema_version, filepath))
+            logger.info('Create PostgreSQL storage schema at version '
+                        '{} from {}'.format(self.schema_version, filepath))
             # Create full schema.
             self._check_database_encoding()
             self._check_database_timezone()
@@ -117,7 +117,7 @@ class Storage(StorageBase):
             # Check order of migrations.
             expected = migration[0]
             current = self._get_installed_version()
-            error_msg = "Expected version {}. Found version {}."
+            error_msg = 'Expected version {}. Found version {}.'
             if not dry_run and expected != current:
                 raise AssertionError(error_msg.format(expected, current))
 
@@ -125,11 +125,11 @@ class Storage(StorageBase):
                         ' version {} to {}.'.format(*migration))
             filename = 'migration_{0:03d}_{1:03d}.sql'.format(*migration)
             filepath = os.path.join(here, 'migrations', filename)
-            logger.info("Execute PostgreSQL storage migration from {}".format(filepath))
+            logger.info('Execute PostgreSQL storage migration from {}'.format(filepath))
             if not dry_run:
                 self._execute_sql_file(filepath)
-        logger.info("PostgreSQL storage schema migration {}".format(
-            "simulated." if dry_run else "done."))
+        logger.info('PostgreSQL storage schema migration {}'.format(
+            'simulated.' if dry_run else 'done.'))
 
     def _check_database_timezone(self):
         # Make sure database has UTC timezone.
@@ -180,7 +180,7 @@ class Storage(StorageBase):
                 return int(result.fetchone()['version'])
             else:
                 # Guess current version.
-                query = "SELECT COUNT(*) FROM metadata;"
+                query = 'SELECT COUNT(*) FROM metadata;'
                 result = conn.execute(query)
                 was_flushed = int(result.fetchone()[0]) == 0
                 if was_flushed:
@@ -254,13 +254,13 @@ class Storage(StorageBase):
         RETURNING id, as_epoch(last_modified) AS last_modified;
         """
 
-        safe_holders = {"on_conflict": ""}
+        safe_holders = {'on_conflict': ''}
 
         if ignore_conflict:
             # We use DO UPDATE so that the RETURNING clause works
             # but we don't update anything and keep the previous
             # last_modified value already stored.
-            safe_holders["on_conflict"] = """
+            safe_holders['on_conflict'] = """
             ON CONFLICT (id, parent_id, collection_id) DO UPDATE
             SET last_modified = EXCLUDED.last_modified
             """
@@ -694,7 +694,7 @@ class Storage(StorageBase):
             elif filtr.field == modified_field:
                 sql_field = 'as_epoch(last_modified)'
             else:
-                column_name = "data"
+                column_name = 'data'
                 # Subfields: ``person.name`` becomes ``data->person->>name``
                 subfields = filtr.field.split('.')
                 for j, subfield in enumerate(subfields):
@@ -703,8 +703,8 @@ class Storage(StorageBase):
                     holders[field_holder] = subfield
                     # Use ->> to convert the last level to text if
                     # needed for LIKE query. (Other queries do JSONB comparison.)
-                    column_name += "->>" if j == len(subfields) - 1 and is_like_query else "->"
-                    column_name += ":{}".format(field_holder)
+                    column_name += '->>' if j == len(subfields) - 1 and is_like_query else '->'
+                    column_name += ':{}'.format(field_holder)
                 sql_field = column_name
 
             string_field = filtr.field in (id_field, modified_field) or is_like_query
@@ -724,13 +724,13 @@ class Storage(StorageBase):
             if is_like_query:
                 # Operand should be a string.
                 # Add implicit start/end wildchars if none is specified.
-                if "*" not in value:
-                    value = "*{}*".format(value)
-                value = value.replace("*", "%")
+                if '*' not in value:
+                    value = '*{}*'.format(value)
+                value = value.replace('*', '%')
 
             if filtr.operator == COMPARISON.HAS:
                 operator = 'IS NOT NULL' if filtr.value else 'IS NULL'
-                cond = "{} {}".format(sql_field, operator)
+                cond = '{} {}'.format(sql_field, operator)
             elif value != MISSING:
                 # Safely escape value. MISSINGs get handled below.
                 value_holder = '{}_value_{}'.format(prefix, i)
@@ -738,7 +738,7 @@ class Storage(StorageBase):
 
                 sql_operator = operators.setdefault(filtr.operator,
                                                     filtr.operator.value)
-                cond = "{} {} :{}".format(sql_field, sql_operator, value_holder)
+                cond = '{} {} :{}'.format(sql_field, sql_operator, value_holder)
 
             # If the field is missing, column_name will produce
             # NULL. NULL has strange properties with comparisons
@@ -784,26 +784,26 @@ class Storage(StorageBase):
                         # (for the purposes of pagination).
                         # >= NULL should only match rows that are
                         # NULL, since there's nothing higher.
-                        cond = "{} IS NULL".format(sql_field)
+                        cond = '{} IS NULL'.format(sql_field)
                     elif filtr.operator == COMPARISON.LT:
                         # If we're looking for < NULL, match only
                         # non-nulls.
-                        cond = "{} IS NOT NULL".format(sql_field)
+                        cond = '{} IS NOT NULL'.format(sql_field)
                     elif filtr.operator == COMPARISON.MAX:
                         # <= NULL should include everything -- NULL
                         # because it's equal, and non-nulls because
                         # they're <.
-                        cond = "TRUE"
+                        cond = 'TRUE'
                     elif filtr.operator == COMPARISON.GT:
                         # Nothing can be greater than NULL (that is,
                         # higher in search order).
-                        cond = "FALSE"
+                        cond = 'FALSE'
                     else:
-                        raise ValueError("Somehow we got a filter with MISSING value")
+                        raise ValueError('Somehow we got a filter with MISSING value')
                 elif filtr.operator in null_false_operators:
-                    cond = "({} IS NOT NULL AND {})".format(sql_field, cond)
+                    cond = '({} IS NOT NULL AND {})'.format(sql_field, cond)
                 elif filtr.operator in null_true_operators:
-                    cond = "({} IS NULL OR {})".format(sql_field, cond)
+                    cond = '({} IS NULL OR {})'.format(sql_field, cond)
                 else:
                     # No need to check for LT and MAX because NULL < foo
                     # is NULL, which is falsy in SQL.
@@ -876,7 +876,7 @@ class Storage(StorageBase):
                     sql_field += '->(:{})'.format(field_holder)
 
             sql_direction = 'ASC' if sort.direction > 0 else 'DESC'
-            sql_sort = "{} {}".format(sql_field, sql_direction)
+            sql_sort = '{} {}'.format(sql_field, sql_direction)
             sorts.append(sql_sort)
 
         safe_sql = 'ORDER BY {}'.format(', '.join(sorts))

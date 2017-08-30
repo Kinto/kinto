@@ -29,7 +29,7 @@ class _ResourceEvent:
         self.request = request
 
     def __repr__(self):
-        return "<{klass} action={action} uri={uri}>".format(
+        return '<{klass} action={action} uri={uri}>'.format(
             klass=self.__class__.__name__,
             **self.payload)
 
@@ -99,7 +99,7 @@ def setup_transaction_hook(config):
             try:
                 request.registry.notify(event)
             except Exception:
-                logger.error("Unable to notify", exc_info=True)
+                logger.error('Unable to notify', exc_info=True)
 
     def on_new_request(event):
         """When a new request comes in, hook on transaction commit.
@@ -121,7 +121,7 @@ def get_resource_events(request, after_commit=False):
     Request helper to return the list of events triggered on resources.
     The list is sorted chronologically (see OrderedDict)
     """
-    by_resource = request.bound_data.get("resource_events", {})
+    by_resource = request.bound_data.get('resource_events', {})
     events = []
     for (action, payload, impacted, request) in by_resource.values():
         if after_commit:
@@ -165,7 +165,7 @@ def notify_resource_event(request, parent_id, timestamp, data, action,
         impacted = [{'new': data, 'old': old}]
 
     # Get previously triggered events.
-    events = request.bound_data.setdefault("resource_events", OrderedDict())
+    events = request.bound_data.setdefault('resource_events', OrderedDict())
 
     resource_name = request.current_resource_name
 

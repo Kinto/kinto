@@ -124,7 +124,7 @@ def includeme(config):
     config.registry.public_settings = {'batch_max_requests', 'readonly'}
 
     # Directive to declare arbitrary API capabilities.
-    def add_api_capability(config, identifier, description="", url="", **kw):
+    def add_api_capability(config, identifier, description='', url='', **kw):
         existing = config.registry.api_capabilities.get(identifier)
         if existing:
             error_msg = "The '{}' API capability was already registered ({})."
@@ -143,13 +143,13 @@ def includeme(config):
                               name='notify_resource_event')
 
     # Setup cornice.
-    config.include("cornice")
+    config.include('cornice')
 
     # Setup cornice api documentation
-    config.include("cornice_swagger")
+    config.include('cornice_swagger')
 
     # Per-request transaction.
-    config.include("pyramid_tm")
+    config.include('pyramid_tm')
 
     # Add CORS settings to the base kinto.core Service class.
     Service.init_from_settings(settings)
@@ -182,8 +182,8 @@ def includeme(config):
     #     logger.info('Using {} = {}'.format(key, value))
 
     # Scan views.
-    config.scan("kinto.core.views")
+    config.scan('kinto.core.views')
 
     # Give sign of life.
-    msg = "Running {project_name} {project_version}."
+    msg = 'Running {project_name} {project_version}.'
     logger.info(msg.format_map(settings))

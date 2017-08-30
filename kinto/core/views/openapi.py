@@ -6,7 +6,7 @@ from kinto.core import Service
 from kinto.core.openapi import OpenAPI
 
 
-openapi = Service(name="openapi", path='/__api__', description="OpenAPI description")
+openapi = Service(name='openapi', path='/__api__', description='OpenAPI description')
 
 
 class OpenAPIResponseSchema(colander.MappingSchema):

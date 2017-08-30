@@ -13,9 +13,9 @@ from .schema import (PermissionsSchema, RequestSchema, PayloadRequestSchema,
                      ShareableResourseResponses)
 
 
-CONTENT_TYPES = ["application/json"]
+CONTENT_TYPES = ['application/json']
 
-PATCH_CONTENT_TYPES = ["application/merge-patch+json"]
+PATCH_CONTENT_TYPES = ['application/merge-patch+json']
 
 
 class StrictSchema(colander.MappingSchema):
@@ -45,9 +45,9 @@ class ViewSet:
     It provides the same features as ``cornice.resource()``, except
     that it is much more flexible and extensible.
     """
-    service_name = "{resource_name}-{endpoint_type}"
-    collection_path = "/{resource_name}s"
-    record_path = "/{resource_name}s/{{id}}"
+    service_name = '{resource_name}-{endpoint_type}'
+    collection_path = '/{resource_name}s'
+    record_path = '/{resource_name}s/{{id}}'
 
     collection_methods = ('GET', 'POST', 'DELETE')
     record_methods = ('GET', 'PUT', 'PATCH', 'DELETE')
@@ -69,17 +69,17 @@ class ViewSet:
     }
 
     default_post_arguments = {
-        "content_type": CONTENT_TYPES,
+        'content_type': CONTENT_TYPES,
         'schema': PayloadRequestSchema(),
     }
 
     default_put_arguments = {
-        "content_type": CONTENT_TYPES,
+        'content_type': CONTENT_TYPES,
         'schema': PayloadRequestSchema(),
     }
 
     default_patch_arguments = {
-        "content_type": CONTENT_TYPES + PATCH_CONTENT_TYPES,
+        'content_type': CONTENT_TYPES + PATCH_CONTENT_TYPES,
         'schema': PayloadRequestSchema().bind(header=PatchHeaderSchema()),
     }
 
@@ -156,7 +156,7 @@ class ViewSet:
         else:
             resource_schema = resource_cls.schema
             if hasattr(resource_cls, 'mapping'):
-                message = "Resource `mapping` is deprecated, use `schema`"
+                message = 'Resource `mapping` is deprecated, use `schema`'
                 warnings.warn(message, DeprecationWarning)
                 resource_schema = resource_cls.mapping.__class__
 

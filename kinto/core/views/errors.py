@@ -21,16 +21,16 @@ def authorization_required(response, request):
     not allowed (``403 Forbidden``).
     """
     if Authenticated not in request.effective_principals:
-        if response.content_type != "application/json":
-            error_msg = "Please authenticate yourself to use this endpoint."
+        if response.content_type != 'application/json':
+            error_msg = 'Please authenticate yourself to use this endpoint.'
             response = http_error(httpexceptions.HTTPUnauthorized(),
                                   errno=ERRORS.MISSING_AUTH_TOKEN,
                                   message=error_msg)
         response.headers.extend(forget(request))
         return response
 
-    if response.content_type != "application/json":
-        error_msg = "This user cannot access this resource."
+    if response.content_type != 'application/json':
+        error_msg = 'This user cannot access this resource.'
         response = http_error(httpexceptions.HTTPForbidden(),
                               errno=ERRORS.FORBIDDEN,
                               message=error_msg)
@@ -49,12 +49,12 @@ def page_not_found(response, request):
                                len(request.path)):]
 
     errno = ERRORS.MISSING_RESOURCE
-    error_msg = "The resource you are looking for could not be found."
+    error_msg = 'The resource you are looking for could not be found.'
 
     if not request.path.startswith('/{}'.format(request.registry.route_prefix)):
         errno = ERRORS.VERSION_NOT_AVAILABLE
-        error_msg = ("The requested API version is not available "
-                     "on this server.")
+        error_msg = ('The requested API version is not available '
+                     'on this server.')
     elif trailing_slash_redirection_enabled:
         redirect = None
 
@@ -68,7 +68,7 @@ def page_not_found(response, request):
         if redirect:
             return reapply_cors(request, HTTPTemporaryRedirect(redirect))
 
-    if response.content_type != "application/json":
+    if response.content_type != 'application/json':
         response = http_error(httpexceptions.HTTPNotFound(),
                               errno=errno,
                               message=error_msg)
@@ -79,13 +79,13 @@ def page_not_found(response, request):
              permission=NO_PERMISSION_REQUIRED)
 def service_unavailable(response, request):
     if response.content_type != 'application/json':
-        error_msg = ("Service temporary unavailable "
-                     "due to overloading or maintenance, please retry later.")
+        error_msg = ('Service temporary unavailable '
+                     'due to overloading or maintenance, please retry later.')
         response = http_error(response, errno=ERRORS.BACKEND,
                               message=error_msg)
 
     retry_after = request.registry.settings['retry_after_seconds']
-    response.headers["Retry-After"] = str(retry_after)
+    response.headers['Retry-After'] = str(retry_after)
     return reapply_cors(request, response)
 
 
@@ -97,7 +97,7 @@ def method_not_allowed(context, request):
 
     response = http_error(context,
                           errno=ERRORS.METHOD_NOT_ALLOWED,
-                          message="Method not allowed on this endpoint.")
+                          message='Method not allowed on this endpoint.')
     return reapply_cors(request, response)
 
 
@@ -110,12 +110,12 @@ def error(context, request):
         return reapply_cors(request, context)
 
     if isinstance(context, storage_exceptions.IntegrityError):
-        error_msg = "Integrity constraint violated, please retry."
+        error_msg = 'Integrity constraint violated, please retry.'
         response = http_error(httpexceptions.HTTPConflict(),
                               errno=ERRORS.CONSTRAINT_VIOLATED,
                               message=error_msg)
         retry_after = request.registry.settings['retry_after_seconds']
-        response.headers["Retry-After"] = str(retry_after)
+        response.headers['Retry-After'] = str(retry_after)
         return reapply_cors(request, response)
 
     if isinstance(context, storage_exceptions.BackendError):
@@ -125,7 +125,7 @@ def error(context, request):
 
     logger.error(context, exc_info=True)
 
-    error_msg = "A programmatic error occured, developers have been informed."
+    error_msg = 'A programmatic error occured, developers have been informed.'
     info = request.registry.settings['error_info_link']
     response = http_error(httpexceptions.HTTPInternalServerError(),
                           message=error_msg,

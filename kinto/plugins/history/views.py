@@ -23,8 +23,8 @@ class HistorySchema(resource.ResourceSchema):
 
 
 # Add custom OpenAPI tags/operation ids
-collection_get_arguments = getattr(ViewSet, "collection_get_arguments", {})
-collection_delete_arguments = getattr(ViewSet, "collection_delete_arguments", {})
+collection_get_arguments = getattr(ViewSet, 'collection_get_arguments', {})
+collection_delete_arguments = getattr(ViewSet, 'collection_delete_arguments', {})
 
 get_history_arguments = {'tags': ['History'], 'operation_id': 'get_history',
                          **collection_get_arguments}

@@ -103,7 +103,7 @@ class Account(resource.ShareableResource):
     def process_record(self, new, old=None):
         new = super(Account, self).process_record(new, old)
 
-        new["password"] = hash_password(new["password"])
+        new['password'] = hash_password(new['password'])
 
         # Administrators can reach other accounts and anonymous have no
         # selected_userid. So do not try to enforce.

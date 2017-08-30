@@ -346,9 +346,9 @@ def apply_filters(records, filters):
                 right, left = left, right
             elif f.operator == COMPARISON.LIKE:
                 # Add implicit start/end wildchars if none is specified.
-                if "*" not in right:
-                    right = "*{}*".format(right)
-                right = "^{}$".format(right.replace("*", ".*"))
+                if '*' not in right:
+                    right = '*{}*'.format(right)
+                right = '^{}$'.format(right.replace('*', '.*'))
             elif f.operator != COMPARISON.HAS:
                 left = schwartzian_transform(left)
                 right = schwartzian_transform(right)
@@ -390,7 +390,7 @@ def schwartzian_transform(value):
         return (5, value)
     if value is MISSING:
         return (6, value)
-    raise ValueError("Unknown value: {}".format(value))   # pragma: no cover
+    raise ValueError('Unknown value: {}'.format(value))   # pragma: no cover
 
 
 def apply_sorting(records, sorting):
@@ -414,7 +414,7 @@ def apply_sorting(records, sorting):
 
 def _get_objects_by_parent_id(store, parent_id, collection_id, with_meta=False):
     if parent_id is not None:
-        parent_id_match = re.compile("^{}$".format(parent_id.replace('*', '.*')))
+        parent_id_match = re.compile('^{}$'.format(parent_id.replace('*', '.*')))
         by_parent_id = {pid: collections
                         for pid, collections in store.items()
                         if parent_id_match.match(pid)}

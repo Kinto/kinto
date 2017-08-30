@@ -20,7 +20,7 @@ version_response_schemas = {
 }
 
 
-version = Service(name="version", path='/__version__', description="Version")
+version = Service(name='version', path='/__version__', description='Version')
 
 
 @version.get(permission=NO_PERMISSION_REQUIRED, tags=['Utilities'],

@@ -95,7 +95,7 @@ class OpenAPI(CorniceSwagger):
 
         resource = resource.replace('-collection', 's')
         resource = resource.replace('-record', '')
-        op_id = "{}_{}".format(method, resource)
+        op_id = '{}_{}'.format(method, resource)
 
         return op_id
 

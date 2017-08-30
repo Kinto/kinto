@@ -12,9 +12,9 @@ HERE = os.path.abspath(os.path.dirname(__file__))
 @cache_forever
 def admin_home_view(request):
     settings = {
-        "authMethods": aslist(request.registry.settings.get('multiauth.policies'))
+        'authMethods': aslist(request.registry.settings.get('multiauth.policies'))
     }
-    globalSettings = "<script>window.globalSettings = {};</script>".format(json.dumps(settings))
+    globalSettings = '<script>window.globalSettings = {};</script>'.format(json.dumps(settings))
 
     try:
         with open(os.path.join(HERE, 'build/index.html')) as f:
