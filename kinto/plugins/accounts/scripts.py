@@ -15,12 +15,12 @@ def create_user(env, username=None, password=None):
     settings = registry.settings
     readonly_mode = asbool(settings.get('readonly', False))
     if readonly_mode:
-        message = ('Cannot create a user with a readonly server.')
+        message = 'Cannot create a user with a readonly server.'
         logger.error(message)
         return 51
 
     if 'kinto.plugins.accounts' not in settings['includes']:
-        message = ('Cannot create a user when the accounts plugin is not installed.')
+        message = 'Cannot create a user when the accounts plugin is not installed.'
         logger.error(message)
         return 52
 
@@ -34,7 +34,7 @@ def create_user(env, username=None, password=None):
             username = input('Username: ')
 
         if password is None:
-            while True:
+            while "The user didn't entered twice the same password":
                 password = getpass.getpass('Please enter a password for {}: '.format(username))
                 confirm = getpass.getpass('Please confirm the password: '.format(username))
 
@@ -52,7 +52,8 @@ def create_user(env, username=None, password=None):
                             parent_id=username,
                             record=record,
                             ignore_conflict=True)
-    registry.permission.add_principal_to_ace(
-        '/accounts/{}'.format(username), 'write', 'account:{}'.format(username))
+    registry.permission.add_principal_to_ace('/accounts/{}'.format(username),
+                                             'write',
+                                             'account:{}'.format(username))
 
     return 0

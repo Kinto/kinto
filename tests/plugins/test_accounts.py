@@ -330,7 +330,7 @@ class CreateUserTest(unittest.TestCase):
             "includes": "kinto.plugins.accounts",
         }
 
-    def test_create_user_in_read_only_display_an_error(self):
+    def test_create_user_in_read_only_displays_an_error(self):
         with mock.patch('kinto.plugins.accounts.scripts.logger') as mocked:
             self.registry.settings['readonly'] = 'true'
             code = scripts.create_user({'registry': self.registry})
@@ -338,7 +338,7 @@ class CreateUserTest(unittest.TestCase):
             mocked.error.assert_called_once_with('Cannot create a user with '
                                                  'a readonly server.')
 
-    def test_create_user_when_not_included_display_an_error(self):
+    def test_create_user_when_not_included_displays_an_error(self):
         with mock.patch('kinto.plugins.accounts.scripts.logger') as mocked:
             self.registry.settings['includes'] = ''
             code = scripts.create_user({'registry': self.registry})
@@ -346,7 +346,7 @@ class CreateUserTest(unittest.TestCase):
             mocked.error.assert_called_once_with('Cannot create a user when the accounts '
                                                  'plugin is not installed.')
 
-    def test_create_user_with_an_invalid_username_and_password_confirmation(self):
+    def test_create_user_with_an_invalid_username_and_password_confirmation_recovers(self):
         with mock.patch('kinto.plugins.accounts.scripts.input', side_effect=["&zert", "username"]):
             with mock.patch('kinto.plugins.accounts.scripts.getpass.getpass', side_effect=[
                     "password", "p4ssw0rd", "password", "password"]):
@@ -356,7 +356,7 @@ class CreateUserTest(unittest.TestCase):
                     "/accounts/username", "write", "account:username")
                 assert code == 0
 
-    def test_create_user_with_an_valid_username_and_password_confirmation(self):
+    def test_create_user_with_a_valid_username_and_password_confirmation(self):
         with mock.patch('kinto.plugins.accounts.scripts.input', return_value="username"):
             with mock.patch('kinto.plugins.accounts.scripts.getpass.getpass',
                             return_value="password"):
@@ -366,7 +366,7 @@ class CreateUserTest(unittest.TestCase):
                     "/accounts/username", "write", "account:username")
                 assert code == 0
 
-    def test_create_user_with_an_valid_username_and_password_parameters(self):
+    def test_create_user_with_valid_username_and_password_parameters(self):
         code = scripts.create_user({'registry': self.registry}, "username", "password")
         self.registry.storage.create.assert_called_once()
         self.registry.permission.add_principal_to_ace.assert_called_with(
