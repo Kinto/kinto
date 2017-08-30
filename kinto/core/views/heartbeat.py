@@ -11,8 +11,8 @@ from kinto.core import Service
 logger = logging.getLogger(__name__)
 
 
-heartbeat = Service(name="heartbeat", path='/__heartbeat__',
-                    description="Server health")
+heartbeat = Service(name='heartbeat', path='/__heartbeat__',
+                    description='Server health')
 
 
 class HeartbeatResponseSchema(colander.MappingSchema):
@@ -21,9 +21,9 @@ class HeartbeatResponseSchema(colander.MappingSchema):
 
 heartbeat_responses = {
     '200': HeartbeatResponseSchema(
-        description="Server is working properly."),
+        description='Server is working properly.'),
     '503': HeartbeatResponseSchema(
-        description="One or more subsystems failing.")
+        description='One or more subsystems failing.')
 }
 
 
@@ -83,12 +83,12 @@ class LbHeartbeatResponseSchema(colander.MappingSchema):
 
 lbheartbeat_responses = {
     '200': LbHeartbeatResponseSchema(
-        description="Returned if server is reachable.")
+        description='Returned if server is reachable.')
 }
 
 
-lbheartbeat = Service(name="lbheartbeat", path='/__lbheartbeat__',
-                      description="Web head health")
+lbheartbeat = Service(name='lbheartbeat', path='/__lbheartbeat__',
+                      description='Web head health')
 
 
 @lbheartbeat.get(permission=NO_PERMISSION_REQUIRED, tags=['Utilities'],

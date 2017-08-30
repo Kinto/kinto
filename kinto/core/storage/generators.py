@@ -17,7 +17,7 @@ class Generator:
         self._regexp = None
 
         if not self.match(self()):
-            error_msg = "Generated record id does comply with regexp."
+            error_msg = 'Generated record id does comply with regexp.'
             raise ValueError(error_msg)
 
     def match(self, record_id):

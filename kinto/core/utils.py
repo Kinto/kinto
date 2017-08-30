@@ -449,7 +449,7 @@ def view_lookup(request, uri):
     info = routes_mapper(fakerequest)
     matchdict, route = info['match'], info['route']
     if route is None:
-        raise ValueError("URI has no route")
+        raise ValueError('URI has no route')
 
     resource_name = route.name.replace('-record', '')\
                               .replace('-collection', '')
@@ -469,9 +469,9 @@ def parse_resource(resource):
     :returns: a dictionary with the bucket_id and collection_id of the resource
     """
 
-    error_msg = "Resources should be defined as "
+    error_msg = 'Resources should be defined as '
     "'/buckets/<bid>/collections/<cid>' or '<bid>/<cid>'. "
-    "with valid collection and bucket ids."
+    'with valid collection and bucket ids.'
 
     from kinto.views import NameGenerator
     id_generator = NameGenerator()

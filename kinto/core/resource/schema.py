@@ -16,8 +16,8 @@ class TimeStamp(TimeStamp):
     """This schema is deprecated, you shoud use `kinto.core.schema.TimeStamp` instead."""
 
     def __init__(self, *args, **kwargs):
-        message = ("`kinto.core.resource.schema.TimeStamp` is deprecated, "
-                   "use `kinto.core.schema.TimeStamp` instead.")
+        message = ('`kinto.core.resource.schema.TimeStamp` is deprecated, '
+                   'use `kinto.core.schema.TimeStamp` instead.')
         warnings.warn(message, DeprecationWarning)
         super().__init__(*args, **kwargs)
 
@@ -26,8 +26,8 @@ class URL(URL):
     """This schema is deprecated, you shoud use `kinto.core.schema.URL` instead."""
 
     def __init__(self, *args, **kwargs):
-        message = ("`kinto.core.resource.schema.URL` is deprecated, "
-                   "use `kinto.core.schema.URL` instead.")
+        message = ('`kinto.core.resource.schema.URL` is deprecated, '
+                   'use `kinto.core.schema.URL` instead.')
         warnings.warn(message, DeprecationWarning)
         super().__init__(*args, **kwargs)
 
@@ -81,10 +81,10 @@ class ResourceSchema(colander.MappingSchema):
             ``False`` otherwise.
         :rtype: bool
         """
-        return field in cls.get_option("readonly_fields")
+        return field in cls.get_option('readonly_fields')
 
     def schema_type(self):
-        if self.get_option("preserve_unknown") is True:
+        if self.get_option('preserve_unknown') is True:
             unknown = 'preserve'
         else:
             unknown = 'ignore'
@@ -382,50 +382,50 @@ class ResourceReponses:
     """Class that wraps and handles Resource responses."""
 
     default_schemas = {
-        '400': ErrorResponseSchema(description="The request is invalid."),
+        '400': ErrorResponseSchema(description='The request is invalid.'),
         '406': ErrorResponseSchema(
             description="The client doesn't accept supported responses Content-Type."),
         '412': ErrorResponseSchema(
-            description="Record was changed or deleted since value in `If-Match` header."),
-        'default': ErrorResponseSchema(description="Unexpected error."),
+            description='Record was changed or deleted since value in `If-Match` header.'),
+        'default': ErrorResponseSchema(description='Unexpected error.'),
 
     }
     default_record_schemas = {
-        '200': RecordResponseSchema(description="Return the target object.")
+        '200': RecordResponseSchema(description='Return the target object.')
     }
     default_collection_schemas = {
-        '200': CollectionResponseSchema(description="Return a list of matching objects.")
+        '200': CollectionResponseSchema(description='Return a list of matching objects.')
     }
     default_get_schemas = {
         '304': NotModifiedResponseSchema(
-            description="Reponse has not changed since value in If-None-Match header")
+            description='Reponse has not changed since value in If-None-Match header')
     }
     default_post_schemas = {
-        '200': RecordResponseSchema(description="Return an existing object."),
-        '201': RecordResponseSchema(description="Return a created object."),
+        '200': RecordResponseSchema(description='Return an existing object.'),
+        '201': RecordResponseSchema(description='Return a created object.'),
         '415': ErrorResponseSchema(
-            description="The client request was not sent with a correct Content-Type.")
+            description='The client request was not sent with a correct Content-Type.')
     }
     default_put_schemas = {
-        '201': RecordResponseSchema(description="Return created object."),
+        '201': RecordResponseSchema(description='Return created object.'),
         '415': ErrorResponseSchema(
-            description="The client request was not sent with a correct Content-Type.")
+            description='The client request was not sent with a correct Content-Type.')
     }
     default_patch_schemas = {
         '415': ErrorResponseSchema(
-            description="The client request was not sent with a correct Content-Type.")
+            description='The client request was not sent with a correct Content-Type.')
     }
     default_delete_schemas = {
     }
     record_get_schemas = {
-        '404': ErrorResponseSchema(description="The object does not exist or was deleted."),
+        '404': ErrorResponseSchema(description='The object does not exist or was deleted.'),
     }
     record_patch_schemas = {
-        '404': ErrorResponseSchema(description="The object does not exist or was deleted."),
+        '404': ErrorResponseSchema(description='The object does not exist or was deleted.'),
     }
     record_delete_schemas = {
         '404': ErrorResponseSchema(
-            description="The object does not exist or was already deleted."),
+            description='The object does not exist or was already deleted.'),
     }
 
     def get_and_bind(self, endpoint_type, method, **kwargs):
@@ -458,9 +458,9 @@ class ShareableResourseResponses(ResourceReponses):
         # Add permission related responses to defaults
         self.default_schemas = {
             '401': ErrorResponseSchema(
-                description="The request is missing authentication headers."),
+                description='The request is missing authentication headers.'),
             '403': ErrorResponseSchema(
-                description=("The user is not allowed to perform the operation, "
-                             "or the resource is not accessible.")),
+                description=('The user is not allowed to perform the operation, '
+                             'or the resource is not accessible.')),
             **self.default_schemas
         }

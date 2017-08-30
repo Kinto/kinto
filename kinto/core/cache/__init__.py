@@ -91,7 +91,7 @@ def heartbeat(backend):
                 backend.set(_HEARTBEAT_KEY, 'alive', _HEARTBEAT_TTL_SECONDS)
             return True
         except:
-            logger.exception("Heartbeat Failure")
+            logger.exception('Heartbeat Failure')
             return False
 
     return ping

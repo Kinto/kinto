@@ -39,8 +39,8 @@ class BasicAuthAuthenticationPolicy(base_auth.BasicAuthAuthenticationPolicy):
 
 def includeme(config):
     config.add_api_capability(
-        "basicauth",
-        description="Very basic authentication sessions. Not for production use.",
-        url="http://kinto.readthedocs.io/en/stable/api/1.x/authentication.html",
+        'basicauth',
+        description='Very basic authentication sessions. Not for production use.',
+        url='http://kinto.readthedocs.io/en/stable/api/1.x/authentication.html',
     )
     OpenAPI.expose_authentication_method('basicauth', {'type': 'basic'})

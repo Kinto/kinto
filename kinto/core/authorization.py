@@ -77,8 +77,8 @@ class AuthorizationPolicy:
         # allowed to read the parent, then view is permitted (will raise 404
         # later anyway). See Kinto/kinto#918
         is_record_unknown = not context.on_collection and context.current_record is None
-        if context.required_permission == "write" and is_record_unknown:
-            bound_perms = self._get_bound_permissions(parent_uri, "read")
+        if context.required_permission == 'write' and is_record_unknown:
+            bound_perms = self._get_bound_permissions(parent_uri, 'read')
             allowed = context.check_permission(principals, bound_perms)
 
         # If not allowed on this collection, but some records are shared with
@@ -99,7 +99,7 @@ class AuthorizationPolicy:
                 allowed = context.check_permission(principals, bound_perms)
 
         if not allowed:
-            logger.warn("Permission %r on %r not granted to %r.",
+            logger.warn('Permission %r on %r not granted to %r.',
                         permission, object_id, principals[0],
                         extra=dict(userid=principals[0], uri=object_id, perm=permission))
 
@@ -123,11 +123,11 @@ class RouteFactory:
     shared_ids = None
 
     method_permissions = {
-        "head": "read",
-        "get": "read",
-        "post": "create",
-        "delete": "write",
-        "patch": "write"
+        'head': 'read',
+        'get': 'read',
+        'post': 'create',
+        'delete': 'write',
+        'patch': 'write'
     }
 
     def __init__(self, request):
@@ -145,10 +145,10 @@ class RouteFactory:
                           hasattr(service, 'resource'))
         if is_on_resource:
             self.resource_name = request.current_resource_name
-            self.on_collection = getattr(service, "type", None) == "collection"
+            self.on_collection = getattr(service, 'type', None) == 'collection'
 
             # Try to fetch the target object. Its existence will affect permissions checking.
-            if not self.on_collection and request.method.lower() in ("put", "delete", "patch"):
+            if not self.on_collection and request.method.lower() in ('put', 'delete', 'patch'):
                 resource = service.resource(request=request, context=self)
                 try:
                     # Save a reference, to avoid refetching from storage in resource.
@@ -253,19 +253,19 @@ class RouteFactory:
 
         # In the case of a "PUT", check if the targetted record already
         # exists, return "write" if it does, "create" otherwise.
-        if request.method.lower() == "put":
+        if request.method.lower() == 'put':
             if self.current_record is None:
                 # The record does not exist, the permission to create on
                 # the related collection is required.
                 permission_object_id = collection_path
-                required_permission = "create"
+                required_permission = 'create'
             else:
                 # For safe creations, the user needs a create permission.
                 # See Kinto/kinto#792
                 if request.headers.get('If-None-Match') == '*':
                     permission_object_id = collection_path
-                    required_permission = "create"
+                    required_permission = 'create'
                 else:
-                    required_permission = "write"
+                    required_permission = 'write'
 
         return (permission_object_id, required_permission)

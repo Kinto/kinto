@@ -77,7 +77,7 @@ class Permission(PermissionBase):
         with self.client.connect(readonly=True) as conn:
             result = conn.execute(query)
             if result.rowcount > 0:
-                logger.info("PostgreSQL permission schema is up-to-date.")
+                logger.info('PostgreSQL permission schema is up-to-date.')
                 return
 
         # Create schema
@@ -193,7 +193,7 @@ class Permission(PermissionBase):
         for i, (obj, perm) in enumerate(bound_permissions):
             placeholders['obj_{}'.format(i)] = obj
             placeholders['perm_{}'.format(i)] = perm
-            perm_values.append("(:obj_{0}, :perm_{0})".format(i))
+            perm_values.append('(:obj_{0}, :perm_{0})'.format(i))
 
         query = """
         WITH required_perms AS (
@@ -231,18 +231,18 @@ class Permission(PermissionBase):
             principals_values = []
             for i, principal in enumerate(principals):
                 placeholders['principal_{}'.format(i)] = principal
-                principals_values.append("(:principal_{})".format(i))
+                principals_values.append('(:principal_{})'.format(i))
 
             perm_values = []
             for i, (obj, perm) in enumerate(bound_permissions):
                 placeholders['obj_{}'.format(i)] = obj.replace('*', '%')
                 placeholders['perm_{}'.format(i)] = perm
-                perm_values.append("(:obj_{0}, :perm_{0})".format(i))
+                perm_values.append('(:obj_{0}, :perm_{0})'.format(i))
 
             if with_children:
                 object_id_condition = 'object_id LIKE pattern'
             else:
-                object_id_condition = ("object_id LIKE pattern "
+                object_id_condition = ('object_id LIKE pattern '
                                        "AND object_id NOT LIKE pattern || '/%'")
             query = """
             WITH required_perms AS (
@@ -284,12 +284,12 @@ class Permission(PermissionBase):
         for i, (obj, perm) in enumerate(bound_permissions):
             placeholders['obj_{}'.format(i)] = obj
             placeholders['perm_{}'.format(i)] = perm
-            perms_values.append("(:obj_{0}, :perm_{0})".format(i))
+            perms_values.append('(:obj_{0}, :perm_{0})'.format(i))
 
         principals_values = []
         for i, principal in enumerate(principals):
             placeholders['principal_{}'.format(i)] = principal
-            principals_values.append("(:principal_{})".format(i))
+            principals_values.append('(:principal_{})'.format(i))
 
         query = """
         WITH required_perms AS (
@@ -318,7 +318,7 @@ class Permission(PermissionBase):
         object_ids_values = []
         placeholders = {}
         for i, obj_id in enumerate(objects_ids):
-            object_ids_values.append("({0}, :obj_id_{0})".format(i))
+            object_ids_values.append('({0}, :obj_id_{0})'.format(i))
             placeholders['obj_id_{}'.format(i)] = obj_id
 
         query = """
@@ -338,7 +338,7 @@ class Permission(PermissionBase):
         if permissions is not None:
             safeholders['permissions_condition'] = """
               WHERE permission IN :permissions"""
-            placeholders["permissions"] = tuple(permissions)
+            placeholders['permissions'] = tuple(permissions)
 
         with self.client.connect(readonly=True) as conn:
             result = conn.execute(query.format_map(safeholders), placeholders)
@@ -366,11 +366,11 @@ class Permission(PermissionBase):
         specified_perms = []
         for i, (perm, principals) in enumerate(permissions.items()):
             placeholders['perm_{}'.format(i)] = perm
-            specified_perms.append("(:perm_{})".format(i))
+            specified_perms.append('(:perm_{})'.format(i))
             for principal in set(principals):
                 j = len(new_aces)
                 placeholders['principal_{}'.format(j)] = principal
-                new_aces.append("(:perm_{}, :principal_{})".format(i, j))
+                new_aces.append('(:perm_{}, :principal_{})'.format(i, j))
 
         if not new_aces:
             query = """
@@ -416,7 +416,7 @@ class Permission(PermissionBase):
         object_ids_values = []
         placeholders = {}
         for i, obj_id in enumerate(object_id_list):
-            object_ids_values.append("(:obj_id_{})".format(i))
+            object_ids_values.append('(:obj_id_{})'.format(i))
             placeholders['obj_id_{}'.format(i)] = obj_id.replace('*', '%')
 
         query = """

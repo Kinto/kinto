@@ -196,7 +196,7 @@ def heartbeat(backend):
                 backend.add_user_principal(__HEARTBEAT_KEY__, 'alive')
                 backend.remove_user_principal(__HEARTBEAT_KEY__, 'alive')
         except:
-            logger.exception("Heartbeat Error")
+            logger.exception('Heartbeat Error')
             return False
         return True
     return ping

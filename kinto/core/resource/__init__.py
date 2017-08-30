@@ -106,8 +106,8 @@ def register_resource(resource_cls, settings=None, viewset=None, depth=1,
             # use the same schema as for other PATCH protocols. We add another
             # dedicated view for PATCH, but targetting a different content_type
             # predicate.
-            if method.lower() == "patch":
-                view_args['content_type'] = "application/json-patch+json"
+            if method.lower() == 'patch':
+                view_args['content_type'] = 'application/json-patch+json'
                 view_args['schema'] = JsonPatchRequestSchema()
                 service.add_view(method, view, klass=resource_cls, **view_args)
 
@@ -201,9 +201,9 @@ class UserResource:
             # collection is empty, the backend will try to bump the timestamp.
             # It fails if the configured db user has not write privileges.
             logger.exception(e)
-            error_msg = ("Collection timestamp cannot be written. "
-                         "Records endpoint must be hit at least once from a "
-                         "writable instance.")
+            error_msg = ('Collection timestamp cannot be written. '
+                         'Records endpoint must be hit at least once from a '
+                         'writable instance.')
             raise http_error(HTTPServiceUnavailable(),
                              errno=ERRORS.BACKEND,
                              message=error_msg)
@@ -733,8 +733,8 @@ class UserResource:
             return self.model.get_record(record_id)
         except storage_exceptions.RecordNotFoundError:
             details = {
-                "id": record_id,
-                "resource_name": self.request.current_resource_name
+                'id': record_id,
+                'resource_name': self.request.current_resource_name
             }
             response = http_error(HTTPNotFound(), errno=ERRORS.INVALID_RESOURCE_ID,
                                   details=details)
@@ -788,7 +788,7 @@ class UserResource:
         if not is_string or not self.model.id_generator.match(record_id):
             error_details = {
                 'location': 'path',
-                'description': "Invalid record id"
+                'description': 'Invalid record id'
             }
             raise_invalid(self.request, **error_details)
 
@@ -888,9 +888,9 @@ class UserResource:
             invalid_fields = set(root_fields) - set(known_fields)
             preserve_unknown = self.schema.get_option('preserve_unknown')
             if not preserve_unknown and invalid_fields:
-                error_msg = "Fields {} do not exist".format(','.join(invalid_fields))
+                error_msg = 'Fields {} do not exist'.format(','.join(invalid_fields))
                 error_details = {
-                    'name': "Invalid _fields parameter",
+                    'name': 'Invalid _fields parameter',
                     'description': error_msg
                 }
                 raise_invalid(self.request, **error_details)
@@ -1059,7 +1059,7 @@ class UserResource:
 
             # We don't want pagination tokens to be reused several times (#1171).
             # The cache backend is used to keep track of "nonces".
-            if self.request.method.lower() == "delete" and error_msg is None:
+            if self.request.method.lower() == 'delete' and error_msg is None:
                 registry = self.request.registry
                 deleted = registry.cache.delete(nonce)
                 if deleted is None:
@@ -1094,11 +1094,11 @@ class UserResource:
         the last_record.
 
         """
-        nonce = "pagination-token-{}".format(uuid4())
-        if self.request.method.lower() == "delete":
+        nonce = 'pagination-token-{}'.format(uuid4())
+        if self.request.method.lower() == 'delete':
             registry = self.request.registry
-            validity = registry.settings["pagination_token_validity_seconds"]
-            registry.cache.set(nonce, "", validity)
+            validity = registry.settings['pagination_token_validity_seconds']
+            registry.cache.set(nonce, '', validity)
 
         token = {
             'last_record': {},

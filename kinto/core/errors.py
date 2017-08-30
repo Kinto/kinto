@@ -104,12 +104,12 @@ def http_error(httpexception, errno=None,
         errno = errno.value
 
     body = {
-        "code": code or httpexception.code,
-        "errno": errno,
-        "error": error or httpexception.title,
-        "message": message,
-        "info": info,
-        "details": details or colander.drop,
+        'code': code or httpexception.code,
+        'errno': errno,
+        'error': error or httpexception.title,
+        'message': message,
+        'info': info,
+        'details': details or colander.drop,
     }
 
     response = httpexception
@@ -209,5 +209,5 @@ def request_GET(request):
         raise http_error(
             httpexceptions.HTTPBadRequest(),
             errno=ERRORS.INVALID_PARAMETERS,
-            message="A request with an incorrect encoding in the querystring was"
-            "received. Please make sure your requests are encoded in UTF-8: %s" % querystring)
+            message='A request with an incorrect encoding in the querystring was'
+            'received. Please make sure your requests are encoded in UTF-8: %s' % querystring)

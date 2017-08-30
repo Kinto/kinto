@@ -14,7 +14,7 @@ from kinto.config import init
 DEFAULT_CONFIG_FILE = 'config/kinto.ini'
 DEFAULT_PORT = 8888
 DEFAULT_LOG_LEVEL = logging.INFO
-DEFAULT_LOG_FORMAT = "%(levelname)-5.5s  %(message)s"
+DEFAULT_LOG_FORMAT = '%(levelname)-5.5s  %(message)s'
 
 
 def main(args=None):
@@ -22,14 +22,14 @@ def main(args=None):
     if args is None:
         args = sys.argv[1:]
 
-    parser = argparse.ArgumentParser(description="Kinto Command-Line "
-                                                 "Interface")
+    parser = argparse.ArgumentParser(description='Kinto Command-Line '
+                                                 'Interface')
     commands = ('init', 'start', 'migrate', 'delete-collection', 'version',
                 'rebuild-quotas', 'create-user')
     subparsers = parser.add_subparsers(title='subcommands',
                                        description='Main Kinto CLI commands',
                                        dest='subcommand',
-                                       help="Choose and run with --help")
+                                       help='Choose and run with --help')
     subparsers.required = True
 
     for command in commands:
@@ -121,17 +121,17 @@ def main(args=None):
 
     if which_command == 'init':
         if os.path.exists(config_file):
-            print("{} already exists.".format(config_file), file=sys.stderr)
+            print('{} already exists.'.format(config_file), file=sys.stderr)
             return 1
 
         backend = parsed_args['backend']
         if not backend:
             while True:
-                prompt = ("Select the backend you would like to use: "
-                          "(1 - postgresql, 2 - redis, default - memory) ")
+                prompt = ('Select the backend you would like to use: '
+                          '(1 - postgresql, 2 - redis, default - memory) ')
                 answer = input(prompt).strip()
                 try:
-                    backends = {"1": "postgresql", "2": "redis", "": "memory"}
+                    backends = {'1': 'postgresql', '2': 'redis', '': 'memory'}
                     backend = backends[answer]
                     break
                 except KeyError:
@@ -140,18 +140,18 @@ def main(args=None):
         init(config_file, backend, parsed_args['host'])
 
         # Install postgresql libraries if necessary
-        if backend == "postgresql":
+        if backend == 'postgresql':
             try:
                 import psycopg2  # NOQA
             except ImportError:
                 import pip
-                pip.main(['install', "kinto[postgresql]"])
-        elif backend == "redis":
+                pip.main(['install', 'kinto[postgresql]'])
+        elif backend == 'redis':
             try:
                 import kinto_redis  # NOQA
             except ImportError:
                 import pip
-                pip.main(['install', "kinto[redis]"])
+                pip.main(['install', 'kinto[redis]'])
 
     elif which_command == 'migrate':
         dry_run = parsed_args['dry_run']

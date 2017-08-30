@@ -76,7 +76,7 @@ class Cache(CacheBase):
         with self.client.connect(readonly=True) as conn:
             result = conn.execute(query)
             if result.rowcount > 0:
-                logger.info("PostgreSQL cache schema is up-to-date.")
+                logger.info('PostgreSQL cache schema is up-to-date.')
                 return
 
         # Create schema
@@ -150,7 +150,7 @@ class Cache(CacheBase):
             FOR UPDATE
         ) del
         WHERE del.key = c.key;"""
-        query = "SELECT value FROM cache WHERE key = :key AND now() < ttl;"
+        query = 'SELECT value FROM cache WHERE key = :key AND now() < ttl;'
         with self.client.connect() as conn:
             conn.execute(purge)
             result = conn.execute(query, dict(key=self.prefix + key))
@@ -159,7 +159,7 @@ class Cache(CacheBase):
                 return json.loads(value)
 
     def delete(self, key):
-        query = "DELETE FROM cache WHERE key = :key RETURNING value;"
+        query = 'DELETE FROM cache WHERE key = :key RETURNING value;'
         with self.client.connect() as conn:
             result = conn.execute(query, dict(key=self.prefix + key))
             if result.rowcount > 0:

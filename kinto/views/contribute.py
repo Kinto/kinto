@@ -14,7 +14,7 @@ class ContributeResponseSchema(colander.MappingSchema):
 
 contribute_responses = {
     '200': ContributeResponseSchema(
-        description="Return open source contributing information.")
+        description='Return open source contributing information.')
 }
 
 
@@ -22,25 +22,25 @@ contribute_responses = {
                 operation_id='contribute', response_schemas=contribute_responses)
 def contribute_get(request):
     return {
-        "name": "kinto",
-        "description": "A minimalist JSON storage service.",
-        "repository": {
-            "url": "https://github.com/Kinto/kinto",
-            "license": "Apache License (2.0)"
+        'name': 'kinto',
+        'description': 'A minimalist JSON storage service.',
+        'repository': {
+            'url': 'https://github.com/Kinto/kinto',
+            'license': 'Apache License (2.0)'
         },
-        "participate": {
-            "docs": "https://kinto.readthedocs.io/",
-            "mailing-list": "kinto@mozilla.org",
-            "irc": "irc://irc.freenode.net/#kinto",
+        'participate': {
+            'docs': 'https://kinto.readthedocs.io/',
+            'mailing-list': 'kinto@mozilla.org',
+            'irc': 'irc://irc.freenode.net/#kinto',
         },
-        "keywords": [
-            "JSON",
-            "Python",
-            "Offline",
-            "Sync",
-            "Storage",
+        'keywords': [
+            'JSON',
+            'Python',
+            'Offline',
+            'Sync',
+            'Storage',
         ],
-        "urls": {
-            "dev": "https://kinto.dev.mozaws.net/v1/"
+        'urls': {
+            'dev': 'https://kinto.dev.mozaws.net/v1/'
         }
     }

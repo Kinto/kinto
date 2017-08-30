@@ -13,9 +13,9 @@ from kinto.core import statsd
 from kinto.core.storage import generators
 from kinto.core.utils import sqlalchemy, follow_subrequest, encode64
 
-skip_if_travis = unittest.skipIf('TRAVIS' in os.environ, "travis")
-skip_if_no_postgresql = unittest.skipIf(sqlalchemy is None, "postgresql is not installed.")
-skip_if_no_statsd = unittest.skipIf(not statsd.statsd_module, "statsd is not installed.")
+skip_if_travis = unittest.skipIf('TRAVIS' in os.environ, 'travis')
+skip_if_no_postgresql = unittest.skipIf(sqlalchemy is None, 'postgresql is not installed.')
+skip_if_no_statsd = unittest.skipIf(not statsd.statsd_module, 'statsd is not installed.')
 
 
 class DummyRequest(mock.MagicMock):
@@ -93,7 +93,7 @@ def get_user_headers(user, password='secret'):
 
     :rtype: dict
     """
-    credentials = "{}:{}".format(user, password)
+    credentials = '{}:{}'.format(user, password)
     authorization = 'Basic {}'.format(encode64(credentials))
     return {
         'Authorization': authorization
@@ -106,7 +106,7 @@ class BaseWebTest:
     It setups the database before each test and delete it after.
     """
 
-    api_prefix = "v0"
+    api_prefix = 'v0'
     """URL version prefix"""
 
     entry_point = None

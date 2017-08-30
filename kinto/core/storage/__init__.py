@@ -310,7 +310,7 @@ def heartbeat(backend):
                     backend.create(record=_HEARTBEAT_RECORD, **storage_kw)
             return True
         except:
-            logger.exception("Heartbeat Error")
+            logger.exception('Heartbeat Error')
             return False
 
     return ping

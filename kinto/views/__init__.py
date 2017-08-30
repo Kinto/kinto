@@ -31,8 +31,8 @@ def object_exists_or_404(request, collection_id, object_id, parent_id=''):
     except exceptions.RecordNotFoundError:
         # XXX: We gave up putting details about parent id here (See #53).
         details = {
-            "id": object_id,
-            "resource_name": collection_id
+            'id': object_id,
+            'resource_name': collection_id
         }
         response = http_error(HTTPNotFound(), errno=ERRORS.MISSING_RESOURCE, details=details)
         raise response

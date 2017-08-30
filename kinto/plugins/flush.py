@@ -23,9 +23,9 @@ def flush_post(request):
 
 def includeme(config):
     config.add_api_capability(
-        "flush_endpoint",
-        description="The __flush__ endpoint can be used to remove "
-                    "all data from all backends.",
-        url="https://kinto.readthedocs.io/en/latest/api/1.x/flush.html"
+        'flush_endpoint',
+        description='The __flush__ endpoint can be used to remove '
+                    'all data from all backends.',
+        url='https://kinto.readthedocs.io/en/latest/api/1.x/flush.html'
     )
     config.add_cornice_service(flush)

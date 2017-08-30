@@ -155,13 +155,13 @@ def setup_requests_scheme(config):
 
 
 def setup_deprecation(config):
-    config.add_tween("kinto.core.initialization._end_of_life_tween_factory")
+    config.add_tween('kinto.core.initialization._end_of_life_tween_factory')
 
 
 def _end_of_life_tween_factory(handler, registry):
     """Pyramid tween to handle service end of life."""
-    deprecation_msg = ("The service you are trying to connect no longer exists"
-                       " at this location.")
+    deprecation_msg = ('The service you are trying to connect no longer exists'
+                       ' at this location.')
 
     def eos_tween(request):
         eos_date = registry.settings['eos']
@@ -172,10 +172,10 @@ def _end_of_life_tween_factory(handler, registry):
 
         eos_date = dateparser.parse(eos_date)
         if eos_date > datetime.now():
-            code = "soft-eol"
+            code = 'soft-eol'
             request.response = handler(request)
         else:
-            code = "hard-eol"
+            code = 'hard-eol'
             request.response = errors.http_error(
                 HTTPGone(),
                 errno=errors.ERRORS.SERVICE_DEPRECATED,
@@ -207,7 +207,7 @@ def setup_storage(config):
     storage_mod = config.maybe_dotted(storage_mod)
     backend = storage_mod.load_from_config(config)
     if not isinstance(backend, storage.StorageBase):
-        raise ConfigurationError("Invalid storage backend: {}".format(backend))
+        raise ConfigurationError('Invalid storage backend: {}'.format(backend))
     config.registry.storage = backend
 
     heartbeat = storage.heartbeat(backend)
@@ -223,7 +223,7 @@ def setup_permission(config):
     permission_mod = config.maybe_dotted(permission_mod)
     backend = permission_mod.load_from_config(config)
     if not isinstance(backend, permission.PermissionBase):
-        raise ConfigurationError("Invalid permission backend: {}".format(backend))
+        raise ConfigurationError('Invalid permission backend: {}'.format(backend))
     config.registry.permission = backend
 
     heartbeat = permission.heartbeat(backend)
@@ -239,7 +239,7 @@ def setup_cache(config):
     cache_mod = config.maybe_dotted(cache_mod)
     backend = cache_mod.load_from_config(config)
     if not isinstance(backend, cache.CacheBase):
-        raise ConfigurationError("Invalid cache backend: {}".format(backend))
+        raise ConfigurationError('Invalid cache backend: {}'.format(backend))
     config.registry.cache = backend
 
     heartbeat = cache.heartbeat(backend)
@@ -297,7 +297,7 @@ def setup_statsd(config):
 
 
 def install_middlewares(app, settings):
-    "Install a set of middlewares defined in the ini file on the given app."
+    'Install a set of middlewares defined in the ini file on the given app.'
     # Setup new-relic.
     if settings.get('newrelic_config'):
         ini_file = settings['newrelic_config']
@@ -333,7 +333,7 @@ def setup_logging(config):
             raise errors.http_error(
                 HTTPBadRequest(),
                 errno=errors.ERRORS.INVALID_PARAMETERS,
-                message="Invalid URL path.")
+                message='Invalid URL path.')
 
         request.log_context(agent=request.headers.get('User-Agent'),
                             path=request_path,
@@ -417,7 +417,7 @@ def setup_listeners(config):
             prefix = 'event_listeners.{}.'.format(name.split('.')[-1])
             listener = listener_mod.load_from_config(config, prefix)
         except (ImportError, AttributeError):
-            module_setting = prefix + "use"
+            module_setting = prefix + 'use'
             # Read from ENV or settings.
             module_value = utils.read_env('{}.{}'.format(project_name, module_setting),
                                           settings.get(module_setting))
@@ -425,16 +425,16 @@ def setup_listeners(config):
             listener = listener_mod.load_from_config(config, prefix)
 
         # If StatsD is enabled, monitor execution time of listeners.
-        if getattr(config.registry, "statsd", None):
+        if getattr(config.registry, 'statsd', None):
             statsd_client = config.registry.statsd
             key = 'listeners.{}'.format(name)
             listener = statsd_client.timer(key)(listener.__call__)
 
         # Optional filter by event action.
-        actions_setting = prefix + "actions"
+        actions_setting = prefix + 'actions'
         # Read from ENV or settings.
         actions_value = utils.read_env('{}.{}'.format(project_name, actions_setting),
-                                       settings.get(actions_setting, ""))
+                                       settings.get(actions_setting, ''))
         actions = aslist(actions_value)
         if len(actions) > 0:
             actions = ACTIONS.from_string_list(actions)
@@ -442,10 +442,10 @@ def setup_listeners(config):
             actions = write_actions
 
         # Optional filter by event resource name.
-        resource_setting = prefix + "resources"
+        resource_setting = prefix + 'resources'
         # Read from ENV or settings.
         resource_value = utils.read_env('{}.{}'.format(project_name, resource_setting),
-                                        settings.get(resource_setting, ""))
+                                        settings.get(resource_setting, ''))
         resource_names = aslist(resource_value)
 
         # Pyramid event predicates.
@@ -543,7 +543,7 @@ def initialize(config, version=None, project_name='', default_settings=None):
     # Override project version from settings.
     project_version = settings.get('project_version') or version
     if not project_version:
-        error_msg = "Invalid project version: {}".format(project_version)
+        error_msg = 'Invalid project version: {}'.format(project_version)
         raise ConfigurationError(error_msg)
     settings['project_version'] = project_version = str(project_version)
 
@@ -556,5 +556,5 @@ def initialize(config, version=None, project_name='', default_settings=None):
     api_version = 'v{}'.format(http_api_version.split('.')[0])
 
     # Include kinto.core views with the correct api version prefix.
-    config.include("kinto.core", route_prefix=api_version)
+    config.include('kinto.core', route_prefix=api_version)
     config.route_prefix = api_version
