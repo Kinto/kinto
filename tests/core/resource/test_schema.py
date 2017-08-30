@@ -24,6 +24,16 @@ class DepracatedSchemasTest(unittest.TestCase):
 
 class ResourceSchemaTest(unittest.TestCase):
 
+    def setUp(self):
+        self.schema = schema.ResourceSchema()
+
+        # Create fake id generators
+        fake_id_generator = mock.MagicMock()
+        self.id_validator = fake_id_generator.regexp = '[0-9]+'
+        default_id_generator = mock.MagicMock()
+        self.default_id_validator = default_id_generator.regexp = '[a-zA-Z]+'
+        self.id_generators = {'int': fake_id_generator, '': default_id_generator}
+
     def test_preserves_unknown_fields_when_specified(self):
         class PreserveSchema(schema.ResourceSchema):
             class Options:
@@ -56,6 +66,25 @@ class ResourceSchemaTest(unittest.TestCase):
         schema_instance = PreserveSchema()
         deserialized = schema_instance.deserialize({'foo': 'bar'})
         self.assertIn('foo', deserialized)
+
+    def test_binds_id_from_named_id_generator_if_exists(self):
+        bound = self.schema.bind(id_generators=self.id_generators,
+                                 resource_name='int')
+        self.assertEquals(bound['id'].validator.match_object,
+                          colander.Regex(self.id_validator).match_object)
+
+    def test_binds_id_from_default_id_generator(self):
+        bound = self.schema.bind(id_generators=self.id_generators,
+                                 resource_name='none')
+        self.assertEquals(bound['id'].validator.match_object,
+                          colander.Regex(self.default_id_validator).match_object)
+
+    def test_validates_id(self):
+        bound = self.schema.bind(id_generators=self.id_generators)
+        valid_record = {'id': 'abc'}
+        self.assertEquals(valid_record, bound.deserialize(valid_record))
+        invalid_record = {'id': '123'}
+        self.assertRaises(colander.Invalid, bound.deserialize, invalid_record)
 
 
 class PermissionsSchemaTest(unittest.TestCase):
@@ -226,6 +255,39 @@ class RecordSchemaTest(unittest.TestCase):
         self.assertRaises(colander.UnsupportedFields, bound.deserialize, value)
 
 
+class PathSchemaTest(unittest.TestCase):
+
+    def setUp(self):
+        self.schema = schema.PathSchema()
+
+        # Create fake id generators
+        fake_id_generator = mock.MagicMock()
+        self.id_validator = fake_id_generator.regexp = '[0-9]+'
+        default_id_generator = mock.MagicMock()
+        self.default_id_validator = default_id_generator.regexp = '[a-zA-Z]+'
+        self.id_generators = {'box': fake_id_generator, '': default_id_generator}
+
+        self.path = '/container/{container_id}/box/{id}'
+
+    def test_path_creates_subnodes_with_bind(self):
+        bound = self.schema.bind(id_generators=self.id_generators,
+                                 resource_name='box', path=self.path)
+        self.assertEquals(bound['id'].validator.match_object,
+                          colander.Regex(self.id_validator).match_object)
+        self.assertEquals(bound['container_id'].validator.match_object,
+                          colander.Regex(self.default_id_validator).match_object)
+
+    def test_path_validate_ids(self):
+        bound = self.schema.bind(id_generators=self.id_generators,
+                                 resource_name='box', path=self.path)
+        valid_path = {'container_id': 'foo', 'id': '42'}
+        self.assertEquals(valid_path, bound.deserialize(valid_path))
+        invalid_path = {'container_id': '123', 'id': '42'}
+        self.assertRaises(colander.Invalid, bound.deserialize, invalid_path)
+        invalid_path = {'container_id': 'foo', 'id': 'bar'}
+        self.assertRaises(colander.Invalid, bound.deserialize, invalid_path)
+
+
 class RequestSchemaTest(unittest.TestCase):
 
     def setUp(self):
@@ -285,6 +347,11 @@ class PayloadRequestSchemaTest(unittest.TestCase):
         deserialized = bound.deserialize({})
         self.assertEquals(deserialized['querystring'], {'foo': 'bar'})
         self.assertEquals(deserialized['body'], {'foo': 'beer'})
+
+    def test_raise_if_path_and_body_ids_dont_match(self):
+        request = {'body': {'data': {'id': 'good'}},
+                   'path': {'id': 'bad'}}
+        self.assertRaises(colander.Invalid, self.schema.deserialize, request)
 
 
 class CollectionQuerySchemaTest(unittest.TestCase):

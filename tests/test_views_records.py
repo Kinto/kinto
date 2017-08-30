@@ -288,6 +288,31 @@ class RecordsViewTest(BaseWebTest, unittest.TestCase):
         self.app.put_json(self.record_url, MINIMALIST_RECORD,
                           headers=headers, status=201)
 
+    def test_invalid_id_on_path_raises_400(self):
+        self.app.put_json('/buckets/beers/collections/barley/records/_bad',
+                          MINIMALIST_RECORD, headers=self.headers, status=400)
+
+    def test_invalid_id_on_body_raises_400(self):
+        record = {**MINIMALIST_RECORD, 'data': {'id': "'bad"}}
+        self.app.post_json('/buckets/beers/collections/barley/records',
+                           record, headers=self.headers, status=400)
+
+    def test_put_with_mismatched_ids_raise_400(self):
+        record = {**MINIMALIST_RECORD, 'data': {'id': 'good'}}
+        self.app.put_json('/buckets/beers/collections/barley/records/bad',
+                          record, headers=self.headers, status=400)
+
+    def test_patch_with_mismatched_ids_raise_400(self):
+        record_id = self.record['id']
+        record = {**MINIMALIST_RECORD, 'data': {'id': 'bad'}}
+        self.app.patch_json('/buckets/beers/collections/barley/records/{}'.format(record_id),
+                            record, headers=self.headers, status=400)
+
+    def test_invalid_path_raises_400(self):
+        record_id = self.record['id']
+        self.app.get('/buckets/beers/collections/_barley/records/{}'.format(record_id),
+                     headers=self.headers, status=400)
+
 
 class RecordsViewMergeTest(BaseWebTest, unittest.TestCase):
 
