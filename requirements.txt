@@ -8,7 +8,7 @@ contextlib2==0.5.5
 cornice==2.4.0
 cornice-swagger==0.5.1
 hupper==1.0
-idna==2.5
+idna==2.6
 iso8601==0.1.12
 jsonpatch==1.16
 jsonpointer==1.10
@@ -16,7 +16,7 @@ jsonschema==2.6.0
 logging-color-formatter==1.0.2
 newrelic==2.90.0.75
 PasteDeploy==1.5.2
-psycopg2==2.7.3
+psycopg2==2.7.3.1
 pycparser==2.18
 pyramid==1.8.5
 pyramid-multiauth==0.9.0
@@ -24,7 +24,7 @@ pyramid-tm==2.2
 python-dateutil==2.6.1
 raven==6.1.0
 repoze.lru==0.6
-requests==2.18.3
+requests==2.18.4
 simplejson==3.11.1
 six==1.10.0
 SQLAlchemy==1.1.13

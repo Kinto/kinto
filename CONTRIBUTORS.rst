@@ -13,6 +13,7 @@ Contributors
 * Boris Feld <lothiraldan@gmail.com>
 * Castro
 * Chirag B. Jadwani <chirag.jadwani@gmail.com>
+* Christophe Gragnic <cgragnic@protonmail.com>
 * Clément Villain <choclatefr@gmail.com>
 * Dan Phrawzty <phrawzty+github@gmail.com>
 * David Larlet <david@larlet.fr>
@@ -21,6 +22,7 @@ Contributors
 * Eric Le Lay <elelay@macports.org>
 * Éric Lemoine <eric.lemoine@gmail.com>
 * Ethan Glasser-Camp <ethan@betacantrips.com>
+* Étienne <@Étienne>
 * Fil <fil@rezo.net>
 * FooBarQuaxx
 * Greeshma <greeshmabalabadra@gmail.com>
@@ -30,10 +32,11 @@ Contributors
 * Hiromipaw <silvia@nopressure.co.uk>
 * Indranil Dutta <duttaindranil497@gmail.com>
 * Jelmer van der Ploeg <jelmer@woovar.com>
-* Joël Marty
+* Joël Marty <@joelmarty>
 * John Giannelos <johngiannelos@gmail.com>
 * Joshua Bird <joshua.thomas.bird@gmail.com>
 * Julien Bouquillon <contact@revolunet.com>
+* Kulshekhar Kabra <@kulshekhar>
 * Lavish Aggarwal <lucky.lavish@gmail.com>
 * Maksym Shalenyi <supamaxy@gmail.com>
 * Mansimar Kaur <mansimarkaur.mks@gmail.com>
@@ -52,13 +55,16 @@ Contributors
 * PeriGK <per.gkolias@gmail.com>
 * Rektide <rektide@voodoowarez.com>
 * Rémy Hubscher <rhubscher@mozilla.com>
+* Ricardo <@rkleine>
 * Rodolphe Quiédeville <rodolphe@quiedeville.org>
 * Sahil Dua <sahildua2305@gmail.com>
+* Stephen Daves <contact@stephendaves.com>
+* Stephen Donner <stephen.donner@gmail.com>
 * Shweta Oak <oakshweta11@gmail.com>
 * Sofia Utsch <sofia.utsch@gmail.com>
 * Sunakshi Tejwani <sunakshitejwani@gmail.com>
 * Surya Prashanth <prashantsurya@ymail.com>
-* SwhGo_oN
+* SwhGo_oN <@swhgoon>
 * Tarek Ziade <tarek@mozilla.com>
 * Taylor Zane Glaeser <tzglaeser@gmail.com>
 * Vamsi Sangam <vamsisangam@live.com>
