@@ -3,10 +3,10 @@ Changelog
 
 This document describes changes between each past release.
 
-7.5.0 (unreleased)
+7.4.1 (2017-09-01)
 ------------------
 
-- Nothing changed yet.
+- Failed to publish Kinto Admin
 
 
 7.4.0 (2017-08-30)
