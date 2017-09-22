@@ -91,7 +91,8 @@ Backends
 Kinto relies on three types of backends: storage, cache and permission. The
 settings names have a different prefix for each.
 
-For each of them, the supported services are currently PostgreSQL, Redis, Memcached and Memory.
+For each of them, the supported services are currently PostgreSQL, Redis, and Memory.
+Memcached is also available as a cache backend.
 
 Storage
 :::::::
