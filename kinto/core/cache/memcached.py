@@ -19,7 +19,8 @@ def wrap_memcached_error(func):
             return func(*args, **kwargs)
         except TypeError:
             raise
-        except Exception as e:
+        except (memcache.Client.MemcachedKeyError,
+                memcache.Client.MemcachedStringEncodingError) as e:
             logger.exception(e)
             raise exceptions.BackendError(original=e)
     return wrapped

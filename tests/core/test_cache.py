@@ -2,7 +2,7 @@ import mock
 import unittest
 import time
 
-from kinto.core.utils import sqlalchemy
+from kinto.core.utils import sqlalchemy, memcache
 from kinto.core.cache import (CacheBase, memory as memory_backend, memcached as memcached_backend,
                               postgresql as postgresql_backend)
 from kinto.core.cache.testing import CacheTest
@@ -97,7 +97,7 @@ class MemcachedCacheTest(CacheTest, unittest.TestCase):
         self.client_error_patcher = mock.patch.object(
             self.cache._client.servers[0],
             'connect',
-            side_effect=Exception)
+            side_effect=memcache.Client.MemcachedKeyError)
 
     def test_set_with_ttl_expires_the_value(self):
         self.cache.set('foobar', 'toto', 1)
