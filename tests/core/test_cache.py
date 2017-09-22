@@ -2,11 +2,11 @@ import mock
 import unittest
 import time
 
-from kinto.core.utils import sqlalchemy
-from kinto.core.cache import (CacheBase, memory as memory_backend,
+from kinto.core.utils import sqlalchemy, memcache
+from kinto.core.cache import (CacheBase, memory as memory_backend, memcached as memcached_backend,
                               postgresql as postgresql_backend)
 from kinto.core.cache.testing import CacheTest
-from kinto.core.testing import skip_if_no_postgresql
+from kinto.core.testing import skip_if_no_postgresql, skip_if_no_memcached
 
 
 class CacheBaseTest(unittest.TestCase):
@@ -82,6 +82,35 @@ class MemoryCacheTest(CacheTest, unittest.TestCase):
         self.cache.set('foobar', 'tata', 42)
         self.cache.max_size_bytes = before
         assert self.cache.get('foobar') == 'tata'
+
+
+@skip_if_no_memcached
+class MemcachedCacheTest(CacheTest, unittest.TestCase):
+    backend = memcached_backend
+    settings = {
+        'cache_prefix': '',
+        'cache_hosts': '127.0.0.1:11211',
+    }
+
+    def setUp(self):
+        super().setUp()
+        self.client_error_patcher = mock.patch.object(
+            self.cache._client.servers[0],
+            'connect',
+            side_effect=memcache.Client.MemcachedKeyError)
+
+    def test_set_with_ttl_expires_the_value(self):
+        self.cache.set('foobar', 'toto', 1)
+        time.sleep(1.1)
+        retrieved = self.cache.get('foobar')
+        self.assertIsNone(retrieved)
+
+    def test_expire_expires_the_value(self):
+        self.cache.set('foobar', 'toto', 42)
+        self.cache.expire('foobar', 1)
+        time.sleep(1.1)
+        retrieved = self.cache.get('foobar')
+        self.assertIsNone(retrieved)
 
 
 @skip_if_no_postgresql

@@ -17,6 +17,11 @@ try:
 except ImportError:  # pragma: no cover
     sqlalchemy = None
 
+try:
+    import memcache
+except ImportError:  # pragma: no cover
+    memcache = None
+
 from pyramid import httpexceptions
 from pyramid.interfaces import IRoutesMapper
 from pyramid.request import Request, apply_request_extensions

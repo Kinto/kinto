@@ -62,6 +62,9 @@ kinto.cache_url = {cache_url}
 # kinto.cache_pool_timeout = 30
 # kinto.cache_max_backlog = -1
 
+# kinto.cache_backend = kinto.core.cache.memcached
+# kinto.cache_hosts = 127.0.0.1:11211
+
 # Permissions.
 # https://kinto.readthedocs.io/en/latest/configuration/settings.html#permissions
 #

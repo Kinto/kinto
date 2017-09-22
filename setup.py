@@ -46,6 +46,10 @@ REDIS_REQUIRES = [
     'kinto_redis'
 ]
 
+MEMCACHED_REQUIRES = [
+    'python-memcached'
+]
+
 SETUP_REQUIRES = [
     'pytest-runner'
 ]
@@ -104,6 +108,7 @@ setup(name='kinto',
       install_requires=REQUIREMENTS,
       extras_require={
           'redis': REDIS_REQUIRES,
+          'memcached': MEMCACHED_REQUIRES,
           'postgresql': POSTGRESQL_REQUIRES,
           'monitoring': MONITORING_REQUIRES,
       },

@@ -21,6 +21,11 @@ Memory
 
 .. autoclass:: kinto.core.cache.memory.Cache
 
+Memcached
+=========
+
+.. autoclass:: kinto.core.cache.memcached.Cache
+
 
 API
 ===

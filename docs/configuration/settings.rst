@@ -92,6 +92,7 @@ Kinto relies on three types of backends: storage, cache and permission. The
 settings names have a different prefix for each.
 
 For each of them, the supported services are currently PostgreSQL, Redis, and Memory.
+Memcached is also available as a cache backend.
 
 Storage
 :::::::
@@ -163,6 +164,10 @@ Cache
 +----------------------------+-----------------------------+------------------------------------------------------------------------------+
 | kinto.cache_max_backlog    | ``-1``                      | Number of threads that can be in the queue waiting for a connection.         |
 +----------------------------+-----------------------------+------------------------------------------------------------------------------+
+| kinto.cache_hosts          | ``''``                      | The space separated list of memcached hosts.                                 |
++----------------------------+-----------------------------+------------------------------------------------------------------------------+
+
+**For PostgreSQL**
 
 .. code-block:: ini
 
@@ -171,6 +176,14 @@ Cache
 
     # Control number of pooled connections
     # kinto.cache_pool_size = 50
+
+
+For **memcached**
+
+.. code-block:: ini
+
+    kinto.cache_backend = kinto.core.cache.memcached
+    kinto.cache_hosts = 127.0.0.1:11211 127.0.0.2:11211
 
 Permissions
 :::::::::::
