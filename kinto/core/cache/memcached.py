@@ -53,10 +53,6 @@ class Cache(CacheBase):
         super(Cache, self).__init__(*args, **kwargs)
         self._client = client
 
-    @property
-    def settings(self):
-        return dict(servers=self.client.servers)
-
     def initialize_schema(self, dry_run=False):
         # Nothing to do.
         pass
