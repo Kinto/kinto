@@ -11,10 +11,11 @@ from pyramid.url import parse_url_overrides
 from kinto.core import DEFAULT_SETTINGS
 from kinto.core import statsd
 from kinto.core.storage import generators
-from kinto.core.utils import sqlalchemy, follow_subrequest, encode64
+from kinto.core.utils import sqlalchemy, memcache, follow_subrequest, encode64
 
 skip_if_travis = unittest.skipIf('TRAVIS' in os.environ, 'travis')
 skip_if_no_postgresql = unittest.skipIf(sqlalchemy is None, 'postgresql is not installed.')
+skip_if_no_memcached = unittest.skipIf(memcache is None, 'memcached is not installed.')
 skip_if_no_statsd = unittest.skipIf(not statsd.statsd_module, 'statsd is not installed.')
 
 

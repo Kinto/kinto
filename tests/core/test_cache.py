@@ -6,7 +6,7 @@ from kinto.core.utils import sqlalchemy
 from kinto.core.cache import (CacheBase, memory as memory_backend, memcached as memcached_backend,
                               postgresql as postgresql_backend)
 from kinto.core.cache.testing import CacheTest
-from kinto.core.testing import skip_if_no_postgresql
+from kinto.core.testing import skip_if_no_postgresql, skip_if_no_memcached
 
 
 class CacheBaseTest(unittest.TestCase):
@@ -84,6 +84,7 @@ class MemoryCacheTest(CacheTest, unittest.TestCase):
         assert self.cache.get('foobar') == 'tata'
 
 
+@skip_if_no_memcached
 class MemcachedCacheTest(CacheTest, unittest.TestCase):
     backend = memcached_backend
     settings = {
