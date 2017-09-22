@@ -3,12 +3,11 @@ from functools import wraps
 from math import ceil, floor
 from time import time
 
-import memcache
 from pyramid.settings import aslist
 
 from kinto.core.cache import CacheBase
 from kinto.core.storage import exceptions
-from kinto.core.utils import json
+from kinto.core.utils import json, memcache
 
 logger = logging.getLogger(__name__)
 
