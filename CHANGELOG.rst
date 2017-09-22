@@ -6,7 +6,7 @@ This document describes changes between each past release.
 7.5.0 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Add a memcached cache backend (#1332)
 
 
 7.4.1 (2017-09-01)
