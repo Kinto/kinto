@@ -164,7 +164,7 @@ Cache
 +----------------------------+-----------------------------+------------------------------------------------------------------------------+
 | kinto.cache_max_backlog    | ``-1``                      | Number of threads that can be in the queue waiting for a connection.         |
 +----------------------------+-----------------------------+------------------------------------------------------------------------------+
-| kinto.cache_hosts          | ``''``                      | The space separated list of memcached hosts.                                 |
+| kinto.cache_hosts          | ``''``                      | The space separated list of Memcached hosts.                                 |
 +----------------------------+-----------------------------+------------------------------------------------------------------------------+
 
 **For PostgreSQL**
@@ -178,7 +178,9 @@ Cache
     # kinto.cache_pool_size = 50
 
 
-For **memcached**
+For **Memcached**
+
+You would need to install the memcached dependencies: ``pip install kinto[memcached]``
 
 .. code-block:: ini
 
