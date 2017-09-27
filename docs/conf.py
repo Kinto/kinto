@@ -71,9 +71,9 @@ copyright = '2015-2017 — Mozilla Services'
 # built documents.
 #
 # The short X.Y version.
-version = '7.4'
+version = '7.5'
 # The full version, including alpha/beta/rc tags.
-release = '7.4.0'
+release = '7.5.0'
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.

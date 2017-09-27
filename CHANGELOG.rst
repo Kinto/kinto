@@ -3,7 +3,7 @@ Changelog
 
 This document describes changes between each past release.
 
-7.5.0 (unreleased)
+7.5.0 (2017-09-27)
 ------------------
 
 - Add a memcached cache backend (#1332)
