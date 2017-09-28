@@ -17,8 +17,7 @@ RUN \
     apt-get install -y python3 python3-setuptools python3-pip libpq5; \
     apt-get install -y build-essential git python3-dev libssl-dev libffi-dev libpq-dev; \
     apt-get install -y nodejs; \
-    npm install kinto/plugins/admin; \
-    npm run build kinto/plugins/admin; \
+    cd kinto/plugins/admin; npm install kinto/plugins/admin; npm run build; \
     pip3 install -e /app[postgresql,monitoring]; \
     pip3 install kinto-pusher kinto-fxa kinto-attachment ; \
     kinto init --ini $KINTO_INI --host 0.0.0.0 --backend=memory; \
