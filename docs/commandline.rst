@@ -5,8 +5,10 @@ Command Line
 
 When Kinto is installed, a command ``kinto`` becomes available.
 
-It accepts a ``--ini`` parameter, whose default value is ``config/kinto.ini``,
-and a set of «sub commands» are available.
+It accepts a ``--ini`` parameter, whose default value is
+``config/kinto.ini`` or the ``KINTO_INI`` env variable if defined.
+
+A set of «sub commands» are available.
 
 ::
 
