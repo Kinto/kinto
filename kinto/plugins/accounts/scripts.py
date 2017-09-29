@@ -1,5 +1,7 @@
 import logging
 import getpass
+
+import transaction as current_transaction
 from pyramid.settings import asbool
 
 from .utils import hash_password
@@ -55,5 +57,7 @@ def create_user(env, username=None, password=None):
     registry.permission.add_principal_to_ace('/accounts/{}'.format(username),
                                              'write',
                                              'account:{}'.format(username))
+
+    current_transaction.commit()
 
     return 0
