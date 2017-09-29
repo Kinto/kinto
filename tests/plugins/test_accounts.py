@@ -351,7 +351,7 @@ class CreateUserTest(unittest.TestCase):
             with mock.patch('kinto.plugins.accounts.scripts.getpass.getpass', side_effect=[
                     "password", "p4ssw0rd", "password", "password"]):
                 code = scripts.create_user({'registry': self.registry}, None, None)
-                self.registry.storage.create.assert_called_once()
+                self.registry.storage.update.assert_called_once()
                 self.registry.permission.add_principal_to_ace.assert_called_with(
                     "/accounts/username", "write", "account:username")
                 assert code == 0
@@ -361,14 +361,14 @@ class CreateUserTest(unittest.TestCase):
             with mock.patch('kinto.plugins.accounts.scripts.getpass.getpass',
                             return_value="password"):
                 code = scripts.create_user({'registry': self.registry})
-                self.registry.storage.create.assert_called_once()
+                self.registry.storage.update.assert_called_once()
                 self.registry.permission.add_principal_to_ace.assert_called_with(
                     "/accounts/username", "write", "account:username")
                 assert code == 0
 
     def test_create_user_with_valid_username_and_password_parameters(self):
         code = scripts.create_user({'registry': self.registry}, "username", "password")
-        self.registry.storage.create.assert_called_once()
+        self.registry.storage.update.assert_called_once()
         self.registry.permission.add_principal_to_ace.assert_called_with(
             "/accounts/username", "write", "account:username")
         assert code == 0

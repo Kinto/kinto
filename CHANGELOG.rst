@@ -10,6 +10,7 @@ This document describes changes between each past release.
 
 - Use the ``KINTO_INI`` env variable to findout the configuration file. (#1339)
 - Fix ``create-user`` command for PostgreSQL backend (#1340)
+- Make sure ``create-user`` command updates password (#1336)
 
 
 7.5.0 (2017-09-27)
