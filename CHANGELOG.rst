@@ -3,10 +3,12 @@ Changelog
 
 This document describes changes between each past release.
 
-7.6.0 (unreleased)
+7.5.1 (unreleased)
 -------------------
 
-- Nothing changed yet.
+**Bug fixes**
+
+- Fix `create-user` command for PostgreSQL backend (#1340)
 
 
 7.5.0 (2017-09-27)
