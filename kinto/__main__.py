@@ -11,7 +11,7 @@ from pyramid.paster import bootstrap
 from kinto import __version__
 from kinto.config import init
 
-DEFAULT_CONFIG_FILE = 'config/kinto.ini'
+DEFAULT_CONFIG_FILE = os.getenv('KINTO_INI', 'config/kinto.ini')
 DEFAULT_PORT = 8888
 DEFAULT_LOG_LEVEL = logging.INFO
 DEFAULT_LOG_FORMAT = '%(levelname)-5.5s  %(message)s'
