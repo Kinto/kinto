@@ -9,6 +9,7 @@ This document describes changes between each past release.
 **Bug fixes**
 
 - Fix `create-user` command for PostgreSQL backend (#1340)
+- Make sure ``create-user`` command updates password (#1336)
 
 
 7.5.0 (2017-09-27)
