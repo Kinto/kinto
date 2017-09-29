@@ -50,10 +50,10 @@ def create_user(env, username=None, password=None):
 
     print("Creating user '{}'".format(username))
     record = {'id': username, 'password': hash_password(password)}
-    registry.storage.create(collection_id='account',
+    registry.storage.update(collection_id='account',
                             parent_id=username,
-                            record=record,
-                            ignore_conflict=True)
+                            object_id=username,
+                            record=record)
     registry.permission.add_principal_to_ace('/accounts/{}'.format(username),
                                              'write',
                                              'account:{}'.format(username))
