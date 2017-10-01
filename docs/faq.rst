@@ -190,7 +190,7 @@ Some helpers are provided in the :github:`Kinto/kinto.js` client. The three
 provided conflict resolution strategies are:
 
 * SERVER_WINS: local changes are overridden by remote ones ;
-* CLIENT_WINS: remote changes are overriden by local ones ;
+* CLIENT_WINS: remote changes are overridden by local ones ;
 * MANUAL (default): handle them on your own.
 
 Then there is, of course, a `convenient helper to handle conflict one by one
