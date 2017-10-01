@@ -1,7 +1,7 @@
 Kinto
 =====
 
-|coc| |irc| |slack| |readthedocs| |pypi| |travis| |master-coverage|
+|coc| |irc| |slack| |readthedocs| |pypi| |travis| |master-coverage| |requirements|
 
 .. |coc| image:: https://img.shields.io/badge/%E2%9D%A4-code%20of%20conduct-blue.svg
     :target: https://github.com/Kinto/kinto/blob/master/CODE_OF_CONDUCT.md
@@ -28,6 +28,8 @@ Kinto
 .. |pypi| image:: https://img.shields.io/pypi/v/kinto.svg
     :target: https://pypi.python.org/pypi/kinto
 
+.. |requirements| image:: https://requires.io/github/Kinto/kinto/requirements.svg?branch=master
+    :target: https://requires.io/github/Kinto/kinto/requirements/?branch=master
 
 Kinto is a minimalist JSON storage service with synchronisation and sharing abilities.
 
