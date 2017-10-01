@@ -62,6 +62,7 @@ Contributors
 * Stephen Donner <stephen.donner@gmail.com>
 * Shweta Oak <oakshweta11@gmail.com>
 * Sofia Utsch <sofia.utsch@gmail.com>
+* Sumit Sarin <sumitsarinofficial@gmail.com>
 * Sunakshi Tejwani <sunakshitejwani@gmail.com>
 * Surya Prashanth <prashantsurya@ymail.com>
 * SwhGo_oN <@swhgoon>
