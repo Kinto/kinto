@@ -241,7 +241,7 @@ Protocol is now at version **1.16**. See `API changelog`_.
 
 - Enforce the permission endpoint when the admin plugin is included (fixes #1059)
 - Access control failures are logged with WARN level (fixes #1074)
-- Added an experimental :ref:`Accounts API <api-accounts>` which allow users to sign-up
+- Added an experimental Accounts API which allow users to sign-up
   modify their password or delete their account (fixes #795)
 
 **Bug fixes**
