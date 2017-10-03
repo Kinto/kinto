@@ -250,6 +250,7 @@ Step 1
 .. code-block:: bash
 
      $ git checkout -b prepare-X.Y.Z
+     $ longtest
      $ prerelease
      $ vim docs/conf.py
 
