@@ -9,11 +9,6 @@ it becomes possible to manage accounts via a new resource ``/accounts``.
 Via this endpoint, users can sign-up, modify their password or delete their account.
 Administrators configured in settings can manage users accounts.
 
-.. important::
-
-    This plugin is **highly experimental**
-
-
 .. _accounts-setup:
 
 Setup
