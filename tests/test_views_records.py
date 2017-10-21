@@ -326,6 +326,39 @@ class RecordsViewMergeTest(BaseWebTest, unittest.TestCase):
                                    status=200)
         self.assertNotIn('one', resp.json['data']['grain'])
 
+    def test_merge_patch_permissions(self):
+        headers = {**self.headers, 'Content-Type': 'application/merge-patch+json'}
+
+        # Add perms
+        json = {'permissions': {'read': ['bad_guys'], 'write': ['good_guys']}}
+        resp = self.app.patch_json(self.record_url,
+                                   json,
+                                   headers=headers,
+                                   status=200)
+        result = resp.json['permissions']
+
+        self.assertIn('write', result)
+        self.assertIn('read', result)
+        self.assertIn('bad_guys', result['read'])
+        self.assertIn('good_guys', result['write'])
+
+        # Remove perms
+        resp = self.app.patch_json(self.record_url,
+                                   json,
+                                   headers=headers,
+                                   status=200)
+
+        json = {'permissions': {'read': None, 'write': ['good_guys']}}
+        resp = self.app.patch_json(self.record_url,
+                                   json,
+                                   headers=headers,
+                                   status=200)
+        result = resp.json['permissions']
+
+        self.assertIn('write', result)
+        self.assertNotIn('read', result)
+        self.assertIn('good_guys', result['write'])
+
 
 class RecordsViewPatchTest(BaseWebTest, unittest.TestCase):
 

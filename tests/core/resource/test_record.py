@@ -289,6 +289,7 @@ class MergePatchTest(BaseTest):
         self.resource.record_id = self.stored['id']
         self.headers = self.resource.request.headers
         self.headers['Content-Type'] = 'application/merge-patch+json'
+        self.resource._is_merge_patch = True
 
         class ArticleSchema(ResourceSchema):
             unread = colander.SchemaNode(colander.Boolean(), missing=colander.drop)
@@ -340,6 +341,7 @@ class MergePatchTest(BaseTest):
 
     def test_patch_doesnt_remove_attribute_if_not_merge_header(self):
         self.headers['Content-Type'] = 'application/json'
+        self.resource._is_merge_patch = False
         self.validated['body'] = {'data': {'field': 'aaa'}}
         self.resource.patch()
         self.validated['body'] = {'data': {'field': None}}
@@ -350,6 +352,7 @@ class MergePatchTest(BaseTest):
 
     def test_merge_patch_doesnt_remove_previously_inserted_nones(self):
         self.headers['Content-Type'] = 'application/json'
+        self.resource._is_merge_patch = False
         self.validated['body'] = {'data': {'field': 'aaa'}}
         result = self.resource.patch()['data']
         self.validated['body'] = {'data': {'field': None}}

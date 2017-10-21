@@ -78,6 +78,11 @@ class PermissionsSchemaTest(unittest.TestCase):
         deserialized = self.schema.deserialize(perms)
         self.assertEqual(deserialized, perms)
 
+    def test_works_with_empty_none_permissions(self):
+        perms = {'can_cook': None}
+        deserialized = self.schema.deserialize(perms)
+        self.assertEqual(deserialized, perms)
+
     def test_raises_invalid_if_not_a_mapping(self):
         perms = ['gab']
         self.assertRaises(colander.Invalid,
