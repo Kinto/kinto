@@ -39,23 +39,6 @@ only the fields whose value was changed are returned. If set to
 ``diff``, only the fields whose value became different than
 the one provided are returned.
 
-Permissions
------------
-
-In the JSON request payloads, at least one of ``data`` and ``permissions`` must be provided. Permissions can thus be modified independently from data.
-
-The :ref:`current user id <api-current-userid>` **is always added** among the ``write`` principals.
-
-See :ref:`api-permissions-payload`.
-
-..
-.. Kinto.core feature, not used in Kinto:
-..
-.. Read-only fields
-.. ----------------
-
-.. If a read-only field is modified, a |status-400| error is returned.
-
 JSON Patch Operations
 ---------------------
 
@@ -82,8 +65,20 @@ For more information about each operation, please refer to
 `JSON-Patch Specification <https://tools.ietf.org/html/rfc6902>`_.
 
 This is very useful when altering permissions since there is no need to get
-the current value before adding some principal to the list. Value is not used
-on permission operations and can be omitted.
+the current value before adding some principal to the list.
+
+Permissions
+-----------
+
+.. In the JSON request payloads, at least one of ``data`` and ``permissions``
+.. must be provided.
+
+When permissions are modified, the same behaviour used for the body is expected.
+But notice thought that there are some permissions specific behaviours, such as:
+
+1. The :ref:`current user id <api-current-userid>` **is always added** among the
+   ``write`` principals.
+2. Value is not used on permission JSON Patch operations and can be omitted.
 
 .. code-block:: javascript
 
@@ -92,3 +87,17 @@ on permission operations and can be omitted.
         { "op": "add", "path": "/permissions/read/system.Everyone" },
         { "op": "remove", "path": "/permissions/read/fxa:bob" }
     ]
+
+3. On JSON Merge operations, ``null`` values can be used to remove all principals
+   from a specific permission level. As a consequence, using ``null`` for permissions
+   on other types of patch operations is considered a no-op.
+
+For more information on permissions, see :ref:`api-permissions-payload`.
+
+..
+.. Kinto.core feature, not used in Kinto:
+..
+.. Read-only fields
+.. ----------------
+
+.. If a read-only field is modified, a |status-400| error is returned.
