@@ -28,7 +28,7 @@ is currently supported using ``Content-Type: application/merge-patch+json``. Thi
 support to merging sub-objects and removing attibutes. For example:
 
 * ``{"a":"b"}`` + ``{"a":null}`` → ``{}``
-* ``{"a": {"b":"c"}}`` + ``{"a":{"d":"e"}}`` → ``{"a":{"b:c", "d":"e"}}``
+* ``{"a": {"b":"c"}}`` + ``{"a":{"d":"e"}}`` → ``{"a":{"b":"c", "d":"e"}}``
 * ``{}`` + ``{"a":{"b":{"c":null}}}`` → ``{"a":{"b":{}}}``
 
 Light response body

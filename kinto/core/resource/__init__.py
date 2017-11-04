@@ -1184,7 +1184,7 @@ class ShareableResource(UserResource):
         """
         new = super().process_record(new, old)
 
-        # patch is specified as a list of of operations (RFC i6902)
+        # patch is specified as a list of of operations (RFC 6902)
 
         payload = self.request.validated['body']
 
