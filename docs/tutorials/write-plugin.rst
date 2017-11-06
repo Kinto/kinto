@@ -221,8 +221,9 @@ When records change, we index them. When they are deleted, we unindex them.
 Let's define a function ``on_resource_changed()`` that will be called when
 an action is performed on records.
 
+
 .. code-block:: python
-    :emphasize-lines: 2,19-23
+    :emphasize-lines: 2,19-21
 
     def on_resource_changed(event):
         indexer = event.request.registry.indexer
