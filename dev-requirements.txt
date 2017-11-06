@@ -8,7 +8,7 @@ pytest-cover==3.0.0
 pytest-sugar==0.9.0
 SQLAlchemy==1.1.15
 python-memcached==1.58
-tox
+tox==2.9.1
 WebTest
 werkzeug
 wheel
