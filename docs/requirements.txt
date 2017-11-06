@@ -1,6 +1,6 @@
 docutils==0.14
 Sphinx==1.6.5
-sphinx_rtd_theme
+sphinx_rtd_theme==0.2.4
 sphinxcontrib-httpdomain
 kinto-redis
 mock==2.0.0
