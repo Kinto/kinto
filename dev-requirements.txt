@@ -3,7 +3,7 @@ flake8==3.5.0
 mock==2.0.0
 pytest==3.2.3
 pytest-cache==1.0
-pytest-capturelog
+pytest-capturelog==0.7
 pytest-cover
 pytest-sugar
 SQLAlchemy
