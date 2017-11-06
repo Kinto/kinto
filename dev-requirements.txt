@@ -10,7 +10,7 @@ SQLAlchemy==1.1.15
 python-memcached==1.58
 tox==2.9.1
 WebTest==2.0.29
-werkzeug
+werkzeug==0.12.2
 wheel
 zest.releaser
 zope.sqlalchemy
