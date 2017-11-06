@@ -13,7 +13,7 @@ jsonpatch==1.16
 jsonpointer==1.14
 jsonschema==2.6.0
 logging-color-formatter==1.0.2
-newrelic==2.94.0.79
+newrelic==2.96.0.80
 PasteDeploy==1.5.2
 psycopg2==2.7.3.1
 pycparser==2.18
