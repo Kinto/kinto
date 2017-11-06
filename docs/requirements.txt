@@ -4,6 +4,6 @@ sphinx_rtd_theme
 sphinxcontrib-httpdomain
 kinto-redis
 mock==2.0.0
-webtest
+webtest==2.0.29
 cornice
 pyramid
