@@ -11,7 +11,7 @@ python-memcached==1.58
 tox==2.9.1
 WebTest==2.0.29
 werkzeug==0.12.2
-wheel
+wheel==0.30.0
 zest.releaser
 zope.sqlalchemy
 setuptools<36
