@@ -1,5 +1,5 @@
 bravado_core==4.10.1
-flake8
+flake8==3.5.0
 mock
 pytest
 pytest-cache
