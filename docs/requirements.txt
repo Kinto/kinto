@@ -1,4 +1,4 @@
-docutils<0.13
+docutils==0.14
 Sphinx<1.6
 sphinx_rtd_theme
 sphinxcontrib-httpdomain
