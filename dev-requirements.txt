@@ -1,4 +1,4 @@
-bravado_core
+bravado_core==4.10.1
 flake8
 mock
 pytest
