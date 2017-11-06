@@ -10,7 +10,7 @@ hupper==1.0
 idna==2.6
 iso8601==0.1.12
 jsonpatch==1.16
-jsonpointer==1.12
+jsonpointer==1.14
 jsonschema==2.6.0
 logging-color-formatter==1.0.2
 newrelic==2.94.0.79
