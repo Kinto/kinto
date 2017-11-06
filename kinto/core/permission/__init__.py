@@ -195,7 +195,7 @@ def heartbeat(backend):
             else:
                 backend.add_user_principal(__HEARTBEAT_KEY__, 'alive')
                 backend.remove_user_principal(__HEARTBEAT_KEY__, 'alive')
-        except:
+        except Exception:
             logger.exception('Heartbeat Error')
             return False
         return True

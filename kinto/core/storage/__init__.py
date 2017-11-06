@@ -309,7 +309,7 @@ def heartbeat(backend):
                 else:
                     backend.create(record=_HEARTBEAT_RECORD, **storage_kw)
             return True
-        except:
+        except Exception:
             logger.exception('Heartbeat Error')
             return False
 
