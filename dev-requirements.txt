@@ -7,7 +7,7 @@ pytest-capturelog==0.7
 pytest-cover==3.0.0
 pytest-sugar==0.9.0
 SQLAlchemy==1.1.15
-python-memcached
+python-memcached==1.58
 tox
 WebTest
 werkzeug
