@@ -22,7 +22,7 @@ pyramid-multiauth==0.9.0
 pyramid-tm==2.2
 python-dateutil==2.6.1
 python-memcached==1.58
-raven==6.2.1
+raven==6.3.0
 repoze.lru==0.7
 requests==2.18.4
 simplejson==3.11.1
