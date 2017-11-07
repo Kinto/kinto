@@ -6,7 +6,9 @@ This document describes changes between each past release.
 7.6.0 (unreleased)
 ------------------
 
-- Nothing changed yet.
+**Internal changes**
+
+- Moved PostgreSQL helper function to Python code (ref #1358)
 
 
 7.5.1 (2017-10-03)
