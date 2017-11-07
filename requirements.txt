@@ -5,7 +5,7 @@ chardet==3.0.4
 colander==1.4
 colorama==0.3.9
 cornice==3.0.0
-cornice-swagger==0.5.1
+cornice-swagger==0.5.2
 hupper==1.0
 idna==2.6
 iso8601==0.1.12
