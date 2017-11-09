@@ -43,10 +43,11 @@ class DummyRequest(mock.MagicMock):
         self.log_context = lambda **kw: kw
         self.matchdict = {}
         self.response = mock.MagicMock(headers={})
+        self.application_url = ''   # used by parse_url_overrides
 
         def route_url(*a, **kw):
             # XXX: refactor DummyRequest to take advantage of `pyramid.testing`
-            parts = parse_url_overrides(kw)
+            parts = parse_url_overrides(self, kw)
             return ''.join([p for p in parts if p])
 
         self.route_url = route_url
