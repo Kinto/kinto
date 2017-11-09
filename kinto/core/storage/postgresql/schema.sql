@@ -66,34 +66,6 @@ CREATE TABLE IF NOT EXISTS timestamps (
   PRIMARY KEY (parent_id, collection_id)
 );
 
-
---
--- Helper that returns the current collection timestamp.
---
-CREATE OR REPLACE FUNCTION collection_timestamp(uid VARCHAR, resource VARCHAR)
-RETURNS TIMESTAMP AS $$
-DECLARE
-    ts TIMESTAMP;
-BEGIN
-    WITH create_if_missing AS (
-      INSERT INTO timestamps (parent_id, collection_id, last_modified)
-      VALUES (uid, resource, clock_timestamp())
-      ON CONFLICT (parent_id, collection_id) DO NOTHING
-      RETURNING last_modified
-    ),
-    get_or_create AS (
-      SELECT last_modified FROM create_if_missing
-      UNION
-      SELECT last_modified FROM timestamps
-       WHERE parent_id = uid
-         AND collection_id = resource
-    )
-    SELECT last_modified INTO ts FROM get_or_create;
-
-    RETURN ts;
-END;
-$$ LANGUAGE plpgsql;
-
 --
 -- Triggers to set last_modified on INSERT/UPDATE
 --
@@ -171,4 +143,4 @@ INSERT INTO metadata (name, value) VALUES ('created_at', NOW()::TEXT);
 
 -- Set storage schema version.
 -- Should match ``kinto.core.storage.postgresql.PostgreSQL.schema_version``
-INSERT INTO metadata (name, value) VALUES ('storage_schema_version', '15');
+INSERT INTO metadata (name, value) VALUES ('storage_schema_version', '16');

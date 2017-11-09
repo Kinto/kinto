@@ -7,8 +7,11 @@ This document describes changes between each past release.
 ------------------
 
 **Bug fixes**
-
 - Fix removing permissions with Json Merge (#1322).
+
+  **Internal changes**
+
+- Moved PostgreSQL helper function to Python code (ref #1358)
 
 
 7.5.1 (2017-10-03)

@@ -69,7 +69,7 @@ class Storage(StorageBase):
 
     """  # NOQA
 
-    schema_version = 15
+    schema_version = 16
 
     def __init__(self, client, max_fetch_size, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -207,8 +207,21 @@ class Storage(StorageBase):
 
     def collection_timestamp(self, collection_id, parent_id, auth=None):
         query = """
-        SELECT as_epoch(collection_timestamp(:parent_id, :collection_id))
-            AS last_modified;
+        WITH create_if_missing AS (
+          INSERT INTO timestamps (parent_id, collection_id, last_modified)
+          VALUES (:parent_id, :collection_id, clock_timestamp())
+          ON CONFLICT (parent_id, collection_id) DO NOTHING
+          RETURNING last_modified
+        ),
+        get_or_create AS (
+          SELECT last_modified FROM create_if_missing
+          UNION
+          SELECT last_modified FROM timestamps
+           WHERE parent_id = :parent_id
+             AND collection_id = :collection_id
+        )
+        SELECT as_epoch(last_modified) AS last_modified
+          FROM get_or_create;
         """
         placeholders = dict(parent_id=parent_id, collection_id=collection_id)
         with self.client.connect(readonly=False) as conn:
