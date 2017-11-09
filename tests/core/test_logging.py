@@ -1,3 +1,5 @@
+import json
+import logging
 import unittest
 
 import mock
@@ -40,6 +42,8 @@ class RequestSummaryTest(BaseWebTest, unittest.TestCase):
         self.assertIsNotNone(event_dict['t'])
         self.assertEqual(event_dict['errno'], 0)
         self.assertNotIn('lang', event_dict)
+        self.assertNotIn('headers', event_dict)
+        self.assertNotIn('body', event_dict)
 
     def test_userid_is_none_when_anonymous(self):
         self.app.get('/')
@@ -66,6 +70,29 @@ class RequestSummaryTest(BaseWebTest, unittest.TestCase):
         app.get('/mushrooms', headers={'Authorization': 'Basic bWF0OjE='})
         event_dict = self.logger_context()
         self.assertEqual(event_dict['authn_type'], 'basicauth')
+
+    def test_headers_and_body_when_level_is_debug(self):
+        self.mocked.level = logging.DEBUG
+        body = b'{"boom": 1}'
+        self.app.post('/batch', body, headers=self.headers, status=400)
+        event_dict = self.logger_context()
+        self.assertEqual(event_dict['headers'], {
+            'Authorization': 'Basic bWF0OnNlY3JldA==',
+            'Content-Length': '11',
+            'Content-Type': 'application/json',
+            'Host': 'localhost:80'})
+        self.assertEqual(event_dict['body'], body)
+
+        self.maxDiff = None
+
+        responseBody = event_dict['response']['body']
+        self.assertEqual(json.loads(responseBody)['error'], 'Invalid parameters')
+        responseHeaders = event_dict['response']['headers']
+        self.assertEqual(sorted(responseHeaders.keys()), [
+            'Access-Control-Expose-Headers',
+            'Content-Length',
+            'Content-Type',
+            'X-Content-Type-Options'])
 
 
 class BatchSubrequestTest(BaseWebTest, unittest.TestCase):

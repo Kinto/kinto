@@ -8,7 +8,8 @@ This document describes changes between each past release.
 
 **Bug fixes**
 
-- Do not log empty values (fixes #1363)
+- Do not log empty context values (ref #1363)
+- Fixed some attributes in logging of errors (ref #1363)
 
 **Internal changes**
 

@@ -345,7 +345,9 @@ def setup_logging(config):
                             authn_type=None,
                             errno=0)
 
-        # XXX : if DEBUG, log headers/body
+        if summary_logger.level == logging.DEBUG:
+            request.log_context(headers=dict(request.headers),
+                                body=request.body)
 
     config.add_subscriber(on_new_request, NewRequest)
 
@@ -363,7 +365,9 @@ def setup_logging(config):
                             code=response.status_code,
                             t=duration)
 
-        # XXX : if DEBUG, log headers/body
+        if summary_logger.level == logging.DEBUG:
+            request.log_context(response=dict(headers=dict(response.headers),
+                                              body=response.body))
 
         try:
             # If error response, bind errno.
