@@ -6,6 +6,10 @@ This document describes changes between each past release.
 7.6.0 (unreleased)
 ------------------
 
+**Bug fixes**
+
+- Do not log empty values (fixes #1363)
+
 **Internal changes**
 
 - Moved PostgreSQL helper function to Python code (ref #1358)

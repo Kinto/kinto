@@ -335,14 +335,15 @@ def setup_logging(config):
                 errno=errors.ERRORS.INVALID_PARAMETERS,
                 message='Invalid URL path.')
 
+        qs = dict(errors.request_GET(request))
         request.log_context(agent=request.headers.get('User-Agent'),
                             path=request_path,
                             method=request.method,
-                            querystring=dict(errors.request_GET(request)),
+                            querystring=(qs if len(qs) else None),
                             lang=request.headers.get('Accept-Language'),
                             uid=None,
                             authn_type=None,
-                            errno=None)
+                            errno=0)
 
     config.add_subscriber(on_new_request, NewRequest)
 

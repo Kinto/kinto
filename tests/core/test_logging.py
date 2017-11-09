@@ -25,22 +25,26 @@ class RequestSummaryTest(BaseWebTest, unittest.TestCase):
         return kwargs['extra']
 
     def test_standard_info_is_bound(self):
-        self.app.get('/', headers=self.headers)
+        headers = {
+            'User-Agent': 'Smith',
+            **self.headers
+        }
+        self.app.get('/', headers=headers)
         event_dict = self.logger_context()
         self.assertEqual(event_dict['path'], '/v0/')
         self.assertEqual(event_dict['method'], 'GET')
         self.assertEqual(event_dict['code'], 200)
+        self.assertEqual(event_dict['agent'], 'Smith')
         self.assertIsNotNone(event_dict['uid'])
         self.assertIsNotNone(event_dict['time'])
         self.assertIsNotNone(event_dict['t'])
-        self.assertIsNone(event_dict['agent'])
-        self.assertIsNone(event_dict['lang'])
-        self.assertIsNone(event_dict['errno'])
+        self.assertEqual(event_dict['errno'], 0)
+        self.assertNotIn('lang', event_dict)
 
     def test_userid_is_none_when_anonymous(self):
         self.app.get('/')
         event_dict = self.logger_context()
-        self.assertIsNone(event_dict['uid'])
+        self.assertNotIn('uid', event_dict)
 
     def test_lang_is_not_none_when_provided(self):
         self.app.get('/', headers={'Accept-Language': 'fr-FR'})
