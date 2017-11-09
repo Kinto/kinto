@@ -352,6 +352,8 @@ it is possible to output logs as JSON:
 
     [formatter_json]
     class = mozilla_cloud_services_logger.formatters.JsonLogFormatter
+    # XXX https://github.com/mozilla/mozilla-cloud-services-logger/issues/3
+    style = kinto
 
 Example output:
 

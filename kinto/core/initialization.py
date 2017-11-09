@@ -345,6 +345,8 @@ def setup_logging(config):
                             authn_type=None,
                             errno=0)
 
+        # XXX : if DEBUG, log headers/body
+
     config.add_subscriber(on_new_request, NewRequest)
 
     def on_new_response(event):
@@ -360,6 +362,8 @@ def setup_logging(config):
         request.log_context(time=isotimestamp,
                             code=response.status_code,
                             t=duration)
+
+        # XXX : if DEBUG, log headers/body
 
         try:
             # If error response, bind errno.

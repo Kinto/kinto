@@ -6,7 +6,7 @@ from pyramid.settings import asbool
 from pyramid.security import forget, NO_PERMISSION_REQUIRED, Authenticated
 from pyramid.view import view_config
 
-from kinto.core.errors import http_error, ERRORS
+from kinto.core.errors import http_error, ERRORS, request_GET
 from kinto.core.storage import exceptions as storage_exceptions
 from kinto.core.utils import reapply_cors
 
@@ -118,12 +118,27 @@ def error(context, request):
         response.headers['Retry-After'] = str(retry_after)
         return reapply_cors(request, response)
 
+    # XXX: this exc_info does not work?
+    # It should bring 'error' to log
+    # https://github.com/mozilla/mozilla-cloud-services-logger/blob/850728b51af3e68e10fa826c8afe967ef69631e1/mozilla_cloud_services_logger/formatters.py#L78-L81
+
+    qs = dict(request_GET(request))
+    extra = {
+      'path': request.path,
+      'method': request.method,
+      'querystring': (qs if len(qs) else None),
+    }
+    try:
+      extra['errno'] = context.errno
+    except AttributeError:
+      extra['errno'] = ERRORS.UNDEFINED
+
     if isinstance(context, storage_exceptions.BackendError):
-        logger.critical(context.original, exc_info=True)
+        logger.critical(context.original, extra=extra, exc_info=True)
         response = httpexceptions.HTTPServiceUnavailable()
         return service_unavailable(response, request)
 
-    logger.error(context, exc_info=True)
+    logger.error(context, extra=extra, exc_info=True)
 
     error_msg = 'A programmatic error occured, developers have been informed.'
     info = request.registry.settings['error_info_link']
