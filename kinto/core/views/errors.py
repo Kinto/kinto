@@ -118,27 +118,28 @@ def error(context, request):
         response.headers['Retry-After'] = str(retry_after)
         return reapply_cors(request, response)
 
-    # XXX: this exc_info does not work?
-    # It should bring 'error' to log
-    # https://github.com/mozilla/mozilla-cloud-services-logger/blob/850728b51af3e68e10fa826c8afe967ef69631e1/mozilla_cloud_services_logger/formatters.py#L78-L81
-
-    qs = dict(request_GET(request))
+    # Log some information about current request.
     extra = {
       'path': request.path,
       'method': request.method,
-      'querystring': (qs if len(qs) else None),
     }
+    qs = dict(request_GET(request))
+    if qs:
+        extra['querystring'] = qs
+    # Take errno from original exception, or undefined if unknown/unhandled.
     try:
-      extra['errno'] = context.errno
+        extra['errno'] = context.errno.value
     except AttributeError:
-      extra['errno'] = ERRORS.UNDEFINED
+        extra['errno'] = ERRORS.UNDEFINED.value
 
     if isinstance(context, storage_exceptions.BackendError):
-        logger.critical(context.original, extra=extra, exc_info=True)
+        logger.critical(context.original, extra=extra, exc_info=context)
         response = httpexceptions.HTTPServiceUnavailable()
         return service_unavailable(response, request)
 
-    logger.error(context, extra=extra, exc_info=True)
+    # Within the exception view, sys.exc_info() will return null.
+    # see https://github.com/python/cpython/blob/ce9e62544/Lib/logging/__init__.py#L1460-L1462
+    logger.error(context, extra=extra, exc_info=context)
 
     error_msg = 'A programmatic error occured, developers have been informed.'
     info = request.registry.settings['error_info_link']
