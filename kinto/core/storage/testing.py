@@ -788,9 +788,10 @@ class TimestampsTest:
         self.assertEquals(retrieved[self.modified_field],
                           record[self.modified_field])
 
-        # Check that collection timestamp was bumped (change happened).
+        # Check that collection timestamp was not changed. Someone importing
+        # records in the past must assume the synchronization consequences.
         timestamp = self.storage.collection_timestamp(**self.storage_kw)
-        self.assertGreater(timestamp, timestamp_before)
+        self.assertEquals(timestamp, timestamp_before)
 
     def test_create_ignores_specified_last_modified_if_equal(self):
         # Create a first record, and get the timestamp.
@@ -837,7 +838,7 @@ class TimestampsTest:
     def test_update_ignores_specified_last_modified_if_in_the_past(self):
         stored = self.create_record()
         record_id = stored[self.id_field]
-        timestamp_before = stored[self.modified_field]
+        timestamp_before = self.storage.collection_timestamp(**self.storage_kw)
 
         # Set timestamp manually in the past.
         stored[self.modified_field] = timestamp_before - 10
@@ -850,9 +851,10 @@ class TimestampsTest:
         self.assertEquals(retrieved[self.modified_field],
                           stored[self.modified_field])
 
-        # Check that collection timestamp was bumped (change happened).
+        # Check that collection timestamp was not changed. Someone importing
+        # records in the past must assume the synchronization consequences.
         timestamp = self.storage.collection_timestamp(**self.storage_kw)
-        self.assertGreater(timestamp, timestamp_before)
+        self.assertEquals(timestamp, timestamp_before)
 
     def test_update_ignores_specified_last_modified_if_equal(self):
         stored = self.create_record()

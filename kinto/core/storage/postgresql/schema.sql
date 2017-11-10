@@ -77,7 +77,6 @@ RETURNS trigger AS $$
 DECLARE
     previous TIMESTAMP;
     current TIMESTAMP;
-
 BEGIN
     previous := NULL;
     WITH existing_timestamps AS (

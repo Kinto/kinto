@@ -210,7 +210,7 @@ class Storage(StorageBase):
         WITH existing_timestamps AS (
           -- Timestamp of latest record.
           (
-            SELECT last_modified
+            SELECT last_modified, as_epoch(last_modified) AS last_epoch
             FROM records
             WHERE parent_id = :parent_id
               AND collection_id = :collection_id
@@ -220,7 +220,7 @@ class Storage(StorageBase):
           -- Timestamp of latest tombstone.
           UNION
           (
-            SELECT last_modified
+            SELECT last_modified, as_epoch(last_modified) AS last_epoch
             FROM deleted
             WHERE parent_id = :parent_id
               AND collection_id = :collection_id
@@ -230,13 +230,13 @@ class Storage(StorageBase):
           -- Timestamp of empty collection.
           UNION
           (
-            SELECT last_modified
+            SELECT last_modified, as_epoch(last_modified) AS last_epoch
             FROM timestamps
             WHERE parent_id = :parent_id
               AND collection_id = :collection_id
           )
         )
-        SELECT MAX(last_modified) AS last_modified, as_epoch(MAX(last_modified)) AS last_epoch
+        SELECT MAX(last_modified) AS last_modified, MAX(last_epoch) AS last_epoch
           FROM existing_timestamps
         """
 
@@ -244,7 +244,6 @@ class Storage(StorageBase):
         INSERT INTO timestamps (parent_id, collection_id, last_modified)
         VALUES (:parent_id, :collection_id, COALESCE(:last_modified, clock_timestamp()::timestamp))
         ON CONFLICT (parent_id, collection_id) DO NOTHING
-        RETURNING last_modified
         """
 
         placeholders = dict(parent_id=parent_id, collection_id=collection_id)
@@ -255,7 +254,7 @@ class Storage(StorageBase):
                 row = ts_result.fetchone()
                 existing_ts = row['last_modified']
 
-            insert_result = conn.execute(create_if_missing, dict(last_modified=existing_ts, **placeholders))
+            conn.execute(create_if_missing, dict(last_modified=existing_ts, **placeholders))
 
             result = conn.execute(query_existing, placeholders)
             record = result.fetchone()
