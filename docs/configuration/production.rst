@@ -301,9 +301,7 @@ A `Sentry <https://getsentry.com>`_ logger is also enabled.
     formatter = generic
 
     [formatter_json]
-    class = mozilla_cloud_services_logger.formatters.JsonLogFormatter
-    # XXX https://github.com/mozilla/mozilla-cloud-services-logger/issues/3
-    style = kinto
+    class = kinto.core.JsonLogFormatter
 
     [formatter_generic]
     format = %(asctime)s,%(msecs)03d %(levelname)-5.5s [%(name)s] %(message)s

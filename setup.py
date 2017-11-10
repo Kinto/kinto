@@ -24,6 +24,7 @@ REQUIREMENTS = [
     'jsonschema',
     'jsonpatch',
     'logging-color-formatter >= 1.0.1',  # Message interpolations.
+    'mozilla-cloud-services-logger',
     'python-dateutil',
     'pyramid > 1.8, < 1.9b1',
     'pyramid_multiauth >= 0.8',  # User on policy selected event.
@@ -33,7 +34,7 @@ REQUIREMENTS = [
     'pyramid_tm >= 2.1',
     'requests',
     'waitress',
-    'ujson >= 1.35'
+    'ujson >= 1.35',
 ]
 
 POSTGRESQL_REQUIRES = [

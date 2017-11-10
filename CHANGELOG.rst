@@ -6,6 +6,17 @@ This document describes changes between each past release.
 7.6.0 (unreleased)
 ------------------
 
+**New features**
+
+- A new custom logging formatter is available in ``kinto.core``. It fixes the issues of `mozilla-cloud-services-logger
+ <https://github.com/mozilla/mozilla-cloud-services-logger>`_. Consider migrating your logging settings to :
+
+::
+
+    [formatter_json]
+    class = kinto.core.JsonLogFormatter
+
+
 **Bug fixes**
 
 - Do not log empty context values (ref #1363)

@@ -5,8 +5,7 @@ import unittest
 import mock
 from pyramid import testing
 
-from kinto.core import DEFAULT_SETTINGS
-from kinto.core import initialization
+from kinto.core import DEFAULT_SETTINGS, initialization, JsonLogFormatter
 
 from .support import BaseWebTest
 
@@ -141,3 +140,16 @@ class BatchSubrequestTest(BaseWebTest, unittest.TestCase):
         args, kwargs = self.subrequest_mocked.info.call_args_list[-2]
         extra = kwargs['extra']
         self.assertEqual(extra['path'], '/v0/unknown')
+
+
+class JsonFormatterTest(unittest.TestCase):
+    def test_logger_name(self):
+        JsonLogFormatter.init_from_settings({'project_name': 'kintowe'})
+        f = JsonLogFormatter()
+        record = logging.LogRecord('app.log', logging.DEBUG, '', 0, 'coucou', (), None)
+        result = f.format(record)
+        logged = json.loads(result)
+        self.assertEqual(logged['Logger'], 'kintowe')
+        self.assertEqual(logged['Type'], 'app.log')
+        # See https://github.com/mozilla/mozilla-cloud-services-logger/issues/2
+        self.assertEqual(logged['Fields']['message'], 'coucou')
