@@ -250,9 +250,8 @@ class Storage(StorageBase):
         with self.client.connect(readonly=False) as conn:
             existing_ts = None
             ts_result = conn.execute(query_existing, placeholders)
-            if ts_result.rowcount > 0:
-                row = ts_result.fetchone()
-                existing_ts = row['last_modified']
+            row = ts_result.fetchone()  # Will return (None, None) when empty.
+            existing_ts = row['last_modified']
 
             conn.execute(create_if_missing, dict(last_modified=existing_ts, **placeholders))
 
