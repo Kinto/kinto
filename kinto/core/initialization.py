@@ -335,15 +335,14 @@ def setup_logging(config):
                 errno=errors.ERRORS.INVALID_PARAMETERS,
                 message='Invalid URL path.')
 
-        qs = dict(errors.request_GET(request))
         request.log_context(agent=request.headers.get('User-Agent'),
                             path=request_path,
                             method=request.method,
-                            querystring=(qs if len(qs) else None),
                             lang=request.headers.get('Accept-Language'),
-                            uid=None,
-                            authn_type=None,
                             errno=0)
+        qs = dict(errors.request_GET(request))
+        if qs:
+            request.log_context(querystring=qs)
 
         if summary_logger.level == logging.DEBUG:
             request.log_context(headers=dict(request.headers),
