@@ -10,6 +10,7 @@ This document describes changes between each past release.
 
 - Do not log empty context values (ref #1363)
 - Fixed some attributes in logging of errors (ref #1363)
+- Fixed logging of method/path of batch subrequests (ref #1363)
 
 **Internal changes**
 

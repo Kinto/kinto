@@ -135,3 +135,9 @@ class BatchSubrequestTest(BaseWebTest, unittest.TestCase):
 
     def test_subrequests_are_logged_as_subrequest_summary(self):
         self.assertEqual(self.subrequest_mocked.info.call_count, 2)
+        args, kwargs = self.subrequest_mocked.info.call_args_list[-1]
+        extra = kwargs['extra']
+        self.assertEqual(extra['path'], '/v0/unknown2')
+        args, kwargs = self.subrequest_mocked.info.call_args_list[-2]
+        extra = kwargs['extra']
+        self.assertEqual(extra['path'], '/v0/unknown')
