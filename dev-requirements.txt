@@ -12,6 +12,6 @@ tox==2.9.1
 WebTest==2.0.29
 werkzeug==0.12.2
 wheel==0.30.0
-zest.releaser==6.13.0
+zest.releaser==6.13.1
 zope.sqlalchemy==0.7.7
 setuptools==36.7.1
