@@ -113,30 +113,34 @@ class Storage(MemoryBasedStorage):
         is_specified = (record is not None and
                         modified_field in record or
                         last_modified is not None)
+
+        collection_timestamp = self._timestamps[parent_id].get(collection_id, 0)
+
         if is_specified:
             # If there is a timestamp in the new record, try to use it.
             if last_modified is not None:
                 current = last_modified
             else:
                 current = record[modified_field]
-        else:
-            # Otherwise, use a new one.
-            current = utils.msec_time()
+            # If it is equal to current collection timestamp, bump it.
+            if current == collection_timestamp:
+                collection_timestamp += 1
+                current = collection_timestamp
+            # If it is superior (future), use it as new collection timestamp.
+            elif current > collection_timestamp:
+                collection_timestamp = current
+            # Else (past), do nothing.
 
-        # Bump the timestamp only if it's more than the previous one.
-        previous = self._timestamps[parent_id].get(collection_id)
-        if previous and previous >= current:
-            collection_timestamp = previous + 1
         else:
+            # Not specified, use a new one.
+            current = utils.msec_time()
+            # If two ops in the same msec, bump it.
+            if current <= collection_timestamp:
+                current = collection_timestamp + 1
             collection_timestamp = current
 
-        # In case the timestamp was specified, the collection timestamp will
-        # be different from the updated timestamp. As such, we want to return
-        # the one of the record, and not the collection one.
-        if not is_specified or previous == current:
-            current = collection_timestamp
-
         self._timestamps[parent_id][collection_id] = collection_timestamp
+
         return current
 
     @synchronized

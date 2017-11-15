@@ -22,6 +22,7 @@ class ErrorViewTest(FormattedErrorMixin, BaseWebTest, unittest.TestCase):
         with mock.patch.dict(self.app.app.registry.settings, [('backoff', 10)]):
             response = self.app.get(self.sample_url, headers=self.headers, status=200)
         self.assertIn('Backoff', response.headers)
+        self.assertEquals(response.headers['Backoff'], '10')
 
     def test_backoff_headers_is_present_on_304(self):
         first = self.app.get(self.sample_url, headers=self.headers)
@@ -32,12 +33,11 @@ class ErrorViewTest(FormattedErrorMixin, BaseWebTest, unittest.TestCase):
         self.assertIn('Backoff', response.headers)
 
     def test_backoff_header_is_present_on_error_responses(self):
-        with mock.patch.dict(
-                self.app.app.registry.settings,
-                [('backoff', 10)]):
-            response = self.app.get(self.sample_url, headers=self.headers, status=200)
-            self.assertIn('Backoff', response.headers)
-            self.assertEquals(response.headers['Backoff'], '10')
+        with mock.patch.dict(self.app.app.registry.settings, [('backoff', 10)]):
+            with mock.patch('tests.core.testapp.views.Mushroom._extract_filters',
+                            side_effect=ValueError):
+                response = self.app.get(self.sample_url, headers=self.headers, status=500)
+        self.assertIn('Backoff', response.headers)
 
     def test_404_is_valid_formatted_error(self):
         response = self.app.get('/unknown', status=404)

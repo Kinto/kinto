@@ -6,6 +6,10 @@ This document describes changes between each past release.
 7.6.0 (unreleased)
 ------------------
 
+**Protocol**
+
+- XXX last_modified in the past...
+
 **New features**
 
 - A new custom logging formatter is available in ``kinto.core``. It fixes the issues of
@@ -16,7 +20,6 @@ This document describes changes between each past release.
 
     [formatter_json]
     class = kinto.core.JsonLogFormatter
-
 
 **Bug fixes**
 
