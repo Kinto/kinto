@@ -69,7 +69,7 @@ class Storage(StorageBase):
 
     """  # NOQA
 
-    schema_version = 16
+    schema_version = 17
 
     def __init__(self, client, max_fetch_size, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -206,28 +206,59 @@ class Storage(StorageBase):
         logger.debug('Flushed PostgreSQL storage tables')
 
     def collection_timestamp(self, collection_id, parent_id, auth=None):
-        query = """
-        WITH create_if_missing AS (
-          INSERT INTO timestamps (parent_id, collection_id, last_modified)
-          VALUES (:parent_id, :collection_id, clock_timestamp())
-          ON CONFLICT (parent_id, collection_id) DO NOTHING
-          RETURNING last_modified
-        ),
-        get_or_create AS (
-          SELECT last_modified FROM create_if_missing
+        query_existing = """
+        WITH existing_timestamps AS (
+          -- Timestamp of latest record.
+          (
+            SELECT last_modified, as_epoch(last_modified) AS last_epoch
+            FROM records
+            WHERE parent_id = :parent_id
+              AND collection_id = :collection_id
+            ORDER BY last_modified DESC
+            LIMIT 1
+          )
+          -- Timestamp of latest tombstone.
           UNION
-          SELECT last_modified FROM timestamps
-           WHERE parent_id = :parent_id
-             AND collection_id = :collection_id
+          (
+            SELECT last_modified, as_epoch(last_modified) AS last_epoch
+            FROM deleted
+            WHERE parent_id = :parent_id
+              AND collection_id = :collection_id
+            ORDER BY last_modified DESC
+            LIMIT 1
+          )
+          -- Timestamp of empty collection.
+          UNION
+          (
+            SELECT last_modified, as_epoch(last_modified) AS last_epoch
+            FROM timestamps
+            WHERE parent_id = :parent_id
+              AND collection_id = :collection_id
+          )
         )
-        SELECT as_epoch(last_modified) AS last_modified
-          FROM get_or_create;
+        SELECT MAX(last_modified) AS last_modified, MAX(last_epoch) AS last_epoch
+          FROM existing_timestamps
         """
+
+        create_if_missing = """
+        INSERT INTO timestamps (parent_id, collection_id, last_modified)
+        VALUES (:parent_id, :collection_id, COALESCE(:last_modified, clock_timestamp()::timestamp))
+        ON CONFLICT (parent_id, collection_id) DO NOTHING
+        """
+
         placeholders = dict(parent_id=parent_id, collection_id=collection_id)
         with self.client.connect(readonly=False) as conn:
-            result = conn.execute(query, placeholders)
+            existing_ts = None
+            ts_result = conn.execute(query_existing, placeholders)
+            row = ts_result.fetchone()  # Will return (None, None) when empty.
+            existing_ts = row['last_modified']
+
+            conn.execute(create_if_missing, dict(last_modified=existing_ts, **placeholders))
+
+            result = conn.execute(query_existing, placeholders)
             record = result.fetchone()
-        return record['last_modified']
+
+        return record['last_epoch']
 
     def create(self, collection_id, parent_id, record, id_generator=None,
                id_field=DEFAULT_ID_FIELD,

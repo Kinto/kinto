@@ -6,6 +6,10 @@ This document describes changes between each past release.
 7.6.0 (unreleased)
 ------------------
 
+**Protocol**
+
+- XXX last_modified in the past...
+
 **Internal changes**
 
 - Moved PostgreSQL helper function to Python code (ref #1358)
