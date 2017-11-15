@@ -8,8 +8,9 @@ This document describes changes between each past release.
 
 **New features**
 
-- A new custom logging formatter is available in ``kinto.core``. It fixes the issues of `mozilla-cloud-services-logger
- <https://github.com/mozilla/mozilla-cloud-services-logger>`_. Consider migrating your logging settings to :
+- A new custom logging formatter is available in ``kinto.core``. It fixes the issues of
+  `mozilla-cloud-services-logger <https://github.com/mozilla/mozilla-cloud-services-logger>`_.
+  Consider migrating your logging settings to :
 
 ::
 
