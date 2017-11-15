@@ -85,7 +85,7 @@ class RequestSummaryTest(BaseWebTest, unittest.TestCase):
         self.maxDiff = None
 
         responseBody = event_dict['response']['body']
-        self.assertEqual(json.loads(responseBody)['error'], 'Invalid parameters')
+        self.assertEqual(json.loads(responseBody.decode('utf-8'))['error'], 'Invalid parameters')
         responseHeaders = event_dict['response']['headers']
         self.assertEqual(sorted(responseHeaders.keys()), [
             'Access-Control-Expose-Headers',
