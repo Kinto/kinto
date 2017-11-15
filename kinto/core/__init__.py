@@ -5,8 +5,8 @@ import pkg_resources
 import tempfile
 
 from cornice import Service as CorniceService
+from dockerflow import logging as dockerflow_logging
 from pyramid.settings import aslist
-from mozilla_cloud_services_logger import formatters
 
 from kinto.core import errors
 from kinto.core import events
@@ -115,7 +115,7 @@ class Service(CorniceService):
         cls.cors_max_age = int(cors_max_age) if cors_max_age else None
 
 
-class JsonLogFormatter(formatters.JsonLogFormatter):
+class JsonLogFormatter(dockerflow_logging.JsonLogFormatter):
     logger_name = 'kinto'
 
     @classmethod
