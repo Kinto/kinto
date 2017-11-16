@@ -338,11 +338,15 @@ def setup_logging(config):
         request.log_context(agent=request.headers.get('User-Agent'),
                             path=request_path,
                             method=request.method,
-                            querystring=dict(errors.request_GET(request)),
                             lang=request.headers.get('Accept-Language'),
-                            uid=None,
-                            authn_type=None,
-                            errno=None)
+                            errno=0)
+        qs = dict(errors.request_GET(request))
+        if qs:
+            request.log_context(querystring=qs)
+
+        if summary_logger.level == logging.DEBUG:
+            request.log_context(headers=dict(request.headers),
+                                body=request.body)
 
     config.add_subscriber(on_new_request, NewRequest)
 
@@ -359,6 +363,10 @@ def setup_logging(config):
         request.log_context(time=isotimestamp,
                             code=response.status_code,
                             t=duration)
+
+        if summary_logger.level == logging.DEBUG:
+            request.log_context(response=dict(headers=dict(response.headers),
+                                              body=response.body))
 
         try:
             # If error response, bind errno.

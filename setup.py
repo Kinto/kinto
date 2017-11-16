@@ -21,6 +21,7 @@ REQUIREMENTS = [
     'colander >= 1.4.0',
     'cornice >= 2.4',
     'cornice_swagger >= 0.5.1',
+    'dockerflow',
     'jsonschema',
     'jsonpatch',
     'logging-color-formatter >= 1.0.1',  # Message interpolations.
@@ -33,7 +34,7 @@ REQUIREMENTS = [
     'pyramid_tm >= 2.1',
     'requests',
     'waitress',
-    'ujson >= 1.35'
+    'ujson >= 1.35',
 ]
 
 POSTGRESQL_REQUIRES = [
@@ -61,6 +62,7 @@ TEST_REQUIREMENTS = [
 ]
 
 DEPENDENCY_LINKS = [
+    'https://github.com/mozilla-services/python-dockerflow/tarball/492c793be8000#dockerflow-2017.11.dev'
 ]
 
 MONITORING_REQUIRES = [
