@@ -8,7 +8,7 @@ This document describes changes between each past release.
 
 **Protocol**
 
-- XXX last_modified in the past...
+- Fix last_modified in the past...
 
 **New features**
 
@@ -26,6 +26,8 @@ This document describes changes between each past release.
 - Do not log empty context values (ref #1363)
 - Fixed some attributes in logging of errors (ref #1363)
 - Fixed logging of method/path of batch subrequests (ref #1363)
+- Fix removing permissions with Json Merge (#1322).
+
 
 **Internal changes**
 
