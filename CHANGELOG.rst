@@ -8,7 +8,8 @@ This document describes changes between each past release.
 
 **Protocol**
 
-- Fix last_modified in the past...
+- When a record is pushed with an older timestamp, the collection
+  timestamps is not bumped anymore. (#1361)
 
 **New features**
 
