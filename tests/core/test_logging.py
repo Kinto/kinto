@@ -152,4 +152,4 @@ class JsonFormatterTest(unittest.TestCase):
         self.assertEqual(logged['Logger'], 'kintowe')
         self.assertEqual(logged['Type'], 'app.log')
         # See https://github.com/mozilla/mozilla-cloud-services-logger/issues/2
-        self.assertEqual(logged['Fields']['message'], 'coucou')
+        self.assertEqual(logged['Fields']['msg'], 'coucou')

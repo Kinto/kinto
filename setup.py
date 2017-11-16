@@ -61,9 +61,7 @@ TEST_REQUIREMENTS = [
     'WebTest'
 ]
 
-DEPENDENCY_LINKS = [
-    'https://github.com/mozilla-services/python-dockerflow/tarball/492c793be8000#dockerflow-2017.11.dev'
-]
+DEPENDENCY_LINKS = []
 
 MONITORING_REQUIRES = [
     'raven',
@@ -83,7 +81,7 @@ ENTRY_POINTS = {
 
 
 setup(name='kinto',
-      version='7.6.0.dev0',
+      version='7.6.0',
       description='Kinto Web Service - Store, Sync, Share, and Self-Host.',
       long_description='{}\n\n{}\n\n{}'.format(README, CHANGELOG, CONTRIBUTORS),
       license='Apache License (2.0)',

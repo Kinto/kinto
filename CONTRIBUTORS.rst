@@ -53,11 +53,13 @@ Contributors
 * Niraj <https://github.com/niraj8>
 * Oron Gola <oron.golar@gmail.com>
 * PeriGK <per.gkolias@gmail.com>
+* realsumit <sumitsarinofficial@gmail.com>
 * Rektide <rektide@voodoowarez.com>
 * Rémy Hubscher <rhubscher@mozilla.com>
 * Ricardo <@rkleine>
 * Rodolphe Quiédeville <rodolphe@quiedeville.org>
 * Sahil Dua <sahildua2305@gmail.com>
+* Sebastian Rodriguez <srodrigu85@gmail.com>
 * Stephen Daves <contact@stephendaves.com>
 * Stephen Donner <stephen.donner@gmail.com>
 * Shweta Oak <oakshweta11@gmail.com>
@@ -68,7 +70,9 @@ Contributors
 * SwhGo_oN <@swhgoon>
 * Tarek Ziade <tarek@mozilla.com>
 * Taylor Zane Glaeser <tzglaeser@gmail.com>
+* Tiberiu Ichim <@tiberiuichim>
 * Vamsi Sangam <vamsisangam@live.com>
 * Varna Suresh <varna96@gmail.com>
+* Vitor Falcao <vitor.falcaor@gmail.com>
 * Wil Clouser <wclouser@mozilla.com>
 * Yann Klis <yann.klis@gmail.com>

@@ -3,12 +3,13 @@ Changelog
 
 This document describes changes between each past release.
 
-7.6.0 (unreleased)
+7.6.0 (2017-11-16)
 ------------------
 
 **Protocol**
 
-- Fix last_modified in the past...
+- When a record is pushed with an older timestamp, the collection
+  timestamps is not bumped anymore. (#1361)
 
 **New features**
 

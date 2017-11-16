@@ -14,9 +14,8 @@ Changelog
 1.18 (2017-11-16)
 '''''''''''''''''
 
-- Fix raise conditions regarding the collection_timestamp. As a
-  side-effect when adding a record in the past, the
-  collection_timestamp is not bumped anymore.
+- When a record is pushed with an older timestamp, the collection
+  timestamps is not dumped anymore. (#1361)
 
 1.17 (2017-06-15)
 '''''''''''''''''
