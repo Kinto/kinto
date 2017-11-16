@@ -61,9 +61,7 @@ TEST_REQUIREMENTS = [
     'WebTest'
 ]
 
-DEPENDENCY_LINKS = [
-    'https://github.com/mozilla-services/python-dockerflow/tarball/492c793be8000#dockerflow-2017.11.dev'
-]
+DEPENDENCY_LINKS = []
 
 MONITORING_REQUIRES = [
     'raven',
