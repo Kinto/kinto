@@ -6,7 +6,9 @@ This document describes changes between each past release.
 7.7.0 (unreleased)
 ------------------
 
-- Nothing changed yet.
+**Bug fixes**
+
+- Fix kinto-admin loading.
 
 
 7.6.0 (2017-11-16)
