@@ -3,7 +3,7 @@ Changelog
 
 This document describes changes between each past release.
 
-7.7.0 (unreleased)
+7.6.1 (2017-11-17)
 ------------------
 
 **Bug fixes**
