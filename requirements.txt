@@ -17,7 +17,7 @@ logging-color-formatter==1.0.2
 newrelic==2.96.0.80
 PasteDeploy==1.5.2
 plaster==1.0
-plaster-pastedeploy==0.4.1
+plaster-pastedeploy==0.4.2
 psycopg2==2.7.3.2
 pycparser==2.18
 pyramid==1.9.1
