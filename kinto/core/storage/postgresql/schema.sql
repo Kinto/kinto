@@ -35,28 +35,14 @@ CREATE TABLE IF NOT EXISTS records (
     -- JSONB, 2x faster than JSON.
     data JSONB NOT NULL DEFAULT '{}'::JSONB,
 
+    deleted BOOLEAN,
+
     PRIMARY KEY (id, parent_id, collection_id)
 );
 CREATE UNIQUE INDEX IF NOT EXISTS idx_records_parent_id_collection_id_last_modified
     ON records(parent_id, collection_id, last_modified DESC);
 CREATE INDEX IF NOT EXISTS idx_records_last_modified_epoch
     ON records(as_epoch(last_modified));
-
---
--- Deleted records, without data.
---
-CREATE TABLE IF NOT EXISTS deleted (
-    id TEXT NOT NULL,
-    parent_id TEXT NOT NULL,
-    collection_id TEXT NOT NULL,
-    last_modified TIMESTAMP NOT NULL,
-
-    PRIMARY KEY (id, parent_id, collection_id)
-);
-CREATE UNIQUE INDEX IF NOT EXISTS idx_deleted_parent_id_collection_id_last_modified
-  ON deleted(parent_id, collection_id, last_modified DESC);
-CREATE INDEX IF NOT EXISTS idx_deleted_last_modified_epoch
-  ON deleted(as_epoch(last_modified));
 
 
 CREATE TABLE IF NOT EXISTS timestamps (
@@ -70,7 +56,6 @@ CREATE TABLE IF NOT EXISTS timestamps (
 -- Triggers to set last_modified on INSERT/UPDATE
 --
 DROP TRIGGER IF EXISTS tgr_records_last_modified ON records;
-DROP TRIGGER IF EXISTS tgr_deleted_last_modified ON deleted;
 
 CREATE OR REPLACE FUNCTION bump_timestamp()
 RETURNS trigger AS $$
@@ -84,16 +69,6 @@ BEGIN
       (
         SELECT last_modified
         FROM records
-        WHERE parent_id = NEW.parent_id
-          AND collection_id = NEW.collection_id
-        ORDER BY last_modified DESC
-        LIMIT 1
-      )
-      -- Timestamp of latest tombstone.
-      UNION
-      (
-        SELECT last_modified
-        FROM deleted
         WHERE parent_id = NEW.parent_id
           AND collection_id = NEW.collection_id
         ORDER BY last_modified DESC
@@ -140,10 +115,6 @@ CREATE TRIGGER tgr_records_last_modified
 BEFORE INSERT OR UPDATE OF data ON records
 FOR EACH ROW EXECUTE PROCEDURE bump_timestamp();
 
-CREATE TRIGGER tgr_deleted_last_modified
-BEFORE INSERT ON deleted
-FOR EACH ROW EXECUTE PROCEDURE bump_timestamp();
-
 --
 -- Metadata table
 --
@@ -156,4 +127,4 @@ INSERT INTO metadata (name, value) VALUES ('created_at', NOW()::TEXT);
 
 -- Set storage schema version.
 -- Should match ``kinto.core.storage.postgresql.PostgreSQL.schema_version``
-INSERT INTO metadata (name, value) VALUES ('storage_schema_version', '17');
+INSERT INTO metadata (name, value) VALUES ('storage_schema_version', '18');
