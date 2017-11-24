@@ -237,7 +237,7 @@ an action is performed on records.
         collection_id = event.payload['collection_id']
 
         action = event.payload['action']
-        for change in events.impacted_records:
+        for change in event.impacted_records:
             if action == 'delete':
                 indexer.unindex_record(bucket_id,
                                        collection_id,
