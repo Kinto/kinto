@@ -168,7 +168,7 @@ Create account
         }
 
 
-Alternatively, accounts can be created using POST.  Supply the user_id and password in the request body and remove user_id from the url.  The following request is equivalent to the example PUT call:
+Alternatively, accounts can be created using POST.  Supply the user id and password in the request body and remove user id from the URL.  The following request is equivalent to the example PUT call:
 
     .. sourcecode:: bash
 
