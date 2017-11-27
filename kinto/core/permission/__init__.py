@@ -181,7 +181,7 @@ class PermissionBase:
 
 def heartbeat(backend):
     def ping(request):
-        """Test the permission backend is operationnal.
+        """Test the permission backend is operational.
 
         :param request: current request object
         :type request: :class:`~pyramid:pyramid.request.Request`
