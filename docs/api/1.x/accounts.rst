@@ -168,6 +168,13 @@ Create account
         }
 
 
+Alternatively, accounts can be created using POST.  Supply the user id and password in the request body and remove user id from the URL.  The following request is equivalent to the example PUT call:
+
+    .. sourcecode:: bash
+
+        $ echo '{"data": {"id": "bob", password": "azerty123"}}' | http POST http://localhost:8888/v1/accounts --verbose
+
+
 By default, users can only create their own accounts. "Administrators", meaning anyone who matches ``account_write_principals``, can create accounts for other users as well.
 
 You can set ``account_create_principals`` if you want to limit account creation to certain users. The most common situation is when you want to have a small number of administrators, who are responsible for creating accounts for other users. In this case, you should add the administrators to both ``account_create_principals`` and ``account_write_principals``.
