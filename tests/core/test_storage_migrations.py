@@ -212,12 +212,55 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
         postgresql_storage.Storage.schema_version = last_version
         self.storage.initialize_schema()
 
-        # Check that the rotted tombstone have been removed.
-        records, count = self.storage.get_all('test', 'jean-louis',
-                                              include_deleted=True)
+        # Check that the rotted tombstone has been removed, but the
+        # original record remains.
+        records, count = self.storage.get_all('test', 'jean-louis')
         # Only the record remains.
         assert len(records) == 1
         assert count == 1
+
+    def test_migration_18_merges_tombstones(self):
+        self._delete_everything()
+        last_version = postgresql_storage.Storage.schema_version
+
+        self._load_schema('schema/postgresql-storage-11.sql')
+        # Schema 11 is essentially the same as schema 17
+        postgresql_storage.Storage.schema_version = 17
+        with self.storage.client.connect() as conn:
+            conn.execute("""
+            UPDATE metadata SET value = '17'
+            WHERE name = 'storage_schema_version';
+            """)
+
+        insert_query = """
+        INSERT INTO records (id, parent_id, collection_id, data, last_modified)
+        VALUES (:id, :parent_id, :collection_id, (:data)::JSONB, from_epoch(:last_modified))
+        """
+        placeholders = dict(id='rid',
+                            parent_id='jean-louis',
+                            collection_id='test',
+                            data=json.dumps({'drink': 'mate'}),
+                            last_modified=123456)
+        with self.storage.client.connect() as conn:
+            conn.execute(insert_query, placeholders)
+
+        create_tombstone = """
+        INSERT INTO deleted (id, parent_id, collection_id, last_modified)
+        VALUES (:id, :parent_id, :collection_id, from_epoch(:last_modified))
+        """
+        with self.storage.client.connect() as conn:
+            conn.execute(create_tombstone, placeholders)
+
+        # Execute the 017 to 018 migration (and others)
+        postgresql_storage.Storage.schema_version = last_version
+        self.storage.initialize_schema()
+
+        # Check that the tombstone took precedence over the record.
+        records, count = self.storage.get_all('test', 'jean-louis',
+                                              include_deleted=True)
+        assert len(records) == 1
+        assert count == 0
+        assert records[0] == {'id': 'rid', 'deleted': True, 'last_modified': 123456}
 
 
 @skip_if_no_postgresql
