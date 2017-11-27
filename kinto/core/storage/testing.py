@@ -990,7 +990,7 @@ class DeletedRecordsTest:
         self.assertEqual(len(records), 0)
         self.assertEqual(count, 0)
 
-    def test_delete_can_delete_without_deleted_items(self):
+    def test_delete_can_delete_without_tombstones(self):
         filters = self._get_last_modified_filters()
         record = {'challenge': 'accepted'}
         record = self.create_record(record)

@@ -357,10 +357,10 @@ class Storage(StorageBase):
                 from_epoch(:last_modified),
                 FALSE)
         ON CONFLICT (id, parent_id, collection_id) DO UPDATE
-            SET data=(:data)::JSONB,
-                deleted=FALSE,
-                last_modified = GREATEST(from_epoch(:last_modified),
-                                         EXCLUDED.last_modified)
+        SET data = (:data)::JSONB,
+            deleted = FALSE,
+            last_modified = GREATEST(from_epoch(:last_modified),
+                                     EXCLUDED.last_modified)
         RETURNING as_epoch(last_modified) AS last_modified;
         """
         placeholders = dict(object_id=object_id,
@@ -385,10 +385,13 @@ class Storage(StorageBase):
         if with_deleted:
             query = """
             UPDATE records
-               SET deleted=TRUE, data=(:deleted_data)::JSONB, last_modified =from_epoch(:last_modified)
+               SET deleted=TRUE,
+                   data=(:deleted_data)::JSONB,
+                   last_modified=from_epoch(:last_modified)
              WHERE id = :object_id
                AND parent_id = :parent_id
                AND collection_id = :collection_id
+               AND deleted = FALSE
             RETURNING as_epoch(last_modified) AS last_modified;
             """
         else:
@@ -397,6 +400,7 @@ class Storage(StorageBase):
             WHERE id = :object_id
                AND parent_id = :parent_id
                AND collection_id = :collection_id
+            RETURNING as_epoch(last_modified) AS last_modified;
             """
         deleted_data = self.json.dumps(dict([(deleted_field, True)]))
         placeholders = dict(object_id=object_id,
