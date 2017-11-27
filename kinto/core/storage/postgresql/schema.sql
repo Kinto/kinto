@@ -35,7 +35,7 @@ CREATE TABLE IF NOT EXISTS records (
     -- JSONB, 2x faster than JSON.
     data JSONB NOT NULL DEFAULT '{}'::JSONB,
 
-    deleted BOOLEAN,
+    deleted BOOLEAN NOT NULL,
 
     PRIMARY KEY (id, parent_id, collection_id)
 );

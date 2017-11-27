@@ -52,6 +52,13 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
         with self.storage.client.connect() as conn:
             conn.execute(q)
 
+    def _load_schema(self, filepath):
+        with self.storage.client.connect() as conn:
+            here = os.path.abspath(os.path.dirname(__file__))
+            with open(os.path.join(here, filepath)) as f:
+                old_schema = f.read()
+            conn.execute(old_schema)
+
     def test_does_not_execute_if_ran_with_dry(self):
         self._delete_everything()
         self.storage.initialize_schema(dry_run=True)
@@ -127,12 +134,7 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
         self._delete_everything()
 
         # Install old schema
-        with self.storage.client.connect() as conn:
-            here = os.path.abspath(os.path.dirname(__file__))
-            filepath = 'schema/postgresql-storage-1.6.sql'
-            with open(os.path.join(here, filepath)) as f:
-                old_schema = f.read()
-            conn.execute(old_schema)
+        self._load_schema('schema/postgresql-storage-1.6.sql')
 
         # Create a sample record using some code that is compatible with the
         # schema in place in cliquet 1.6.
@@ -182,41 +184,32 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
 
     def test_migration_12_clean_tombstones(self):
         self._delete_everything()
+        last_version = postgresql_storage.Storage.schema_version
         postgresql_storage.Storage.schema_version = 11
-        self.storage.initialize_schema()
-        # Set the schema version back to 11 in the base as well
+
+        self._load_schema('schema/postgresql-storage-11.sql')
+
+        insert_query = """
+        INSERT INTO records (id, parent_id, collection_id, data, last_modified)
+        VALUES (:id, :parent_id, :collection_id, (:data)::JSONB, from_epoch(:last_modified))
+        """
+        placeholders = dict(id='rid',
+                            parent_id='jean-louis',
+                            collection_id='test',
+                            data=json.dumps({'drink': 'mate'}),
+                            last_modified=123456)
         with self.storage.client.connect() as conn:
-            query = """
-            UPDATE metadata SET value = '11'
-            WHERE name = 'storage_schema_version';
-            """
-            conn.execute(query)
-        r = self.storage.create('test', 'jean-louis', {'drink': 'mate'})
-        self.storage.delete('test', 'jean-louis', r['id'])
+            conn.execute(insert_query, placeholders)
 
-        # Insert back the record without removing the tombstone.
+        create_tombstone = """
+        INSERT INTO deleted (id, parent_id, collection_id, last_modified)
+        VALUES (:id, :parent_id, :collection_id, from_epoch(:last_modified))
+        """
         with self.storage.client.connect() as conn:
-            query = """
-            INSERT INTO records (id, parent_id, collection_id,
-                                 data, last_modified)
-            VALUES (:id, :parent_id, :collection_id,
-                    (:data)::JSONB, from_epoch(:last_modified));
-            """
-            placeholders = dict(id=r['id'],
-                                collection_id='test',
-                                parent_id='jean-louis',
-                                data=json.dumps({'drink': 'mate'}),
-                                last_modified=1468400666777)
-            conn.execute(query, placeholders)
+            conn.execute(create_tombstone, placeholders)
 
-        records, count = self.storage.get_all('test', 'jean-louis',
-                                              include_deleted=True)
-        # Check that we have the tombstone
-        assert len(records) == 2
-        assert count == 1
-
-        # Execute the 011 to 012 migration
-        postgresql_storage.Storage.schema_version = 12
+        # Execute the 011 to 012 migration (and others)
+        postgresql_storage.Storage.schema_version = last_version
         self.storage.initialize_schema()
 
         # Check that the rotted tombstone have been removed.
