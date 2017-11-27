@@ -979,15 +979,24 @@ class DeletedRecordsTest:
         self.assertEqual(len(records), 1)
         self.assertEqual(count, 0)
 
-    def test_delete_all_can_delete_without_deleted_items(self):
+    def test_delete_all_can_delete_without_tombstones(self):
+        # Create 2 records, one becomes tombstone.
         filters = self._get_last_modified_filters()
-        record = {'challenge': 'accepted'}
-        record = self.create_record(record)
-        self.storage.delete_all(with_deleted=False, **self.storage_kw)
+        r = self.create_and_delete_record()
+        self.create_record({'challenge': 'accepted'})
+
+        # Delete records, without creating new tombstones.
+        old = self.storage.delete_all(filters=filters,
+                                      with_deleted=False,
+                                      **self.storage_kw)
+        self.assertEqual(len(old), 1)  # Not 2, because one is tombstone.
+
         records, count = self.storage.get_all(filters=filters,
                                               include_deleted=True,
                                               **self.storage_kw)
-        self.assertEqual(len(records), 0)
+        self.assertEqual(len(records), 1)
+        self.assertTrue(records[0]["deleted"])
+        self.assertTrue(records[0]["id"], r["id"])
         self.assertEqual(count, 0)
 
     def test_delete_can_delete_without_tombstones(self):
@@ -1001,6 +1010,14 @@ class DeletedRecordsTest:
                                               **self.storage_kw)
         self.assertEqual(len(records), 0)
         self.assertEqual(count, 0)
+
+    def test_deleting_without_tombstone_should_raise_not_found(self):
+        record = self.create_and_delete_record()
+        self.assertRaises(exceptions.RecordNotFoundError,
+                          self.storage.delete,
+                          object_id=record['id'],
+                          with_deleted=False,
+                          **self.storage_kw)
 
     def test_delete_all_deletes_records(self):
         self.create_record()

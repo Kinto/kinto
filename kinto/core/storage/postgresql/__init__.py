@@ -400,6 +400,7 @@ class Storage(StorageBase):
             WHERE id = :object_id
                AND parent_id = :parent_id
                AND collection_id = :collection_id
+               AND deleted = FALSE
             RETURNING as_epoch(last_modified) AS last_modified;
             """
         deleted_data = self.json.dumps(dict([(deleted_field, True)]))
@@ -435,6 +436,7 @@ class Storage(StorageBase):
                     FROM records
                     WHERE {parent_id_filter}
                           {collection_id_filter}
+                          AND deleted = FALSE
                           {conditions_filter}
                           {pagination_rules}
                     {sorting}
@@ -455,6 +457,7 @@ class Storage(StorageBase):
                     FROM records
                     WHERE {parent_id_filter}
                           {collection_id_filter}
+                          AND deleted = FALSE
                           {conditions_filter}
                           {pagination_rules}
                     {sorting}
