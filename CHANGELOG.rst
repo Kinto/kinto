@@ -3,10 +3,50 @@ Changelog
 
 This document describes changes between each past release.
 
-7.6.0 (unreleased)
+7.6.2 (unreleased)
 ------------------
 
 - Nothing changed yet.
+
+
+7.6.1 (2017-11-17)
+------------------
+
+**Bug fixes**
+
+- Fix kinto-admin loading.
+
+
+7.6.0 (2017-11-16)
+------------------
+
+**Protocol**
+
+- When a record is pushed with an older timestamp, the collection
+  timestamps is not bumped anymore. (#1361)
+
+**New features**
+
+- A new custom logging formatter is available in ``kinto.core``. It fixes the issues of
+  `mozilla-cloud-services-logger <https://github.com/mozilla/mozilla-cloud-services-logger>`_.
+  Consider migrating your logging settings to :
+
+::
+
+    [formatter_json]
+    class = kinto.core.JsonLogFormatter
+
+**Bug fixes**
+
+- Do not log empty context values (ref #1363)
+- Fixed some attributes in logging of errors (ref #1363)
+- Fixed logging of method/path of batch subrequests (ref #1363)
+- Fix removing permissions with Json Merge (#1322).
+
+
+**Internal changes**
+
+- Moved PostgreSQL helper function to Python code (ref #1358)
 
 
 7.5.1 (2017-10-03)

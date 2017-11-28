@@ -6,7 +6,7 @@ from pyramid.settings import asbool
 from pyramid.security import forget, NO_PERMISSION_REQUIRED, Authenticated
 from pyramid.view import view_config
 
-from kinto.core.errors import http_error, ERRORS
+from kinto.core.errors import http_error, ERRORS, request_GET
 from kinto.core.storage import exceptions as storage_exceptions
 from kinto.core.utils import reapply_cors
 
@@ -118,12 +118,28 @@ def error(context, request):
         response.headers['Retry-After'] = str(retry_after)
         return reapply_cors(request, response)
 
+    # Log some information about current request.
+    extra = {
+      'path': request.path,
+      'method': request.method,
+    }
+    qs = dict(request_GET(request))
+    if qs:
+        extra['querystring'] = qs
+    # Take errno from original exception, or undefined if unknown/unhandled.
+    try:
+        extra['errno'] = context.errno.value
+    except AttributeError:
+        extra['errno'] = ERRORS.UNDEFINED.value
+
     if isinstance(context, storage_exceptions.BackendError):
-        logger.critical(context.original, exc_info=True)
+        logger.critical(context.original, extra=extra, exc_info=context)
         response = httpexceptions.HTTPServiceUnavailable()
         return service_unavailable(response, request)
 
-    logger.error(context, exc_info=True)
+    # Within the exception view, sys.exc_info() will return null.
+    # see https://github.com/python/cpython/blob/ce9e62544/Lib/logging/__init__.py#L1460-L1462
+    logger.error(context, extra=extra, exc_info=context)
 
     error_msg = 'A programmatic error occured, developers have been informed.'
     info = request.registry.settings['error_info_link']

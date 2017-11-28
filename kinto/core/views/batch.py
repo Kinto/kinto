@@ -136,9 +136,9 @@ def post_batch(request):
     for subrequest_spec in requests:
         subrequest = build_request(request, subrequest_spec)
 
-        log_context = {'path': subrequest.path,
-                       'method': subrequest.method,
-                       **request.log_context()}
+        log_context = {**request.log_context(),
+                       'path': subrequest.path,
+                       'method': subrequest.method}
         try:
             # Invoke subrequest without individual transaction.
             resp, subrequest = request.follow_subrequest(subrequest,

@@ -75,7 +75,7 @@ class CacheBase:
 
 def heartbeat(backend):
     def ping(request):
-        """Test that cache backend is operationnal.
+        """Test that cache backend is operational.
 
         :param request: current request object
         :type request: :class:`~pyramid:pyramid.request.Request`
@@ -90,7 +90,7 @@ def heartbeat(backend):
             else:
                 backend.set(_HEARTBEAT_KEY, 'alive', _HEARTBEAT_TTL_SECONDS)
             return True
-        except:
+        except Exception:
             logger.exception('Heartbeat Failure')
             return False
 

@@ -22,6 +22,7 @@ class ErrorViewTest(FormattedErrorMixin, BaseWebTest, unittest.TestCase):
         with mock.patch.dict(self.app.app.registry.settings, [('backoff', 10)]):
             response = self.app.get(self.sample_url, headers=self.headers, status=200)
         self.assertIn('Backoff', response.headers)
+        self.assertEquals(response.headers['Backoff'], '10')
 
     def test_backoff_headers_is_present_on_304(self):
         first = self.app.get(self.sample_url, headers=self.headers)
@@ -32,12 +33,11 @@ class ErrorViewTest(FormattedErrorMixin, BaseWebTest, unittest.TestCase):
         self.assertIn('Backoff', response.headers)
 
     def test_backoff_header_is_present_on_error_responses(self):
-        with mock.patch.dict(
-                self.app.app.registry.settings,
-                [('backoff', 10)]):
-            response = self.app.get(self.sample_url, headers=self.headers, status=200)
-            self.assertIn('Backoff', response.headers)
-            self.assertEquals(response.headers['Backoff'], '10')
+        with mock.patch.dict(self.app.app.registry.settings, [('backoff', 10)]):
+            with mock.patch('tests.core.testapp.views.Mushroom._extract_filters',
+                            side_effect=ValueError):
+                response = self.app.get(self.sample_url, headers=self.headers, status=500)
+        self.assertIn('Backoff', response.headers)
 
     def test_404_is_valid_formatted_error(self):
         response = self.app.get('/unknown', status=404)
@@ -146,6 +146,40 @@ class ErrorViewTest(FormattedErrorMixin, BaseWebTest, unittest.TestCase):
                 self.app.get(self.sample_url, headers=self.headers, status=500)
                 self.assertTrue(mocked_traceback.called)
                 self.assertEqual(ValueError, mocked_traceback.call_args[0][0])
+
+    def test_500_logs_request_information(self):
+        with mock.patch('tests.core.testapp.views.Mushroom._extract_filters',
+                        side_effect=ValueError):
+            with mock.patch('kinto.core.views.errors.logger') as mocked_logger:
+                self.app.get(self.sample_url + "?q=-42", headers=self.headers, status=500)
+
+        self.assertTrue(mocked_logger.error.called)
+        self.assertEqual(mocked_logger.error.call_args[1]['extra'], {
+            'errno': 999,
+            'method': 'GET',
+            'path': '/v0/mushrooms',
+            'querystring': {'q': '-42'}})
+
+    def test_500_logs_errno_from_exception(self):
+        custom_error = ValueError('Some error')
+        custom_error.errno = ERRORS.VERSION_NOT_AVAILABLE
+
+        with mock.patch('tests.core.testapp.views.Mushroom._extract_filters',
+                        side_effect=custom_error):
+            with mock.patch('kinto.core.views.errors.logger') as mocked_logger:
+                self.app.get(self.sample_url, headers=self.headers, status=500)
+        self.assertTrue(mocked_logger.error.called)
+        self.assertEqual(mocked_logger.error.call_args[1]['extra']['errno'], 116)
+
+    def test_500_passes_exception_as_exc_info(self):
+        custom_error = ValueError('Some error')
+
+        with mock.patch('tests.core.testapp.views.Mushroom._extract_filters',
+                        side_effect=custom_error):
+            with mock.patch('kinto.core.views.errors.logger') as mocked_logger:
+                self.app.get(self.sample_url, headers=self.headers, status=500)
+        self.assertTrue(mocked_logger.error.called)
+        self.assertEqual(mocked_logger.error.call_args[1]['exc_info'], custom_error)
 
 
 class RedirectViewTest(FormattedErrorMixin, BaseWebTest, unittest.TestCase):

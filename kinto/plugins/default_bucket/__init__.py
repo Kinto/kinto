@@ -147,7 +147,7 @@ def default_bucket(request):
         # If 'id' is provided as 'default', replace with actual bucket id.
         body = request.json
         body['data']['id'] = body['data']['id'].replace('default', bucket_id)
-    except:
+    except Exception:
         body = request.body or {'data': {}}
     subrequest = build_request(request, {
         'method': request.method,

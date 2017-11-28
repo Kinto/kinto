@@ -11,6 +11,12 @@ API
 Changelog
 ---------
 
+1.18 (2017-11-16)
+'''''''''''''''''
+
+- When a record is pushed with an older timestamp, the collection
+  timestamps is not dumped anymore. (#1361)
+
 1.17 (2017-06-15)
 '''''''''''''''''
 

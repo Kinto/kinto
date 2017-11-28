@@ -287,7 +287,7 @@ class StorageBase:
 
 def heartbeat(backend):
     def ping(request):
-        """Test that storage is operationnal.
+        """Test that storage is operational.
 
         :param request: current request object
         :type request: :class:`~pyramid:pyramid.request.Request`
@@ -309,7 +309,7 @@ def heartbeat(backend):
                 else:
                     backend.create(record=_HEARTBEAT_RECORD, **storage_kw)
             return True
-        except:
+        except Exception:
             logger.exception('Heartbeat Error')
             return False
 

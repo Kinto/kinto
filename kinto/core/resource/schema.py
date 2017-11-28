@@ -119,30 +119,44 @@ class PermissionsSchema(colander.SchemaNode):
             return colander.Mapping(unknown='preserve')
 
     def deserialize(self, cstruct=colander.null):
-
         # If permissions are not a mapping (e.g null or invalid), try deserializing
         if not isinstance(cstruct, dict):
             return super().deserialize(cstruct)
+
+        # If using application/merge-patch+json we need to allow null values as they
+        # represent removing a key.
+        cstruct, removed_keys = self._preprocess_null_perms(cstruct)
 
         # If permissions are listed, check fields and produce fancy error messages
         if self.known_perms:
             for perm in cstruct:
                 colander.OneOf(choices=self.known_perms)(self, perm)
-            return super().deserialize(cstruct)
+            permissions = super().deserialize(cstruct)
 
         # Else deserialize the fields that are not on the schema
-        permissions = {}
-        perm_schema = colander.SequenceSchema(colander.SchemaNode(colander.String()))
-        for perm, principals in cstruct.items():
-            permissions[perm] = perm_schema.deserialize(principals)
+        else:
+            permissions = {}
+            perm_schema = colander.SequenceSchema(colander.SchemaNode(colander.String()))
+            for perm, principals in cstruct.items():
+                permissions[perm] = perm_schema.deserialize(principals)
 
-        return permissions
+        return self._postprocess_null_perms(permissions, removed_keys)
 
     def _get_node_principals(self, perm):
         principal = colander.SchemaNode(colander.String())
         return colander.SchemaNode(colander.Sequence(), principal, name=perm,
                                    missing=colander.drop)
 
+    @staticmethod
+    def _preprocess_null_perms(cstruct):
+        keys = {k for k, v in cstruct.items() if v is None}
+        cleaned = {k: v for k, v in cstruct.items() if v is not None}
+        return cleaned, keys
+
+    @staticmethod
+    def _postprocess_null_perms(validated, keys):
+        validated.update({k: None for k in keys})
+        return validated
 
 # Header schemas
 

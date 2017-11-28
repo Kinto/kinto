@@ -5,6 +5,7 @@ import pkg_resources
 import tempfile
 
 from cornice import Service as CorniceService
+from dockerflow import logging as dockerflow_logging
 from pyramid.settings import aslist
 
 from kinto.core import errors
@@ -115,6 +116,22 @@ class Service(CorniceService):
         cls.cors_max_age = int(cors_max_age) if cors_max_age else None
 
 
+class JsonLogFormatter(dockerflow_logging.JsonLogFormatter):
+    logger_name = 'kinto'
+
+    @classmethod
+    def init_from_settings(cls, settings):
+        cls.logger_name = settings['project_name']
+
+    def __init__(self, fmt=None, datefmt=None, style='%'):
+        # Do not let mozilla-cloud-services-logger constructor to improperly
+        # use style as the logger_name.
+        # See https://github.com/mozilla/mozilla-cloud-services-logger/issues/3
+        logger_name = self.logger_name
+        super().__init__(fmt, datefmt, style)
+        self.logger_name = logger_name
+
+
 def includeme(config):
     settings = config.get_settings()
 
@@ -154,6 +171,9 @@ def includeme(config):
 
     # Add CORS settings to the base kinto.core Service class.
     Service.init_from_settings(settings)
+
+    # Use the project name as the main logger name (Logger field in MozLog).
+    JsonLogFormatter.init_from_settings(settings)
 
     # Setup components.
     for step in aslist(settings['initialization_sequence']):

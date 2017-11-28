@@ -351,7 +351,8 @@ it is possible to output logs as JSON:
     keys = json
 
     [formatter_json]
-    class = mozilla_cloud_services_logger.formatters.JsonLogFormatter
+    class = kinto.core.JsonLogFormatter
+
 
 Example output:
 

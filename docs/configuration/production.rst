@@ -177,7 +177,7 @@ adjustments:
 .. note::
 
     For an exhaustive list of available settings and their default values,
-    refer to the *Kinto* :github:`source code <Kinto/kinto/blob/7.5.1/kinto/core/__init__.py#L26-L95>`.
+    refer to the *Kinto* :github:`source code <Kinto/kinto/blob/7.6.0/kinto/core/__init__.py#L27-L96>`.
 
 
 By default, nobody can read buckets list. You can change that using:
@@ -301,7 +301,7 @@ A `Sentry <https://getsentry.com>`_ logger is also enabled.
     formatter = generic
 
     [formatter_json]
-    class = mozilla_cloud_services_logger.formatters.JsonLogFormatter
+    class = kinto.core.JsonLogFormatter
 
     [formatter_generic]
     format = %(asctime)s,%(msecs)03d %(levelname)-5.5s [%(name)s] %(message)s

@@ -7,7 +7,7 @@ PYTHON = $(VENV)/bin/python3
 DEV_STAMP = $(VENV)/.dev_env_installed.stamp
 DOC_STAMP = $(VENV)/.doc_env_installed.stamp
 INSTALL_STAMP = $(VENV)/.install.stamp
-TEMPDIR := $(shell mktemp -d)
+TEMPDIR := $(shell mktemp -du)
 
 .IGNORE: clean distclean maintainer-clean
 .PHONY: all install virtualenv tests

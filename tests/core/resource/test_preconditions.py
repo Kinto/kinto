@@ -112,8 +112,6 @@ class ModifiedMeanwhileTest(BaseTest):
             self.resource.put()
         except httpexceptions.HTTPPreconditionFailed as e:
             error = e
-        print(error.json['details']['existing'])
-        print(self.stored)
         self.assertDictEqual(error.json['details']['existing'],
                              self.stored)
 

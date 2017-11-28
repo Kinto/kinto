@@ -159,6 +159,7 @@ class UserResource:
 
         content_type = str(self.request.headers.get('Content-Type')).lower()
         self._is_json_patch = content_type == 'application/json-patch+json'
+        self._is_merge_patch = content_type == 'application/merge-patch+json'
 
         # Models are isolated by user.
         parent_id = self.get_parent_id(request)
@@ -674,10 +675,9 @@ class UserResource:
             applied_changes = {**requested_changes}
             updated = {**record}
 
-            content_type = str(self.request.headers.get('Content-Type')).lower()
             # recursive patch and remove field if null attribute is passed (RFC 7396)
-            if content_type == 'application/merge-patch+json':
-                recursive_update_dict(updated, applied_changes, ignores=[None])
+            if self._is_merge_patch:
+                recursive_update_dict(updated, applied_changes, ignores=(None,))
             else:
                 updated.update(**applied_changes)
 
@@ -1185,17 +1185,28 @@ class ShareableResource(UserResource):
         new = super().process_record(new, old)
 
         # patch is specified as a list of of operations (RFC 6902)
+
+        payload = self.request.validated['body']
+
         if self._is_json_patch:
-            changes = self.request.validated['body']
-            permissions = apply_json_patch(old, changes)['permissions']
+            permissions = apply_json_patch(old, payload)['permissions']
+
+        elif self._is_merge_patch:
+            existing = old or {}
+            permissions = existing.get('__permissions__', {})
+            recursive_update_dict(permissions,
+                                  payload.get('permissions', {}),
+                                  ignores=(None,))
+
         else:
-            permissions = self.request.validated['body'].get('permissions', {})
+            permissions = {k: v for k, v in payload.get('permissions', {}).items()
+                           if v is not None}
 
         annotated = {**new}
 
         if permissions:
             is_put = (self.request.method.lower() == 'put')
-            if is_put:
+            if is_put or self._is_merge_patch:
                 # Remove every existing ACEs using empty lists.
                 for perm in self.permissions:
                     permissions.setdefault(perm, [])

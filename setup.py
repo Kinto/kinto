@@ -21,11 +21,12 @@ REQUIREMENTS = [
     'colander >= 1.4.0',
     'cornice >= 2.4',
     'cornice_swagger >= 0.5.1',
+    'dockerflow',
     'jsonschema',
     'jsonpatch',
     'logging-color-formatter >= 1.0.1',  # Message interpolations.
     'python-dateutil',
-    'pyramid > 1.8, < 1.9b1',
+    'pyramid >= 1.9.1, < 2.0',
     'pyramid_multiauth >= 0.8',  # User on policy selected event.
     'transaction',
     # pyramid_tm changed the location of their tween in 2.x and one of
@@ -33,7 +34,7 @@ REQUIREMENTS = [
     'pyramid_tm >= 2.1',
     'requests',
     'waitress',
-    'ujson >= 1.35'
+    'ujson >= 1.35',
 ]
 
 POSTGRESQL_REQUIRES = [
@@ -60,8 +61,7 @@ TEST_REQUIREMENTS = [
     'WebTest'
 ]
 
-DEPENDENCY_LINKS = [
-]
+DEPENDENCY_LINKS = []
 
 MONITORING_REQUIRES = [
     'raven',
@@ -81,7 +81,7 @@ ENTRY_POINTS = {
 
 
 setup(name='kinto',
-      version='7.6.0.dev0',
+      version='7.6.2.dev0',
       description='Kinto Web Service - Store, Sync, Share, and Self-Host.',
       long_description='{}\n\n{}\n\n{}'.format(README, CHANGELOG, CONTRIBUTORS),
       license='Apache License (2.0)',
