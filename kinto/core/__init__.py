@@ -27,6 +27,7 @@ DEFAULT_SETTINGS = {
     'backoff': None,
     'batch_max_requests': 25,
     'cache_backend': '',
+    'cache_hosts': '',
     'cache_url': '',
     'cache_pool_size': 25,
     'cache_prefix': '',
