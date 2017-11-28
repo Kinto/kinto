@@ -285,15 +285,17 @@ class Storage(StorageBase):
         safe_holders = {}
 
         if ignore_conflict:
-            # We use DO UPDATE so that the RETURNING clause works
-            # but we don't update anything and keep the previous
-            # last_modified value already stored.
+            # If we ignore conflict, then we do not touch the existing data.
+            # Unless if the conflict comes from a tombstone.
             safe_holders['on_conflict'] = """
             ON CONFLICT (id, parent_id, collection_id) DO UPDATE
             SET last_modified = EXCLUDED.last_modified,
+                data = (:data)::JSONB,
                 deleted = FALSE
+            WHERE records.deleted
             """
         else:
+            # Not ignoring conflicts means we overwrite the existing record.
             safe_holders['on_conflict'] = """
             ON CONFLICT (id, parent_id, collection_id) DO UPDATE
             SET last_modified = EXCLUDED.last_modified,
@@ -441,6 +443,7 @@ class Storage(StorageBase):
                           {pagination_rules}
                     {sorting}
                     LIMIT :pagination_limit
+                    FOR UPDATE
             )
             UPDATE records
                SET deleted=TRUE, data=(:deleted_data)::JSONB
@@ -462,6 +465,7 @@ class Storage(StorageBase):
                           {pagination_rules}
                     {sorting}
                     LIMIT :pagination_limit
+                    FOR UPDATE
             )
             DELETE
             FROM records

@@ -255,12 +255,12 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
         postgresql_storage.Storage.schema_version = last_version
         self.storage.initialize_schema()
 
-        # Check that the tombstone took precedence over the record.
+        # Check that the record took precedence of over the tombstone.
         records, count = self.storage.get_all('test', 'jean-louis',
                                               include_deleted=True)
         assert len(records) == 1
-        assert count == 0
-        assert records[0] == {'id': 'rid', 'deleted': True, 'last_modified': 123456}
+        assert count == 1
+        assert records[0]['drink'] == 'mate'
 
 
 @skip_if_no_postgresql

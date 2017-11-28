@@ -14,10 +14,7 @@ INSERT INTO records (id, parent_id, collection_id, data, last_modified, deleted)
   SELECT id, parent_id, collection_id, '{"deleted": true}'::JSONB, last_modified, TRUE
   FROM deleted
 -- Because of Bug Kinto/kinto#1375, some tombstones may exist.
-  ON CONFLICT (id, parent_id, collection_id) DO UPDATE
-  SET data = '{"deleted": true}'::JSONB,
-      deleted = TRUE,
-      last_modified = EXCLUDED.last_modified;
+  ON CONFLICT (id, parent_id, collection_id) DO NOTHING;
 COMMIT WORK;
 -- Table merged.
 
