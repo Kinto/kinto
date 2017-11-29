@@ -252,7 +252,7 @@ class Storage(StorageBase):
     def create(self, collection_id, parent_id, record, id_generator=None,
                id_field=DEFAULT_ID_FIELD,
                modified_field=DEFAULT_MODIFIED_FIELD,
-               auth=None, ignore_conflict=False):
+               auth=None):
         id_generator = id_generator or self.id_generator
         record = {**record}
         if id_field in record:

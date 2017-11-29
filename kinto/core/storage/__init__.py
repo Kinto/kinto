@@ -96,7 +96,7 @@ class StorageBase:
     def create(self, collection_id, parent_id, record, id_generator=None,
                id_field=DEFAULT_ID_FIELD,
                modified_field=DEFAULT_MODIFIED_FIELD,
-               auth=None, ignore_conflict=False):
+               auth=None):
         """Create the specified `object` in this `collection_id` for this `parent_id`.
         Assign the id to the object, using the attribute
         :attr:`kinto.core.resource.model.Model.id_field`.
@@ -110,7 +110,6 @@ class StorageBase:
         :param str collection_id: the collection id.
         :param str parent_id: the collection parent.
         :param dict record: the object to create.
-        :param bool ignore_conflict: Do not raise the UnicityError on conflict.
 
         :returns: the newly created object.
         :rtype: dict
