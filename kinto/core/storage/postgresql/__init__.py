@@ -285,7 +285,8 @@ class Storage(StorageBase):
             WHERE records.deleted = TRUE
             RETURNING id, data, last_modified
         )
-        SELECT id, data, as_epoch(last_modified) AS last_modified, TRUE AS inserted FROM create_record
+        SELECT id, data, as_epoch(last_modified) AS last_modified, TRUE AS inserted
+            FROM create_record
         UNION ALL
         SELECT id, data, as_epoch(last_modified) AS last_modified, FALSE AS inserted FROM records
         WHERE id = :object_id AND parent_id = :parent_id AND collection_id = :collection_id
