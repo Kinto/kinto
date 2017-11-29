@@ -3,10 +3,23 @@ Changelog
 
 This document describes changes between each past release.
 
-7.6.3 (unreleased)
+8.0.0 (unreleased)
 ------------------
 
-- Nothing changed yet.
+**Breaking changes**
+
+- Storage backends no longer support the ``ignore_conflict``
+  argument (#1401). Instead of using this argument, consider catching the
+  ``UnicityError`` and handling it. ``ignore_conflict`` was only ever
+  used in one place, in the ``default_bucket`` plugin, and was
+  eventually backed out in favor of catching and handling a
+  ``UnicityError``.
+
+**Bug fixes**
+
+- Fix a TOCTOU bug in the Postgres storage backend where a transaction
+  doing a `create()` would fail because a row had been inserted after
+  the transaction had checked for it (#1376).
 
 
 7.6.2 (2017-11-28)

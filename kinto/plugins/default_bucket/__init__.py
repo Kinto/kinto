@@ -64,11 +64,16 @@ def create_collection(request, bucket_id):
 
 
 def resource_create_object(request, resource_cls, uri):
-    """In the default bucket, the bucket and collection are implicitly
-    created. This helper instantiate the resource and simulate a request
-    with its RootFactory on the instantiated resource.
-    :returns: the created object
-    :rtype: dict
+    """Implicitly create a resource (or fail silently).
+
+    In the default bucket, the bucket and collection are implicitly
+    created. This helper creates one of those resources using a
+    simulated request and context that is appropriate for the
+    resource. Also runs create events as though the resource were
+    created in a subrequest.
+
+    If the resource already exists, do nothing.
+
     """
     resource_name, matchdict = view_lookup(request, uri)
 
