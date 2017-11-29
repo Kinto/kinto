@@ -69,7 +69,7 @@ class Storage(StorageBase):
 
     """  # NOQA
 
-    schema_version = 17
+    schema_version = 18
 
     def __init__(self, client, max_fetch_size, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -196,7 +196,6 @@ class Storage(StorageBase):
         in tests suites.
         """
         query = """
-        DELETE FROM deleted;
         DELETE FROM records;
         DELETE FROM timestamps;
         DELETE FROM metadata;
@@ -212,16 +211,6 @@ class Storage(StorageBase):
           (
             SELECT last_modified, as_epoch(last_modified) AS last_epoch
             FROM records
-            WHERE parent_id = :parent_id
-              AND collection_id = :collection_id
-            ORDER BY last_modified DESC
-            LIMIT 1
-          )
-          -- Timestamp of latest tombstone.
-          UNION
-          (
-            SELECT last_modified, as_epoch(last_modified) AS last_epoch
-            FROM deleted
             WHERE parent_id = :parent_id
               AND collection_id = :collection_id
             ORDER BY last_modified DESC
@@ -284,29 +273,34 @@ class Storage(StorageBase):
         query_record.pop(modified_field, None)
 
         query = """
-        WITH delete_potential_tombstone AS (
-            DELETE FROM deleted
-             WHERE id = :object_id
-               AND parent_id = :parent_id
-               AND collection_id = :collection_id
-        )
-        INSERT INTO records (id, parent_id, collection_id, data, last_modified)
+        INSERT INTO records (id, parent_id, collection_id, data, last_modified, deleted)
         VALUES (:object_id, :parent_id,
                 :collection_id, (:data)::JSONB,
-                from_epoch(:last_modified))
+                from_epoch(:last_modified),
+                FALSE)
         %(on_conflict)s
         RETURNING id, as_epoch(last_modified) AS last_modified;
         """
 
-        safe_holders = {'on_conflict': ''}
+        safe_holders = {}
 
         if ignore_conflict:
-            # We use DO UPDATE so that the RETURNING clause works
-            # but we don't update anything and keep the previous
-            # last_modified value already stored.
+            # If we ignore conflict, then we do not touch the existing data.
+            # Unless if the conflict comes from a tombstone.
             safe_holders['on_conflict'] = """
             ON CONFLICT (id, parent_id, collection_id) DO UPDATE
-            SET last_modified = EXCLUDED.last_modified
+            SET last_modified = EXCLUDED.last_modified,
+                data = (:data)::JSONB,
+                deleted = FALSE
+            WHERE records.deleted
+            """
+        else:
+            # Not ignoring conflicts means we overwrite the existing record.
+            safe_holders['on_conflict'] = """
+            ON CONFLICT (id, parent_id, collection_id) DO UPDATE
+            SET last_modified = EXCLUDED.last_modified,
+                data = (:data)::JSONB,
+                deleted = FALSE
             """
 
         placeholders = dict(object_id=record[id_field],
@@ -330,7 +324,8 @@ class Storage(StorageBase):
           FROM records
          WHERE id = :object_id
            AND parent_id = :parent_id
-           AND collection_id = :collection_id;
+           AND collection_id = :collection_id
+           AND NOT deleted;
         """
         placeholders = dict(object_id=object_id,
                             parent_id=parent_id,
@@ -358,20 +353,16 @@ class Storage(StorageBase):
         query_record.pop(modified_field, None)
 
         query = """
-        WITH delete_potential_tombstone AS (
-            DELETE FROM deleted
-             WHERE id = :object_id
-               AND parent_id = :parent_id
-               AND collection_id = :collection_id
-        )
-        INSERT INTO records (id, parent_id, collection_id, data, last_modified)
+        INSERT INTO records (id, parent_id, collection_id, data, last_modified, deleted)
         VALUES (:object_id, :parent_id,
                 :collection_id, (:data)::JSONB,
-                from_epoch(:last_modified))
+                from_epoch(:last_modified),
+                FALSE)
         ON CONFLICT (id, parent_id, collection_id) DO UPDATE
-            SET data=(:data)::JSONB,
-                last_modified = GREATEST(from_epoch(:last_modified),
-                                         EXCLUDED.last_modified)
+        SET data = (:data)::JSONB,
+            deleted = FALSE,
+            last_modified = GREATEST(from_epoch(:last_modified),
+                                     EXCLUDED.last_modified)
         RETURNING as_epoch(last_modified) AS last_modified;
         """
         placeholders = dict(object_id=object_id,
@@ -395,32 +386,31 @@ class Storage(StorageBase):
                auth=None, last_modified=None):
         if with_deleted:
             query = """
-            WITH deleted_record AS (
-                DELETE
-                FROM records
-                WHERE id = :object_id
-                  AND parent_id = :parent_id
-                  AND collection_id = :collection_id
-                RETURNING id
-            )
-            INSERT INTO deleted (id, parent_id, collection_id, last_modified)
-            SELECT id, :parent_id, :collection_id, from_epoch(:last_modified)
-              FROM deleted_record
+            UPDATE records
+               SET deleted=TRUE,
+                   data=(:deleted_data)::JSONB,
+                   last_modified=from_epoch(:last_modified)
+             WHERE id = :object_id
+               AND parent_id = :parent_id
+               AND collection_id = :collection_id
+               AND deleted = FALSE
             RETURNING as_epoch(last_modified) AS last_modified;
             """
         else:
             query = """
-                DELETE
-                FROM records
-                WHERE id = :object_id
-                  AND parent_id = :parent_id
-                  AND collection_id = :collection_id
-                RETURNING as_epoch(last_modified) AS last_modified;
+            DELETE FROM records
+            WHERE id = :object_id
+               AND parent_id = :parent_id
+               AND collection_id = :collection_id
+               AND deleted = FALSE
+            RETURNING as_epoch(last_modified) AS last_modified;
             """
+        deleted_data = self.json.dumps(dict([(deleted_field, True)]))
         placeholders = dict(object_id=object_id,
                             parent_id=parent_id,
                             collection_id=collection_id,
-                            last_modified=last_modified)
+                            last_modified=last_modified,
+                            deleted_data=deleted_data)
 
         with self.client.connect() as conn:
             result = conn.execute(query, placeholders)
@@ -443,29 +433,25 @@ class Storage(StorageBase):
                    auth=None):
         if with_deleted:
             query = """
-            WITH deleted_records AS (
-                WITH matching_records AS (
-                    SELECT id, parent_id, collection_id
-                        FROM records
-                        WHERE {parent_id_filter}
-                              {collection_id_filter}
-                              {conditions_filter}
-                              {pagination_rules}
-                        {sorting}
-                        LIMIT :pagination_limit
-                )
-                DELETE
-                FROM records
-                USING matching_records
-                WHERE records.id = matching_records.id
-                  AND records.parent_id = matching_records.parent_id
-                  AND records.collection_id = matching_records.collection_id
-                RETURNING records.id, records.parent_id, records.collection_id
+            WITH matching_records AS (
+                SELECT id, parent_id, collection_id
+                    FROM records
+                    WHERE {parent_id_filter}
+                          {collection_id_filter}
+                          AND deleted = FALSE
+                          {conditions_filter}
+                          {pagination_rules}
+                    {sorting}
+                    LIMIT :pagination_limit
+                    FOR UPDATE
             )
-            INSERT INTO deleted (id, parent_id, collection_id)
-            SELECT id, parent_id, collection_id
-              FROM deleted_records
-            RETURNING id, as_epoch(last_modified) AS last_modified;
+            UPDATE records
+               SET deleted=TRUE, data=(:deleted_data)::JSONB
+              FROM matching_records
+             WHERE records.id = matching_records.id
+               AND records.parent_id = matching_records.parent_id
+               AND records.collection_id = matching_records.collection_id
+            RETURNING records.id, as_epoch(last_modified) AS last_modified;
             """
         else:
             query = """
@@ -474,10 +460,12 @@ class Storage(StorageBase):
                     FROM records
                     WHERE {parent_id_filter}
                           {collection_id_filter}
+                          AND deleted = FALSE
                           {conditions_filter}
                           {pagination_rules}
                     {sorting}
                     LIMIT :pagination_limit
+                    FOR UPDATE
             )
             DELETE
             FROM records
@@ -490,8 +478,10 @@ class Storage(StorageBase):
 
         id_field = id_field or self.id_field
         modified_field = modified_field or self.modified_field
+        deleted_data = self.json.dumps(dict([(deleted_field, True)]))
         placeholders = dict(parent_id=parent_id,
-                            collection_id=collection_id)
+                            collection_id=collection_id,
+                            deleted_data=deleted_data)
         # Safe strings
         safeholders = defaultdict(str)
         # Handle parent_id as a regex only if it contains *
@@ -549,7 +539,7 @@ class Storage(StorageBase):
                       auth=None):
         delete_tombstones = """
         DELETE
-        FROM deleted
+        FROM records
         WHERE {parent_id_filter}
               {collection_id_filter}
               {conditions_filter}
@@ -599,54 +589,35 @@ class Storage(StorageBase):
                 deleted_field=DEFAULT_DELETED_FIELD,
                 auth=None):
         query = """
-        WITH total_filtered AS (
-            SELECT COUNT(id) AS count
+        WITH collection_filtered AS (
+            SELECT id, last_modified, data, deleted
               FROM records
              WHERE {parent_id_filter}
                AND collection_id = :collection_id
+               {conditions_deleted}
                {conditions_filter}
         ),
-        collection_filtered AS (
-            SELECT id, last_modified, data
-              FROM records
-             WHERE {parent_id_filter}
-               AND collection_id = :collection_id
-               {conditions_filter}
-        ),
-        fake_deleted AS (
-            SELECT (:deleted_field)::JSONB AS data
-        ),
-        filtered_deleted AS (
-            SELECT id, last_modified, fake_deleted.data AS data
-              FROM deleted, fake_deleted
-             WHERE {parent_id_filter}
-               AND collection_id = :collection_id
-               {conditions_filter}
-               {deleted_limit}
-        ),
-        all_records AS (
-            SELECT * FROM filtered_deleted
-             UNION ALL
-            SELECT * FROM collection_filtered
+        total_filtered AS (
+            SELECT COUNT(id) AS count_total
+              FROM collection_filtered
+             WHERE NOT deleted
         ),
         paginated_records AS (
             SELECT DISTINCT id
-              FROM all_records
+              FROM collection_filtered
               {pagination_rules}
         )
-        SELECT total_filtered.count AS count_total,
+         SELECT count_total,
                a.id, as_epoch(a.last_modified) AS last_modified, a.data
-          FROM paginated_records AS p JOIN all_records AS a ON (a.id = p.id),
+          FROM paginated_records AS p JOIN collection_filtered AS a ON (a.id = p.id),
                total_filtered
           {sorting}
-          LIMIT :pagination_limit;
+         LIMIT :pagination_limit;
         """
-        deleted_field = self.json.dumps(dict([(deleted_field, True)]))
 
         # Unsafe strings escaped by PostgreSQL
         placeholders = dict(parent_id=parent_id,
-                            collection_id=collection_id,
-                            deleted_field=deleted_field)
+                            collection_id=collection_id)
 
         # Safe strings
         safeholders = defaultdict(str)
@@ -666,7 +637,7 @@ class Storage(StorageBase):
             placeholders.update(**holders)
 
         if not include_deleted:
-            safeholders['deleted_limit'] = 'LIMIT 0'
+            safeholders['conditions_deleted'] = 'AND NOT deleted'
 
         if sorting:
             sql, holders = self._format_sorting(sorting, id_field,

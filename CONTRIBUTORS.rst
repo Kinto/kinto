@@ -70,9 +70,11 @@ Contributors
 * SwhGo_oN <@swhgoon>
 * Tarek Ziade <tarek@mozilla.com>
 * Taylor Zane Glaeser <tzglaeser@gmail.com>
+* Thomas Dressler <Thomas.Dressler1@gmail.com>
 * Tiberiu Ichim <@tiberiuichim>
 * Vamsi Sangam <vamsisangam@live.com>
 * Varna Suresh <varna96@gmail.com>
 * Vitor Falcao <vitor.falcaor@gmail.com>
 * Wil Clouser <wclouser@mozilla.com>
 * Yann Klis <yann.klis@gmail.com>
+* Emamurho Ugherughe <emamurho@gmail.com>
