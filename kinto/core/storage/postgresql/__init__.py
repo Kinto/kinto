@@ -269,10 +269,10 @@ class Storage(StorageBase):
         # https://stackoverflow.com/questions/15939902/is-select-or-insert-in-a-function-prone-to-race-conditions/15950324#15950324
         # a WHERE clause in the DO UPDATE will lock the conflicting
         # row whether it is true or not, so the subsequent SELECT is
-        # safe. We add a dummy "inserted" field to know whether we
+        # safe. We add a constant "inserted" field to know whether we
         # need to throw or not.
         query = """
-        WITH ins AS (
+        WITH create_record AS (
             INSERT INTO records (id, parent_id, collection_id, data, last_modified, deleted)
             VALUES (:object_id, :parent_id,
                     :collection_id, (:data)::JSONB,
@@ -285,7 +285,7 @@ class Storage(StorageBase):
             WHERE records.deleted = TRUE
             RETURNING id, data, last_modified
         )
-        SELECT id, data, as_epoch(last_modified) AS last_modified, TRUE AS inserted FROM ins
+        SELECT id, data, as_epoch(last_modified) AS last_modified, TRUE AS inserted FROM create_record
         UNION ALL
         SELECT id, data, as_epoch(last_modified) AS last_modified, FALSE AS inserted FROM records
         WHERE id = :object_id AND parent_id = :parent_id AND collection_id = :collection_id
