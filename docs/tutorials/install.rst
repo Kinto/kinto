@@ -208,7 +208,7 @@ will lose its data, and multiple processes are not handled properly.
 But it should be enough to get started!
 
 
-Create a Python isolated environment (*optional*):
+Create a Python isolated environment (*recommended*):
 
 ::
 
