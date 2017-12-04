@@ -6,7 +6,9 @@ This document describes changes between each past release.
 7.6.3 (unreleased)
 ------------------
 
-- Nothing changed yet.
+**Internal changes**
+
+- Update the Docker compose configuration to use memcache for the cache backend (#1405)
 
 
 7.6.2 (2017-11-28)
