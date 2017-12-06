@@ -6,7 +6,10 @@ This document describes changes between each past release.
 7.6.3 (unreleased)
 ------------------
 
-- Nothing changed yet.
+**Internal changes**
+
+- Optimize the Postgres collection_timestamp method by one query. It
+  now only makes two queries instead of three.
 
 
 7.6.2 (2017-11-28)
