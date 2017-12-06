@@ -3,12 +3,14 @@ from pyramid import httpexceptions
 from pyramid.decorator import reify
 from pyramid.security import Authenticated, Everyone
 from pyramid.settings import aslist
+from pyramid.events import subscriber
+from pyramid.authentication import extract_http_basic_credentials
 
 from kinto.views import NameGenerator
-from kinto.core import resource
+from kinto.core import resource, utils
 from kinto.core.errors import raise_invalid, http_error
+from kinto.core.events import ResourceChanged, ACTIONS
 from .utils import hash_password
-
 
 def _extract_posted_body_id(request):
     try:
@@ -127,3 +129,24 @@ class Account(resource.ShareableResource):
             raise_invalid(self.request, **error_details)
 
         return new
+
+# Clear cache on account change
+@subscriber(ResourceChanged,
+            for_resources=('account',),
+            for_actions=(ACTIONS.UPDATE, ACTIONS.DELETE))
+def on_account_changed(event):
+    request = event.request
+    cache = request.registry.cache
+    settings = request.registry.settings
+    # Extract username and password from current user
+    username, password = extract_http_basic_credentials(request)
+    hmac_secret = settings['userid_hmac_secret']
+    # Assume there is only one change which affects current user
+    change = event.impacted_records[0]
+    old = change['old']
+    new = change['new']
+
+    # Check if password has changed
+    if 'password' not in new or old['password'] != new['password']:
+        cache_key = utils.hmac_digest(hmac_secret, '{}:{}'.format(username, password))
+        cache.delete(cache_key)
