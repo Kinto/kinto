@@ -233,6 +233,7 @@ class Storage(StorageBase):
         INSERT INTO timestamps (parent_id, collection_id, last_modified)
         VALUES (:parent_id, :collection_id, COALESCE(:last_modified, clock_timestamp()::timestamp))
         ON CONFLICT (parent_id, collection_id) DO NOTHING
+        RETURNING as_epoch(last_modified) AS last_epoch
         """
 
         placeholders = dict(parent_id=parent_id, collection_id=collection_id)
@@ -242,10 +243,9 @@ class Storage(StorageBase):
             row = ts_result.fetchone()  # Will return (None, None) when empty.
             existing_ts = row['last_modified']
 
-            conn.execute(create_if_missing, dict(last_modified=existing_ts, **placeholders))
-
-            result = conn.execute(query_existing, placeholders)
-            record = result.fetchone()
+            create_result = conn.execute(create_if_missing,
+                                         dict(last_modified=existing_ts, **placeholders))
+            record = create_result.fetchone() or row
 
         return record['last_epoch']
 
