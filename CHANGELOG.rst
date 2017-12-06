@@ -14,6 +14,12 @@ This document describes changes between each past release.
 
 - New setting ``kinto.backoff_percentage`` to only set the backoff header a portion of the time
 
+**Bug fixes**
+
+- Optimize the Postgres collection_timestamp method by one query. It
+  now only makes two queries instead of three.
+
+
 8.0.0 (2017-11-29)
 ------------------
 
