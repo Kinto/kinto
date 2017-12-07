@@ -443,7 +443,6 @@ class Storage(StorageBase):
                           {pagination_rules}
                     {sorting}
                     LIMIT :pagination_limit
-                    FOR UPDATE
             )
             UPDATE records
                SET deleted=TRUE, data=(:deleted_data)::JSONB
@@ -465,7 +464,6 @@ class Storage(StorageBase):
                           {pagination_rules}
                     {sorting}
                     LIMIT :pagination_limit
-                    FOR UPDATE
             )
             DELETE
             FROM records
