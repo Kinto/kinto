@@ -6,7 +6,11 @@ This document describes changes between each past release.
 7.6.4 (unreleased)
 ------------------
 
-- Nothing changed yet.
+**Internal changes**
+
+- Remove the ``FOR UPDATE`` locking from the delete_all query, on the
+  off chance that it's somehow related to the increased CPU
+  utilization we're seeing.
 
 
 7.6.3 (2017-12-06)
