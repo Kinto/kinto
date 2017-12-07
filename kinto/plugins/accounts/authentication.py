@@ -4,6 +4,7 @@ from pyramid import authentication as base_auth
 from kinto.core import utils
 from kinto.core.storage import exceptions as storage_exceptions
 
+
 def account_check(username, password, request):
     settings = request.registry.settings
     hmac_secret = settings['userid_hmac_secret']
@@ -30,9 +31,9 @@ def account_check(username, password, request):
     hashed = existing['password'].encode(encoding='utf-8')
     pwd_str = password.encode(encoding='utf-8')
     # Check if password is valid (it is a very expensive computation)
-    if bcrypt.checkpw(pwd_str, hashed): # Match!
+    if bcrypt.checkpw(pwd_str, hashed):  # Match!
         # Remember result so we don't have to calculate bcrypt hash next time.
-        cache.set(cache_key, "1", ttl=30) # Time to live: 30 seconds
+        cache.set(cache_key, "1", ttl=30)  # Time to live: 30 seconds
         # Return anything but None.
         return True
 

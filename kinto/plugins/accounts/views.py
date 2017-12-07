@@ -12,6 +12,7 @@ from kinto.core.errors import raise_invalid, http_error
 from kinto.core.events import ResourceChanged, ACTIONS
 from .utils import hash_password
 
+
 def _extract_posted_body_id(request):
     try:
         # Anonymous creation with POST.
@@ -129,6 +130,7 @@ class Account(resource.ShareableResource):
             raise_invalid(self.request, **error_details)
 
         return new
+
 
 # Clear cache on account change
 @subscriber(ResourceChanged,
