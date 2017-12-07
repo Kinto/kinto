@@ -141,12 +141,6 @@ def on_account_changed(event):
     # Extract username and password from current user
     username, password = extract_http_basic_credentials(request)
     hmac_secret = settings['userid_hmac_secret']
-    # Assume there is only one change which affects current user
-    change = event.impacted_records[0]
-    old = change['old']
-    new = change['new']
-
-    # Check if password has changed
-    if 'password' not in new or old['password'] != new['password']:
-        cache_key = utils.hmac_digest(hmac_secret, '{}:{}'.format(username, password))
-        cache.delete(cache_key)
+    cache_key = utils.hmac_digest(hmac_secret, '{}:{}'.format(username, password))
+    # Delete cache
+    cache.delete(cache_key)
