@@ -35,7 +35,7 @@ def on_buckets_deleted(event):
                                collection_id=None,
                                with_deleted=False)
             # Remove remaining tombstones too.
-            storage.purge_deleted(parent_id=pattern,
-                                  collection_id=None)
+            # storage.purge_deleted(parent_id=pattern,
+            #                       collection_id=None)
             # Remove related permissions
             permission.delete_object_permissions(pattern)
