@@ -284,3 +284,41 @@ class BucketDeletionTest(BaseWebTest, unittest.TestCase):
 
         resp = self.app.get("/buckets/ab", headers=self.headers, status=200)
         self.assertEqual(resp.json, before)
+
+
+class BucketDisablePurgeDeletedTest(BaseWebTest, unittest.TestCase):
+
+    bucket_url = '/buckets/beers'
+    collection_url = '/buckets/beers/collections/barley'
+
+    @classmethod
+    def get_app_settings(cls, extras=None):
+        settings = super().get_app_settings(extras)
+        # Give the permission to read, to get an explicit 404 once deleted.
+        settings['kinto.experimental_disable_purge_deleted'] = True
+        return settings
+
+    def test_disable_purge_deleted_doesnt_delete_tombstones(self):
+        self.app.put_json(self.bucket_url, MINIMALIST_BUCKET,
+                          headers=self.headers)
+        self.app.put_json(self.collection_url, MINIMALIST_COLLECTION,
+                          headers=self.headers)
+        resp = self.app.post_json(self.collection_url + '/records',
+                                  MINIMALIST_RECORD,
+                                  headers=self.headers)
+        record_id = resp.json['data']['id']
+        self.record_url = self.collection_url + '/records/{}'.format(record_id)
+        # Create a tombstone
+        self.app.delete(self.record_url, headers=self.headers)
+
+        # Delete the bucket.
+        self.app.delete(self.bucket_url, headers=self.headers)
+
+        # Verify tombstones still exist
+        self.app.put_json(self.bucket_url, MINIMALIST_BUCKET,
+                          headers=self.headers)
+        self.app.put_json(self.collection_url, MINIMALIST_COLLECTION,
+                          headers=self.headers)
+        resp = self.app.get('{}/records?_since=0'.format(self.collection_url),
+                            headers=self.headers)
+        self.assertEqual(len(resp.json['data']), 1)
