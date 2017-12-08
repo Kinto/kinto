@@ -3,10 +3,14 @@ Changelog
 
 This document describes changes between each past release.
 
-7.6.5 (unreleased)
+7.6.5 (2017-12-08)
 ------------------
 
-- Nothing changed yet.
+**Internal changes**
+
+- Introduce an experimental setting,
+  ``experimental_disable_purge_deleted``, which can be used to try to
+  diagnose excessive CPU usage in production.
 
 
 7.6.4 (2017-12-07)
