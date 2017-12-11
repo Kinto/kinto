@@ -60,6 +60,7 @@ Contributors
 * Rodolphe Quiédeville <rodolphe@quiedeville.org>
 * Sahil Dua <sahildua2305@gmail.com>
 * Sebastian Rodriguez <srodrigu85@gmail.com>
+* Stanisław Wasiutyński <https://github.com/stanley>
 * Stephen Daves <contact@stephendaves.com>
 * Stephen Donner <stephen.donner@gmail.com>
 * Shweta Oak <oakshweta11@gmail.com>

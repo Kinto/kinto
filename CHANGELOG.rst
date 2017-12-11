@@ -9,6 +9,7 @@ This document describes changes between each past release.
 **Internal changes**
 
 - Update the Docker compose configuration to use memcache for the cache backend (#1405)
+- Account plugin now caches authentication method (#1413)
 
 
 8.0.0 (2017-11-29)
