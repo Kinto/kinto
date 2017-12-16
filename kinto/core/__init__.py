@@ -26,6 +26,7 @@ __version__ = pkg_resources.get_distribution('kinto').version  # FIXME?
 
 DEFAULT_SETTINGS = {
     'backoff': None,
+    'backoff_percentage': None,
     'batch_max_requests': 25,
     'cache_backend': '',
     'cache_hosts': '',

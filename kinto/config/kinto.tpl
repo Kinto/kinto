@@ -137,6 +137,7 @@ multiauth.policies = basicauth
 # https://kinto.readthedocs.io/en/latest/api/1.x/backoff.html#id1
 #
 # kinto.backoff =
+# kinto.backoff_percentage =
 # kinto.retry_after_seconds = 3
 # kinto.eos =
 # kinto.eos_message =

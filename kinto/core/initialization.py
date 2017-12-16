@@ -3,6 +3,7 @@ import re
 import warnings
 from datetime import datetime
 from dateutil import parser as dateparser
+import random
 
 from pyramid.events import NewRequest, NewResponse
 from pyramid.exceptions import ConfigurationError
@@ -132,7 +133,12 @@ def setup_backoff(config):
         # Add backoff in response headers.
         backoff = config.registry.settings['backoff']
         if backoff is not None:
-            event.response.headers['Backoff'] = str(backoff)
+            backoff_percentage = config.registry.settings['backoff_percentage']
+            if backoff_percentage is not None:
+                if random.random() > (backoff_percentage / 100.0):
+                    event.response.headers['Backoff'] = str(backoff)
+            else:
+                event.response.headers['Backoff'] = str(backoff)
 
     config.add_subscriber(on_new_response, NewResponse)
 
