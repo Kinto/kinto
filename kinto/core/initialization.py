@@ -135,7 +135,7 @@ def setup_backoff(config):
         if backoff is not None:
             backoff_percentage = config.registry.settings['backoff_percentage']
             if backoff_percentage is not None:
-                if random.random() > (backoff_percentage / 100.0):
+                if random.random() < (float(backoff_percentage) / 100.0):
                     event.response.headers['Backoff'] = str(backoff)
             else:
                 event.response.headers['Backoff'] = str(backoff)

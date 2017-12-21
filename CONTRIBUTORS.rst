@@ -7,6 +7,7 @@ Contributors
 * Anh <anh.trinhtrung@gmail.com>
 * Alexis Metaireau <alexis@mozilla.com>
 * Andy McKay <amckay@mozilla.com>
+* Anthony Garuccio <garuccio124@gmail.com>
 * Aymeric Faivre <miho@miho-stories.com>
 * Ayush Sharma <ayush.aceit@gmail.com>
 * Balthazar Rouberol <br@imap.cc>
