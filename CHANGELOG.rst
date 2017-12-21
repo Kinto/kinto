@@ -10,6 +10,9 @@ This document describes changes between each past release.
 
 - Update the Docker compose configuration to use memcache for the cache backend (#1405)
 
+**New features**
+
+- New setting ``kinto.backoff_percentage`` to only set the backoff header a portion of the time
 
 8.0.0 (2017-11-29)
 ------------------

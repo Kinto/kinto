@@ -631,6 +631,10 @@ following flags can be used. Read more about this at :ref:`backoff-indicators`.
 |                           |          | the clients. If set, provides the client with a number of seconds during |
 |                           |          | which it should avoid doing unnecessary requests.                        |
 +---------------------------+----------+--------------------------------------------------------------------------+
+| kinto.backoff_percentage  | ``None`` | If specified, then send the backoff header with probability equal to the |
+|                           |          | backoff_percentage. This should be a number between 0 and 100. This      |
+|                           |          | setting will have no effect if the backoff is None.                      |
++---------------------------+----------+--------------------------------------------------------------------------+
 | kinto.retry_after_seconds | ``30``   | The number of seconds after which the client should issue requests.      |
 +---------------------------+----------+--------------------------------------------------------------------------+
 
