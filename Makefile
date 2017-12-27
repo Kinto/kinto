@@ -26,7 +26,8 @@ help:
 	@echo "  migrate                     run the kinto migrations"
 	@echo "  flake8                      run the flake8 linter"
 	@echo "  tests                       run all the tests with all the supported python interpreters (same as travis)"
-	@echo "  tests-once                  only run the tests once with the default python interpreter"
+	@echo "  tdd                         run pytest-watch to rerun tests automatically on changes for tdd"
+	@echo "  tests-once  	             only run the tests once with the default python interpreter"
 	@echo "  functional                  run functional test against a real kinto"
 	@echo "  clean                       remove *.pyc files and __pycache__ directory"
 	@echo "  distclean                   remove *.egg-info files and *.egg, build and dist directories"
@@ -94,6 +95,9 @@ flake8: install-dev
 
 tests: version-file
 	$(VENV)/bin/tox
+
+tdd: install-dev
+	$(VENV)/bin/ptw --runner $(VENV)/bin/py.test
 
 need-npm:
 	@npm --version 2>/dev/null 1>&2 || (echo "The 'npm' command is required to build the Kinto Admin UI." && exit 1)
