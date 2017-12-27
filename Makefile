@@ -97,8 +97,7 @@ tests: version-file
 	$(VENV)/bin/tox
 
 tdd: install-dev
-	$(VENV)/bin/pip install pytest-watch
-	$(VENV)/bin/ptw
+	$(VENV)/bin/ptw --runner $(VENV)/bin/py.test
 
 need-npm:
 	@npm --version 2>/dev/null 1>&2 || (echo "The 'npm' command is required to build the Kinto Admin UI." && exit 1)
