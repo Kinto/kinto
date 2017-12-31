@@ -10,7 +10,7 @@ SQLAlchemy==1.1.15
 python-memcached==1.59
 tox==2.9.1
 WebTest==2.0.29
-werkzeug==0.13
+werkzeug==0.14
 wheel==0.30.0
 zest.releaser==6.13.3
 zope.sqlalchemy==0.7.7
