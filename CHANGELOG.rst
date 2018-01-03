@@ -10,6 +10,13 @@ This document describes changes between each past release.
 
 - Update the Docker compose configuration to use memcache for the cache backend (#1405)
 
+**Operational concerns**
+
+- *The schema for the Postgres ``storage`` backend has changed.* This
+  changes some ID columns to use the "C" collation, which will make
+  delete_all queries faster. This may change the sort order and
+  grouping of record IDs.
+
 **New features**
 
 - New setting ``kinto.backoff_percentage`` to only set the backoff header a portion of the time
