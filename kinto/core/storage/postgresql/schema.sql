@@ -23,9 +23,9 @@ IMMUTABLE;
 -- Actual records
 --
 CREATE TABLE IF NOT EXISTS records (
-    id TEXT NOT NULL,
-    parent_id TEXT NOT NULL,
-    collection_id TEXT NOT NULL,
+    id TEXT COLLATE "C" NOT NULL,
+    parent_id TEXT COLLATE "C" NOT NULL,
+    collection_id TEXT COLLATE "C" NOT NULL,
 
     -- Timestamp is relevant because adequate semantically.
     -- Since the HTTP API manipulates integers, it could make sense
@@ -127,4 +127,4 @@ INSERT INTO metadata (name, value) VALUES ('created_at', NOW()::TEXT);
 
 -- Set storage schema version.
 -- Should match ``kinto.core.storage.postgresql.PostgreSQL.schema_version``
-INSERT INTO metadata (name, value) VALUES ('storage_schema_version', '18');
+INSERT INTO metadata (name, value) VALUES ('storage_schema_version', '19');
