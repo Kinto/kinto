@@ -23,6 +23,10 @@ IMMUTABLE;
 -- Actual records
 --
 CREATE TABLE IF NOT EXISTS records (
+    -- These are all IDs stored as text, and not human language.
+    -- Therefore, we store them in the C collation. This lets Postgres
+    -- use the index on parent_id for prefix matching (parent_id LIKE
+    -- '/buckets/abc/%').
     id TEXT COLLATE "C" NOT NULL,
     parent_id TEXT COLLATE "C" NOT NULL,
     collection_id TEXT COLLATE "C" NOT NULL,
