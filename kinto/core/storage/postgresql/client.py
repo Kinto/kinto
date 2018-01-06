@@ -7,7 +7,6 @@ from kinto.core.storage import exceptions
 from kinto.core.utils import sqlalchemy
 import transaction as zope_transaction
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -74,7 +73,6 @@ def create_from_config(config, prefix='', with_transaction=True):
     from zope.sqlalchemy import ZopeTransactionExtension, invalidate
     from sqlalchemy.orm import sessionmaker, scoped_session
 
-
     settings = {**config.get_settings()}
 
     # Custom Kinto settings, unsupported by SQLAlchemy.
@@ -84,7 +82,6 @@ def create_from_config(config, prefix='', with_transaction=True):
     filtered_settings = {k: v for k, v in settings.items() if k in white_list}
     transaction_per_request = with_transaction and \
                               filtered_settings.pop('transaction_per_request', False)
-
     url = filtered_settings[prefix + 'url']
     existing_client = _CLIENTS[transaction_per_request].get(url)
     if existing_client:
