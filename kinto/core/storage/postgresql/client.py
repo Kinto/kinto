@@ -80,7 +80,8 @@ def create_from_config(config, prefix='', with_transaction=True):
     settings_key_list = settings.keys()
     white_list = list(filter(lambda x: x not in black_list, settings_key_list))
     filtered_settings = {k: v for k, v in settings.items() if k in white_list}
-    transaction_per_request = with_transaction and filtered_settings.pop('transaction_per_request', False)
+    transaction_per_request = \
+        with_transaction and filtered_settings.pop('transaction_per_request', False)
     url = filtered_settings[prefix + 'url']
     existing_client = _CLIENTS[transaction_per_request].get(url)
     if existing_client:
