@@ -115,6 +115,7 @@ def create_from_config(config, prefix='', with_transaction=True):
 
 
 def create_black_list(prefix=''):
+    '''Creates a blacklisted_settings'''
     black_list = [prefix + 'backend',
                   prefix + 'max_fetch_size',
                   prefix + 'max_size_bytes',
