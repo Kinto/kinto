@@ -79,8 +79,8 @@ def create_from_config(config, prefix='', with_transaction=True):
 
     # Custom Kinto settings, unsupported by SQLAlchemy.
     black_list = create_black_list(prefix)
-    settings_key_list = list(settings.keys())
-    white_list = filter(lambda x: x not in black_list, settings_key_list)
+    settings_key_list = settings.keys()
+    white_list = list(filter(lambda x: x not in black_list, settings_key_list))
     filtered_settings = {k: v for k, v in settings.items() if k in white_list}
     transaction_per_request = with_transaction and \
                               filtered_settings.pop('transaction_per_request', False)
