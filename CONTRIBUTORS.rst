@@ -53,6 +53,7 @@ Contributors
 * Nicolas Perriault <nperriault@mozilla.com>
 * Niraj <https://github.com/niraj8>
 * Oron Gola <oron.golar@gmail.com>
+* Palash Nigam <npalash25@gmail.com>
 * PeriGK <per.gkolias@gmail.com>
 * realsumit <sumitsarinofficial@gmail.com>
 * Rektide <rektide@voodoowarez.com>
