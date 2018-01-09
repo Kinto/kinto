@@ -3,6 +3,12 @@ Changelog
 
 This document describes changes between each past release.
 
+8.1.1 (unreleased)
+------------------
+
+- Nothing changed yet.
+
+
 8.1.0 (2018-01-09)
 ------------------
 
