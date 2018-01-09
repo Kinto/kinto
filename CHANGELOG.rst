@@ -9,6 +9,7 @@ This document describes changes between each past release.
 **Internal changes**
 
 - Update the Docker compose configuration to use memcache for the cache backend (#1405)
+- Refactor the way postgresql.storage.create_from_settings ignores settings (#1410)
 
 **New features**
 
