@@ -18,6 +18,7 @@ Contributors
 * Clément Villain <choclatefr@gmail.com>
 * Dan Phrawzty <phrawzty+github@gmail.com>
 * David Larlet <david@larlet.fr>
+* Emamurho Ugherughe <emamurho@gmail.com>
 * Enguerran Colson <enguerran@ticabri.com>
 * Eric Bréhault <ebrehault@gmail.com>
 * Eric Le Lay <elelay@macports.org>
@@ -78,4 +79,4 @@ Contributors
 * Vitor Falcao <vitor.falcaor@gmail.com>
 * Wil Clouser <wclouser@mozilla.com>
 * Yann Klis <yann.klis@gmail.com>
-* Emamurho Ugherughe <emamurho@gmail.com>
+

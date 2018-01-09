@@ -7,8 +7,10 @@ from kinto.core.storage import exceptions
 from kinto.core.utils import sqlalchemy
 import transaction as zope_transaction
 
-
 logger = logging.getLogger(__name__)
+
+BLACKLISTED_SETTINGS = ['backend', 'max_fetch_size',
+                        'max_size_bytes', 'prefix', 'strict_json', 'hosts']
 
 
 class PostgreSQLClient:
@@ -75,16 +77,14 @@ def create_from_config(config, prefix='', with_transaction=True):
     from sqlalchemy.orm import sessionmaker, scoped_session
 
     settings = {**config.get_settings()}
-    # Custom Kinto settings, unsupported by SQLAlchemy.
-    settings.pop(prefix + 'backend', None)
-    settings.pop(prefix + 'max_fetch_size', None)
-    settings.pop(prefix + 'max_size_bytes', None)
-    settings.pop(prefix + 'prefix', None)
-    settings.pop(prefix + 'strict_json', None)
-    settings.pop(prefix + 'hosts', None)
-    transaction_per_request = with_transaction and settings.pop('transaction_per_request', False)
 
-    url = settings[prefix + 'url']
+    # Custom Kinto settings, unsupported by SQLAlchemy.
+    blacklist = [prefix + setting for setting in BLACKLISTED_SETTINGS]
+    filtered_settings = {k: v for k, v in settings.items()
+                         if k not in blacklist}
+    transaction_per_request = with_transaction \
+        and filtered_settings.pop('transaction_per_request', False)
+    url = filtered_settings[prefix + 'url']
     existing_client = _CLIENTS[transaction_per_request].get(url)
     if existing_client:
         msg = ('Reuse existing PostgreSQL connection. '
@@ -92,12 +92,12 @@ def create_from_config(config, prefix='', with_transaction=True):
         warnings.warn(msg)
         return existing_client
 
-    # Initialize SQLAlchemy engine from settings.
+    # Initialize SQLAlchemy engine from filtered_settings.
     poolclass_key = prefix + 'poolclass'
-    settings.setdefault(poolclass_key, ('kinto.core.storage.postgresql.'
-                                        'pool.QueuePoolWithMaxBacklog'))
-    settings[poolclass_key] = config.maybe_dotted(settings[poolclass_key])
-    engine = sqlalchemy.engine_from_config(settings, prefix=prefix, url=url)
+    filtered_settings.setdefault(poolclass_key, ('kinto.core.storage.postgresql.'
+                                                 'pool.QueuePoolWithMaxBacklog'))
+    filtered_settings[poolclass_key] = config.maybe_dotted(filtered_settings[poolclass_key])
+    engine = sqlalchemy.engine_from_config(filtered_settings, prefix=prefix, url=url)
 
     # Initialize thread-safe session factory.
     options = {}
