@@ -12,10 +12,15 @@ This document describes changes between each past release.
 
 **Operational concerns**
 
-- *The schema for the Postgres ``storage`` backend has changed.* This
+- *The schema for the Postgres storage backend has changed.* This
   changes some ID columns to use the "C" collation, which will make
-  delete_all queries faster. This may change the sort order and
-  grouping of record IDs.
+  ``delete_all`` queries faster. (See
+  e.g. https://www.postgresql.org/docs/9.6/static/indexes-opclass.html,
+  which says "If you do use the C locale, you do not need the
+  xxx_pattern_ops operator classes, because an index with the default
+  operator class is usable for pattern-matching queries in the C
+  locale.") This may change the default sort order and grouping of
+  record IDs.
 
 **New features**
 
