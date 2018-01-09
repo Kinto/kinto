@@ -9,7 +9,9 @@ import transaction as zope_transaction
 
 logger = logging.getLogger(__name__)
 
-BLACKLISTED_SETTINGS = ['backend', 'max_fetch_size', 'max_size_bytes', 'prefix', 'strict_json', 'hosts']
+BLACKLISTED_SETTINGS = ['backend', 'max_fetch_size',
+                        'max_size_bytes', 'prefix', 'strict_json', 'hosts']
+
 
 class PostgreSQLClient:
     def __init__(self, session_factory, commit_manually, invalidate):
@@ -81,7 +83,7 @@ def create_from_config(config, prefix='', with_transaction=True):
     filtered_settings = {k: v for k, v in settings.items()
                          if k not in blacklist}
     transaction_per_request = with_transaction \
-        and filtered_settings.pop('transaction_per_request', False)
+                              and filtered_settings.pop('transaction_per_request', False)
     url = filtered_settings[prefix + 'url']
     existing_client = _CLIENTS[transaction_per_request].get(url)
     if existing_client:
