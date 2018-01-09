@@ -3,7 +3,7 @@ Changelog
 
 This document describes changes between each past release.
 
-8.0.1 (2018-01-09)
+8.1.0 (2018-01-09)
 ------------------
 
 **Internal changes**
