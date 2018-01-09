@@ -9,6 +9,7 @@ import transaction as zope_transaction
 
 logger = logging.getLogger(__name__)
 
+BLACKLISTED_SETTINGS = ['backend', 'max_fetch_size', 'max_size_bytes', 'prefix', 'strict_json', 'hosts']
 
 class PostgreSQLClient:
     def __init__(self, session_factory, commit_manually, invalidate):
@@ -76,12 +77,11 @@ def create_from_config(config, prefix='', with_transaction=True):
     settings = {**config.get_settings()}
 
     # Custom Kinto settings, unsupported by SQLAlchemy.
-    black_list = create_black_list(prefix)
-    settings_key_list = settings.keys()
-    white_list = list(filter(lambda x: x not in black_list, settings_key_list))
-    filtered_settings = {k: v for k, v in settings.items() if k in white_list}
-    transaction_per_request = \
-        with_transaction and filtered_settings.pop('transaction_per_request', False)
+    blacklist = [prefix + setting for setting in BLACKLISTED_SETTINGS]
+    filtered_settings = {k: v for k, v in settings.items()
+                         if k not in blacklist}
+    transaction_per_request = with_transaction \
+        and filtered_settings.pop('transaction_per_request', False)
     url = filtered_settings[prefix + 'url']
     existing_client = _CLIENTS[transaction_per_request].get(url)
     if existing_client:
@@ -109,14 +109,3 @@ def create_from_config(config, prefix='', with_transaction=True):
     client = PostgreSQLClient(session_factory, commit_manually, invalidate)
     _CLIENTS[transaction_per_request][url] = client
     return client
-
-
-def create_black_list(prefix=''):
-    '''Creates a blacklisted_settings'''
-    black_list = [prefix + 'backend',
-                  prefix + 'max_fetch_size',
-                  prefix + 'max_size_bytes',
-                  prefix + 'prefix',
-                  prefix + 'strict_json',
-                  prefix + 'hosts']
-    return black_list
