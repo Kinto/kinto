@@ -12,6 +12,9 @@ env:
   - TOX_ENV=flake8
   - TOX_ENV=docs
 install:
+  - mkdir -p $HOME/bin
+  - curl -fsSL https://testspace-client.s3.amazonaws.com/testspace-linux.tgz | tar -zxvf- -C $HOME/bin
+  - testspace config url $TS_ORG.testspace.com
   - pip install tox
 before_script:
   - echo "Pull request ${TRAVIS_PULL_REQUEST}"
@@ -20,7 +23,17 @@ before_script:
   - psql -c "CREATE DATABASE testdb ENCODING 'UTF8' TEMPLATE template0;" -U postgres
   - make version-file
 script:
-  - tox -e $TOX_ENV
+  - if [[ "${TOX_ENV}" =~ ^py ]] ; then
+      tox -e $TOX_ENV -- --junit-xml=testresults.xml;
+    else
+      tox -e $TOX_ENV;
+    fi
+after_script:
+  - if [[ "${TOX_ENV}" =~ ^py ]] ; then
+      testspace [${TOX_ENV}]testresults.xml{tests};
+    elif [[ "${ENV}" = "functional" ]] ; then
+      testspace [${ENV}]testresults.xml{tests};
+    fi
 after_success:
   # Report coverage results to coveralls.io
   - pip install coveralls

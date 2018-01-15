@@ -110,7 +110,7 @@ runkinto: install-dev
 	$(VENV)/bin/kinto start --ini tests/functional.ini
 
 functional: install-dev need-kinto-running
-	$(VENV)/bin/py.test tests/functional.py
+	$(VENV)/bin/py.test tests/functional.py --junit-xml=testresults.xml
 
 clean:
 	find . -name '*.pyc' -delete
