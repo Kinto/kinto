@@ -3,13 +3,48 @@ Changelog
 
 This document describes changes between each past release.
 
-8.0.1 (unreleased)
+8.1.1 (unreleased)
+------------------
+
+- Nothing changed yet.
+
+
+8.1.0 (2018-01-09)
 ------------------
 
 **Internal changes**
 
 - Update the Docker compose configuration to use memcache for the cache backend (#1405)
+- Refactor the way postgresql.storage.create_from_settings ignores settings (#1410)
 
+**Operational concerns**
+
+- *The schema for the Postgres storage backend has changed.* This
+  changes some ID columns to use the "C" collation, which will make
+  ``delete_all`` queries faster. (See
+  e.g. https://www.postgresql.org/docs/9.6/static/indexes-opclass.html,
+  which says "If you do use the C locale, you do not need the
+  xxx_pattern_ops operator classes, because an index with the default
+  operator class is usable for pattern-matching queries in the C
+  locale.") This may change the default sort order and grouping of
+  record IDs.
+
+**New features**
+
+- New setting ``kinto.backoff_percentage`` to only set the backoff header a portion of the time.
+- ``make tdd`` allows development in a TDD style by rerunning tests every time a file is changed.
+
+**Bug fixes**
+
+- Optimize the Postgres collection_timestamp method by one query. It
+  now only makes two queries instead of three.
+- Update other dependencies: newrelic to 2.98.0.81 (#1409), setuptools
+  to 38.4.0 (#1411, #1429, #1438, #1440), pytest to 3.3.2 (#1412,
+  #1437), raven to 6.4.0 (#1421), werkzeug to 0.14.1 (#1418, #1434),
+  python-memcached to 1.59 (#1423), zest.releaser to 6.13.3 (#1427),
+  bravado_core to 4.11.2 (#1426, #1441), statsd to 3.2.2 (#1422),
+  jsonpatch to 1.21 (#1432), sqlalchemy to 1.2.0 (#1430), sphinx to
+  1.6.6 (#1442).
 
 8.0.0 (2017-11-29)
 ------------------

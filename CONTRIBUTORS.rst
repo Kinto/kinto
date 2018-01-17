@@ -7,6 +7,7 @@ Contributors
 * Anh <anh.trinhtrung@gmail.com>
 * Alexis Metaireau <alexis@mozilla.com>
 * Andy McKay <amckay@mozilla.com>
+* Anthony Garuccio <garuccio124@gmail.com>
 * Aymeric Faivre <miho@miho-stories.com>
 * Ayush Sharma <ayush.aceit@gmail.com>
 * Balthazar Rouberol <br@imap.cc>
@@ -17,6 +18,7 @@ Contributors
 * Clément Villain <choclatefr@gmail.com>
 * Dan Phrawzty <phrawzty+github@gmail.com>
 * David Larlet <david@larlet.fr>
+* Emamurho Ugherughe <emamurho@gmail.com>
 * Enguerran Colson <enguerran@ticabri.com>
 * Eric Bréhault <ebrehault@gmail.com>
 * Eric Le Lay <elelay@macports.org>
@@ -52,6 +54,7 @@ Contributors
 * Nicolas Perriault <nperriault@mozilla.com>
 * Niraj <https://github.com/niraj8>
 * Oron Gola <oron.golar@gmail.com>
+* Palash Nigam <npalash25@gmail.com>
 * PeriGK <per.gkolias@gmail.com>
 * realsumit <sumitsarinofficial@gmail.com>
 * Rektide <rektide@voodoowarez.com>
@@ -77,4 +80,4 @@ Contributors
 * Vitor Falcao <vitor.falcaor@gmail.com>
 * Wil Clouser <wclouser@mozilla.com>
 * Yann Klis <yann.klis@gmail.com>
-* Emamurho Ugherughe <emamurho@gmail.com>
+
