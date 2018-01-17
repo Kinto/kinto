@@ -3,10 +3,10 @@ Changelog
 
 This document describes changes between each past release.
 
-7.6.6 (unreleased)
+7.6.6 (2018-01-17)
 ------------------
 
-- Nothing changed yet.
+- Bump requirements to match 8.1.0.
 
 
 7.6.5 (2017-12-08)
