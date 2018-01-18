@@ -50,8 +50,8 @@ CREATE INDEX IF NOT EXISTS idx_records_last_modified_epoch
 
 
 CREATE TABLE IF NOT EXISTS timestamps (
-  parent_id TEXT NOT NULL,
-  collection_id TEXT NOT NULL,
+  parent_id TEXT NOT NULL COLLATE "C",
+  collection_id TEXT NOT NULL COLLATE "C",
   last_modified TIMESTAMP NOT NULL,
   PRIMARY KEY (parent_id, collection_id)
 );
@@ -131,4 +131,4 @@ INSERT INTO metadata (name, value) VALUES ('created_at', NOW()::TEXT);
 
 -- Set storage schema version.
 -- Should match ``kinto.core.storage.postgresql.PostgreSQL.schema_version``
-INSERT INTO metadata (name, value) VALUES ('storage_schema_version', '19');
+INSERT INTO metadata (name, value) VALUES ('storage_schema_version', '20');
