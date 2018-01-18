@@ -50,8 +50,8 @@ CREATE INDEX IF NOT EXISTS idx_records_last_modified_epoch
 
 
 CREATE TABLE IF NOT EXISTS timestamps (
-  parent_id TEXT NOT NULL,
-  collection_id TEXT NOT NULL,
+  parent_id TEXT NOT NULL COLLATE "C",
+  collection_id TEXT NOT NULL COLLATE "C",
   last_modified TIMESTAMP NOT NULL,
   PRIMARY KEY (parent_id, collection_id)
 );
