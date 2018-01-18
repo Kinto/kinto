@@ -322,7 +322,7 @@ def install_middlewares(app, settings):
 
 def setup_logging(config):
     """Setup structured logging, and emit `request.summary` event on each
-    request, as recommanded by Mozilla Services standard:
+    request, as recommended by Mozilla Services standard:
 
     * https://mana.mozilla.org/wiki/display/CLOUDSERVICES/Logging+Standard
     * http://12factor.net/logs
