@@ -192,13 +192,13 @@ class Storage(StorageBase):
                 return 1
 
     def flush(self, auth=None):
-        """Delete records from tables without destroying schema. Mainly used
-        in tests suites.
+        """Delete records from tables without destroying schema.
+
+        This is used in test suites as well as in the flush plugin.
         """
         query = """
         DELETE FROM records;
         DELETE FROM timestamps;
-        DELETE FROM metadata;
         """
         with self.client.connect(force_commit=True) as conn:
             conn.execute(query)
