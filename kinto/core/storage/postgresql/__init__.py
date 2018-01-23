@@ -120,12 +120,14 @@ class Storage(StorageBase, Migrator):
     def _get_installed_version(self):
         """Return current version of schema or None if not any found.
         """
-        query = "SELECT tablename FROM pg_tables WHERE tablename = 'metadata';"
+        # Check for records table, which definitely indicates a new
+        # DB. (metadata can exist if the permission schema ran first.)
+        query = "SELECT table_name FROM information_schema.tables WHERE table_name = 'records';"
         with self.client.connect() as conn:
             result = conn.execute(query)
-            tables_exist = result.rowcount > 0
+            records_table_exists = result.rowcount > 0
 
-        if not tables_exist:
+        if not records_table_exists:
             return
 
         query = """
