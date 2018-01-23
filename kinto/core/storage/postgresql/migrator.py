@@ -30,7 +30,7 @@ class MigratorMixin():
     """
     migrations_directory = None
 
-    def _get_installed_version(self):
+    def get_installed_version(self):
         """Return current version of schema or None if none found.
 
         Override this.
@@ -41,7 +41,7 @@ class MigratorMixin():
 
     def create_or_migrate_schema(self, dry_run=False):
         """Either create or migrate the schema, as needed."""
-        version = self._get_installed_version()
+        version = self.get_installed_version()
         if not version:
             self.create_schema(dry_run)
             return
@@ -70,7 +70,7 @@ class MigratorMixin():
         migrations = [(v, v + 1) for v in range(start_version, self.schema_version)]
         for migration in migrations:
             expected = migration[0]
-            current = self._get_installed_version()
+            current = self.get_installed_version()
             error_msg = 'PostgreSQL {} schema: Expected version {}. Found version {}.'
             if not dry_run and expected != current:
                 raise AssertionError(error_msg.format(self.name, expected, current))

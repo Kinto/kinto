@@ -30,7 +30,7 @@ class MigratorTest(unittest.TestCase):
         self.migrator.schema_version = 6
         # Patch to keep track of SQL files executed.
         with mock.patch.object(self.migrator, '_execute_sql_file') as execute_sql:
-            with mock.patch.object(self.migrator, '_get_installed_version') as installed_version:
+            with mock.patch.object(self.migrator, 'get_installed_version') as installed_version:
                 installed_version.return_value = 6
                 self.migrator.create_or_migrate_schema()
                 self.assertFalse(execute_sql.called)
@@ -39,7 +39,7 @@ class MigratorTest(unittest.TestCase):
         self.migrator.schema_version = 6
 
         versions = [6, 5, 4, 3, 3]
-        self.migrator._get_installed_version = lambda: versions.pop()
+        self.migrator.get_installed_version = lambda: versions.pop()
 
         with mock.patch.object(self.migrator, '_execute_sql_file') as execute_sql:
             self.migrator.create_or_migrate_schema()
@@ -54,7 +54,7 @@ class MigratorTest(unittest.TestCase):
         self.migrator.schema_version = 6
 
         versions = [6, 5, 4, 3, 3]
-        self.migrator._get_installed_version = lambda: versions.pop()
+        self.migrator.get_installed_version = lambda: versions.pop()
 
         with mock.patch('kinto.core.storage.postgresql.migrator.logger') as mocked:
             self.migrator.create_or_migrate_schema(dry_run=True)
@@ -67,7 +67,7 @@ class MigratorTest(unittest.TestCase):
     def test_migration_fails_if_intermediary_version_is_missing(self):
         self.migrator.schema_version = 6
         with mock.patch.object(self.migrator,
-                               '_get_installed_version') as current:
+                               'get_installed_version') as current:
             with mock.patch.object(self.migrator,
                                    '_execute_sql_file'):
                 current.return_value = -1
@@ -128,7 +128,7 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
         self.assertEqual(result.rowcount, 0)
 
     def test_schema_sets_the_current_version(self):
-        version = self.storage._get_installed_version()
+        version = self.storage.get_installed_version()
         self.assertEqual(version, self.version)
 
     def test_schema_is_considered_first_version_if_no_version_detected(self):
@@ -136,14 +136,14 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
             q = "DELETE FROM metadata WHERE name = 'storage_schema_version';"
             conn.execute(q)
 
-        self.assertEqual(self.storage._get_installed_version(), 1)
+        self.assertEqual(self.storage.get_installed_version(), 1)
 
     def test_schema_is_considered_20_if_server_is_wiped(self):
         with self.storage.client.connect() as conn:
             q = "DELETE FROM metadata;"
             conn.execute(q)
 
-        self.assertEqual(self.storage._get_installed_version(), 20)
+        self.assertEqual(self.storage.get_installed_version(), 20)
 
     def test_every_available_migration(self):
         """Test every migration available in kinto.core code base since
@@ -175,14 +175,14 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
             before['last_modified'] = inserted['last_modified']
 
         # In cliquet 1.6, version = 1.
-        version = self.storage._get_installed_version()
+        version = self.storage.get_installed_version()
         self.assertEqual(version, 1)
 
         # Run every migrations available.
         self.storage.initialize_schema()
 
         # Version matches current one.
-        version = self.storage._get_installed_version()
+        version = self.storage.get_installed_version()
         self.assertEqual(version, self.version)
 
         # Check that previously created record is still here
@@ -200,7 +200,7 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
         self.storage.flush()
         self.storage.initialize_schema()
         # Version matches current one.
-        version = self.storage._get_installed_version()
+        version = self.storage.get_installed_version()
         self.assertEqual(version, self.version)
 
     def test_migration_12_clean_tombstones(self):
@@ -322,7 +322,7 @@ class PostgresqlPermissionMigrationTest(unittest.TestCase):
         with self.permission.client.connect() as conn:
             conn.execute(q)
 
-        self.assertEqual(self.permission._get_installed_version(), 1)
+        self.assertEqual(self.permission.get_installed_version(), 1)
 
     def test_assumes_schema_1_if_no_metadata_table(self):
         self.permission.initialize_schema()
@@ -332,7 +332,7 @@ class PostgresqlPermissionMigrationTest(unittest.TestCase):
         with self.permission.client.connect() as conn:
             conn.execute(q)
 
-        self.assertEqual(self.permission._get_installed_version(), 1)
+        self.assertEqual(self.permission.get_installed_version(), 1)
 
     def test_assumes_no_schema_if_no_user_principals_table(self):
         # Verify that the permission migrations assume no schema if
@@ -346,11 +346,11 @@ class PostgresqlPermissionMigrationTest(unittest.TestCase):
         with self.permission.client.connect() as conn:
             conn.execute(q)
 
-        self.assertEqual(self.permission._get_installed_version(), None)
+        self.assertEqual(self.permission.get_installed_version(), None)
 
     def test_schema_creation_leaves_at_max_version(self):
         self.permission.initialize_schema()
-        self.assertEqual(self.permission._get_installed_version(), self.permission.schema_version)
+        self.assertEqual(self.permission.get_installed_version(), self.permission.schema_version)
 
     def test_runs_initialize_schema_if_using_it_fails(self):
         self.permission.initialize_schema()
@@ -391,14 +391,14 @@ class PostgresqlPermissionMigrationTest(unittest.TestCase):
             """
             conn.execute(query)
 
-        version = self.permission._get_installed_version()
+        version = self.permission.get_installed_version()
         self.assertEqual(version, 1)
 
         # Run every migrations available.
         self.permission.initialize_schema()
 
         # Version matches current one.
-        version = self.permission._get_installed_version()
+        version = self.permission.get_installed_version()
         self.assertEqual(version, self.permission.schema_version)
 
         # Check that previously created data is still available

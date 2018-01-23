@@ -118,7 +118,7 @@ class Storage(StorageBase, MigratorMixin):
         if encoding != 'utf8':  # pragma: no cover
             raise AssertionError('Unexpected database encoding {}'.format(encoding))
 
-    def _get_installed_version(self):
+    def get_installed_version(self):
         """Return current version of schema or None if not any found.
         """
         # Check for records table, which definitely indicates a new

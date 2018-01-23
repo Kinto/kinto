@@ -79,7 +79,7 @@ class Permission(PermissionBase, MigratorMixin):
     def initialize_schema(self, dry_run=False):
         return self.create_or_migrate_schema(dry_run)
 
-    def _get_installed_version(self):
+    def get_installed_version(self):
         """Return current version of schema or None if not any found.
 
         Migrations were only added to the permission backend in
