@@ -140,33 +140,33 @@ class Storage(StorageBase, Migrator):
             result = conn.execute(query)
             if result.rowcount > 0:
                 return int(result.fetchone()['version'])
-            else:
-                # No storage_schema_version row.
-                # Perhaps it got flush()ed by a pre-8.1.2 Kinto (which
-                # would wipe the metadata table).
-                # Alternately, maybe we are working from a very early
-                # Cliquet version which never had a migration.
-                # Check for a created_at row. If this is gone, it's
-                # probably been flushed at some point.
-                query = "SELECT COUNT(*) FROM metadata WHERE name = 'created_at';"
-                result = conn.execute(query)
-                was_flushed = int(result.fetchone()[0]) == 0
-                if not was_flushed:
-                    error_msg = 'No schema history; assuming migration from Cliquet (version 1).'
-                    logger.warning(error_msg)
-                    return 1
 
-                # We have no idea what the schema is here. Migration
-                # is completely broken.
-                # Log an obsequious error message to the user and try
-                # to recover by assuming the last version where we had
-                # this bug.
-                logger.warning(UNKNOWN_SCHEMA_VERSION_MESSAGE)
+            # No storage_schema_version row.
+            # Perhaps it got flush()ed by a pre-8.1.2 Kinto (which
+            # would wipe the metadata table).
+            # Alternately, maybe we are working from a very early
+            # Cliquet version which never had a migration.
+            # Check for a created_at row. If this is gone, it's
+            # probably been flushed at some point.
+            query = "SELECT COUNT(*) FROM metadata WHERE name = 'created_at';"
+            result = conn.execute(query)
+            was_flushed = int(result.fetchone()[0]) == 0
+            if not was_flushed:
+                error_msg = 'No schema history; assuming migration from Cliquet (version 1).'
+                logger.warning(error_msg)
+                return 1
 
-                # This is the last schema version where flushing the
-                # server would delete the schema version.
-                MAX_FLUSHABLE_SCHEMA_VERSION = 20
-                return MAX_FLUSHABLE_SCHEMA_VERSION
+            # We have no idea what the schema is here. Migration
+            # is completely broken.
+            # Log an obsequious error message to the user and try
+            # to recover by assuming the last version where we had
+            # this bug.
+            logger.warning(UNKNOWN_SCHEMA_VERSION_MESSAGE)
+
+            # This is the last schema version where flushing the
+            # server would delete the schema version.
+            MAX_FLUSHABLE_SCHEMA_VERSION = 20
+            return MAX_FLUSHABLE_SCHEMA_VERSION
 
     def flush(self, auth=None):
         """Delete records from tables without destroying schema.
