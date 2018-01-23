@@ -12,38 +12,34 @@ from kinto.core.storage.postgresql.migrator import MigratorMixin
 from kinto.core.testing import skip_if_no_postgresql
 
 
+@mock.patch.object(MigratorMixin, '_execute_sql_file')
 class MigratorTest(unittest.TestCase):
     def setUp(self):
         self.migrator = MigratorMixin()
         here = os.path.dirname(__file__)
         migrations_directory = os.path.join(here, 'migrations')
         self.migrator.migrations_directory = migrations_directory
-
-    def test_schema_is_created_if_no_version(self):
         self.migrator.schema_version = 6
+
+    def test_schema_is_created_if_no_version(self, execute_sql):
         with mock.patch.object(self.migrator, 'create_schema') as create_schema:
             with mock.patch.object(self.migrator, 'get_installed_version') as installed_version:
                 installed_version.return_value = None
                 self.migrator.create_or_migrate_schema()
         self.assertTrue(create_schema.called)
 
-    def test_schema_is_not_touched_if_already_current(self):
-        self.migrator.schema_version = 6
+    def test_schema_is_not_touched_if_already_current(self, execute_sql):
         # Patch to keep track of SQL files executed.
-        with mock.patch.object(self.migrator, '_execute_sql_file') as execute_sql:
-            with mock.patch.object(self.migrator, 'get_installed_version') as installed_version:
-                installed_version.return_value = 6
-                self.migrator.create_or_migrate_schema()
-                self.assertFalse(execute_sql.called)
+        with mock.patch.object(self.migrator, 'get_installed_version') as installed_version:
+            installed_version.return_value = 6
+            self.migrator.create_or_migrate_schema()
+        self.assertFalse(execute_sql.called)
 
-    def test_migration_file_is_executed_for_every_intermediary_version(self):
-        self.migrator.schema_version = 6
-
+    def test_migration_file_is_executed_for_every_intermediary_version(self, execute_sql):
         versions = [6, 5, 4, 3, 3]
         self.migrator.get_installed_version = lambda: versions.pop()
 
-        with mock.patch.object(self.migrator, '_execute_sql_file') as execute_sql:
-            self.migrator.create_or_migrate_schema()
+        self.migrator.create_or_migrate_schema()
         sql_called = execute_sql.call_args_list[-3][0][0]
         self.assertIn('migrations/migration_003_004.sql', sql_called)
         sql_called = execute_sql.call_args_list[-2][0][0]
@@ -51,9 +47,7 @@ class MigratorTest(unittest.TestCase):
         sql_called = execute_sql.call_args_list[-1][0][0]
         self.assertIn('migrations/migration_005_006.sql', sql_called)
 
-    def test_migration_files_are_listed_if_ran_with_dry_run(self):
-        self.migrator.schema_version = 6
-
+    def test_migration_files_are_listed_if_ran_with_dry_run(self, execute_sql):
         versions = [6, 5, 4, 3, 3]
         self.migrator.get_installed_version = lambda: versions.pop()
 
@@ -65,14 +59,12 @@ class MigratorTest(unittest.TestCase):
         self.assertIn('migrations/migration_004_005.sql', output)
         self.assertIn('migrations/migration_005_006.sql', output)
 
-    def test_migration_fails_if_intermediary_version_is_missing(self):
+    def test_migration_fails_if_intermediary_version_is_missing(self, execute_sql):
         self.migrator.schema_version = 6
         with mock.patch.object(self.migrator,
                                'get_installed_version') as current:
-            with mock.patch.object(self.migrator,
-                                   '_execute_sql_file'):
-                current.return_value = -1
-                self.assertRaises(AssertionError, self.migrator.create_or_migrate_schema)
+            current.return_value = -1
+            self.assertRaises(AssertionError, self.migrator.create_or_migrate_schema)
 
 
 @skip_if_no_postgresql
