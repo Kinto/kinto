@@ -301,9 +301,48 @@ class PostgresqlPermissionMigrationTest(unittest.TestCase):
         q = """
         DROP TABLE IF EXISTS access_control_entries CASCADE;
         DROP TABLE IF EXISTS user_principals CASCADE;
+        DROP TABLE IF EXISTS metadata CASCADE;
         """
         with self.permission.client.connect() as conn:
             conn.execute(q)
+
+    def test_assumes_schema_1_if_no_permission_schema_version(self):
+        self.permission.initialize_schema()
+        q = """
+        DELETE FROM metadata WHERE name = 'permission_schema_version';
+        """
+        with self.permission.client.connect() as conn:
+            conn.execute(q)
+
+        self.assertEqual(self.permission._get_installed_version(), 1)
+
+    def test_assumes_schema_1_if_no_metadata_table(self):
+        self.permission.initialize_schema()
+        q = """
+        DROP TABLE metadata;
+        """
+        with self.permission.client.connect() as conn:
+            conn.execute(q)
+
+        self.assertEqual(self.permission._get_installed_version(), 1)
+
+    def test_assumes_no_schema_if_no_user_principals_table(self):
+        # Verify that the permission migrations assume no schema if
+        # the user_principals table is missing, even if the metadata
+        # table is present from the storage migrations.
+        self.permission.initialize_schema()
+        q = """
+        DELETE FROM metadata WHERE name = 'permission_schema_version';
+        DROP TABLE user_principals;
+        """
+        with self.permission.client.connect() as conn:
+            conn.execute(q)
+
+        self.assertEqual(self.permission._get_installed_version(), None)
+
+    def test_schema_creation_leaves_at_max_version(self):
+        self.permission.initialize_schema()
+        self.assertEqual(self.permission._get_installed_version(), self.permission.schema_version)
 
     def test_runs_initialize_schema_if_using_it_fails(self):
         self.permission.initialize_schema()
