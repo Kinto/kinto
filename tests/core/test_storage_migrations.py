@@ -16,7 +16,8 @@ class MigratorTest(unittest.TestCase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.migrator = Migrator()
-        migrations_directory = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'migrations')
+        here = os.path.abspath(os.path.dirname(__file__))
+        migrations_directory = os.path.join(here, 'migrations')
         self.migrator.migrations_directory = migrations_directory
 
     def test_schema_is_created_if_no_version(self):
@@ -388,7 +389,7 @@ class PostgresqlPermissionMigrationTest(unittest.TestCase):
               ('sailboat/log', 'read', 'system.Authenticated'),
               ('sailboat/log', 'write', 'admin');
             """
-            result = conn.execute(query)
+            conn.execute(query)
 
         version = self.permission._get_installed_version()
         self.assertEqual(version, 1)
@@ -404,14 +405,19 @@ class PostgresqlPermissionMigrationTest(unittest.TestCase):
         remy_principals = self.permission.get_user_principals('remy')
         self.assertEqual(remy_principals, set(['admin']))
 
-        remy_objects = self.permission.get_accessible_objects(['remy', 'admin', 'system.Authenticated'])
-        self.assertEqual(remy_objects, {'sailboat': set(['write']), 'sailboat/log': set(['read', 'write'])})
+        remy_objects = self.permission.get_accessible_objects(
+            ['remy', 'admin', 'system.Authenticated'])
+        self.assertEqual(remy_objects, {
+            'sailboat': set(['write']),
+            'sailboat/log': set(['read', 'write']),
+        })
 
         # Check that new records can be created
-        r = self.permission.add_user_principal('ethan', 'crew')
+        self.permission.add_user_principal('ethan', 'crew')
 
         # And deleted
         self.permission.remove_principal_from_ace('sailboat/log', 'read', 'system.Authenticated')
+
 
 @skip_if_no_postgresql
 class PostgresqlCacheMigrationTest(unittest.TestCase):

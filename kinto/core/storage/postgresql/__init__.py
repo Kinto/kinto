@@ -15,6 +15,7 @@ from kinto.core.utils import COMPARISON
 logger = logging.getLogger(__name__)
 HERE = os.path.abspath(os.path.dirname(__file__))
 
+
 class Storage(StorageBase, Migrator):
     """Storage backend using PostgreSQL.
 
