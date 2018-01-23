@@ -82,9 +82,9 @@ class Migrator(object):
             logger.info('Execute PostgreSQL {} migration from {}'.format(self.name, filepath))
             if not dry_run:
                 self._execute_sql_file(filepath)
-        logger.info('PostgreSQL {} schema migration {}'.format(
+        logger.info('PostgreSQL {} schema migration {}.'.format(
             self.name,
-            'simulated.' if dry_run else 'done.'))
+            'simulated' if dry_run else 'done'))
 
     def _execute_sql_file(self, filepath):
         """Helper method to execute the SQL in a file."""
