@@ -4,14 +4,14 @@
 SET client_min_messages TO ERROR;
 
 CREATE TABLE IF NOT EXISTS user_principals (
-    user_id TEXT,
+    user_id TEXT COLLATE "C",
     principal TEXT,
 
     PRIMARY KEY (user_id, principal)
 );
 
 CREATE TABLE IF NOT EXISTS access_control_entries (
-    object_id TEXT,
+    object_id TEXT COLLATE "C",
     permission TEXT,
     principal TEXT,
 
