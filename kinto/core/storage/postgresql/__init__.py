@@ -179,17 +179,32 @@ class Storage(StorageBase):
             if result.rowcount > 0:
                 return int(result.fetchone()['version'])
             else:
-                # Guess current version.
-                query = 'SELECT COUNT(*) FROM metadata;'
+                # No storage_schema_version row.
+                # Perhaps it got flush()ed by a pre-8.1.2 Kinto (which
+                # would wipe the metadata table).
+                # Alternately, maybe we are working from a very early
+                # Cliquet version which never had a migration.
+                # Check for a created_at row. If this is gone, it's
+                # probably been flushed at some point.
+                query = "SELECT COUNT(*) FROM metadata WHERE name = 'created_at';"
                 result = conn.execute(query)
                 was_flushed = int(result.fetchone()[0]) == 0
-                if was_flushed:
-                    error_msg = 'Missing schema history: consider version {}.'
-                    logger.warning(error_msg.format(self.schema_version))
-                    return self.schema_version
+                if not was_flushed:
+                    error_msg = 'No schema history; assuming migration from Cliquet (version 1).'
+                    logger.warning(error_msg)
+                    return 1
 
-                # In the first versions of Cliquet, there was no migration.
-                return 1
+                # We have no idea what the schema is here. Migration
+                # is completely broken.
+                # Log an obsequious error message to the user and try
+                # to recover by assuming the last version where we had
+                # this bug.
+                logger.warning(UNKNOWN_SCHEMA_VERSION_MESSAGE)
+
+                # This is the last schema version where flushing the
+                # server would delete the schema version.
+                MAX_FLUSHABLE_SCHEMA_VERSION = 20
+                return MAX_FLUSHABLE_SCHEMA_VERSION
 
     def flush(self, auth=None):
         """Delete records from tables without destroying schema.
@@ -900,3 +915,28 @@ def load_from_config(config):
     strict = settings.get('storage_strict_json', False)
     client = create_from_config(config, prefix='storage_')
     return Storage(client=client, max_fetch_size=max_fetch_size, strict_json=strict)
+
+
+UNKNOWN_SCHEMA_VERSION_MESSAGE = """
+Missing schema history. Perhaps at some point, this Kinto server was
+flushed.  Due to a bug in older Kinto versions (see
+https://github.com/Kinto/kinto/issues/1460), flushing the server would
+cause us to forget what version of the schema was in use. This means
+automatic migration is impossible.
+
+Historically, when this happened, Kinto would just assume that the
+wiped server had the "current" schema, so you may have been missing a
+schema version for quite some time.
+
+To try to recover, we have assumed a schema version corresponding to
+the last Kinto version with this bug (schema version 20). However, if
+a migration fails, or most queries are broken, you may not actually be
+running that schema. You can try to fix this by manually setting the
+schema version in the database to what you think it should be using a
+command like:
+
+    INSERT INTO metadata VALUES ('storage_schema_version', '19');
+
+See https://github.com/Kinto/kinto/wiki/Schema-versions for more details.
+
+""".strip()
