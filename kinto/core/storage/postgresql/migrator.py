@@ -9,7 +9,11 @@ logger = logging.getLogger(__name__)
 
 
 class Migrator(object):
-    """Mixin to allow the running of migrations."""
+    """Mixin to allow the running of migrations.
+
+    Your class must provide a `client` attribute (a PostgreSQLClient),
+    as well as override some class attributes.
+    """
 
     """Name of this migrator (e.g. "storage"). Override this."""
     name = None
