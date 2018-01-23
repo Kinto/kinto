@@ -123,22 +123,25 @@ class Storage(StorageBase, Migrator):
         """
         # Check for records table, which definitely indicates a new
         # DB. (metadata can exist if the permission schema ran first.)
-        query = "SELECT table_name FROM information_schema.tables WHERE table_name = 'records';"
-        with self.client.connect() as conn:
-            result = conn.execute(query)
-            records_table_exists = result.rowcount > 0
-
-        if not records_table_exists:
-            return
-
-        query = """
+        records_table_query = """
+        SELECT table_name
+          FROM information_schema.tables
+         WHERE table_name = 'records';
+        """
+        schema_version_metadata_query = """
         SELECT value AS version
           FROM metadata
          WHERE name = 'storage_schema_version'
          ORDER BY LPAD(value, 3, '0') DESC;
         """
         with self.client.connect() as conn:
-            result = conn.execute(query)
+            result = conn.execute(records_table_query)
+            records_table_exists = result.rowcount > 0
+
+            if not records_table_exists:
+                return
+
+            result = conn.execute(schema_version_metadata_query)
             if result.rowcount > 0:
                 return int(result.fetchone()['version'])
 
