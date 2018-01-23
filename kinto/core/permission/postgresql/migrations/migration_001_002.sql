@@ -6,6 +6,9 @@ CREATE TABLE IF NOT EXISTS metadata (
     value VARCHAR(512) NOT NULL
 );
 
+-- IDs are not really human language text, so set them to be COLLATE
+-- "C" rather than the DB default collation. This also speeds up
+-- prefix-match queries (object_id LIKE '/bucket/abc/%').
 ALTER TABLE user_principals
     ALTER COLUMN user_id TYPE TEXT COLLATE "C";
 

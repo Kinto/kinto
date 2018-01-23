@@ -4,6 +4,10 @@
 SET client_min_messages TO ERROR;
 
 CREATE TABLE IF NOT EXISTS user_principals (
+    -- IDs are not really human language text, so set them to be
+    -- COLLATE "C" rather than the DB default collation. This also
+    -- speeds up prefix-match queries (object_id LIKE
+    -- '/bucket/abc/%').
     user_id TEXT COLLATE "C",
     principal TEXT,
 
@@ -11,6 +15,8 @@ CREATE TABLE IF NOT EXISTS user_principals (
 );
 
 CREATE TABLE IF NOT EXISTS access_control_entries (
+    -- Use COLLATE "C" as above because object IDs are really URLs,
+    -- not human text.
     object_id TEXT COLLATE "C",
     permission TEXT,
     principal TEXT,
