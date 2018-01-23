@@ -12,4 +12,4 @@ ALTER TABLE user_principals
 ALTER TABLE access_control_entries
     ALTER COLUMN object_id TYPE TEXT COLLATE "C";
 
-INSERT INTO metadata VALUES ('permission_schema_version', '2');
+INSERT INTO metadata (name, value) VALUES ('permission_schema_version', '2');
