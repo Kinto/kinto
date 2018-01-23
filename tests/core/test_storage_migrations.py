@@ -13,8 +13,7 @@ from kinto.core.testing import skip_if_no_postgresql
 
 
 class MigratorTest(unittest.TestCase):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def setUp(self):
         self.migrator = MigratorMixin()
         here = os.path.dirname(__file__)
         migrations_directory = os.path.join(here, 'migrations')
