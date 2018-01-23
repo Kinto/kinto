@@ -52,7 +52,6 @@ class MigratorMixin():
             return
 
         self.migrate_schema(version, dry_run)
-        return
 
     def create_schema(self, dry_run):
         """Actually create the schema from scratch using self.schema_file.
