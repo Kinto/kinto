@@ -8,7 +8,69 @@ from pyramid import testing
 from kinto.core.cache import postgresql as postgresql_cache
 from kinto.core.permission import postgresql as postgresql_permission
 from kinto.core.storage import postgresql as postgresql_storage
+from kinto.core.storage.postgresql.migrator import Migrator
 from kinto.core.testing import skip_if_no_postgresql
+
+
+class MigratorTest(unittest.TestCase):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.migrator = Migrator()
+        migrations_directory = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'migrations')
+        self.migrator.migrations_directory = migrations_directory
+
+    def test_schema_is_created_if_no_version(self):
+        self.migrator.schema_version = 6
+        with mock.patch.object(self.migrator, 'create_schema') as create_schema:
+            self.migrator.create_or_migrate_schema()
+        self.assertTrue(create_schema.called)
+
+    def test_schema_is_not_touched_if_already_current(self):
+        self.migrator.schema_version = 6
+        # Patch to keep track of SQL files executed.
+        with mock.patch.object(self.migrator, '_execute_sql_file') as execute_sql:
+            with mock.patch.object(self.migrator, '_get_installed_version') as installed_version:
+                installed_version.return_value = 6
+                self.migrator.create_or_migrate_schema()
+                self.assertFalse(execute_sql.called)
+
+    def test_migration_file_is_executed_for_every_intermediary_version(self):
+        self.migrator.schema_version = 6
+
+        versions = [6, 5, 4, 3, 3]
+        self.migrator._get_installed_version = lambda: versions.pop()
+
+        with mock.patch.object(self.migrator, '_execute_sql_file') as execute_sql:
+            self.migrator.create_or_migrate_schema()
+        sql_called = execute_sql.call_args_list[-3][0][0]
+        self.assertIn('migrations/migration_003_004.sql', sql_called)
+        sql_called = execute_sql.call_args_list[-2][0][0]
+        self.assertIn('migrations/migration_004_005.sql', sql_called)
+        sql_called = execute_sql.call_args_list[-1][0][0]
+        self.assertIn('migrations/migration_005_006.sql', sql_called)
+
+    def test_migration_files_are_listed_if_ran_with_dry_run(self):
+        self.migrator.schema_version = 6
+
+        versions = [6, 5, 4, 3, 3]
+        self.migrator._get_installed_version = lambda: versions.pop()
+
+        with mock.patch('kinto.core.storage.postgresql.migrator.logger') as mocked:
+            self.migrator.create_or_migrate_schema(dry_run=True)
+
+        output = ''.join([repr(call) for call in mocked.info.call_args_list])
+        self.assertIn('migrations/migration_003_004.sql', output)
+        self.assertIn('migrations/migration_004_005.sql', output)
+        self.assertIn('migrations/migration_005_006.sql', output)
+
+    def test_migration_fails_if_intermediary_version_is_missing(self):
+        self.migrator.schema_version = 6
+        with mock.patch.object(self.migrator,
+                               '_get_installed_version') as current:
+            with mock.patch.object(self.migrator,
+                                   '_execute_sql_file'):
+                current.return_value = -1
+                self.assertRaises(AssertionError, self.migrator.create_or_migrate_schema)
 
 
 @skip_if_no_postgresql
@@ -72,11 +134,6 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
         version = self.storage._get_installed_version()
         self.assertEqual(version, self.version)
 
-    def test_schema_is_not_recreated_from_scratch_if_already_exists(self):
-        mocked = self.sql_execute_patcher.start()
-        self.storage.initialize_schema()
-        self.assertFalse(mocked.called)
-
     def test_schema_is_considered_first_version_if_no_version_detected(self):
         with self.storage.client.connect() as conn:
             q = "DELETE FROM metadata WHERE name = 'storage_schema_version';"
@@ -87,42 +144,6 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
         self.storage.initialize_schema()
         sql_called = mocked.call_args[0][0]
         self.assertIn('migrations/migration_001_002.sql', sql_called)
-
-    def test_migration_file_is_executed_for_every_intermediary_version(self):
-        postgresql_storage.Storage.schema_version = 6
-
-        versions = [6, 5, 4, 3, 3]
-        self.storage._get_installed_version = lambda: versions.pop()
-
-        mocked = self.sql_execute_patcher.start()
-        self.storage.initialize_schema()
-        sql_called = mocked.call_args_list[-3][0][0]
-        self.assertIn('migrations/migration_003_004.sql', sql_called)
-        sql_called = mocked.call_args_list[-2][0][0]
-        self.assertIn('migrations/migration_004_005.sql', sql_called)
-        sql_called = mocked.call_args_list[-1][0][0]
-        self.assertIn('migrations/migration_005_006.sql', sql_called)
-
-    def test_migration_files_are_listed_if_ran_with_dry_run(self):
-        postgresql_storage.Storage.schema_version = 6
-
-        versions = [6, 5, 4, 3, 3]
-        self.storage._get_installed_version = lambda: versions.pop()
-
-        with mock.patch('kinto.core.storage.postgresql.migrator.logger') as mocked:
-            self.storage.initialize_schema(dry_run=True)
-
-        output = ''.join([repr(call) for call in mocked.info.call_args_list])
-        self.assertIn('migrations/migration_003_004.sql', output)
-        self.assertIn('migrations/migration_004_005.sql', output)
-        self.assertIn('migrations/migration_005_006.sql', output)
-
-    def test_migration_fails_if_intermediary_version_is_missing(self):
-        with mock.patch.object(self.storage,
-                               '_get_installed_version') as current:
-            current.return_value = -1
-            self.sql_execute_patcher.start()
-            self.assertRaises(AssertionError, self.storage.initialize_schema)
 
     def test_every_available_migration(self):
         """Test every migration available in kinto.core code base since
