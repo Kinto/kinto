@@ -80,7 +80,7 @@ class Cache(CacheBase):
                 return
 
         # Create schema
-        here = os.path.abspath(os.path.dirname(__file__))
+        here = os.path.dirname(__file__)
         sql_file = os.path.join(here, 'schema.sql')
 
         if dry_run:

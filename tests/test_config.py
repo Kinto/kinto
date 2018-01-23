@@ -29,7 +29,7 @@ class ConfigTest(unittest.TestCase):
         with codecs.open(dest, 'r', encoding='utf-8') as d:
             destination_temp = d.read()
 
-        sample_path = os.path.join(os.path.abspath(os.path.dirname(__file__)),
+        sample_path = os.path.join(os.path.dirname(__file__),
                                    "test_configuration/test.ini")
         with codecs.open(sample_path, 'r', encoding='utf-8') as c:
             sample = c.read()

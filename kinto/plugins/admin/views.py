@@ -5,7 +5,7 @@ from pyramid.settings import aslist
 
 from kinto.core.decorators import cache_forever
 
-HERE = os.path.abspath(os.path.dirname(__file__))
+HERE = os.path.dirname(__file__)
 
 
 # Configured home page

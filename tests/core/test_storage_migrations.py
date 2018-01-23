@@ -16,7 +16,7 @@ class MigratorTest(unittest.TestCase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.migrator = Migrator()
-        here = os.path.abspath(os.path.dirname(__file__))
+        here = os.path.dirname(__file__)
         migrations_directory = os.path.join(here, 'migrations')
         self.migrator.migrations_directory = migrations_directory
 
@@ -113,7 +113,7 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
 
     def _load_schema(self, filepath):
         with self.storage.client.connect() as conn:
-            here = os.path.abspath(os.path.dirname(__file__))
+            here = os.path.dirname(__file__)
             with open(os.path.join(here, filepath)) as f:
                 old_schema = f.read()
             conn.execute(old_schema)
@@ -309,7 +309,7 @@ class PostgresqlPermissionMigrationTest(unittest.TestCase):
 
     def _load_schema(self, filepath):
         with self.permission.client.connect() as conn:
-            here = os.path.abspath(os.path.dirname(__file__))
+            here = os.path.dirname(__file__)
             with open(os.path.join(here, filepath)) as f:
                 old_schema = f.read()
             conn.execute(old_schema)

@@ -10,7 +10,7 @@ from kinto.core.storage.postgresql.migrator import Migrator
 
 logger = logging.getLogger(__name__)
 
-HERE = os.path.abspath(os.path.dirname(__file__))
+HERE = os.path.dirname(__file__)
 
 
 class Permission(PermissionBase, Migrator):
