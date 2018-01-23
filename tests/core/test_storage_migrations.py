@@ -94,13 +94,9 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
         self._delete_everything()
         # Create schema in its last version
         self.storage.initialize_schema()
-        # Patch to keep track of SQL files executed.
-        self.sql_execute_patcher = mock.patch(
-            'kinto.core.storage.postgresql.Storage._execute_sql_file')
 
     def tearDown(self):
         postgresql_storage.Storage.schema_version = self.version
-        mock.patch.stopall()
 
     def _delete_everything(self):
         q = """
@@ -139,11 +135,14 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
             q = "DELETE FROM metadata WHERE name = 'storage_schema_version';"
             conn.execute(q)
 
-        mocked = self.sql_execute_patcher.start()
-        postgresql_storage.Storage.schema_version = 2
-        self.storage.initialize_schema()
-        sql_called = mocked.call_args[0][0]
-        self.assertIn('migrations/migration_001_002.sql', sql_called)
+        self.assertEqual(self.storage._get_installed_version(), 1)
+
+    def test_schema_is_considered_20_if_server_is_wiped(self):
+        with self.storage.client.connect() as conn:
+            q = "DELETE FROM metadata;"
+            conn.execute(q)
+
+        self.assertEqual(self.storage._get_installed_version(), 20)
 
     def test_every_available_migration(self):
         """Test every migration available in kinto.core code base since
