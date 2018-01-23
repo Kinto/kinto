@@ -23,7 +23,9 @@ class MigratorTest(unittest.TestCase):
     def test_schema_is_created_if_no_version(self):
         self.migrator.schema_version = 6
         with mock.patch.object(self.migrator, 'create_schema') as create_schema:
-            self.migrator.create_or_migrate_schema()
+            with mock.patch.object(self.migrator, 'get_installed_version') as installed_version:
+                installed_version.return_value = None
+                self.migrator.create_or_migrate_schema()
         self.assertTrue(create_schema.called)
 
     def test_schema_is_not_touched_if_already_current(self):
