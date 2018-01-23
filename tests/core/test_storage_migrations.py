@@ -109,7 +109,7 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
         versions = [6, 5, 4, 3, 3]
         self.storage._get_installed_version = lambda: versions.pop()
 
-        with mock.patch('kinto.core.storage.postgresql.logger') as mocked:
+        with mock.patch('kinto.core.storage.postgresql.migrator.logger') as mocked:
             self.storage.initialize_schema(dry_run=True)
 
         output = ''.join([repr(call) for call in mocked.info.call_args_list])

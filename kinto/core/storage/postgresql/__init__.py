@@ -8,13 +8,14 @@ from kinto.core.storage import (
     DEFAULT_ID_FIELD, DEFAULT_MODIFIED_FIELD, DEFAULT_DELETED_FIELD,
     MISSING)
 from kinto.core.storage.postgresql.client import create_from_config
+from kinto.core.storage.postgresql.migrator import Migrator
 from kinto.core.utils import COMPARISON
 
 
 logger = logging.getLogger(__name__)
+HERE = os.path.abspath(os.path.dirname(__file__))
 
-
-class Storage(StorageBase):
+class Storage(StorageBase, Migrator):
     """Storage backend using PostgreSQL.
 
     Recommended in production (*requires PostgreSQL 9.4 or higher*).
@@ -69,67 +70,26 @@ class Storage(StorageBase):
 
     """  # NOQA
 
+    # Migrator attributes.
+    name = 'storage'
     schema_version = 20
+    schema_file = os.path.join(HERE, 'schema.sql')
+    migrations_directory = os.path.join(HERE, 'migrations')
 
     def __init__(self, client, max_fetch_size, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.client = client
         self._max_fetch_size = max_fetch_size
 
-    def _execute_sql_file(self, filepath):
-        with open(filepath) as f:
-            schema = f.read()
-        # Since called outside request, force commit.
-        with self.client.connect(force_commit=True) as conn:
-            conn.execute(schema)
+    def create_schema(self, dry_run=False):
+        """Override create_schema to ensure DB encoding and TZ are OK.
+        """
+        self._check_database_encoding()
+        self._check_database_timezone()
+        return super().create_schema(dry_run)
 
     def initialize_schema(self, dry_run=False):
-        """Create PostgreSQL tables, and run necessary schema migrations.
-
-        .. note::
-
-            Relies on JSONB fields, available in recent versions of PostgreSQL.
-        """
-        here = os.path.abspath(os.path.dirname(__file__))
-
-        version = self._get_installed_version()
-        if not version:
-            filepath = os.path.join(here, 'schema.sql')
-            logger.info('Create PostgreSQL storage schema at version '
-                        '{} from {}'.format(self.schema_version, filepath))
-            # Create full schema.
-            self._check_database_encoding()
-            self._check_database_timezone()
-            # Create full schema.
-            if not dry_run:
-                self._execute_sql_file(filepath)
-                logger.info('Created PostgreSQL storage schema (version {}).'.format(
-                    self.schema_version))
-            return
-
-        logger.info('Detected PostgreSQL storage schema version {}.'.format(version))
-        migrations = [(v, v + 1) for v in range(version, self.schema_version)]
-        if not migrations:
-            logger.info('PostgreSQL storage schema is up-to-date.')
-            return
-
-        for migration in migrations:
-            # Check order of migrations.
-            expected = migration[0]
-            current = self._get_installed_version()
-            error_msg = 'Expected version {}. Found version {}.'
-            if not dry_run and expected != current:
-                raise AssertionError(error_msg.format(expected, current))
-
-            logger.info('Migrate PostgreSQL storage schema from'
-                        ' version {} to {}.'.format(*migration))
-            filename = 'migration_{0:03d}_{1:03d}.sql'.format(*migration)
-            filepath = os.path.join(here, 'migrations', filename)
-            logger.info('Execute PostgreSQL storage migration from {}'.format(filepath))
-            if not dry_run:
-                self._execute_sql_file(filepath)
-        logger.info('PostgreSQL storage schema migration {}'.format(
-            'simulated.' if dry_run else 'done.'))
+        return self.create_or_migrate_schema(dry_run)
 
     def _check_database_timezone(self):
         # Make sure database has UTC timezone.
