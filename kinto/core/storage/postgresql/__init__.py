@@ -8,7 +8,7 @@ from kinto.core.storage import (
     DEFAULT_ID_FIELD, DEFAULT_MODIFIED_FIELD, DEFAULT_DELETED_FIELD,
     MISSING)
 from kinto.core.storage.postgresql.client import create_from_config
-from kinto.core.storage.postgresql.migrator import Migrator
+from kinto.core.storage.postgresql.migrator import MigratorMixin
 from kinto.core.utils import COMPARISON
 
 
@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 HERE = os.path.dirname(__file__)
 
 
-class Storage(StorageBase, Migrator):
+class Storage(StorageBase, MigratorMixin):
     """Storage backend using PostgreSQL.
 
     Recommended in production (*requires PostgreSQL 9.4 or higher*).
@@ -71,7 +71,7 @@ class Storage(StorageBase, Migrator):
 
     """  # NOQA
 
-    # Migrator attributes.
+    # MigratorMixin attributes.
     name = 'storage'
     schema_version = 20
     schema_file = os.path.join(HERE, 'schema.sql')

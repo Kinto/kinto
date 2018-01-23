@@ -8,7 +8,7 @@ import os
 logger = logging.getLogger(__name__)
 
 
-class Migrator(object):
+class MigratorMixin():
     """Mixin to allow the running of migrations.
 
     Your class must provide a `client` attribute (a PostgreSQLClient),

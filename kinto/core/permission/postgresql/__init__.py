@@ -5,7 +5,7 @@ from collections import OrderedDict
 
 from kinto.core.permission import PermissionBase
 from kinto.core.storage.postgresql.client import create_from_config
-from kinto.core.storage.postgresql.migrator import Migrator
+from kinto.core.storage.postgresql.migrator import MigratorMixin
 
 
 logger = logging.getLogger(__name__)
@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 HERE = os.path.dirname(__file__)
 
 
-class Permission(PermissionBase, Migrator):
+class Permission(PermissionBase, MigratorMixin):
     """Permission backend using PostgreSQL.
 
     Enable in configuration::
