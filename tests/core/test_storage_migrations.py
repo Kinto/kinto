@@ -306,6 +306,13 @@ class PostgresqlPermissionMigrationTest(unittest.TestCase):
         with self.permission.client.connect() as conn:
             conn.execute(q)
 
+    def _load_schema(self, filepath):
+        with self.permission.client.connect() as conn:
+            here = os.path.abspath(os.path.dirname(__file__))
+            with open(os.path.join(here, filepath)) as f:
+                old_schema = f.read()
+            conn.execute(old_schema)
+
     def test_assumes_schema_1_if_no_permission_schema_version(self):
         self.permission.initialize_schema()
         q = """
@@ -360,6 +367,51 @@ class PostgresqlPermissionMigrationTest(unittest.TestCase):
             result = conn.execute(query)
         self.assertEqual(result.rowcount, 0)
 
+    def test_every_available_migration(self):
+        """Test every permission migration available in code base.
+
+        Records migration test is currently very naive, and should be
+        elaborated along future migrations.
+        """
+        # Install old schema
+        self._load_schema('schema/postgresql-permission-1.sql')
+
+        # Create some permissions data using some code that is
+        # compatible with the schema in place.
+        with self.permission.client.connect() as conn:
+            query = """
+            INSERT INTO user_principals
+            VALUES ('remy', 'admin');
+            INSERT INTO access_control_entries VALUES
+              ('sailboat', 'write', 'remy'),
+              ('sailboat', 'read', 'ethan'),
+              ('sailboat/log', 'read', 'system.Authenticated'),
+              ('sailboat/log', 'write', 'admin');
+            """
+            result = conn.execute(query)
+
+        version = self.permission._get_installed_version()
+        self.assertEqual(version, 1)
+
+        # Run every migrations available.
+        self.permission.initialize_schema()
+
+        # Version matches current one.
+        version = self.permission._get_installed_version()
+        self.assertEqual(version, self.permission.schema_version)
+
+        # Check that previously created data is still available
+        remy_principals = self.permission.get_user_principals('remy')
+        self.assertEqual(remy_principals, set(['admin']))
+
+        remy_objects = self.permission.get_accessible_objects(['remy', 'admin', 'system.Authenticated'])
+        self.assertEqual(remy_objects, {'sailboat': set(['write']), 'sailboat/log': set(['read', 'write'])})
+
+        # Check that new records can be created
+        r = self.permission.add_user_principal('ethan', 'crew')
+
+        # And deleted
+        self.permission.remove_principal_from_ace('sailboat/log', 'read', 'system.Authenticated')
 
 @skip_if_no_postgresql
 class PostgresqlCacheMigrationTest(unittest.TestCase):
