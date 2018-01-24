@@ -5,12 +5,15 @@ from collections import OrderedDict
 
 from kinto.core.permission import PermissionBase
 from kinto.core.storage.postgresql.client import create_from_config
+from kinto.core.storage.postgresql.migrator import MigratorMixin
 
 
 logger = logging.getLogger(__name__)
 
+HERE = os.path.dirname(__file__)
 
-class Permission(PermissionBase):
+
+class Permission(PermissionBase, MigratorMixin):
     """Permission backend using PostgreSQL.
 
     Enable in configuration::
@@ -63,12 +66,68 @@ class Permission(PermissionBase):
 
     :noindex:
     """  # NOQA
+
+    name = 'permission'
+    schema_version = 2
+    schema_file = os.path.join(HERE, 'schema.sql')
+    migrations_directory = os.path.join(HERE, 'migrations')
+
     def __init__(self, client, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.client = client
 
     def initialize_schema(self, dry_run=False):
-        # Check if user_principals table exists.
+        return self.create_or_migrate_schema(dry_run)
+
+    def get_installed_version(self):
+        """Return current version of schema or None if not any found.
+
+        Migrations were only added to the permission backend in
+        8.1.2. Before this, the permission backend was only the two
+        tables ``user_principals`` and ``access_control_entries``. The
+        presence of these two tables and absence of a metadata
+        table/permission_schema_version is therefore version 1.
+
+        In version 8.1.2, the permission backend added a ``metadata``
+        table. If the permission and storage backends point to the
+        same database, this will be the same table created by the
+        storage backend. This means either backend could create the
+        table without the knowledge of the other one. For this reason,
+        be careful to handle the case where the metadata table exists
+        but no version exists.
+
+        """
+        query = "SELECT tablename FROM pg_tables WHERE tablename = 'metadata';"
+        with self.client.connect() as conn:
+            result = conn.execute(query)
+            table_exists = result.rowcount > 0
+
+        if table_exists:
+            query = """
+            SELECT value AS version
+              FROM metadata
+             WHERE name = 'permission_schema_version'
+             ORDER BY LPAD(value, 3, '0') DESC
+             LIMIT 1;
+            """
+            with self.client.connect() as conn:
+                result = conn.execute(query)
+                if result.rowcount > 0:
+                    return int(result.fetchone()['version'])
+
+        # Either the metadata table doesn't exist, or it doesn't have
+        # a permission_schema_version row. Many possiblities exist:
+        #
+        # - Maybe we are migrating from <8.1.2 and the permission
+        # backend doesn't have a metadata table.
+        #
+        # - Maybe we are on a new install and don't have any tables.
+        #
+        # - Maybe we are on a new install and the storage backend has
+        # created the metadata table but we haven't initialized yet.
+        #
+        # Check if user_principals table exists. If it does, we are
+        # migrating from pre-8.1.2 and we are version 1.
         query = """
         SELECT 1
           FROM information_schema.tables
@@ -77,23 +136,12 @@ class Permission(PermissionBase):
         with self.client.connect(readonly=True) as conn:
             result = conn.execute(query)
             if result.rowcount > 0:
-                logger.info('PostgreSQL permission schema is up-to-date.')
-                return
+                return 1
 
-        # Create schema
-        here = os.path.abspath(os.path.dirname(__file__))
-        sql_file = os.path.join(here, 'schema.sql')
-
-        if dry_run:
-            logger.info("Create permission schema from '{}'".format(sql_file))
-            return
-
-        # Since called outside request, force commit.
-        with open(sql_file) as f:
-            schema = f.read()
-        with self.client.connect(force_commit=True) as conn:
-            conn.execute(schema)
-        logger.info('Created PostgreSQL permission tables')
+        # Metadata table missing or has no
+        # permission_schema_version, and no user_principals table. We
+        # need to initialize.
+        return None
 
     def flush(self):
         query = """

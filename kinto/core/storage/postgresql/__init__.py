@@ -8,13 +8,15 @@ from kinto.core.storage import (
     DEFAULT_ID_FIELD, DEFAULT_MODIFIED_FIELD, DEFAULT_DELETED_FIELD,
     MISSING)
 from kinto.core.storage.postgresql.client import create_from_config
+from kinto.core.storage.postgresql.migrator import MigratorMixin
 from kinto.core.utils import COMPARISON
 
 
 logger = logging.getLogger(__name__)
+HERE = os.path.dirname(__file__)
 
 
-class Storage(StorageBase):
+class Storage(StorageBase, MigratorMixin):
     """Storage backend using PostgreSQL.
 
     Recommended in production (*requires PostgreSQL 9.4 or higher*).
@@ -69,67 +71,26 @@ class Storage(StorageBase):
 
     """  # NOQA
 
+    # MigratorMixin attributes.
+    name = 'storage'
     schema_version = 20
+    schema_file = os.path.join(HERE, 'schema.sql')
+    migrations_directory = os.path.join(HERE, 'migrations')
 
     def __init__(self, client, max_fetch_size, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.client = client
         self._max_fetch_size = max_fetch_size
 
-    def _execute_sql_file(self, filepath):
-        with open(filepath) as f:
-            schema = f.read()
-        # Since called outside request, force commit.
-        with self.client.connect(force_commit=True) as conn:
-            conn.execute(schema)
+    def create_schema(self, dry_run=False):
+        """Override create_schema to ensure DB encoding and TZ are OK.
+        """
+        self._check_database_encoding()
+        self._check_database_timezone()
+        return super().create_schema(dry_run)
 
     def initialize_schema(self, dry_run=False):
-        """Create PostgreSQL tables, and run necessary schema migrations.
-
-        .. note::
-
-            Relies on JSONB fields, available in recent versions of PostgreSQL.
-        """
-        here = os.path.abspath(os.path.dirname(__file__))
-
-        version = self._get_installed_version()
-        if not version:
-            filepath = os.path.join(here, 'schema.sql')
-            logger.info('Create PostgreSQL storage schema at version '
-                        '{} from {}'.format(self.schema_version, filepath))
-            # Create full schema.
-            self._check_database_encoding()
-            self._check_database_timezone()
-            # Create full schema.
-            if not dry_run:
-                self._execute_sql_file(filepath)
-                logger.info('Created PostgreSQL storage schema (version {}).'.format(
-                    self.schema_version))
-            return
-
-        logger.info('Detected PostgreSQL storage schema version {}.'.format(version))
-        migrations = [(v, v + 1) for v in range(version, self.schema_version)]
-        if not migrations:
-            logger.info('PostgreSQL storage schema is up-to-date.')
-            return
-
-        for migration in migrations:
-            # Check order of migrations.
-            expected = migration[0]
-            current = self._get_installed_version()
-            error_msg = 'Expected version {}. Found version {}.'
-            if not dry_run and expected != current:
-                raise AssertionError(error_msg.format(expected, current))
-
-            logger.info('Migrate PostgreSQL storage schema from'
-                        ' version {} to {}.'.format(*migration))
-            filename = 'migration_{0:03d}_{1:03d}.sql'.format(*migration)
-            filepath = os.path.join(here, 'migrations', filename)
-            logger.info('Execute PostgreSQL storage migration from {}'.format(filepath))
-            if not dry_run:
-                self._execute_sql_file(filepath)
-        logger.info('PostgreSQL storage schema migration {}'.format(
-            'simulated.' if dry_run else 'done.'))
+        return self.create_or_migrate_schema(dry_run)
 
     def _check_database_timezone(self):
         # Make sure database has UTC timezone.
@@ -157,48 +118,68 @@ class Storage(StorageBase):
         if encoding != 'utf8':  # pragma: no cover
             raise AssertionError('Unexpected database encoding {}'.format(encoding))
 
-    def _get_installed_version(self):
+    def get_installed_version(self):
         """Return current version of schema or None if not any found.
         """
-        query = "SELECT tablename FROM pg_tables WHERE tablename = 'metadata';"
-        with self.client.connect() as conn:
-            result = conn.execute(query)
-            tables_exist = result.rowcount > 0
-
-        if not tables_exist:
-            return
-
-        query = """
+        # Check for records table, which definitely indicates a new
+        # DB. (metadata can exist if the permission schema ran first.)
+        records_table_query = """
+        SELECT table_name
+          FROM information_schema.tables
+         WHERE table_name = 'records';
+        """
+        schema_version_metadata_query = """
         SELECT value AS version
           FROM metadata
          WHERE name = 'storage_schema_version'
          ORDER BY LPAD(value, 3, '0') DESC;
         """
         with self.client.connect() as conn:
-            result = conn.execute(query)
+            result = conn.execute(records_table_query)
+            records_table_exists = result.rowcount > 0
+
+            if not records_table_exists:
+                return
+
+            result = conn.execute(schema_version_metadata_query)
             if result.rowcount > 0:
                 return int(result.fetchone()['version'])
-            else:
-                # Guess current version.
-                query = 'SELECT COUNT(*) FROM metadata;'
-                result = conn.execute(query)
-                was_flushed = int(result.fetchone()[0]) == 0
-                if was_flushed:
-                    error_msg = 'Missing schema history: consider version {}.'
-                    logger.warning(error_msg.format(self.schema_version))
-                    return self.schema_version
 
-                # In the first versions of Cliquet, there was no migration.
+            # No storage_schema_version row.
+            # Perhaps it got flush()ed by a pre-8.1.2 Kinto (which
+            # would wipe the metadata table).
+            # Alternately, maybe we are working from a very early
+            # Cliquet version which never had a migration.
+            # Check for a created_at row. If this is gone, it's
+            # probably been flushed at some point.
+            query = "SELECT COUNT(*) FROM metadata WHERE name = 'created_at';"
+            result = conn.execute(query)
+            was_flushed = int(result.fetchone()[0]) == 0
+            if not was_flushed:
+                error_msg = 'No schema history; assuming migration from Cliquet (version 1).'
+                logger.warning(error_msg)
                 return 1
 
+            # We have no idea what the schema is here. Migration
+            # is completely broken.
+            # Log an obsequious error message to the user and try
+            # to recover by assuming the last version where we had
+            # this bug.
+            logger.warning(UNKNOWN_SCHEMA_VERSION_MESSAGE)
+
+            # This is the last schema version where flushing the
+            # server would delete the schema version.
+            MAX_FLUSHABLE_SCHEMA_VERSION = 20
+            return MAX_FLUSHABLE_SCHEMA_VERSION
+
     def flush(self, auth=None):
-        """Delete records from tables without destroying schema. Mainly used
-        in tests suites.
+        """Delete records from tables without destroying schema.
+
+        This is used in test suites as well as in the flush plugin.
         """
         query = """
         DELETE FROM records;
         DELETE FROM timestamps;
-        DELETE FROM metadata;
         """
         with self.client.connect(force_commit=True) as conn:
             conn.execute(query)
@@ -900,3 +881,28 @@ def load_from_config(config):
     strict = settings.get('storage_strict_json', False)
     client = create_from_config(config, prefix='storage_')
     return Storage(client=client, max_fetch_size=max_fetch_size, strict_json=strict)
+
+
+UNKNOWN_SCHEMA_VERSION_MESSAGE = """
+Missing schema history. Perhaps at some point, this Kinto server was
+flushed.  Due to a bug in older Kinto versions (see
+https://github.com/Kinto/kinto/issues/1460), flushing the server would
+cause us to forget what version of the schema was in use. This means
+automatic migration is impossible.
+
+Historically, when this happened, Kinto would just assume that the
+wiped server had the "current" schema, so you may have been missing a
+schema version for quite some time.
+
+To try to recover, we have assumed a schema version corresponding to
+the last Kinto version with this bug (schema version 20). However, if
+a migration fails, or most queries are broken, you may not actually be
+running that schema. You can try to fix this by manually setting the
+schema version in the database to what you think it should be using a
+command like:
+
+    INSERT INTO metadata VALUES ('storage_schema_version', '19');
+
+See https://github.com/Kinto/kinto/wiki/Schema-versions for more details.
+
+""".strip()

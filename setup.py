@@ -2,6 +2,8 @@ import codecs
 import os
 from setuptools import setup, find_packages
 
+# abspath here because setup.py may be __main__, in which case
+# __file__ is not guaranteed to be absolute
 here = os.path.abspath(os.path.dirname(__file__))
 
 

@@ -174,16 +174,20 @@ class PostgreSQLStorageTest(StorageTest, unittest.TestCase):
 
     def test_connection_is_rolledback_if_error_occurs(self):
         with self.storage.client.connect() as conn:
-            query = "DELETE FROM metadata WHERE name = 'roll';"
+            query = "DELETE FROM records WHERE collection_id = 'genre';"
             conn.execute(query)
 
         try:
             with self.storage.client.connect() as conn:
-                query = "INSERT INTO metadata VALUES ('roll', 'back');"
+                query = """
+                INSERT INTO records VALUES ('rock-and-roll', 'music', 'genre', NOW(), '{}', FALSE);
+                """
                 conn.execute(query)
                 conn.commit()
 
-                query = "INSERT INTO metadata VALUES ('roll', 'rock');"
+                query = """
+                INSERT INTO records VALUES ('jazz', 'music', 'genre', NOW(), '{}', FALSE);
+                """
                 conn.execute(query)
 
                 raise sqlalchemy.exc.TimeoutError()
@@ -191,7 +195,7 @@ class PostgreSQLStorageTest(StorageTest, unittest.TestCase):
             pass
 
         with self.storage.client.connect() as conn:
-            query = "SELECT COUNT(*) FROM metadata WHERE name = 'roll';"
+            query = "SELECT COUNT(*) FROM records WHERE collection_id = 'genre';"
             result = conn.execute(query)
             self.assertEqual(result.fetchone()[0], 1)
 
@@ -223,8 +227,11 @@ class PostgreSQLStorageTest(StorageTest, unittest.TestCase):
                                                with_transaction=False)
         with self.assertRaises(exceptions.IntegrityError):
             with client.connect() as conn:
-                # Make some change in metadata.
-                conn.execute("INSERT INTO metadata VALUES ('roll', 'rock');")
+                # Make some change in a table.
+                conn.execute("""
+                INSERT INTO records
+                VALUES ('rock-and-roll', 'music', 'genre', NOW(), '{}', FALSE);
+                """)
                 # Go into a failing integrity constraint.
                 query = "INSERT INTO timestamps VALUES ('a', 'b', NOW());"
                 conn.execute(query)
@@ -232,9 +239,13 @@ class PostgreSQLStorageTest(StorageTest, unittest.TestCase):
                 conn.commit()
                 conn.close()
 
-        # Check that change in metadata was rolledback.
+        # Check that change in the above table was rolledback.
         with client.connect() as conn:
-            result = conn.execute("SELECT FROM metadata WHERE name = 'roll';")
+            result = conn.execute("""
+            SELECT FROM records
+             WHERE parent_id = 'music'
+               AND collection_id = 'genre';
+            """)
         self.assertEqual(result.rowcount, 0)
 
 
