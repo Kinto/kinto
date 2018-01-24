@@ -6,7 +6,25 @@ This document describes changes between each past release.
 8.1.2 (unreleased)
 ------------------
 
-- Nothing changed yet.
+**Bug fixes**
+
+- Flushing a server no longer breaks migration of the storage backend
+  (#1460). If you have ever flushed a server in the past, migration
+  may be broken. This version of Kinto tries to guess what version of
+  the schema you're running, but may guess wrong. See
+  https://github.com/Kinto/kinto/wiki/Schema-versions for some
+  additional information.
+
+**Internal changes**
+
+- We now allow migration of the permission backend's schema.
+
+**Operational concerns**
+
+- *The schema for the Postgres permission backend has changed.* This
+  changes another ID column to use the "C" collation, which should
+  speed up the `delete_object_permissions` query when deleting a
+  bucket.
 
 
 8.1.1 (2018-01-18)
