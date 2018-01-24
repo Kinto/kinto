@@ -89,8 +89,8 @@ class Permission(PermissionBase, MigratorMixin):
         table/permission_schema_version is therefore version 1.
 
         In version 8.1.2, the permission backend added a ``metadata``
-        table. If the permission and storage backends share
-        credentials, this will be the same table created by the
+        table. If the permission and storage backends point to the
+        same database, this will be the same table created by the
         storage backend. This means either backend could create the
         table without the knowledge of the other one. For this reason,
         be careful to handle the case where the metadata table exists
