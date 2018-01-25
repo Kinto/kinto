@@ -474,9 +474,24 @@ class Permission(PermissionBase, MigratorMixin):
         DELETE FROM access_control_entries
          USING object_ids
          WHERE object_id LIKE column1;"""
+
         safeholders = {
             'object_ids_values': ','.join(object_ids_values)
         }
+
+        if len(object_id_list) == 1:
+            # Optimized version for just one object ID.  This can be
+            # done using an index scan on
+            # idx_access_control_entries_object_id. The more
+            # complicated form above confuses Postgres, which chooses
+            # to do a sequential table scan rather than an index scan
+            # for each entry in object_ids, even when there's only one
+            # entry in object_ids.
+            query = """
+            DELETE FROM access_control_entries
+             WHERE object_id LIKE :obj_id_0;
+            """
+
         with self.client.connect() as conn:
             conn.execute(query.format_map(safeholders), placeholders)
 
