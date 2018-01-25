@@ -6,7 +6,11 @@ This document describes changes between each past release.
 8.1.3 (unreleased)
 ------------------
 
-- Nothing changed yet.
+**Bug fixes**
+
+- Optimize the PostgreSQL permission backend's
+  ``delete_object_permissions`` function in the case where we are only
+  matching one object_id (or object_id prefix).
 
 
 8.1.2 (2018-01-24)
