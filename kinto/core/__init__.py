@@ -51,6 +51,7 @@ DEFAULT_SETTINGS = {
         'kinto.core.initialization.setup_storage',
         'kinto.core.initialization.setup_permission',
         'kinto.core.initialization.setup_cache',
+        'kinto.core.initialization.setup_hawk_auth',
         'kinto.core.initialization.setup_requests_scheme',
         'kinto.core.initialization.setup_version_redirection',
         'kinto.core.initialization.setup_deprecation',

@@ -13,6 +13,8 @@ class ERRORS(Enum):
     +-------------+-------+------------------------------------------------+
     | Status code | Errno | Description                                    |
     +=============+=======+================================================+
+    | 401         | 103   | Invalid Hawk Authentication Token              |
+    +-------------+-------+------------------------------------------------+
     | 401         | 104   | Missing Authorization Token                    |
     +-------------+-------+------------------------------------------------+
     | 401         | 105   | Invalid Authorization Token                    |
@@ -52,6 +54,7 @@ class ERRORS(Enum):
     | 410         | 202   | Service deprecated                             |
     +-------------+-------+------------------------------------------------+
     """
+    INVALID_HAWK_AUTH_TOKEN = 103
     MISSING_AUTH_TOKEN = 104
     INVALID_AUTH_TOKEN = 105
     BADJSON = 106

@@ -14,6 +14,7 @@ jsonpatch==1.21
 jsonpointer==2.0
 jsonschema==2.6.0
 logging-color-formatter==1.0.2
+mohawk==0.3.4
 newrelic==2.100.0.84
 PasteDeploy==1.5.2
 plaster==1.0

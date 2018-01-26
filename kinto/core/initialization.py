@@ -8,7 +8,7 @@ import random
 from pyramid.events import NewRequest, NewResponse
 from pyramid.exceptions import ConfigurationError
 from pyramid.httpexceptions import (HTTPTemporaryRedirect, HTTPGone,
-                                    HTTPBadRequest)
+                                    HTTPBadRequest, HTTPUnauthorized)
 from pyramid.renderers import JSON as JSONRenderer
 from pyramid.response import Response
 from pyramid.security import NO_PERMISSION_REQUIRED
@@ -31,6 +31,7 @@ from kinto.core import utils
 from kinto.core import cache
 from kinto.core import storage
 from kinto.core import permission
+from kinto.core.hawkauth import HawkAuth
 from kinto.core.events import ResourceRead, ResourceChanged, ACTIONS
 
 
@@ -250,6 +251,23 @@ def setup_cache(config):
 
     heartbeat = cache.heartbeat(backend)
     config.registry.heartbeats['cache'] = heartbeat
+
+
+def setup_hawk_auth(config):
+    settings = config.get_settings()
+    
+    if 'hawk.enabled' in settings and settings['hawk.enabled']:
+        def on_new_request(event):
+            request = event.request
+            authenticator = HawkAuth(settings['hawk.id'],   
+                                     settings['hawk.secret'], 
+                                     settings['hawk.algo'],
+                                     config)
+            if not authenticator.authenticate(request):
+                raise errors.http_error(
+                    HTTPUnauthorized(),
+                    errno=errors.ERRORS.INVALID_HAWK_AUTH_TOKEN)
+        config.add_subscriber(on_new_request, NewRequest)
 
 
 def setup_statsd(config):

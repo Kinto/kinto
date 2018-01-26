@@ -65,7 +65,7 @@ $(PYTHON):
 build-requirements:
 	$(VIRTUALENV) $(TEMPDIR)
 	$(TEMPDIR)/bin/pip install -U pip
-	$(TEMPDIR)/bin/pip install -Ue ".[monitoring,postgresql,memcached]"
+	$(TEMPDIR)/bin/pip install -Ue ".[monitoring,postgresql,memcached,mohawk]"
 	$(TEMPDIR)/bin/pip freeze | grep -v -- '-e' > requirements.txt
 
 build-kinto-admin: need-npm
