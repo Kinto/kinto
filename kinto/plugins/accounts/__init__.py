@@ -1,10 +1,48 @@
 from kinto.authorization import PERMISSIONS_INHERITANCE_TREE
+from kinto.plugins.hawk.hawkauth import HawkAuth
+from kinto.core.storage import exceptions as storage_exceptions
+from kinto.core.errors import (http_error, raise_invalid, 
+                               send_alert, ERRORS, request_GET)
+
 from pyramid.exceptions import ConfigurationError
+from pyramid.response import Response
+from pyramid.httpexceptions import (HTTPNotModified, HTTPPreconditionFailed,
+                                    HTTPNotFound, HTTPServiceUnavailable)
 
-ACCOUNT_CACHE_KEY = 'accounts:{}:verified'
+def hawk_sessions(request):
+    userid = request.matchdict['userid']
+    try:
+        account = request.registry.storage.get(parent_id=userid,
+                                               collection_id='account',
+                                               object_id=userid)
+    except storage_exceptions.RecordNotFoundError:
+        details = {
+            'id': userid,
+            'resource_name': 'accounts'
+        }
+        response = http_error(HTTPNotFound(), errno=ERRORS.INVALID_RESOURCE_ID,
+                              details=details)
+        raise response
 
+    ACCOUNT_CACHE_KEY = 'accounts:{}:verified'
+
+    token = HawkAuth.generate_session_token()
+    headers = {'Hawk-Session-Token': token}
+    return Response(headers=headers, status_code=201)
+
+def hawk_sessions_current(request):
+    pass
 
 def includeme(config):
+    # Add routes for hawk session management
+    config.add_view(hawk_sessions,
+                   route_name='hawk_sessions')
+    config.add_view(hawk_sessions_current,
+                   route_name='hawk_sessions_current')
+    config.add_route('hawk_sessions', '/accounts/{userid:.*}/hawk-sessions')
+    config.add_route('hawk_sessions_current', 
+                     '/accounts/{userid:.*}/hawk-sessions/current')
+
     config.add_api_capability(
         'accounts',
         description='Manage user accounts.',

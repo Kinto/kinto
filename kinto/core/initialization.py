@@ -8,7 +8,7 @@ import random
 from pyramid.events import NewRequest, NewResponse
 from pyramid.exceptions import ConfigurationError
 from pyramid.httpexceptions import (HTTPTemporaryRedirect, HTTPGone,
-                                    HTTPBadRequest)
+                                    HTTPBadRequest, HTTPUnauthorized)
 from pyramid.renderers import JSON as JSONRenderer
 from pyramid.response import Response
 from pyramid.security import NO_PERMISSION_REQUIRED

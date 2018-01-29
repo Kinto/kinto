@@ -367,6 +367,58 @@ class WithBasicAuthTest(AccountsWebTest):
             self.make_app({'multiauth.policies': 'basicauth account'})
 
 
+class HawkSessionTest(AccountsWebTest):
+    def setUp(self):
+        creds = {'id': 'alice', 'password': '12éé6'}
+        self.app.post_json('/accounts', {'data': creds}, status=201)
+        self.account_creds = creds
+
+    @classmethod
+    def get_app_settings(cls, extras=None):
+        if extras is None:
+            extras = {'multiauth.policies': 'hawkauth'}
+            extras.setdefault('includes', 'kinto.plugins.accounts kinto.plugins.hawk')
+            extras.setdefault(
+                'multiauth.policy.hawkauth.use', 
+                'kinto.plugins.hawk.authentication.HawkAuthenticationPolicy')
+
+        return super().get_app_settings(extras)
+
+    def test_request_hawk_session_returns_token_in_header(self):
+        resp = self.app.post('/accounts/alice/hawk-sessions')
+        assert 'Hawk-Session-Token' in resp.headers 
+        assert len(resp.headers['Hawk-Session-Token']) == 64
+
+    def test_request_hawk_session_wrong_account_id_returns_404(self):
+        resp = self.app.post('/accounts/BAD_ACCOUNT/hawk-sessions', status=404)
+
+    def test_request_hawk_session_saves_creds_to_account(self):
+        resp = self.app.post('/accounts/alice/hawk-sessions')
+        token = resp.headers['Hawk-Session-Token']
+        account = request.registry.storage.get(parent_id='alice',
+                                               collection_id='account',
+                                               object_id='alice')
+        #TODO get client id from the token and test that it has been
+        # saved on the account record, along with creds and expiration
+        # date
+
+    def test_request_hawk_session_expires_session_after_date_setting(self):
+        pass
+
+    def test_hawk_session_expiration_date_is_overidden_by_setting(self):
+        pass
+
+    def test_request_remove_hawk_sessions_deletes_all_sessions(self):
+        pass
+
+    def test_request_remove_hawk_session_current_only(self):
+        pass
+
+    def test_hawk_auth_must_be_enabled(self):
+        pass
+
+
+
 class CreateUserTest(unittest.TestCase):
     def setUp(self):
         self.registry = mock.MagicMock()
