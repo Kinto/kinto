@@ -83,8 +83,9 @@ class Storage(MemoryBasedStorage):
 
         kinto.storage_strict_json = true
     """
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, readonly=False, **kwargs):
         super().__init__(*args, **kwargs)
+        self.readonly = readonly
         self.flush()
 
     def flush(self, auth=None):
@@ -97,6 +98,9 @@ class Storage(MemoryBasedStorage):
         ts = self._timestamps[parent_id].get(collection_id)
         if ts is not None:
             return ts
+        if self.readonly:
+            error_msg = "Cannot initialize empty collection timestamp when running in readonly."
+            raise exceptions.BackendError(message=error_msg)
         return self._bump_timestamp(collection_id, parent_id)
 
     def _bump_timestamp(self, collection_id, parent_id, record=None,
