@@ -13,5 +13,5 @@ WebTest==2.0.29
 werkzeug==0.14.1
 wheel==0.30.0
 zest.releaser==6.13.3
-zope.sqlalchemy==0.7.7
+zope.sqlalchemy==1.0
 setuptools==38.4.0
