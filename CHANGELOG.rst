@@ -9,6 +9,7 @@ This document describes changes between each past release.
 **Bug fixes**
 
 - Allow inherited resources to set a custom model instance before instantiating (fixes #1472)
+- Fix collection timestamp retrieval when the stack is configured as readonly (fixes #1474)
 
 8.1.3 (2018-01-26)
 ------------------

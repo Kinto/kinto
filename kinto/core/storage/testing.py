@@ -744,6 +744,21 @@ class TimestampsTest:
         self.assertTrue(0 < current < after,
                         '0 < {} < {}'.format(current, after))
 
+    def test_collection_timestamp_raises_error_when_empty_and_readonly(self):
+        kw = {**self.storage_kw, 'collection_id': 'will-be-empty'}
+        self.storage.readonly = True
+        with self.assertRaises(exceptions.BackendError):
+            self.storage.collection_timestamp(**kw)
+        self.storage.readonly = False
+
+    def test_collection_timestamp_returns_current_while_readonly(self):
+        kw = {**self.storage_kw, 'collection_id': 'will-be-empty'}
+        ts1 = self.storage.collection_timestamp(**kw)
+        self.storage.readonly = True
+        ts2 = self.storage.collection_timestamp(**kw)
+        self.assertEqual(ts1, ts2)
+        self.storage.readonly = False
+
     def test_create_uses_specified_last_modified_if_collection_empty(self):
         # Collection is empty, create a new record with a specified timestamp.
         last_modified = 1448881675541

@@ -77,10 +77,11 @@ class Storage(StorageBase, MigratorMixin):
     schema_file = os.path.join(HERE, 'schema.sql')
     migrations_directory = os.path.join(HERE, 'migrations')
 
-    def __init__(self, client, max_fetch_size, *args, **kwargs):
+    def __init__(self, client, max_fetch_size, *args, readonly=False, **kwargs):
         super().__init__(*args, **kwargs)
         self.client = client
         self._max_fetch_size = max_fetch_size
+        self.readonly = readonly
 
     def create_schema(self, dry_run=False):
         """Override create_schema to ensure DB encoding and TZ are OK.
@@ -224,9 +225,17 @@ class Storage(StorageBase, MigratorMixin):
             row = ts_result.fetchone()  # Will return (None, None) when empty.
             existing_ts = row['last_modified']
 
-            create_result = conn.execute(create_if_missing,
-                                         dict(last_modified=existing_ts, **placeholders))
-            record = create_result.fetchone() or row
+            # If the backend is readonly, we should not try to create the timestamp.
+            if self.readonly:
+                if existing_ts is None:
+                    error_msg = ("Cannot initialize empty collection timestamp "
+                                 "when running in readonly.")
+                    raise exceptions.BackendError(message=error_msg)
+                record = row
+            else:
+                create_result = conn.execute(create_if_missing,
+                                             dict(last_modified=existing_ts, **placeholders))
+                record = create_result.fetchone() or row
 
         return record['last_epoch']
 
@@ -879,8 +888,10 @@ def load_from_config(config):
     settings = config.get_settings()
     max_fetch_size = int(settings['storage_max_fetch_size'])
     strict = settings.get('storage_strict_json', False)
+    readonly = settings.get('readonly', False)
     client = create_from_config(config, prefix='storage_')
-    return Storage(client=client, max_fetch_size=max_fetch_size, strict_json=strict)
+    return Storage(client=client, max_fetch_size=max_fetch_size, strict_json=strict,
+                   readonly=readonly)
 
 
 UNKNOWN_SCHEMA_VERSION_MESSAGE = """
