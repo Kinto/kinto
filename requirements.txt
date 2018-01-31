@@ -42,4 +42,4 @@ WebOb==1.7.4
 Werkzeug==0.14.1
 zope.deprecation==4.3.0
 zope.interface==4.4.3
-zope.sqlalchemy==0.7.7
+zope.sqlalchemy==1.0
