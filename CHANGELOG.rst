@@ -3,7 +3,7 @@ Changelog
 
 This document describes changes between each past release.
 
-8.1.4 (unreleased)
+8.1.4 (2018-01-31)
 ------------------
 
 **Bug fixes**
