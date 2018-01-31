@@ -167,12 +167,13 @@ class UserResource:
         # Authentication to storage is transmitted as is (cf. cloud_storage).
         auth = request.headers.get('Authorization')
 
-        self.model = self.default_model(
-            storage=request.registry.storage,
-            id_generator=self.id_generator,
-            collection_id=classname(self),
-            parent_id=parent_id,
-            auth=auth)
+        if not hasattr(self, 'model'):
+            self.model = self.default_model(
+                storage=request.registry.storage,
+                id_generator=self.id_generator,
+                collection_id=classname(self),
+                parent_id=parent_id,
+                auth=auth)
 
         # Initialize timestamp as soon as possible.
         self.timestamp
