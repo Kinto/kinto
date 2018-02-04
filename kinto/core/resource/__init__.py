@@ -932,6 +932,9 @@ class UserResource:
                 'description': 'Invalid value for {}'.format(param)
             }
 
+            if value == '':
+                raise_invalid(self.request, **error_details)
+
             # Ignore specific fields
             if param.startswith('_') and param not in ('_since',
                                                        '_to',
