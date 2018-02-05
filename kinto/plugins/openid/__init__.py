@@ -81,7 +81,7 @@ class OpenIDConnectPolicy(base_auth.CallbackAuthenticationPolicy):
                 userprofile = resp.json()
                 return userprofile["sub"]
             except (requests.exceptions.HTTPError, KeyError) as e:
-                logger.debug("Unable to fetch user profile from %s with %s" (uri, access_token))
+                logger.debug("Unable to fetch user profile from %s with %s" % (uri, access_token))
                 return None
 
         # JWT token is provided.

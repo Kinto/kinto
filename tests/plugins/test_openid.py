@@ -44,6 +44,10 @@ class PolicyTest(unittest.TestCase):
     def test_returns_none_if_no_authorization(self):
         assert self.policy.unauthenticated_userid(self.request) is None
 
+    def test_returns_prefix_in_forget(self):
+        h = self.policy.forget(self.request)
+        assert self.policy.prefix in h[0][1]
+
     def test_returns_none_if_no_authorization_prefix(self):
         self.request.headers['Authorization'] = 'avrbnnbrbr'
         assert self.policy.unauthenticated_userid(self.request) is None
@@ -86,6 +90,13 @@ class VerifyTokenTest(unittest.TestCase):
         self.policy._verify_token(id_token=None, access_token='abc', **self.verify_kw)
         self.mocked_get.assert_any_call('https://idp/.well-known/openid-configuration')
 
+    def test_openid_config_is_cached(self):
+        self.policy._verify_token(id_token=None, access_token='abc', **self.verify_kw)
+        self.policy._verify_token(id_token=None, access_token='abc', **self.verify_kw)
+        calls = [c for c in self.mocked_get.call_args_list
+                 if 'openid-configuration' in c[0][0]]
+        assert len(calls) == 1
+
     def test_fetches_userinfo_if_id_token_is_none(self):
         self.mocked_get.return_value.json.side_effect = [
             {'userinfo_endpoint': 'http://uinfo'},
@@ -94,6 +105,14 @@ class VerifyTokenTest(unittest.TestCase):
         uid = self.policy._verify_token(id_token=None, access_token='abc', **self.verify_kw)
         assert uid == "me"
 
+    def test_returns_none_if_fetching_userinfo_fails(self):
+        self.mocked_get.return_value.json.side_effect = [
+            {'userinfo_endpoint': 'http://uinfo'},
+            {"some": "invalid json"},
+        ]
+        uid = self.policy._verify_token(id_token=None, access_token='abc', **self.verify_kw)
+        assert uid is None
+
     def test_verifies_jwt_headers(self):
         self.mocked_get.return_value.json.side_effect = [
             {'userinfo_endpoint': 'http://uinfo', 'jwks_uri': ''},
@@ -101,6 +120,26 @@ class VerifyTokenTest(unittest.TestCase):
         ]
         self.policy._verify_token(id_token='a.b.c', access_token=None, **self.verify_kw)
         self.mocked_jwt.get_unverified_header.assert_called_with('a.b.c')
+
+    def test_jwt_keys_are_cached(self):
+        self.mocked_get.return_value.json.side_effect = [
+            {'userinfo_endpoint': '', 'jwks_uri': 'http://jwks'},
+            {"keys": []},
+        ]
+        self.policy._verify_token(id_token='a.b.c', access_token=None, **self.verify_kw)
+        self.policy._verify_token(id_token='a.b.c', access_token=None, **self.verify_kw)
+        calls = [c for c in self.mocked_get.call_args_list
+                 if 'jwks' in c[0][0]]
+        assert len(calls) == 1
+
+    def test_fails_if_signature_verification_fails(self):
+        self.mocked_get.return_value.json.side_effect = [
+            {'userinfo_endpoint': 'http://uinfo', 'jwks_uri': ''},
+            {"keys": []},
+        ]
+        self.mocked_jwt.get_unverified_header.side_effect = self.mocked_jwt.JWTError = ValueError
+        uid = self.policy._verify_token(id_token='a.b.c', access_token=None, **self.verify_kw)
+        assert uid is None
 
     def test_verifies_algo_header(self):
         self.mocked_get.return_value.json.side_effect = [
@@ -159,7 +198,17 @@ class VerifyTokenTest(unittest.TestCase):
             }]},
         ]
         self.mocked_jwt.get_unverified_header.return_value = {'alg': 'RS256', 'kid': 1}
-        self.mocked_jwt.ExpiredSignatureError = self.mocked_jwt.JWTClaimsError = ValueError
+        self.mocked_jwt.ExpiredSignatureError = KeyError
+        self.mocked_jwt.JWTClaimsError = ValueError
+
         self.mocked_jwt.decode.side_effect = ValueError("Claims error")
+        uid = self.policy._verify_token(id_token='a.b.c', access_token='at', **self.verify_kw)
+        assert uid is None
+
+        self.mocked_jwt.decode.side_effect = KeyError("Claims error")
+        uid = self.policy._verify_token(id_token='a.b.c', access_token='at', **self.verify_kw)
+        assert uid is None
+
+        self.mocked_jwt.decode.side_effect = IOError("will catch all")
         uid = self.policy._verify_token(id_token='a.b.c', access_token='at', **self.verify_kw)
         assert uid is None
