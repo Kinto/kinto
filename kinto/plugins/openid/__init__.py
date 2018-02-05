@@ -18,9 +18,8 @@ def fetch_openid_config(issuer):
 
 @implementer(IAuthenticationPolicy)
 class OpenIDConnectPolicy(base_auth.CallbackAuthenticationPolicy):
-    def __init__(self, realm='Realm', prefix='bearer+oidc'):
+    def __init__(self, realm='Realm'):
         self.realm = realm
-        self.prefix = prefix
 
         self._openid_config = None
         self._jwt_keys = None
@@ -28,8 +27,9 @@ class OpenIDConnectPolicy(base_auth.CallbackAuthenticationPolicy):
     def unauthenticated_userid(self, request):
         """Return the userid or ``None`` if token could not be verified.
         """
-        audience = request.registry.settings["oidc.audience"]
         issuer = request.registry.settings["oidc.issuer_url"]
+        client_id = request.registry.settings["oidc.client_id"]
+        userid_field = request.registry.settings.get("oidc.userid_field", "sub")
 
         authorization = request.headers.get('Authorization', '')
         try:
@@ -37,7 +37,8 @@ class OpenIDConnectPolicy(base_auth.CallbackAuthenticationPolicy):
         except ValueError:
             return None
 
-        if authmeth.lower() != self.prefix.lower():
+        header_type = request.registry.settings.get("oidc.header_type", "bearer")
+        if authmeth.lower() != header_type:
             return None
 
         try:
@@ -60,13 +61,15 @@ class OpenIDConnectPolicy(base_auth.CallbackAuthenticationPolicy):
             # XXX JWT Access token
             # https://auth0.com/docs/tokens/access-token#access-token-format
 
-        return self._verify_token(issuer, audience, id_token, access_token)
+        payload = self._verify_token(issuer, client_id, id_token, access_token) or {}
+        return payload.get(userid_field)
 
     def forget(self, request):
         """A no-op. Credentials are sent on every request.
         Return WWW-Authenticate Realm header for Bearer token.
         """
-        return [('WWW-Authenticate', '%s realm="%s"' % (self.prefix, self.realm))]
+        header_type = request.registry.settings.get("oidc.header_type", "bearer")
+        return [('WWW-Authenticate', '%s realm="%s"' % (header_type, self.realm))]
 
     def _verify_token(self, issuer, audience, id_token, access_token):
         if self._openid_config is None:
@@ -79,7 +82,7 @@ class OpenIDConnectPolicy(base_auth.CallbackAuthenticationPolicy):
                 resp = requests.get(uri, headers={"Authorization": "Bearer " + access_token})
                 resp.raise_for_status()
                 userprofile = resp.json()
-                return userprofile["sub"]
+                return userprofile
             except (requests.exceptions.HTTPError, KeyError) as e:
                 logger.debug("Unable to fetch user profile from %s with %s" % (uri, access_token))
                 return None
@@ -97,7 +100,8 @@ class OpenIDConnectPolicy(base_auth.CallbackAuthenticationPolicy):
             logger.debug("Invalid header. Use an RS256 signed JWT Access Token")
             return None
 
-        if unverified_header["alg"] != "RS256":
+        supported_algos = self._openid_config.get("id_token_signing_alg_values_supported", ["RS256"])
+        if unverified_header["alg"] not in supported_algos:
             logger.debug("Invalid header. Use an RS256 signed JWT Access Token")
             return None
 
@@ -117,7 +121,7 @@ class OpenIDConnectPolicy(base_auth.CallbackAuthenticationPolicy):
             payload = jwt.decode(id_token, rsa_key, algorithms=["RS256"],
                                  audience=audience, issuer=issuer,
                                  options=options, access_token=access_token)
-            return payload["sub"]
+            return payload
 
         except jwt.ExpiredSignatureError as e:
             logger.debug("Token is expired: %s" % e)
@@ -129,13 +133,18 @@ class OpenIDConnectPolicy(base_auth.CallbackAuthenticationPolicy):
 
 
 def includeme(config):
+    # Activate end-points.
+    config.scan('kinto.plugins.openid.views')
+
     issuer = config.registry.settings['oidc.issuer_url']
+    client_id = config.registry.settings['oidc.client_id']
     openid_config = fetch_openid_config(issuer)
 
     config.add_api_capability(
         'openid',
         description='OpenID connect support.',
         url='http://kinto.readthedocs.io/en/stable/api/1.x/authentication.html',
+        client_id=client_id,
         **openid_config
     )
 
