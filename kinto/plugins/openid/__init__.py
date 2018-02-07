@@ -92,7 +92,7 @@ class OpenIDConnectPolicy(base_auth.CallbackAuthenticationPolicy):
                 resp.raise_for_status()
                 userprofile = resp.json()
                 return userprofile
-            except (requests.exceptions.HTTPError, KeyError) as e:
+            except (requests.exceptions.HTTPError, ValueError, KeyError) as e:
                 logger.debug("Unable to fetch user profile from %s with %s" % (uri, access_token))
                 return None
 

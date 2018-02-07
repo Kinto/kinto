@@ -3,6 +3,7 @@ import requests
 
 _configs = {}
 
+
 def fetch_openid_config(issuer):
     global _configs
 

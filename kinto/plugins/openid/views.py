@@ -1,6 +1,4 @@
-import hashlib
 import urllib.parse
-import os
 
 import requests
 from pyramid import httpexceptions
@@ -18,6 +16,8 @@ DEFAULT_STATE_TTL_SECONDS = 3600
 login = Service(name='openid_login',
                 path='/openid/login',
                 description='Initiate the OAuth2 login')
+
+
 @login.get()
 def get_login(request):
     # Settings.
@@ -48,8 +48,9 @@ def get_login(request):
 
 
 token = Service(name='openid_token',
-               path='/openid/token',
-               description='')
+                path='/openid/token',
+                description='')
+
 
 @token.get()
 def get_token(request):
@@ -80,7 +81,7 @@ def get_token(request):
         'code': code,
         'client_id': client_id,
         'client_secret': client_secret,
-        'redirect_uri': request.route_url('openid_token') + '?', # required by Google Identity
+        'redirect_uri': request.route_url('openid_token') + '?',  # required by Google Identity
         'grant_type': 'authorization_code'
     }
     resp = requests.post(token_endpoint, data=data)
