@@ -509,13 +509,13 @@ At this point, Kinto should be able to start and OpenID Authentication should wo
 .. code-block:: ini
 
     # User ID field name (Default: `sub`)
-    multiauth.policy.oidc.userid_field = email
+    multiauth.policy.google.userid_field = email
     # Authorization header prefix (Default: `Bearer`)
-    multiauth.policy.oidc.header_type = Bearer+OIDC
+    multiauth.policy.google.header_type = Bearer+OIDC
     # User information cache expiration (Default: 1 day)
-    multiauth.policy.oidc.verification_ttl_seconds = 86400
+    multiauth.policy.google.verification_ttl_seconds = 86400
     # Authentication state cache duration (Default: 1 hour)
-    multiauth.policy.oidc.state_ttl_seconds = 3600
+    multiauth.policy.google.state_ttl_seconds = 3600
 
 
 Custom Authentication
