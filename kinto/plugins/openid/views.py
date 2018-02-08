@@ -1,11 +1,14 @@
 import urllib.parse
 
+import colander
 import requests
 from pyramid import httpexceptions
 
+from cornice.validators import colander_validator
 from kinto.core import Service
 from kinto.core.errors import raise_invalid, ERRORS
 from kinto.core.utils import random_bytes_hex
+from kinto.core.schema import URL
 
 from .utils import fetch_openid_config
 
@@ -13,12 +16,21 @@ from .utils import fetch_openid_config
 DEFAULT_STATE_TTL_SECONDS = 3600
 
 
+class LoginQuerystring(colander.MappingSchema):
+    callback = URL()
+    scope = colander.SchemaNode(colander.String())
+
+
+class LoginSchema(colander.MappingSchema):
+    querystring = LoginQuerystring()
+
+
 login = Service(name='openid_login',
                 path='/openid/login',
                 description='Initiate the OAuth2 login')
 
 
-@login.get()
+@login.get(schema=LoginSchema(), validators=(colander_validator,))
 def get_login(request):
     # Settings.
     issuer = request.registry.settings["oidc.issuer_url"]
@@ -47,12 +59,21 @@ def get_login(request):
     raise httpexceptions.HTTPTemporaryRedirect(redirect)
 
 
+class TokenQuerystring(colander.MappingSchema):
+    code = colander.SchemaNode(colander.String())
+    state = colander.SchemaNode(colander.String())
+
+
+class TokenSchema(colander.MappingSchema):
+    querystring = TokenQuerystring()
+
+
 token = Service(name='openid_token',
                 path='/openid/token',
                 description='')
 
 
-@token.get()
+@token.get(schema=TokenSchema(), validators=(colander_validator,))
 def get_token(request):
     # Settings.
     issuer = request.registry.settings["oidc.issuer_url"]

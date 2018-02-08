@@ -16,6 +16,7 @@ class OpenIDWebTest(support.BaseWebTest, unittest.TestCase):
         settings['includes'] = 'kinto.plugins.openid'
         settings['oidc.issuer_url'] = 'https://auth.mozilla.auth0.com'
         settings['oidc.client_id'] = 'abc'
+        settings["oidc.client_secret"] = 'xyz'
         return settings
 
 
@@ -24,12 +25,15 @@ class HelloViewTest(OpenIDWebTest):
     def test_openid_capability_if_enabled(self):
         resp = self.app.get('/')
         capabilities = resp.json['capabilities']
-        self.assertIn('openid', capabilities)
-        self.assertIn('userinfo_endpoint', capabilities['openid'])
-        self.assertIn('auth_uri', capabilities['openid'])
+        assert 'openid' in capabilities
+        assert 'userinfo_endpoint' in capabilities['openid']
+        assert 'auth_uri' in capabilities['openid']
 
     def test_openid_in_openapi(self):
-        pass
+        resp = self.app.get('/__api__')
+        assert 'openid' in resp.json['securityDefinitions']
+        auth = resp.json['securityDefinitions']['openid']['authorizationUrl']
+        assert auth == 'https://auth.mozilla.auth0.com/authorize'
 
 
 class PolicyTest(unittest.TestCase):
@@ -80,6 +84,16 @@ class PolicyTest(unittest.TestCase):
         self.request.headers['Authorization'] = 'Bearer xyz'
         assert self.policy.unauthenticated_userid(self.request) == 'userid'
         self.verify.assert_called_with('https://idp', 'abc', None, 'xyz')
+
+    def test_payload_is_read_from_cache(self):
+        self.request.headers['Authorization'] = 'Bearer xyz'
+        self.request.registry.cache.get.return_value = {'sub': 'me'}
+        self.policy.unauthenticated_userid(self.request) == 'me'
+
+    def test_payload_is_stored_in_cache(self):
+        self.request.headers['Authorization'] = 'Bearer xyz'
+        assert self.policy.unauthenticated_userid(self.request) == 'userid'
+        assert self.request.registry.cache.set.called
 
 
 class VerifyTokenTest(unittest.TestCase):
@@ -208,3 +222,40 @@ class VerifyTokenTest(unittest.TestCase):
         self.mocked_jwt.decode.side_effect = IOError("will catch all")
         uid = self.policy._verify_token(id_token='a.b.c', access_token='at', **self.verify_kw)
         assert uid is None
+
+
+class LoginViewTest(OpenIDWebTest):
+
+    def test_returns_400_if_parameters_are_missing_or_bad(self):
+        self.app.get('/openid/login', status=400)
+        self.app.get('/openid/login', params={'callback': 'http://no-scope'}, status=400)
+        self.app.get('/openid/login', params={'callback': 'bad', 'scope': 'openid'}, status=400)
+
+    def test_redirects_to_the_identity_provider(self):
+        params = {'callback': 'http://ui', 'scope': 'openid'}
+        resp = self.app.get('/openid/login', params=params, status=307)
+        location = resp.headers['Location']
+        assert 'auth0.com/authorize?' in location
+        assert '%2Fv1%2Fopenid%2Ftoken' in location
+        assert 'scope=openid' in location
+        assert 'client_id=abc' in location
+
+    def test_callback_is_stored_in_cache(self):
+        pass
+
+
+class TokenViewTest(OpenIDWebTest):
+
+    def test_returns_400_if_parameters_are_missing_or_bad(self):
+        self.app.get('/openid/token', status=400)
+        self.app.get('/openid/login', params={'code': 'abc'}, status=400)
+        self.app.get('/openid/login', params={'state': 'abc'}, status=400)
+
+    def test_returns_400_if_state_is_invalid(self):
+        self.app.get('/openid/login', params={'code': 'abc', 'state': 'abc'}, status=400)
+
+    def test_code_is_traded_using_client_secret(self):
+        pass
+
+    def test_redirects_to_callback_using_authorization_response(self):
+        pass

@@ -92,28 +92,31 @@ class OpenIDConnectPolicy(base_auth.CallbackAuthenticationPolicy):
                 resp.raise_for_status()
                 userprofile = resp.json()
                 return userprofile
+
             except (requests.exceptions.HTTPError, ValueError, KeyError) as e:
                 logger.debug("Unable to fetch user profile from %s with %s" % (uri, access_token))
                 return None
 
-        # JWT token is provided.
-        # Verify signature
+        # A JWT token is provided.
+
+        # Fetch keys to verify signature
         if self._jwt_keys is None:
             jwks_uri = oid_config["jwks_uri"]
             resp = requests.get(jwks_uri)
             self._jwt_keys = resp.json()["keys"]
 
+        # Read JWT header.
         try:
             unverified_header = jwt.get_unverified_header(id_token)
         except jwt.JWTError:
             logger.debug("Invalid header. Use an RS256 signed JWT Access Token")
             return None
-
+        # Check if algorithm is supported.
         supported_algos = oid_config.get("id_token_signing_alg_values_supported", ["RS256"])
         if unverified_header["alg"] not in supported_algos:
-            logger.debug("Invalid header. Use an RS256 signed JWT Access Token")
+            logger.debug("Invalid header. Use an %s signed JWT Access Token" % supported_algos)
             return None
-
+        # Pick the selected key.
         rsa_key = {}
         for key in self._jwt_keys:
             if key["kid"] == unverified_header["kid"]:
@@ -122,6 +125,7 @@ class OpenIDConnectPolicy(base_auth.CallbackAuthenticationPolicy):
         if not rsa_key:
             logger.debug("Unable to find appropriate key")
             return None
+        # Verify the signature, the claims, and decode the JWT payload.
         try:
             options = None
             if access_token is None:
