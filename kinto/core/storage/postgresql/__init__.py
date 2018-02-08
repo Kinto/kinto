@@ -245,7 +245,19 @@ class Storage(StorageBase, MigratorMixin):
                auth=None):
         id_generator = id_generator or self.id_generator
         record = {**record}
-        if id_field not in record:
+        if id_field in record:
+            # Optimistically raise unicity error if record with same
+            # id already exists.
+            # Even if this check doesn't find one, be robust against
+            # conflicts because we could race with another thread.
+            # Still, this reduces write load because SELECTs are
+            # cheaper than INSERTs.
+            try:
+                existing = self.get(collection_id, parent_id, record[id_field])
+                raise exceptions.UnicityError(id_field, existing)
+            except exceptions.RecordNotFoundError:
+                pass
+        else:
             record[id_field] = id_generator()
 
         # Remove redundancy in data field
