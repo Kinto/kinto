@@ -4,7 +4,7 @@ import colander
 import requests
 from pyramid import httpexceptions
 
-from cornice.validators import colander_validator
+from cornice.validators import colander_querystring_validator
 from kinto.core import Service
 from kinto.core.errors import raise_invalid, ERRORS
 from kinto.core.utils import random_bytes_hex
@@ -16,26 +16,39 @@ from .utils import fetch_openid_config
 DEFAULT_STATE_TTL_SECONDS = 3600
 
 
-class LoginQuerystring(colander.MappingSchema):
+def provider_validator(request, **kwargs):
+    """
+    This validator verifies that the validator in URL (eg. /openid/auth0/login)
+    is a configured OpenIDConnect policy.
+    """
+    provider = request.matchdict['provider']
+    used = request.registry.settings.get('multiauth.policy.%s.use' % provider, '')
+    if not used.endswith('OpenIDConnectPolicy'):
+        request.errors.add('path', 'provider', 'Unknow provider %r' % provider)
+
+
+class LoginSchema(colander.MappingSchema):
+    """
+    Querystring schema for the login endpoint.
+    """
     callback = URL()
     scope = colander.SchemaNode(colander.String())
 
 
-class LoginSchema(colander.MappingSchema):
-    querystring = LoginQuerystring()
-
-
 login = Service(name='openid_login',
-                path='/openid/login',
+                path='/openid/{provider}/login',
                 description='Initiate the OAuth2 login')
 
 
-@login.get(schema=LoginSchema(), validators=(colander_validator,))
+@login.get(schema=LoginSchema(),
+           validators=(colander_querystring_validator, provider_validator))
 def get_login(request):
     # Settings.
-    issuer = request.registry.settings["oidc.issuer_url"]
-    client_id = request.registry.settings["oidc.client_id"]
-    state_ttl = int(request.registry.settings.get("oidc.state_ttl_seconds",
+    provider = request.matchdict['provider']
+    settings_prefix = "multiauth.policy.%s." % provider
+    issuer = request.registry.settings[settings_prefix + "issuer"]
+    client_id = request.registry.settings[settings_prefix + "client_id"]
+    state_ttl = int(request.registry.settings.get(settings_prefix + "state_ttl_seconds",
                                                   DEFAULT_STATE_TTL_SECONDS))
 
     # Read OpenID configuration (cached by issuer)
@@ -52,33 +65,35 @@ def get_login(request):
 
     # Redirect the client to the Identity Provider that will eventually redirect
     # to the OpenID token endpoint.
-    token_uri = request.route_url('openid_token') + '?'
+    token_uri = request.route_url('openid_token', provider=provider) + '?'
     params = dict(client_id=client_id, response_type="code", scope=scope,
                   redirect_uri=token_uri, state=state)
     redirect = "{}?{}".format(auth_endpoint, urllib.parse.urlencode(params))
     raise httpexceptions.HTTPTemporaryRedirect(redirect)
 
 
-class TokenQuerystring(colander.MappingSchema):
+class TokenSchema(colander.MappingSchema):
+    """
+    Querystring schema for the token endpoint.
+    """
     code = colander.SchemaNode(colander.String())
     state = colander.SchemaNode(colander.String())
 
 
-class TokenSchema(colander.MappingSchema):
-    querystring = TokenQuerystring()
-
-
 token = Service(name='openid_token',
-                path='/openid/token',
+                path='/openid/{provider}/token',
                 description='')
 
 
-@token.get(schema=TokenSchema(), validators=(colander_validator,))
+@token.get(schema=TokenSchema(),
+           validators=(colander_querystring_validator, provider_validator))
 def get_token(request):
     # Settings.
-    issuer = request.registry.settings["oidc.issuer_url"]
-    client_id = request.registry.settings["oidc.client_id"]
-    client_secret = request.registry.settings["oidc.client_secret"]
+    provider = request.matchdict['provider']
+    settings_prefix = "multiauth.policy.%s." % provider
+    issuer = request.registry.settings[settings_prefix + "issuer"]
+    client_id = request.registry.settings[settings_prefix + "client_id"]
+    client_secret = request.registry.settings[settings_prefix + "client_secret"]
 
     # Read OpenID configuration (cached by issuer)
     oid_config = fetch_openid_config(issuer)
@@ -98,12 +113,14 @@ def get_token(request):
         raise_invalid(request, **error_details)
 
     # Trade the code for tokens on the Identity Provider.
+    # Google Identity requires to specify again redirect_uri.
+    redirect_uri = request.route_url('openid_token', provider=provider) + '?'
     data = {
         'code': code,
         'client_id': client_id,
         'client_secret': client_secret,
-        'redirect_uri': request.route_url('openid_token') + '?',  # required by Google Identity
-        'grant_type': 'authorization_code'
+        'redirect_uri': redirect_uri,
+        'grant_type': 'authorization_code',
     }
     resp = requests.post(token_endpoint, data=data)
 

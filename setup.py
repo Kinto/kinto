@@ -21,7 +21,7 @@ CONTRIBUTORS = read_file('CONTRIBUTORS.rst')
 REQUIREMENTS = [
     'bcrypt',
     'colander >= 1.4.0',
-    'cornice >= 2.4',
+    'cornice >= 3.1',  # querystring validator.
     'cornice_swagger >= 0.5.1',
     'dockerflow',
     'python-jose',
