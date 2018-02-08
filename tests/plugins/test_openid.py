@@ -85,6 +85,13 @@ class PolicyTest(unittest.TestCase):
         assert self.policy.unauthenticated_userid(self.request) == 'userid'
         self.verify.assert_called_with('https://idp', 'abc', None, 'xyz')
 
+    def test_returns_none_if_no_cache_and_invalid_access_token(self):
+        self.request.headers['Authorization'] = 'Bearer xyz'
+        self.request.registry.cache.get.return_value = None
+        self.verify.return_value = None
+        assert self.policy.unauthenticated_userid(self.request) is None
+        assert not self.request.registry.cache.set.called
+
     def test_payload_is_read_from_cache(self):
         self.request.headers['Authorization'] = 'Bearer xyz'
         self.request.registry.cache.get.return_value = {'sub': 'me'}
@@ -241,21 +248,51 @@ class LoginViewTest(OpenIDWebTest):
         assert 'client_id=abc' in location
 
     def test_callback_is_stored_in_cache(self):
-        pass
+        params = {'callback': 'http://ui', 'scope': 'openid'}
+        with mock.patch('kinto.plugins.openid.views.random_bytes_hex') as m:
+            m.return_value = 'key'
+            self.app.get('/openid/login', params=params, status=307)
+
+        cached = self.app.app.registry.cache.get('openid:state:key')
+        assert cached == 'http://ui'
 
 
 class TokenViewTest(OpenIDWebTest):
 
     def test_returns_400_if_parameters_are_missing_or_bad(self):
         self.app.get('/openid/token', status=400)
-        self.app.get('/openid/login', params={'code': 'abc'}, status=400)
-        self.app.get('/openid/login', params={'state': 'abc'}, status=400)
+        self.app.get('/openid/token', params={'code': 'abc'}, status=400)
+        self.app.get('/openid/token', params={'state': 'abc'}, status=400)
 
     def test_returns_400_if_state_is_invalid(self):
-        self.app.get('/openid/login', params={'code': 'abc', 'state': 'abc'}, status=400)
+        self.app.get('/openid/token', params={'code': 'abc', 'state': 'abc'}, status=400)
 
     def test_code_is_traded_using_client_secret(self):
-        pass
+        self.app.app.registry.cache.set('openid:state:key', 'http://ui', ttl=100)
+        with mock.patch('kinto.plugins.openid.views.requests.post') as m:
+            m.return_value.text = '{"access_token": "token"}'
+            self.app.get('/openid/token', params={'code': 'abc', 'state': 'key'})
+            m.assert_called_with(
+                'https://auth.mozilla.auth0.com/oauth/token',
+                data={
+                    'code': 'abc',
+                    'client_id': 'abc',
+                    'client_secret': 'xyz',
+                    'redirect_uri': 'http://localhost/v1/openid/token?',
+                    'grant_type': 'authorization_code'})
+
+    def test_state_cannot_be_reused(self):
+        self.app.app.registry.cache.set('openid:state:key', 'http://ui', ttl=100)
+        with mock.patch('kinto.plugins.openid.views.requests.post') as m:
+            m.return_value.text = '{"access_token": "token"}'
+            self.app.get('/openid/token', params={'code': 'abc', 'state': 'key'})
+            self.app.get('/openid/token', params={'code': 'abc', 'state': 'key'}, status=400)
 
     def test_redirects_to_callback_using_authorization_response(self):
-        pass
+        self.app.app.registry.cache.set('openid:state:key', 'http://ui/#token=', ttl=100)
+        with mock.patch('kinto.plugins.openid.views.requests.post') as m:
+            m.return_value.text = '{"access_token": "token"}'
+            resp = self.app.get('/openid/token', params={'code': 'abc', 'state': 'key'},
+                                status=307)
+        location = resp.headers['Location']
+        assert location == 'http://ui/#token=%7B%22access_token%22%3A%20%22token%22%7D'

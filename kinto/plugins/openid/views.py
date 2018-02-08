@@ -93,7 +93,7 @@ def get_token(request):
         error_details = {
             'name': 'state',
             'description': 'Invalid state',
-            'errno': ERRORS.INVALID_AUTH_TOKEN,
+            'errno': ERRORS.INVALID_AUTH_TOKEN.value,
         }
         raise_invalid(request, **error_details)
 
