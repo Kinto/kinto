@@ -170,12 +170,14 @@ def includeme(config):
         openid_config = fetch_openid_config(issuer)
 
         client_id = settings['multiauth.policy.%s.client_id' % name]
+        header_type = settings.get('multiauth.policy.%s.header_type', 'Bearer')
 
         providers_infos.append({
             'name': name,
             'issuer': openid_config['issuer'],
             'auth_path': '/openid/%s/login' % name,
             'client_id': client_id,
+            'header_type': header_type,
             'userinfo_endpoint': openid_config['userinfo_endpoint'],
         })
 
