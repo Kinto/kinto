@@ -251,15 +251,16 @@ class PostgreSQLStorageTest(StorageTest, unittest.TestCase):
     def test_conflicts_handled_correctly(self):
         config = self._get_config()
         storage = self.backend.load_from_config(config)
-        storage.create(collection_id='genre', parent_id='music', record={'id': 'rock-and-roll'})
+        storage.create(collection_id='genre', parent_id='music',
+                       record={'id': 'rock-and-roll'})
+
         def record_not_found(*args, **kwargs):
             raise exceptions.RecordNotFoundError()
 
         with mock.patch.object(storage, 'get', side_effect=record_not_found):
             with self.assertRaises(exceptions.UnicityError):
-                storage.create(collection_id='genre', parent_id='music', record={'id': 'rock-and-roll'})
-
-
+                storage.create(collection_id='genre', parent_id='music',
+                               record={'id': 'rock-and-roll'})
 
 
 class PaginatedTest(unittest.TestCase):
