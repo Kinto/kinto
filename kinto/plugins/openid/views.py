@@ -45,30 +45,39 @@ login = Service(name='openid_login',
 def get_login(request):
     # Settings.
     provider = request.matchdict['provider']
-    settings_prefix = "multiauth.policy.%s." % provider
-    issuer = request.registry.settings[settings_prefix + "issuer"]
-    client_id = request.registry.settings[settings_prefix + "client_id"]
-    state_ttl = int(request.registry.settings.get(settings_prefix + "state_ttl_seconds",
+    settings_prefix = 'multiauth.policy.%s.' % provider
+    issuer = request.registry.settings[settings_prefix + 'issuer']
+    client_id = request.registry.settings[settings_prefix + 'client_id']
+    userid_field = request.registry.settings.get(settings_prefix + 'userid_field')
+    state_ttl = int(request.registry.settings.get(settings_prefix + 'state_ttl_seconds',
                                                   DEFAULT_STATE_TTL_SECONDS))
 
     # Read OpenID configuration (cached by issuer)
     oid_config = fetch_openid_config(issuer)
-    auth_endpoint = oid_config["authorization_endpoint"]
+    auth_endpoint = oid_config['authorization_endpoint']
 
     scope = request.GET['scope']
     callback = request.GET['callback']
 
+    # Check that email scope is requested if userid field is configured as email.
+    if userid_field == 'email' and 'email' not in scope:
+        error_details = {
+            'name': 'scope',
+            'description': "Provider %s requires 'email' scope" % provider,
+        }
+        raise_invalid(request, **error_details)
+
     # Generate a random string as state.
     # And save it until code is traded.
     state = random_bytes_hex(256)
-    request.registry.cache.set("openid:state:" + state, callback, ttl=state_ttl)
+    request.registry.cache.set('openid:state:' + state, callback, ttl=state_ttl)
 
     # Redirect the client to the Identity Provider that will eventually redirect
     # to the OpenID token endpoint.
     token_uri = request.route_url('openid_token', provider=provider) + '?'
-    params = dict(client_id=client_id, response_type="code", scope=scope,
+    params = dict(client_id=client_id, response_type='code', scope=scope,
                   redirect_uri=token_uri, state=state)
-    redirect = "{}?{}".format(auth_endpoint, urllib.parse.urlencode(params))
+    redirect = '{}?{}'.format(auth_endpoint, urllib.parse.urlencode(params))
     raise httpexceptions.HTTPTemporaryRedirect(redirect)
 
 
@@ -90,20 +99,20 @@ token = Service(name='openid_token',
 def get_token(request):
     # Settings.
     provider = request.matchdict['provider']
-    settings_prefix = "multiauth.policy.%s." % provider
-    issuer = request.registry.settings[settings_prefix + "issuer"]
-    client_id = request.registry.settings[settings_prefix + "client_id"]
-    client_secret = request.registry.settings[settings_prefix + "client_secret"]
+    settings_prefix = 'multiauth.policy.%s.' % provider
+    issuer = request.registry.settings[settings_prefix + 'issuer']
+    client_id = request.registry.settings[settings_prefix + 'client_id']
+    client_secret = request.registry.settings[settings_prefix + 'client_secret']
 
     # Read OpenID configuration (cached by issuer)
     oid_config = fetch_openid_config(issuer)
-    token_endpoint = oid_config["token_endpoint"]
+    token_endpoint = oid_config['token_endpoint']
 
-    code = request.GET["code"]
-    state = request.GET["state"]
+    code = request.GET['code']
+    state = request.GET['state']
 
     # State can be used only once.
-    callback = request.registry.cache.delete("openid:state:" + state)
+    callback = request.registry.cache.delete('openid:state:' + state)
     if callback is None:
         error_details = {
             'name': 'state',

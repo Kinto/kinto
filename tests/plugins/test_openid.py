@@ -25,6 +25,7 @@ class OpenIDWebTest(support.BaseWebTest, unittest.TestCase):
         settings['multiauth.policy.google.issuer'] = 'https://accounts.google.com'
         settings['multiauth.policy.google.client_id'] = '123'
         settings["multiauth.policy.google.client_secret"] = '789'
+        settings["multiauth.policy.google.userid_field"] = 'email'
         return settings
 
 
@@ -264,6 +265,15 @@ class LoginViewTest(OpenIDWebTest):
 
     def test_returns_400_if_provider_is_unknown(self):
         self.app.get('/openid/fxa/login', status=400)
+
+    def test_returns_400_if_email_is_not_in_scope_when_userid_field_is_email(self):
+        scope = 'openid'
+        cb = 'http://ui'
+        self.app.get('/openid/auth0/login', params={'callback': cb, 'scope': scope},
+                     status=307)
+        # See config above (email is userid field)
+        self.app.get('/openid/google/login', params={'callback': cb, 'scope': scope},
+                     status=400)
 
     def test_redirects_to_the_identity_provider(self):
         params = {'callback': 'http://ui', 'scope': 'openid'}

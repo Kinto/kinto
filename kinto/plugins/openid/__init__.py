@@ -47,9 +47,9 @@ class OpenIDConnectPolicy(base_auth.CallbackAuthenticationPolicy):
         try:
             # Bearer+OIDC id_token=jwt, access_token=bearer
             parts = payload.split(',')
-            credentials = {k: v for k, v in [p.strip().split("=") for p in parts]}
-            id_token = credentials["id_token"]
-            access_token = credentials["access_token"]
+            credentials = {k: v for k, v in [p.strip().split('=') for p in parts]}
+            id_token = credentials['id_token']
+            access_token = credentials['access_token']
         except (ValueError, KeyError):
             parts = payload.split('.')
             if len(parts) == 3:
@@ -66,7 +66,7 @@ class OpenIDConnectPolicy(base_auth.CallbackAuthenticationPolicy):
 
         # Check cache if these tokens were already verified.
         hmac_tokens = core_utils.hmac_digest(hmac_secret, '{}:{}'.format(id_token, access_token))
-        cache_key = "openid:verify:%s".format(hmac_tokens)
+        cache_key = 'openid:verify:%s'.format(hmac_tokens)
         payload = request.registry.cache.get(cache_key)
         if payload is None:
             # This can take some time.
@@ -86,63 +86,63 @@ class OpenIDConnectPolicy(base_auth.CallbackAuthenticationPolicy):
 
     def _verify_token(self, id_token, access_token):
         if id_token is None:
-            uri = self.oid_config["userinfo_endpoint"]
+            uri = self.oid_config['userinfo_endpoint']
             # Opaque access token string. Fetch user info from profile.
             try:
-                resp = requests.get(uri, headers={"Authorization": "Bearer " + access_token})
+                resp = requests.get(uri, headers={'Authorization': 'Bearer ' + access_token})
                 resp.raise_for_status()
                 userprofile = resp.json()
                 return userprofile
 
             except (requests.exceptions.HTTPError, ValueError, KeyError) as e:
-                logger.debug("Unable to fetch user profile from %s with %s" % (uri, access_token))
+                logger.debug('Unable to fetch user profile from %s with %s' % (uri, access_token))
                 return None
 
         # A JWT token is provided.
 
         # Fetch keys to verify signature
         if self._jwt_keys is None:
-            jwks_uri = self.oid_config["jwks_uri"]
+            jwks_uri = self.oid_config['jwks_uri']
             resp = requests.get(jwks_uri)
-            self._jwt_keys = resp.json()["keys"]
+            self._jwt_keys = resp.json()['keys']
 
         # Read JWT header.
         try:
             unverified_header = jwt.get_unverified_header(id_token)
         except jwt.JWTError:
-            logger.debug("Invalid header. Use an RS256 signed JWT Access Token")
+            logger.debug('Invalid header. Use an RS256 signed JWT Access Token')
             return None
         # Check if algorithm is supported.
-        supported_algos = self.oid_config.get("id_token_signing_alg_values_supported", ["RS256"])
-        if unverified_header["alg"] not in supported_algos:
-            logger.debug("Invalid header. Use an %s signed JWT Access Token" % supported_algos)
+        supported_algos = self.oid_config.get('id_token_signing_alg_values_supported', ['RS256'])
+        if unverified_header['alg'] not in supported_algos:
+            logger.debug('Invalid header. Use an %s signed JWT Access Token' % supported_algos)
             return None
         # Pick the selected key.
         rsa_key = {}
         for key in self._jwt_keys:
-            if key["kid"] == unverified_header["kid"]:
-                rsa_key = core_utils.dict_subset(key, ("kty", "kid", "use", "n", "e"))
+            if key['kid'] == unverified_header['kid']:
+                rsa_key = core_utils.dict_subset(key, ('kty', 'kid', 'use', 'n', 'e'))
                 break
         if not rsa_key:
-            logger.debug("Unable to find appropriate key")
+            logger.debug('Unable to find appropriate key')
             return None
         # Verify the signature, the claims, and decode the JWT payload.
         try:
             options = None
             if access_token is None:
-                options = {"verify_at_hash": False}
+                options = {'verify_at_hash': False}
 
-            payload = jwt.decode(id_token, rsa_key, algorithms=["RS256"],
+            payload = jwt.decode(id_token, rsa_key, algorithms=['RS256'],
                                  audience=self.client_id, issuer=self.issuer,
                                  options=options, access_token=access_token)
             return payload
 
         except jwt.ExpiredSignatureError as e:
-            logger.debug("Token is expired: %s" % e)
+            logger.debug('Token is expired: %s' % e)
         except jwt.JWTClaimsError as e:
-            logger.debug("Incorrect claims, please check the audience and issuer: %s" % e)
+            logger.debug('Incorrect claims, please check the audience and issuer: %s' % e)
         except Exception as e:
-            logger.exception("Unable to parse token")
+            logger.exception('Unable to parse token')
         return None
 
 
@@ -182,8 +182,8 @@ def includeme(config):
         })
 
         OpenAPI.expose_authentication_method(name, {
-            "type": "oauth2",
-            "authorizationUrl": openid_config['authorization_endpoint'],
+            'type': 'oauth2',
+            'authorizationUrl': openid_config['authorization_endpoint'],
         })
 
     config.add_api_capability(
