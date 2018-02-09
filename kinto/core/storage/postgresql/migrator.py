@@ -37,7 +37,7 @@ class MigratorMixin():
 
         This may be called several times during a single migration.
         """
-        raise NotImplementedError("method not overridden")  # pragma: no cover
+        raise NotImplementedError('method not overridden')  # pragma: no cover
 
     def create_or_migrate_schema(self, dry_run=False):
         """Either create or migrate the schema, as needed."""
