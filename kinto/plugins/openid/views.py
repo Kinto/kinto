@@ -4,16 +4,33 @@ import colander
 import requests
 from pyramid import httpexceptions
 
-from cornice.validators import colander_querystring_validator
+from cornice.validators import colander_validator
 from kinto.core import Service
 from kinto.core.errors import raise_invalid, ERRORS
 from kinto.core.utils import random_bytes_hex
+from kinto.core.resource.schema import ErrorResponseSchema
 from kinto.core.schema import URL
 
 from .utils import fetch_openid_config
 
 
 DEFAULT_STATE_TTL_SECONDS = 3600
+
+
+class RedirectHeadersSchema(colander.MappingSchema):
+    """Redirect response headers."""
+    location = colander.SchemaNode(colander.String(), name='Location')
+
+
+class RedirectResponseSchema(colander.MappingSchema):
+    """Redirect response schema."""
+    headers = RedirectHeadersSchema()
+
+
+response_schemas = {
+    '307': RedirectResponseSchema(description='Successful redirection.'),
+    '400': ErrorResponseSchema(description='The request is invalid.'),
+}
 
 
 def provider_validator(request, **kwargs):
@@ -27,12 +44,16 @@ def provider_validator(request, **kwargs):
         request.errors.add('path', 'provider', 'Unknow provider %r' % provider)
 
 
-class LoginSchema(colander.MappingSchema):
+class LoginQuerystringSchema(colander.MappingSchema):
     """
     Querystring schema for the login endpoint.
     """
     callback = URL()
     scope = colander.SchemaNode(colander.String())
+
+
+class LoginSchema(colander.MappingSchema):
+    querystring = LoginQuerystringSchema()
 
 
 login = Service(name='openid_login',
@@ -41,8 +62,12 @@ login = Service(name='openid_login',
 
 
 @login.get(schema=LoginSchema(),
-           validators=(colander_querystring_validator, provider_validator))
+           validators=(colander_validator, provider_validator),
+           response_schemas=response_schemas)
 def get_login(request):
+    """Initiates to login dance for the specified scopes and callback URI
+    using appropriate redirections."""
+
     # Settings.
     provider = request.matchdict['provider']
     settings_prefix = 'multiauth.policy.%s.' % provider
@@ -81,12 +106,16 @@ def get_login(request):
     raise httpexceptions.HTTPTemporaryRedirect(redirect)
 
 
-class TokenSchema(colander.MappingSchema):
+class TokenQuerystringSchema(colander.MappingSchema):
     """
     Querystring schema for the token endpoint.
     """
     code = colander.SchemaNode(colander.String())
     state = colander.SchemaNode(colander.String())
+
+
+class TokenSchema(colander.MappingSchema):
+    querystring = TokenQuerystringSchema()
 
 
 token = Service(name='openid_token',
@@ -95,8 +124,12 @@ token = Service(name='openid_token',
 
 
 @token.get(schema=TokenSchema(),
-           validators=(colander_querystring_validator, provider_validator))
+           validators=(colander_validator, provider_validator))
 def get_token(request):
+    """Trades the specified code and state against access and ID tokens.
+    The client is redirected to the original ``callback`` URI with the
+    result in querystring."""
+
     # Settings.
     provider = request.matchdict['provider']
     settings_prefix = 'multiauth.policy.%s.' % provider
