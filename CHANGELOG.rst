@@ -10,7 +10,7 @@ This document describes changes between each past release.
 
 - Restore "look before you leap" behavior in the Postgres storage
   backend create() method to check whether a record exists before
-  running the INSERT query. This check is "optimistic" in the sense
+  running the INSERT query (#1487). This check is "optimistic" in the sense
   that we can still fail to INSERT after the check succeeded, but it
   can reduce write load in configurations where there are a lot of
   create()s (i.e. when using the default_bucket plugin).
