@@ -228,8 +228,8 @@ class Storage(StorageBase, MigratorMixin):
             # If the backend is readonly, we should not try to create the timestamp.
             if self.readonly:
                 if existing_ts is None:
-                    error_msg = ("Cannot initialize empty collection timestamp "
-                                 "when running in readonly.")
+                    error_msg = ('Cannot initialize empty collection timestamp '
+                                 'when running in readonly.')
                     raise exceptions.BackendError(message=error_msg)
                 record = row
             else:

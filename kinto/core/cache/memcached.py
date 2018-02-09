@@ -67,7 +67,7 @@ class Cache(CacheBase):
         if not value:
             return None, 0
         data = json.loads(value)
-        return data["value"], data["ttl"]
+        return data['value'], data['ttl']
 
     def ttl(self, key):
         _, ttl = self._get(key)
@@ -91,7 +91,7 @@ class Cache(CacheBase):
     def set(self, key, value, ttl):
         if isinstance(value, bytes):
             raise TypeError("a string-like object is required, not 'bytes'")
-        value = json.dumps({"value": value, "ttl": ceil(time() + ttl)})
+        value = json.dumps({'value': value, 'ttl': ceil(time() + ttl)})
         self._client.set(self.prefix + key, value, int(ttl))
 
     @wrap_memcached_error

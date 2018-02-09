@@ -99,7 +99,7 @@ class Storage(MemoryBasedStorage):
         if ts is not None:
             return ts
         if self.readonly:
-            error_msg = "Cannot initialize empty collection timestamp when running in readonly."
+            error_msg = 'Cannot initialize empty collection timestamp when running in readonly.'
             raise exceptions.BackendError(message=error_msg)
         return self._bump_timestamp(collection_id, parent_id)
 
