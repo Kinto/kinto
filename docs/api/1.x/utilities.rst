@@ -3,6 +3,8 @@
 Utility endpoints for OPS and Devs
 ##################################
 
+.. _api-utilities-hello:
+
 GET /
 =====
 

@@ -229,8 +229,6 @@ You can also read our :ref:`tutorial about how to plug the Github authorisation 
 OpenID Connect
 ==============
 
-Kinto supports :ref:`OpenID <settings-openid>`.
-
 OpenID relies on *OAuth2 bearer tokens*, so basically authentication shall be done using this header:
 
 ::
@@ -245,10 +243,10 @@ OpenID relies on *OAuth2 bearer tokens*, so basically authentication shall be do
 Login and obtain access token
 -----------------------------
 
-Once configured, the OpenID configuration details are provided in the capabilities object at the :ref:`root URL <hello-endpoint>`.
+:ref:`Once configured <settings-openid>`, the OpenID configuration details are provided in the capabilities object at the :ref:`root URL <api-utilities-hello>`:
 
-.. code-block:: HTTP
-    :emphasize-lines: 12-17
+.. code-block:: http
+    :emphasize-lines: 11-16
 
     HTTP/1.1 200 OK
     Content-Length: 638
@@ -271,12 +269,12 @@ Once configured, the OpenID configuration details are provided in the capabiliti
                 "url": "http://kinto.readthedocs.io/en/stable/api/1.x/authentication.html"
             }
         }
-        ...
+    }
 
 In order to initiate the login and its browser redirections (aka. «dance»), just reach the URL specified in the ``auth_path``
 for the configured provider ``name``.
 
-.. code-block:: HTTP
+::
 
     GET /openid/{name}/login?callback={URI}&scope={scope}
 
@@ -288,12 +286,13 @@ for the configured provider ``name``.
 JavaScript example
 ------------------
 
-Let's go through a simple OpenID login example using the :github:`JavaScript kinto client <Kinto/kinto-http.js`.
+Let's go through a simple OpenID login example using the :github:`JavaScript kinto client <Kinto/kinto-http.js>`.
 
 When the user clicks a login button, it initiate the login process by redirecting the browser to the
 Identity Provider, which itself redirects it to the application page once successful.
 
 .. code-block:: JavaScript
+    :emphasize-lines: 12,15,19-25
 
     const KINTO_URL = 'http://localhost:8888/v1';
 
@@ -342,14 +341,18 @@ The ``login()`` function is straightforward:
 
 The ``parseToken()`` function scans the location hash to read the Identity Provider response:
 
+.. code-block:: JavaScript
+
     function parseToken() {
       const hash = decodeURIComponent(window.location.hash);
       const tokensExtract = /tokens=([.\s\S]*)/.exec(hash);
-      if (tokensExtract) {
-        const tokens = tokensExtract[1];
-        const parsed = JSON.parse(tokens);
-        return parsed;
+      if (!tokensExtract) {
+        // No token in URL bar.
+        return null;
       }
-      // Else, no token in URL bar, do nothing.
-      return null;
+      const tokens = tokensExtract[1];
+      const parsed = JSON.parse(tokens);
+      return parsed;
     }
+
+Check out the :github:`full demo source code <leplatrem/kinto-oidc-demo>`.

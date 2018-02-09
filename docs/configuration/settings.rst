@@ -479,13 +479,14 @@ In order to replace it by another one:
     multiauth.policies = basicauth
     multiauth.policy.basicauth.use = myproject.authn.BasicAuthPolicy
 
+.. _settings-openid:
 
 OpenID Connect
 ::::::::::::::
 
-First of all, you must find an Identity Provider. Google Identity Platform for example, but it may also be Auth0, Microsoft, Yahoo, Paypal, Bitbucket, Ebay, Salesforce, ... or which ever platform that publishes its discovery metadata as JSON.
+First of all, you must find an Identity Provider. Google Identity Platform for example, but it may also be Auth0, Microsoft, Yahoo, Paypal, Bitbucket, Ebay, Salesforce, ... or whichever platform that publishes its discovery metadata as JSON.
 
-Enable the OpenID authentication policy in Kinto settings like below. The ``oidc`` is arbitrary but will become the user ID prefix (e.g. ``google:someuser@gmail.com``)
+Enable the OpenID authentication policy in Kinto settings like below. The ``google`` name is arbitrary but will become the user ID prefix (e.g. ``google:someuser@gmail.com``)
 
 .. code-block:: ini
 
