@@ -6,7 +6,9 @@ This document describes changes between each past release.
 8.1.5 (unreleased)
 ------------------
 
-- Nothing changed yet.
+**New features**
+
+- Add Openid connect support (#939, #1425). See `demo <https://github.com/leplatrem/kinto-oidc-demo>`_
 
 
 8.1.4 (2018-01-31)
@@ -16,6 +18,7 @@ This document describes changes between each past release.
 
 - Allow inherited resources to set a custom model instance before instantiating (fixes #1472)
 - Fix collection timestamp retrieval when the stack is configured as readonly (fixes #1474)
+
 
 8.1.3 (2018-01-26)
 ------------------
