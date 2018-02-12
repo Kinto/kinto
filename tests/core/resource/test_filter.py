@@ -68,6 +68,11 @@ class FilteringTest(BaseTest):
         self.assertRaises(httpexceptions.HTTPBadRequest,
                           self.resource.collection_get)
 
+    def test_filter_400_if_value_is_empty(self):
+        self.validated['querystring'] = {'_since': ''}
+        self.assertRaises(httpexceptions.HTTPBadRequest,
+                          self.resource.collection_get)
+
     def test_filter_errors_are_json_formatted(self):
         self.patch_known_field.stop()
         self.validated['querystring'] = {'foo': 1}

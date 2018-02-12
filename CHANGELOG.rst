@@ -6,7 +6,9 @@ This document describes changes between each past release.
 8.1.6 (unreleased)
 ------------------
 
-- Nothing changed yet.
+**Bug fixes**
+
+- Fix crash in Postgresql when the value of url param is empty (fixes #1305)
 
 
 8.1.5 (2018-02-09)
