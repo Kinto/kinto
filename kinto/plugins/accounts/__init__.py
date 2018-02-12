@@ -1,8 +1,13 @@
+from time import time
+
 from kinto.authorization import PERMISSIONS_INHERITANCE_TREE
-from kinto.plugins.hawk.hawkauth import HawkAuth
+from kinto.plugins.hawk.hawkauth import HawkAuthenticator
 from kinto.core.storage import exceptions as storage_exceptions
 from kinto.core.errors import (http_error, raise_invalid, 
                                send_alert, ERRORS, request_GET)
+
+import requests
+from requests_hawk import HawkAuth
 
 from pyramid.exceptions import ConfigurationError
 from pyramid.response import Response
@@ -26,8 +31,26 @@ def hawk_sessions(request):
 
     ACCOUNT_CACHE_KEY = 'accounts:{}:verified'
 
-    token = HawkAuth.generate_session_token()
+    token = HawkAuthenticator.generate_session_token()
     headers = {'Hawk-Session-Token': token}
+    # Save the HAWK credentials to the account record.
+    hawk_auth = HawkAuth(hawk_session=token)
+    time_valid = request.registry.settings.get('kinto.hawk_session.ttl_seconds')
+    expire_time = time() + (time_valid or 86400)
+
+    hawk_auth.credentials.update({
+        'id': hawk_auth.credentials['id'].decode(), 
+        'key': hawk_auth.credentials['key'].decode(),
+        'expires': expire_time
+    })
+
+    account.setdefault('hawk-sessions', {})
+    client_id = hawk_auth.credentials['id']
+    # The client ID is the dict key into the session credentials.
+    account['hawk-sessions'][client_id] = hawk_auth.credentials
+    request.registry.storage.update(collection_id='account', parent_id=userid,
+                                   object_id=userid, record=account)
+
     return Response(headers=headers, status_code=201)
 
 def hawk_sessions_current(request):

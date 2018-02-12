@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import time
 import mock
 import unittest
 
@@ -371,7 +372,6 @@ class HawkSessionTest(AccountsWebTest):
     def setUp(self):
         creds = {'id': 'alice', 'password': '12éé6'}
         self.app.post_json('/accounts', {'data': creds}, status=201)
-        self.account_creds = creds
 
     @classmethod
     def get_app_settings(cls, extras=None):
@@ -395,17 +395,35 @@ class HawkSessionTest(AccountsWebTest):
     def test_request_hawk_session_saves_creds_to_account(self):
         resp = self.app.post('/accounts/alice/hawk-sessions')
         token = resp.headers['Hawk-Session-Token']
-        account = request.registry.storage.get(parent_id='alice',
-                                               collection_id='account',
-                                               object_id='alice')
-        #TODO get client id from the token and test that it has been
-        # saved on the account record, along with creds and expiration
-        # date
-
-    def test_request_hawk_session_expires_session_after_date_setting(self):
-        pass
+        account = self.app.app.registry.storage.get(parent_id='alice',
+                                                   collection_id='account',
+                                                   object_id='alice')
+        assert 'hawk-sessions' in account
+        session = account['hawk-sessions'].popitem()[1]
+        assert 'key' in session and 'id' in session
+    
+    def test_request_hawk_session_expiration_time_default(self):
+        self.app.app.registry.settings['kinto.hawk_session.ttl_seconds'] = 86400
+        resp = self.app.post('/accounts/alice/hawk-sessions')
+        account = self.app.app.registry.storage.get(parent_id='alice',
+                                                   collection_id='account',
+                                                   object_id='alice')
+        session = account['hawk-sessions'].popitem()[1]
+        expected = (time.time() + 86400) // 10
+        assert session['expires'] // 10 == expected
 
     def test_hawk_session_expiration_date_is_overidden_by_setting(self):
+        self.app.app.registry.settings['kinto.hawk_session.ttl_seconds'] = 60
+        resp = self.app.post('/accounts/alice/hawk-sessions')
+        account = self.app.app.registry.storage.get(parent_id='alice',
+                                                   collection_id='account',
+                                                   object_id='alice')
+        session = account['hawk-sessions'].popitem()[1]
+        expected = (time.time() + 60) // 10
+        assert session['expires'] // 10 == expected
+
+
+    def test_request_hawk_session_expires_session_after_time_setting(self):
         pass
 
     def test_request_remove_hawk_sessions_deletes_all_sessions(self):
