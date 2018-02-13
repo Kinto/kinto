@@ -14,7 +14,48 @@ from pyramid.response import Response
 from pyramid.httpexceptions import (HTTPNotModified, HTTPPreconditionFailed,
                                     HTTPNotFound, HTTPServiceUnavailable)
 
+def clear_all_hawk_sessions(request, account):
+    """Remove all hawk sessions on the account."""
+    try:
+        account['hawk-sessions'].clear();
+    except KeyError:
+        pass
+
+    ACCOUNT_CACHE_KEY = 'accounts:{}:verified'
+
+    request.registry.storage.update(collection_id='account', 
+                                   parent_id=account['id'],
+                                   object_id=account['id'], 
+                                   record=account)
+
+def add_hawk_session(request, account, token):
+    """Add a hawk session to the account using `token` as the session token."""
+    # Save the HAWK credentials to the account record.
+    hawk_auth = HawkAuth(hawk_session=token)
+    time_valid = request.registry.settings.get('kinto.hawk_session.ttl_seconds')
+    expire_time = (time() + (time_valid or 86400))
+
+    hawk_auth.credentials.update({
+        'session': token,
+        'id': hawk_auth.credentials['id'].decode(), 
+        'key': hawk_auth.credentials['key'].decode(),
+        'expires': expire_time
+    })
+
+    account.setdefault('hawk-sessions', {})
+    client_id = hawk_auth.credentials['id']
+    # The client ID is the dict key into the session credentials.
+    account['hawk-sessions'][client_id] = hawk_auth.credentials
+    request.registry.storage.update(collection_id='account', 
+                                   parent_id=account['id'],
+                                   object_id=account['id'], 
+                                   record=account)
+
 def hawk_sessions(request):
+    """Route handler for the /accounts/hawk-sessions endpoint
+
+    Supports POST and DELETE calls.
+    """
     userid = request.matchdict['userid']
     try:
         account = request.registry.storage.get(parent_id=userid,
@@ -29,29 +70,16 @@ def hawk_sessions(request):
                               details=details)
         raise response
 
-    ACCOUNT_CACHE_KEY = 'accounts:{}:verified'
+    method = request.method.lower()
+    if method == 'post':
+        token = HawkAuthenticator.generate_session_token()
+        add_hawk_session(request, account, token)
+        headers = {'Hawk-Session-Token': token}
+        return Response(headers=headers, status_code=201)
+    elif method == 'delete':
+        clear_all_hawk_sessions(request, account)
+        return Response(status_code=204)
 
-    token = HawkAuthenticator.generate_session_token()
-    headers = {'Hawk-Session-Token': token}
-    # Save the HAWK credentials to the account record.
-    hawk_auth = HawkAuth(hawk_session=token)
-    time_valid = request.registry.settings.get('kinto.hawk_session.ttl_seconds')
-    expire_time = time() + (time_valid or 86400)
-
-    hawk_auth.credentials.update({
-        'id': hawk_auth.credentials['id'].decode(), 
-        'key': hawk_auth.credentials['key'].decode(),
-        'expires': expire_time
-    })
-
-    account.setdefault('hawk-sessions', {})
-    client_id = hawk_auth.credentials['id']
-    # The client ID is the dict key into the session credentials.
-    account['hawk-sessions'][client_id] = hawk_auth.credentials
-    request.registry.storage.update(collection_id='account', parent_id=userid,
-                                   object_id=userid, record=account)
-
-    return Response(headers=headers, status_code=201)
 
 def hawk_sessions_current(request):
     pass
