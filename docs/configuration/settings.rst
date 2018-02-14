@@ -479,6 +479,45 @@ In order to replace it by another one:
     multiauth.policies = basicauth
     multiauth.policy.basicauth.use = myproject.authn.BasicAuthPolicy
 
+.. _settings-openid:
+
+OpenID Connect
+::::::::::::::
+
+First of all, you must find an Identity Provider. Google Identity Platform for example, but it may also be Auth0, Microsoft, Yahoo, Paypal, Bitbucket, Ebay, Salesforce, ... or whichever platform that publishes its discovery metadata as JSON.
+
+Enable the OpenID authentication policy in Kinto settings like below. The ``google`` name is arbitrary but will become the user ID prefix (e.g. ``google:someuser@gmail.com``)
+
+.. code-block:: ini
+
+    kinto.includes = kinto.plugins.openid
+
+    multiauth.policies = google
+    multiauth.policy.google.use = kinto.plugins.openid.OpenIDConnectPolicy
+
+Based on the information provided by the Identity Provider configure the ``issuer`` and ``client_id``. Potentially you may have a ``client_secret`` depending on how the application was setup. For example, Auth0 has a *Frontend app* option that does not require any client secret.
+
+.. code-block:: ini
+
+    multiauth.policy.google.issuer = https://accounts.google.com
+    multiauth.policy.google.client_id = 42XXXX365001.apps.googleusercontent.com
+    multiauth.policy.google.client_secret = UAlL-054uyh5in4b6u8jhg5o3hnj
+
+At this point, Kinto should be able to start and OpenID Authentication should work as described in the :ref:`API docs <authentication-openid>`.
+
+**Advanced settings**
+
+.. code-block:: ini
+
+    # User ID field name (Default: `sub`)
+    multiauth.policy.google.userid_field = email
+    # Authorization header prefix (Default: `Bearer`)
+    multiauth.policy.google.header_type = Bearer+OIDC
+    # User information cache expiration (Default: 1 day)
+    multiauth.policy.google.verification_ttl_seconds = 86400
+    # Authentication state cache duration (Default: 1 hour)
+    multiauth.policy.google.state_ttl_seconds = 3600
+
 
 Custom Authentication
 :::::::::::::::::::::
