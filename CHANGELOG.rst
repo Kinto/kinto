@@ -6,7 +6,9 @@ This document describes changes between each past release.
 8.1.6 (unreleased)
 ------------------
 
-- Nothing changed yet.
+**Bug fixes**
+
+- Fix missing principals from user info in root URL when default bucket plugin is enabled (fixes #1495)
 
 
 8.1.5 (2018-02-09)
