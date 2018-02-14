@@ -259,8 +259,11 @@ class HelloViewTest(DefaultBucketWebTest):
 
     def test_returns_bucket_id_and_url_if_authenticated(self):
         response = self.app.get('/', headers=self.headers)
-        self.assertEqual(response.json['user']['bucket'],
-                         'ddaf8694-fa9e-2949-ed0e-77198a7907fb')
+        userinfo = response.json['user']
+        self.assertIn('id', userinfo)
+        self.assertIn('principals', userinfo)
+        self.assertIn('bucket', userinfo)
+        self.assertEqual(userinfo['bucket'], 'ddaf8694-fa9e-2949-ed0e-77198a7907fb')
 
     def test_flush_capability_if_enabled(self):
         resp = self.app.get('/')

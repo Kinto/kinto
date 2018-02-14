@@ -3,13 +3,30 @@ Changelog
 
 This document describes changes between each past release.
 
-8.1.5 (unreleased)
+8.1.6 (unreleased)
 ------------------
 
 **New features**
 
 - Add Openid connect support (#939, #1425). See `demo <https://github.com/leplatrem/kinto-oidc-demo>`_
 
+**Bug fixes**
+
+- Fix missing principals from user info in root URL when default bucket plugin is enabled (fixes #1495)
+
+
+8.1.5 (2018-02-09)
+------------------
+
+**Bug fixes**
+
+- Restore "look before you leap" behavior in the Postgres storage
+  backend create() method to check whether a record exists before
+  running the INSERT query (#1487). This check is "optimistic" in the sense
+  that we can still fail to INSERT after the check succeeded, but it
+  can reduce write load in configurations where there are a lot of
+  create()s (i.e. when using the default_bucket plugin).
+ 
 
 8.1.4 (2018-01-31)
 ------------------

@@ -997,8 +997,8 @@ class DeletedRecordsTest:
                                               include_deleted=True,
                                               **self.storage_kw)
         self.assertEqual(len(records), 1)
-        self.assertTrue(records[0]["deleted"])
-        self.assertTrue(records[0]["id"], r["id"])
+        self.assertTrue(records[0]['deleted'])
+        self.assertTrue(records[0]['id'], r['id'])
         self.assertEqual(count, 0)
 
     def test_delete_can_delete_without_tombstones(self):

@@ -133,6 +133,14 @@ class JsonLogFormatter(dockerflow_logging.JsonLogFormatter):
         self.logger_name = logger_name
 
 
+def get_user_info(request):
+    # Default user info (shown in hello view for example).
+    return {
+        'id': request.prefixed_userid,
+        'principals': request.prefixed_principals
+    }
+
+
 def includeme(config):
     settings = config.get_settings()
 
@@ -186,10 +194,7 @@ def includeme(config):
     config.add_request_method(follow_subrequest)
     config.add_request_method(prefixed_userid, property=True)
     config.add_request_method(prefixed_principals, reify=True)
-    config.add_request_method(lambda r: {
-        'id': r.prefixed_userid,
-        'principals': r.prefixed_principals},
-        name='get_user_info')
+    config.add_request_method(get_user_info, name='get_user_info')
     config.add_request_method(current_resource_name, reify=True)
     config.add_request_method(current_service, reify=True)
     config.commit()

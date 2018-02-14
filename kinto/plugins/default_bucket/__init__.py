@@ -4,6 +4,7 @@ from pyramid import httpexceptions
 from pyramid.settings import asbool
 from pyramid.security import NO_PERMISSION_REQUIRED, Authenticated
 
+from kinto.core import get_user_info as core_get_user_info
 from kinto.core.errors import raise_invalid
 from kinto.core.events import ACTIONS
 from kinto.core.storage.exceptions import UnicityError
@@ -183,8 +184,8 @@ def default_bucket_id(request):
 
 def get_user_info(request):
     user_info = {
-        'id': request.prefixed_userid,
-        'bucket': request.default_bucket_id
+        **core_get_user_info(request),
+        'bucket': request.default_bucket_id,
     }
     return user_info
 
