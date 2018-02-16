@@ -414,6 +414,10 @@ class EventResourceFilter:
         return not resource or not self.resources or resource in self.resources
 
 
+class EventResourceIdFilter:
+    pass
+
+
 def setup_listeners(config):
     # Register basic subscriber predicates, to filter events.
     config.add_subscriber_predicate('for_actions', EventActionFilter)
