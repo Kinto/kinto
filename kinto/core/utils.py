@@ -503,19 +503,54 @@ def parse_resource(resource):
     "'/buckets/<bid>/collections/<cid>' or '<bid>/<cid>'. "
     'with valid collection and bucket ids.'
 
+    resource_bucket = False
+    resource_record = False
+
     from kinto.views import NameGenerator
     id_generator = NameGenerator()
     parts = resource.split('/')
     if len(parts) == 2:
+        """<bid>/<cid>"""
         bucket, collection = parts
+    elif len(parts) == 3:
+        """
+        only bucket; </buckets/bid>
+        """
+        _, _, bucket = parts
+        resource_bucket = True
     elif len(parts) == 5:
         _, _, bucket, _, collection = parts
+    elif len(parts) == 7:
+        """for record"""
+        _, _, bucket, _, collection, _, record = parts
+        resource_record = True
     else:
         raise ValueError(error_msg)
-    if bucket == '' or collection == '':
-        raise ValueError(error_msg)
-    if not id_generator.match(bucket) or not id_generator.match(collection):
-        raise ValueError(error_msg)
+    if resource_bucket:
+        if bucket == '':
+            raise ValueError(error_msg)
+        if not id_generator.match(bucket):
+            raise ValueError(error_msg)
+        return {
+            'bucket': bucket
+        }
+    elif resource_record:
+        if bucket == '' or collection == '' or record == '':
+            raise ValueError(error_msg)
+        if not id_generator.match(bucket) \
+                or not id_generator.match(collection) \
+                or not id_generator.match(record):
+            raise ValueError(error_msg)
+        return {
+            'bucket': bucket,
+            'collection': collection,
+            'record': record
+        }
+    else:
+        if bucket == '' or collection == '':
+            raise ValueError(error_msg)
+        if not id_generator.match(bucket) or not id_generator.match(collection):
+            raise ValueError(error_msg)
     return {
         'bucket': bucket,
         'collection': collection

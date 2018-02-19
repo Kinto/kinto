@@ -415,13 +415,62 @@ class EventResourceFilter:
 
 
 class EventResourceIdFilter:
-    pass
+    def __init__(self, resource_ids, config):
+        self.resource_ids = resource_ids
+
+    def phash(self):
+        return 'for_resource_id = {}'.format(','.join(self.resource_ids))
+
+    def __call__(self, event):
+        request = event.request
+        uri = event.payload.get('uri')
+        r_name, matchdict = utils.view_lookup(request, uri)
+        """
+        Special case for Create bucket.
+
+        """
+        if event.payload.get('action') == 'create' and r_name == 'bucket':
+            return True
+        for resource_id in self.resource_ids:
+            returned_resource_ids = utils.parse_resource(resource_id)
+            if event.payload.get('action') == 'create':
+                if r_name == 'collection':
+                    bucket = matchdict.get('bucket_id')
+                    if bucket == returned_resource_ids.get('bucket'):
+                        return True
+                elif r_name == 'record':
+                    bucket = matchdict.get('bucket_id')
+                    collection = matchdict.get('collection_id')
+                    if bucket == returned_resource_ids.get('bucket') and \
+                            collection == returned_resource_ids.get('collection'):
+                        return True
+            elif event.payload.get('action') != 'create':
+                if r_name == 'bucket':
+                    bucket = matchdict.get('id')
+                    if bucket == returned_resource_ids.get('bucket'):
+                        return True
+                elif r_name == 'collection':
+                    bucket = matchdict.get('bucket_id')
+                    collection = matchdict.get('id')
+                    if bucket == returned_resource_ids.get('bucket') and \
+                            collection == returned_resource_ids.get('collection'):
+                        return True
+                elif r_name == 'record':
+                    bucket = matchdict.get('bucket_id')
+                    collection = matchdict.get('collection_id')
+                    record = matchdict.get('id')
+                    if bucket == returned_resource_ids.get('bucket') and \
+                            collection == returned_resource_ids.get('collection') and \
+                            record == returned_resource_ids.get('record'):
+                        return True
+        return False
 
 
 def setup_listeners(config):
     # Register basic subscriber predicates, to filter events.
     config.add_subscriber_predicate('for_actions', EventActionFilter)
     config.add_subscriber_predicate('for_resources', EventResourceFilter)
+    config.add_subscriber_predicate('for_resource_ids', EventResourceIdFilter)
 
     write_actions = (ACTIONS.CREATE, ACTIONS.UPDATE, ACTIONS.DELETE)
     settings = config.get_settings()
@@ -453,8 +502,8 @@ def setup_listeners(config):
         # Optional filter by event action.
         actions_setting = prefix + 'actions'
         # Read from ENV or settings.
-        actions_value = utils.read_env('{}.{}'.format(project_name, actions_setting),
-                                       settings.get(actions_setting, ''))
+        actions_value = utils.read_env(
+            '{}.{}'.format(project_name, actions_setting), settings.get(actions_setting, ''))
         actions = aslist(actions_value)
         if len(actions) > 0:
             actions = ACTIONS.from_string_list(actions)
@@ -464,12 +513,20 @@ def setup_listeners(config):
         # Optional filter by event resource name.
         resource_setting = prefix + 'resources'
         # Read from ENV or settings.
-        resource_value = utils.read_env('{}.{}'.format(project_name, resource_setting),
-                                        settings.get(resource_setting, ''))
+        resource_value = utils.read_env(
+            '{}.{}'.format(project_name, resource_setting), settings.get(resource_setting, ''))
         resource_names = aslist(resource_value)
 
+        # Optional filter by resource object id
+        resource_id_setting = prefix + 'resource_ids'
+        resource_id_value = utils.read_env(
+            '{}.{}'.format(
+                project_name, resource_id_setting), settings.get(resource_id_setting, ''))
+        resource_id_names = aslist(resource_id_value)
+
         # Pyramid event predicates.
-        options = dict(for_actions=actions, for_resources=resource_names)
+        options = dict(for_actions=actions, for_resources=resource_names,
+                       for_resource_ids=resource_id_names)
 
         if ACTIONS.READ in actions:
             config.add_subscriber(listener, ResourceRead, **options)
