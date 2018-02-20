@@ -10,6 +10,8 @@ from kinto.views import NameGenerator
 from kinto.core import resource, utils
 from kinto.core.errors import raise_invalid, http_error
 from kinto.core.events import ResourceChanged, ACTIONS
+
+from . import ACCOUNT_CACHE_KEY
 from .utils import hash_password
 
 
@@ -143,6 +145,6 @@ def on_account_changed(event):
     # Extract username and password from current user
     username, password = extract_http_basic_credentials(request)
     hmac_secret = settings['userid_hmac_secret']
-    cache_key = utils.hmac_digest(hmac_secret, '{}:{}'.format(username, password))
+    cache_key = utils.hmac_digest(hmac_secret, ACCOUNT_CACHE_KEY.format(username))
     # Delete cache
     cache.delete(cache_key)
