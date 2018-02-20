@@ -23,9 +23,13 @@ IMMUTABLE;
 -- Actual records
 --
 CREATE TABLE IF NOT EXISTS records (
-    id TEXT NOT NULL,
-    parent_id TEXT NOT NULL,
-    collection_id TEXT NOT NULL,
+    -- These are all IDs stored as text, and not human language.
+    -- Therefore, we store them in the C collation. This lets Postgres
+    -- use the index on parent_id for prefix matching (parent_id LIKE
+    -- '/buckets/abc/%').
+    id TEXT COLLATE "C" NOT NULL,
+    parent_id TEXT COLLATE "C" NOT NULL,
+    collection_id TEXT COLLATE "C" NOT NULL,
 
     -- Timestamp is relevant because adequate semantically.
     -- Since the HTTP API manipulates integers, it could make sense
@@ -46,8 +50,8 @@ CREATE INDEX IF NOT EXISTS idx_records_last_modified_epoch
 
 
 CREATE TABLE IF NOT EXISTS timestamps (
-  parent_id TEXT NOT NULL,
-  collection_id TEXT NOT NULL,
+  parent_id TEXT NOT NULL COLLATE "C",
+  collection_id TEXT NOT NULL COLLATE "C",
   last_modified TIMESTAMP NOT NULL,
   PRIMARY KEY (parent_id, collection_id)
 );
@@ -127,4 +131,4 @@ INSERT INTO metadata (name, value) VALUES ('created_at', NOW()::TEXT);
 
 -- Set storage schema version.
 -- Should match ``kinto.core.storage.postgresql.PostgreSQL.schema_version``
-INSERT INTO metadata (name, value) VALUES ('storage_schema_version', '18');
+INSERT INTO metadata (name, value) VALUES ('storage_schema_version', '20');

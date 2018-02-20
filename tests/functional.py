@@ -9,6 +9,7 @@ import uuid
 import requests
 
 
+# abspath here because __file__ may be relative if it is in __main__
 __HERE__ = os.path.abspath(os.path.dirname(__file__))
 
 SERVER_URL = "http://localhost:8888/v1"

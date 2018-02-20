@@ -3,14 +3,121 @@ Changelog
 
 This document describes changes between each past release.
 
-8.0.1 (unreleased)
+8.1.6 (unreleased)
+------------------
+
+**New features**
+
+- Add Openid connect support (#939, #1425). See `demo <https://github.com/leplatrem/kinto-oidc-demo>`_
+- Account plugin now caches authentication method (#1413)
+
+**Bug fixes**
+
+- Fix missing principals from user info in root URL when default bucket plugin is enabled (fixes #1495)
+
+
+8.1.5 (2018-02-09)
+------------------
+
+**Bug fixes**
+
+- Restore "look before you leap" behavior in the Postgres storage
+  backend create() method to check whether a record exists before
+  running the INSERT query (#1487). This check is "optimistic" in the sense
+  that we can still fail to INSERT after the check succeeded, but it
+  can reduce write load in configurations where there are a lot of
+  create()s (i.e. when using the default_bucket plugin).
+ 
+
+8.1.4 (2018-01-31)
+------------------
+
+**Bug fixes**
+
+- Allow inherited resources to set a custom model instance before instantiating (fixes #1472)
+- Fix collection timestamp retrieval when the stack is configured as readonly (fixes #1474)
+
+
+8.1.3 (2018-01-26)
+------------------
+
+**Bug fixes**
+
+- Optimize the PostgreSQL permission backend's
+  ``delete_object_permissions`` function in the case where we are only
+  matching one object_id (or object_id prefix).
+
+
+8.1.2 (2018-01-24)
+------------------
+
+**Bug fixes**
+
+- Flushing a server no longer breaks migration of the storage backend
+  (#1460). If you have ever flushed a server in the past, migration
+  may be broken. This version of Kinto tries to guess what version of
+  the schema you're running, but may guess wrong. See
+  https://github.com/Kinto/kinto/wiki/Schema-versions for some
+  additional information.
+
+**Internal changes**
+
+- We now allow migration of the permission backend's schema.
+
+**Operational concerns**
+
+- *The schema for the Postgres permission backend has changed.* This
+  changes another ID column to use the "C" collation, which should
+  speed up the `delete_object_permissions` query when deleting a
+  bucket.
+
+
+8.1.1 (2018-01-18)
+------------------
+
+**Operational concerns**
+
+- *The schema for the Postgres storage backend has changed.* This
+  changes some more ID columns to use the "C" collation, which fixes a
+  bug where the ``bump_timestamps`` trigger was very slow.
+
+
+8.1.0 (2018-01-09)
 ------------------
 
 **Internal changes**
 
 - Update the Docker compose configuration to use memcache for the cache backend (#1405)
-- Account plugin now caches authentication method (#1413)
+- Refactor the way postgresql.storage.create_from_settings ignores settings (#1410)
 
+**Operational concerns**
+
+- *The schema for the Postgres storage backend has changed.* This
+  changes some ID columns to use the "C" collation, which will make
+  ``delete_all`` queries faster. (See
+  e.g. https://www.postgresql.org/docs/9.6/static/indexes-opclass.html,
+  which says "If you do use the C locale, you do not need the
+  xxx_pattern_ops operator classes, because an index with the default
+  operator class is usable for pattern-matching queries in the C
+  locale.") This may change the default sort order and grouping of
+  record IDs.
+
+**New features**
+
+- New setting ``kinto.backoff_percentage`` to only set the backoff header a portion of the time.
+- ``make tdd`` allows development in a TDD style by rerunning tests every time a file is changed.
+
+**Bug fixes**
+
+- Optimize the Postgres collection_timestamp method by one query. It
+  now only makes two queries instead of three.
+- Update other dependencies: newrelic to 2.98.0.81 (#1409), setuptools
+  to 38.4.0 (#1411, #1429, #1438, #1440), pytest to 3.3.2 (#1412,
+  #1437), raven to 6.4.0 (#1421), werkzeug to 0.14.1 (#1418, #1434),
+  python-memcached to 1.59 (#1423), zest.releaser to 6.13.3 (#1427),
+  bravado_core to 4.11.2 (#1426, #1441), statsd to 3.2.2 (#1422),
+  jsonpatch to 1.21 (#1432), sqlalchemy to 1.2.0 (#1430), sphinx to
+  1.6.6 (#1442).
 
 8.0.0 (2017-11-29)
 ------------------

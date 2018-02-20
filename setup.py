@@ -2,6 +2,8 @@ import codecs
 import os
 from setuptools import setup, find_packages
 
+# abspath here because setup.py may be __main__, in which case
+# __file__ is not guaranteed to be absolute
 here = os.path.abspath(os.path.dirname(__file__))
 
 
@@ -19,7 +21,7 @@ CONTRIBUTORS = read_file('CONTRIBUTORS.rst')
 REQUIREMENTS = [
     'bcrypt',
     'colander >= 1.4.0',
-    'cornice >= 2.4',
+    'cornice',
     'cornice_swagger >= 0.5.1',
     'dockerflow',
     'jsonschema',
@@ -81,7 +83,7 @@ ENTRY_POINTS = {
 
 
 setup(name='kinto',
-      version='8.0.1.dev0',
+      version='8.1.6.dev0',
       description='Kinto Web Service - Store, Sync, Share, and Self-Host.',
       long_description='{}\n\n{}\n\n{}'.format(README, CHANGELOG, CONTRIBUTORS),
       license='Apache License (2.0)',

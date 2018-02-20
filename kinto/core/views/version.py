@@ -6,8 +6,8 @@ from pyramid import httpexceptions
 from pyramid.security import NO_PERMISSION_REQUIRED
 from kinto.core import Service
 
-HERE = os.path.dirname(os.path.abspath(__file__))
-ORIGIN = os.path.dirname(os.path.dirname(HERE))
+HERE = os.path.dirname(__file__)
+ORIGIN = os.path.dirname(HERE)
 
 
 class VersionResponseSchema(colander.MappingSchema):
@@ -38,9 +38,8 @@ def version_view(request):
         os.path.join(HERE, 'version.json')  # Relative to this file.
     ]
     for version_file in files:
-        file_path = os.path.abspath(version_file)
-        if os.path.exists(file_path):
-            with open(file_path) as f:
+        if os.path.exists(version_file):
+            with open(version_file) as f:
                 version_view.__json__ = json.load(f)
                 return version_view.__json__  # First one wins.
 

@@ -20,7 +20,12 @@ Glossary
         lines of code. It differs from «:term:`pluggable`».
 
     Firefox Accounts
-        Account account system run by Mozilla (https://accounts.firefox.com).
+        :term:`Identity Provider` run by Mozilla (https://accounts.firefox.com).
+
+    Identity Provider
+        An identity provider (abbreviated IdP) is a service in charge of managing
+        identity information, and providing authentication endpoints (login forms,
+        tokens manipulation etc.)
 
     HTTP API
         Multiple publicly exposed endpoints that accept HTTP requests and

@@ -1,4 +1,5 @@
 import mock
+import unittest
 from pyramid import httpexceptions
 
 from kinto.core.resource import UserResource, ShareableResource
@@ -66,3 +67,16 @@ class ParentIdOverrideResourceTest(BaseTest):
         parent_id = self.resource.get_parent_id(request)
         self.assertEquals(parent_id, 'overrided')
         self.assertEquals(self.resource.model.parent_id, 'overrided')
+
+
+class CustomModelResource(UserResource):
+    def __init__(self, *args, **kwargs):
+        self.model = mock.MagicMock()
+        self.model.name = mock.sentinel.model
+        super().__init__(*args, **kwargs)
+
+
+class CustomModelResourceTets(unittest.TestCase):
+    def test_custom_model_is_not_overriden(self):
+        c = CustomModelResource(request=mock.MagicMock())
+        self.assertEquals(c.model.name, mock.sentinel.model)
