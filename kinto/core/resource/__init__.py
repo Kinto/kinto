@@ -952,6 +952,10 @@ class UserResource:
                                'parameters')
                         send_alert(self.request, message, url)
                     operator = COMPARISON.LT
+
+                if value == '':
+                    raise_invalid(self.request, **error_details)
+
                 filters.append(
                     Filter(self.model.modified_field, value, operator)
                 )
@@ -981,6 +985,9 @@ class UserResource:
                 )
                 if has_invalid_value:
                     raise_invalid(self.request, **error_details)
+
+            if field == self.model.modified_field and value == '':
+                raise_invalid(self.request, **error_details)
 
             filters.append(Filter(field, value, operator))
 
