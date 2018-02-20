@@ -2,7 +2,6 @@
 from __future__ import unicode_literals
 
 import mock
-import time
 import unittest
 
 from kinto.core import utils

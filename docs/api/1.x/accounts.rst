@@ -28,7 +28,7 @@ Add the following settings to the ``.ini`` file:
     # Allow anyone to create accounts.
     kinto.account_create_principals = system.Everyone
 
-    # Set the session time to live in seconds for the session
+    # Set the session time to live in seconds
     kinto.account_cache_ttl_seconds = 30
 
 

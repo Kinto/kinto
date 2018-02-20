@@ -4,7 +4,6 @@ from pyramid.decorator import reify
 from pyramid.security import Authenticated, Everyone
 from pyramid.settings import aslist
 from pyramid.events import subscriber
-from pyramid.authentication import extract_http_basic_credentials
 
 from kinto.views import NameGenerator
 from kinto.core import resource, utils
