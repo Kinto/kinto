@@ -14,6 +14,7 @@ This document describes changes between each past release.
 **Bug fixes**
 
 - Fix missing principals from user info in root URL when default bucket plugin is enabled (fixes #1495)
+- Fix crash in Postgresql when the value of url param is empty (fixes #1305)
 
 
 8.1.5 (2018-02-09)
