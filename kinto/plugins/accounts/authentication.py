@@ -18,8 +18,9 @@ def account_check(username, password, request):
     cache = request.registry.cache
     cache_result = cache.get(cache_key)
 
-    # Username and password is correct. No need to compare hashes
+    # Username and password have been verified previously. No need to compare hashes
     if cache_result:
+        # Refresh the cache TTL.
         cache.expire(cache_key, cache_ttl)
         return True
 

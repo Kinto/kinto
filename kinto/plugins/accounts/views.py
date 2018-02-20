@@ -143,7 +143,7 @@ def on_account_changed(event):
     cache = request.registry.cache
     settings = request.registry.settings
     # Extract username and password from current user
-    username, password = extract_http_basic_credentials(request)
+    username = request.matchdict['id']
     hmac_secret = settings['userid_hmac_secret']
     cache_key = utils.hmac_digest(hmac_secret, ACCOUNT_CACHE_KEY.format(username))
     # Delete cache

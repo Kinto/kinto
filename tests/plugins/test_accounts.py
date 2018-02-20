@@ -113,7 +113,7 @@ class AccountCreationTest(AccountsWebTest):
 
             mocked_bcrypt.checkpw.assert_called_once()
 
-    def test_authentication_check_bcrypt_again_if_password_changes(self):
+    def test_authentication_checks_bcrypt_again_if_password_changes(self):
         self.app.post_json('/accounts', {'data': {'id': 'me', 'password': 'bouh'}},
                            status=201)
         with mock.patch('kinto.plugins.accounts.authentication.bcrypt') as mocked_bcrypt:
@@ -129,19 +129,20 @@ class AccountCreationTest(AccountsWebTest):
             assert mocked_bcrypt.checkpw.call_count == 2
 
     def test_authentication_refresh_the_cache_each_time_we_authenticate(self):
+        hmac_secret = self.app.app.registry.settings['userid_hmac_secret']
+        cache_key = utils.hmac_digest(hmac_secret, ACCOUNT_CACHE_KEY.format('me'))
+
         self.app.post_json('/accounts', {'data': {'id': 'me', 'password': 'bouh'}},
                            status=201)
         resp = self.app.get('/', headers=get_user_headers('me', 'bouh'))
         assert resp.json['user']['id'] == 'account:me'
 
-        time.sleep(2)
+        self.app.app.registry.cache.expire(cache_key, 10)
 
         resp = self.app.get('/', headers=get_user_headers('me', 'blah'))
         assert resp.json['user']['id'] == 'account:me'
 
-        hmac_secret = self.app.app.registry.settings['userid_hmac_secret']
-        cache_key = utils.hmac_digest(hmac_secret, ACCOUNT_CACHE_KEY.format('me'))
-        assert self.app.app.registry.cache.ttl(cache_key) >= 29
+        assert self.app.app.registry.cache.ttl(cache_key) >= 20
 
 
 class AccountUpdateTest(AccountsWebTest):
