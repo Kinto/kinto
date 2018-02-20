@@ -932,9 +932,6 @@ class UserResource:
                 'description': 'Invalid value for {}'.format(param)
             }
 
-            if value == '':
-                raise_invalid(self.request, **error_details)
-
             # Ignore specific fields
             if param.startswith('_') and param not in ('_since',
                                                        '_to',
@@ -955,6 +952,10 @@ class UserResource:
                                'parameters')
                         send_alert(self.request, message, url)
                     operator = COMPARISON.LT
+
+                if value == '':
+                    raise_invalid(self.request, **error_details)
+
                 filters.append(
                     Filter(self.model.modified_field, value, operator)
                 )
@@ -984,6 +985,9 @@ class UserResource:
                 )
                 if has_invalid_value:
                     raise_invalid(self.request, **error_details)
+
+            if field == self.model.modified_field and value == '':
+                raise_invalid(self.request, **error_details)
 
             filters.append(Filter(field, value, operator))
 

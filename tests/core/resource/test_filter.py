@@ -68,8 +68,14 @@ class FilteringTest(BaseTest):
         self.assertRaises(httpexceptions.HTTPBadRequest,
                           self.resource.collection_get)
 
-    def test_filter_400_if_value_is_empty(self):
+    def test_filter_raises_error_if_last_modified_value_is_empty(self):
+        self.validated['querystring'] = {'last_modified': ''}
+        self.assertRaises(httpexceptions.HTTPBadRequest,
+                          self.resource.collection_get)
         self.validated['querystring'] = {'_since': ''}
+        self.assertRaises(httpexceptions.HTTPBadRequest,
+                          self.resource.collection_get)
+        self.validated['querystring'] = {'lt_last_modified': ''}
         self.assertRaises(httpexceptions.HTTPBadRequest,
                           self.resource.collection_get)
 
