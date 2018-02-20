@@ -28,6 +28,9 @@ Add the following settings to the ``.ini`` file:
     # Allow anyone to create accounts.
     kinto.account_create_principals = system.Everyone
 
+    # Set the session time to live in seconds
+    kinto.account_cache_ttl_seconds = 30
+
 
 You can use the ``create-user`` command to create an admin:
 

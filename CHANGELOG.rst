@@ -9,6 +9,7 @@ This document describes changes between each past release.
 **New features**
 
 - Add Openid connect support (#939, #1425). See `demo <https://github.com/leplatrem/kinto-oidc-demo>`_
+- Account plugin now caches authentication verification (#1413)
 
 **Bug fixes**
 

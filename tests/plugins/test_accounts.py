@@ -4,10 +4,11 @@ from __future__ import unicode_literals
 import mock
 import unittest
 
+from kinto.core import utils
 from kinto.core.testing import get_user_headers
 from pyramid.exceptions import ConfigurationError
 
-from kinto.plugins.accounts import scripts
+from kinto.plugins.accounts import scripts, ACCOUNT_CACHE_KEY
 from .. import support
 
 
@@ -98,6 +99,49 @@ class AccountCreationTest(AccountsWebTest):
                                   headers=get_user_headers('me', 'bouh'),
                                   status=400)
         assert 'do not match' in resp.json['message']
+
+    def test_authentication_does_not_call_bcrypt_twice(self):
+        self.app.post_json('/accounts', {'data': {'id': 'me', 'password': 'bouh'}},
+                           status=201)
+        with mock.patch('kinto.plugins.accounts.authentication.bcrypt') as mocked_bcrypt:
+            resp = self.app.get('/', headers=get_user_headers('me', 'bouh'))
+            assert resp.json['user']['id'] == 'account:me'
+
+            resp = self.app.get('/', headers=get_user_headers('me', 'bouh'))
+            assert resp.json['user']['id'] == 'account:me'
+
+            mocked_bcrypt.checkpw.assert_called_once()
+
+    def test_authentication_checks_bcrypt_again_if_password_changes(self):
+        self.app.post_json('/accounts', {'data': {'id': 'me', 'password': 'bouh'}},
+                           status=201)
+        with mock.patch('kinto.plugins.accounts.authentication.bcrypt') as mocked_bcrypt:
+            resp = self.app.get('/', headers=get_user_headers('me', 'bouh'))
+            assert resp.json['user']['id'] == 'account:me'
+
+            self.app.patch_json('/accounts/me', {'data': {'password': 'blah'}},
+                                status=200, headers=get_user_headers('me', 'bouh'))
+
+            resp = self.app.get('/', headers=get_user_headers('me', 'blah'))
+            assert resp.json['user']['id'] == 'account:me'
+
+            assert mocked_bcrypt.checkpw.call_count == 2
+
+    def test_authentication_refresh_the_cache_each_time_we_authenticate(self):
+        hmac_secret = self.app.app.registry.settings['userid_hmac_secret']
+        cache_key = utils.hmac_digest(hmac_secret, ACCOUNT_CACHE_KEY.format('me'))
+
+        self.app.post_json('/accounts', {'data': {'id': 'me', 'password': 'bouh'}},
+                           status=201)
+        resp = self.app.get('/', headers=get_user_headers('me', 'bouh'))
+        assert resp.json['user']['id'] == 'account:me'
+
+        self.app.app.registry.cache.expire(cache_key, 10)
+
+        resp = self.app.get('/', headers=get_user_headers('me', 'blah'))
+        assert resp.json['user']['id'] == 'account:me'
+
+        assert self.app.app.registry.cache.ttl(cache_key) >= 20
 
 
 class AccountUpdateTest(AccountsWebTest):
