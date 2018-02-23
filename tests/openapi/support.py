@@ -16,7 +16,15 @@ class OpenAPITest(BaseWebTest, unittest.TestCase):
     def setUpClass(cls):
         super().setUpClass()
         cls.spec_dict = cls.app.get('/__api__').json
-        cls.spec = Spec.from_dict(cls.spec_dict)
+        bravado_config = {
+            # use_models causes us to break in bravado-core 4.13.0,
+            # probably because of
+            # https://github.com/Yelp/bravado-core/pull/254, and we
+            # don't actually use the generated models in our tests
+            # here anyhow.
+            "use_models": False,
+        }
+        cls.spec = Spec.from_dict(cls.spec_dict, config=bravado_config)
         cls.resources = build_resources(cls.spec)
 
     @classmethod
