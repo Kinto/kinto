@@ -268,12 +268,6 @@ Step 1
 
      $ git shortlog -sne | awk '{$1=""; sub(" ", ""); print}' | awk -F'<' '!x[$1]++' | awk -F'<' '!x[$2]++' | sort
 
-- Update known good versions of dependencies in ``requirements.txt`` with this command:
-
-.. code-block:: bash
-
-     $ make build-requirements
-
 - Open a pull-request to release the new version.
 
 .. code-block:: bash

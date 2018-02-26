@@ -16,6 +16,10 @@ This document describes changes between each past release.
 - Fix missing principals from user info in root URL when default bucket plugin is enabled (fixes #1495)
 - Fix crash in Postgresql when the value of url param is empty (fixes #1305)
 
+**Internal Changes**
+
+- Now fully rely on Pyup.io (or contributors) to update the versions in the `requirements.txt` file (fixes #1512)
+
 
 8.1.5 (2018-02-09)
 ------------------
@@ -28,7 +32,7 @@ This document describes changes between each past release.
   that we can still fail to INSERT after the check succeeded, but it
   can reduce write load in configurations where there are a lot of
   create()s (i.e. when using the default_bucket plugin).
- 
+
 
 8.1.4 (2018-01-31)
 ------------------
