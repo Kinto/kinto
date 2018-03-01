@@ -18,7 +18,7 @@ This document describes changes between each past release.
 
 **Internal changes**
 
-- Upgraded the kinto-admin to version 1.15.0
+- Upgraded the kinto-admin to version `1.15.0 <https://github.com/Kinto/kinto-admin/releases/tag/v1.15.0>`_
 
 
 8.1.5 (2018-02-09)
