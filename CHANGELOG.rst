@@ -19,6 +19,7 @@ This document describes changes between each past release.
 **Internal Changes**
 
 - Now fully rely on Pyup.io (or contributors) to update the versions in the `requirements.txt` file (fixes #1512)
+- Upgraded the kinto-admin to version 1.15.0
 
 
 8.1.5 (2018-02-09)
