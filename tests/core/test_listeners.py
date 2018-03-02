@@ -64,10 +64,18 @@ class ListenerSetupTest(unittest.TestCase):
         })
         self.assertTrue(self.demo_mocked.called)
 
-    def test_callback_called_when_action_is_not_filtered(self):
+    @mock.patch('kinto.core.utils.parse_resource',
+                return_value={'bucket': 'b_id',
+                              'collection': 'c_id'})
+    @mock.patch('kinto.core.utils.view_lookup',
+                return_value=('record',
+                              {'bucket_id': 'b_id', 'collection_id': 'c_id'}))
+    def test_callback_called_when_action_is_not_filtered(self, view_lookup, parse_resource):
         config = self.make_app({
             'event_listeners': 'demo',
             'event_listeners.demo.use': 'tests.core.listeners',
+            'event_listeners.demo.resources': 'record',
+            'event_listeners.demo.resource_ids': '/buckets/b_id/collections/c_id',
         })
         ev = ResourceChanged({'action': ACTIONS.CREATE.value}, [], Request())
         config.registry.notify(ev)
@@ -85,10 +93,18 @@ class ListenerSetupTest(unittest.TestCase):
 
         self.assertFalse(self.demo_mocked.return_value.called)
 
-    def test_callback_called_when_resource_is_not_filtered(self):
+    @mock.patch('kinto.core.utils.parse_resource',
+                return_value={'bucket': 'b_id',
+                              'collection': 'c_id'})
+    @mock.patch('kinto.core.utils.view_lookup',
+                return_value=('record',
+                              {'bucket_id': 'b_id', 'collection_id': 'c_id'}))
+    def test_callback_called_when_resource_is_not_filtered(self, view_lookup, parse_resource):
         config = self.make_app({
             'event_listeners': 'demo',
             'event_listeners.demo.use': 'tests.core.listeners',
+            'event_listeners.demo.resources': 'mushroom',
+            'event_listeners.demo.resource_ids': '/buckets/b_id/collections/c_id',
         })
         event = ResourceChanged({'action': ACTIONS.CREATE.value,
                                  'resource_name': 'mushroom'}, [], Request())
@@ -154,11 +170,19 @@ class ListenerSetupTest(unittest.TestCase):
 
         self.assertFalse(self.demo_mocked.return_value.called)
 
-    def test_callback_is_called_on_read_if_specified(self):
+    @mock.patch('kinto.core.utils.parse_resource',
+                return_value={'bucket': 'b_id',
+                              'collection': 'c_id'})
+    @mock.patch('kinto.core.utils.view_lookup',
+                return_value=('record',
+                              {'bucket_id': 'b_id', 'collection_id': 'c_id'}))
+    def test_callback_is_called_on_read_if_specified(self, view_lookup, parse_resource):
         config = self.make_app({
             'event_listeners': 'demo',
             'event_listeners.demo.use': 'tests.core.listeners',
             'event_listeners.demo.actions': 'read',
+            'event_listeners.demo.resources': 'record',
+            'event_listeners.demo.resource_ids': '/buckets/b_id/collections/c_id',
         })
         event = ResourceRead({'action': ACTIONS.READ.value}, [], Request())
         config.registry.notify(event)
@@ -187,7 +211,13 @@ class ListenerSetupTest(unittest.TestCase):
 
         self.assertEqual(self.demo_mocked.return_value.call_count, 2)
 
-    def test_loading_can_read_configuration_from_environment(self):
+    @mock.patch('kinto.core.utils.parse_resource',
+                return_value={'bucket': 'b_id',
+                              'collection': 'c_id'})
+    @mock.patch('kinto.core.utils.view_lookup',
+                return_value=('record',
+                              {'bucket_id': 'b_id', 'collection_id': 'c_id'}))
+    def test_loading_can_read_configuration_from_environment(self, view_lookup, parse_resource):
         environ = {
             "KINTO_EVENT_LISTENERS": "kvstore",
             "KINTO_EVENT_LISTENERS_KVSTORE_USE": "tests.core.listeners",
@@ -196,6 +226,7 @@ class ListenerSetupTest(unittest.TestCase):
             "KINTO_EVENT_LISTENERS_KVSTORE_LISTNAME": "queue",
             "KINTO_EVENT_LISTENERS_KVSTORE_ACTIONS": "delete",
             "KINTO_EVENT_LISTENERS_KVSTORE_RESOURCES": "toad",
+            "KINTO_EVENT_LISTENERS_KVSTORE_RESOURCE_IDS": "/buckets/b_id/collections/c_id",
         }
         os.environ.update(**environ)
 

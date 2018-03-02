@@ -516,7 +516,6 @@ def setup_listeners(config):
         resource_names = aslist(resource_value)
 
         # Optional filter by resource object id
-<<<<<<< 67e57653ea4266428c9737a4b272dbd479edfa6e
         resource_ids_setting = prefix + 'resource_ids'
         resource_id_value = utils.read_env(
             '{}.{}'.format(
@@ -526,18 +525,6 @@ def setup_listeners(config):
         # Pyramid event predicates.
         options = dict(for_actions=actions, for_resources=resource_names,
                        for_resource_ids=resource_id_uris)
-=======
-        resource_id_setting = prefix + 'resource_ids'
-        resource_id_value = utils.read_env(
-            '{}.{}'.format(
-                project_name, resource_id_setting), settings.get(resource_id_setting, ''))
-        resource_id_names = aslist(resource_id_value)
-
-        # Pyramid event predicates.
-        options = dict(for_actions=actions, for_resources=resource_names,
-                       for_resource_ids=resource_id_names)
->>>>>>> Adding resource id based filtering. Extending core/utils to handle resource type record and bucket.
-
         if ACTIONS.READ in actions:
             config.add_subscriber(listener, ResourceRead, **options)
             if len(actions) == 1:
