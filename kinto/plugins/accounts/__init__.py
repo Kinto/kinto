@@ -29,8 +29,12 @@ def clear_all_hawk_sessions(request, account):
                                    record=account)
 
 def add_hawk_session(request, account, token):
-    """Add a hawk session to the account using `token` as the session token."""
-    # Save the HAWK credentials to the account record.
+    """Add a hawk session to the account using `token` as the session token.
+    
+    Sessions are stored at the cache layer, with the client ID as the key.
+    This allows for fast lookups by HAWK client ID, which is found in the auth 
+    header of the request.
+    """
     hawk_auth = HawkAuth(hawk_session=token)
     time_valid = request.registry.settings.get('kinto.hawk_session.ttl_seconds')
     expire_time = (time() + (time_valid or 86400))
@@ -39,17 +43,20 @@ def add_hawk_session(request, account, token):
         'session': token,
         'id': hawk_auth.credentials['id'].decode(), 
         'key': hawk_auth.credentials['key'].decode(),
-        'expires': expire_time
+        'expires': expire_time,
+        'account_user_id': account['id']
     })
 
-    account.setdefault('hawk-sessions', {})
+    account.setdefault('hawk-sessions', [])
     client_id = hawk_auth.credentials['id']
     # The client ID is the dict key into the session credentials.
-    account['hawk-sessions'][client_id] = hawk_auth.credentials
+    account['hawk-sessions'].append(client_id)
     request.registry.storage.update(collection_id='account', 
                                    parent_id=account['id'],
                                    object_id=account['id'], 
                                    record=account)
+
+    request.registry.cache.set(client_id, hawk_auth.credentials, expire_time)
 
 def hawk_sessions(request):
     """Route handler for the /accounts/hawk-sessions endpoint
