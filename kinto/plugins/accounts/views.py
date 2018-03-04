@@ -5,6 +5,8 @@ from pyramid.security import Authenticated, Everyone
 from pyramid.settings import aslist
 from pyramid.events import subscriber
 
+from ..hawk.hawkauth import HawkAuth
+
 from kinto.views import NameGenerator
 from kinto.core import resource, utils
 from kinto.core.errors import raise_invalid, http_error
@@ -106,8 +108,9 @@ class Account(resource.ShareableResource):
 
     def process_record(self, new, old=None):
         new = super(Account, self).process_record(new, old)
-
         new['password'] = hash_password(new['password'])
+        # Generate HAWK client secret for use with the Kinto hawk plugin
+        new['hawk_secret'] = HawkAuth.generate_secret()
 
         # Administrators can reach other accounts and anonymous have no
         # selected_userid. So do not try to enforce.

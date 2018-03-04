@@ -53,6 +53,11 @@ MEMCACHED_REQUIRES = [
     'python-memcached'
 ]
 
+HAWK_REQUIRES = [
+    'mohawk',
+    'requests-hawk'
+]
+
 SETUP_REQUIRES = [
     'pytest-runner'
 ]
@@ -113,6 +118,7 @@ setup(name='kinto',
           'memcached': MEMCACHED_REQUIRES,
           'postgresql': POSTGRESQL_REQUIRES,
           'monitoring': MONITORING_REQUIRES,
+          'hawk': HAWK_REQUIRES
       },
       test_suite='tests',
       dependency_links=DEPENDENCY_LINKS,

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import time
 import mock
 import unittest
 
@@ -365,6 +366,105 @@ class WithBasicAuthTest(AccountsWebTest):
     def test_raise_configuration_if_wrong_error(self):
         with self.assertRaises(ConfigurationError):
             self.make_app({'multiauth.policies': 'basicauth account'})
+
+
+class HawkSessionTest(AccountsWebTest):
+    def setUp(self):
+        creds = {'id': 'alice', 'password': '12éé6'}
+        self.app.post_json('/accounts', {'data': creds}, status=201)
+
+    @classmethod
+    def get_app_settings(cls, extras=None):
+        if extras is None:
+            extras = {'multiauth.policies': 'hawkauth'}
+            extras.setdefault('includes', 'kinto.plugins.accounts kinto.plugins.hawk')
+            extras.setdefault(
+                'multiauth.policy.hawkauth.use', 
+                'kinto.plugins.hawk.authentication.HawkAuthenticationPolicy')
+
+        return super().get_app_settings(extras)
+
+    def test_request_hawk_session_returns_token_in_header(self):
+        resp = self.app.post('/accounts/alice/hawk-sessions', status=201)
+        assert 'Hawk-Session-Token' in resp.headers 
+        assert len(resp.headers['Hawk-Session-Token']) == 64
+
+    def test_request_hawk_session_wrong_account_id_returns_404(self):
+        resp = self.app.post('/accounts/BAD_ACCOUNT/hawk-sessions', status=404)
+
+    def test_request_hawk_session_saves_creds_to_account(self):
+        resp = self.app.post('/accounts/alice/hawk-sessions', status=201)
+        token = resp.headers['Hawk-Session-Token']
+        account = self.app.app.registry.storage.get(parent_id='alice',
+                                                   collection_id='account',
+                                                   object_id='alice')
+        assert 'hawk-sessions' in account
+        assert len(account['hawk-sessions']) == 1
+        session = account['hawk-sessions'].popitem()[1]
+        assert 'key' in session and 'id' in session
+    
+    def test_request_hawk_session_expiration_time_default(self):
+        resp = self.app.post('/accounts/alice/hawk-sessions', status=201)
+        account = self.app.app.registry.storage.get(parent_id='alice',
+                                                   collection_id='account',
+                                                   object_id='alice')
+        session = account['hawk-sessions'].popitem()[1]
+        expected = (time.time() + 86400) // 10
+        assert session['expires'] // 10 == expected
+
+    def test_hawk_session_expiration_date_is_overidden_by_setting(self):
+        self.app.app.registry.settings['kinto.hawk_session.ttl_seconds'] = 60
+        resp = self.app.post('/accounts/alice/hawk-sessions', status=201)
+        account = self.app.app.registry.storage.get(parent_id='alice',
+                                                   collection_id='account',
+                                                   object_id='alice')
+        session = account['hawk-sessions'].popitem()[1]
+        expected = (time.time() + 60) // 10
+        assert session['expires'] // 10 == expected
+
+        self.app.app.registry.settings['kinto.hawk_session.ttl_seconds'] = None
+
+    def test_request_hawk_session_expires(self):
+        self.app.app.registry.settings['kinto.hawk_session.ttl_seconds'] = 0
+        resp = self.app.post('/accounts/alice/hawk-sessions', status=201)
+        account = self.app.app.registry.storage.get(parent_id='alice',
+                                                   collection_id='account',
+                                                   object_id='alice')
+        session = account['hawk-sessions'].popitem()[1]
+
+        pass
+
+    def test_multiple_sessions_on_account(self):
+        for i in range(3):
+            resp = self.app.post('/accounts/alice/hawk-sessions', status=201)
+        account = self.app.app.registry.storage.get(parent_id='alice',
+                                                   collection_id='account',
+                                                   object_id='alice')
+        sessions = account['hawk-sessions']
+        assert len(sessions) == 3
+        # All three sessions have unique client IDs
+        assert len(set([sessions.popitem()[0] for i in range(3)])) == 3
+        
+
+    def test_request_remove_hawk_sessions_deletes_all_sessions(self):
+        for i in range(3):
+            resp = self.app.post('/accounts/alice/hawk-sessions', status=201)
+
+        resp = self.app.delete('/accounts/alice/hawk-sessions', status=204)
+
+        account = self.app.app.registry.storage.get(parent_id='alice',
+                                                   collection_id='account',
+                                                   object_id='alice')
+        sessions = account['hawk-sessions']
+        # all sessions are removed after DELETE call.
+        assert len(sessions) == 0
+
+    def test_request_remove_hawk_session_current_only(self):
+        pass
+
+    def test_hawk_auth_must_be_enabled(self):
+        pass
+
 
 
 class CreateUserTest(unittest.TestCase):

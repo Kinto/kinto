@@ -519,6 +519,28 @@ At this point, Kinto should be able to start and OpenID Authentication should wo
     multiauth.policy.google.state_ttl_seconds = 3600
 
 
+Mohawk request Auth
+:::::::::::::::::::
+
+`Mohawk <https://mohawk.readthedocs.io/en/latest/index.html>`_ implements the 
+`Hawk authorization scheme <https://github.com/hueniverse/hawk>`_, which 
+allows you to authenticate messages from your application backend to Kinto.
+In order to prevent replay attacks, nonce checking is enforced.  
+See `here <https://github.com/hueniverse/hawk#implementations>` for 
+some implementations of Hawk in different programming languages.
+
+Mohawk auth is enabled by turning on ``kinto.hawk.enabled`` and providing 
+credential values for ``kinto.hawk.id``, ``kinto.hawk.secret``, and
+``kinto.hawk.algo``.  
+
+.. code-block:: ini
+
+    kinto.hawk.enabled = true
+    kinto.hawk.id = 'some client id'
+    kinto.hawk.secret = 'some secret key'
+    kinto.hawk.algo = 'sha256'
+
+
 Custom Authentication
 :::::::::::::::::::::
 
