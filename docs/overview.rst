@@ -110,7 +110,7 @@ Key features
 
 +---------------------------------------------+---------------------------------------+
 | |logo-synchronisation|                      | |logo-permissions|                    |
-| Synchronisation                             | Fined grained permissions             |
+| Synchronisation                             | Fine-grained permissions              |
 |                                             |                                       |
 +---------------------------------------------+---------------------------------------+
 | |logo-schema|                               | |logo-multiapps|                      |
