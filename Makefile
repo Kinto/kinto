@@ -20,7 +20,6 @@ help:
 	@echo "  install-monitoring          enable monitoring features like StatsD and Newrelic"
 	@echo "  install-postgres            install postgresql support"
 	@echo "  install-dev                 install dependencies and everything needed to run tests"
-	@echo "  build-requirements          install all requirements and freeze them in requirements.txt"
 	@echo "  build-kinto-admin           build the Kinto admin UI plugin (requires npm)"
 	@echo "  serve                       start the kinto server on default port"
 	@echo "  migrate                     run the kinto migrations"
@@ -37,16 +36,16 @@ help:
 
 all: install
 install: $(INSTALL_STAMP)
-$(INSTALL_STAMP): $(PYTHON) setup.py
+$(INSTALL_STAMP): $(PYTHON) setup.py requirements.txt
 	$(VENV)/bin/pip install -U pip
-	$(VENV)/bin/pip install -Ue .
+	$(VENV)/bin/pip install -Ue . -c requirements.txt
 	touch $(INSTALL_STAMP)
 
 install-monitoring: $(INSTALL_STAMP)
-	$(VENV)/bin/pip install -Ue ".[monitoring]"
+	$(VENV)/bin/pip install -Ue ".[monitoring]" -c requirements.txt
 
 install-postgres: $(INSTALL_STAMP) $(DEV_STAMP)
-	$(VENV)/bin/pip install -Ue ".[postgresql]"
+	$(VENV)/bin/pip install -Ue ".[postgresql]" -c requirements.txt
 
 install-dev: $(INSTALL_STAMP) $(DEV_STAMP)
 $(DEV_STAMP): $(PYTHON) dev-requirements.txt
@@ -61,12 +60,6 @@ $(DOC_STAMP): $(PYTHON) docs/requirements.txt
 virtualenv: $(PYTHON)
 $(PYTHON):
 	$(VIRTUALENV) $(VENV)
-
-build-requirements:
-	$(VIRTUALENV) $(TEMPDIR)
-	$(TEMPDIR)/bin/pip install -U pip
-	$(TEMPDIR)/bin/pip install -Ue ".[monitoring,postgresql,memcached]"
-	$(TEMPDIR)/bin/pip freeze | grep -v -- '-e' > requirements.txt
 
 build-kinto-admin: need-npm
 	cd kinto/plugins/admin/; npm install && export REACT_APP_VERSION="$$(npm list | egrep kinto-admin | cut -d @ -f 2)" && npm run build

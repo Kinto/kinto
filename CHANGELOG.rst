@@ -6,7 +6,9 @@ This document describes changes between each past release.
 8.2.1 (unreleased)
 ------------------
 
-- Nothing changed yet.
+**Internal Changes**
+
+- Now fully rely on Pyup.io (or contributors) to update the versions in the `requirements.txt` file (fixes #1512)
 
 
 8.2.0 (2018-03-01)
@@ -22,7 +24,7 @@ This document describes changes between each past release.
 - Fix missing principals from user info in root URL when default bucket plugin is enabled (fixes #1495)
 - Fix crash in Postgresql when the value of url param is empty (fixes #1305)
 
-**Internal changes**
+**Internal Changes**
 
 - Upgraded the kinto-admin to version `1.15.0 <https://github.com/Kinto/kinto-admin/releases/tag/v1.15.0>`_
 
