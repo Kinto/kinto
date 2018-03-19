@@ -69,7 +69,8 @@ class TestMain(unittest.TestCase):
                 return realimport(name, *args, **kwargs)
 
         with mock.patch('builtins.__import__', side_effect=psycopg2_missing):
-            with mock.patch('pip.main', return_value=None) as mocked_pip:
+            with mock.patch('kinto.__main__.subprocess.check_call',
+                            return_value=None) as mocked_pip:
                 with mock.patch("kinto.__main__.input", create=True, return_value="1"):
                     res = main(['init', '--ini', TEMP_KINTO_INI])
                     assert res == 0
@@ -85,7 +86,8 @@ class TestMain(unittest.TestCase):
                 return realimport(name, *args, **kwargs)
 
         with mock.patch('builtins.__import__', side_effect=redis_missing):
-            with mock.patch('pip.main', return_value=None) as mocked_pip:
+            with mock.patch('kinto.__main__.subprocess.check_call',
+                            return_value=None) as mocked_pip:
                 with mock.patch("kinto.__main__.input", create=True, return_value="2"):
                     res = main(['init', '--ini', TEMP_KINTO_INI])
                     assert res == 0
