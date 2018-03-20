@@ -1,5 +1,6 @@
 import argparse
 import os
+import subprocess
 import sys
 import logging
 import logging.config
@@ -144,14 +145,14 @@ def main(args=None):
             try:
                 import psycopg2  # NOQA
             except ImportError:
-                import pip
-                pip.main(['install', 'kinto[postgresql]'])
+                subprocess.check_call([sys.executable, '-m', 'pip',
+                                       'install', 'kinto[postgresql]'])
         elif backend == 'redis':
             try:
                 import kinto_redis  # NOQA
             except ImportError:
-                import pip
-                pip.main(['install', 'kinto[redis]'])
+                subprocess.check_call([sys.executable, '-m', 'pip',
+                                       'install', 'kinto[redis]'])
 
     elif which_command == 'migrate':
         dry_run = parsed_args['dry_run']

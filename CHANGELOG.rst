@@ -9,6 +9,7 @@ This document describes changes between each past release.
 **Internal Changes**
 
 - Now fully rely on Pyup.io (or contributors) to update the versions in the `requirements.txt` file (fixes #1512)
+- Move from importing pip to running it in a subprocess (see https://github.com/pypa/pip/issues/5081).
 
 
 8.2.0 (2018-03-01)
