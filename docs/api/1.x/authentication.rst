@@ -284,7 +284,7 @@ for the configured provider ``name``.
 
 .. note::
 
-    Because multiple OpenID providers can be enabled on the server, the ``auth_path`` URI contains the provider name with which the login process is intiated (eg. client initiates login by redirecting to ``/openid/auth0/login?...`` or ``/openid/google/login?...`` etc.)
+    Because multiple OpenID providers can be enabled on the server, the ``auth_path`` URI contains the provider name with which the login process is initiated (eg. client initiates login by redirecting to ``/openid/auth0/login?...`` or ``/openid/google/login?...`` etc.)
 
 
 JavaScript example
