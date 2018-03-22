@@ -280,7 +280,11 @@ for the configured provider ``name``.
 
 - ``callback`` which is the URI the browser will be redirected to after the login (eg. ``http://dashboard.myapp.com/#tokens=``).
   It will be suffixed with the JSON response from the :term:`Identity Provider`, which will either be the access and ID tokens or an error.
-- ``scope`` which should at least be ``openid`` (but usually ``openid email``) (see the Identity Provider documentation)
+- ``scope`` which should at least be ``openid`` (but usually ``openid email``) (see your Identity Provider documentation)
+
+.. note::
+
+    Because multiple OpenID providers can be enabled on the server, the ``auth_path`` URI contains the provider name with which the login process is initiated (eg. client initiates login by redirecting to ``/openid/auth0/login?...`` or ``/openid/google/login?...`` etc.)
 
 
 JavaScript example
@@ -333,6 +337,7 @@ The ``login()`` function is straightforward:
 
     function login() {
       const {capabilities: {openid: {providers}}} = await kintoClient.fetchServerInfo();
+      // Use the first configured provider
       const {auth_path} = providers[0];
       // Redirect the browser to the authentication page.
       const callback = encodeURIComponent(CALLBACK_URL);
@@ -356,3 +361,24 @@ The ``parseToken()`` function scans the location hash to read the Identity Provi
     }
 
 Check out the :github:`full demo source code <leplatrem/kinto-oidc-demo>`.
+
+
+Example of 0Auth dance redirections
+-----------------------------------
+
+Let's assume the JavaScript app is accessible on http://localhost:3000 and the Kinto server running on http://localhost:8888.
+
+When the user clicks the login button, the browser will follow a sequence of redirections similar to this one:
+
+#. User clicks on the ``auth0`` login button
+#. JavaScript redirects to `<http://localhost:8888/v1/openid/auth0/login?scope=openid email&callback=http://localhost:3000/#provider=auth0&tokens=>`_
+#. Kinto generates and stores a *state* string
+#. Kinto redirects to Auth0 that will show the login form `<https://minimal-demo-iam.auth0.com/authorize?client_id=BXqGVgl2meRsdVK0dEZPTk516JUhje2M&response_type=code&scope=openid+email&redirect_uri=http://localhost:8888/v1/openid/auth0/token?&state=3a309f5baba>`_
+#. User enters credentials and authenticates
+#. Auth0 redirects to Kinto with the *state* and a *code* `<http://localhost:8888/v1/openid/auth0/token?code=lWpsu9VoHLJEVyy1&state=3a309f5baba>`_
+#. Kinto checks that the *state* matches
+#. Kinto trades the *code* against the ID and Access tokens
+#. Kinto redirects back to the Single Page App appending the JSON encoded ID and Access tokens to the callback URL provided at step 2 `<http://localhost:3000/#provider=auth0&tokens={"access_token":"tY6um989...jfcer","id_token":"eyJ0eXAiOiJ...KV1QiL.ojkhgwRVH...UG8JGRENNF.Es8...DK10","expires_in":86400,"token_type":"Bearer"}>`_
+#. JavaScript code parses the location hash and reads the ID and Access tokens
+
+The JavaScript app can now use the Access token to make authenticated calls to the Kinto server, and read the user info from the ID token fields. See :github:`demo <leplatrem/kinto-oidc-demo>`.

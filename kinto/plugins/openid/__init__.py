@@ -90,7 +90,6 @@ def includeme(config):
     for k, v in settings.items():
         m = re.match('multiauth\.policy\.(.*)\.use', k)
         if m:
-            print(k, v)
             if v.endswith('OpenIDConnectPolicy'):
                 openid_policies.append(m.group(1))
 
