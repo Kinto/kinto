@@ -6,6 +6,10 @@ This document describes changes between each past release.
 8.2.1 (unreleased)
 ------------------
 
+**Bug fixes**
+
+- Remove useless print when using the OpenID policy (ref #1509)
+
 **Internal Changes**
 
 - Now fully rely on Pyup.io (or contributors) to update the versions in the `requirements.txt` file (fixes #1512)
