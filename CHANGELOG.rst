@@ -10,6 +10,10 @@ This document describes changes between each past release.
 
 - Remove useless print when using the OpenID policy (ref #1509)
 
+**Documentation**
+
+- Improve OpenID settings and API documentation
+
 **Internal Changes**
 
 - Now fully rely on Pyup.io (or contributors) to update the versions in the `requirements.txt` file (fixes #1512)
