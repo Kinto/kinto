@@ -486,7 +486,7 @@ OpenID Connect
 
 First of all, you must find an Identity Provider. Google Identity Platform for example, but it may also be Auth0, Microsoft, Yahoo, Paypal, Bitbucket, Ebay, Salesforce, ... or whichever platform that publishes its discovery metadata as JSON.
 
-The ``google`` name below was chosen arbitrarily. Note that will become the user ID prefix (e.g. ``google:someuser@gmail.com``) and will appear in the authorized redirect URL.
+The ``google`` name below was chosen arbitrarily. Note that it will become the user ID prefix (e.g. ``google:someuser@gmail.com``) and will appear in the authorized redirect URL.
 
 While setting up the Identity Provider, you might have to fill some URLs related to your Kinto instance. For example, if you run a single page app on ``localhost:3000`` that interacts with a server on ``localhost:8888``, you should set:
 
@@ -509,7 +509,7 @@ Based on the information obtained during this setup, configure the ``issuer``, `
     multiauth.policy.google.client_id = 42XXXX365001.apps.googleusercontent.com
     multiauth.policy.google.client_secret = UAlL-054uyh5in4b6u8jhg5o3hnj
 
-At this point, Kinto should be able to start up.
+At this point, Kinto should be properly configured and able to start.
 
 OpenID Authentication should work as described in the :ref:`API docs <authentication-openid>`.
 

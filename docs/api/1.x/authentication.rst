@@ -366,9 +366,13 @@ Check out the :github:`full demo source code <leplatrem/kinto-oidc-demo>`.
 Example of 0Auth dance redirections
 -----------------------------------
 
-#. User goes to `<http://localhost:3000>`_ and clicks on the ``auth0`` login button
+Let's assume the JavaScript app is accessible on http://localhost:3000 and the Kinto server running on http://localhost:8888.
+
+When the user clicks the login button, the browser will follow a sequence of redirections similar to this one:
+
+#. User clicks on the ``auth0`` login button
 #. JavaScript redirects to `<http://localhost:8888/v1/openid/auth0/login?scope=openid email&callback=http://localhost:3000/#provider=auth0&tokens=>`_
-#. Kinto generates and store a *state* string
+#. Kinto generates and stores a *state* string
 #. Kinto redirects to Auth0 that will show the login form `<https://minimal-demo-iam.auth0.com/authorize?client_id=BXqGVgl2meRsdVK0dEZPTk516JUhje2M&response_type=code&scope=openid+email&redirect_uri=http://localhost:8888/v1/openid/auth0/token?&state=3a309f5baba>`_
 #. User enters credentials and authenticates
 #. Auth0 redirects to Kinto with the *state* and a *code* `<http://localhost:8888/v1/openid/auth0/token?code=lWpsu9VoHLJEVyy1&state=3a309f5baba>`_
