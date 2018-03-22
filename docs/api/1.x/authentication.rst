@@ -366,14 +366,15 @@ Check out the :github:`full demo source code <leplatrem/kinto-oidc-demo>`.
 Example of 0Auth dance redirections
 -----------------------------------
 
-#. User goes to http://localhost:3000 and clicks on the ``auth0`` login button
-#. JavaScript redirects to http://localhost:8888/v1/openid/auth0/login?callback=http%3A%2F%2Flocalhost%3A3000%2F%23%23provider%3Dauth0%26tokens%3D&scope=openid%20email
-#. Kinto stores a *state*
-#. Kinto redirects to OAuth to show login form https://minimal-demo-iam.auth0.com/authorize?client_id=BXqGVgl2meRsdVK0dEZPTk516JUhje2M&response_type=code&scope=openid+email&redirect_uri=http%3A%2F%2Flocalhost%3A8888%2Fv1%2Fopenid%2Fauth0%2Ftoken%3F&state=3a309f5baba
+#. User goes to `<http://localhost:3000>`_ and clicks on the ``auth0`` login button
+#. JavaScript redirects to `<http://localhost:8888/v1/openid/auth0/login?scope=openid email&callback=http://localhost:3000/#provider=auth0&tokens=>`_
+#. Kinto generates and store a *state* string
+#. Kinto redirects to Auth0 that will show the login form `<https://minimal-demo-iam.auth0.com/authorize?client_id=BXqGVgl2meRsdVK0dEZPTk516JUhje2M&response_type=code&scope=openid+email&redirect_uri=http://localhost:8888/v1/openid/auth0/token?&state=3a309f5baba>`_
 #. User enters credentials and authenticates
-#. OAuth0 redirects to Kinto http://localhost:8888/v1/openid/auth0/token?code=lWpsu9VoHLJEVyy1&state=3a309f5baba
+#. Auth0 redirects to Kinto with the *state* and a *code* `<http://localhost:8888/v1/openid/auth0/token?code=lWpsu9VoHLJEVyy1&state=3a309f5baba>`_
 #. Kinto checks that the *state* matches
-#. Kinto redirects back to the Single Page App appending the JSON encoded ID and Access tokens to the callback URL provided at step 2 http://localhost:3000/#provider=auth0&tokens=%7B%22access_token%22%3A%22tY6um989jfcertVNU45TH99CWrpqG6PEShywW%22%2C%22id_token%22%3A%22eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6Ik5EZzFOemczTlRFeVEwVTFNMEZCTnpCQlFqa3hOVVk1UTBVMU9USXpOalEzUXpVek5UWkRNQSJ9.ojkhgwRVHUG8JGRENNFWEM89679079.Es8DK103P9Yl_jtlGK1cxhVlSdYul5AZ8X-vN-AXmg516T6BPcfrXIoK8qf7nx_LXiWSZNMJUV6hghJ_3LayMtG-47CxHWSePQFCnP3fLohnIUvLMaicxbNFOPXosJNni1dx-G020SrckU47R6yh_3Ly_9oQjyRCzzCGVvisuVH47RkXwytxy66oOsc7o8LuSrtDW3FHyclIYLm9CCJnGSCxr99iTuel5Yfgkexg8L928IRblqHpZxyRROdSsAmkH7xV6YBhxss1xZbTJSJ34lxtPnfVgJt9pzSQMmjX-dDeNIEpLH0FLk-6UyQ64NcVuVQhjw2WG4UzYquIQwgRNw%22%2C%22expires_in%22%3A86400%2C%22token_type%22%3A%22Bearer%22%7D
+#. Kinto trades the *code* against the ID and Access tokens
+#. Kinto redirects back to the Single Page App appending the JSON encoded ID and Access tokens to the callback URL provided at step 2 `<http://localhost:3000/#provider=auth0&tokens={"access_token":"tY6um989...jfcer","id_token":"eyJ0eXAiOiJ...KV1QiL.ojkhgwRVH...UG8JGRENNF.Es8...DK10","expires_in":86400,"token_type":"Bearer"}>`_
 #. JavaScript code parses the location hash and reads the ID and Access tokens
 
-The JavaScript app can now use the Access token to make authenticated calls to the Kinto server
+The JavaScript app can now use the Access token to make authenticated calls to the Kinto server, and read the user info from the ID token fields. See :github:`demo <leplatrem/kinto-oidc-demo>`.
