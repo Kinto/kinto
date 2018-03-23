@@ -100,7 +100,7 @@ authenticated *user* will be bound to to the request.
 
 The main principal is considered the **user ID** and follows this formalism:
 ``{type}:{identifier}`` (e.g. for Firefox Account: ``fxa:32aa95a474c984d41d395e2d0b614aa2``).
-When a users are added to :ref:`a group <groups>`, they receive a principal.
+When a user is added to :ref:`a group <groups>`, they receive a principal.
 
 There are two special principals:
 
