@@ -363,8 +363,8 @@ The ``parseToken()`` function scans the location hash to read the Identity Provi
 Check out the :github:`full demo source code <leplatrem/kinto-oidc-demo>`.
 
 
-Example of 0Auth dance redirections
------------------------------------
+Example of login redirections
+-----------------------------
 
 Let's assume the JavaScript app is accessible on http://localhost:3000 and the Kinto server running on http://localhost:8888.
 
