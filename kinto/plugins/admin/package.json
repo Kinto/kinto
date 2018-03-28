@@ -1,6 +1,6 @@
 {
   "name": "kwac",
-  "version": "1.15.0",
+  "version": "1.15.1",
   "private": true,
   "homepage": "http://localhost:8888/v1/admin/",
   "devDependencies": {
