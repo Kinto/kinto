@@ -3,6 +3,14 @@ Changelog
 
 This document describes changes between each past release.
 
+8.2.1 (unreleased)
+------------------
+
+**Internal changes**
+
+- Upgraded the kinto-admin to version `1.15.1 <https://github.com/Kinto/kinto-admin/releases/tag/v1.15.1>`_
+
+
 8.2.0 (2018-03-01)
 ------------------
 
