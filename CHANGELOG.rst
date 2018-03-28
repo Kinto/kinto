@@ -3,10 +3,12 @@ Changelog
 
 This document describes changes between each past release.
 
-8.2.2 (unreleased)
+8.2.2 (2018-03-28)
 ------------------
 
-- Nothing changed yet.
+**Internal changes**
+
+- Fix kinto-admin dependency error in 8.2.1 to actually really upgrade it to `1.15.1 <https://github.com/Kinto/kinto-admin/releases/tag/v1.15.1>`_
 
 
 8.2.1 (2018-03-28)
