@@ -9,6 +9,7 @@ This document describes changes between each past release.
 **Internal changes**
 
 - Upgraded the kinto-admin to version `1.15.1 <https://github.com/Kinto/kinto-admin/releases/tag/v1.15.1>`_
+- Upgraded newrelic to `2.106.1.88 <https://docs.newrelic.com/docs/release-notes/agent-release-notes/python-release-notes/python-agent-2106188>`_
 
 
 8.2.0 (2018-03-01)
