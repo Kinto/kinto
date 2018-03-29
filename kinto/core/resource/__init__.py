@@ -583,11 +583,11 @@ class UserResource:
         try:
             deleted = self.model.delete_record(record, last_modified=last_modified)
         except storage_exceptions.RecordNotFoundError:
-            # Delete might fail if it the object was deleted since we fetched it
-            # from the storage (ref Kinto/kinto#1407). This is one of
-            # a larger class of issues where another request could
-            # modify the record between our fetch and our delete,
-            # which could e.g. invalidate our precondition
+            # Delete might fail if the object was deleted since we
+            # fetched it from the storage (ref Kinto/kinto#1407). This
+            # is one of a larger class of issues where another request
+            # could modify the record between our fetch and our
+            # delete, which could e.g. invalidate our precondition
             # checking. Fixing this correctly is a larger
             # problem. However, let's punt on fixing it correctly and
             # just handle this one important case for now (see #1557).
@@ -742,7 +742,7 @@ class UserResource:
         details = {
             'id': record_id,
             'resource_name': self.request.current_resource_name
-            }
+        }
         return http_error(HTTPNotFound(), errno=ERRORS.INVALID_RESOURCE_ID,
                           details=details)
 
