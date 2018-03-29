@@ -580,7 +580,16 @@ class UserResource:
         if last_modified and last_modified <= record[self.model.modified_field]:
             last_modified = None
 
-        deleted = self.model.delete_record(record, last_modified=last_modified)
+        try:
+            deleted = self.model.delete_record(record, last_modified=last_modified)
+
+        except storage_exceptions.RecordNotFoundError:
+            # Delete might fail if it the object was deleted since we fetched it
+            # from the storage (ref Kinto/kinto#1407)
+            raise http_error(httpexceptions.HTTPConflict(),
+                             errno=ERRORS.MODIFIED_MEANWHILE,
+                             message="boom")
+
         timestamp = deleted[self.model.modified_field]
         self._add_timestamp_header(self.request.response, timestamp=timestamp)
 
