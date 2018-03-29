@@ -6,6 +6,10 @@ This document describes changes between each past release.
 8.2.1 (unreleased)
 ------------------
 
+**Bug fixes**
+
+- Reduce the OpenID state string length to fit in the PostgreSQL cache backend (fixes #1566)
+
 **Documentation**
 
 - Improve OpenID settings and API documentation

@@ -529,6 +529,8 @@ OpenID Authentication should work as described in the :ref:`API docs <authentica
     # Authentication state cache duration (Default: 1 hour)
     # Duration given to users to fill the login form on the Identity Provider.
     multiauth.policy.google.state_ttl_seconds = 3600
+    # State string length (balance between collisions/security and cache size)
+    multiauth.policy.google.state_length = 32
 
 Of course, multiple OpenID providers can be enabled on the same Kinto server:
 
