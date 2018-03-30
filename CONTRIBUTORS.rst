@@ -66,6 +66,7 @@ Contributors
 * Stanisław Wasiutyński <https://github.com/stanley>
 * Stephen Daves <contact@stephendaves.com>
 * Stephen Donner <stephen.donner@gmail.com>
+* Stephen Martin <lockwood@opperline.com>
 * Shweta Oak <oakshweta11@gmail.com>
 * Sofia Utsch <sofia.utsch@gmail.com>
 * Sumit Sarin <sumitsarinofficial@gmail.com>

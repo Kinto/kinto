@@ -82,6 +82,14 @@ class PermissionsModel:
         # Check settings for every allowed resources.
         from_settings = allowed_from_settings(self.request.registry.settings, principals)
 
+        # Add additional resources and permissions defined in settings/plugins
+        for root_perm in from_settings.get('', []):
+            resource_name, _ = root_perm.split(':')
+            uri = core_utils.strip_uri_prefix(
+                    self.request.route_path('{0}-collection'.format(resource_name)))
+            perms_by_object_uri[uri] = {root_perm}
+            perms_descending_tree[resource_name].update({root_perm: {resource_name: {root_perm}}})
+
         # Expand permissions obtained from backend with the object URIs that
         # correspond to permissions allowed from settings.
         allowed_resources = {'bucket', 'collection', 'group'} & set(from_settings.keys())
@@ -114,8 +122,10 @@ class PermissionsModel:
                 # Skip permissions entries that are not linked to an object URI
                 continue
 
-            # For consistency with event payloads, prefix id with resource name
-            matchdict[resource_name + '_id'] = matchdict.get('id')
+            # For consistency with event payloads, if resource has an id,
+            # prefix it with its resource name
+            if "id" in matchdict:
+                matchdict[resource_name + '_id'] = matchdict['id']
 
             # Expand implicit permissions using descending tree.
             permissions = set(perms)
