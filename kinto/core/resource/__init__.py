@@ -580,7 +580,25 @@ class UserResource:
         if last_modified and last_modified <= record[self.model.modified_field]:
             last_modified = None
 
-        deleted = self.model.delete_record(record, last_modified=last_modified)
+        try:
+            deleted = self.model.delete_record(record, last_modified=last_modified)
+        except storage_exceptions.RecordNotFoundError:
+            # Delete might fail if the object was deleted since we
+            # fetched it from the storage (ref Kinto/kinto#1407). This
+            # is one of a larger class of issues where another request
+            # could modify the record between our fetch and our
+            # delete, which could e.g. invalidate our precondition
+            # checking. Fixing this correctly is a larger
+            # problem. However, let's punt on fixing it correctly and
+            # just handle this one important case for now (see #1557).
+            #
+            # Raise a 404 vs. a 409 or 412 because that's what we
+            # would have done if the other thread's delete had
+            # happened a little earlier. (The client doesn't need to
+            # know that we did a bunch of work fetching the existing
+            # record for nothing.)
+            raise self._404_for_record(self.record_id)
+
         timestamp = deleted[self.model.modified_field]
         self._add_timestamp_header(self.request.response, timestamp=timestamp)
 
@@ -720,6 +738,14 @@ class UserResource:
     # Internals
     #
 
+    def _404_for_record(self, record_id):
+        details = {
+            'id': record_id,
+            'resource_name': self.request.current_resource_name
+        }
+        return http_error(HTTPNotFound(), errno=ERRORS.INVALID_RESOURCE_ID,
+                          details=details)
+
     def _get_record_or_404(self, record_id):
         """Retrieve record from storage and raise ``404 Not found`` if missing.
 
@@ -733,13 +759,7 @@ class UserResource:
         try:
             return self.model.get_record(record_id)
         except storage_exceptions.RecordNotFoundError:
-            details = {
-                'id': record_id,
-                'resource_name': self.request.current_resource_name
-            }
-            response = http_error(HTTPNotFound(), errno=ERRORS.INVALID_RESOURCE_ID,
-                                  details=details)
-            raise response
+            raise self._404_for_record(record_id)
 
     def _add_timestamp_header(self, response, timestamp=None):
         """Add current timestamp in response headers, when request comes in.

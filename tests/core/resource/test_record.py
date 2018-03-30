@@ -5,6 +5,7 @@ from pyramid import httpexceptions
 
 from kinto.core.resource import ResourceSchema
 from kinto.core.errors import ERRORS
+from kinto.core.storage import exceptions as storage_exceptions
 
 from . import BaseTest
 
@@ -192,6 +193,15 @@ class DeleteTest(BaseTest):
         self.validated['querystring']['last_modified'] = last_modified
         result = self.resource.delete()['data']
         self.assertGreater(result[self.model.modified_field], last_modified)
+
+    def test_delete_returns_404_if_backend_throws(self):
+        def raise_recordnotfound(*args, **kwargs):
+            raise storage_exceptions.RecordNotFoundError
+
+        record = self.model.create_record({'field': 'value'})
+        self.resource.record_id = record['id']
+        with mock.patch.object(self.model, 'delete_record', side_effect=raise_recordnotfound):
+            self.assertRaises(httpexceptions.HTTPNotFound, self.resource.delete)
 
 
 class PatchTest(BaseTest):
