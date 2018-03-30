@@ -6,7 +6,7 @@ pytest-cache==1.0
 pytest-cov==2.5.1
 pytest-sugar==0.9.1
 pytest-watch==4.1.0
-SQLAlchemy==1.2.5
+SQLAlchemy==1.2.6
 python-memcached==1.59
 tox==2.9.1
 WebTest==2.0.29
