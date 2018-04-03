@@ -19,6 +19,59 @@ class PermissionsViewTest(BaseWebTest, unittest.TestCase):
         return settings
 
 
+class PermissionsUnauthenticatedViewTest(BaseWebTest, unittest.TestCase):
+
+    @classmethod
+    def get_app_settings(cls, extras=None):
+        settings = super().get_app_settings(extras)
+        settings['experimental_permissions_endpoint'] = 'True'
+        settings['bucket_create_principals'] = 'system.Everyone'
+        return settings
+
+    def setUp(self):
+        super().setUp()
+        self.everyone_headers = get_user_headers('')
+        self.app.put_json('/buckets/beers', MINIMALIST_BUCKET,
+                          headers=self.everyone_headers)
+        self.app.put_json('/buckets/beers/collections/barley',
+                          MINIMALIST_COLLECTION,
+                          headers=self.everyone_headers)
+        self.app.put_json('/buckets/beers/groups/amateurs',
+                          MINIMALIST_GROUP,
+                          headers=self.everyone_headers)
+        self.app.put_json('/buckets/beers/collections/barley/records/{}'.format(RECORD_ID),
+                          MINIMALIST_RECORD,
+                          headers=self.everyone_headers)
+
+        # Other user.
+        self.app.put_json('/buckets/water', MINIMALIST_BUCKET,
+                          headers=get_user_headers('alice'))
+
+    def test_permissions_list_entries_for_everyone(self):
+        resp = self.app.get('/permissions', headers=self.everyone_headers)
+        buckets = resp.json['data']
+        self.assertEqual(len(buckets), 5)
+
+    def test_bucket_create_permission_exists(self):
+        resp = self.app.get('/permissions', headers=self.everyone_headers)
+        buckets = resp.json['data']
+        toplevel_bucket = buckets[4]
+        self.assertEqual(toplevel_bucket, {
+            'permissions': ['bucket:create'],
+            'resource_name': 'bucket',
+            'uri': '/buckets'})
+
+    def test_object_details_are_provided(self):
+        resp = self.app.get('/permissions', headers=self.everyone_headers)
+        entries = resp.json['data']
+        for entry in entries:
+            if entry['resource_name'] == 'record':
+                record_permission = entry
+        self.assertEqual(record_permission['record_id'], RECORD_ID)
+        self.assertEqual(record_permission['collection_id'], 'barley')
+        self.assertEqual(record_permission['bucket_id'], 'beers')
+
+
 class EntriesTest(PermissionsViewTest):
 
     def setUp(self):
@@ -42,7 +95,7 @@ class EntriesTest(PermissionsViewTest):
     def test_permissions_list_entries_for_current_principal(self):
         resp = self.app.get('/permissions', headers=self.headers)
         permissions = resp.json['data']
-        self.assertEqual(len(permissions), 4)
+        self.assertEqual(len(permissions), 5)
 
     def test_permissions_can_be_listed_anonymously(self):
         self.app.patch_json('/buckets/beers/collections/barley',
@@ -77,7 +130,7 @@ class EntriesTest(PermissionsViewTest):
         resp = self.app.get('/permissions?in_resource_name=bucket,collection',
                             headers=self.headers)
         permissions = resp.json['data']
-        self.assertEqual(len(permissions), 2)
+        self.assertEqual(len(permissions), 3)
 
     def test_filtering_with_unknown_field_is_not_supported(self):
         self.app.get('/permissions?movie=bourne',
@@ -92,7 +145,7 @@ class EntriesTest(PermissionsViewTest):
     def test_permissions_list_can_be_paginated(self):
         resp = self.app.get('/permissions?_limit=2',
                             headers=self.headers)
-        self.assertEqual(resp.headers['Total-Records'], '4')
+        self.assertEqual(resp.headers['Total-Records'], '5')
         self.assertIn('Next-Page', resp.headers)
         self.assertEqual(len(resp.json['data']), 2)
 
@@ -168,6 +221,8 @@ class GroupsPermissionTest(PermissionsViewTest):
     def test_permissions_inherited_are_not_listed(self):
         resp = self.app.get('/permissions', headers=self.admin_headers)
         collections = [e for e in resp.json['data']
+                       # top level '/buckets' does not have an id
+                       if e['uri'] != '/buckets'
                        if e['bucket_id'] == 'beers' and e['resource_name'] == 'collection']
         self.assertEqual(len(collections), 0)
 
@@ -261,4 +316,4 @@ class DeletedObjectsTest(PermissionsViewTest):
 
     def test_deleted_objects_are_not_listed(self):
         resp = self.app.get('/permissions', headers=self.headers)
-        self.assertEqual(len(resp.json['data']), 0)
+        self.assertEqual(len(resp.json['data']), 1)
