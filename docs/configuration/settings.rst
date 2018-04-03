@@ -431,7 +431,7 @@ for each ``username:password`` pair.
 |                                |                                                       | Each alias is configuration using dedicated settings as explained        |
 |                                |                                                       | below.                                                                   |
 +--------------------------------+-------------------------------------------------------+--------------------------------------------------------------------------+
-| multiauth.authorization_policy | ``kinto.authorization.AuthorizationPolicy``           | Python *dotted* path the authorisation policy to use for the permission  |
+| multiauth.authorization_policy | ``kinto.authorization.AuthorizationPolicy``           | Python *dotted* path the authorization policy to use for the permission  |
 |                                |                                                       | mecanism.                                                                |
 +--------------------------------+-------------------------------------------------------+--------------------------------------------------------------------------+
 
