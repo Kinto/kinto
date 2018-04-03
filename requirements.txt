@@ -6,7 +6,7 @@ colander==1.4
 colorama==0.3.9
 cornice==3.2.0
 cornice-swagger==0.6.0
-dockerflow==2018.2.1
+dockerflow==2018.4.0
 hupper==1.1
 idna==2.6
 iso8601==0.1.12
