@@ -61,6 +61,13 @@ class PermissionsUnauthenticatedViewTest(BaseWebTest, unittest.TestCase):
             'resource_name': 'bucket',
             'uri': '/buckets'})
 
+    def test_can_paginate(self):
+        """kinto_http.js uses this sort of request when listing permissions"""
+        resp = self.app.get('/permissions?_sort=id&_limit=1', headers=self.everyone_headers)
+        while 'Next-Page' in resp.headers:
+            next_url = resp.headers['Next-Page'][len('http://localhost/v1'):]
+            resp = self.app.get(next_url, headers=self.everyone_headers)
+
     def test_object_details_are_provided(self):
         resp = self.app.get('/permissions', headers=self.everyone_headers)
         entries = resp.json['data']
