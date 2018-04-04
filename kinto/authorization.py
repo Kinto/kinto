@@ -24,7 +24,7 @@ from kinto.core import authorization as core_authorization
 # automatically provides it
 # Ex: bucket:read is granted by both bucket:write and bucket:read
 PERMISSIONS_INHERITANCE_TREE = {
-    '': {  # Granted via settings only.
+    'root': {  # Granted via settings only.
         'bucket:create': {},
         'write': {},
         'read': {},

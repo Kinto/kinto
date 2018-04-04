@@ -42,7 +42,10 @@ def allowed_from_settings(settings, principals):
             resource_name = {  # resource parents.
                 'collection': 'bucket',
                 'group': 'bucket',
-                'record': 'collection'}.get(resource_name, '')
+                'record': 'collection',
+                'bucket': 'root',
+                'account': 'root',
+            }.get(resource_name, '')
         # Store them in a convenient way.
         from_settings.setdefault(resource_name, set()).add(permission)
     return from_settings
@@ -83,10 +86,10 @@ class PermissionsModel:
         from_settings = allowed_from_settings(self.request.registry.settings, principals)
 
         # Add additional resources and permissions defined in settings/plugins
-        for root_perm in from_settings.get('', []):
+        for root_perm in from_settings.get('root', []):
             resource_name, _ = root_perm.split(':')
             perms_by_object_uri.setdefault('/', set()).add(root_perm)
-            perms_descending_tree.setdefault('', {}).update({root_perm: {'': {root_perm}}})
+            perms_descending_tree.setdefault('root', {}).update({root_perm: {'root': {root_perm}}})
 
         # Expand permissions obtained from backend with the object URIs that
         # correspond to permissions allowed from settings.
@@ -128,7 +131,7 @@ class PermissionsModel:
             # The imaginary "root" resource gets mapped to the hello
             # view. Handle it explicitly.
             if resource_name == 'hello':
-                resource_name = ''
+                resource_name = 'root'
 
             # Expand implicit permissions using descending tree.
             permissions = set(perms)
@@ -137,10 +140,6 @@ class PermissionsModel:
                 # Related to same resource only and not every sub-objects.
                 # (e.g "bucket:write" gives "bucket:read" but not "group:read")
                 permissions |= obtained[resource_name]
-
-            # Expose this resource with a nicer name.
-            if resource_name == '':
-                resource_name = 'root'
 
             entry = dict(uri=object_uri,
                          resource_name=resource_name,
