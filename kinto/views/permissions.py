@@ -142,6 +142,7 @@ class PermissionsModel:
             entries.append(entry)
 
         return extract_record_set(entries, filters=filters, sorting=sorting,
+                                  id_field='uri',
                                   pagination_rules=pagination_rules,
                                   limit=limit)
 
