@@ -39,6 +39,9 @@ class PermissionsUnauthenticatedViewTest(BaseWebTest, unittest.TestCase):
         self.app.put_json('/buckets/beers/groups/amateurs',
                           MINIMALIST_GROUP,
                           headers=self.everyone_headers)
+        self.app.put_json('/buckets/beers/groups/barley',
+                          MINIMALIST_GROUP,
+                          headers=self.everyone_headers)
         self.app.put_json('/buckets/beers/collections/barley/records/{}'.format(RECORD_ID),
                           MINIMALIST_RECORD,
                           headers=self.everyone_headers)
@@ -50,7 +53,17 @@ class PermissionsUnauthenticatedViewTest(BaseWebTest, unittest.TestCase):
     def test_permissions_list_entries_for_everyone(self):
         resp = self.app.get('/permissions', headers=self.everyone_headers)
         buckets = resp.json['data']
-        self.assertEqual(len(buckets), 5)
+        self.assertEqual(len(buckets), 6)
+
+        uris = [bucket['uri'] for bucket in buckets]
+        self.assertEqual(sorted(uris), [
+            '/buckets',
+            '/buckets/beers',
+            '/buckets/beers/collections/barley',
+            '/buckets/beers/collections/barley/records/{}'.format(RECORD_ID),
+            '/buckets/beers/groups/amateurs',
+            '/buckets/beers/groups/barley',
+        ])
 
     def test_bucket_create_permission_exists(self):
         resp = self.app.get('/permissions', headers=self.everyone_headers)
@@ -61,12 +74,30 @@ class PermissionsUnauthenticatedViewTest(BaseWebTest, unittest.TestCase):
             'resource_name': 'bucket',
             'uri': '/buckets'})
 
-    def test_can_paginate(self):
-        """kinto_http.js uses this sort of request when listing permissions"""
-        resp = self.app.get('/permissions?_sort=id&_limit=1', headers=self.everyone_headers)
-        while 'Next-Page' in resp.headers:
-            next_url = resp.headers['Next-Page'][len('http://localhost/v1'):]
-            resp = self.app.get(next_url, headers=self.everyone_headers)
+    def test_permissions_can_be_paginated(self):
+        """Verify that pagination doesn't squash same IDs"""
+        # kinto_http.js uses this sort of request when listing permissions
+        real_permissions = self.app.get('/permissions', headers=self.everyone_headers).json['data']
+
+        def sort_by_uri(l):
+            return sorted(l, key=lambda r: r['uri'])
+
+        for order in ['id', '-id', 'uri', '-uri']:
+            for limit in range(1, 10):
+                records = []
+                resp = self.app.get('/permissions?_sort={}&_limit={}'.format(order, limit),
+                                    headers=self.everyone_headers)
+                records = records + resp.json['data']
+                while 'Next-Page' in resp.headers:
+                    next_url = resp.headers['Next-Page'][len('http://localhost/v1'):]
+                    resp = self.app.get(next_url, headers=self.everyone_headers)
+                    records = records + resp.json['data']
+
+                message = "didn't get same permissions with sort={}, limit={}".format(
+                    order, limit)
+                self.assertEqual(sort_by_uri(real_permissions),
+                                 sort_by_uri(records),
+                                 message)
 
     def test_object_details_are_provided(self):
         resp = self.app.get('/permissions', headers=self.everyone_headers)
