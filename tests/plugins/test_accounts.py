@@ -253,26 +253,26 @@ class PermissionsEndpointTest(AccountsWebTest):
         assert uris == ['/buckets/a/collections/b/records/c',
                         '/buckets/a/collections/b',
                         '/buckets/a',
-                        '/buckets',
                         '/accounts/alice',
-                        '/accounts']
+                        '/']
 
     def test_account_create_read_write_permissions_(self):
         resp = self.app.get('/permissions', headers=self.headers)
         buckets = resp.json['data']
-        accounts = buckets[4]
-        account = buckets[5]
-        accounts['permissions'].sort()
-        self.assertEqual(accounts, {
+        account = buckets[3]
+        account['permissions'].sort()
+        root = buckets[4]
+        root['permissions'].sort()
+        self.assertEqual(account, {
             'account_id': 'alice',
             'id': 'alice',
             'permissions': ['read', 'write'],
             'resource_name': 'account',
             'uri': '/accounts/alice'})
-        self.assertEqual(account, {
-            'permissions': ['account:create'],
-            'resource_name': 'account',
-            'uri': '/accounts'})
+        self.assertEqual(root, {
+            'permissions': ['account:create', 'bucket:create'],
+            'resource_name': 'root',
+            'uri': '/'})
 
 
 class PermissionsEndpointTestUnauthenticatedCreatePermission(AccountsWebTest):
@@ -290,16 +290,12 @@ class PermissionsEndpointTestUnauthenticatedCreatePermission(AccountsWebTest):
     def test_permissions_endpoint_is_compatible_with_accounts_plugin(self):
         resp = self.app.get('/permissions', headers=self.everyone_headers)
         buckets = resp.json['data']
-        bucket_create = buckets[0]
-        account_create = buckets[1]
-        self.assertEqual(bucket_create, {
-            'permissions': ['bucket:create'],
-            'resource_name': 'bucket',
-            'uri': '/buckets'})
-        self.assertEqual(account_create, {
-            'permissions': ['account:create'],
-            'resource_name': 'account',
-            'uri': '/accounts'})
+        root = buckets[0]
+        root['permissions'] = set(root['permissions'])
+        self.assertEqual(root, {
+            'permissions': {'account:create', 'bucket:create'},
+            'resource_name': 'root',
+            'uri': '/'})
 
 
 class AdminTest(AccountsWebTest):

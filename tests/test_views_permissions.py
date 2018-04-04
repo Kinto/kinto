@@ -57,7 +57,7 @@ class PermissionsUnauthenticatedViewTest(BaseWebTest, unittest.TestCase):
 
         uris = [bucket['uri'] for bucket in buckets]
         self.assertEqual(sorted(uris), [
-            '/buckets',
+            '/',
             '/buckets/beers',
             '/buckets/beers/collections/barley',
             '/buckets/beers/collections/barley/records/{}'.format(RECORD_ID),
@@ -68,11 +68,11 @@ class PermissionsUnauthenticatedViewTest(BaseWebTest, unittest.TestCase):
     def test_bucket_create_permission_exists(self):
         resp = self.app.get('/permissions', headers=self.everyone_headers)
         buckets = resp.json['data']
-        toplevel_bucket = [b for b in buckets if b['uri'] == '/buckets']
+        toplevel_bucket = [b for b in buckets if b['resource_name'] == 'root']
         self.assertEqual(toplevel_bucket, [{
             'permissions': ['bucket:create'],
-            'resource_name': 'bucket',
-            'uri': '/buckets'}])
+            'resource_name': 'root',
+            'uri': '/'}])
 
     def test_permissions_can_be_paginated(self):
         """Verify that pagination doesn't squash same IDs"""
@@ -257,8 +257,8 @@ class GroupsPermissionTest(PermissionsViewTest):
     def test_permissions_inherited_are_not_listed(self):
         resp = self.app.get('/permissions', headers=self.admin_headers)
         collections = [e for e in resp.json['data']
-                       # top level '/buckets' does not have an id
-                       if e['uri'] != '/buckets'
+                       # top level '/' does not have an id
+                       if e['uri'] != '/'
                        if e['bucket_id'] == 'beers' and e['resource_name'] == 'collection']
         self.assertEqual(len(collections), 0)
 
