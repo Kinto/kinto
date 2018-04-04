@@ -57,6 +57,7 @@ class PermissionsUnauthenticatedViewTest(BaseWebTest, unittest.TestCase):
         buckets = resp.json['data']
         toplevel_bucket = buckets[4]
         self.assertEqual(toplevel_bucket, {
+            'id': 'root-bucket',
             'permissions': ['bucket:create'],
             'resource_name': 'bucket',
             'uri': '/buckets'})
