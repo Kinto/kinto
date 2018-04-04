@@ -68,11 +68,11 @@ class PermissionsUnauthenticatedViewTest(BaseWebTest, unittest.TestCase):
     def test_bucket_create_permission_exists(self):
         resp = self.app.get('/permissions', headers=self.everyone_headers)
         buckets = resp.json['data']
-        toplevel_bucket = buckets[4]
-        self.assertEqual(toplevel_bucket, {
+        toplevel_bucket = [b for b in buckets if b['uri'] == '/buckets']
+        self.assertEqual(toplevel_bucket, [{
             'permissions': ['bucket:create'],
             'resource_name': 'bucket',
-            'uri': '/buckets'})
+            'uri': '/buckets'}])
 
     def test_permissions_can_be_paginated(self):
         """Verify that pagination doesn't squash same IDs"""
