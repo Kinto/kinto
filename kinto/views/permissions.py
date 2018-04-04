@@ -85,10 +85,8 @@ class PermissionsModel:
         # Add additional resources and permissions defined in settings/plugins
         for root_perm in from_settings.get('', []):
             resource_name, _ = root_perm.split(':')
-            uri = core_utils.strip_uri_prefix(
-                    self.request.route_path('{0}-collection'.format(resource_name)))
-            perms_by_object_uri[uri] = {root_perm}
-            perms_descending_tree[resource_name].update({root_perm: {resource_name: {root_perm}}})
+            perms_by_object_uri.setdefault('/', set()).add(root_perm)
+            perms_descending_tree.setdefault('', {}).update({root_perm: {'': {root_perm}}})
 
         # Expand permissions obtained from backend with the object URIs that
         # correspond to permissions allowed from settings.
@@ -127,6 +125,11 @@ class PermissionsModel:
             if "id" in matchdict:
                 matchdict[resource_name + '_id'] = matchdict['id']
 
+            # The imaginary "root" resource gets mapped to the hello
+            # view. Handle it explicitly.
+            if resource_name == 'hello':
+                resource_name = ''
+
             # Expand implicit permissions using descending tree.
             permissions = set(perms)
             for perm in perms:
@@ -134,6 +137,10 @@ class PermissionsModel:
                 # Related to same resource only and not every sub-objects.
                 # (e.g "bucket:write" gives "bucket:read" but not "group:read")
                 permissions |= obtained[resource_name]
+
+            # Expose this resource with a nicer name.
+            if resource_name == '':
+                resource_name = 'root'
 
             entry = dict(uri=object_uri,
                          resource_name=resource_name,
