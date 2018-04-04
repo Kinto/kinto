@@ -166,7 +166,7 @@ class EntriesTest(PermissionsViewTest):
         resp = self.app.get('/permissions?in_resource_name=bucket,collection',
                             headers=self.headers)
         permissions = resp.json['data']
-        self.assertEqual(len(permissions), 3)
+        self.assertEqual(len(permissions), 2)
 
     def test_filtering_with_unknown_field_is_not_supported(self):
         self.app.get('/permissions?movie=bourne',
