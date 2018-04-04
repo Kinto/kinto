@@ -306,7 +306,7 @@ def extract_record_set(records, filters, sorting,
     paginated = {}
     for rule in pagination_rules or []:
         values = list(apply_filters(filtered, rule))
-        paginated.update(dict(((x.get(id_field), x) for x in values)))
+        paginated.update(dict(((x[id_field], x) for x in values)))
 
     if paginated:
         paginated = paginated.values()
