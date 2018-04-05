@@ -126,6 +126,8 @@ class PermissionsModel:
             # prefix it with its resource name
             if "id" in matchdict:
                 matchdict[resource_name + '_id'] = matchdict['id']
+            else:
+                matchdict['id'] = 'root-{0}'.format(resource_name)
 
             # Expand implicit permissions using descending tree.
             permissions = set(perms)

@@ -270,6 +270,7 @@ class PermissionsEndpointTest(AccountsWebTest):
             'resource_name': 'account',
             'uri': '/accounts/alice'})
         self.assertEqual(account, {
+            'id': 'root-account',
             'permissions': ['account:create'],
             'resource_name': 'account',
             'uri': '/accounts'})
@@ -293,10 +294,12 @@ class PermissionsEndpointTestUnauthenticatedCreatePermission(AccountsWebTest):
         bucket_create = buckets[0]
         account_create = buckets[1]
         self.assertEqual(bucket_create, {
+            'id': 'root-bucket',
             'permissions': ['bucket:create'],
             'resource_name': 'bucket',
             'uri': '/buckets'})
         self.assertEqual(account_create, {
+            'id': 'root-account',
             'permissions': ['account:create'],
             'resource_name': 'account',
             'uri': '/accounts'})
