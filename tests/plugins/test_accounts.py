@@ -130,7 +130,7 @@ class AccountCreationTest(AccountsWebTest):
 
     def test_authentication_refresh_the_cache_each_time_we_authenticate(self):
         hmac_secret = self.app.app.registry.settings['userid_hmac_secret']
-        cache_key = utils.hmac_digest(hmac_secret, ACCOUNT_CACHE_KEY.format('me'))
+        cache_key = utils.hmac_digest(hmac_secret, ACCOUNT_CACHE_KEY.format('me:bouh'))
 
         self.app.post_json('/accounts', {'data': {'id': 'me', 'password': 'bouh'}},
                            status=201)
@@ -139,10 +139,13 @@ class AccountCreationTest(AccountsWebTest):
 
         self.app.app.registry.cache.expire(cache_key, 10)
 
-        resp = self.app.get('/', headers=get_user_headers('me', 'blah'))
+        resp = self.app.get('/', headers=get_user_headers('me', 'bouh'))
         assert resp.json['user']['id'] == 'account:me'
 
         assert self.app.app.registry.cache.ttl(cache_key) >= 20
+
+        resp = self.app.get('/', headers=get_user_headers('me', 'blah'))
+        assert 'user' not in resp.json
 
 
 class AccountUpdateTest(AccountsWebTest):
