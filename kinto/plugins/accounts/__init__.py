@@ -1,7 +1,7 @@
 from kinto.authorization import PERMISSIONS_INHERITANCE_TREE
 from pyramid.exceptions import ConfigurationError
 
-ACCOUNT_CACHE_KEY = 'accounts:{}:verified'
+ACCOUNT_CACHE_KEY = 'accounts:{}:{}:verified'
 
 
 def includeme(config):

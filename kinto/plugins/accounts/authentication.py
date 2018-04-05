@@ -5,12 +5,14 @@ from kinto.core import utils
 from kinto.core.storage import exceptions as storage_exceptions
 
 from . import ACCOUNT_CACHE_KEY
+from .utils import hash_password
 
 
 def account_check(username, password, request):
     settings = request.registry.settings
     hmac_secret = settings['userid_hmac_secret']
-    cache_key = utils.hmac_digest(hmac_secret, ACCOUNT_CACHE_KEY.format(username + ':' + password))
+    hashed_pwd = hash_password(password)
+    cache_key = utils.hmac_digest(hmac_secret, ACCOUNT_CACHE_KEY.format(username, hashed_pwd))
     cache_ttl = int(settings.get('account_cache_ttl_seconds', 0))
 
     # Check cache to see whether somebody has recently logged in with the same
