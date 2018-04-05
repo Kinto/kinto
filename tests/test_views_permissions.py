@@ -84,20 +84,18 @@ class PermissionsUnauthenticatedViewTest(BaseWebTest, unittest.TestCase):
 
         for order in ['id', '-id', 'uri', '-uri']:
             for limit in range(1, 10):
-                records = []
-                resp = self.app.get('/permissions?_sort={}&_limit={}'.format(order, limit),
-                                    headers=self.everyone_headers)
-                records = records + resp.json['data']
-                while 'Next-Page' in resp.headers:
-                    next_url = resp.headers['Next-Page'][len('http://localhost/v1'):]
-                    resp = self.app.get(next_url, headers=self.everyone_headers)
+                with self.subTest(order=order, limit=limit):
+                    records = []
+                    resp = self.app.get('/permissions?_sort={}&_limit={}'.format(order, limit),
+                                        headers=self.everyone_headers)
                     records = records + resp.json['data']
+                    while 'Next-Page' in resp.headers:
+                        next_url = resp.headers['Next-Page'][len('http://localhost/v1'):]
+                        resp = self.app.get(next_url, headers=self.everyone_headers)
+                        records = records + resp.json['data']
 
-                message = "didn't get same permissions with sort={}, limit={}".format(
-                    order, limit)
-                self.assertEqual(sort_by_uri(real_permissions),
-                                 sort_by_uri(records),
-                                 message)
+                    self.assertEqual(sort_by_uri(real_permissions),
+                                     sort_by_uri(records))
 
     def test_object_details_are_provided(self):
         resp = self.app.get('/permissions', headers=self.everyone_headers)
