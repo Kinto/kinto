@@ -291,9 +291,9 @@ class PermissionsEndpointTestUnauthenticatedCreatePermission(AccountsWebTest):
         resp = self.app.get('/permissions', headers=self.everyone_headers)
         buckets = resp.json['data']
         root = buckets[0]
-        root['permissions'] = set(root['permissions'])
+        root['permissions'].sort()
         self.assertEqual(root, {
-            'permissions': {'account:create', 'bucket:create'},
+            'permissions': ['account:create', 'bucket:create'],
             'resource_name': 'root',
             'uri': '/'})
 
