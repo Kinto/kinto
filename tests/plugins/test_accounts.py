@@ -24,6 +24,7 @@ class AccountsWebTest(support.BaseWebTest, unittest.TestCase):
         # XXX: this should be a default setting.
         extras.setdefault('multiauth.policy.account.use', 'kinto.plugins.accounts.authentication.'
                                                           'AccountsAuthenticationPolicy')
+        extras.setdefault('account_cache_ttl_seconds', '30')
         return super().get_app_settings(extras)
 
 

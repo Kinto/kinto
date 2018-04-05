@@ -11,7 +11,7 @@ def account_check(username, password, request):
     settings = request.registry.settings
     hmac_secret = settings['userid_hmac_secret']
     cache_key = utils.hmac_digest(hmac_secret, ACCOUNT_CACHE_KEY.format(username))
-    cache_ttl = settings.get('account_cache_ttl_seconds', 30)
+    cache_ttl = int(settings.get('account_cache_ttl_seconds', 0))
 
     # Check cache to see whether somebody has recently logged in with the same
     # username and password.
