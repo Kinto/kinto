@@ -292,7 +292,7 @@ JavaScript example
 
 Let's go through a simple OpenID login example using the :github:`JavaScript kinto client <Kinto/kinto-http.js>`.
 
-When the user clicks a login button, it initiate the login process by redirecting the browser to the
+When the user clicks a login button, it initiates the login process by redirecting the browser to the
 Identity Provider, which itself redirects it to the application page once successful.
 
 .. code-block:: JavaScript

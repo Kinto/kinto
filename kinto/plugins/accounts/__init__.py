@@ -12,7 +12,7 @@ def includeme(config):
 
     config.scan('kinto.plugins.accounts.views')
 
-    PERMISSIONS_INHERITANCE_TREE[''].update({
+    PERMISSIONS_INHERITANCE_TREE['root'].update({
         'account:create': {}
     })
     PERMISSIONS_INHERITANCE_TREE['account'] = {

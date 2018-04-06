@@ -15,6 +15,7 @@ from .utils import fetch_openid_config
 
 
 DEFAULT_STATE_TTL_SECONDS = 3600
+DEFAULT_STATE_LENGTH = 32
 
 
 class RedirectHeadersSchema(colander.MappingSchema):
@@ -76,6 +77,8 @@ def get_login(request):
     userid_field = request.registry.settings.get(settings_prefix + 'userid_field')
     state_ttl = int(request.registry.settings.get(settings_prefix + 'state_ttl_seconds',
                                                   DEFAULT_STATE_TTL_SECONDS))
+    state_length = int(request.registry.settings.get(settings_prefix + 'state_length',
+                                                     DEFAULT_STATE_LENGTH))
 
     # Read OpenID configuration (cached by issuer)
     oid_config = fetch_openid_config(issuer)
@@ -94,7 +97,7 @@ def get_login(request):
 
     # Generate a random string as state.
     # And save it until code is traded.
-    state = random_bytes_hex(256)
+    state = random_bytes_hex(state_length)
     request.registry.cache.set('openid:state:' + state, callback, ttl=state_ttl)
 
     # Redirect the client to the Identity Provider that will eventually redirect

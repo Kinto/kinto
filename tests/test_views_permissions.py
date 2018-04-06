@@ -39,6 +39,9 @@ class PermissionsUnauthenticatedViewTest(BaseWebTest, unittest.TestCase):
         self.app.put_json('/buckets/beers/groups/amateurs',
                           MINIMALIST_GROUP,
                           headers=self.everyone_headers)
+        self.app.put_json('/buckets/beers/groups/barley',
+                          MINIMALIST_GROUP,
+                          headers=self.everyone_headers)
         self.app.put_json('/buckets/beers/collections/barley/records/{}'.format(RECORD_ID),
                           MINIMALIST_RECORD,
                           headers=self.everyone_headers)
@@ -50,16 +53,49 @@ class PermissionsUnauthenticatedViewTest(BaseWebTest, unittest.TestCase):
     def test_permissions_list_entries_for_everyone(self):
         resp = self.app.get('/permissions', headers=self.everyone_headers)
         buckets = resp.json['data']
-        self.assertEqual(len(buckets), 5)
+        self.assertEqual(len(buckets), 6)
+
+        uris = [bucket['uri'] for bucket in buckets]
+        self.assertEqual(sorted(uris), [
+            '/',
+            '/buckets/beers',
+            '/buckets/beers/collections/barley',
+            '/buckets/beers/collections/barley/records/{}'.format(RECORD_ID),
+            '/buckets/beers/groups/amateurs',
+            '/buckets/beers/groups/barley',
+        ])
 
     def test_bucket_create_permission_exists(self):
         resp = self.app.get('/permissions', headers=self.everyone_headers)
         buckets = resp.json['data']
-        toplevel_bucket = buckets[4]
-        self.assertEqual(toplevel_bucket, {
+        toplevel_bucket = [b for b in buckets if b['resource_name'] == 'root']
+        self.assertEqual(toplevel_bucket, [{
             'permissions': ['bucket:create'],
-            'resource_name': 'bucket',
-            'uri': '/buckets'})
+            'resource_name': 'root',
+            'uri': '/'}])
+
+    def test_permissions_can_be_paginated(self):
+        """Verify that pagination doesn't squash same IDs"""
+        # kinto_http.js uses this sort of request when listing permissions
+        real_permissions = self.app.get('/permissions', headers=self.everyone_headers).json['data']
+
+        def sort_by_uri(l):
+            return sorted(l, key=lambda r: r['uri'])
+
+        for order in ['id', '-id', 'uri', '-uri']:
+            for limit in range(1, 10):
+                with self.subTest(order=order, limit=limit):
+                    records = []
+                    resp = self.app.get('/permissions?_sort={}&_limit={}'.format(order, limit),
+                                        headers=self.everyone_headers)
+                    records = records + resp.json['data']
+                    while 'Next-Page' in resp.headers:
+                        next_url = resp.headers['Next-Page'][len('http://localhost/v1'):]
+                        resp = self.app.get(next_url, headers=self.everyone_headers)
+                        records = records + resp.json['data']
+
+                    self.assertEqual(sort_by_uri(real_permissions),
+                                     sort_by_uri(records))
 
     def test_object_details_are_provided(self):
         resp = self.app.get('/permissions', headers=self.everyone_headers)
@@ -130,7 +166,7 @@ class EntriesTest(PermissionsViewTest):
         resp = self.app.get('/permissions?in_resource_name=bucket,collection',
                             headers=self.headers)
         permissions = resp.json['data']
-        self.assertEqual(len(permissions), 3)
+        self.assertEqual(len(permissions), 2)
 
     def test_filtering_with_unknown_field_is_not_supported(self):
         self.app.get('/permissions?movie=bourne',
@@ -221,8 +257,8 @@ class GroupsPermissionTest(PermissionsViewTest):
     def test_permissions_inherited_are_not_listed(self):
         resp = self.app.get('/permissions', headers=self.admin_headers)
         collections = [e for e in resp.json['data']
-                       # top level '/buckets' does not have an id
-                       if e['uri'] != '/buckets'
+                       # top level '/' does not have an id
+                       if e['uri'] != '/'
                        if e['bucket_id'] == 'beers' and e['resource_name'] == 'collection']
         self.assertEqual(len(collections), 0)
 

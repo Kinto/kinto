@@ -261,7 +261,7 @@ Timers
 JSON Logging
 ------------
 
-At Mozilla, applications log files follow a specific JSON schema, that is
+At Mozilla, applications' log files follow a specific JSON schema, that is
 processed through `Kibana <https://github.com/elastic/kibana>`_ or
 `Heka <https://hekad.readthedocs.io>`_.
 
