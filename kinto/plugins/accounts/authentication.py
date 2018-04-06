@@ -5,14 +5,13 @@ from kinto.core import utils
 from kinto.core.storage import exceptions as storage_exceptions
 
 from . import ACCOUNT_CACHE_KEY
-from .utils import hash_password
 
 
 def account_check(username, password, request):
     settings = request.registry.settings
     hmac_secret = settings['userid_hmac_secret']
-    hashed_pwd = hash_password(password)
-    cache_key = utils.hmac_digest(hmac_secret, ACCOUNT_CACHE_KEY.format(username, hashed_pwd))
+    cache_key = utils.hmac_digest(hmac_secret, ACCOUNT_CACHE_KEY.format(username))
+    offuscated_password = utils.hmac_digest(cache_key, password)
     cache_ttl = int(settings.get('account_cache_ttl_seconds', 0))
 
     # Check cache to see whether somebody has recently logged in with the same
@@ -21,7 +20,7 @@ def account_check(username, password, request):
     cache_result = cache.get(cache_key)
 
     # Username and password have been verified previously. No need to compare hashes
-    if cache_result:
+    if cache_result == offuscated_password:
         # Refresh the cache TTL.
         cache.expire(cache_key, cache_ttl)
         return True
@@ -39,7 +38,7 @@ def account_check(username, password, request):
     pwd_str = password.encode(encoding='utf-8')
     # Check if password is valid (it is a very expensive computation)
     if bcrypt.checkpw(pwd_str, hashed):
-        cache.set(cache_key, "1", ttl=cache_ttl)
+        cache.set(cache_key, offuscated_password, ttl=cache_ttl)
         return True
 
 

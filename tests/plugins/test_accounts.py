@@ -9,7 +9,6 @@ from kinto.core.testing import get_user_headers
 from pyramid.exceptions import ConfigurationError
 
 from kinto.plugins.accounts import scripts, ACCOUNT_CACHE_KEY
-from kinto.plugins.accounts.utils import hash_password
 from .. import support
 
 
@@ -131,8 +130,7 @@ class AccountCreationTest(AccountsWebTest):
 
     def test_authentication_refresh_the_cache_each_time_we_authenticate(self):
         hmac_secret = self.app.app.registry.settings['userid_hmac_secret']
-        hashed_pwd = hash_password('bouh')
-        cache_key = utils.hmac_digest(hmac_secret, ACCOUNT_CACHE_KEY.format('me', hashed_pwd))
+        cache_key = utils.hmac_digest(hmac_secret, ACCOUNT_CACHE_KEY.format('me'))
 
         self.app.post_json('/accounts', {'data': {'id': 'me', 'password': 'bouh'}},
                            status=201)
