@@ -3,7 +3,7 @@ Changelog
 
 This document describes changes between each past release.
 
-8.2.1 (unreleased)
+8.2.3 (unreleased)
 ------------------
 
 **Bug fixes**
@@ -22,6 +22,23 @@ This document describes changes between each past release.
 - Remove useless print when using the OpenID policy (ref #1509)
 - Try to recover from the race condition where two requests can delete the same record. (Fix #1557; refs #1407.)
 - Add resource permissions defined in settings to permissions endpoint (ref #1510)
+
+
+8.2.2 (2018-03-28)
+------------------
+
+**Internal changes**
+
+- Fix kinto-admin dependency error in 8.2.1 to actually really upgrade it to `1.15.1 <https://github.com/Kinto/kinto-admin/releases/tag/v1.15.1>`_
+
+
+8.2.1 (2018-03-28)
+------------------
+
+**Internal changes**
+
+- Upgraded the kinto-admin to version `1.15.1 <https://github.com/Kinto/kinto-admin/releases/tag/v1.15.1>`_
+- Upgraded newrelic to `2.106.1.88 <https://docs.newrelic.com/docs/release-notes/agent-release-notes/python-release-notes/python-agent-2106188>`_
 
 
 8.2.0 (2018-03-01)
