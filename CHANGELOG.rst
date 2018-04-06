@@ -6,7 +6,10 @@ This document describes changes between each past release.
 8.2.3 (unreleased)
 ------------------
 
-- Nothing changed yet.
+**Security fix**
+
+- Validate the account user password even when the session is cached (fixes #1583).
+  Since Kinto 8.2.0 the account plugin had a security flaw where the password wasn't verified during the session duration.
 
 
 8.2.2 (2018-03-28)
