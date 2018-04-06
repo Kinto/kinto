@@ -3,13 +3,21 @@ Changelog
 
 This document describes changes between each past release.
 
-8.2.3 (unreleased)
+8.3.0 (2018-04-06)
 ------------------
+
+**Security fix**
+
+- Validate the account user password even when the session is cached (fixes #1583).
+  Since Kinto 8.2.0 the account plugin had a security flaw where the password wasn't verified during the session duration.
+
+**New features**
+
+- Add bucket and account creation permissions in the permissions endpoint (fixes #1510)
 
 **Bug fixes**
 
 - Reduce the OpenID state string length to fit in the PostgreSQL cache backend (fixes #1566)
-- Validate the account user password even when the session is cached. (fixes #1583)
 
 **Documentation**
 
@@ -21,7 +29,6 @@ This document describes changes between each past release.
 - Move from importing pip to running it in a subprocess (see https://github.com/pypa/pip/issues/5081).
 - Remove useless print when using the OpenID policy (ref #1509)
 - Try to recover from the race condition where two requests can delete the same record. (Fix #1557; refs #1407.)
-- Add resource permissions defined in settings to permissions endpoint (ref #1510)
 
 
 8.2.2 (2018-03-28)
