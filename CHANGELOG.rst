@@ -6,6 +6,10 @@ This document describes changes between each past release.
 8.2.1 (unreleased)
 ------------------
 
+**Bug fixes**
+
+- Validate the account user password even when the session is cached. (fixes #1583)
+
 **Documentation**
 
 - Improve OpenID settings and API documentation
