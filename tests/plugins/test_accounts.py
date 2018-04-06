@@ -24,6 +24,7 @@ class AccountsWebTest(support.BaseWebTest, unittest.TestCase):
         # XXX: this should be a default setting.
         extras.setdefault('multiauth.policy.account.use', 'kinto.plugins.accounts.authentication.'
                                                           'AccountsAuthenticationPolicy')
+        extras.setdefault('account_cache_ttl_seconds', '30')
         return super().get_app_settings(extras)
 
 
@@ -138,10 +139,13 @@ class AccountCreationTest(AccountsWebTest):
 
         self.app.app.registry.cache.expire(cache_key, 10)
 
-        resp = self.app.get('/', headers=get_user_headers('me', 'blah'))
+        resp = self.app.get('/', headers=get_user_headers('me', 'bouh'))
         assert resp.json['user']['id'] == 'account:me'
 
         assert self.app.app.registry.cache.ttl(cache_key) >= 20
+
+        resp = self.app.get('/', headers=get_user_headers('me', 'blah'))
+        assert 'user' not in resp.json
 
 
 class AccountUpdateTest(AccountsWebTest):

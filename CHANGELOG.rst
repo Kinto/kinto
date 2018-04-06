@@ -9,6 +9,7 @@ This document describes changes between each past release.
 **Bug fixes**
 
 - Reduce the OpenID state string length to fit in the PostgreSQL cache backend (fixes #1566)
+- Validate the account user password even when the session is cached. (fixes #1583)
 
 **Documentation**
 
