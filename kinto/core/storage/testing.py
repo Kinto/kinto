@@ -1364,6 +1364,17 @@ class DeletedRecordsTest:
         self.assertIn('deleted', records[0])
         self.assertNotIn('deleted', records[1])
 
+    def test_pagination_can_skip_everything(self):
+        for i in range(5):
+            self.create_record({'i': i})
+
+        pagination = [[Filter('i', 7, utils.COMPARISON.GT)]]
+        records, count = self.storage.get_all(pagination_rules=pagination,
+                                              limit=5,
+                                              include_deleted=True,
+                                              **self.storage_kw)
+        self.assertEqual(len(records), 0)
+
     def test_get_all_handle_a_pagination_rules(self):
         for x in range(10):
             record = dict(self.record)

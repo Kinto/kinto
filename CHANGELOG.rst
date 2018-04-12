@@ -29,6 +29,7 @@ This document describes changes between each past release.
 - Move from importing pip to running it in a subprocess (see https://github.com/pypa/pip/issues/5081).
 - Remove useless print when using the OpenID policy (ref #1509)
 - Try to recover from the race condition where two requests can delete the same record. (Fix #1557; refs #1407.)
+- Fix a bug in the memory backend where paginating past the end of a list would restart pagination. (Refs #1584.)
 
 
 8.2.2 (2018-03-28)
