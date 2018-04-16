@@ -519,7 +519,7 @@ class Storage(StorageBase, MigratorMixin):
         placeholders['pagination_limit'] = limit
 
         with self.client.connect() as conn:
-            result = conn.execute(query.format_map(safeholders), placeholders)
+            result = conn.execute(sqlalchemy.text(query.format_map(safeholders)), placeholders)
             deleted = result.fetchmany(self._max_fetch_size)
 
         records = []
@@ -693,6 +693,8 @@ class Storage(StorageBase, MigratorMixin):
             COMPARISON.IN: 'IN',
             COMPARISON.EXCLUDE: 'NOT IN',
             COMPARISON.LIKE: 'ILIKE',
+            COMPARISON.CONTAINS_ALL: '@>',
+            COMPARISON.CONTAINS: '&&',
         }
 
         conditions = []
@@ -737,7 +739,7 @@ class Storage(StorageBase, MigratorMixin):
 
             if is_like_query:
                 # Operand should be a string.
-                # Add implicit start/end wildchars if none is specified.
+                # Add implicit start/end wildcards if none is specified.
                 if '*' not in value:
                     value = '*{}*'.format(value)
                 value = value.replace('*', '%')
@@ -745,6 +747,16 @@ class Storage(StorageBase, MigratorMixin):
             if filtr.operator == COMPARISON.HAS:
                 operator = 'IS NOT NULL' if filtr.value else 'IS NULL'
                 cond = '{} {}'.format(sql_field, operator)
+            elif filtr.operator in (COMPARISON.CONTAINS, COMPARISON.CONTAINS_ALL):
+                # Safely escape value. MISSINGs get handled below.
+                value_holder = '{}_value_{}'.format(prefix, i)
+                holders[value_holder] = self.json.loads(value)
+
+                sql_operator = operators.setdefault(filtr.operator,
+                                                    filtr.operator.value)
+                # Thanks https://dba.stackexchange.com/a/157186
+                cond = "TRANSLATE(({})\:\:jsonb\:\:text, '[]','{}')\:\:TEXT[] {} :{}".format(
+                    sql_field, '{}', sql_operator, value_holder)
             elif value != MISSING:
                 # Safely escape value. MISSINGs get handled below.
                 value_holder = '{}_value_{}'.format(prefix, i)
@@ -768,6 +780,9 @@ class Storage(StorageBase, MigratorMixin):
                 COMPARISON.IN,
                 # Nor can they be LIKE anything.
                 COMPARISON.LIKE,
+                # NULLs doesn't contains anything.
+                COMPARISON.CONTAINS,
+                COMPARISON.CONTAINS_ALL,
             )
             null_true_operators = (
                 # NULLs are automatically not equal to everything.
