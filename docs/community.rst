@@ -1,5 +1,6 @@
 .. _community:
 
+
 Community
 #########
 
@@ -252,7 +253,6 @@ Step 1
      $ git checkout -b prepare-X.Y.Z
      $ longtest
      $ prerelease
-     $ vim docs/conf.py
 
 - Merge remaining pull requests
 - Update ``CHANGELOG.rst``
