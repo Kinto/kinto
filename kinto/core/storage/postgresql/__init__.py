@@ -9,7 +9,7 @@ from kinto.core.storage import (
     MISSING)
 from kinto.core.storage.postgresql.client import create_from_config
 from kinto.core.storage.postgresql.migrator import MigratorMixin
-from kinto.core.utils import COMPARISON
+from kinto.core.utils import COMPARISON, sqlalchemy
 
 
 logger = logging.getLogger(__name__)
