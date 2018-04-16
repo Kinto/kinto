@@ -3,6 +3,15 @@ Changelog
 
 This document describes changes between each past release.
 
+
+8.4.0 (unreleased)
+------------------
+
+**New feature**
+
+- Add ``contains`` and ``contains_all`` filtering (Fixes #343).
+
+
 8.3.0 (2018-04-06)
 ------------------
 
