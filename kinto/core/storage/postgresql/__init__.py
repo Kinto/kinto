@@ -784,7 +784,7 @@ class Storage(StorageBase, MigratorMixin):
                 COMPARISON.IN,
                 # Nor can they be LIKE anything.
                 COMPARISON.LIKE,
-                # NULLs doesn't contains anything.
+                # NULLs don't contain anything.
                 COMPARISON.CONTAINS,
                 COMPARISON.CONTAINS_ANY,
             )
