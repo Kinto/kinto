@@ -390,23 +390,7 @@ class BaseTestStorage:
                                           **self.storage_kw)
         self.assertEqual(len(records), 2)
 
-    def test_get_all_can_filter_on_array_that_contains_all_values(self):
-        self.create_record({'colors': ["red", "green", "blue"]})
-        self.create_record({'colors': ["gray", "blue"]})
-        self.create_record({'colors': ["red", "gray", "blue"]})
-        self.create_record({'colors': ["purple", "green", "blue"]})
-
-        filters = [Filter('colors', ['red'], utils.COMPARISON.CONTAINS_ALL)]
-        records, _ = self.storage.get_all(filters=filters,
-                                          **self.storage_kw)
-        self.assertEqual(len(records), 2)
-
-        filters = [Filter('colors', ['red', 'gray'], utils.COMPARISON.CONTAINS_ALL)]
-        records, _ = self.storage.get_all(filters=filters,
-                                          **self.storage_kw)
-        self.assertEqual(len(records), 1)
-
-    def test_get_all_can_filter_on_array_that_contains_at_least_one_value(self):
+    def test_get_all_can_filter_on_array_that_contains_values(self):
         self.create_record({'colors': ["red", "green", "blue"]})
         self.create_record({'colors': ["gray", "blue"]})
         self.create_record({'colors': ["red", "gray", "blue"]})
@@ -420,25 +404,25 @@ class BaseTestStorage:
         filters = [Filter('colors', ['red', 'gray'], utils.COMPARISON.CONTAINS)]
         records, _ = self.storage.get_all(filters=filters,
                                           **self.storage_kw)
+        self.assertEqual(len(records), 1)
+
+    def test_get_all_can_filter_on_array_that_contains_any_value(self):
+        self.create_record({'colors': ["red", "green", "blue"]})
+        self.create_record({'colors': ["gray", "blue"]})
+        self.create_record({'colors': ["red", "gray", "blue"]})
+        self.create_record({'colors': ["purple", "green", "blue"]})
+
+        filters = [Filter('colors', ['red'], utils.COMPARISON.CONTAINS_ANY)]
+        records, _ = self.storage.get_all(filters=filters,
+                                          **self.storage_kw)
+        self.assertEqual(len(records), 2)
+
+        filters = [Filter('colors', ['red', 'gray'], utils.COMPARISON.CONTAINS_ANY)]
+        records, _ = self.storage.get_all(filters=filters,
+                                          **self.storage_kw)
         self.assertEqual(len(records), 3)
 
-    def test_get_all_can_filter_on_array_that_contains_all_numeric_values(self):
-        self.create_record({'fib': [1, 2, 3]})
-        self.create_record({'fib': [2, 3, 5]})
-        self.create_record({'fib': [3, 5, 8]})
-        self.create_record({'fib': [5, 8, 13]})
-
-        filters = [Filter('fib', [2], utils.COMPARISON.CONTAINS_ALL)]
-        records, _ = self.storage.get_all(filters=filters,
-                                          **self.storage_kw)
-        self.assertEqual(len(records), 2)
-
-        filters = [Filter('fib', [2, 3], utils.COMPARISON.CONTAINS_ALL)]
-        records, _ = self.storage.get_all(filters=filters,
-                                          **self.storage_kw)
-        self.assertEqual(len(records), 2)
-
-    def test_get_all_can_filter_on_array_that_contains_at_least_one_numeric_value(self):
+    def test_get_all_can_filter_on_array_that_contains_numeric_values(self):
         self.create_record({'fib': [1, 2, 3]})
         self.create_record({'fib': [2, 3, 5]})
         self.create_record({'fib': [3, 5, 8]})
@@ -450,6 +434,22 @@ class BaseTestStorage:
         self.assertEqual(len(records), 2)
 
         filters = [Filter('fib', [2, 3], utils.COMPARISON.CONTAINS)]
+        records, _ = self.storage.get_all(filters=filters,
+                                          **self.storage_kw)
+        self.assertEqual(len(records), 2)
+
+    def test_get_all_can_filter_on_array_that_contains_any_numeric_value(self):
+        self.create_record({'fib': [1, 2, 3]})
+        self.create_record({'fib': [2, 3, 5]})
+        self.create_record({'fib': [3, 5, 8]})
+        self.create_record({'fib': [5, 8, 13]})
+
+        filters = [Filter('fib', [2], utils.COMPARISON.CONTAINS_ANY)]
+        records, _ = self.storage.get_all(filters=filters,
+                                          **self.storage_kw)
+        self.assertEqual(len(records), 2)
+
+        filters = [Filter('fib', [2, 3], utils.COMPARISON.CONTAINS_ANY)]
         records, _ = self.storage.get_all(filters=filters,
                                           **self.storage_kw)
         self.assertEqual(len(records), 3)

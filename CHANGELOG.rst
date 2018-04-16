@@ -9,7 +9,7 @@ This document describes changes between each past release.
 
 **New feature**
 
-- Add ``contains`` and ``contains_all`` filtering (Fixes #343).
+- Add ``contains`` and ``contains_any`` filtering (Fixes #343).
 
 
 8.3.0 (2018-04-06)

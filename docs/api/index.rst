@@ -14,7 +14,7 @@ Changelog
 1.19 (unreleased)
 '''''''''''''''''
 
-- New `contains_` and `contains_all` filter operators (fixes #343)
+- New `contains_` and `contains_any` filter operators (fixes #343)
 
 
 1.18 (2017-11-16)

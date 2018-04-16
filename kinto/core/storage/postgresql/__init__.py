@@ -693,8 +693,8 @@ class Storage(StorageBase, MigratorMixin):
             COMPARISON.IN: 'IN',
             COMPARISON.EXCLUDE: 'NOT IN',
             COMPARISON.LIKE: 'ILIKE',
-            COMPARISON.CONTAINS_ALL: '@>',
-            COMPARISON.CONTAINS: '&&',
+            COMPARISON.CONTAINS: '@>',
+            COMPARISON.CONTAINS_ANY: '&&',
         }
 
         conditions = []
@@ -747,7 +747,7 @@ class Storage(StorageBase, MigratorMixin):
             if filtr.operator == COMPARISON.HAS:
                 operator = 'IS NOT NULL' if filtr.value else 'IS NULL'
                 cond = '{} {}'.format(sql_field, operator)
-            elif filtr.operator in (COMPARISON.CONTAINS, COMPARISON.CONTAINS_ALL):
+            elif filtr.operator in (COMPARISON.CONTAINS, COMPARISON.CONTAINS_ANY):
                 # Safely escape value. MISSINGs get handled below.
                 value_holder = '{}_value_{}'.format(prefix, i)
                 value = self.json.loads(value)
@@ -788,7 +788,7 @@ class Storage(StorageBase, MigratorMixin):
                 COMPARISON.LIKE,
                 # NULLs doesn't contains anything.
                 COMPARISON.CONTAINS,
-                COMPARISON.CONTAINS_ALL,
+                COMPARISON.CONTAINS_ANY,
             )
             null_true_operators = (
                 # NULLs are automatically not equal to everything.
