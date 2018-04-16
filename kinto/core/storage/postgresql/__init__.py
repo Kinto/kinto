@@ -9,7 +9,7 @@ from kinto.core.storage import (
     MISSING)
 from kinto.core.storage.postgresql.client import create_from_config
 from kinto.core.storage.postgresql.migrator import MigratorMixin
-from kinto.core.utils import COMPARISON, sqlalchemy
+from kinto.core.utils import COMPARISON
 
 
 logger = logging.getLogger(__name__)
@@ -519,7 +519,7 @@ class Storage(StorageBase, MigratorMixin):
         placeholders['pagination_limit'] = limit
 
         with self.client.connect() as conn:
-            result = conn.execute(sqlalchemy.text(query.format_map(safeholders)), placeholders)
+            result = conn.execute(query.format_map(safeholders), placeholders)
             deleted = result.fetchmany(self._max_fetch_size)
 
         records = []
