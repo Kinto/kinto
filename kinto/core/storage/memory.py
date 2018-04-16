@@ -326,6 +326,12 @@ def extract_record_set(records, filters, sorting,
 def apply_filters(records, filters):
     """Filter the specified records, using basic iteration.
     """
+
+    def contains_all_filtering(record_value, search_term):
+        search_set = set(search_term[1])
+        record_value_set = set(record_value[1])
+        return record_value_set.intersection(search_set) == search_set
+
     operators = {
         COMPARISON.LT: operator.lt,
         COMPARISON.MAX: operator.le,
@@ -336,6 +342,8 @@ def apply_filters(records, filters):
         COMPARISON.IN: operator.contains,
         COMPARISON.EXCLUDE: lambda x, y: not operator.contains(x, y),
         COMPARISON.LIKE: lambda x, y: re.search(y, x, re.IGNORECASE),
+        COMPARISON.CONTAINS_ALL: contains_all_filtering,
+        COMPARISON.CONTAINS: lambda record_value, search_term: set(record_value[1]).intersection(set(search_term[1]))
     }
     for record in records:
         matches = True
