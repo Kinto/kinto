@@ -750,13 +750,19 @@ class Storage(StorageBase, MigratorMixin):
             elif filtr.operator in (COMPARISON.CONTAINS, COMPARISON.CONTAINS_ALL):
                 # Safely escape value. MISSINGs get handled below.
                 value_holder = '{}_value_{}'.format(prefix, i)
-                holders[value_holder] = self.json.loads(value)
+                value = self.json.loads(value)
+                holders[value_holder] = value
+
+                array_type = "TEXT"
+                if len(value) > 0 and isinstance(value[0], int):
+                    array_type = "INT"
 
                 sql_operator = operators.setdefault(filtr.operator,
                                                     filtr.operator.value)
                 # Thanks https://dba.stackexchange.com/a/157186
-                cond = "TRANSLATE(({})\:\:jsonb\:\:text, '[]','{}')\:\:TEXT[] {} :{}".format(
-                    sql_field, '{}', sql_operator, value_holder)
+                cond = "TRANSLATE(({})\:\:jsonb\:\:text, '[]','{}')\:\:{}[] {} :{}".format(
+                    sql_field, '{}', array_type, sql_operator, value_holder)
+
             elif value != MISSING:
                 # Safely escape value. MISSINGs get handled below.
                 value_holder = '{}_value_{}'.format(prefix, i)

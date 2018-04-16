@@ -343,7 +343,8 @@ def apply_filters(records, filters):
         COMPARISON.EXCLUDE: lambda x, y: not operator.contains(x, y),
         COMPARISON.LIKE: lambda x, y: re.search(y, x, re.IGNORECASE),
         COMPARISON.CONTAINS_ALL: contains_all_filtering,
-        COMPARISON.CONTAINS: lambda record_value, search_term: set(record_value).intersection(set(search_term))
+        COMPARISON.CONTAINS: lambda record_value, search_term:
+            set(record_value).intersection(set(search_term))
     }
     for record in records:
         matches = True
