@@ -328,8 +328,8 @@ def apply_filters(records, filters):
     """
 
     def contains_all_filtering(record_value, search_term):
-        search_set = set(search_term[1])
-        record_value_set = set(record_value[1])
+        search_set = set(search_term)
+        record_value_set = set(record_value)
         return record_value_set.intersection(search_set) == search_set
 
     operators = {
@@ -343,7 +343,7 @@ def apply_filters(records, filters):
         COMPARISON.EXCLUDE: lambda x, y: not operator.contains(x, y),
         COMPARISON.LIKE: lambda x, y: re.search(y, x, re.IGNORECASE),
         COMPARISON.CONTAINS_ALL: contains_all_filtering,
-        COMPARISON.CONTAINS: lambda record_value, search_term: set(record_value[1]).intersection(set(search_term[1]))
+        COMPARISON.CONTAINS: lambda record_value, search_term: set(record_value).intersection(set(search_term))
     }
     for record in records:
         matches = True
@@ -362,7 +362,8 @@ def apply_filters(records, filters):
                 if '*' not in right:
                     right = '*{}*'.format(right)
                 right = '^{}$'.format(right.replace('*', '.*'))
-            elif f.operator != COMPARISON.HAS:
+            elif f.operator in (COMPARISON.LT, COMPARISON.MAX, COMPARISON.EQ,
+                                COMPARISON.NOT, COMPARISON.MIN, COMPARISON.GT):
                 left = schwartzian_transform(left)
                 right = schwartzian_transform(right)
 
