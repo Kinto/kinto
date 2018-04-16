@@ -747,7 +747,7 @@ class Storage(StorageBase, MigratorMixin):
             if filtr.operator == COMPARISON.HAS:
                 operator = 'IS NOT NULL' if filtr.value else 'IS NULL'
                 cond = '{} {}'.format(sql_field, operator)
-            elif filtr.operator in (COMPARISON.CONTAINS, COMPARISON.CONTAINS_ANY):
+            elif filtr.operator == COMPARISON.CONTAINS_ANY:
                 # Safely escape value. MISSINGs get handled below.
                 value_holder = '{}_value_{}'.format(prefix, i)
                 value = self.json.loads(value)
