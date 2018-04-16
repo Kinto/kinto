@@ -694,7 +694,6 @@ class Storage(StorageBase, MigratorMixin):
             COMPARISON.EXCLUDE: 'NOT IN',
             COMPARISON.LIKE: 'ILIKE',
             COMPARISON.CONTAINS: '@>',
-            COMPARISON.CONTAINS_ANY: '&&',
         }
 
         conditions = []
@@ -726,7 +725,8 @@ class Storage(StorageBase, MigratorMixin):
             string_field = filtr.field in (id_field, modified_field) or is_like_query
             if not string_field and value != MISSING:
                 # JSONB-ify the value.
-                if filtr.operator not in (COMPARISON.IN, COMPARISON.EXCLUDE):
+                if filtr.operator not in (COMPARISON.IN, COMPARISON.EXCLUDE,
+                                          COMPARISON.CONTAINS_ANY):
                     value = self.json.dumps(value)
                 else:
                     value = [self.json.dumps(v) for v in value]
@@ -747,21 +747,19 @@ class Storage(StorageBase, MigratorMixin):
             if filtr.operator == COMPARISON.HAS:
                 operator = 'IS NOT NULL' if filtr.value else 'IS NULL'
                 cond = '{} {}'.format(sql_field, operator)
+
             elif filtr.operator == COMPARISON.CONTAINS_ANY:
-                # Safely escape value. MISSINGs get handled below.
                 value_holder = '{}_value_{}'.format(prefix, i)
-                value = self.json.loads(value)
                 holders[value_holder] = value
-
-                array_type = "TEXT"
-                if len(value) > 0 and isinstance(value[0], int):
-                    array_type = "INT"
-
-                sql_operator = operators.setdefault(filtr.operator,
-                                                    filtr.operator.value)
-                # Thanks https://dba.stackexchange.com/a/157186
-                cond = "TRANSLATE(({})\:\:jsonb\:\:text, '[]','{}')\:\:{}[] {} :{}".format(
-                    sql_field, '{}', array_type, sql_operator, value_holder)
+                # Postgres's && operator doesn't support jsonbs.
+                # However, it does support Postgres arrays of any
+                # type. Assume that the referenced field is a JSON
+                # array and convert it to a Postgres array.
+                # N.B. This won't work on JSON objects.
+                data_as_array = '''
+                (SELECT array_agg(elems) FROM jsonb_array_elements({}) elems)
+                '''.format(sql_field)
+                cond = '{} && (:{})::jsonb[]'.format(data_as_array, value_holder)
 
             elif value != MISSING:
                 # Safely escape value. MISSINGs get handled below.
