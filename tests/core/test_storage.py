@@ -1,4 +1,5 @@
 import mock
+import pytest
 
 from kinto.core.utils import COMPARISON, sqlalchemy
 from kinto.core.storage import generators, memory, postgresql, exceptions, StorageBase
@@ -72,6 +73,13 @@ class StorageBaseTest(unittest.TestCase):
     def test_backenderror_message_default_to_original_exception_message(self):
         error = exceptions.BackendError(ValueError("Pool Error"))
         self.assertEqual(str(error), "ValueError: Pool Error")
+
+
+class MemoryBasedStorageTest(unittest.TestCase):
+    def test_backend_raise_not_implemented_error(self):
+        storage = memory.MemoryBasedStorage()
+        with pytest.raises(NotImplementedError):
+            storage.bump_and_store_timestamp("record", "/buckets/foo/collections/bar")
 
 
 class MemoryStorageTest(StorageTest, unittest.TestCase):
