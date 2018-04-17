@@ -330,14 +330,20 @@ def apply_filters(records, filters):
     def contains_filtering(record_value, search_term):
         if record_value == MISSING:
             return False
-        search_set = set(search_term)
-        record_value_set = set(record_value)
+        try:
+            search_set = set(search_term)
+            record_value_set = set(record_value)
+        except TypeError:
+            return False
         return record_value_set.intersection(search_set) == search_set
 
     def contains_any_filtering(record_value, search_term):
         if record_value == MISSING:
             return False
-        return set(record_value).intersection(set(search_term))
+        try:
+            return set(record_value).intersection(set(search_term))
+        except TypeError:
+            return False
 
     operators = {
         COMPARISON.LT: operator.lt,

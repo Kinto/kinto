@@ -7,9 +7,9 @@ This document describes changes between each past release.
 8.4.0 (unreleased)
 ------------------
 
-**New feature**
+**Protocol**
 
-- Add ``contains`` and ``contains_any`` filtering (Fixes #343).
+- Introduce ``contains`` and ``contains_any`` filter operators (fixes #343).
 
 
 8.3.0 (2018-04-06)

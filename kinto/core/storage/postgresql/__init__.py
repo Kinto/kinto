@@ -755,7 +755,7 @@ class Storage(StorageBase, MigratorMixin):
                 # However, it does support Postgres arrays of any
                 # type. Assume that the referenced field is a JSON
                 # array and convert it to a Postgres array.
-                # N.B. This won't work on JSON objects.
+                # N.B. This won't work on JSON objects and will never match.
                 data_as_array = '''
                 (SELECT array_agg(elems) FROM jsonb_array_elements({}) elems)
                 '''.format(sql_field)
