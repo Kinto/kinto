@@ -67,6 +67,36 @@ class MemoryBasedStorage(StorageBase):
                                   pagination_rules=pagination_rules,
                                   limit=limit)
 
+    def _manage_collection_timestamp(self, collection_timestamp,
+                                     record, modified_field, last_modified):
+        is_specified = (record is not None and
+                        modified_field in record or
+                        last_modified is not None)
+        if is_specified:
+            # If there is a timestamp in the new record, try to use it.
+            if last_modified is not None:
+                current = last_modified
+            else:
+                current = record[modified_field]
+
+            # If it is equal to current collection timestamp, bump it.
+            if current == collection_timestamp:
+                collection_timestamp += 1
+                current = collection_timestamp
+            # If it is superior (future), use it as new collection timestamp.
+            elif current > collection_timestamp:
+                collection_timestamp = current
+            # Else (past), do nothing.
+
+        else:
+            # Not specified, use a new one.
+            current = utils.msec_time()
+            # If two ops in the same msec, bump it.
+            if current <= collection_timestamp:
+                current = collection_timestamp + 1
+            collection_timestamp = current
+        return current, collection_timestamp
+
 
 class Storage(MemoryBasedStorage):
     """Storage backend implementation in memory.
@@ -113,36 +143,12 @@ class Storage(MemoryBasedStorage):
             the time will slide into the future. It is not problematic since
             the timestamp notion is opaque, and behaves like a revision number.
         """
-        # XXX factorize code from memory and redis backends.
-        is_specified = (record is not None and
-                        modified_field in record or
-                        last_modified is not None)
+        current_collection_timestamp = self._timestamps[parent_id].get(collection_id, 0)
 
-        collection_timestamp = self._timestamps[parent_id].get(collection_id, 0)
-
-        if is_specified:
-            # If there is a timestamp in the new record, try to use it.
-            if last_modified is not None:
-                current = last_modified
-            else:
-                current = record[modified_field]
-            # If it is equal to current collection timestamp, bump it.
-            if current == collection_timestamp:
-                collection_timestamp += 1
-                current = collection_timestamp
-            # If it is superior (future), use it as new collection timestamp.
-            elif current > collection_timestamp:
-                collection_timestamp = current
-            # Else (past), do nothing.
-
-        else:
-            # Not specified, use a new one.
-            current = utils.msec_time()
-            # If two ops in the same msec, bump it.
-            if current <= collection_timestamp:
-                current = collection_timestamp + 1
-            collection_timestamp = current
-
+        current, collection_timestamp = self._manage_collection_timestamp(
+            current_collection_timestamp,
+            record, modified_field,
+            last_modified)
         self._timestamps[parent_id][collection_id] = collection_timestamp
 
         return current

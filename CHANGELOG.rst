@@ -11,6 +11,10 @@ This document describes changes between each past release.
 
 - Introduce ``contains`` and ``contains_any`` filter operators (fixes #343).
 
+**Internal changes**
+
+- Expose the manage_timestamp storage method so that memory based storage can use it.
+
 **Documentation**
 
 - Version number is taken from package in order to ease release process
