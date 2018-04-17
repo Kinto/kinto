@@ -305,6 +305,29 @@ class Storage(StorageBase, MigratorMixin):
             result = conn.execute(query % safe_holders, placeholders)
             inserted = result.fetchone()
 
+        if inserted is None:
+            # This means the small race-condition window in the upsert is causing problem.
+            # If you call .create() *twice* with the same collection_id, parent_id
+            # and (ultimately) same object_id but with different last_modified,
+            # you can trigger the race condition.
+            # E.g.
+            #
+            #  create(my_collection_id, my_parent_id, {
+            #      'id': 'myid',
+            #      'last_modified': '2018-04-16 06:53:12.004'
+            #  })
+            # ...and...
+            #  create(my_collection_id, my_parent_id, {
+            #      'id': 'myid',
+            #      'last_modified': '2018-04-16 06:53:12.005'
+            #  })
+            # (note the only difference is the different last_modified)
+            # ...then the above SQL query will return 0 rows and thus 'inserted'
+            # becomes None.
+            #
+            # Basically, the client called .create() that second time wrongly.
+            raise exceptions.UnicityError(id_field, record)
+
         if not inserted['inserted']:
             record = inserted['data']
             record[id_field] = inserted['id']
