@@ -46,9 +46,9 @@ class MemoryBasedStorage(StorageBase):
     def set_record_timestamp(self, collection_id, parent_id, record,
                              modified_field=DEFAULT_MODIFIED_FIELD,
                              last_modified=None):
-        timestamp = self._bump_and_store_timestamp(collection_id, parent_id, record,
-                                                   modified_field,
-                                                   last_modified=last_modified)
+        timestamp = self.bump_and_store_timestamp(collection_id, parent_id, record,
+                                                  modified_field,
+                                                  last_modified=last_modified)
         record[modified_field] = timestamp
         return record
 
@@ -105,6 +105,12 @@ class MemoryBasedStorage(StorageBase):
             collection_timestamp = current
         return current, collection_timestamp
 
+    def bump_and_store_timestamp(self, collection_id, parent_id, record=None,
+                                 modified_field=None, last_modified=None):
+        """Use the bump_timestamp to get its next value and store the collection_timestamp.
+        """
+        raise NotImplementedError
+
 
 class Storage(MemoryBasedStorage):
     """Storage backend implementation in memory.
@@ -139,10 +145,10 @@ class Storage(MemoryBasedStorage):
         if self.readonly:
             error_msg = 'Cannot initialize empty collection timestamp when running in readonly.'
             raise exceptions.BackendError(message=error_msg)
-        return self._bump_and_store_timestamp(collection_id, parent_id)
+        return self.bump_and_store_timestamp(collection_id, parent_id)
 
-    def _bump_and_store_timestamp(self, collection_id, parent_id, record=None,
-                                  modified_field=None, last_modified=None):
+    def bump_and_store_timestamp(self, collection_id, parent_id, record=None,
+                                 modified_field=None, last_modified=None):
         """Use the bump_timestamp to get its next value and store the collection_timestamp.
         """
         current_collection_timestamp = self._timestamps[parent_id].get(collection_id, 0)

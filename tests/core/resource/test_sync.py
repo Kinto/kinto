@@ -14,7 +14,7 @@ class SinceModifiedTest(ThreadMixin, BaseTest):
         self.validated['body'] = {'data': {}}
 
         with mock.patch.object(self.model.storage,
-                               '_bump_and_store_timestamp') as msec_mocked:
+                               'bump_and_store_timestamp') as msec_mocked:
             for i in range(6):
                 msec_mocked.return_value = i
                 self.resource.collection_post()
