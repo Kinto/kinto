@@ -84,7 +84,7 @@ class MemoryStorageTest(StorageTest, unittest.TestCase):
         super().setUp()
         self.client_error_patcher = mock.patch.object(
             self.storage,
-            '_bump_timestamp',
+            '_bump_and_store_timestamp',
             side_effect=exceptions.BackendError("Segmentation fault."))
 
     def test_backend_error_provides_original_exception(self):

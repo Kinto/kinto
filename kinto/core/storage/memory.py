@@ -46,9 +46,9 @@ class MemoryBasedStorage(StorageBase):
     def set_record_timestamp(self, collection_id, parent_id, record,
                              modified_field=DEFAULT_MODIFIED_FIELD,
                              last_modified=None):
-        timestamp = self._bump_timestamp(collection_id, parent_id, record,
-                                         modified_field,
-                                         last_modified=last_modified)
+        timestamp = self._bump_and_store_timestamp(collection_id, parent_id, record,
+                                                   modified_field,
+                                                   last_modified=last_modified)
         record[modified_field] = timestamp
         return record
 
@@ -67,8 +67,16 @@ class MemoryBasedStorage(StorageBase):
                                   pagination_rules=pagination_rules,
                                   limit=limit)
 
-    def _manage_collection_timestamp(self, collection_timestamp,
-                                     record, modified_field, last_modified):
+    def bump_timestamp(self, collection_timestamp,
+                       record, modified_field, last_modified):
+        """Timestamp are base on current millisecond.
+
+        .. note ::
+
+            Here it is assumed that if requests from the same user burst in,
+            the time will slide into the future. It is not problematic since
+            the timestamp notion is opaque, and behaves like a revision number.
+        """
         is_specified = (record is not None and
                         modified_field in record or
                         last_modified is not None)
@@ -131,21 +139,15 @@ class Storage(MemoryBasedStorage):
         if self.readonly:
             error_msg = 'Cannot initialize empty collection timestamp when running in readonly.'
             raise exceptions.BackendError(message=error_msg)
-        return self._bump_timestamp(collection_id, parent_id)
+        return self._bump_and_store_timestamp(collection_id, parent_id)
 
-    def _bump_timestamp(self, collection_id, parent_id, record=None,
-                        modified_field=None, last_modified=None):
-        """Timestamp are base on current millisecond.
-
-        .. note ::
-
-            Here it is assumed that if requests from the same user burst in,
-            the time will slide into the future. It is not problematic since
-            the timestamp notion is opaque, and behaves like a revision number.
+    def _bump_and_store_timestamp(self, collection_id, parent_id, record=None,
+                                  modified_field=None, last_modified=None):
+        """Use the bump_timestamp to get its next value and store the collection_timestamp.
         """
         current_collection_timestamp = self._timestamps[parent_id].get(collection_id, 0)
 
-        current, collection_timestamp = self._manage_collection_timestamp(
+        current, collection_timestamp = self.bump_timestamp(
             current_collection_timestamp,
             record, modified_field,
             last_modified)
