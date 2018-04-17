@@ -1,4 +1,5 @@
 import mock
+import pytest
 
 from kinto.core.utils import COMPARISON, sqlalchemy
 from kinto.core.storage import generators, memory, postgresql, exceptions, StorageBase
@@ -74,6 +75,13 @@ class StorageBaseTest(unittest.TestCase):
         self.assertEqual(str(error), "ValueError: Pool Error")
 
 
+class MemoryBasedStorageTest(unittest.TestCase):
+    def test_backend_raise_not_implemented_error(self):
+        storage = memory.MemoryBasedStorage()
+        with pytest.raises(NotImplementedError):
+            storage.bump_and_store_timestamp("record", "/buckets/foo/collections/bar")
+
+
 class MemoryStorageTest(StorageTest, unittest.TestCase):
     backend = memory
     settings = {
@@ -84,7 +92,7 @@ class MemoryStorageTest(StorageTest, unittest.TestCase):
         super().setUp()
         self.client_error_patcher = mock.patch.object(
             self.storage,
-            '_bump_timestamp',
+            'bump_and_store_timestamp',
             side_effect=exceptions.BackendError("Segmentation fault."))
 
     def test_backend_error_provides_original_exception(self):

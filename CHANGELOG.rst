@@ -4,18 +4,22 @@ Changelog
 This document describes changes between each past release.
 
 
-8.4.0 (unreleased)
+9.0.0 (unreleased)
 ------------------
 
 **Protocol**
 
 - Introduce ``contains`` and ``contains_any`` filter operators (fixes #343).
 
+**Breaking changes**
+
+- Expose the ``bump_timestamp`` and ``bump_and_store_timestamp`` methods
+  so that memory based storage can use them. (#1596)
+
 **Documentation**
 
-- Version number is taken from package in order to ease release process
-- Copyright year is now dynamic
-
+- Version number is taken from package in order to ease release process (#1594)
+- Copyright year is now dynamic (#1595)
 
 
 8.3.0 (2018-04-06)
