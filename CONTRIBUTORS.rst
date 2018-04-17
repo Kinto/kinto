@@ -38,6 +38,7 @@ Contributors
 * John Giannelos <johngiannelos@gmail.com>
 * Joshua Bird <joshua.thomas.bird@gmail.com>
 * Julien Bouquillon <contact@revolunet.com>
+* Julien Lebunetel <julien@lebunetel.com>
 * Kulshekhar Kabra <@kulshekhar>
 * Lavish Aggarwal <lucky.lavish@gmail.com>
 * Maksym Shalenyi <supamaxy@gmail.com>

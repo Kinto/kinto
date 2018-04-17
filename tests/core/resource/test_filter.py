@@ -10,12 +10,12 @@ class FilteringTest(BaseTest):
         self.validated = self.resource.request.validated
         self.patch_known_field.start()
         records = [
-            {'title': 'MoFo', 'status': 0, 'favorite': True},
-            {'title': 'MoFo', 'status': 1, 'favorite': False},
+            {'title': 'MoFo', 'status': 0, 'favorite': True, 'colors': ["blue", "red"]},
+            {'title': 'MoFo', 'status': 1, 'favorite': False, 'colors': ["blue", "gray"]},
             {'title': 'MoFo', 'status': 2, 'favorite': False, 'sometimes': 'available'},
             {'title': 'MoFo', 'status': 0, 'favorite': False, 'sometimes': None},
-            {'title': 'MoFo', 'status': 1, 'favorite': True},
-            {'title': 'MoFo', 'status': 2, 'favorite': False},
+            {'title': 'MoFo', 'status': 1, 'favorite': True, 'fib': [1, 2, 3]},
+            {'title': 'MoFo', 'status': 2, 'favorite': False, 'fib': [3, 5, 8]},
             {'title': 'Foo', 'status': 3, 'favorite': False},
             {'title': 'Bar', 'status': 3, 'favorite': False, 'sometimes': 'present'},
         ]
@@ -218,6 +218,34 @@ class FilteringTest(BaseTest):
         self.validated['querystring'] = {'exclude_last_modified': ['a', 'b']}
         self.assertRaises(httpexceptions.HTTPBadRequest,
                           self.resource.collection_get)
+
+    def test_contains_with_strings(self):
+        self.validated['querystring'] = {'contains_colors': ["red", "blue"]}
+        result = self.resource.collection_get()
+        values = [item['colors'] for item in result['data']]
+        for value in values:
+            assert "red" in value and "blue" in value
+
+    def test_contains_with_integer(self):
+        self.validated['querystring'] = {'contains_fib': [3]}
+        result = self.resource.collection_get()
+        values = [item['fib'] for item in result['data']]
+        for value in values:
+            assert 3 in value
+
+    def test_contains_any_with_strings(self):
+        self.validated['querystring'] = {'contains_colors': ["red", "blue"]}
+        result = self.resource.collection_get()
+        values = [item['colors'] for item in result['data']]
+        for value in values:
+            assert 'red' in value or 'blue' in value
+
+    def test_contains_any_with_integer(self):
+        self.validated['querystring'] = {'contains_fib': [3, 5]}
+        result = self.resource.collection_get()
+        values = [item['fib'] for item in result['data']]
+        for value in values:
+            assert 3 in value or 5 in value
 
 
 class SubobjectFilteringTest(BaseTest):

@@ -326,6 +326,25 @@ def extract_record_set(records, filters, sorting,
 def apply_filters(records, filters):
     """Filter the specified records, using basic iteration.
     """
+
+    def contains_filtering(record_value, search_term):
+        if record_value == MISSING:
+            return False
+        try:
+            search_set = set(search_term)
+            record_value_set = set(record_value)
+        except TypeError:
+            return False
+        return record_value_set.intersection(search_set) == search_set
+
+    def contains_any_filtering(record_value, search_term):
+        if record_value == MISSING:
+            return False
+        try:
+            return set(record_value).intersection(set(search_term))
+        except TypeError:
+            return False
+
     operators = {
         COMPARISON.LT: operator.lt,
         COMPARISON.MAX: operator.le,
@@ -336,6 +355,8 @@ def apply_filters(records, filters):
         COMPARISON.IN: operator.contains,
         COMPARISON.EXCLUDE: lambda x, y: not operator.contains(x, y),
         COMPARISON.LIKE: lambda x, y: re.search(y, x, re.IGNORECASE),
+        COMPARISON.CONTAINS: contains_filtering,
+        COMPARISON.CONTAINS_ANY: contains_any_filtering,
     }
     for record in records:
         matches = True
@@ -354,7 +375,8 @@ def apply_filters(records, filters):
                 if '*' not in right:
                     right = '*{}*'.format(right)
                 right = '^{}$'.format(right.replace('*', '.*'))
-            elif f.operator != COMPARISON.HAS:
+            elif f.operator in (COMPARISON.LT, COMPARISON.MAX, COMPARISON.EQ,
+                                COMPARISON.NOT, COMPARISON.MIN, COMPARISON.GT):
                 left = schwartzian_transform(left)
                 right = schwartzian_transform(right)
 

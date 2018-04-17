@@ -17,3 +17,4 @@ kinto/plugins/admin/build
 kinto/plugins/admin/node_modules
 kinto/plugins/admin/coverage
 kinto/plugins/admin/npm-debug.log
+.pytest_cache/

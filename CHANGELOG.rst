@@ -3,12 +3,18 @@ Changelog
 
 This document describes changes between each past release.
 
+
 8.4.0 (unreleased)
 ------------------
+
+**Protocol**
+
+- Introduce ``contains`` and ``contains_any`` filter operators (fixes #343).
 
 **Documentation**
 
 - Version number is taken from package in order to ease release process
+
 
 8.3.0 (2018-04-06)
 ------------------

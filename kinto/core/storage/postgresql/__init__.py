@@ -693,6 +693,7 @@ class Storage(StorageBase, MigratorMixin):
             COMPARISON.IN: 'IN',
             COMPARISON.EXCLUDE: 'NOT IN',
             COMPARISON.LIKE: 'ILIKE',
+            COMPARISON.CONTAINS: '@>',
         }
 
         conditions = []
@@ -724,7 +725,8 @@ class Storage(StorageBase, MigratorMixin):
             string_field = filtr.field in (id_field, modified_field) or is_like_query
             if not string_field and value != MISSING:
                 # JSONB-ify the value.
-                if filtr.operator not in (COMPARISON.IN, COMPARISON.EXCLUDE):
+                if filtr.operator not in (COMPARISON.IN, COMPARISON.EXCLUDE,
+                                          COMPARISON.CONTAINS_ANY):
                     value = self.json.dumps(value)
                 else:
                     value = [self.json.dumps(v) for v in value]
@@ -737,7 +739,7 @@ class Storage(StorageBase, MigratorMixin):
 
             if is_like_query:
                 # Operand should be a string.
-                # Add implicit start/end wildchars if none is specified.
+                # Add implicit start/end wildcards if none is specified.
                 if '*' not in value:
                     value = '*{}*'.format(value)
                 value = value.replace('*', '%')
@@ -745,6 +747,20 @@ class Storage(StorageBase, MigratorMixin):
             if filtr.operator == COMPARISON.HAS:
                 operator = 'IS NOT NULL' if filtr.value else 'IS NULL'
                 cond = '{} {}'.format(sql_field, operator)
+
+            elif filtr.operator == COMPARISON.CONTAINS_ANY:
+                value_holder = '{}_value_{}'.format(prefix, i)
+                holders[value_holder] = value
+                # Postgres's && operator doesn't support jsonbs.
+                # However, it does support Postgres arrays of any
+                # type. Assume that the referenced field is a JSON
+                # array and convert it to a Postgres array.
+                # N.B. This won't work on JSON objects and will never match.
+                data_as_array = '''
+                (SELECT array_agg(elems) FROM jsonb_array_elements({}) elems)
+                '''.format(sql_field)
+                cond = '{} && (:{})::jsonb[]'.format(data_as_array, value_holder)
+
             elif value != MISSING:
                 # Safely escape value. MISSINGs get handled below.
                 value_holder = '{}_value_{}'.format(prefix, i)
@@ -768,6 +784,9 @@ class Storage(StorageBase, MigratorMixin):
                 COMPARISON.IN,
                 # Nor can they be LIKE anything.
                 COMPARISON.LIKE,
+                # NULLs don't contain anything.
+                COMPARISON.CONTAINS,
+                COMPARISON.CONTAINS_ANY,
             )
             null_true_operators = (
                 # NULLs are automatically not equal to everything.
