@@ -14,6 +14,8 @@ This document describes changes between each past release.
 **Documentation**
 
 - Version number is taken from package in order to ease release process
+- Copyright year is now dynamic
+
 
 
 8.3.0 (2018-04-06)
