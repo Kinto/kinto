@@ -28,7 +28,7 @@ python-memcached==1.59
 raven==6.7.0
 repoze.lru==0.7
 requests==2.18.4
-simplejson==3.13.2
+simplejson==3.14.0
 six==1.11.0
 SQLAlchemy==1.2.6
 statsd==3.2.2
