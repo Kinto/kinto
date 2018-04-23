@@ -424,6 +424,8 @@ class EventResourceIdFilter:
     def __call__(self, event):
         request = event.request
         uri = event.payload.get('uri')
+        if not self.resource_ids:
+            return True
         r_name, matchdict = utils.view_lookup(request, uri)
         """ Special case for Create bucket """
         # if event.payload.get('action') == 'create' and r_name == 'bucket':
