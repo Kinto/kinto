@@ -219,35 +219,35 @@ class FilteringTest(BaseTest):
         self.assertRaises(httpexceptions.HTTPBadRequest,
                           self.resource.collection_get)
 
-    def test_contains_with_string(self):
-        self.validated['querystring'] = {'contains_colors': "red"}
+    def test_contains_can_filter_with_one_string(self):
+        self.validated['querystring'] = {'contains_colors': ["red"]}
         result = self.resource.collection_get()
         values = [item['colors'] for item in result['data']]
         for value in values:
             assert "red" in value
 
-    def test_contains_with_strings(self):
+    def test_contains_can_filter_with_list_of_strings(self):
         self.validated['querystring'] = {'contains_colors': ["red", "blue"]}
         result = self.resource.collection_get()
         values = [item['colors'] for item in result['data']]
         for value in values:
             assert "red" in value and "blue" in value
 
-    def test_contains_with_integer(self):
+    def test_contains_can_filter_with_an_integer(self):
         self.validated['querystring'] = {'contains_fib': [3]}
         result = self.resource.collection_get()
         values = [item['fib'] for item in result['data']]
         for value in values:
             assert 3 in value
 
-    def test_contains_any_with_strings(self):
+    def test_contains_any_can_filter_with_a_list_of_strings(self):
         self.validated['querystring'] = {'contains_colors': ["red", "blue"]}
         result = self.resource.collection_get()
         values = [item['colors'] for item in result['data']]
         for value in values:
             assert 'red' in value or 'blue' in value
 
-    def test_contains_any_with_integer(self):
+    def test_contains_any_can_filter_with_a_list_of_integers(self):
         self.validated['querystring'] = {'contains_fib': [3, 5]}
         result = self.resource.collection_get()
         values = [item['fib'] for item in result['data']]
