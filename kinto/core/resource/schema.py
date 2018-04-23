@@ -221,9 +221,7 @@ class QuerySchema(colander.MappingSchema):
                     as_list = json.loads(v)
                 except ValueError:
                     as_list = FieldList().deserialize(v)
-                else:
-                    if isinstance(as_list, str):
-                        as_list = FieldList().deserialize(v)
+
                 if not isinstance(as_list, list):
                     raise colander.Invalid(self, '{} should be a list. '
                                            '(e.g: comma-separated : `red,blue` or '
