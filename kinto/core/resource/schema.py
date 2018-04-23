@@ -224,6 +224,10 @@ class QuerySchema(colander.MappingSchema):
                 else:
                     if isinstance(as_list, str):
                         as_list = FieldList().deserialize(v)
+                if not isinstance(as_list, list):
+                    raise colander.Invalid(self, '{} should be a list. '
+                                           '(e.g: comma-separated : `red,blue` or '
+                                           'a JSON list: `["red", "blue"]`)'.format(k))
 
                 values[k] = [native_value(v) for v in as_list]
             else:

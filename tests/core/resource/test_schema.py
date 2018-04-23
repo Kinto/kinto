@@ -335,6 +335,21 @@ class CollectionQuerySchemaTest(unittest.TestCase):
                            '2400fc9b-1db6-473d-818b68431545'],
         })
 
+    def test_raises_for_invalid_list_for_contains_exclude_or_in(self):
+        querystring = self.querystring.copy()
+        # CONTAINS
+        querystring['contains_bar'] = '{"id": 1234}'
+        self.assertRaises(colander.Invalid, self.schema.deserialize, querystring)
+        # CONTAINS_ANY
+        querystring['contains_any_bar'] = '{"id": 1234}'
+        self.assertRaises(colander.Invalid, self.schema.deserialize, querystring)
+        # IN
+        querystring['in_age'] = '{"id": 1234}'
+        self.assertRaises(colander.Invalid, self.schema.deserialize, querystring)
+        # EXCLUDE
+        querystring['exclude_id'] = '{"id": 1234}'
+        self.assertRaises(colander.Invalid, self.schema.deserialize, querystring)
+
     def test_raises_invalid_for_to_big_integer_in_limit(self):
         querystring = self.querystring.copy()
         querystring['_limit'] = schema.POSTGRESQL_MAX_INTEGER_VALUE + 1
