@@ -219,6 +219,13 @@ class FilteringTest(BaseTest):
         self.assertRaises(httpexceptions.HTTPBadRequest,
                           self.resource.collection_get)
 
+    def test_contains_with_string(self):
+        self.validated['querystring'] = {'contains_colors': "red"}
+        result = self.resource.collection_get()
+        values = [item['colors'] for item in result['data']]
+        for value in values:
+            assert "red" in value
+
     def test_contains_with_strings(self):
         self.validated['querystring'] = {'contains_colors': ["red", "blue"]}
         result = self.resource.collection_get()

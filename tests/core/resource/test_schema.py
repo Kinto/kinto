@@ -304,7 +304,14 @@ class CollectionQuerySchemaTest(unittest.TestCase):
             '_to': '7890',
             '_before': '4567',
             'id': 'toot',
-            'last_modified': '9874'
+            'last_modified': '9874',
+            'in_age': '15,16,17',
+            'exclude_id': '45aea306-cf9c-44d3-fbe0e5bb3ef6,2400fc9b-1db6-473d-818b68431545',
+            'contains_foo': '3,4',
+            'contains_any_bar': 'red,blue',
+            'contains_user.name': '["Ethan","Remy"]',
+            'contains_any_user.height': '[165, 200]',
+            'contains_aliases': '[{"ls": "ll -a"}, {"rimraf": "rm -rf"}]',
         }
 
     def test_decode_valid_querystring(self):
@@ -317,7 +324,15 @@ class CollectionQuerySchemaTest(unittest.TestCase):
             '_to': 7890,
             '_before': 4567,
             'id': 'toot',
-            'last_modified': 9874
+            'last_modified': 9874,
+            'contains_any_bar': ['red', 'blue'],
+            'contains_any_user.height': [165, 200],
+            'contains_foo': [3, 4],
+            'contains_user.name': ['Ethan', 'Remy'],
+            'contains_aliases': [{'ls': 'll -a'}, {'rimraf': 'rm -rf'}],
+            'in_age': [15, 16, 17],
+            'exclude_id': ['45aea306-cf9c-44d3-fbe0e5bb3ef6',
+                           '2400fc9b-1db6-473d-818b68431545'],
         })
 
     def test_raises_invalid_for_to_big_integer_in_limit(self):

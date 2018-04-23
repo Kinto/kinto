@@ -994,7 +994,8 @@ class UserResource:
                 error_details['description'] = error_msg
                 raise_invalid(self.request, **error_details)
 
-            if operator in (COMPARISON.IN, COMPARISON.EXCLUDE):
+            if operator in (COMPARISON.IN, COMPARISON.EXCLUDE, COMPARISON.CONTAINS,
+                            COMPARISON.CONTAINS_ANY):
                 all_integers = all([isinstance(v, int)
                                     for v in value])
                 all_strings = all([isinstance(v, str)

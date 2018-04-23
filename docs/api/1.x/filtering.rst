@@ -73,15 +73,16 @@ Search in array fields
 
 Examples:
 
-* ``/collection?contains_colors=[red,blue]``
+* ``/collection?contains_colors=["red","blue"]``
 
   Matches any record whose ``colors`` array field contains ``red`` and
   ``blue`` elements.
 
-* ``/collection?contains_any_colors=[red,blue]``
+* ``/collection?contains_any_colors=red,blue``
 
   Matches any record whose ``colors`` array field contains ``red`` or
   ``blue`` elements.
+
 
 Comparison
 ----------
