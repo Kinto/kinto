@@ -16,6 +16,10 @@ This document describes changes between each past release.
 - Expose the ``bump_timestamp`` and ``bump_and_store_timestamp`` methods
   so that memory based storage can use them. (#1596)
 
+**Internal changes**
+
+- Add the ability for a policy to define its name and prefix for the prefixed_userid.
+
 **Documentation**
 
 - Version number is taken from package in order to ease release process (#1594)

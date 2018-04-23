@@ -10,7 +10,7 @@ from kinto.core import resource, utils
 from kinto.core.errors import raise_invalid, http_error
 from kinto.core.events import ResourceChanged, ACTIONS
 
-from . import ACCOUNT_CACHE_KEY
+from . import ACCOUNT_CACHE_KEY, ACCOUNT_POLICY_NAME
 from .utils import hash_password
 
 
@@ -59,8 +59,8 @@ class Account(resource.ShareableResource):
         # Overwrite the current principal set by ShareableResource.
         if self.model.current_principal == Everyone or context.is_administrator:
             # Creation is anonymous, but author with write perm is this:
-            # XXX: only works if policy name is account in settings.
-            self.model.current_principal = 'account:{}'.format(self.model.parent_id)
+            self.model.current_principal = '{}:{}'.format(ACCOUNT_POLICY_NAME,
+                                                          self.model.parent_id)
 
     @reify
     def id_generator(self):

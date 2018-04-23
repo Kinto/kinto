@@ -33,6 +33,17 @@ class AuthenticationPoliciesTest(BaseWebTest, unittest.TestCase):
         resp = app.get('/')
         assert 'basicauth' not in resp.json['capabilities']
 
+    @mock.patch('kinto.core.authentication.BasicAuthAuthenticationPolicy')
+    def test_policy_name_is_used(self, basicAuth):
+        basicAuth.return_value.name = "foobar"
+        app = self.make_app({
+            'multiauth.policies': 'dummy',
+            'multiauth.policy.dummy.use': ('kinto.core.authentication.'
+                                           'BasicAuthAuthenticationPolicy')})
+        # Check that the capability is exposed on the homepage.
+        resp = app.get('/')
+        assert resp.json['user']['id'].startswith('foobar:')
+
     def test_views_are_forbidden_if_unknown_auth_method(self):
         app = self.make_app({'multiauth.policies': 'basicauth'})
         self.headers['Authorization'] = 'Carrier'
