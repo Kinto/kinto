@@ -16,7 +16,7 @@ class HawkAuthenticationPolicy(CallbackAuthenticationPolicy):
 
     def forget(self, request):
         return [('WWW-Authenticate', 'Hawk')]
-        
+
     def _test_credentials(self, request):
         """Test credentials in request against account HAWK credentials"""
         account_creds = self._get_account_hawk_creds(request)
@@ -27,7 +27,7 @@ class HawkAuthenticationPolicy(CallbackAuthenticationPolicy):
 
     def _get_account_hawk_creds(self, request):
         """Check storage for the request account HAWK credentials.
-        
+
         The accounts plugin is a depency of this plugin, so we can rely
         on Basic Auth credentials to get the account and its HAWK creds.
         """

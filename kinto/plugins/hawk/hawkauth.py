@@ -44,18 +44,18 @@ class HawkAuth():
     @staticmethod
     def generate_session_token():
         """Utility method for generating random HAWK session token
-        
+
         :returns: hex string, 32 bytes
         """
         return os.urandom(32).hex()
-        
+
     @staticmethod
     def get_credentials_from_session(token):
         """Utility function to derive HAWK credentials from session token"""
         pass
 
     def authenticate(self, request):
-        """Perform hawk authorization on the request.  
+        """Perform hawk authorization on the request.
 
         The sender(client) credentials are checked against our receiver(server)
         credentials.  The timestamp of the request must match the server time
@@ -68,7 +68,7 @@ class HawkAuth():
         # HAWK credentials lookup function
         def get_credentials(client_id):
             if client_id == self._client_id:
-                return {'id': self._client_id, 'key': self._secret, 
+                return {'id': self._client_id, 'key': self._secret,
                         'algorithm': self._algo}
             raise LookupError('Client ID not found.')
 
@@ -79,11 +79,11 @@ class HawkAuth():
             if cache.get(key):
                 return True
             else:
-                # Messages expire after 60 seconds, and we only need to 
+                # Messages expire after 60 seconds, and we only need to
                 # store the nonce for as long as messages are valid.
                 # Users can set their own nonce lifetime in settings.
                 cache.set(
-                    key, True, 
+                    key, True,
                     self._nonce_lifespan)
                 return False
 

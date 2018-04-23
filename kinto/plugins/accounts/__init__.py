@@ -3,7 +3,7 @@ from time import time
 from kinto.authorization import PERMISSIONS_INHERITANCE_TREE
 from kinto.plugins.hawk.hawkauth import HawkAuthenticator
 from kinto.core.storage import exceptions as storage_exceptions
-from kinto.core.errors import (http_error, raise_invalid, 
+from kinto.core.errors import (http_error, raise_invalid,
                                send_alert, ERRORS, request_GET)
 
 import requests
@@ -23,16 +23,16 @@ def clear_all_hawk_sessions(request, account):
 
     ACCOUNT_CACHE_KEY = 'accounts:{}:verified'
 
-    request.registry.storage.update(collection_id='account', 
+    request.registry.storage.update(collection_id='account',
                                    parent_id=account['id'],
-                                   object_id=account['id'], 
+                                   object_id=account['id'],
                                    record=account)
 
 def add_hawk_session(request, account, token):
     """Add a hawk session to the account using `token` as the session token.
-    
+
     Sessions are stored at the cache layer, with the client ID as the key.
-    This allows for fast lookups by HAWK client ID, which is found in the auth 
+    This allows for fast lookups by HAWK client ID, which is found in the auth
     header of the request.
     """
     hawk_auth = HawkAuth(hawk_session=token)
@@ -41,7 +41,7 @@ def add_hawk_session(request, account, token):
 
     hawk_auth.credentials.update({
         'session': token,
-        'id': hawk_auth.credentials['id'].decode(), 
+        'id': hawk_auth.credentials['id'].decode(),
         'key': hawk_auth.credentials['key'].decode(),
         'expires': expire_time,
         'account_user_id': account['id']
@@ -51,9 +51,9 @@ def add_hawk_session(request, account, token):
     client_id = hawk_auth.credentials['id']
     # The client ID is the dict key into the session credentials.
     account['hawk-sessions'].append(client_id)
-    request.registry.storage.update(collection_id='account', 
+    request.registry.storage.update(collection_id='account',
                                    parent_id=account['id'],
-                                   object_id=account['id'], 
+                                   object_id=account['id'],
                                    record=account)
 
     request.registry.cache.set(client_id, hawk_auth.credentials, expire_time)
@@ -98,7 +98,7 @@ def includeme(config):
     config.add_view(hawk_sessions_current,
                    route_name='hawk_sessions_current')
     config.add_route('hawk_sessions', '/accounts/{userid:.*}/hawk-sessions')
-    config.add_route('hawk_sessions_current', 
+    config.add_route('hawk_sessions_current',
                      '/accounts/{userid:.*}/hawk-sessions/current')
 
     config.add_api_capability(
