@@ -171,7 +171,8 @@ class ListenerSetupTest(unittest.TestCase):
     @mock.patch('kinto.core.utils.view_lookup',
                 return_value=('record',
                               {'bucket_id': 'b_id', 'collection_id': 'c_id'}))
-    def test_same_callback_is_called_for_read_and_write_specified(self, view_lookup, parse_resource):
+    def test_same_callback_is_called_for_read_and_write_specified(self,
+                                                                  view_lookup, parse_resource):
         config = self.make_app({
             'event_listeners': 'demo',
             'event_listeners.demo.use': 'tests.core.listeners',
