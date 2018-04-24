@@ -241,14 +241,14 @@ class FilteringTest(BaseTest):
             assert 3 in value
 
     def test_contains_any_can_filter_with_a_list_of_strings(self):
-        self.validated['querystring'] = {'contains_colors': ["red", "blue"]}
+        self.validated['querystring'] = {'contains_any_colors': ["red", "blue"]}
         result = self.resource.collection_get()
         values = [item['colors'] for item in result['data']]
         for value in values:
             assert 'red' in value or 'blue' in value
 
     def test_contains_any_can_filter_with_a_list_of_integers(self):
-        self.validated['querystring'] = {'contains_fib': [3, 5]}
+        self.validated['querystring'] = {'contains_any_fib': [3, 5]}
         result = self.resource.collection_get()
         values = [item['fib'] for item in result['data']]
         for value in values:
