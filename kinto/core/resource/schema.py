@@ -215,18 +215,21 @@ class QuerySchema(colander.MappingSchema):
 
         # Deserialize querystring field filters (see docstring e.g)
         for k, v in cstruct.items():
-            # Deserialize lists used on in_ and exclude_ filters
-            if k.startswith('in_') or k.startswith('exclude_') or k.startswith('contains_'):
+            # Deserialize lists used on contains_ and contains_any_ filters
+            if k.startswith('contains_'):
                 try:
                     as_list = json.loads(v)
                 except ValueError:
-                    as_list = FieldList().deserialize(v)
+                    as_list = native_value(v)
 
                 if not isinstance(as_list, list):
-                    message = ('{} should be a list. (e.g: comma-separated : `red,blue` or '
-                               'a JSON list: `["red", "blue"]`)'.format(k))
-                    raise colander.Invalid(self, message)
+                    values[k] = [as_list]
+                else:
+                    values[k] = as_list
 
+            # Deserialize lists used on in_ and exclude_ filters
+            elif k.startswith('in_') or k.startswith('exclude_'):
+                as_list = FieldList().deserialize(v)
                 values[k] = [native_value(v) for v in as_list]
             else:
                 values[k] = native_value(v)
