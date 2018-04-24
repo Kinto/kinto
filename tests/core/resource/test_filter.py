@@ -223,6 +223,7 @@ class FilteringTest(BaseTest):
         self.validated['querystring'] = {'contains_colors': ["red"]}
         result = self.resource.collection_get()
         values = [item['colors'] for item in result['data']]
+        assert len(values) == 1
         for value in values:
             assert "red" in value
 
@@ -230,6 +231,7 @@ class FilteringTest(BaseTest):
         self.validated['querystring'] = {'contains_colors': ["red", "blue"]}
         result = self.resource.collection_get()
         values = [item['colors'] for item in result['data']]
+        assert len(values) == 1
         for value in values:
             assert "red" in value and "blue" in value
 
@@ -237,6 +239,7 @@ class FilteringTest(BaseTest):
         self.validated['querystring'] = {'contains_fib': [3]}
         result = self.resource.collection_get()
         values = [item['fib'] for item in result['data']]
+        assert len(values) == 2
         for value in values:
             assert 3 in value
 
@@ -244,6 +247,7 @@ class FilteringTest(BaseTest):
         self.validated['querystring'] = {'contains_any_colors': ["red", "blue"]}
         result = self.resource.collection_get()
         values = [item['colors'] for item in result['data']]
+        assert len(values) == 2
         for value in values:
             assert 'red' in value or 'blue' in value
 
@@ -251,6 +255,7 @@ class FilteringTest(BaseTest):
         self.validated['querystring'] = {'contains_any_fib': [3, 5]}
         result = self.resource.collection_get()
         values = [item['fib'] for item in result['data']]
+        assert len(values) == 2
         for value in values:
             assert 3 in value or 5 in value
 
