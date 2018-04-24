@@ -1,4 +1,3 @@
-import json
 import warnings
 
 import colander
@@ -6,7 +5,7 @@ import colander
 from kinto.core.schema import (Any, HeaderField, QueryField, HeaderQuotedInteger,
                                FieldList, TimeStamp, URL)
 from kinto.core.errors import ErrorSchema
-from kinto.core.utils import native_value
+from kinto.core.utils import native_value, json
 
 POSTGRESQL_MAX_INTEGER_VALUE = 2**63
 
