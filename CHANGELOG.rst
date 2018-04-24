@@ -21,6 +21,10 @@ This document describes changes between each past release.
 - Version number is taken from package in order to ease release process (#1594)
 - Copyright year is now dynamic (#1595)
 
+**Internal changes**
+
+- Upgrade the kinto-admin UI to `1.16.0 <https://github.com/Kinto/kinto-admin/releases/tag/v1.16.0>`_
+
 
 8.3.0 (2018-04-06)
 ------------------
