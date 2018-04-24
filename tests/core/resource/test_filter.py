@@ -16,8 +16,9 @@ class FilteringTest(BaseTest):
             {'title': 'MoFo', 'status': 0, 'favorite': False, 'sometimes': None},
             {'title': 'MoFo', 'status': 1, 'favorite': True, 'fib': [1, 2, 3]},
             {'title': 'MoFo', 'status': 2, 'favorite': False, 'fib': [3, 5, 8]},
-            {'title': 'Foo', 'status': 3, 'favorite': False},
-            {'title': 'Bar', 'status': 3, 'favorite': False, 'sometimes': 'present'},
+            {'title': 'Foo', 'status': 3, 'favorite': False, "aliases": [{"ll": "ls -l"}]},
+            {'title': 'Bar', 'status': 3, 'favorite': False, 'sometimes': 'present',
+             "aliases": [{"ll": "ls -l"}, {"rm": "rm -i"}]},
         ]
         for r in records:
             self.model.create_record(r)
@@ -226,6 +227,14 @@ class FilteringTest(BaseTest):
         assert len(values) == 1
         for value in values:
             assert "red" in value
+
+    def test_contains_can_filter_with_one_object(self):
+        self.validated['querystring'] = {'contains_aliases': [{"ll": "ls -l"}]}
+        result = self.resource.collection_get()
+        values = [item['aliases'] for item in result['data']]
+        assert len(values) == 2
+        for value in values:
+            assert {"ll": "ls -l"} in value
 
     def test_contains_can_filter_with_list_of_strings(self):
         self.validated['querystring'] = {'contains_colors': ["red", "blue"]}
