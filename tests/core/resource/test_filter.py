@@ -268,6 +268,18 @@ class FilteringTest(BaseTest):
         for value in values:
             assert 3 in value or 5 in value
 
+    def test_contains_fails_on_a_non_sequence_record_value(self):
+        self.validated['querystring'] = {'contains_favorite': [True]}
+        result = self.resource.collection_get()
+        values = result['data']
+        assert len(values) == 0
+
+    def test_contains_any_fails_on_a_non_sequence_record_value(self):
+        self.validated['querystring'] = {'contains_any_favorite': [True]}
+        result = self.resource.collection_get()
+        values = result['data']
+        assert len(values) == 0
+
 
 class SubobjectFilteringTest(BaseTest):
     def setUp(self):
