@@ -226,6 +226,8 @@ class COMPARISON(Enum):
     EXCLUDE = 'exclude'
     LIKE = 'like'
     HAS = 'has'
+    # The order matters here because we want to match
+    # contains_any before contains_
     CONTAINS_ANY = 'contains_any'
     CONTAINS = 'contains'
 
