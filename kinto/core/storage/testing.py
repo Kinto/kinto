@@ -406,6 +406,20 @@ class BaseTestStorage:
                                           **self.storage_kw)
         self.assertEqual(len(records), 1)
 
+    def test_get_all_can_filter_on_field_that_do_not_contains_an_array_with_contains_any(self):
+        self.create_record({'colors': ["red", "green", "blue"]})
+        self.create_record({'colors': {"html": "#00FF00"}})
+
+        filters = [Filter('colors', ["red"], utils.COMPARISON.CONTAINS_ANY)]
+        records, _ = self.storage.get_all(filters=filters,
+                                          **self.storage_kw)
+        self.assertEqual(len(records), 1)
+
+        filters = [Filter('colors', [{"html": "#00FF00"}], utils.COMPARISON.CONTAINS_ANY)]
+        records, _ = self.storage.get_all(filters=filters,
+                                          **self.storage_kw)
+        self.assertEqual(len(records), 0)
+
     def test_get_all_can_filter_on_array_that_contains_any_value(self):
         self.create_record({'colors': ["red", "green", "blue"]})
         self.create_record({'colors': ["gray", "blue"]})
