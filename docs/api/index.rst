@@ -11,7 +11,7 @@ API
 Changelog
 ---------
 
-1.19 (unreleased)
+1.19 (2018-04-25)
 '''''''''''''''''
 
 - New `contains_` and `contains_any` filter operators (fixes #343)
