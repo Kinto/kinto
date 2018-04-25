@@ -23,7 +23,7 @@ This document describes changes between each past release.
 
 **Internal changes**
 
-- Upgrade the kinto-admin UI to `1.16.0 <https://github.com/Kinto/kinto-admin/releases/tag/v1.16.0>`_
+- Upgrade the kinto-admin UI to `1.17.0 <https://github.com/Kinto/kinto-admin/releases/tag/v1.17.0>`_
 
 
 8.3.0 (2018-04-06)
