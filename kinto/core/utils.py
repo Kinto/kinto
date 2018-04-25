@@ -113,10 +113,7 @@ def native_value(value):
         try:
             value = json.loads(value)
         except ValueError:
-            try:
-                value = json.loads('"{}"'.format(value))
-            except ValueError:
-                return value
+            return value
     return value
 
 
