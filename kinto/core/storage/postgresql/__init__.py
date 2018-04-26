@@ -587,31 +587,24 @@ class Storage(StorageBase, MigratorMixin):
                 modified_field=DEFAULT_MODIFIED_FIELD,
                 deleted_field=DEFAULT_DELETED_FIELD,
                 auth=None):
-        query = """
-        WITH collection_filtered AS (
-            SELECT id, last_modified, data, deleted
-              FROM records
-             WHERE {parent_id_filter}
-               AND collection_id = :collection_id
-               {conditions_deleted}
-               {conditions_filter}
-        ),
-        total_filtered AS (
-            SELECT COUNT(id) AS count_total
-              FROM collection_filtered
-             WHERE NOT deleted
-        ),
-        paginated_records AS (
-            SELECT DISTINCT id
-              FROM collection_filtered
-              {pagination_rules}
-        )
-         SELECT count_total,
-               a.id, as_epoch(a.last_modified) AS last_modified, a.data
-          FROM paginated_records AS p JOIN collection_filtered AS a ON (a.id = p.id),
-               total_filtered
-          {sorting}
-         LIMIT :pagination_limit;
+        count_query = """
+        SELECT COUNT(id) AS count_total
+          FROM records
+         WHERE {parent_id_filter}
+           AND collection_id = :collection_id
+           AND NOT deleted
+           {conditions_filter};
+        """
+        select_query = """
+        SELECT {distinct} id, as_epoch(last_modified) AS last_modified, data
+          FROM records
+           WHERE {pagination_rules}
+           {parent_id_filter}
+           AND collection_id = :collection_id
+           {conditions_deleted}
+           {conditions_filter}
+           {sorting}
+          LIMIT :pagination_limit;
         """
 
         # Unsafe strings escaped by PostgreSQL
@@ -624,9 +617,11 @@ class Storage(StorageBase, MigratorMixin):
         # Handle parent_id as a regex only if it contains *
         if '*' in parent_id:
             safeholders['parent_id_filter'] = 'parent_id LIKE :parent_id'
+            safeholders['distinct_ids'] = 'DISTINCT'
             placeholders['parent_id'] = parent_id.replace('*', '%')
         else:
             safeholders['parent_id_filter'] = 'parent_id = :parent_id'
+            safeholders['distinct_ids'] = ''
 
         if filters:
             safe_sql, holders = self._format_conditions(filters,
@@ -647,21 +642,24 @@ class Storage(StorageBase, MigratorMixin):
         if pagination_rules:
             sql, holders = self._format_pagination(pagination_rules, id_field,
                                                    modified_field)
-            safeholders['pagination_rules'] = 'WHERE {}'.format(sql)
+            safeholders['pagination_rules'] = '{} AND'.format(sql)
             placeholders.update(**holders)
+        else:
+            safeholders['pagination_rules'] = ''
 
         # Limit the number of results (pagination).
         limit = min(self._max_fetch_size, limit) if limit else self._max_fetch_size
         placeholders['pagination_limit'] = limit
 
         with self.client.connect(readonly=True) as conn:
-            result = conn.execute(query.format_map(safeholders), placeholders)
+            result = conn.execute(select_query.format_map(safeholders), placeholders)
             retrieved = result.fetchmany(self._max_fetch_size)
 
-        if len(retrieved) == 0:
-            return [], 0
+            if len(retrieved) == 0:
+                return [], 0
 
-        count_total = retrieved[0]['count_total']
+            result_count = conn.execute(count_query.format_map(safeholders), placeholders)
+            count_total, = result_count.fetchone()
 
         records = []
         for result in retrieved:
