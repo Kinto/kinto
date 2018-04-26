@@ -12,6 +12,7 @@ from kinto.core.storage import (
     MISSING)
 from kinto.core.utils import (COMPARISON, find_nested_value)
 
+import json
 import ujson
 
 
@@ -337,6 +338,10 @@ def extract_record_set(records, filters, sorting,
     return sorted_, total_records - filtered_deleted
 
 
+def canonical_json(record):
+    return json.dumps(record, sort_keys=True, separators=(',', ':'))
+
+
 def apply_filters(records, filters):
     """Filter the specified records, using basic iteration.
     """
@@ -345,8 +350,8 @@ def apply_filters(records, filters):
         if record_value == MISSING:
             return False
         try:
-            search_set = set(search_term)
-            record_value_set = set(record_value)
+            search_set = set([canonical_json(v) for v in search_term])
+            record_value_set = set([canonical_json(v) for v in record_value])
         except TypeError:
             return False
         return record_value_set.intersection(search_set) == search_set
@@ -355,9 +360,11 @@ def apply_filters(records, filters):
         if record_value == MISSING:
             return False
         try:
-            return set(record_value).intersection(set(search_term))
+            search_set = set([canonical_json(v) for v in search_term])
+            record_value_set = set([canonical_json(v) for v in record_value])
         except TypeError:
             return False
+        return record_value_set.intersection(search_set)
 
     operators = {
         COMPARISON.LT: operator.lt,

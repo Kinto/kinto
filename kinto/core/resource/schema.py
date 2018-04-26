@@ -214,8 +214,17 @@ class QuerySchema(colander.MappingSchema):
 
         # Deserialize querystring field filters (see docstring e.g)
         for k, v in cstruct.items():
+            # Deserialize lists used on contains_ and contains_any_ filters
+            if k.startswith('contains_'):
+                as_list = native_value(v)
+
+                if not isinstance(as_list, list):
+                    values[k] = [as_list]
+                else:
+                    values[k] = as_list
+
             # Deserialize lists used on in_ and exclude_ filters
-            if k.startswith('in_') or k.startswith('exclude_'):
+            elif k.startswith('in_') or k.startswith('exclude_'):
                 as_list = FieldList().deserialize(v)
                 values[k] = [native_value(v) for v in as_list]
             else:

@@ -113,10 +113,7 @@ def native_value(value):
         try:
             value = json.loads(value)
         except ValueError:
-            try:
-                value = json.loads('"{}"'.format(value))
-            except ValueError:
-                return value
+            return value
     return value
 
 
@@ -226,8 +223,10 @@ class COMPARISON(Enum):
     EXCLUDE = 'exclude'
     LIKE = 'like'
     HAS = 'has'
-    CONTAINS = 'contains'
+    # The order matters here because we want to match
+    # contains_any before contains_
     CONTAINS_ANY = 'contains_any'
+    CONTAINS = 'contains'
 
 
 def reapply_cors(request, response):

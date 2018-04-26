@@ -18,6 +18,10 @@ API is now at version **1.19**. See `API changelog`_.
 - The storage class now exposes ``bump_timestamp()`` and ``bump_and_store_timestamp()`` methods
   so that memory based storage backends can use them. (#1596)
 
+**Internal changes**
+
+- Authentication policies can now hard code and override the name specified in settings
+
 **Documentation**
 
 - Version number is taken from package in order to ease release process (#1594)
@@ -25,7 +29,7 @@ API is now at version **1.19**. See `API changelog`_.
 
 **Internal changes**
 
-- Upgrade the kinto-admin UI to `1.16.0 <https://github.com/Kinto/kinto-admin/releases/tag/v1.16.0>`_
+- Upgrade the kinto-admin UI to `1.17.0 <https://github.com/Kinto/kinto-admin/releases/tag/v1.17.0>`_
 
 
 8.3.0 (2018-04-06)

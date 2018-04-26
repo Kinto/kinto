@@ -61,27 +61,34 @@ Search in array fields
 
 * ``/collection?contains_field=value``
 
-  Matches any records whose ``field`` array field contains ``value``. Values can
-  be an integer, a string, a list of integers or a list of strings. In case of
-  values are a list, only matches records whose field contains all the values
-  listed.
+  Matches any records whose ``field`` array field contains ``value``. Value can
+  be an integer, a string, an object, or a list of such.
+
+  In the value is a list, it only matches records whose field contains
+  all the values listed.
 
 * ``/collection?contains_any_field=value``
 
-  Same as the previous filter, but in case of values are a list, matches all
-  records whose field contains at least one of the values listed.
+  Same as the previous filter, but in the value is a list, it matches
+  all records whose field contains at least one of the listed values.
 
 Examples:
 
-* ``/collection?contains_colors=[red,blue]``
+* ``/collection?contains_colors=["red","blue"]``
 
   Matches any record whose ``colors`` array field contains ``red`` and
   ``blue`` elements.
 
-* ``/collection?contains_any_colors=[red,blue]``
+* ``/collection?contains_any_colors=["red","blue"]``
 
   Matches any record whose ``colors`` array field contains ``red`` or
-  ``blue`` elements.
+  ``blue`` strings.
+
+* ``/collection?contains_any_aliases=[{"ll": "ls -l"}, {"gti": "git"}]``
+
+  Matches any record whose ``aliases`` array field contains ``{"ll": "ls -l"}`` or
+  ``{"gti": "git"}`` objects.
+
 
 Comparison
 ----------
