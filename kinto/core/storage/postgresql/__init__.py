@@ -757,7 +757,7 @@ class Storage(StorageBase, MigratorMixin):
                 # array and convert it to a Postgres array.
                 data_as_array = '''
                 (SELECT array_agg(elems) FROM jsonb_array_elements({}) elems)
-                '''.format(sql_field, sql_field)
+                '''.format(sql_field)
                 cond = '{} && (:{})::jsonb[]'.format(data_as_array, value_holder)
                 # In case the field is not a sequence, we ignore the record.
                 conditions.append("jsonb_typeof({}) = 'array'".format(sql_field))

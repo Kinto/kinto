@@ -216,10 +216,7 @@ class QuerySchema(colander.MappingSchema):
         for k, v in cstruct.items():
             # Deserialize lists used on contains_ and contains_any_ filters
             if k.startswith('contains_'):
-                try:
-                    as_list = json.loads(v)
-                except ValueError:
-                    as_list = native_value(v)
+                as_list = native_value(v)
 
                 if not isinstance(as_list, list):
                     values[k] = [as_list]
