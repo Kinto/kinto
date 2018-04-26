@@ -4,17 +4,19 @@ Changelog
 This document describes changes between each past release.
 
 
-9.0.0 (unreleased)
+9.0.0 (2018-04-25)
 ------------------
 
-**Protocol**
+**API**
 
 - Introduce ``contains`` and ``contains_any`` filter operators (fixes #343).
 
+API is now at version **1.19**. See `API changelog`_.
+
 **Breaking changes**
 
-- Expose the ``bump_timestamp`` and ``bump_and_store_timestamp`` methods
-  so that memory based storage can use them. (#1596)
+- The storage class now exposes ``bump_timestamp()`` and ``bump_and_store_timestamp()`` methods
+  so that memory based storage backends can use them. (#1596)
 
 **Internal changes**
 
