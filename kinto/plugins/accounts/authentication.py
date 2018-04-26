@@ -4,7 +4,7 @@ from pyramid import authentication as base_auth
 from kinto.core import utils
 from kinto.core.storage import exceptions as storage_exceptions
 
-from . import ACCOUNT_CACHE_KEY
+from . import ACCOUNT_CACHE_KEY, ACCOUNT_POLICY_NAME
 
 
 def account_check(username, password, request):
@@ -47,6 +47,8 @@ class AccountsAuthenticationPolicy(base_auth.BasicAuthAuthenticationPolicy):
 
     It will check that the credentials exist in the account resource.
     """
+    name = ACCOUNT_POLICY_NAME
+
     def __init__(self, *args, **kwargs):
         super().__init__(account_check, *args, **kwargs)
 
