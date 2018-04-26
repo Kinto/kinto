@@ -40,7 +40,7 @@ class AuthenticationPoliciesTest(BaseWebTest, unittest.TestCase):
             'multiauth.policies': 'dummy',
             'multiauth.policy.dummy.use': ('kinto.core.authentication.'
                                            'BasicAuthAuthenticationPolicy')})
-        # Check that the capability is exposed on the homepage.
+        # Check that the policy uses its name rather than the settings prefix
         resp = app.get('/')
         assert resp.json['user']['id'].startswith('foobar:')
 

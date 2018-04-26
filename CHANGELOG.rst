@@ -18,7 +18,7 @@ This document describes changes between each past release.
 
 **Internal changes**
 
-- Add the ability for a policy to define its name and prefix for the prefixed_userid.
+- Authentication policies can now hard code and override the name specified in settings
 
 **Documentation**
 

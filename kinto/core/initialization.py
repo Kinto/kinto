@@ -114,6 +114,8 @@ def setup_authentication(config):
     # Track policy used, for prefixing user_id and for logging.
     def on_policy_selected(event):
         request = event.request
+        # If the authn policy has a name attribute, we use it rather
+        # than using the one specified in settings.
         authn_type = getattr(event.policy, 'name', event.policy_name.lower())
         request.authn_type = authn_type
         request.selected_userid = event.userid
