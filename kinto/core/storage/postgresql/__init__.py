@@ -751,15 +751,17 @@ class Storage(StorageBase, MigratorMixin):
             elif filtr.operator == COMPARISON.CONTAINS_ANY:
                 value_holder = '{}_value_{}'.format(prefix, i)
                 holders[value_holder] = value
+                # In case the field is not a sequence, we ignore the record.
+                is_json_sequence = "jsonb_typeof({}) = 'array'".format(sql_field)
                 # Postgres's && operator doesn't support jsonbs.
                 # However, it does support Postgres arrays of any
                 # type. Assume that the referenced field is a JSON
                 # array and convert it to a Postgres array.
-                # N.B. This won't work on JSON objects and will never match.
                 data_as_array = '''
                 (SELECT array_agg(elems) FROM jsonb_array_elements({}) elems)
                 '''.format(sql_field)
-                cond = '{} && (:{})::jsonb[]'.format(data_as_array, value_holder)
+                cond = '{} AND {} && (:{})::jsonb[]'.format(
+                    is_json_sequence, data_as_array, value_holder)
 
             elif value != MISSING:
                 # Safely escape value. MISSINGs get handled below.
