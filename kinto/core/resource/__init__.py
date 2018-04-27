@@ -137,7 +137,19 @@ def register_resource(resource_cls, settings=None, viewset=None, depth=1,
 
 
 class UserResource:
-    """Base resource class providing every endpoint."""
+    """Base resource class providing every endpoint.
+
+    Resources inheriting from UserResource are automatically "scoped"
+    by user (see get_parent_id()), with the effect that one user
+    cannot look at another user's data. This is good for implementing
+    sensitive or private information such as accounts.
+
+    However, most resources in Kinto can be shared by different users,
+    with different levels of access determined by their
+    permissions. Those resources should inherit from
+    ShareableResource, below.
+
+    """
 
     default_viewset = ViewSet
     """Default :class:`kinto.core.resource.viewset.ViewSet` class to use when

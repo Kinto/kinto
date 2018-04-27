@@ -250,7 +250,11 @@ class StorageBase:
         """Retrieve all objects in this `collection_id` for this `parent_id`.
 
         :param str collection_id: the collection id.
-        :param str parent_id: the collection parent.
+
+        :param str parent_id: the collection parent, possibly
+            containing a wildcard '*'. (This can happen when
+            implementing "administrator" operations on a UserResource,
+            for example.)
 
         :param filters: Optionally filter the objects by their attribute.
             Each filter in this list is a tuple of a field, a value and a
