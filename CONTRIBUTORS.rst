@@ -57,6 +57,7 @@ Contributors
 * Oron Gola <oron.golar@gmail.com>
 * Palash Nigam <npalash25@gmail.com>
 * PeriGK <per.gkolias@gmail.com>
+* Peter Bengtsson <mail@peterbe.com>
 * realsumit <sumitsarinofficial@gmail.com>
 * Rektide <rektide@voodoowarez.com>
 * Rémy Hubscher <rhubscher@mozilla.com>
@@ -83,4 +84,3 @@ Contributors
 * Vitor Falcao <vitor.falcaor@gmail.com>
 * Wil Clouser <wclouser@mozilla.com>
 * Yann Klis <yann.klis@gmail.com>
-
