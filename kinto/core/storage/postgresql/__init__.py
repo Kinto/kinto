@@ -642,8 +642,6 @@ class Storage(StorageBase, MigratorMixin):
                                                    modified_field)
             safeholders['pagination_rules'] = '{} AND'.format(sql)
             placeholders.update(**holders)
-        else:
-            safeholders['pagination_rules'] = ''
 
         # Limit the number of results (pagination).
         limit = min(self._max_fetch_size, limit) if limit else self._max_fetch_size
