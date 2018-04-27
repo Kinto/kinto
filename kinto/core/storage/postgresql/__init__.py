@@ -596,9 +596,9 @@ class Storage(StorageBase, MigratorMixin):
            {conditions_filter};
         """
         select_query = """
-        SELECT {distinct} id, as_epoch(last_modified) AS last_modified, data
+        SELECT id, as_epoch(last_modified) AS last_modified, data
           FROM records
-           WHERE {pagination_rules}
+         WHERE {pagination_rules}
            {parent_id_filter}
            AND collection_id = :collection_id
            {conditions_deleted}
@@ -617,11 +617,9 @@ class Storage(StorageBase, MigratorMixin):
         # Handle parent_id as a regex only if it contains *
         if '*' in parent_id:
             safeholders['parent_id_filter'] = 'parent_id LIKE :parent_id'
-            safeholders['distinct_ids'] = 'DISTINCT'
             placeholders['parent_id'] = parent_id.replace('*', '%')
         else:
             safeholders['parent_id_filter'] = 'parent_id = :parent_id'
-            safeholders['distinct_ids'] = ''
 
         if filters:
             safe_sql, holders = self._format_conditions(filters,
