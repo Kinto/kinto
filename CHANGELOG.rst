@@ -7,7 +7,10 @@ This document describes changes between each past release.
 9.1.0 (unreleased)
 ------------------
 
-- Nothing changed yet.
+**Internal changes**
+
+- Refactor of ``kinto.core.storage.Storage.get_all`` method to issue two separate,
+  simpler, queries to get the total count and the records. (#1507)
 
 
 9.0.0 (2018-04-25)
