@@ -498,14 +498,12 @@ def parse_resource(resource):
     :param str resource: a uri formatted /buckets/<bid>/collections/<cid> or <bid>/<cid>.
     :returns: a dictionary with the bucket_id and collection_id of the resource
     """
-
     error_msg = 'Resources should be defined as '
-    "'/buckets/<bid>/collections/<cid>' or '<bid>/<cid>'. "
+    "'/buckets/<bid>/collections/<cid>' or '<bid>/<cid>' or "
+    "'/buckets/<bid>/collections/<cid>/records/<rid>.'"
     'with valid collection and bucket ids.'
-
     resource_bucket = False
     resource_record = False
-
     from kinto.views import NameGenerator
     id_generator = NameGenerator()
     parts = resource.split('/')
@@ -527,16 +525,12 @@ def parse_resource(resource):
     else:
         raise ValueError(error_msg)
     if resource_bucket:
-        if bucket == '':
-            raise ValueError(error_msg)
         if not id_generator.match(bucket):
             raise ValueError(error_msg)
         return {
             'bucket': bucket
         }
-    elif resource_record:
-        if bucket == '' or collection == '' or record == '':
-            raise ValueError(error_msg)
+    if resource_record:
         if not id_generator.match(bucket) \
                 or not id_generator.match(collection) \
                 or not id_generator.match(record):
@@ -546,11 +540,8 @@ def parse_resource(resource):
             'collection': collection,
             'record': record
         }
-    else:
-        if bucket == '' or collection == '':
-            raise ValueError(error_msg)
-        if not id_generator.match(bucket) or not id_generator.match(collection):
-            raise ValueError(error_msg)
+    if not id_generator.match(bucket) or not id_generator.match(collection):
+        raise ValueError(error_msg)
     return {
         'bucket': bucket,
         'collection': collection

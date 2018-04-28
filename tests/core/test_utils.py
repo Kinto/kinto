@@ -321,13 +321,38 @@ class ParseResourceTest(unittest.TestCase):
         'bucket': 'bid',
         'collection': 'cid'
     }
-    error_msg = "Resources should be defined as "
-    "'/buckets/<bid>/collections/<cid>' or '<bid>/<cid>'. "
-    "with valid collection and bucket ids."
+    bucket_expected = {
+        'bucket': 'bid'
+    }
+    record_expected = {
+        'bucket': 'bid',
+        'collection': 'cid',
+        'record': 'rid'
+    }
+    collection_expected = {
+        'bucket': 'bid',
+        'collection': 'cid',
+    }
+    error_msg = 'Resources should be defined as '
+    "'/buckets/<bid>/collections/<cid>' or '<bid>/<cid>' or "
+    "'/buckets/<bid>/collections/<cid>/records/<rid>.'"
+    'with valid collection and bucket ids.'
 
     def _assert_success(self, input):
         parts = parse_resource(input)
         self.assertEqual(self.expected, parts)
+
+    def _assert_bucket_success(self, input):
+        parts = parse_resource(input)
+        self.assertEqual(self.bucket_expected, parts)
+
+    def _assert_collection_success(self, input):
+        parts = parse_resource(input)
+        self.assertEqual(self.collection_expected, parts)
+
+    def _assert_record_success(self, input):
+        parts = parse_resource(input)
+        self.assertEqual(self.record_expected, parts)
 
     def _assert_error(self, input_arr):
         for input in input_arr:
@@ -351,17 +376,28 @@ class ParseResourceTest(unittest.TestCase):
         input_arr = ['/buckets/bi+d1/collections/cid', '/buckets/bid1/collections/dci,d']
         self._assert_error(input_arr)
 
+    def test_valid_bucket_resource_format(self):
+        input = '/buckets/bid'
+        self._assert_bucket_success(input)
 
-class InstanceURIRegistryTest(unittest.TestCase):
-    @mock.patch('kinto.core.utils.instance_uri')
-    def test_instance_uri_registry_calls_instance_uri(self, instance_uri):
-        registry = mock.Mock()
-        instance_uri_registry(registry, 'record', a=1)
-        self.assertEqual(len(instance_uri.call_args_list), 1)
-        (args, kwargs) = instance_uri.call_args_list[0]
-        self.assertEqual(len(args), 2)
+    def test_valid_record_resource_format(self):
+        input = '/buckets/bid/collections/cid/records/rid'
+        self._assert_record_success(input)
 
-        self.assertEqual(args[0].registry, registry)
-        self.assertEqual(args[1], 'record')
+    def test_valid_collection_resource_format(self):
+        input = '/buckets/bid/collections/cid'
+        self._assert_collection_success(input)
 
-        self.assertEqual(kwargs, {'a': 1})
+    def test_missing_resource_in_path(self):
+        input_arr = ['//', '/buckets///',
+                     '/buckets/////', '/buckets/bid/collections/cid/records/',
+                     '/buckets/bid/collections///']
+        self._assert_error(input_arr)
+
+    def test_malformed_bucket_name(self):
+        input_arr = ['/buckets/@iman']
+        self._assert_error(input_arr)
+
+    def test_malformed_record_name(self):
+        input_arr = ['/buckets/bid/collections/cid/records/r#c@rds']
+        self._assert_error(input_arr)

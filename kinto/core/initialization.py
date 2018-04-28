@@ -432,16 +432,17 @@ class EventResourceIdFilter:
         # return True
         for resource_ids in self.resource_ids:
             returned_resource_ids = utils.parse_resource(resource_ids)
+            bucket = matchdict.get('bucket_id')
+            collection = matchdict.get('collection_id')
+            returned_bucket = returned_resource_ids.get('bucket')
+            returned_collection = returned_resource_ids.get('collection')
             if event.payload.get('action') == 'create':
                 if r_name == 'collection':
-                    bucket = matchdict.get('bucket_id')
-                    if bucket == returned_resource_ids.get('bucket'):
+                    if bucket == returned_bucket:
                         return True
                 elif r_name == 'record':
-                    bucket = matchdict.get('bucket_id')
-                    collection = matchdict.get('collection_id')
-                    if bucket == returned_resource_ids.get('bucket') and \
-                            collection == returned_resource_ids.get('collection'):
+                    if bucket == returned_bucket and \
+                            collection == returned_collection:
                         return True
             else:
                 if r_name == 'bucket':
