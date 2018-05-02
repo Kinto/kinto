@@ -1211,13 +1211,13 @@ class DeletedRecordsTest:
         self.assertEqual(count, 1)
         self.assertEqual(len(records), 1)
 
-        records, count = self.storage.get_all(parent_id='abc',
-                                              collection_id='c',
-                                              include_deleted=True)
+        records_and_tombstones, count = self.storage.get_all(parent_id='abc',
+                                                             collection_id='c',
+                                                             include_deleted=True)
         self.assertEqual(count, 0)
-        self.assertEqual(len(records), 2)
-        self.assertTrue(records[0]['deleted'])
-        self.assertTrue(records[1]['deleted'])
+        self.assertEqual(len(records_and_tombstones), 2)
+        self.assertTrue(records_and_tombstones[0]['deleted'])
+        self.assertTrue(records_and_tombstones[1]['deleted'])
 
     def test_delete_all_can_delete_partially(self):
         self.create_record({'foo': 'po'})
