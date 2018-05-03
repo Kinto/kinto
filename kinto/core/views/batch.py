@@ -146,6 +146,11 @@ def post_batch(request):
         except httpexceptions.HTTPException as e:
             if e.content_type == 'application/json':
                 resp = e
+                # Since some request in the batch failed, we need to "doom" the parent process
+                # through Pyramid's transaction manager.
+                transaction_manager = request.tm
+                transaction_manager.begin()
+                transaction_manager.doom()
             else:
                 # JSONify raw Pyramid errors.
                 resp = errors.http_error(e)
