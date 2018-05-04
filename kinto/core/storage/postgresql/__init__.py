@@ -600,16 +600,12 @@ class Storage(StorageBase, MigratorMixin):
             SELECT COUNT(id) AS count_total
               FROM collection_filtered
              WHERE NOT deleted
-        ),
-        paginated_records AS (
-            SELECT DISTINCT id
-              FROM collection_filtered
-              {pagination_rules}
         )
          SELECT count_total,
                a.id, as_epoch(a.last_modified) AS last_modified, a.data
-          FROM paginated_records AS p JOIN collection_filtered AS a ON (a.id = p.id),
+          FROM collection_filtered AS a,
                total_filtered
+          {pagination_rules}
           {sorting}
          LIMIT :pagination_limit;
         """
