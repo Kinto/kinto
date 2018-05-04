@@ -297,6 +297,19 @@ class BaseTestStorage:
         self.assertEquals(len(records), 1)
         self.assertEquals(len(records), total_records)
 
+    def test_get_all_parent_id_handles_collisions(self):
+        abc1 = self.create_record(parent_id='abc1', collection_id='c',
+                                  record={'id': 'abc', 'secret_data': 'abc1'})
+        abc2 = self.create_record(parent_id='abc2', collection_id='c',
+                                  record={'id': 'abc', 'secret_data': 'abc2'})
+        records, total_records = self.storage.get_all(parent_id='ab*', collection_id='c',
+                                                      include_deleted=True)
+        self.assertEquals(len(records), 2)
+        self.assertEquals(len(records), total_records)
+        records.sort(key=lambda record: record['secret_data'])
+        self.assertEquals(records[0], abc1)
+        self.assertEquals(records[1], abc2)
+
     def test_get_all_return_all_values(self):
         for x in range(10):
             record = dict(self.record)
