@@ -322,7 +322,7 @@ def extract_record_set(records, filters, sorting,
         paginated = {}
         for rule in pagination_rules:
             values = apply_filters(filtered, rule)
-            paginated.update(((x[id_field], x) for x in values))
+            paginated.update((id(x), x) for x in values)
         paginated = paginated.values()
     else:
         paginated = filtered
