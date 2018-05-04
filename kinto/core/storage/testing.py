@@ -1538,6 +1538,56 @@ class DeletedRecordsTest:
         self.assertEqual(total_records, 10)
         self.assertEqual(len(records), 4)
 
+    def test_get_all_parent_id_paginates_correctly(self):
+        """Verify that pagination doesn't squash or duplicate some records"""
+
+        for parent in range(10):
+            parent_id = 'abc{}'.format(parent)
+            self.storage.create(parent_id=parent_id, collection_id='c',
+                                record={'id': 'some_id', 'secret_data': parent_id})
+
+        real_records, _ = self.storage.get_all(parent_id='abc*', collection_id='c')
+        self.assertEqual(len(real_records), 10)
+
+        def sort_by_secret_data(l):
+            return sorted(l, key=lambda r: r['secret_data'])
+
+        GT = utils.COMPARISON.GT
+        LT = utils.COMPARISON.LT
+        for order in [('secret_data', 1), ('secret_data', -1)]:
+            order_field, order_direction = order
+            sort = [Sort(*order), Sort('last_modified', -1)]
+            pagination_direction = GT if order_direction == 1 else LT
+            for limit in range(1, 10):
+                with self.subTest(order=order, limit=limit):
+                    records = []
+                    pagination = None
+                    while True:
+                        (page, total_records) = self.storage.get_all(
+                            parent_id='abc*', collection_id='c', sorting=sort,
+                            limit=limit, pagination_rules=pagination)
+
+                        self.assertEqual(total_records, len(real_records))
+                        records.extend(page)
+                        if len(records) == total_records:
+                            break
+                        # This should never happen normally, but lets
+                        # us fail on an assert rather than an
+                        # IndexError.
+                        if not page:  # pragma: nocover
+                            break
+                        last_record = page[-1]
+                        threshhold_field = last_record[order_field]
+                        threshhold_lm = last_record['last_modified']
+                        pagination = [
+                            [Filter(order_field, threshhold_field, utils.COMPARISON.EQ),
+                             Filter('last_modified', threshhold_lm, utils.COMPARISON.LT)],
+                            [Filter(order_field, threshhold_field, pagination_direction)]
+                        ]
+
+                    self.assertEqual(sort_by_secret_data(real_records),
+                                     sort_by_secret_data(records))
+
     def test_delete_all_supports_pagination_rules(self):
         for i in range(6):
             self.create_record({'foo': i})
