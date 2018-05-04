@@ -595,6 +595,7 @@ class Storage(StorageBase, MigratorMixin):
                AND collection_id = :collection_id
                {conditions_deleted}
                {conditions_filter}
+             {sorting}
         ),
         total_filtered AS (
             SELECT COUNT(id) AS count_total
@@ -606,7 +607,6 @@ class Storage(StorageBase, MigratorMixin):
           FROM collection_filtered AS a,
                total_filtered
           {pagination_rules}
-          {sorting}
          LIMIT :pagination_limit;
         """
 
