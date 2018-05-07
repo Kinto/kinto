@@ -56,7 +56,7 @@ class TransactionTest(PostgreSQLTest, unittest.TestCase):
         resp = self.app.get('/mushrooms', headers=self.headers)
         self.assertEqual(len(resp.json['data']), 0)
 
-    def test_modifications_are_not_rolled_back_on_4XX_error(self):
+    def test_modifications_are_not_rolled_back_on_401_error(self):
         request_create = {
             'method': 'POST',
             'path': '/mushrooms',
@@ -70,6 +70,24 @@ class TransactionTest(PostgreSQLTest, unittest.TestCase):
         resp = self.app.post_json('/batch', body, headers=self.headers)
         resp = self.app.get('/mushrooms', headers=self.headers)
         self.assertEqual(len(resp.json['data']), 1)
+
+    def test_modifications_are_rolled_back_on_409_error(self):
+        bucket_create = {
+            'method': 'POST',
+            'path': '/mushrooms',
+            'body': {'data': {'name': 'Vesse de loup', 'last_modified': 123}}
+        }
+        bucket_ccreate = {
+            'method': 'POST',
+            'path': '/mushrooms',
+            'body': {'data': {'name': 'Vesse de loup', 'last_modified': 123}}
+        }
+        body = {'requests': [bucket_create, bucket_ccreate]}
+        resp = self.app.post_json('/batch', body, headers=self.headers)
+        response = resp.json['responses'][1]
+        self.assertEqual(response['status'], 409)
+        resp = self.app.get('/mushrooms', headers=self.headers)
+        self.assertEqual(len(resp.json['data']), 0)
 
     def test_modifications_are_rolled_back_on_error_accross_backends(self):
         self.run_failing_post()

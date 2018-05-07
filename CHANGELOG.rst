@@ -7,8 +7,7 @@ This document describes changes between each past release.
 9.1.0 (unreleased)
 ------------------
 
-- Nothing changed yet.
-
+- Batch endpoint now checks for and aborts any parent request if subrequest encounters 409 constraint violation (fixes #1569)
 
 9.0.0 (2018-04-25)
 ------------------
