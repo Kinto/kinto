@@ -86,9 +86,8 @@ class TransactionTest(PostgreSQLTest, unittest.TestCase):
         resp = self.app.post_json('/batch', body, headers=self.headers)
         response = resp.json['responses'][1]
         self.assertEqual(response['status'], 409)
-        resp = self.app.get('/buckets/mushrooms', headers=self.headers)
+        resp = self.app.get('/mushrooms', headers=self.headers)
         self.assertEqual(len(resp.json['data']), 0)
-
 
     def test_modifications_are_rolled_back_on_error_accross_backends(self):
         self.run_failing_post()

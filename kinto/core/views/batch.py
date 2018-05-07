@@ -145,8 +145,10 @@ def post_batch(request):
                                                          use_tweens=False)
         except httpexceptions.HTTPException as e:
             # Since some request in the batch failed, we need to stop the parent request
-            # through Pyramid's transaction manager.
-            if e.status_code == 409 or e.status_code >= 500:
+            # through Pyramid's transaction manager. 5XX errors are already caught by
+            # pyramid_tm's commit_veto
+            # https://github.com/Kinto/kinto/issues/624
+            if e.status_code == 409:
                 request.tm.abort()
 
             if e.content_type == 'application/json':
