@@ -144,13 +144,13 @@ def post_batch(request):
             resp, subrequest = request.follow_subrequest(subrequest,
                                                          use_tweens=False)
         except httpexceptions.HTTPException as e:
+            # Since some request in the batch failed, we need to stop the parent request
+            # through Pyramid's transaction manager.
+            if e.status_code == 409 or e.status_code >= 500:
+                request.tm.abort()
+
             if e.content_type == 'application/json':
                 resp = e
-                # Since some request in the batch failed, we need to "doom" the parent process
-                # through Pyramid's transaction manager.
-                transaction_manager = request.tm
-                transaction_manager.begin()
-                transaction_manager.doom()
             else:
                 # JSONify raw Pyramid errors.
                 resp = errors.http_error(e)
