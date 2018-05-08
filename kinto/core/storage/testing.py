@@ -1541,6 +1541,8 @@ class DeletedRecordsTest:
     def test_get_all_parent_id_paginates_correctly(self):
         """Verify that pagination doesn't squash or duplicate some records"""
 
+        # Create records with different parent IDs, but the same
+        # record ID.
         for parent in range(10):
             parent_id = 'abc{}'.format(parent)
             self.storage.create(parent_id=parent_id, collection_id='c',
@@ -1555,15 +1557,13 @@ class DeletedRecordsTest:
         GT = utils.COMPARISON.GT
         LT = utils.COMPARISON.LT
         for order in [('secret_data', 1), ('secret_data', -1)]:
-            order_field, order_direction = order
             sort = [Sort(*order), Sort('last_modified', -1)]
-            pagination_direction = GT if order_direction == 1 else LT
             for limit in range(1, 10):
                 with self.subTest(order=order, limit=limit):
                     records = []
                     pagination = None
                     while True:
-                        (page, total_records) = self.storage.get_all(
+                        page, total_records = self.storage.get_all(
                             parent_id='abc*', collection_id='c', sorting=sort,
                             limit=limit, pagination_rules=pagination)
 
@@ -1576,7 +1576,11 @@ class DeletedRecordsTest:
                         # IndexError.
                         if not page:  # pragma: nocover
                             break
+                        # Simulate paging though the records as
+                        # though following the logic in Resource._build_pagination_rules.
                         last_record = page[-1]
+                        order_field, order_direction = order
+                        pagination_direction = GT if order_direction == 1 else LT
                         threshhold_field = last_record[order_field]
                         threshhold_lm = last_record['last_modified']
                         pagination = [
