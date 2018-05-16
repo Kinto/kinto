@@ -297,6 +297,19 @@ class BaseTestStorage:
         self.assertEquals(len(records), 1)
         self.assertEquals(len(records), total_records)
 
+    def test_get_all_parent_id_handles_collisions(self):
+        abc1 = self.create_record(parent_id='abc1', collection_id='c',
+                                  record={'id': 'abc', 'secret_data': 'abc1'})
+        abc2 = self.create_record(parent_id='abc2', collection_id='c',
+                                  record={'id': 'abc', 'secret_data': 'abc2'})
+        records, total_records = self.storage.get_all(parent_id='ab*', collection_id='c',
+                                                      include_deleted=True)
+        self.assertEquals(len(records), 2)
+        self.assertEquals(len(records), total_records)
+        records.sort(key=lambda record: record['secret_data'])
+        self.assertEquals(records[0], abc1)
+        self.assertEquals(records[1], abc2)
+
     def test_get_all_return_all_values(self):
         for x in range(10):
             record = dict(self.record)
@@ -1524,6 +1537,60 @@ class DeletedRecordsTest:
             ], **self.storage_kw)
         self.assertEqual(total_records, 10)
         self.assertEqual(len(records), 4)
+
+    def test_get_all_parent_id_paginates_correctly(self):
+        """Verify that pagination doesn't squash or duplicate some records"""
+
+        # Create records with different parent IDs, but the same
+        # record ID.
+        for parent in range(10):
+            parent_id = 'abc{}'.format(parent)
+            self.storage.create(parent_id=parent_id, collection_id='c',
+                                record={'id': 'some_id', 'secret_data': parent_id})
+
+        real_records, _ = self.storage.get_all(parent_id='abc*', collection_id='c')
+        self.assertEqual(len(real_records), 10)
+
+        def sort_by_secret_data(l):
+            return sorted(l, key=lambda r: r['secret_data'])
+
+        GT = utils.COMPARISON.GT
+        LT = utils.COMPARISON.LT
+        for order in [('secret_data', 1), ('secret_data', -1)]:
+            sort = [Sort(*order), Sort('last_modified', -1)]
+            for limit in range(1, 10):
+                with self.subTest(order=order, limit=limit):
+                    records = []
+                    pagination = None
+                    while True:
+                        page, total_records = self.storage.get_all(
+                            parent_id='abc*', collection_id='c', sorting=sort,
+                            limit=limit, pagination_rules=pagination)
+
+                        self.assertEqual(total_records, len(real_records))
+                        records.extend(page)
+                        if len(records) == total_records:
+                            break
+                        # This should never happen normally, but lets
+                        # us fail on an assert rather than an
+                        # IndexError.
+                        if not page:  # pragma: nocover
+                            break
+                        # Simulate paging though the records as
+                        # though following the logic in Resource._build_pagination_rules.
+                        last_record = page[-1]
+                        order_field, order_direction = order
+                        pagination_direction = GT if order_direction == 1 else LT
+                        threshhold_field = last_record[order_field]
+                        threshhold_lm = last_record['last_modified']
+                        pagination = [
+                            [Filter(order_field, threshhold_field, utils.COMPARISON.EQ),
+                             Filter('last_modified', threshhold_lm, utils.COMPARISON.LT)],
+                            [Filter(order_field, threshhold_field, pagination_direction)]
+                        ]
+
+                    self.assertEqual(sort_by_secret_data(real_records),
+                                     sort_by_secret_data(records))
 
     def test_delete_all_supports_pagination_rules(self):
         for i in range(6):

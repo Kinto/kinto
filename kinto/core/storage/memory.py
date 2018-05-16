@@ -319,11 +319,10 @@ def extract_record_set(records, filters, sorting,
     total_records = len(filtered)
 
     if pagination_rules:
-        paginated = {}
+        paginated = []
         for rule in pagination_rules:
             values = apply_filters(filtered, rule)
-            paginated.update(((x[id_field], x) for x in values))
-        paginated = paginated.values()
+            paginated.extend(values)
     else:
         paginated = filtered
 
