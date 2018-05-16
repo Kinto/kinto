@@ -240,7 +240,7 @@ class PaginatedDeleteTest(BasePaginationTest):
         self.assertEquals(int(count), 20)
 
     def test_paginated_delete_second_to_last_gets_next_header(self):
-        all_records = self.resource.collection_get()
+        self.resource.collection_get()
         get_all_headers = self.last_response.headers
         count = int(get_all_headers['Total-Records']) - 1
 
