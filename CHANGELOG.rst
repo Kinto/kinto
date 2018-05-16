@@ -8,6 +8,7 @@ This document describes changes between each past release.
 ------------------
 
 - Batch endpoint now checks for and aborts any parent request if subrequest encounters 409 constraint violation (fixes #1569)
+- Fix a bug where you could not reach the last records via Next-Header when deleting with pagination (fixes #1170)
 
 9.0.0 (2018-04-25)
 ------------------
