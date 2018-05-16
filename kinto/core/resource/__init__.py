@@ -397,8 +397,7 @@ class UserResource:
             self._add_timestamp_header(self.request.response, timestamp=timestamp)
 
             # Add pagination header
-            offset = offset + len(deleted)
-            if limit and len(deleted) == limit and offset < total_records:
+            if limit and len(deleted) == limit and total_records > 1:
                 next_page = self._next_page_url(sorting, limit, lastrecord, offset)
                 self.request.response.headers['Next-Page'] = next_page
         else:

@@ -239,6 +239,24 @@ class PaginatedDeleteTest(BasePaginationTest):
         count = headers['Total-Records']
         self.assertEquals(int(count), 20)
 
+    def test_paginated_delete_second_to_last_gets_next_header(self):
+        all_records = self.resource.collection_get()
+        get_all_headers = self.last_response.headers
+        count = int(get_all_headers['Total-Records']) - 1
+
+        self.validated['querystring'] = {'_limit': 1}
+        headers = []
+        for i in range(count):
+            self.resource.collection_delete()
+            headers.append(self.last_response.headers)
+            self._setup_next_page()
+
+        self.resource.collection_delete()
+        headers.append(self.last_response.headers)
+
+        self.assertIn('Next-Page', headers[count - 1])
+        self.assertNotIn('Next-Page', headers[count])
+
     def test_token_cannot_be_reused_twice(self):
         self.resource.request.method = "DELETE"
         self.validated['querystring']['_limit'] = 3
