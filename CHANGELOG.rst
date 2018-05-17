@@ -4,6 +4,14 @@ Changelog
 This document describes changes between each past release.
 
 
+9.0.1 (unreleased)
+------------------
+
+**Internal changes**
+
+- Upgrage to kinto-admin v1.17.1
+
+
 9.0.0 (2018-04-25)
 ------------------
 
