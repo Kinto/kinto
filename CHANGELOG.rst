@@ -14,6 +14,10 @@ This document describes changes between each past release.
 **Bug fixes**
 
 - Fix a bug where you could not reach the last records via Next-Header when deleting with pagination (fixes #1170)
+- Slight optimizations on the ``get_all`` query in the Postgres
+  storage backend which should make it faster for result sets that
+  have a lot of records (#1622). This is the first change meant to
+  address #1507, though more can still be done.
 
 **Internal changes**
 
