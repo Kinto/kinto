@@ -7,8 +7,18 @@ This document describes changes between each past release.
 9.1.0 (unreleased)
 ------------------
 
+**API**
+
 - Batch endpoint now checks for and aborts any parent request if subrequest encounters 409 constraint violation (fixes #1569)
+
+**Bug fixes**
+
 - Fix a bug where you could not reach the last records via Next-Header when deleting with pagination (fixes #1170)
+
+**Internal changes**
+
+- Upgrage to kinto-admin v1.17.1
+
 
 9.0.0 (2018-04-25)
 ------------------
