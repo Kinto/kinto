@@ -9,6 +9,7 @@ from kinto.core import errors
 from kinto.core import Service
 from kinto.core.errors import ErrorSchema
 from kinto.core.utils import merge_dicts, build_request, build_response
+from kinto.core.resource.viewset import CONTENT_TYPES
 
 
 subrequest_logger = logging.getLogger('subrequest.summary')
@@ -112,6 +113,7 @@ batch = Service(name='batch', path='/batch',
 
 @batch.post(schema=BatchRequest,
             validators=(colander_validator,),
+            content_type=CONTENT_TYPES,
             permission=NO_PERMISSION_REQUIRED,
             tags=['Batch'], operation_id='batch',
             response_schemas=batch_responses)
