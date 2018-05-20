@@ -662,6 +662,7 @@ It's possible to trigger notification on default actions for specific objects li
 bucket, collections or record.
 
 .. code-block:: ini
+
     kinto.event_listeners.redis.actions = create
     kinto.event_listeners.redis.resources = collection
     kinto.event_listeners.redis.resource_ids = /buckets/mybucket
@@ -673,6 +674,7 @@ trigger the web hook and generate a notification.
 More examples for ``create`` action:
 
 .. code-block:: ini
+
     kinto.event_listeners.redis.actions = create
     kinto.event_listeners.redis.resources = record
     kinto.event_listeners.redis.resource_ids = /buckets/mybucket/collections/mycollection
@@ -687,6 +689,7 @@ The following setting would trigger notification when an existing collection myc
 resource is updated in mybucket.
 
 .. code-block:: ini
+
     kinto.event_listeners.redis.actions = update
     kinto.event_listeners.redis.resources = collection
     kinto.event_listeners.redis.resource_ids = /buckets/mybucket/collections/mycollection
@@ -697,6 +700,7 @@ More examples for ``update`` action:
 Updating(or deleting) a bucket, collection, record would boil down to the following respectively:
 
 .. code-block:: ini
+
     kinto.event_listeners.redis.resource_ids = /buckets/mybucketname
     kinto.event_listeners.redis.resource_ids = /buckets/mybucketname/collections/mycollection
     kinto.event_listeners.redis.resource_ids = /buckets/mybucketname/collections/mycollection/records/dasdad-addsa-saddaad
