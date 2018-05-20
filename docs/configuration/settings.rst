@@ -685,6 +685,7 @@ mycollection in mybucket.
 Generating a notification on creation of a specified bucket is not supported yet.
 
 Actions ``update`` and ``delete``
+
 The following setting would trigger notification when an existing collection mycollection
 resource is updated in mybucket.
 
@@ -697,6 +698,7 @@ resource is updated in mybucket.
 User is expected to specify the name of the resource they want to update(or delete).
 
 More examples for ``update`` action:
+
 Updating(or deleting) a bucket, collection, record would boil down to the following respectively:
 
 .. code-block:: ini
