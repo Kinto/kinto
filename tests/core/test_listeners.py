@@ -108,39 +108,261 @@ class ListenerSetupTest(unittest.TestCase):
 
         self.assertFalse(self.demo_mocked.return_value.called)
 
+    # uri field is blank in utils.view_lookup
+    # and there us no upath_info field in request
     @mock.patch('kinto.core.utils.parse_resource',
-                return_value={'bucket': 'b_id',
-                              'collection': 'c_id'})
+                return_value={'bucket': 'bid',
+                              'collection': 'cid'})
     @mock.patch('kinto.core.utils.view_lookup',
                 return_value=('record',
-                              {'bucket_id': 'b_id', 'collection_id': 'c_id'}))
-    def test_callback_called_when_resource_id_is_not_filetered(self, view_lookup, parse_resource):
+                              {'bucket_id': 'bid', 'collection_id': 'cid'}))
+    def test_callback_is_called_when_collection_resource_ids_match(
+            self, parse_resource, view_lookup):
         config = self.make_app({
             'event_listeners': 'demo',
             'event_listeners.demo.use': 'tests.core.listeners',
             'event_listeners.demo.resources': 'record',
-            'event_listeners.demo.resource_ids': '/buckets/b_id/collections/c_id',
+            'event_listeners.demo.resource_ids': '/buckets/bid/collections/cid',
         })
-        ev = ResourceChanged({'action': ACTIONS.CREATE.value}, [], Request())
-        config.registry.notify(ev)
+        event = ResourceChanged({'action': ACTIONS.CREATE.value,
+                                 'resource_name': 'record',
+                                 'resource_id': '/buckets/bid/collections/cid'
+                                 }, [], Request())
+        config.registry.notify(event)
 
         self.assertTrue(self.demo_mocked.return_value.called)
 
     @mock.patch('kinto.core.utils.parse_resource',
-                return_value={'bucket': 'other_b_id',
-                              'collection': 'c_id'})
+                return_value={'bucket': 'bid',
+                              'collection': 'cid'})
     @mock.patch('kinto.core.utils.view_lookup',
                 return_value=('record',
-                              {'bucket_id': 'b_id', 'collection_id': 'c_id'}))
-    def test_callback_not_called_when_resource_id_is_filetered(self, view_lookup, parse_resource):
+                              {'bucket_id': 'bid', 'collection_id': 'cid2'}))
+    def test_callback_is_not_called_when_collection_resource_id_doesnt_match(
+            self, parse_resource, view_lookup):
         config = self.make_app({
             'event_listeners': 'demo',
             'event_listeners.demo.use': 'tests.core.listeners',
             'event_listeners.demo.resources': 'record',
-            'event_listeners.demo.resource_ids': '/buckets/b_id/collections/c_id',
+            'event_listeners.demo.resource_ids': '/buckets/bid/collections/cid2',
         })
-        ev = ResourceChanged({'action': ACTIONS.CREATE.value}, [], Request())
-        config.registry.notify(ev)
+        event = ResourceChanged({'action': ACTIONS.CREATE.value,
+                                 'resource_name': 'record',
+                                 'resource_ids': '/buckets/bid/collections/cid'
+                                 }, [], Request())
+        config.registry.notify(event)
+
+        self.assertFalse(self.demo_mocked.return_value.called)
+
+    @mock.patch('kinto.core.utils.parse_resource',
+                return_value={'bucket': 'bid'})
+    @mock.patch('kinto.core.utils.view_lookup',
+                return_value=('collection',
+                              {'bucket_id': 'bid'}))
+    def test_callback_is_called_when_bucket_resource_id_match(
+            self, parse_resource, view_lookup):
+        config = self.make_app({
+            'event_listeners': 'demo',
+            'event_listeners.demo.use': 'tests.core.listeners',
+            'event_listeners.demo.resources': 'collections',
+            'event_listeners.demo.resource_ids': '/buckets/bid',
+        })
+        event = ResourceChanged({'action': ACTIONS.CREATE.value,
+                                 'resource_name': 'collections',
+                                 'resource_ids': '/buckets/bid'
+                                 }, [], Request())
+        config.registry.notify(event)
+
+        self.assertTrue(self.demo_mocked.return_value.called)
+
+    @mock.patch('kinto.core.utils.parse_resource',
+                return_value={'bucket': 'bid'})
+    @mock.patch('kinto.core.utils.view_lookup',
+                return_value=('collection',
+                              {'bucket_id': 'bid2'}))
+    def test_callback_is_not_called_when_bucket_resource_id_doesnt_match(
+            self, parse_resource, view_lookup):
+        config = self.make_app({
+            'event_listeners': 'demo',
+            'event_listeners.demo.use': 'tests.core.listeners',
+            'event_listeners.demo.resources': 'collections',
+            'event_listeners.demo.resource_ids': '/buckets/bid2',
+        })
+        event = ResourceChanged({'action': ACTIONS.CREATE.value,
+                                 'resource_name': 'collections',
+                                 'resource_ids': '/buckets/bid'
+                                 }, [], Request())
+        config.registry.notify(event)
+
+        self.assertFalse(self.demo_mocked.return_value.called)
+
+    @mock.patch('kinto.core.utils.parse_resource',
+                return_value={'bucket': 'bid', 'collection': 'cid'})
+    @mock.patch('kinto.core.utils.view_lookup',
+                return_value=('collection',
+                              {'bucket_id': 'bid', 'id': 'cid'}))
+    def test_callback_is_called_on_update_when_collection_resource_id_match(
+            self, parse_resource, view_lookup):
+        config = self.make_app({
+            'event_listeners': 'demo',
+            'event_listeners.demo.use': 'tests.core.listeners',
+            'event_listeners.demo.resources': 'collection',
+            'event_listeners.demo.resource_ids': '/buckets/bid/collections/cid',
+        })
+        event = ResourceChanged({'action': ACTIONS.UPDATE.value,
+                                 'resource_name': 'collection',
+                                 'resource_id': '/buckets/bid/collections/cid'
+                                 }, [], Request())
+        config.registry.notify(event)
+
+        self.assertTrue(self.demo_mocked.return_value.called)
+
+    @mock.patch('kinto.core.utils.parse_resource',
+                return_value={'bucket': 'bid',
+                              'collection': 'cid'})
+    @mock.patch('kinto.core.utils.view_lookup',
+                return_value=('collection',
+                              {'bucket_id': 'bid', 'id': 'cid2'}))
+    def test_callback_is_not_called_on_update_when_collection_resource_id_doesnt_match(
+            self, parse_resource, view_lookup):
+        config = self.make_app({
+            'event_listeners': 'demo',
+            'event_listeners.demo.use': 'tests.core.listeners',
+            'event_listeners.demo.resources': 'collection',
+            'event_listeners.demo.resource_ids': '/buckets/bid/collections/cid2',
+        })
+        event = ResourceChanged({'action': ACTIONS.UPDATE.value,
+                                 'resource_name': 'collection',
+                                 'resource_ids': '/buckets/bid/collections/cid'
+                                 }, [], Request())
+        config.registry.notify(event)
+
+        self.assertFalse(self.demo_mocked.return_value.called)
+
+    @mock.patch('kinto.core.utils.parse_resource',
+                return_value={'bucket': 'bid'})
+    @mock.patch('kinto.core.utils.view_lookup',
+                return_value=('bucket',
+                              {'id': 'bid'}))
+    def test_callback_is_called_on_update_when_bucket_resource_id_match(
+            self, parse_resource, view_lookup):
+        config = self.make_app({
+            'event_listeners': 'demo',
+            'event_listeners.demo.use': 'tests.core.listeners',
+            'event_listeners.demo.resources': 'bucket',
+            'event_listeners.demo.resource_ids': '/buckets/bid',
+        })
+        event = ResourceChanged({'action': ACTIONS.UPDATE.value,
+                                 'resource_name': 'bucket',
+                                 'resource_ids': '/buckets/bid'
+                                 }, [], Request())
+        config.registry.notify(event)
+
+        self.assertTrue(self.demo_mocked.return_value.called)
+
+    # uri field is blank and there us no upath_info field in request either
+    @mock.patch('kinto.core.utils.parse_resource',
+                return_value={'bucket': 'bid'})
+    @mock.patch('kinto.core.utils.view_lookup',
+                return_value=('bucket',
+                              {'id': 'bid2'}))
+    def test_callback_is_not_called_on_update_when_bucket_resource_id_doesnt_match(
+            self, parse_resource, view_lookup):
+        config = self.make_app({
+            'event_listeners': 'demo',
+            'event_listeners.demo.use': 'tests.core.listeners',
+            'event_listeners.demo.resources': 'bucket',
+            'event_listeners.demo.resource_ids': '/buckets/bid2',
+        })
+        event = ResourceChanged({'action': ACTIONS.UPDATE.value,
+                                 'resource_name': 'bucket',
+                                 'resource_ids': '/buckets/bid'
+                                 }, [], Request())
+        config.registry.notify(event)
+
+        self.assertFalse(self.demo_mocked.return_value.called)
+
+    @mock.patch('kinto.core.utils.parse_resource',
+                return_value={'bucket': 'bid', 'collection': 'cid', 'record': 'rid'})
+    @mock.patch('kinto.core.utils.view_lookup',
+                return_value=('record', {'bucket_id': 'bid', 'collection_id': 'cid', 'id': 'rid'}))
+    def test_callback_is_called_on_update_when_record_resource_id_match(
+            self, parse_resource, view_lookup):
+        config = self.make_app({
+            'event_listeners': 'demo',
+            'event_listeners.demo.use': 'tests.core.listeners',
+            'event_listeners.demo.resources': 'record',
+            'event_listeners.demo.resource_ids': '/buckets/bid/collections/cid/records/rid',
+        })
+        event = ResourceChanged({'action': ACTIONS.UPDATE.value,
+                                 'resource_name': 'record',
+                                 'resource_ids': '/buckets/bid/collections/cid/records/rid'
+                                 }, [], Request())
+        config.registry.notify(event)
+
+        self.assertTrue(self.demo_mocked.return_value.called)
+
+    # uri field is blank and there us no upath_info field in request either
+    @mock.patch('kinto.core.utils.parse_resource',
+                return_value={'bucket': 'bid', 'collection': 'cid', 'record': 'rid'})
+    @mock.patch('kinto.core.utils.view_lookup',
+                return_value=('record',
+                              {'bucket_id': 'bid', 'collection_id': 'cid', 'id': 'rid2'}))
+    def test_callback_is_not_called_on_update_when_record_resource_id_doesnt_match(
+            self, parse_resource, view_lookup):
+        config = self.make_app({
+            'event_listeners': 'demo',
+            'event_listeners.demo.use': 'tests.core.listeners',
+            'event_listeners.demo.resources': 'record',
+            'event_listeners.demo.resource_ids': '/buckets/bid/collections/cid/records/rid',
+        })
+        event = ResourceChanged({'action': ACTIONS.UPDATE.value,
+                                 'resource_name': 'record',
+                                 'resource_ids': '/buckets/bid/collections/cid/records/rid2'
+                                 }, [], Request())
+        config.registry.notify(event)
+
+        self.assertFalse(self.demo_mocked.return_value.called)
+
+    @mock.patch('kinto.core.utils.parse_resource',
+                return_value={'bucket': 'bid', 'collection': 'cid', 'record': 'rid'})
+    @mock.patch('kinto.core.utils.view_lookup',
+                return_value=('toad',
+                              {'bucket_id': 'bid', 'collection_id': 'cid', 'id': 'rid2'}))
+    def test_callback_is_not_called_on_update_of_invalid_resource(
+            self, parse_resource, view_lookup):
+        config = self.make_app({
+            'event_listeners': 'demo',
+            'event_listeners.demo.use': 'tests.core.listeners',
+            'event_listeners.demo.resources': 'toad',
+            'event_listeners.demo.resource_ids': '/buckets/bid/collections/cid/records/rid',
+        })
+        event = ResourceChanged({'action': ACTIONS.UPDATE.value,
+                                 'resource_name': 'toad',
+                                 'resource_ids': '/buckets/bid/collections/cid/records/rid2'
+                                 }, [], Request())
+        config.registry.notify(event)
+
+        self.assertFalse(self.demo_mocked.return_value.called)
+
+    @mock.patch('kinto.core.utils.parse_resource',
+                return_value={'bucket': 'bid', 'collection': 'cid', 'record': 'rid'})
+    @mock.patch('kinto.core.utils.view_lookup',
+                return_value=('toad',
+                              {'bucket_id': 'bid', 'collection_id': 'cid', 'id': 'rid2'}))
+    def test_callback_is_not_called_on_create_of_invalid_resource(
+            self, parse_resource, view_lookup):
+        config = self.make_app({
+            'event_listeners': 'demo',
+            'event_listeners.demo.use': 'tests.core.listeners',
+            'event_listeners.demo.resources': 'toad',
+            'event_listeners.demo.resource_ids': '/buckets/bid/collections/cid/records/rid',
+        })
+        event = ResourceChanged({'action': ACTIONS.CREATE.value,
+                                 'resource_name': 'toad',
+                                 'resource_ids': '/buckets/bid/collections/cid/records/rid2'
+                                 }, [], Request())
+        config.registry.notify(event)
 
         self.assertFalse(self.demo_mocked.return_value.called)
 
@@ -165,20 +387,11 @@ class ListenerSetupTest(unittest.TestCase):
 
         self.assertTrue(self.demo_mocked.return_value.called)
 
-    @mock.patch('kinto.core.utils.parse_resource',
-                return_value={'bucket': 'b_id',
-                              'collection': 'c_id'})
-    @mock.patch('kinto.core.utils.view_lookup',
-                return_value=('record',
-                              {'bucket_id': 'b_id', 'collection_id': 'c_id'}))
-    def test_same_callback_is_called_for_read_and_write_specified(self,
-                                                                  view_lookup, parse_resource):
+    def test_same_callback_is_called_for_read_and_write_specified(self):
         config = self.make_app({
             'event_listeners': 'demo',
             'event_listeners.demo.use': 'tests.core.listeners',
             'event_listeners.demo.actions': 'read create delete',
-            'event_listeners.demo.resources': 'record',
-            'event_listeners.demo.resource_ids': '/buckets/b_id/collections/c_id',
         })
         ev = ResourceRead({'action': ACTIONS.READ.value}, [], Request())
         config.registry.notify(ev)
