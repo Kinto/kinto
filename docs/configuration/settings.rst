@@ -649,7 +649,7 @@ data in the ``queue`` Redis list.
 Filtering
 :::::::::
 
-It is possible to filter events by action and/or types of object. By
+It is possible to filter events by action and/or types of object and/or object id. By
 default actions ``create``, ``update`` and ``delete`` are notified
 for every kinds of objects.
 
@@ -657,6 +657,49 @@ for every kinds of objects.
 
     kinto.event_listeners.redis.actions = create
     kinto.event_listeners.redis.resources = bucket collection
+
+It's possible to trigger notification on default actions for specific objects like
+bucket, collections or record.
+
+.. code-block:: ini
+    kinto.event_listeners.redis.actions = create
+    kinto.event_listeners.redis.resources = collection
+    kinto.event_listeners.redis.resource_ids = /buckets/mybucket
+
+Above stated setting would trigger notification when a new collection resource is
+created in mybucket. User is expected to pass the path of the resource parent for us to
+trigger the web hook and generate a notification.
+
+More examples for ``create`` action:
+
+.. code-block:: ini
+    kinto.event_listeners.redis.actions = create
+    kinto.event_listeners.redis.resources = record
+    kinto.event_listeners.redis.resource_ids = /buckets/mybucket/collections/mycollection
+
+Above stated setting would generate a notification when a record is created in collection called
+mycollection in mybucket.
+
+Generating a notification on creation of a specified bucket is not supported yet.
+
+Actions ``update`` and ``delete``
+The following setting would trigger notification when an existing collection mycollection
+resource is updated in mybucket.
+
+.. code-block:: ini
+    kinto.event_listeners.redis.actions = update
+    kinto.event_listeners.redis.resources = collection
+    kinto.event_listeners.redis.resource_ids = /buckets/mybucket/collections/mycollection
+
+User is expected to specify the name of the resource they want to update(or delete).
+
+More examples for ``update`` action:
+Updating(or deleting) a bucket, collection, record would boil down to the following respectively:
+
+.. code-block:: ini
+    kinto.event_listeners.redis.resource_ids = /buckets/mybucketname
+    kinto.event_listeners.redis.resource_ids = /buckets/mybucketname/collections/mycollection
+    kinto.event_listeners.redis.resource_ids = /buckets/mybucketname/collections/mycollection/records/dasdad-addsa-saddaad
 
 Third-party
 :::::::::::
