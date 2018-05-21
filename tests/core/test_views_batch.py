@@ -105,6 +105,11 @@ class BatchViewTest(BaseWebTest, unittest.TestCase):
                              headers={'Content-Type': 'application/json'})
         self.assertIn('Invalid JSON', resp.json['message'])
 
+    def test_batch_should_reject_unaccepted_request_content_type(self):
+        request = {'requests': [{'path': '/v0/mushrooms'}]}
+        self.app.post('/batch', request, status=415,
+                      headers={'Content-Type': 'text/plain'})
+
     def test_responses_are_resolved_with_api_with_prefix(self):
         request = {'path': '/'}
         body = {'requests': [request]}

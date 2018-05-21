@@ -18,6 +18,7 @@ This document describes changes between each past release.
   storage backend which should make it faster for result sets that
   have a lot of records (#1622). This is the first change meant to
   address #1507, though more can still be done.
+- Fix a bug where the batch route accepted all content-types (fixes #1529)
 
 **Internal changes**
 
