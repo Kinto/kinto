@@ -1,11 +1,11 @@
 .. _tutorial-github:
 
-How to setup Github authentication?
+How to setup GitHub authentication?
 ===================================
 
-In this tutorial, we will authenticate users using Github.
+In this tutorial, we will authenticate users using GitHub.
 
-Users obtain a Bearer token from Github and use it in an ``Authenticatìon`` header.
+Users obtain a Bearer token from GitHub and use it in an ``Authenticatìon`` header.
 Leveraging Kinto pluggability, a custom authentication policy is specified in settings in order to validate it.
 
 Custom authentication
@@ -20,7 +20,7 @@ Create a file :file:`kinto_github.py` with the following scaffold:
     from zope.interface import implementer
 
     @implementer(IAuthenticationPolicy)
-    class GithubAuthenticationPolicy(CallbackAuthenticationPolicy):
+    class GitHubAuthenticationPolicy(CallbackAuthenticationPolicy):
         def __init__(self, realm='Realm'):
             self.realm = realm
 
@@ -33,7 +33,7 @@ Create a file :file:`kinto_github.py` with the following scaffold:
 
         def _get_credentials(self, request):
             authorization = request.headers.get('Authorization', '')
-            print('Check Github')
+            print('Check GitHub')
 
 
 Don't be scared by those lines. It just implements the necessary methods to match the `IAuthenticationPolicy <http://docs.pylonsproject.org/projects/pyramid/en/latest/api/interfaces.html#pyramid.interfaces.IAuthenticationPolicy>`_ Pyramid interface.
@@ -74,7 +74,7 @@ enable a new policy pointing to your Python class:
 
     multiauth.policies = github basicauth
 
-    multiauth.policy.github.use = kinto_github.GithubAuthenticationPolicy
+    multiauth.policy.github.use = kinto_github.GitHubAuthenticationPolicy
 
 Kinto should start without errors.
 
@@ -116,14 +116,14 @@ should see its output in the console when a request comes in.
 
     Starting server in PID 8079.
     serving on http://0.0.0.0:8888
-    Check Github
+    Check GitHub
     2016-01-26 11:59:04,918 INFO  [kinto.core.initialization][waitress] "GET   /v1/" 200 (1 ms) request.summary lang=None; uid=63279e82e351f8f318eea09ae5e3bcfc3b9e3eee06e9befacbf17102e0595dad; errno=None; agent=HTTPie/0.9.2; authn_type=BasicAuth; time=2016-01-26T11:59:04
 
 
-Github token validation
+GitHub token validation
 -----------------------
 
-We don't want to make a call to the Github API if the request does not use a Github ``Bearer`` token.
+We don't want to make a call to the GitHub API if the request does not use a GitHub ``Bearer`` token.
 
 Let's limit this policy to requests with ``github+Bearer`` in ``Authorization`` header.
 
@@ -137,7 +137,7 @@ Let's limit this policy to requests with ``github+Bearer`` in ``Authorization`` 
     GITHUB_METHOD = 'github+bearer'
 
     @implementer(IAuthenticationPolicy)
-    class GithubAuthenticationPolicy(CallbackAuthenticationPolicy):
+    class GitHubAuthenticationPolicy(CallbackAuthenticationPolicy):
         def __init__(self, realm='Realm'):
             self.realm = realm
 
@@ -157,10 +157,10 @@ Let's limit this policy to requests with ``github+Bearer`` in ``Authorization`` 
                 return None
             if authmeth != GITHUB_METHOD.lower():
                 return None
-            print('Check Github')
+            print('Check GitHub')
 
 
-Now a request with Basic Authentication should not print `Check Github` in the
+Now a request with Basic Authentication should not print `Check GitHub` in the
 server console but this one should:
 
 ::
@@ -168,10 +168,10 @@ server console but this one should:
     $ http http://localhost:8888/v1/ "Authorization:github+Bearer foobartoken"
 
 
-Validate token while obtaining user id from Github
+Validate token while obtaining user id from GitHub
 ''''''''''''''''''''''''''''''''''''''''''''''''''
 
-We will simply make a call to the Github user API and try to obtain the ``login`` attribute (i.e. user name).
+We will simply make a call to the GitHub user API and try to obtain the ``login`` attribute (i.e. user name).
 
 .. code-block:: python
     :emphasize-lines: 1,3,8,33-42
@@ -185,10 +185,10 @@ We will simply make a call to the Github user API and try to obtain the ``login`
 
     logger = logging.getLogger(__name__)
 
-    GITHUB_METHOD = 'Github+Bearer'
+    GITHUB_METHOD = 'GitHub+Bearer'
 
     @implementer(IAuthenticationPolicy)
-    class GithubAuthenticationPolicy(CallbackAuthenticationPolicy):
+    class GitHubAuthenticationPolicy(CallbackAuthenticationPolicy):
         def __init__(self, realm='Realm'):
             self.realm = realm
 
@@ -236,7 +236,7 @@ with a |status-401| error response:
     Content-Type: application/json; charset=UTF-8
     Date: Tue, 26 Jan 2016 11:07:05 GMT
     Server: waitress
-    Www-Authenticate: Github+Bearer realm="Realm"
+    Www-Authenticate: GitHub+Bearer realm="Realm"
     Www-Authenticate: Basic realm="Realm"
 
     {
@@ -253,11 +253,11 @@ Test it!
 Obtain a Personal Access token
 ''''''''''''''''''''''''''''''
 
-Create a *Personal access token* using the Github API using your user/pass:
+Create a *Personal access token* using the GitHub API using your user/pass:
 
 .. code-block:: shell
 
-    $ echo '{"note": "Kinto Github tutorial"}' | http POST https://api.github.com/authorizations --auth token:user-token
+    $ echo '{"note": "Kinto GitHub tutorial"}' | http POST https://api.github.com/authorizations --auth token:user-token
 
 It is returned in the ``token`` attribute in the JSON response:
 
@@ -271,7 +271,7 @@ It is returned in the ``token`` attribute in the JSON response:
     {
         "app": {
             "client_id": "00000000000000000000",
-            "name": "Kinto Github tutorial",
+            "name": "Kinto GitHub tutorial",
             "url": "https://developer.github.com/v3/oauth_authorizations/"
         },
         "created_at": "2016-01-26T11:09:02Z",
@@ -289,7 +289,7 @@ It is returned in the ``token`` attribute in the JSON response:
 
 .. note::
 
-    If you have two-factor auth enabled, please refer to the `Github API documentation <https://developer.github.com/v3/oauth/>`_
+    If you have two-factor auth enabled, please refer to the `GitHub API documentation <https://developer.github.com/v3/oauth/>`_
     for obtaining a Personal access token using the appropriate headers.
 
 
@@ -343,7 +343,7 @@ It is much more convenient than Basic Auth identifiers!
 Cache the token validation
 ''''''''''''''''''''''''''
 
-Using the following snippet you can cache the association between a token and the user id, in order to avoid making a request to Github each time.
+Using the following snippet you can cache the association between a token and the user id, in order to avoid making a request to GitHub each time.
 
 It uses Kinto's internal cache backend, if configured:
 
@@ -369,7 +369,7 @@ For example:
 
 * Contribute it as built-in policy in Kinto! (*We need you!*)
 * Contribute another policy based on another method (e.g. Twitter, JSON Web token etc.)
-* Build a Webpage and try obtaining a token in a Web flow (`see Github docs <https://developer.github.com/v3/oauth/>`_)
-* Allow passing the Github token in the querystring in addition to ``Authorization`` header (*for convience*)
+* Build a Webpage and try obtaining a token in a Web flow (`see GitHub docs <https://developer.github.com/v3/oauth/>`_)
+* Allow passing the GitHub token in the querystring in addition to ``Authorization`` header (*for convience*)
 
 Don't hesitate to contact us!

@@ -7,7 +7,9 @@ This document describes changes between each past release.
 9.1.1 (unreleased)
 ------------------
 
-- Nothing changed yet.
+**Internal changes**
+
+- Correct spelling of GitHub.
 
 
 9.1.0 (2018-05-21)
@@ -1086,7 +1088,7 @@ Protocol is now at version **1.7**. See `API changelog`_.
 
 - Mention in groups documentation that the principal of a group to be used in a permissions
   definition is the full URI (e.g. ``"write": ["/buckets/blog/groups/authors"]``)
-- Fix typo in Github tutorial (thanks @SwhGo_oN, #673)
+- Fix typo in GitHub tutorial (thanks @SwhGo_oN, #673)
 - New Kinto logo (thanks @AymericFaivre, #676)
 - Add a slack badge to the README (#675)
 - Add new questions on FAQ (thanks @enguerran, #678)
@@ -1382,7 +1384,7 @@ Highlights:
 
 - Add tutorials about notifications (ref #353)
 - Add tutorial how to write a plugin (#382)
-- Add tutorial how to setup Github authentication (#390)
+- Add tutorial how to setup GitHub authentication (#390)
 - Move default values to dedicated column in docs (fixes #255)
 - Move run-kinto to get-started and remove platform specific installation
   instructions (#373)
