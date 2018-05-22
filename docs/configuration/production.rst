@@ -387,7 +387,7 @@ Running with uWSGI
     pip install uwsgi
 
 To run the application using uWSGI, an **app.wsgi** file must be picked up.
-It is available in the *Kinto* Python package or can be downloaded from Github::
+It is available in the *Kinto* Python package or can be downloaded from GitHub::
 
     wget https://raw.githubusercontent.com/Kinto/kinto/master/app.wsgi
 

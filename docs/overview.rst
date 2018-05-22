@@ -43,7 +43,7 @@ Use cases
 - **A generic Web database**: JSON store for mobile and Web apps, games, or IoT...
 - **Quickly prototype frontend applications**: don't lose time with server stuff,
   the backend for your next single page app is already there.
-- **Applications as static files**: just host your apps on Github pages, your storage backend
+- **Applications as static files**: just host your apps on GitHub pages, your storage backend
   is elsewhere!
 - **Offline-first applications**: data can also be stored locally and published later.
 - **Build collaborative applications** with real time updates and fine-grained permissions.

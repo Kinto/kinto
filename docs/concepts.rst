@@ -73,7 +73,7 @@ Authentication
 Kinto doesn't provide users management, like user sign-up, password modification, etc.
 
 Kinto can rely on a third-party called "`Identity provider <https://en.wikipedia.org/wiki/Identity_provider>`_"
-like *Auth0*, *Github* or *Google* in order to authenticate the incoming request and assign a :term:`user id`.
+like *Auth0*, *GitHub* or *Google* in order to authenticate the incoming request and assign a :term:`user id`.
 
 .. _concepts-permissions:
 

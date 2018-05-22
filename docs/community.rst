@@ -4,7 +4,7 @@
 Community
 #########
 
-You can check out Kinto on Github at https://github.com/Kinto/kinto/.
+You can check out Kinto on GitHub at https://github.com/Kinto/kinto/.
 
 .. _communication_channels:
 
@@ -68,7 +68,7 @@ Write documentation
 official docs, in docstrings, or even on the Web in blog posts,
 articles, and such.
 
-This official documentation is maintained in `Github
+This official documentation is maintained in `GitHub
 <https://github.com/Kinto/kinto/>`_. The ``docs`` folder contains the documentation sources in `reStructuredText <https://en.wikipedia.org/wiki/ReStructuredText>`_ format. And you can generate the docs locally with::
 
     make docs
@@ -299,9 +299,9 @@ Step 3
 
 As a final step:
 
-- Close the milestone in Github
-- Create next milestone in Github in the case of a major release
-- Add entry in Github release page
+- Close the milestone in GitHub
+- Create next milestone in GitHub in the case of a major release
+- Add entry in GitHub release page
 - Check that the version in ReadTheDocs is up-to-date
 - Check that a Docker image was built
 - Send mail to ML (If major release)

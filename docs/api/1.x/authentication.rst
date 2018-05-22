@@ -35,7 +35,7 @@ Low tech included
 Kinto has no third-party policy included (yet!), and only provides a policy based on
 Basic Authentication.
 
-Depending on your use case, you may want to plug Github, Facebook, Google, or your
+Depending on your use case, you may want to plug GitHub, Facebook, Google, or your
 company identity provider. It is rather easy, :ref:`follow our tutorial <tutorial-github>`!
 
 .. note::
@@ -221,7 +221,7 @@ Some possible strategies:
   charge of user and token management (generate, refresh, validate, ...).
   `See this example with Django <https://django-oauth-toolkit.readthedocs.io/en/latest/tutorial/tutorial_01.html>`_.
 
-You can also read our :ref:`tutorial about how to plug the Github authorisation backend <tutorial-github>`.
+You can also read our :ref:`tutorial about how to plug the GitHub authorisation backend <tutorial-github>`.
 
 
 .. _authentication-openid:
