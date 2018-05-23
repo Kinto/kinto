@@ -173,8 +173,7 @@ class PermissionsSchema(resource.ResourceSchema):
                    description='List of user permissions',
                    collection_path='/permissions',
                    record_path=None,
-                   collection_methods=('GET',),
-                   permission=NO_PERMISSION_REQUIRED)
+                   collection_methods=('GET',))
 class Permissions(resource.ShareableResource):
 
     schema = PermissionsSchema
