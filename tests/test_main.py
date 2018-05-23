@@ -52,6 +52,14 @@ class TestMain(unittest.TestCase):
                 content = f.read()
             assert 'redis' in content
 
+    def test_cli_init_asks_until_cache_backend_is_valid(self):
+        with mock.patch("kinto.__main__.input", create=True, side_effect=["2", "21", "2"]):
+            res = main(['init', '--ini', TEMP_KINTO_INI])
+            assert res == 0
+            with open(TEMP_KINTO_INI) as f:
+                content = f.read()
+            assert 'redis' in content
+
     def test_fails_if_not_enough_args(self):
         with mock.patch('sys.stderr', new_callable=StringIO) as mock_stderr:
             with pytest.raises(SystemExit) as excinfo:
