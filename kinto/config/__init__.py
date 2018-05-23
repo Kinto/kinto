@@ -31,10 +31,12 @@ def render_template(template, destination, **kwargs):
 def get_cache_backend_url(cache_be_value):
     if cache_be_value == 'kinto.core.cache.postgresql':
         url = 'postgres://postgres:postgres@localhost/postgres'
-    elif cache_be_value == 'kinto_redis.cache':
+    elif cache_be_value == 'kinto.core.cache.redis':
         url = 'redis://localhost:6379' + '/2'
     elif cache_be_value == 'kinto.core.cache.memcached':
         url = '127.0.0.1:11211 127.0.0.2:11211'
+    else:
+        url = ''
     return url
 
 def init(config_file, backend, cache_backend, host='127.0.0.1'):
@@ -64,7 +66,6 @@ def init(config_file, backend, cache_backend, host='127.0.0.1'):
         values['permission_backend'] = 'kinto_redis.permission'
 
         values['storage_url'] = redis_url + '/1'
-        #values['cache_url'] = redis_url + '/2'
         values['cache_url'] = cache_backend_url
         values['permission_url'] = redis_url + '/3'
 

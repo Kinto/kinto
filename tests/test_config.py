@@ -55,13 +55,13 @@ class ConfigTest(unittest.TestCase):
 
     @mock.patch('kinto.config.render_template')
     def test_hmac_secret_is_text(self, mocked_render_template):
-        config.init('kinto.ini', 'postgresql')
+        config.init('kinto.ini', 'postgresql', 'postgresql')
         args, kwargs = list(mocked_render_template.call_args)
         self.assertEquals(type(kwargs['secret']), str)
 
     @mock.patch('kinto.config.render_template')
     def test_init_postgresql_values(self, mocked_render_template):
-        config.init('kinto.ini', 'postgresql')
+        config.init('kinto.ini', 'postgresql', 'postgresql')
 
         args, kwargs = list(mocked_render_template.call_args)
         self.assertEquals(args, ('kinto.tpl', 'kinto.ini'))
@@ -82,13 +82,12 @@ class ConfigTest(unittest.TestCase):
 
     @mock.patch('kinto.config.render_template')
     def test_init_redis_values(self, mocked_render_template):
-        config.init('kinto.ini', 'redis')
+        config.init('kinto.ini', 'redis', 'redis')
 
         args, kwargs = list(mocked_render_template.call_args)
         self.assertEquals(args, ('kinto.tpl', 'kinto.ini'))
 
         redis_url = "redis://localhost:6379"
-
         self.maxDiff = None  # See the full diff in case of error
         self.assertDictEqual(kwargs, {
             'host': '127.0.0.1',
@@ -97,7 +96,7 @@ class ConfigTest(unittest.TestCase):
             'cache_backend': 'kinto_redis.cache',
             'permission_backend': 'kinto_redis.permission',
             'storage_url': redis_url + '/1',
-            'cache_url':  redis_url + '/2',
+            'cache_url': redis_url + '/2',
             'permission_url': redis_url + '/3',
             'kinto_version': __version__,
             'config_file_timestamp': strftime('%a, %d %b %Y %H:%M:%S %z')
@@ -105,7 +104,7 @@ class ConfigTest(unittest.TestCase):
 
     @mock.patch('kinto.config.render_template')
     def test_init_memory_values(self, mocked_render_template):
-        config.init('kinto.ini', 'memory')
+        config.init('kinto.ini', 'memory', 'memory')
 
         args, kwargs = list(mocked_render_template.call_args)
         self.assertEquals(args, ('kinto.tpl', 'kinto.ini'))

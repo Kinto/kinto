@@ -23,7 +23,7 @@ class TestMain(unittest.TestCase):
             pass
 
     def test_cli_init_generates_configuration(self):
-        res = main(['init', '--ini', TEMP_KINTO_INI, '--backend', 'memory'])
+        res = main(['init', '--ini', TEMP_KINTO_INI, '--backend', 'memory' , '--cache-backend', 'memory'])
         assert res == 0
         assert os.path.exists(TEMP_KINTO_INI)
 
@@ -45,7 +45,7 @@ class TestMain(unittest.TestCase):
         assert 'redis' in content
 
     def test_cli_init_asks_until_backend_is_valid(self):
-        with mock.patch("kinto.__main__.input", create=True, side_effect=["10", "2"]):
+        with mock.patch("kinto.__main__.input", create=True, side_effect=["10", "2", "2"]):
             res = main(['init', '--ini', TEMP_KINTO_INI])
             assert res == 0
             with open(TEMP_KINTO_INI) as f:
@@ -94,7 +94,7 @@ class TestMain(unittest.TestCase):
                     assert mocked_pip.call_count == 1
 
     def test_main_takes_sys_argv_by_default(self):
-        testargs = ['prog', 'init', '--ini', TEMP_KINTO_INI, '--backend', 'memory']
+        testargs = ['prog', 'init', '--ini', TEMP_KINTO_INI, '--backend', 'memory', '--cache-backend', 'memory']
         with mock.patch.object(sys, 'argv', testargs):
             main()
 
@@ -104,7 +104,7 @@ class TestMain(unittest.TestCase):
 
     def test_cli_migrate_command_runs_init_schema(self):
         with mock.patch('kinto.__main__.scripts.migrate') as mocked_migrate:
-            res = main(['init', '--ini', TEMP_KINTO_INI, '--backend', 'memory'])
+            res = main(['init', '--ini', TEMP_KINTO_INI, '--backend', 'memory', '--cache-backend', 'memory'])
             assert res == 0
             res = main(['migrate', '--ini', TEMP_KINTO_INI])
             assert res == 0
@@ -113,7 +113,7 @@ class TestMain(unittest.TestCase):
     def test_cli_delete_collection_run_delete_collection_script(self):
         with mock.patch('kinto.__main__.scripts.delete_collection') as del_col:
             del_col.return_value = mock.sentinel.del_col_code
-            res = main(['init', '--ini', TEMP_KINTO_INI, '--backend', 'memory'])
+            res = main(['init', '--ini', TEMP_KINTO_INI, '--backend', 'memory', '--cache-backend', 'memory'])
             assert res == 0
             res = main(['delete-collection', '--ini', TEMP_KINTO_INI,
                         '--bucket', 'test_bucket',
@@ -124,7 +124,7 @@ class TestMain(unittest.TestCase):
     def test_cli_rebuild_quotas_run_rebuild_quotas_script(self):
         with mock.patch('kinto.__main__.scripts.rebuild_quotas') as reb_quo:
             reb_quo.return_value = mock.sentinel.reb_quo_code
-            res = main(['init', '--ini', TEMP_KINTO_INI, '--backend', 'memory'])
+            res = main(['init', '--ini', TEMP_KINTO_INI, '--backend', 'memory', '--cache-backend', 'memory'])
             assert res == 0
             res = main(['rebuild-quotas', '--ini', TEMP_KINTO_INI])
             assert res == mock.sentinel.reb_quo_code
@@ -132,7 +132,7 @@ class TestMain(unittest.TestCase):
 
     def test_cli_start_runs_pserve(self):
         with mock.patch('kinto.__main__.pserve.main') as mocked_pserve:
-            res = main(['init', '--ini', TEMP_KINTO_INI, '--backend', 'memory'])
+            res = main(['init', '--ini', TEMP_KINTO_INI, '--backend', 'memory', '--cache-backend', 'memory'])
             assert res == 0
             res = main(['start', '--ini', TEMP_KINTO_INI])
             assert res == 0
@@ -140,7 +140,7 @@ class TestMain(unittest.TestCase):
 
     def test_cli_start_with_quiet_option_runs_pserve_with_quiet(self):
         with mock.patch('kinto.__main__.pserve.main') as mocked_pserve:
-            res = main(['init', '--ini', TEMP_KINTO_INI, '--backend', 'memory'])
+            res = main(['init', '--ini', TEMP_KINTO_INI, '--backend', 'memory', '--cache-backend', 'memory'])
             assert res == 0
             res = main(['start', '-q', '--ini', TEMP_KINTO_INI])
             assert res == 0
@@ -149,7 +149,7 @@ class TestMain(unittest.TestCase):
 
     def test_cli_start_with_verbose_option_runs_pserve_with_verbose(self):
         with mock.patch('kinto.__main__.pserve.main') as mocked_pserve:
-            res = main(['init', '--ini', TEMP_KINTO_INI, '--backend', 'memory'])
+            res = main(['init', '--ini', TEMP_KINTO_INI, '--backend', 'memory', '--cache-backend', 'memory'])
             assert res == 0
             res = main(['start', '-v', '--ini', TEMP_KINTO_INI])
             assert res == 0
@@ -158,7 +158,7 @@ class TestMain(unittest.TestCase):
 
     def test_cli_start_with_reload_runs_pserve_with_reload(self):
         with mock.patch('kinto.__main__.pserve.main') as mocked_pserve:
-            res = main(['init', '--ini', TEMP_KINTO_INI, '--backend', 'memory'])
+            res = main(['init', '--ini', TEMP_KINTO_INI, '--backend', 'memory', '--cache-backend', 'memory'])
             assert res == 0
             res = main(['start', '--reload', '--ini', TEMP_KINTO_INI])
             assert res == 0
@@ -167,7 +167,7 @@ class TestMain(unittest.TestCase):
 
     def test_cli_create_user_runs_account_script(self):
         with mock.patch('kinto.__main__.create_user', return_value=0) as mocked_create_user:
-            res = main(['init', '--ini', TEMP_KINTO_INI, '--backend', 'memory'])
+            res = main(['init', '--ini', TEMP_KINTO_INI, '--backend', 'memory', '--cache-backend', 'memcached'])
             assert res == 0
             res = main(['create-user', '--ini', TEMP_KINTO_INI,
                         '-u', 'username', '-p', 'password'])
@@ -182,21 +182,21 @@ class TestMain(unittest.TestCase):
 
     def test_cli_can_configure_logger_in_quiet(self):
         with mock.patch('kinto.__main__.logging') as mocked_logging:
-            main(['init', '-q', '--ini', TEMP_KINTO_INI, '--backend', 'memory'])
+            main(['init', '-q', '--ini', TEMP_KINTO_INI, '--backend', 'memory', '--cache-backend', 'memory'])
             mocked_logging.basicConfig.assert_called_with(
                 level=mocked_logging.CRITICAL,
                 format=DEFAULT_LOG_FORMAT)
 
     def test_cli_can_configure_logger_in_debug(self):
         with mock.patch('kinto.__main__.logging') as mocked_logging:
-            main(['init', '--debug', '--ini', TEMP_KINTO_INI, '--backend', 'memory'])
+            main(['init', '--debug', '--ini', TEMP_KINTO_INI, '--backend', 'memory', '--cache-backend', 'memory'])
             mocked_logging.basicConfig.assert_called_with(
                 level=mocked_logging.DEBUG,
                 format=DEFAULT_LOG_FORMAT)
 
     def test_cli_use_default_logging_logger(self):
         with mock.patch('kinto.__main__.logging') as mocked_logging:
-            main(['init', '--ini', TEMP_KINTO_INI, '--backend', 'memory'])
+            main(['init', '--ini', TEMP_KINTO_INI, '--backend', 'memory', '--cache-backend', 'memory'])
             mocked_logging.basicConfig.assert_called_with(
                 level=logging.INFO,
                 format=DEFAULT_LOG_FORMAT)
