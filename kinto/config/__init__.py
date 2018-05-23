@@ -28,8 +28,16 @@ def render_template(template, destination, **kwargs):
         with codecs.open(destination, 'w+', encoding='utf-8') as output:
             output.write(rendered)
 
+def get_cache_backend_url(cache_be_value):
+    if cache_be_value == 'kinto.core.cache.postgresql':
+        url = 'postgres://postgres:postgres@localhost/postgres'
+    elif cache_be_value == 'kinto_redis.cache':
+        url = 'redis://localhost:6379' + '/2'
+    elif cache_be_value == 'kinto.core.cache.memcached':
+        url = '127.0.0.1:11211 127.0.0.2:11211'
+    return url
 
-def init(config_file, backend, host='127.0.0.1'):
+def init(config_file, backend, cache_backend, host='127.0.0.1'):
     values = {}
 
     values['host'] = host
@@ -39,13 +47,14 @@ def init(config_file, backend, host='127.0.0.1'):
     values['config_file_timestamp'] = str(strftime('%a, %d %b %Y %H:%M:%S %z'))
 
     values['storage_backend'] = 'kinto.core.storage.{}'.format(backend)
-    values['cache_backend'] = 'kinto.core.cache.{}'.format(backend)
+    values['cache_backend'] = 'kinto.core.cache.{}'.format(cache_backend)
     values['permission_backend'] = 'kinto.core.permission.{}'.format(backend)
+    cache_backend_url = get_cache_backend_url(values['cache_backend'])
 
     if backend == 'postgresql':
         postgresql_url = 'postgres://postgres:postgres@localhost/postgres'
         values['storage_url'] = postgresql_url
-        values['cache_url'] = postgresql_url
+        values['cache_url'] = cache_backend_url
         values['permission_url'] = postgresql_url
 
     elif backend == 'redis':
@@ -55,7 +64,8 @@ def init(config_file, backend, host='127.0.0.1'):
         values['permission_backend'] = 'kinto_redis.permission'
 
         values['storage_url'] = redis_url + '/1'
-        values['cache_url'] = redis_url + '/2'
+        #values['cache_url'] = redis_url + '/2'
+        values['cache_url'] = cache_backend_url
         values['permission_url'] = redis_url + '/3'
 
     else:
