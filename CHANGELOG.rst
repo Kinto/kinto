@@ -10,6 +10,7 @@ This document describes changes between each past release.
 **Internal changes**
 
 - Correct spelling of GitHub.
+- Upgrade to kinto-admin v1.17.2
 
 
 9.1.0 (2018-05-21)
