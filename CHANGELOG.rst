@@ -7,7 +7,13 @@ This document describes changes between each past release.
 9.2.0 (unreleased)
 ------------------
 
-- Nothing changed yet.
+**New features**
+
+- Kinto Admin plugin now supports OpenID Connect
+
+**Internal changes**
+
+- Upgrade to kinto-admin v1.18.0
 
 
 9.1.1 (2018-05-23)
