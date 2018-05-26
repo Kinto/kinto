@@ -28,6 +28,7 @@ def render_template(template, destination, **kwargs):
         with codecs.open(destination, 'w+', encoding='utf-8') as output:
             output.write(rendered)
 
+
 def get_cache_backend_url(cache_be_value):
     if cache_be_value == 'kinto.core.cache.postgresql':
         url = 'postgres://postgres:postgres@localhost/postgres'
@@ -38,6 +39,7 @@ def get_cache_backend_url(cache_be_value):
     else:
         url = ''
     return url
+
 
 def init(config_file, backend, cache_backend, host='127.0.0.1'):
     values = {}

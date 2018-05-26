@@ -150,7 +150,8 @@ def main(args=None):
                           '(1 - postgresql, 2 - redis, 3 - memcached, default - memory) ')
                 answer = input(prompt).strip()
                 try:
-                    cache_backends = {'1': 'postgresql', '2': 'redis', '3': 'memcached', '': 'memory'}
+                    cache_backends = {'1': 'postgresql', '2': 'redis',
+                                      '3': 'memcached', '': 'memory'}
                     cache_backend = cache_backends[answer]
                     break
                 except KeyError:
