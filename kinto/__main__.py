@@ -177,7 +177,7 @@ def main(args=None):
                 import memcache     # NOQA
             except ImportError:
                 subprocess.check_call([sys.executable, '-m', 'pip',
-                                       'install', 'python-memcached'])
+                                       'install', 'kinto[memcached]'])
 
     elif which_command == 'migrate':
         dry_run = parsed_args['dry_run']
