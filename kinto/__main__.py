@@ -174,7 +174,7 @@ def main(args=None):
                                        'install', 'kinto[redis]'])
         elif cache_backend == 'memcached':
             try:
-                import memcache
+                import memcache     # NOQA
             except ImportError:
                 subprocess.check_call([sys.executable, '-m', 'pip',
                                        'install', 'python-memcached'])
