@@ -202,7 +202,7 @@ class TestMain(unittest.TestCase):
     def test_cli_create_user_runs_account_script(self):
         with mock.patch('kinto.__main__.create_user', return_value=0) as mocked_create_user:
             res = main(['init', '--ini', TEMP_KINTO_INI,
-                        '--backend', 'memory', '--cache-backend', 'memcached'])
+                        '--backend', 'memory', '--cache-backend', 'memory'])
             assert res == 0
             res = main(['create-user', '--ini', TEMP_KINTO_INI,
                         '-u', 'username', '-p', 'password'])
