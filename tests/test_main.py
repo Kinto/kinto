@@ -106,7 +106,7 @@ class TestMain(unittest.TestCase):
         realimport = builtins.__import__
 
         def memcached_missing(name, *args, **kwargs):
-            if name == 'python-memcached':
+            if name == 'memcache':
                 raise ImportError()
             else:
                 return realimport(name, *args, **kwargs)
