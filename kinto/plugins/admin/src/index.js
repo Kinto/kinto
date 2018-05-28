@@ -6,7 +6,6 @@ import * as signoffPlugin from "kinto-admin/lib/plugins/signoff";
 const settings = {
   maxPerPage: 50,
   singleServer: document.location.toString().split('/admin/')[0],
-  ...window.globalSettings,
 };
 
 
