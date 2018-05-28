@@ -319,7 +319,7 @@ class BucketRecordSchema(BaseWebTestWithSchema, unittest.TestCase):
                            status=400)
 
 
-class BucketCollectionSchema(BaseWebTestWithSchema, unittest.TestCase):
+class BothBucketAndCollectionSchemas(BaseWebTestWithSchema, unittest.TestCase):
     def setUp(self):
         super().setUp()
         self.app.put_json(COLLECTION_URL,

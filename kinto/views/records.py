@@ -1,11 +1,10 @@
-import jsonschema
 from kinto.core import resource, utils
 from kinto.core.errors import raise_invalid
-from jsonschema import exceptions as jsonschema_exceptions
 from pyramid.security import Authenticated
 from pyramid.settings import asbool
 
 from kinto.views import object_exists_or_404
+from kinto.schema_validation import validate_schema, ValidationError
 
 
 _parent_path = '/buckets/{{bucket_id}}/collections/{{collection_id}}'
@@ -63,6 +62,7 @@ class Record(resource.ShareableResource):
             schema_timestamp = max(self._bucket[self.model.modified_field],
                                    self._collection[self.model.modified_field])
             schemas.append(self._bucket['record:schema'])
+
         settings = self.request.registry.settings
         schema_validation = 'experimental_collection_schema_validation'
         if len(schemas) == 0 or not asbool(settings.get(schema_validation)):
@@ -77,27 +77,13 @@ class Record(resource.ShareableResource):
                            self.schema_field,
                            self.model.permissions_field)
         data = {f: v for f, v in new.items() if f not in internal_fields}
-        for schema in schemas:
-            required_fields = [f for f in schema.get('required', []) if f not in internal_fields]
-            # jsonschema doesn't accept 'required': [] yet.
-            # See https://github.com/Julian/jsonschema/issues/337.
-            # In the meantime, strip out 'required' if no other fields are required.
-            if required_fields:
-                schema = {**schema, 'required': required_fields}
-            else:
-                schema = {f: v for f, v in schema.items() if f != 'required'}
 
+        for schema in schemas:
             # Validate or fail with 400.
             try:
-                jsonschema.validate(data, schema)
-            except jsonschema_exceptions.ValidationError as e:
-                if e.path:
-                    field = e.path[-1]
-                elif e.validator_value:
-                    field = e.validator_value[-1]
-                else:
-                    field = e.schema_path[-1]
-                raise_invalid(self.request, name=field, description=e.message)
+                validate_schema(data, schema, ignore_fields=internal_fields)
+            except ValidationError as e:
+                raise_invalid(self.request, name=e.field, description=e.message)
 
         return new
 
