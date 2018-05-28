@@ -33,7 +33,7 @@ def get_cache_backend_url(cache_be_value):
     if cache_be_value == 'kinto.core.cache.postgresql':
         url = 'postgres://postgres:postgres@localhost/postgres'
     elif cache_be_value == 'kinto.core.cache.redis':
-        url = 'redis://localhost:6379' + '/2'
+        url = 'redis://localhost:6379/2'
     elif cache_be_value == 'kinto.core.cache.memcached':
         url = '127.0.0.1:11211 127.0.0.2:11211'
     else:

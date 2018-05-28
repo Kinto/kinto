@@ -55,13 +55,13 @@ class ConfigTest(unittest.TestCase):
 
     @mock.patch('kinto.config.render_template')
     def test_hmac_secret_is_text(self, mocked_render_template):
-        config.init('kinto.ini', 'postgresql', 'postgresql')
+        config.init('kinto.ini', backend='postgresql', cache_backend='postgresql')
         args, kwargs = list(mocked_render_template.call_args)
         self.assertEquals(type(kwargs['secret']), str)
 
     @mock.patch('kinto.config.render_template')
     def test_init_postgresql_values(self, mocked_render_template):
-        config.init('kinto.ini', 'postgresql', 'postgresql')
+        config.init('kinto.ini', backend='postgresql', cache_backend='postgresql')
 
         args, kwargs = list(mocked_render_template.call_args)
         self.assertEquals(args, ('kinto.tpl', 'kinto.ini'))
@@ -81,8 +81,30 @@ class ConfigTest(unittest.TestCase):
         })
 
     @mock.patch('kinto.config.render_template')
+    def test_init_postgresql_memcached_values(self, mocked_render_template):
+        config.init('kinto.ini', backend='postgresql', cache_backend='memcached')
+
+        args, kwargs = list(mocked_render_template.call_args)
+        self.assertEquals(args, ('kinto.tpl', 'kinto.ini'))
+
+        postgresql_url = "postgres://postgres:postgres@localhost/postgres"
+        cache_url = '127.0.0.1:11211 127.0.0.2:11211'
+        self.assertDictEqual(kwargs, {
+            'host': '127.0.0.1',
+            'secret': kwargs['secret'],
+            'storage_backend': 'kinto.core.storage.postgresql',
+            'cache_backend': 'kinto.core.cache.memcached',
+            'permission_backend': 'kinto.core.permission.postgresql',
+            'storage_url': postgresql_url,
+            'cache_url':  cache_url,
+            'permission_url': postgresql_url,
+            'kinto_version': __version__,
+            'config_file_timestamp': strftime('%a, %d %b %Y %H:%M:%S %z')
+        })
+
+    @mock.patch('kinto.config.render_template')
     def test_init_redis_values(self, mocked_render_template):
-        config.init('kinto.ini', 'redis', 'redis')
+        config.init('kinto.ini', backend='redis', cache_backend='redis')
 
         args, kwargs = list(mocked_render_template.call_args)
         self.assertEquals(args, ('kinto.tpl', 'kinto.ini'))
@@ -104,7 +126,7 @@ class ConfigTest(unittest.TestCase):
 
     @mock.patch('kinto.config.render_template')
     def test_init_memory_values(self, mocked_render_template):
-        config.init('kinto.ini', 'memory', 'memory')
+        config.init('kinto.ini', backend='memory', cache_backend='memory')
 
         args, kwargs = list(mocked_render_template.call_args)
         self.assertEquals(args, ('kinto.tpl', 'kinto.ini'))
