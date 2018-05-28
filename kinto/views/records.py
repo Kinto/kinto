@@ -23,18 +23,26 @@ class Record(resource.ShareableResource):
         # Check if already fetched before (in batch).
         collections = request.bound_data.setdefault('collections', {})
         collection_uri = self.get_parent_id(request)
+        bucket_uri = utils.instance_uri(request, 'bucket', id=self.bucket_id)
         if collection_uri not in collections:
             # Unknown yet, fetch from storage.
-            collection_parent_id = utils.instance_uri(request, 'bucket',
-                                                      id=self.bucket_id)
             collection = object_exists_or_404(request,
                                               collection_id='collection',
-                                              parent_id=collection_parent_id,
+                                              parent_id=bucket_uri,
                                               object_id=self.collection_id)
             collections[collection_uri] = collection
+        self._collection = collections[collection_uri]
+
+        buckets = request.bound_data.setdefault('buckets', {})
+        if bucket_uri not in buckets:
+            bucket = object_exists_or_404(request,
+                                          collection_id='bucket',
+                                          parent_id='',
+                                          object_id=self.bucket_id)
+            buckets[bucket_uri] = bucket
+        self._bucket = buckets[bucket_uri]
 
         super().__init__(request, **kwargs)
-        self._collection = collections[collection_uri]
 
     def get_parent_id(self, request):
         self.bucket_id = request.matchdict['bucket_id']
@@ -47,42 +55,49 @@ class Record(resource.ShareableResource):
         """Validate records against collection schema, if any."""
         new = super().process_record(new, old)
 
-        schema = self._collection.get('schema')
+        schemas = []
+        if 'schema' in self._collection:
+            schema_timestamp = self._collection[self.model.modified_field]
+            schemas.append(self._collection['schema'])
+        if 'record:schema' in self._bucket:
+            schema_timestamp = max(self._bucket[self.model.modified_field],
+                                   self._collection[self.model.modified_field])
+            schemas.append(self._bucket['record:schema'])
         settings = self.request.registry.settings
         schema_validation = 'experimental_collection_schema_validation'
-        if not schema or not asbool(settings.get(schema_validation)):
+        if len(schemas) == 0 or not asbool(settings.get(schema_validation)):
             return new
 
-        # Remove internal and auto-assigned fields from schema and record.
+        # Assign the schema version to the record.
+        new[self.schema_field] = schema_timestamp
+
+        # Remove internal and auto-assigned fields from schemas and record.
         internal_fields = (self.model.id_field,
                            self.model.modified_field,
                            self.schema_field,
                            self.model.permissions_field)
-        required_fields = [f for f in schema.get('required', []) if f not in internal_fields]
-        # jsonschema doesn't accept 'required': [] yet.
-        # See https://github.com/Julian/jsonschema/issues/337.
-        # In the meantime, strip out 'required' if no other fields are required.
-        if required_fields:
-            schema = {**schema, 'required': required_fields}
-        else:
-            schema = {f: v for f, v in schema.items() if f != 'required'}
         data = {f: v for f, v in new.items() if f not in internal_fields}
-
-        # Validate or fail with 400.
-        try:
-            jsonschema.validate(data, schema)
-        except jsonschema_exceptions.ValidationError as e:
-            if e.path:
-                field = e.path[-1]
-            elif e.validator_value:
-                field = e.validator_value[-1]
+        for schema in schemas:
+            required_fields = [f for f in schema.get('required', []) if f not in internal_fields]
+            # jsonschema doesn't accept 'required': [] yet.
+            # See https://github.com/Julian/jsonschema/issues/337.
+            # In the meantime, strip out 'required' if no other fields are required.
+            if required_fields:
+                schema = {**schema, 'required': required_fields}
             else:
-                field = e.schema_path[-1]
-            raise_invalid(self.request, name=field, description=e.message)
+                schema = {f: v for f, v in schema.items() if f != 'required'}
 
-        # Assign the schema version (collection object timestamp) to the record.
-        collection_timestamp = self._collection[self.model.modified_field]
-        new[self.schema_field] = collection_timestamp
+            # Validate or fail with 400.
+            try:
+                jsonschema.validate(data, schema)
+            except jsonschema_exceptions.ValidationError as e:
+                if e.path:
+                    field = e.path[-1]
+                elif e.validator_value:
+                    field = e.validator_value[-1]
+                else:
+                    field = e.schema_path[-1]
+                raise_invalid(self.request, name=field, description=e.message)
 
         return new
 

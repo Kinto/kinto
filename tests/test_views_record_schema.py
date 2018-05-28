@@ -297,3 +297,58 @@ class InternalRequiredProperties(BaseWebTestWithSchema, unittest.TestCase):
                                      'body': 2}},
                            headers=self.headers,
                            status=400)
+
+
+class BucketRecordSchema(BaseWebTestWithSchema, unittest.TestCase):
+    def setUp(self):
+        super().setUp()
+        self.app.put_json(BUCKET_URL,
+                          {'data': {'record:schema': SCHEMA}},
+                          headers=self.headers)
+
+    def test_records_are_valid_if_match_schema(self):
+        self.app.post_json(RECORDS_URL,
+                           {'data': VALID_RECORD},
+                           headers=self.headers,
+                           status=201)
+
+    def test_records_are_invalid_if_do_not_match_schema(self):
+        self.app.post_json(RECORDS_URL,
+                           {'data': {'body': '<h1>Without title</h1>'}},
+                           headers=self.headers,
+                           status=400)
+
+
+class BucketCollectionSchema(BaseWebTestWithSchema, unittest.TestCase):
+    def setUp(self):
+        super().setUp()
+        self.app.put_json(COLLECTION_URL,
+                          {'data': {'schema': SCHEMA}},
+                          headers=self.headers)
+        other_schema = {
+            "type": "object",
+            "properties": {
+                "filters": {"type": "string"},
+            },
+        }
+        self.app.put_json(BUCKET_URL,
+                          {'data': {'record:schema': other_schema}},
+                          headers=self.headers)
+
+    def test_records_are_valid_if_match_both_schemas(self):
+        self.app.post_json(RECORDS_URL,
+                           {'data': {'filters': '1 == 1', **VALID_RECORD}},
+                           headers=self.headers,
+                           status=201)
+
+    def test_records_are_invalid_if_do_not_match_collection_schema(self):
+        self.app.post_json(RECORDS_URL,
+                           {'data': {'body': '<h1>Without title</h1>'}},
+                           headers=self.headers,
+                           status=400)
+
+    def test_records_are_invalid_if_do_not_match_bucket_schema(self):
+        self.app.post_json(RECORDS_URL,
+                           {'data': {'filters': 42, **VALID_RECORD}},
+                           headers=self.headers,
+                           status=400)
