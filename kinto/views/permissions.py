@@ -1,5 +1,4 @@
 import colander
-from pyramid.security import NO_PERMISSION_REQUIRED
 from pyramid.settings import aslist
 
 from kinto.authorization import PERMISSIONS_INHERITANCE_TREE
@@ -173,8 +172,7 @@ class PermissionsSchema(resource.ResourceSchema):
                    description='List of user permissions',
                    collection_path='/permissions',
                    record_path=None,
-                   collection_methods=('GET',),
-                   permission=NO_PERMISSION_REQUIRED)
+                   collection_methods=('GET',))
 class Permissions(resource.ShareableResource):
 
     schema = PermissionsSchema
