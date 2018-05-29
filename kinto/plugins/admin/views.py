@@ -1,7 +1,4 @@
-import json
 import os
-
-from pyramid.settings import aslist
 
 from kinto.core.decorators import cache_forever
 
