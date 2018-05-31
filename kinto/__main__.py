@@ -57,6 +57,11 @@ def main(args=None):
                                    dest='backend',
                                    required=False,
                                    default=None)
+            subparser.add_argument('--cache-backend',
+                                   help='{memory,redis,postgresql,memcached}',
+                                   dest='cache-backend',
+                                   required=False,
+                                   default=None)
             subparser.add_argument('--host',
                                    help='Host to listen() on.',
                                    dest='host',
@@ -126,6 +131,7 @@ def main(args=None):
             return 1
 
         backend = parsed_args['backend']
+        cache_backend = parsed_args['cache-backend']
         if not backend:
             while True:
                 prompt = ('Select the backend you would like to use: '
@@ -138,21 +144,40 @@ def main(args=None):
                 except KeyError:
                     pass
 
-        init(config_file, backend, parsed_args['host'])
+        if not cache_backend:
+            while True:
+                prompt = ('Select the cache backend you would like to use: '
+                          '(1 - postgresql, 2 - redis, 3 - memcached, default - memory) ')
+                answer = input(prompt).strip()
+                try:
+                    cache_backends = {'1': 'postgresql', '2': 'redis',
+                                      '3': 'memcached', '': 'memory'}
+                    cache_backend = cache_backends[answer]
+                    break
+                except KeyError:
+                    pass
+
+        init(config_file, backend, cache_backend, parsed_args['host'])
 
         # Install postgresql libraries if necessary
-        if backend == 'postgresql':
+        if backend == 'postgresql' or cache_backend == 'postgresql':
             try:
                 import psycopg2  # NOQA
             except ImportError:
                 subprocess.check_call([sys.executable, '-m', 'pip',
                                        'install', 'kinto[postgresql]'])
-        elif backend == 'redis':
+        elif backend == 'redis' or cache_backend == 'redis':
             try:
                 import kinto_redis  # NOQA
             except ImportError:
                 subprocess.check_call([sys.executable, '-m', 'pip',
                                        'install', 'kinto[redis]'])
+        elif cache_backend == 'memcached':
+            try:
+                import memcache  # NOQA
+            except ImportError:
+                subprocess.check_call([sys.executable, '-m', 'pip',
+                                       'install', 'kinto[memcached]'])
 
     elif which_command == 'migrate':
         dry_run = parsed_args['dry_run']
