@@ -108,12 +108,13 @@ class RouteFactoryTest(unittest.TestCase):
 
     def test_fetch_shared_records_uses_pattern_if_on_collection(self):
         request = DummyRequest()
-        request.route_path.return_value = '/v1/buckets/%2A'
         service = mock.MagicMock()
         service.type = 'collection'
         with mock.patch('kinto.core.authorization.utils.current_service') as m:
-            m.return_value = service
-            context = RouteFactory(request)
+            with mock.patch('kinto.core.utils.instance_uri') as instance_uri:
+                m.return_value = service
+                instance_uri.return_value = '/buckets/%2A'
+                context = RouteFactory(request)
         self.assertTrue(context.on_collection)
 
         context.fetch_shared_records('read', ['userid'], None)
@@ -126,11 +127,12 @@ class RouteFactoryTest(unittest.TestCase):
     def test_fetch_shared_records_uses_get_bound_permission_callback(self):
         request = DummyRequest()
         service = mock.MagicMock()
-        request.route_path.return_value = '/v1/buckets/%2A'
         service.type = 'collection'
         with mock.patch('kinto.core.authorization.utils.current_service') as m:
-            m.return_value = service
-            context = RouteFactory(request)
+            with mock.patch('kinto.core.utils.instance_uri') as instance_uri:
+                m.return_value = service
+                instance_uri.return_value = '/buckets/%2A'
+                context = RouteFactory(request)
         self.assertTrue(context.on_collection)
 
         # Define a callback where write means read:
@@ -290,14 +292,15 @@ class GuestAuthorizationPolicyTest(unittest.TestCase):
             self.authz.get_bound_permissions)
         self.assertFalse(allowed)
 
-    def test_perm_object_id_is_naive_if_no_record_path_exists(self):
-        def route_path(service_name, **kwargs):
+    @mock.patch('kinto.core.utils.instance_uri')
+    def test_perm_object_id_is_naive_if_no_record_path_exists(self, instance_uri):
+        def route_path(request, resource_name, **kwargs):
             # Simulate a resource that has no record_path (only list).
-            if service_name == 'article-record':
+            if resource_name == 'article':
                 raise KeyError
             return '/comments/sub/{id}'.format_map(kwargs)
 
-        self.request.route_path.side_effect = route_path
+        instance_uri.side_effect = route_path
 
         self.request.path = '/comments'
         self.context.resource_name = 'comment'
