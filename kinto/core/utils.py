@@ -477,8 +477,31 @@ def view_lookup_registry(registry, uri):
 
 def instance_uri(request, resource_name, **params):
     """Return the URI for the given resource."""
-    return strip_uri_prefix(request.route_path(
+    return instance_uri_registry(request.registry, resource_name, **params)
+
+
+def instance_uri_registry(registry, resource_name, **params):
+    """Return the URI for the given resource, given only a registry."""
+    return strip_uri_prefix(route_path_registry(
+        registry,
         '{}-record'.format(resource_name), **params))
+
+
+def route_path_registry(registry, route_name, **params):
+    """Generate the path for a given route_name.
+
+    This is adapted from URLMethodsMixin.route_url, but with some
+    simplifications due to how we use it in Kinto.
+    """
+    mapper = registry.getUtility(IRoutesMapper)
+    route = mapper.get_route(route_name)
+
+    if route is None:
+        raise KeyError('No such route named %s' % route_name)
+
+    # No pregenerator support here. Hopefully we don't need to support
+    # this feature.
+    return route.generate(params)  # raises KeyError if generate fails
 
 
 def parse_resource(resource):
