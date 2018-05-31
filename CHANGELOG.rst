@@ -4,7 +4,7 @@ Changelog
 This document describes changes between each past release.
 
 
-9.2.0 (unreleased)
+9.1.2 (2018-05-31)
 ------------------
 
 **Bug fixes**
