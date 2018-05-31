@@ -111,12 +111,34 @@ class PolicyTest(unittest.TestCase):
     def test_payload_is_read_from_cache(self):
         self.request.headers['Authorization'] = 'Bearer xyz'
         self.request.registry.cache.get.return_value = {'sub': 'me'}
-        self.policy.unauthenticated_userid(self.request) == 'me'
+        assert self.policy.unauthenticated_userid(self.request) == 'me'
 
     def test_payload_is_stored_in_cache(self):
         self.request.headers['Authorization'] = 'Bearer xyz'
         assert self.policy.unauthenticated_userid(self.request) == 'userid'
         assert self.request.registry.cache.set.called
+
+    def test_payload_is_read_from_cache_but_differently_by_access_token(self):
+        # State to keep track of cache keys queried.
+        cache_keys_used = []
+
+        def mocked_cache_get(cache_key):
+            # This makes sure the same cache key is not used twice
+            assert cache_key not in cache_keys_used
+            cache_keys_used.append(cache_key)
+            if len(cache_keys_used) == 1:
+                return {'sub': 'me'}
+            elif len(cache_keys_used) == 2:
+                return {'sub': 'you'}
+
+        self.request.registry.cache.get.side_effect = mocked_cache_get
+
+        self.request.headers['Authorization'] = 'Bearer xyz'
+        assert self.policy.unauthenticated_userid(self.request) == 'me'
+
+        # Change the Authorization header the second time
+        self.request.headers['Authorization'] = 'Bearer abc'
+        assert self.policy.unauthenticated_userid(self.request) == 'you'
 
 
 class VerifyTokenTest(unittest.TestCase):
