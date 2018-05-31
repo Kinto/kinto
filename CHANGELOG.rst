@@ -4,6 +4,14 @@ Changelog
 This document describes changes between each past release.
 
 
+9.2.0 (unreleased)
+------------------
+
+**Bug fixes**
+
+- OpenID plugin used the same cache key for every access-token (fixes #1660)
+
+
 9.1.1 (2018-05-23)
 ------------------
 
