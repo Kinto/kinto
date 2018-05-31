@@ -4,6 +4,7 @@ Contributors
 * Aaron Egaas <me@aaronegaas.com>
 * Adam Chainz <adam@adamj.eu>
 * Aditya Bhasin <conlini@gmail.com>
+* Aiman Parvaiz <aimanparvaiz@gmail.com>
 * Anh <anh.trinhtrung@gmail.com>
 * Alexis Metaireau <alexis@mozilla.com>
 * Andy McKay <amckay@mozilla.com>
