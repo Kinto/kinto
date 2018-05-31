@@ -438,18 +438,30 @@ def strip_uri_prefix(path):
 
 def view_lookup(request, uri):
     """
-    Look-up the specified `uri` and return the associated resource name
-    along the match dict.
+    A convenience method for view_lookup_registry when you have a request.
 
     :param request: the current request (used to obtain registry).
     :param uri: a plural or object endpoint URI.
     :rtype: tuple
     :returns: the resource name and the associated matchdict.
     """
-    api_prefix = '/{}'.format(request.upath_info.split('/')[1])
+    return view_lookup_registry(request.registry, uri)
+
+
+def view_lookup_registry(registry, uri):
+    """
+    Look-up the specified `uri` and return the associated resource name
+    along the match dict.
+
+    :param registry: the application's registry.
+    :param uri: a plural or object endpoint URI.
+    :rtype: tuple
+    :returns: the resource name and the associated matchdict.
+    """
+    api_prefix = '/{}'.format(registry.route_prefix)
     path = (api_prefix + uri)
 
-    q = request.registry.queryUtility
+    q = registry.queryUtility
     routes_mapper = q(IRoutesMapper)
 
     fakerequest = Request.blank(path=path)
