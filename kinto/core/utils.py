@@ -481,6 +481,17 @@ def instance_uri(request, resource_name, **params):
         '{}-record'.format(resource_name), **params))
 
 
+def instance_uri_registry(registry, resource_name, **params):
+    """Return the URI for the given resource, even if you don't have a request.
+
+    This gins up a request using Request.blank and so does not support
+    any routes with pregenerators.
+    """
+    request = Request.blank(path='')
+    request.registry = registry
+    return instance_uri(request, resource_name, **params)
+
+
 def parse_resource(resource):
     """Extract the bucket_id and collection_id of the given resource (URI)
 
