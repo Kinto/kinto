@@ -140,7 +140,7 @@ def get_resource_events(request, after_commit=False):
 
 
 def notify_resource_event(request, parent_id, timestamp, data, action,
-                          old=None):
+                          old=None, resource_name=None, resource_data=None):
     """
     Request helper to stack a resource event.
 
@@ -167,7 +167,7 @@ def notify_resource_event(request, parent_id, timestamp, data, action,
     # Get previously triggered events.
     events = request.bound_data.setdefault('resource_events', OrderedDict())
 
-    resource_name = request.current_resource_name
+    resource_name = resource_name or request.current_resource_name
 
     # Group events by resource and action.
     group_by = '{}-{}-{}'.format(resource_name, parent_id, action.value)
@@ -184,7 +184,7 @@ def notify_resource_event(request, parent_id, timestamp, data, action,
                    'user_id': request.prefixed_userid,
                    'resource_name': resource_name}
 
-        matchdict = dict(request.matchdict)
+        matchdict = resource_data or dict(request.matchdict)
 
         if 'id' in request.matchdict:
             matchdict[resource_name + '_id'] = matchdict.pop('id')

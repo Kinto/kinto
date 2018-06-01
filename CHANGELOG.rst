@@ -10,6 +10,9 @@ This document describes changes between each past release.
 **New features**
 
 - Include Python 3.7 support.
+- kinto.core.events now supports ``resource_name`` and
+  ``resource_data``. These are useful when emitting events from one
+  view "as though" they came from another view.
 
 9.2.3 (2018-07-05)
 ------------------
