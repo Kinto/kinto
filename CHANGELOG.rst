@@ -12,6 +12,10 @@ This document describes changes between each past release.
 - Kinto Admin plugin now supports OpenID Connect
 - Limit network requests to current domain in Kinto Admin using `Content-Security Policies <https://hacks.mozilla.org/2016/02/implementing-content-security-policy/>`_
 - Prompt for cache backend type in ``kinto init`` (#1653)
+- kinto.core.utils now has new features ``route_path_registry`` and
+  ``instance_uri_registry``, suitable for use when you don't
+  necessarily have a ``request`` object around. The existing functions
+  will remain in place.
 
 **Internal changes**
 
