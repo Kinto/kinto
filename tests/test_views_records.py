@@ -56,7 +56,7 @@ class RecordsViewTest(BaseWebTest, unittest.TestCase):
         self.app.get(other_collection, headers=self.headers, status=404)
         self.assertFalse(mocked.called)
 
-    def test_parent_collection_is_fetched_only_once_in_batch(self):
+    def test_parent_collection_and_bucket_are_fetched_only_once_in_batch(self):
         batch = {'requests': []}
         nb_create = 25
         for i in range(nb_create):
@@ -68,7 +68,7 @@ class RecordsViewTest(BaseWebTest, unittest.TestCase):
         with mock.patch.object(self.storage, 'get',
                                wraps=self.storage.get) as patched:
             self.app.post_json('/batch', batch, headers=self.headers)
-            self.assertEqual(patched.call_count, 1)
+            self.assertEqual(patched.call_count, 2)
 
     def test_individual_collections_can_be_deleted(self):
         resp = self.app.get(self.collection_url, headers=self.headers)

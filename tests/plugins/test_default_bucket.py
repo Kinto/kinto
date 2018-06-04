@@ -214,20 +214,23 @@ class DefaultBucketViewTest(FormattedErrorMixin, DefaultBucketWebTest):
             "Method not allowed on this endpoint.")
 
     def test_formatted_error_are_passed_through(self):
-        response = http_error(HTTPBadRequest(),
-                              errno=ERRORS.INVALID_PARAMETERS,
-                              message='Yop')
+        # Create the parent objects
+        self.app.post(self.collection_url + '/records', headers=self.headers)
 
+        # Simulate a validation error.
+        fake400 = http_error(HTTPBadRequest(),
+                             errno=ERRORS.INVALID_PARAMETERS,
+                             message='Yop')
         with mock.patch.object(self.storage, 'create') as mocked:
             mocked.side_effect = [
                 {"id": "abc", "last_modified": 43},
                 {"id": "abc", "last_modified": 44},
-                response
+                fake400
             ]
             resp = self.app.post(self.collection_url + '/records',
                                  headers=self.headers,
                                  status=400)
-            self.assertEqual(resp.body, response.body)
+            self.assertEqual(resp.body, fake400.body)
 
     def test_trailing_slash_redirection_works_for_default_bucket(self):
         collection_url = '/buckets/default/'
