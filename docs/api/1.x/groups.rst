@@ -452,3 +452,116 @@ Deleting a group
 .. include:: _details-delete-object.rst
 
 .. include:: _status-delete-object.rst
+
+
+.. _group-json-schema:
+
+Metadata validation using JSON schema
+=====================================
+
+**Requires setting** ``kinto.experimental_collection_schema_validation`` to ``True``.
+
+By default, only the ``members`` must respect a particular schema (list of strings), and groups will accept any kind of additional fields.
+
+In order to validate the additional fields, it is possible to define a `JSON schema <http://json-schema.org/>`_ on the parent bucket metadata.
+
+
+Set or replace a schema
+-----------------------
+
+Just modify the ``group:schema`` attribute of the parent bucket object:
+
+**Example request**
+
+.. code-block:: bash
+
+    $ echo '{
+      "data": {
+        "group:schema": {
+          "title": "Supporters group",
+          "type": "object",
+          "properties": {
+              "email": {"type": "string"},
+              "members": {"type": "array", "item": {"type": "string"}}
+          },
+          "required": ["email"]
+        }
+      }
+    }' | http PATCH "http://localhost:8888/v1/buckets/blog" --auth token:admin-token --verbose
+
+.. code-block:: http
+
+    PATCH /v1/buckets/blog HTTP/1.1
+    Accept: application/json
+    Accept-Encoding: gzip, deflate
+    Authorization: Basic YWRtaW46
+    Connection: keep-alive
+    Content-Length: 236
+    Content-Type: application/json; charset=utf-8
+    Host: localhost:8888
+    User-Agent: HTTPie/0.8.0
+
+    {
+        "data": {
+            "group:schema": {
+                "properties": {
+                    "email": {
+                        "type": "string"
+                    },
+                    "members": {
+                        "type": "array",
+                        "item": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "required": [
+                    "email"
+                ],
+                "title": "Supporters group",
+                "type": "object"
+            }
+        }
+    }
+
+**Example response**
+
+.. code-block:: http
+
+    HTTP/1.1 200 OK
+    Access-Control-Expose-Headers: Backoff, Retry-After, Alert, Content-Length
+    Content-Length: 300
+    Content-Type: application/json; charset=UTF-8
+    Date: Fri, 21 Aug 2015 12:31:40 GMT
+    Etag: "1440160300818"
+    Last-Modified: Fri, 21 Aug 2015 12:31:40 GMT
+    Server: waitress
+
+    {
+        "data": {
+            "group:schema": {
+                "properties": {
+                    "email": {
+                        "type": "string"
+                    },
+                    "members": {
+                        "type": "array",
+                        "item": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "required": [
+                    "email"
+                ],
+                "title": "Supporters group",
+                "type": "object"
+            }
+        },
+        "permissions": {
+            "write": [
+                "basicauth:780f1ecd9f57b01bef79608b45916d3bddd17f83461ac6240402e0ffff3596c5"
+            ]
+        }
+    }
+

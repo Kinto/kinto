@@ -684,6 +684,73 @@ to an empty mapping.
     }
 
 
+Same schema for every collection
+--------------------------------
+
+It is possible to define a JSON schema that will apply to every collections records inside a bucket.
+
+This can be useful when a particular application creates collections whose records should all be validated againts the same schema.
+
+To achieve that, instead of storing the definition in the ``schema`` field in the metadata of a particular collection, the definition must be stored in the ``record:schema`` field in the metadata of the bucket.
+
+.. code-block:: http
+
+    PATCH /v1/buckets/blog HTTP/1.1
+    Accept: application/json
+    Accept-Encoding: gzip, deflate
+    Authorization: Basic YWRtaW46
+    Connection: keep-alive
+    Content-Length: 236
+    Content-Type: application/json; charset=utf-8
+    Host: localhost:8888
+    User-Agent: HTTPie/0.8.0
+
+    {
+        "data": {
+            "record:schema": {
+                "properties": {
+                    "body": {
+                        "type": "string"
+                    },
+                    "title": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "title"
+                ],
+                "title": "Blog post schema",
+                "type": "object"
+            }
+        }
+    }
+
+Collection metadata validation
+------------------------------
+
+By default, only a few fields in the collection metadata must respect a particular schema (eg. ``schema``, ``cache_expires``...), and metadata will accept any kind of additional fields.
+
+In order to validate the additional fields, it is possible to define a schema on the parent bucket metadata.
+
+To achieve that, just modify the ``collection:schema`` attribute of the parent bucket object:
+
+**Example request**
+
+.. code-block:: bash
+
+    $ echo '{
+      "data": {
+        "collection:schema": {
+          "title": "Admin Collection",
+          "type": "object",
+          "properties": {
+              "uiSchema": {"type": "object"},
+          }
+        }
+      }
+    }' | http PATCH "http://localhost:8888/v1/buckets/blog" --auth token:admin-token --verbose
+
+
 .. _collection-caching:
 
 Collection caching
