@@ -191,6 +191,13 @@ class LoginViewTest(OpenIDWebTest):
         self.app.get('/openid/google/login', params={'callback': cb, 'scope': scope},
                      status=400)
 
+    def test_returns_400_if_prompt_is_not_recognized(self):
+        scope = 'openid'
+        cb = 'http://ui'
+        self.app.get('/openid/auth0/login',
+                     params={'callback': cb, 'scope': scope, 'prompt': 'junk'},
+                     status=400)
+
     def test_redirects_to_the_identity_provider(self):
         params = {'callback': 'http://ui', 'scope': 'openid'}
         resp = self.app.get('/openid/auth0/login', params=params, status=307)
@@ -199,6 +206,16 @@ class LoginViewTest(OpenIDWebTest):
         assert '%2Fv1%2Fopenid%2Fauth0%2Ftoken' in location
         assert 'scope=openid' in location
         assert 'client_id=abc' in location
+
+    def test_redirects_to_the_identity_provider_with_prompt_none(self):
+        params = {'callback': 'http://ui', 'scope': 'openid', 'prompt': 'none'}
+        resp = self.app.get('/openid/auth0/login', params=params, status=307)
+        location = resp.headers['Location']
+        assert 'auth0.com/authorize?' in location
+        assert '%2Fv1%2Fopenid%2Fauth0%2Ftoken' in location
+        assert 'scope=openid' in location
+        assert 'client_id=abc' in location
+        assert 'prompt=none' in location
 
     def test_callback_is_stored_in_cache(self):
         params = {'callback': 'http://ui', 'scope': 'openid'}
