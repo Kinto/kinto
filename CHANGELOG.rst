@@ -16,6 +16,8 @@ This document describes changes between each past release.
   ``instance_uri_registry``, suitable for use when you don't
   necessarily have a ``request`` object around. The existing functions
   will remain in place.
+- openid plugin will carry ``prompt=none`` query string parameter if appended
+  to authorize endpoint.
 
 **Internal changes**
 
