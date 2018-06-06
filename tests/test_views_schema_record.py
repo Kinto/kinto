@@ -312,6 +312,21 @@ class BucketRecordSchema(BaseWebTestWithSchema, unittest.TestCase):
                            headers=self.headers,
                            status=201)
 
+    def test_records_are_validated_on_batch(self):
+        resp = self.app.post_json("/batch", {
+            'defaults': {
+                'path': RECORDS_URL,
+                'method': 'POST',
+            },
+            'requests': [{
+                'body': {'data': VALID_RECORD},
+              }, {
+                'body': {'data': {'body': '<h1>Without title</h1>'}},
+            }]
+        }, headers=self.headers)
+        assert resp.json['responses'][0]['status'] == 201
+        assert resp.json['responses'][1]['status'] == 400
+
     def test_records_are_invalid_if_do_not_match_schema(self):
         self.app.post_json(RECORDS_URL,
                            {'data': {'body': '<h1>Without title</h1>'}},
