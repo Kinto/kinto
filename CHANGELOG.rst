@@ -9,8 +9,8 @@ This document describes changes between each past release.
 
 **API**
 
-- JSON schema can now be defined in the bucket metadata and will apply to every
-  underlying collections (ref #1555)
+- JSON schemas can now be defined in the bucket metadata and will apply to every
+  underlying collections, groups or records (fixes #1555)
 
 API is now at version **1.20**. See `API changelog`_.
 

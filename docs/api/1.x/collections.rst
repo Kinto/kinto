@@ -689,9 +689,9 @@ Same schema for every collection
 
 It is possible to define a JSON schema that will apply to every collections records inside a bucket.
 
-This can be useful when a particular application creates collections whose records should all be validated againts the same schema.
+This can be useful when a particular application creates collections whose records should all be validated against the same schema.
 
-To achieve that, instead of storing the definition in the ``schema`` field in the metadata of a particular collection, the definition must be stored in the ``record:schema`` field in the metadata of the bucket.
+To achieve that, instead of storing the definition in the ``schema`` field in the metadata of a particular collection, the definition can be stored in the ``record:schema`` field in the metadata of the bucket.
 
 .. code-block:: http
 

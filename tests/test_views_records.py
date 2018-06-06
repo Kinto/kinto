@@ -68,7 +68,7 @@ class RecordsViewTest(BaseWebTest, unittest.TestCase):
         with mock.patch.object(self.storage, 'get',
                                wraps=self.storage.get) as patched:
             self.app.post_json('/batch', batch, headers=self.headers)
-            self.assertEqual(patched.call_count, 2)
+            self.assertEqual(patched.call_count, 1)
 
     def test_individual_collections_can_be_deleted(self):
         resp = self.app.get(self.collection_url, headers=self.headers)
