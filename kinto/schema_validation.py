@@ -81,22 +81,12 @@ def validate_from_parent_schema_or_400(data, resource_name, request, ignore_fiel
         collection_id = request.matchdict["collection_id"]
         collection_uri = utils.instance_uri(request, 'collection',
                                             bucket_id=bucket_id, id=collection_id)
-        print(collections)
-        if collection_uri not in collections:
-            # Unknown yet, fetch from storage.
-            collection = object_exists_or_404(request,
-                                              collection_id='collection',
-                                              parent_id=bucket_uri,
-                                              object_id=collection_id)
-            collections[collection_uri] = collection
-
         collection = collections[collection_uri]
         if 'schema' in collection:
             schemas.append(collection['schema'])
 
     # Fetch the bucket object for this resource.
     buckets = request.bound_data.setdefault('buckets', {})
-    print(buckets)
     if bucket_uri not in buckets:
         # Unknown yet, fetch from storage.
         bucket = object_exists_or_404(request,
