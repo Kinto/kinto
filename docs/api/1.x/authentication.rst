@@ -281,11 +281,15 @@ for the configured provider ``name``.
 - ``callback`` which is the URI the browser will be redirected to after the login (eg. ``http://dashboard.myapp.com/#tokens=``).
   It will be suffixed with the JSON response from the :term:`Identity Provider`, which will either be the access and ID tokens or an error.
 - ``scope`` which should at least be ``openid`` (but usually ``openid email``) (see your Identity Provider documentation)
+- ``prompt`` (optional) if set has to be the word ``none``. Generally used for Silent Authentication.
 
 .. note::
 
     Because multiple OpenID providers can be enabled on the server, the ``auth_path`` URI contains the provider name with which the login process is initiated (eg. client initiates login by redirecting to ``/openid/auth0/login?...`` or ``/openid/google/login?...`` etc.)
 
+.. note::
+
+    The effect of adding ``&prompt=none`` tells the Identity Provider to not present a ``200 OK`` response. Only redirects.
 
 JavaScript example
 ------------------
