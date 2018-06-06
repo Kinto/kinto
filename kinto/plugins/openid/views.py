@@ -51,7 +51,9 @@ class LoginQuerystringSchema(colander.MappingSchema):
     """
     callback = URL()
     scope = colander.SchemaNode(colander.String())
-    prompt = colander.String()
+    prompt = colander.SchemaNode(colander.String(),
+                                 validator=colander.Regex("none"),
+                                 missing=colander.drop)
 
 
 class LoginSchema(colander.MappingSchema):
@@ -94,14 +96,6 @@ def get_login(request):
         error_details = {
             'name': 'scope',
             'description': "Provider %s requires 'email' scope" % provider,
-        }
-        raise_invalid(request, **error_details)
-    if prompt is not None and prompt != 'none':
-        # If the 'prompt' query string parameter is set it better be equal
-        # # to 'none' as that's the only value recognized.
-        error_details = {
-            'name': 'prompt',
-            'description': "prompt argument not recognized (%r)" % prompt,
         }
         raise_invalid(request, **error_details)
 
