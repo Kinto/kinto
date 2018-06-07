@@ -4,7 +4,7 @@ Changelog
 This document describes changes between each past release.
 
 
-9.2.0 (unreleased)
+9.2.0 (2018-06-07)
 ------------------
 
 **API**

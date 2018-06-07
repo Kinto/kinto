@@ -11,7 +11,7 @@ API
 Changelog
 ---------
 
-1.20 (unreleased)
+1.20 (2018-06-07)
 '''''''''''''''''
 
 - JSON schemas can now be defined in the bucket metadata and will apply to every
