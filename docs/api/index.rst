@@ -15,7 +15,7 @@ Changelog
 '''''''''''''''''
 
 - JSON schemas can now be defined in the bucket metadata and will apply to every
-  underlying collections, groups or records (#1555)
+  underlying collection, group or record (#1555)
 
 
 1.19 (2018-04-25)

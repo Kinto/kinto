@@ -52,10 +52,11 @@ class DeactivatedSchemaTest(BaseWebTest, unittest.TestCase):
                                  headers=self.headers)
         self.collection = resp.json['data']
 
-        self.app.post_json(RECORDS_URL,
-                           {'data': {'body': '<h1>Without title</h1>'}},
-                           headers=self.headers,
-                           status=201)
+        resp = self.app.post_json(RECORDS_URL,
+                                  {'data': {'body': '<h1>Without title</h1>'}},
+                                  headers=self.headers,
+                                  status=201)
+        self.assertNotIn('schema', resp.json['data'])
 
 
 class BaseWebTestWithSchema(BaseWebTest):

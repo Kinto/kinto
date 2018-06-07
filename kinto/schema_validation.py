@@ -43,6 +43,8 @@ def validate_schema(data, schema, ignore_fields=[]):
     else:
         schema = {f: v for f, v in schema.items() if f != 'required'}
 
+    data = {f: v for f, v in data.items() if f not in ignore_fields}
+
     try:
         validate(data, schema)
     except ValidationError as e:
@@ -56,7 +58,7 @@ def validate_schema(data, schema, ignore_fields=[]):
         raise e
 
 
-def validate_from_parent_schema_or_400(data, resource_name, request, ignore_fields=[]):
+def validate_from_bucket_schema_or_400(data, resource_name, request, ignore_fields=[]):
     """Lookup in the parent objects if a schema was defined for this resource.
 
     If the schema validation feature is enabled, if a schema is/are defined, and if the
@@ -68,24 +70,8 @@ def validate_from_parent_schema_or_400(data, resource_name, request, ignore_fiel
     if not asbool(settings.get(schema_validation)):
         return
 
-    # For records, there can be several schemas (collection level + bucket level).
-    schemas = []
-
     bucket_id = request.matchdict["bucket_id"]
     bucket_uri = utils.instance_uri(request, 'bucket', id=bucket_id)
-
-    # For records, the schema defined on the collection will be validated first.
-    if resource_name == "record":
-        # Fetch the collection object for this record.
-        collections = request.bound_data.setdefault('collections', {})
-        collection_id = request.matchdict["collection_id"]
-        collection_uri = utils.instance_uri(request, 'collection',
-                                            bucket_id=bucket_id, id=collection_id)
-        collection = collections[collection_uri]
-        if 'schema' in collection:
-            schemas.append(collection['schema'])
-
-    # Fetch the bucket object for this resource.
     buckets = request.bound_data.setdefault('buckets', {})
     if bucket_uri not in buckets:
         # Unknown yet, fetch from storage.
@@ -98,15 +84,12 @@ def validate_from_parent_schema_or_400(data, resource_name, request, ignore_fiel
     # Let's see if the bucket defines a schema for this resource.
     metadata_field = "{}:schema".format(resource_name)
     bucket = buckets[bucket_uri]
-    if metadata_field in bucket:
-        schemas.append(bucket[metadata_field])
-
-    # Ignore fields from data.
-    data = {f: v for f, v in data.items() if f not in ignore_fields}
+    if metadata_field not in bucket:
+        return
 
     # Validate or fail with 400.
+    schema = bucket[metadata_field]
     try:
-        for schema in schemas:
-            validate_schema(data, schema, ignore_fields=ignore_fields)
+        validate_schema(data, schema, ignore_fields=ignore_fields)
     except ValidationError as e:
         raise_invalid(request, name=e.field, description=e.message)

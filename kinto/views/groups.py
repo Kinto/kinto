@@ -3,7 +3,7 @@ from pyramid.events import subscriber
 
 from kinto.core import resource, utils
 from kinto.core.events import ResourceChanged, ACTIONS
-from kinto.schema_validation import validate_from_parent_schema_or_400
+from kinto.schema_validation import validate_from_bucket_schema_or_400
 
 
 def validate_member(node, member):
@@ -37,7 +37,7 @@ class Group(resource.ShareableResource):
         internal_fields = (self.model.id_field,
                            self.model.modified_field,
                            self.model.permissions_field)
-        validate_from_parent_schema_or_400(new, resource_name="group", request=self.request,
+        validate_from_bucket_schema_or_400(new, resource_name="group", request=self.request,
                                            ignore_fields=internal_fields)
 
         return new

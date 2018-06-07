@@ -1,8 +1,11 @@
-from kinto.core import resource, utils
 from pyramid.security import Authenticated
+from pyramid.settings import asbool
 
+from kinto.core import resource, utils
+from kinto.core.errors import raise_invalid
 from kinto.views import object_exists_or_404
-from kinto.schema_validation import validate_from_parent_schema_or_400
+from kinto.schema_validation import (validate_from_bucket_schema_or_400, validate_schema,
+                                     ValidationError)
 
 
 _parent_path = '/buckets/{{bucket_id}}/collections/{{collection_id}}'
@@ -40,20 +43,37 @@ class Record(resource.ShareableResource):
                                   id=self.collection_id)
 
     def process_record(self, new, old=None):
-        """Validate records against collection schema, if any."""
+        """Validate records against collection or bucket schema, if any."""
         new = super().process_record(new, old)
+
+        # Is schema validation enabled?
+        settings = self.request.registry.settings
+        schema_validation = 'experimental_collection_schema_validation'
+        if not asbool(settings.get(schema_validation)):
+            return new
 
         # Remove internal and auto-assigned fields from schemas and record.
         internal_fields = (self.model.id_field,
                            self.model.modified_field,
                            self.schema_field,
                            self.model.permissions_field)
-        validate_from_parent_schema_or_400(new, resource_name="record", request=self.request,
-                                           ignore_fields=internal_fields)
-        # Assign the schema version to the record.
+
+        # The schema defined on the collection will be validated first.
         if 'schema' in self._collection:
+            schema = self._collection['schema']
+
+            try:
+                validate_schema(new, schema, ignore_fields=internal_fields)
+            except ValidationError as e:
+                raise_invalid(self.request, name=e.field, description=e.message)
+
+            # Assign the schema version to the record.
             schema_timestamp = self._collection[self.model.modified_field]
             new[self.schema_field] = schema_timestamp
+
+        # Validate also from the record:schema field defined on the bucket.
+        validate_from_bucket_schema_or_400(new, resource_name="record", request=self.request,
+                                           ignore_fields=internal_fields)
 
         return new
 
