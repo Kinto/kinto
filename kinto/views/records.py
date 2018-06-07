@@ -1,11 +1,11 @@
-import jsonschema
-from kinto.core import resource, utils
-from kinto.core.errors import raise_invalid
-from jsonschema import exceptions as jsonschema_exceptions
 from pyramid.security import Authenticated
 from pyramid.settings import asbool
 
+from kinto.core import resource, utils
+from kinto.core.errors import raise_invalid
 from kinto.views import object_exists_or_404
+from kinto.schema_validation import (validate_from_bucket_schema_or_400, validate_schema,
+                                     ValidationError)
 
 
 _parent_path = '/buckets/{{bucket_id}}/collections/{{collection_id}}'
@@ -25,16 +25,15 @@ class Record(resource.ShareableResource):
         collection_uri = self.get_parent_id(request)
         if collection_uri not in collections:
             # Unknown yet, fetch from storage.
-            collection_parent_id = utils.instance_uri(request, 'bucket',
-                                                      id=self.bucket_id)
+            bucket_uri = utils.instance_uri(request, 'bucket', id=self.bucket_id)
             collection = object_exists_or_404(request,
                                               collection_id='collection',
-                                              parent_id=collection_parent_id,
+                                              parent_id=bucket_uri,
                                               object_id=self.collection_id)
             collections[collection_uri] = collection
+        self._collection = collections[collection_uri]
 
         super().__init__(request, **kwargs)
-        self._collection = collections[collection_uri]
 
     def get_parent_id(self, request):
         self.bucket_id = request.matchdict['bucket_id']
@@ -44,45 +43,37 @@ class Record(resource.ShareableResource):
                                   id=self.collection_id)
 
     def process_record(self, new, old=None):
-        """Validate records against collection schema, if any."""
+        """Validate records against collection or bucket schema, if any."""
         new = super().process_record(new, old)
 
-        schema = self._collection.get('schema')
+        # Is schema validation enabled?
         settings = self.request.registry.settings
         schema_validation = 'experimental_collection_schema_validation'
-        if not schema or not asbool(settings.get(schema_validation)):
+        if not asbool(settings.get(schema_validation)):
             return new
 
-        # Remove internal and auto-assigned fields from schema and record.
+        # Remove internal and auto-assigned fields from schemas and record.
         internal_fields = (self.model.id_field,
                            self.model.modified_field,
                            self.schema_field,
                            self.model.permissions_field)
-        required_fields = [f for f in schema.get('required', []) if f not in internal_fields]
-        # jsonschema doesn't accept 'required': [] yet.
-        # See https://github.com/Julian/jsonschema/issues/337.
-        # In the meantime, strip out 'required' if no other fields are required.
-        if required_fields:
-            schema = {**schema, 'required': required_fields}
-        else:
-            schema = {f: v for f, v in schema.items() if f != 'required'}
-        data = {f: v for f, v in new.items() if f not in internal_fields}
 
-        # Validate or fail with 400.
-        try:
-            jsonschema.validate(data, schema)
-        except jsonschema_exceptions.ValidationError as e:
-            if e.path:
-                field = e.path[-1]
-            elif e.validator_value:
-                field = e.validator_value[-1]
-            else:
-                field = e.schema_path[-1]
-            raise_invalid(self.request, name=field, description=e.message)
+        # The schema defined on the collection will be validated first.
+        if 'schema' in self._collection:
+            schema = self._collection['schema']
 
-        # Assign the schema version (collection object timestamp) to the record.
-        collection_timestamp = self._collection[self.model.modified_field]
-        new[self.schema_field] = collection_timestamp
+            try:
+                validate_schema(new, schema, ignore_fields=internal_fields)
+            except ValidationError as e:
+                raise_invalid(self.request, name=e.field, description=e.message)
+
+            # Assign the schema version to the record.
+            schema_timestamp = self._collection[self.model.modified_field]
+            new[self.schema_field] = schema_timestamp
+
+        # Validate also from the record:schema field defined on the bucket.
+        validate_from_bucket_schema_or_400(new, resource_name="record", request=self.request,
+                                           ignore_fields=internal_fields)
 
         return new
 

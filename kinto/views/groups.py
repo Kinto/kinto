@@ -1,8 +1,9 @@
 import colander
+from pyramid.events import subscriber
 
 from kinto.core import resource, utils
 from kinto.core.events import ResourceChanged, ACTIONS
-from pyramid.events import subscriber
+from kinto.schema_validation import validate_from_bucket_schema_or_400
 
 
 def validate_member(node, member):
@@ -27,6 +28,19 @@ class Group(resource.ShareableResource):
         bucket_id = request.matchdict['bucket_id']
         parent_id = utils.instance_uri(request, 'bucket', id=bucket_id)
         return parent_id
+
+    def process_record(self, new, old=None):
+        """Additional collection schema validation from bucket, if any."""
+        new = super().process_record(new, old)
+
+        # Remove internal and auto-assigned fields.
+        internal_fields = (self.model.id_field,
+                           self.model.modified_field,
+                           self.model.permissions_field)
+        validate_from_bucket_schema_or_400(new, resource_name="group", request=self.request,
+                                           ignore_fields=internal_fields)
+
+        return new
 
 
 @subscriber(ResourceChanged,

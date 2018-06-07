@@ -1,13 +1,25 @@
+import colander
+from pyramid.events import subscriber
+
+from kinto.schema_validation import JSONSchemaMapping
 from kinto.core import resource
 from kinto.core.utils import instance_uri
 from kinto.core.events import ResourceChanged, ACTIONS
-from pyramid.events import subscriber
+
+
+class BucketSchema(resource.ResourceSchema):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self["collection:schema"] = JSONSchemaMapping(missing=colander.drop)
+        self["group:schema"] = JSONSchemaMapping(missing=colander.drop)
+        self["record:schema"] = JSONSchemaMapping(missing=colander.drop)
 
 
 @resource.register(name='bucket',
                    collection_path='/buckets',
                    record_path='/buckets/{{id}}')
 class Bucket(resource.ShareableResource):
+    schema = BucketSchema
     permissions = ('read', 'write', 'collection:create', 'group:create')
 
     def get_parent_id(self, request):

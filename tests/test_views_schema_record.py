@@ -52,10 +52,11 @@ class DeactivatedSchemaTest(BaseWebTest, unittest.TestCase):
                                  headers=self.headers)
         self.collection = resp.json['data']
 
-        self.app.post_json(RECORDS_URL,
-                           {'data': {'body': '<h1>Without title</h1>'}},
-                           headers=self.headers,
-                           status=201)
+        resp = self.app.post_json(RECORDS_URL,
+                                  {'data': {'body': '<h1>Without title</h1>'}},
+                                  headers=self.headers,
+                                  status=201)
+        self.assertNotIn('schema', resp.json['data'])
 
 
 class BaseWebTestWithSchema(BaseWebTest):
@@ -295,5 +296,75 @@ class InternalRequiredProperties(BaseWebTestWithSchema, unittest.TestCase):
         self.app.post_json(RECORDS_URL,
                            {'data': {'id': 'abc', 'last_modified': 1234,
                                      'body': 2}},
+                           headers=self.headers,
+                           status=400)
+
+
+class BucketRecordSchema(BaseWebTestWithSchema, unittest.TestCase):
+    def setUp(self):
+        super().setUp()
+        self.app.put_json(BUCKET_URL,
+                          {'data': {'record:schema': SCHEMA}},
+                          headers=self.headers)
+
+    def test_records_are_valid_if_match_schema(self):
+        self.app.post_json(RECORDS_URL,
+                           {'data': VALID_RECORD},
+                           headers=self.headers,
+                           status=201)
+
+    def test_records_are_validated_on_batch(self):
+        resp = self.app.post_json("/batch", {
+            'defaults': {
+                'path': RECORDS_URL,
+                'method': 'POST',
+            },
+            'requests': [{
+                'body': {'data': VALID_RECORD},
+              }, {
+                'body': {'data': {'body': '<h1>Without title</h1>'}},
+            }]
+        }, headers=self.headers)
+        assert resp.json['responses'][0]['status'] == 201
+        assert resp.json['responses'][1]['status'] == 400
+
+    def test_records_are_invalid_if_do_not_match_schema(self):
+        self.app.post_json(RECORDS_URL,
+                           {'data': {'body': '<h1>Without title</h1>'}},
+                           headers=self.headers,
+                           status=400)
+
+
+class BothBucketAndCollectionSchemas(BaseWebTestWithSchema, unittest.TestCase):
+    def setUp(self):
+        super().setUp()
+        self.app.put_json(COLLECTION_URL,
+                          {'data': {'schema': SCHEMA}},
+                          headers=self.headers)
+        other_schema = {
+            "type": "object",
+            "properties": {
+                "filters": {"type": "string"},
+            },
+        }
+        self.app.put_json(BUCKET_URL,
+                          {'data': {'record:schema': other_schema}},
+                          headers=self.headers)
+
+    def test_records_are_valid_if_match_both_schemas(self):
+        self.app.post_json(RECORDS_URL,
+                           {'data': {'filters': '1 == 1', **VALID_RECORD}},
+                           headers=self.headers,
+                           status=201)
+
+    def test_records_are_invalid_if_do_not_match_collection_schema(self):
+        self.app.post_json(RECORDS_URL,
+                           {'data': {'body': '<h1>Without title</h1>'}},
+                           headers=self.headers,
+                           status=400)
+
+    def test_records_are_invalid_if_do_not_match_bucket_schema(self):
+        self.app.post_json(RECORDS_URL,
+                           {'data': {'filters': 42, **VALID_RECORD}},
                            headers=self.headers,
                            status=400)

@@ -1,28 +1,9 @@
 import colander
-import jsonschema
-from kinto.core import resource, utils
-from kinto.core.events import ResourceChanged, ACTIONS
-from jsonschema import exceptions as jsonschema_exceptions
 from pyramid.events import subscriber
 
-
-class JSONSchemaMapping(colander.SchemaNode):
-    def schema_type(self, **kw):
-        return colander.Mapping(unknown='preserve')
-
-    def deserialize(self, cstruct=colander.null):
-        # Start by deserializing a simple mapping.
-        validated = super().deserialize(cstruct)
-
-        # In case it is optional in parent schema.
-        if not validated or validated in (colander.null, colander.drop):
-            return validated
-
-        try:
-            jsonschema.Draft4Validator.check_schema(validated)
-        except jsonschema_exceptions.SchemaError as e:
-            self.raise_invalid(e.path.pop() + e.message)
-        return validated
+from kinto.core import resource, utils
+from kinto.core.events import ResourceChanged, ACTIONS
+from kinto.schema_validation import validate_from_bucket_schema_or_400, JSONSchemaMapping
 
 
 class CollectionSchema(resource.ResourceSchema):
@@ -41,6 +22,18 @@ class Collection(resource.ShareableResource):
         bucket_id = request.matchdict['bucket_id']
         parent_id = utils.instance_uri(request, 'bucket', id=bucket_id)
         return parent_id
+
+    def process_record(self, new, old=None):
+        """Additional collection schema validation from bucket, if any."""
+        new = super().process_record(new, old)
+
+        # Remove internal and auto-assigned fields.
+        internal_fields = (self.model.id_field,
+                           self.model.modified_field,
+                           self.model.permissions_field)
+        validate_from_bucket_schema_or_400(new, resource_name="collection", request=self.request,
+                                           ignore_fields=internal_fields)
+        return new
 
 
 @subscriber(ResourceChanged,

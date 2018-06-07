@@ -7,6 +7,13 @@ This document describes changes between each past release.
 9.2.0 (unreleased)
 ------------------
 
+**API**
+
+- JSON schemas can now be defined in the bucket metadata and will apply to every
+  underlying collection, group or record (fixes #1555)
+
+API is now at version **1.20**. See `API changelog`_.
+
 **New features**
 
 - Kinto Admin plugin now supports OpenID Connect

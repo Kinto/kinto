@@ -56,7 +56,7 @@ class RecordsViewTest(BaseWebTest, unittest.TestCase):
         self.app.get(other_collection, headers=self.headers, status=404)
         self.assertFalse(mocked.called)
 
-    def test_parent_collection_is_fetched_only_once_in_batch(self):
+    def test_parent_collection_and_bucket_are_fetched_only_once_in_batch(self):
         batch = {'requests': []}
         nb_create = 25
         for i in range(nb_create):
