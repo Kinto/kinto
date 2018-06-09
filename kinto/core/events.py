@@ -74,7 +74,7 @@ def notify_resource_events_before(handler, registry):
     """
     def tween(request):
         response = handler(request)
-        for event in request.get_resource_events():
+        for event in request.drain_resource_events():
             request.registry.notify(event)
 
         return response
@@ -95,7 +95,7 @@ def setup_transaction_hook(config):
         if not success:  # pragma: no cover
             return
 
-        for event in request.get_resource_events(after_commit=True):
+        for event in request.drain_after_resource_events():
             try:
                 request.registry.notify(event)
             except Exception:
@@ -116,27 +116,46 @@ def setup_transaction_hook(config):
                      under=pyramid.tweens.EXCVIEW)
 
 
-def get_resource_events(request, after_commit=False):
+def drain_resource_events(request):
     """
     Request helper to return the list of events triggered on resources.
     The list is sorted chronologically (see OrderedDict)
     """
     by_resource = request.bound_data.get('resource_events', {})
-    events = []
-    for (action, payload, impacted, request) in by_resource.values():
-        if after_commit:
-            if action == ACTIONS.READ:
-                event_cls = AfterResourceRead
-            else:
-                event_cls = AfterResourceChanged
+    afterwards = request.bound_data.setdefault('after_resource_events', OrderedDict())
+
+    while by_resource:
+        key = next(iter(by_resource.keys()))
+        event = by_resource.pop(key)
+        (action, payload, impacted, request) = event
+
+        after_event = afterwards.get(key, None)
+        if not after_event:
+            afterwards[key] = event
         else:
-            if action == ACTIONS.READ:
-                event_cls = ResourceRead
-            else:
-                event_cls = ResourceChanged
-        event = event_cls(payload, impacted, request)
-        events.append(event)
-    return events
+            after_impacted = afterwards[key][2]
+            after_impacted.extend(impacted)
+
+        if action == ACTIONS.READ:
+            event_cls = ResourceRead
+        else:
+            event_cls = ResourceChanged
+
+        yield event_cls(payload, impacted, request)
+
+
+def drain_after_resource_events(request):
+    by_resource = request.bound_data.get('after_resource_events')
+    while by_resource:
+        key = next(iter(by_resource.keys()))
+        event = by_resource.pop(key)
+        (action, payload, impacted, request) = event
+        if action == ACTIONS.READ:
+            event_cls = AfterResourceRead
+        else:
+            event_cls = AfterResourceChanged
+
+        yield event_cls(payload, impacted, request)
 
 
 def notify_resource_event(request, parent_id, timestamp, data, action,
