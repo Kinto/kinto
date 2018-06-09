@@ -12,10 +12,10 @@ def get_openid_configuration(url):
     base_url = url.replace('/.well-known/openid-configuration', '')
     m = mock.Mock()
     m.json.return_value = {
-        'issuer': f'{base_url} issuer',
-        'authorization_endpoint': f'{base_url}/authorize',
-        'userinfo_endpoint': f'{base_url}/oauth/user',
-        'token_endpoint': f'{base_url}/oauth/token',
+        'issuer': '{base_url} issuer'.format(base_url=base_url),
+        'authorization_endpoint': '{base_url}/authorize'.format(base_url=base_url),
+        'userinfo_endpoint': '{base_url}/oauth/user'.format(base_url=base_url),
+        'token_endpoint': '{base_url}/oauth/token'.format(base_url=base_url),
     }
     return m
 
