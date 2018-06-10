@@ -8,7 +8,25 @@ from kinto.plugins.openid.utils import fetch_openid_config
 from .. import support
 
 
+def get_openid_configuration(url):
+    base_url = url.replace('/.well-known/openid-configuration', '')
+    m = mock.Mock()
+    m.json.return_value = {
+        'issuer': '{base_url} issuer'.format(base_url=base_url),
+        'authorization_endpoint': '{base_url}/authorize'.format(base_url=base_url),
+        'userinfo_endpoint': '{base_url}/oauth/user'.format(base_url=base_url),
+        'token_endpoint': '{base_url}/oauth/token'.format(base_url=base_url),
+    }
+    return m
+
+
 class OpenIDWebTest(support.BaseWebTest, unittest.TestCase):
+
+    @classmethod
+    def make_app(cls, *args, **kwargs):
+        with mock.patch('kinto.plugins.openid.requests.get') as get:
+            get.side_effect = get_openid_configuration
+            return super(OpenIDWebTest, cls).make_app(*args, **kwargs)
 
     @classmethod
     def get_app_settings(cls, extras=None):
