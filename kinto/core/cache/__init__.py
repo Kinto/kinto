@@ -6,15 +6,14 @@ logger = logging.getLogger(__name__)
 
 
 _HEARTBEAT_DELETE_RATE = 0.5
-_HEARTBEAT_KEY = '__heartbeat__'
+_HEARTBEAT_KEY = "__heartbeat__"
 _HEARTBEAT_TTL_SECONDS = 3600
 
 
 class CacheBase:
-
     def __init__(self, *args, **kwargs):
-        self.prefix = kwargs['cache_prefix']
-        self.max_size_bytes = kwargs.get('cache_max_size_bytes')
+        self.prefix = kwargs["cache_prefix"]
+        self.max_size_bytes = kwargs.get("cache_max_size_bytes")
 
     def initialize_schema(self, dry_run=False):
         """Create every necessary objects (like tables or indices) in the
@@ -88,10 +87,10 @@ def heartbeat(backend):
             if random.SystemRandom().random() < _HEARTBEAT_DELETE_RATE:
                 backend.delete(_HEARTBEAT_KEY)
             else:
-                backend.set(_HEARTBEAT_KEY, 'alive', _HEARTBEAT_TTL_SECONDS)
+                backend.set(_HEARTBEAT_KEY, "alive", _HEARTBEAT_TTL_SECONDS)
             return True
         except Exception:
-            logger.exception('Heartbeat Failure')
+            logger.exception("Heartbeat Failure")
             return False
 
     return ping

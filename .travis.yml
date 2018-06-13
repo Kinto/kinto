@@ -30,6 +30,9 @@ matrix:
   include:
     - python: 3.6
       env:
+        - TOX_ENV=black
+    - python: 3.6
+      env:
         - TOX_ENV=py36
     - env: ENV=functional
       before_install:

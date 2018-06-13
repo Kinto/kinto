@@ -15,17 +15,19 @@ class QueuePoolWithMaxBacklogTest(unittest.TestCase):
         self.connections = []
         self.errors = []
 
-        config = testing.setUp(settings={
-            'pooltest_url': 'sqlite:///:memory:',
-            'pooltest_pool_size': 2,
-            'pooltest_pool_timeout': 1,
-            'pooltest_max_backlog': 2,
-            'pooltest_max_overflow': 1,
-        })
+        config = testing.setUp(
+            settings={
+                "pooltest_url": "sqlite:///:memory:",
+                "pooltest_pool_size": 2,
+                "pooltest_pool_timeout": 1,
+                "pooltest_max_backlog": 2,
+                "pooltest_max_overflow": 1,
+            }
+        )
         # Create an engine with known pool parameters.
         # Use create_from_config() to make sure it is used by default
         # and handles parameters.
-        client = create_from_config(config, prefix='pooltest_')
+        client = create_from_config(config, prefix="pooltest_")
         session = client.session_factory()
         self.engine = session.get_bind()
 
@@ -75,6 +77,7 @@ class QueuePoolWithMaxBacklogTest(unittest.TestCase):
 
     def test_recreates_reinstantiate_with_same_pool_class(self):
         from kinto.core.storage.postgresql.pool import QueuePoolWithMaxBacklog
+
         pool = QueuePoolWithMaxBacklog(None, max_backlog=2, pool_size=2)
         other = pool.recreate()
         self.assertEqual(pool._pool.__class__, other._pool.__class__)

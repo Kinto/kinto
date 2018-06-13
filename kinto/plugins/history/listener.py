@@ -11,8 +11,8 @@ def on_resource_changed(event):
     :mod:`kinto.plugins.history.views` module.
     """
     payload = event.payload
-    resource_name = payload['resource_name']
-    event_uri = payload['uri']
+    resource_name = payload["resource_name"]
+    event_uri = payload["uri"]
 
     bucket_id = None
     bucket_uri = None
@@ -22,41 +22,40 @@ def on_resource_changed(event):
     permission = event.request.registry.permission
     settings = event.request.registry.settings
 
-    excluded_resources = aslist(settings.get('history.exclude_resources', ''))
+    excluded_resources = aslist(settings.get("history.exclude_resources", ""))
 
     targets = []
     for impacted in event.impacted_records:
-        target = impacted['new']
-        obj_id = target['id']
+        target = impacted["new"]
+        obj_id = target["id"]
 
         try:
-            bucket_id = payload['bucket_id']
+            bucket_id = payload["bucket_id"]
         except KeyError:
             # e.g. DELETE /buckets
             bucket_id = obj_id
-        bucket_uri = instance_uri(event.request, 'bucket', id=bucket_id)
+        bucket_uri = instance_uri(event.request, "bucket", id=bucket_id)
 
         if bucket_uri in excluded_resources:
             continue
 
-        if 'collection_id' in payload:
-            collection_id = payload['collection_id']
-            collection_uri = instance_uri(event.request,
-                                          'collection',
-                                          bucket_id=bucket_id,
-                                          id=collection_id)
+        if "collection_id" in payload:
+            collection_id = payload["collection_id"]
+            collection_uri = instance_uri(
+                event.request, "collection", bucket_id=bucket_id, id=collection_id
+            )
             if collection_uri in excluded_resources:
                 continue
 
         # On POST .../records, the URI does not contain the newly created
         # record id.
-        parts = event_uri.split('/')
+        parts = event_uri.split("/")
         if resource_name in parts[-1]:
             parts.append(obj_id)
         else:
             # Make sure the id is correct on grouped events.
             parts[-1] = obj_id
-        uri = '/'.join(parts)
+        uri = "/".join(parts)
 
         if uri in excluded_resources:
             continue
@@ -83,38 +82,40 @@ def on_resource_changed(event):
 
     # The principals allowed to read the bucket and collection.
     # (Note: ``write`` means ``read``)
-    read_principals = set(bucket_perms.get('read', []))
-    read_principals.update(bucket_perms.get('write', []))
-    read_principals.update(collection_perms.get('read', []))
-    read_principals.update(collection_perms.get('write', []))
+    read_principals = set(bucket_perms.get("read", []))
+    read_principals.update(bucket_perms.get("write", []))
+    read_principals.update(collection_perms.get("read", []))
+    read_principals.update(collection_perms.get("write", []))
 
     # Create a history entry for each impacted record.
     for (uri, target) in targets:
-        obj_id = target['id']
+        obj_id = target["id"]
         # Prepare the history entry attributes.
         perms = {k: list(v) for k, v in perms_by_object_id[uri].items()}
         eventattrs = dict(**payload)
-        eventattrs.pop('timestamp', None)  # Already in target `last_modified`.
-        eventattrs.pop('bucket_id', None)
-        eventattrs['{}_id'.format(resource_name)] = obj_id
-        eventattrs['uri'] = uri
-        attrs = dict(date=datetime.now().isoformat(),
-                     target={'data': target, 'permissions': perms},
-                     **eventattrs)
+        eventattrs.pop("timestamp", None)  # Already in target `last_modified`.
+        eventattrs.pop("bucket_id", None)
+        eventattrs["{}_id".format(resource_name)] = obj_id
+        eventattrs["uri"] = uri
+        attrs = dict(
+            date=datetime.now().isoformat(),
+            target={"data": target, "permissions": perms},
+            **eventattrs
+        )
 
         # Create a record for the 'history' resource, whose parent_id is
         # the bucket URI (c.f. views.py).
         # Note: this will be rolledback if the transaction is rolledback.
-        entry = storage.create(parent_id=bucket_uri,
-                               collection_id='history',
-                               record=attrs)
+        entry = storage.create(
+            parent_id=bucket_uri, collection_id="history", record=attrs
+        )
 
         # The read permission on the newly created history entry is the union
         # of the record permissions with the one from bucket and collection.
         entry_principals = set(read_principals)
-        entry_principals.update(perms.get('read', []))
-        entry_principals.update(perms.get('write', []))
-        entry_perms = {'read': list(entry_principals)}
+        entry_principals.update(perms.get("read", []))
+        entry_principals.update(perms.get("write", []))
+        entry_perms = {"read": list(entry_principals)}
         # /buckets/{id}/history is the URI for the list of history entries.
-        entry_perm_id = '/buckets/{}/history/{}'.format(bucket_id, entry['id'])
+        entry_perm_id = "/buckets/{}/history/{}".format(bucket_id, entry["id"])
         permission.replace_object_permissions(entry_perm_id, entry_perms)

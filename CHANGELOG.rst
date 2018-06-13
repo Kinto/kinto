@@ -9,6 +9,7 @@ This document describes changes between each past release.
 
 **Internal changes**
 
+- Use black to autoformat the code base. (#1688)
 - Update the Dockerfile with the new kinto --cache-backend option. (#1686)
 
 

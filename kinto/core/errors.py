@@ -52,6 +52,7 @@ class ERRORS(Enum):
     | 410         | 202   | Service deprecated                             |
     +-------------+-------+------------------------------------------------+
     """
+
     MISSING_AUTH_TOKEN = 104
     INVALID_AUTH_TOKEN = 105
     BADJSON = 106
@@ -84,8 +85,15 @@ class ErrorSchema(colander.MappingSchema):
     details = colander.SchemaNode(Any(), missing=colander.drop)
 
 
-def http_error(httpexception, errno=None,
-               code=None, error=None, message=None, info=None, details=None):
+def http_error(
+    httpexception,
+    errno=None,
+    code=None,
+    error=None,
+    message=None,
+    info=None,
+    details=None,
+):
     """Return a JSON formated response matching the error HTTP API.
 
     :param httpexception: Instance of :mod:`~pyramid:pyramid.httpexceptions`
@@ -104,18 +112,18 @@ def http_error(httpexception, errno=None,
         errno = errno.value
 
     body = {
-        'code': code or httpexception.code,
-        'errno': errno,
-        'error': error or httpexception.title,
-        'message': message,
-        'info': info,
-        'details': details or colander.drop,
+        "code": code or httpexception.code,
+        "errno": errno,
+        "error": error or httpexception.title,
+        "message": message,
+        "info": info,
+        "details": details or colander.drop,
     }
 
     response = httpexception
     response.errno = errno
     response.json = ErrorSchema().deserialize(body)
-    response.content_type = 'application/json'
+    response.content_type = "application/json"
     return response
 
 
@@ -136,36 +144,37 @@ def json_error_handler(request):
         (c.f. HTTP API).
     """
     errors = request.errors
-    sorted_errors = sorted(errors, key=lambda x: str(x['name']))
+    sorted_errors = sorted(errors, key=lambda x: str(x["name"]))
     # In Cornice, we call error handler if at least one error was set.
     error = sorted_errors[0]
-    name = error['name']
-    description = error['description']
+    name = error["name"]
+    description = error["description"]
 
     if isinstance(description, bytes):
-        description = error['description'].decode('utf-8')
+        description = error["description"].decode("utf-8")
 
     if name is not None:
         if name in description:
             message = description
         else:
-            message = '{name} in {location}: {description}'.format_map(error)
+            message = "{name} in {location}: {description}".format_map(error)
     else:
-        message = '{location}: {description}'.format_map(error)
+        message = "{location}: {description}".format_map(error)
 
-    response = http_error(httpexceptions.HTTPBadRequest(),
-                          code=errors.status,
-                          errno=ERRORS.INVALID_PARAMETERS.value,
-                          error='Invalid parameters',
-                          message=message,
-                          details=errors)
+    response = http_error(
+        httpexceptions.HTTPBadRequest(),
+        code=errors.status,
+        errno=ERRORS.INVALID_PARAMETERS.value,
+        error="Invalid parameters",
+        message=message,
+        details=errors,
+    )
     response.status = errors.status
     response = reapply_cors(request, response)
     return response
 
 
-def raise_invalid(request, location='body', name=None, description=None,
-                  **kwargs):
+def raise_invalid(request, location="body", name=None, description=None, **kwargs):
     """Helper to raise a validation error.
 
     :param location: location in request (e.g. ``'querystring'``)
@@ -179,7 +188,7 @@ def raise_invalid(request, location='body', name=None, description=None,
     raise response
 
 
-def send_alert(request, message=None, url=None, code='soft-eol'):
+def send_alert(request, message=None, url=None, code="soft-eol"):
     """Helper to add an Alert header to the response.
 
     :param code: The type of error 'soft-eol', 'hard-eol'
@@ -187,13 +196,11 @@ def send_alert(request, message=None, url=None, code='soft-eol'):
     :param url: The URL for more information, default to the documentation url.
     """
     if url is None:
-        url = request.registry.settings['project_docs']
+        url = request.registry.settings["project_docs"]
 
-    request.response.headers['Alert'] = json.dumps({
-        'code': code,
-        'message': message,
-        'url': url
-    })
+    request.response.headers["Alert"] = json.dumps(
+        {"code": code, "message": message, "url": url}
+    )
 
 
 def request_GET(request):
@@ -203,11 +210,13 @@ def request_GET(request):
     try:
         return request.GET
     except UnicodeDecodeError as e:
-        querystring = request.environ.get('QUERY_STRING', '')
+        querystring = request.environ.get("QUERY_STRING", "")
         logger = logging.getLogger(__name__)
-        logger.warn('Error decoding QUERY_STRING: %s' % request.environ)
+        logger.warn("Error decoding QUERY_STRING: %s" % request.environ)
         raise http_error(
             httpexceptions.HTTPBadRequest(),
             errno=ERRORS.INVALID_PARAMETERS,
-            message='A request with an incorrect encoding in the querystring was'
-            'received. Please make sure your requests are encoded in UTF-8: %s' % querystring)
+            message="A request with an incorrect encoding in the querystring was"
+            "received. Please make sure your requests are encoded in UTF-8: %s"
+            % querystring,
+        )

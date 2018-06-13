@@ -10,17 +10,19 @@ class Model:
     `parent_id` can be the current *user id* or *a group* where the collection
     belongs. If left empty, the collection records are not isolated.
     """
-    id_field = 'id'
+
+    id_field = "id"
     """Name of `id` field in records"""
 
-    modified_field = 'last_modified'
+    modified_field = "last_modified"
     """Name of `last modified` field in records"""
 
-    deleted_field = 'deleted'
+    deleted_field = "deleted"
     """Name of `deleted` field in deleted records"""
 
-    def __init__(self, storage, id_generator=None, collection_id='',
-                 parent_id='', auth=None):
+    def __init__(
+        self, storage, id_generator=None, collection_id="", parent_id="", auth=None
+    ):
         """
         :param storage: an instance of storage
         :type storage: :class:`kinto.core.storage.Storage`
@@ -44,12 +46,18 @@ class Model:
         """
         parent_id = parent_id or self.parent_id
         return self.storage.collection_timestamp(
-            collection_id=self.collection_id,
-            parent_id=parent_id,
-            auth=self.auth)
+            collection_id=self.collection_id, parent_id=parent_id, auth=self.auth
+        )
 
-    def get_records(self, filters=None, sorting=None, pagination_rules=None,
-                    limit=None, include_deleted=False, parent_id=None):
+    def get_records(
+        self,
+        filters=None,
+        sorting=None,
+        pagination_rules=None,
+        limit=None,
+        include_deleted=False,
+        parent_id=None,
+    ):
         """Fetch the collection records.
 
         Override to post-process records after feching them from storage.
@@ -97,11 +105,18 @@ class Model:
             id_field=self.id_field,
             modified_field=self.modified_field,
             deleted_field=self.deleted_field,
-            auth=self.auth)
+            auth=self.auth,
+        )
         return records, total_records
 
-    def delete_records(self, filters=None, sorting=None, pagination_rules=None,
-                       limit=None, parent_id=None):
+    def delete_records(
+        self,
+        filters=None,
+        sorting=None,
+        pagination_rules=None,
+        limit=None,
+        parent_id=None,
+    ):
         """Delete multiple collection records.
 
         Override to post-process records after their deletion from storage.
@@ -133,16 +148,18 @@ class Model:
         :returns: The list of deleted records from storage.
         """
         parent_id = parent_id or self.parent_id
-        return self.storage.delete_all(collection_id=self.collection_id,
-                                       parent_id=parent_id,
-                                       filters=filters,
-                                       sorting=sorting,
-                                       pagination_rules=pagination_rules,
-                                       limit=limit,
-                                       id_field=self.id_field,
-                                       modified_field=self.modified_field,
-                                       deleted_field=self.deleted_field,
-                                       auth=self.auth)
+        return self.storage.delete_all(
+            collection_id=self.collection_id,
+            parent_id=parent_id,
+            filters=filters,
+            sorting=sorting,
+            pagination_rules=pagination_rules,
+            limit=limit,
+            id_field=self.id_field,
+            modified_field=self.modified_field,
+            deleted_field=self.deleted_field,
+            auth=self.auth,
+        )
 
     def get_record(self, record_id, parent_id=None):
         """Fetch current view related record, and raise 404 if missing.
@@ -154,12 +171,14 @@ class Model:
         :rtype: dict
         """
         parent_id = parent_id or self.parent_id
-        return self.storage.get(collection_id=self.collection_id,
-                                parent_id=parent_id,
-                                object_id=record_id,
-                                id_field=self.id_field,
-                                modified_field=self.modified_field,
-                                auth=self.auth)
+        return self.storage.get(
+            collection_id=self.collection_id,
+            parent_id=parent_id,
+            object_id=record_id,
+            id_field=self.id_field,
+            modified_field=self.modified_field,
+            auth=self.auth,
+        )
 
     def create_record(self, record, parent_id=None):
         """Create a record in the collection.
@@ -182,13 +201,15 @@ class Model:
         :rtype: dict
         """
         parent_id = parent_id or self.parent_id
-        return self.storage.create(collection_id=self.collection_id,
-                                   parent_id=parent_id,
-                                   record=record,
-                                   id_generator=self.id_generator,
-                                   id_field=self.id_field,
-                                   modified_field=self.modified_field,
-                                   auth=self.auth)
+        return self.storage.create(
+            collection_id=self.collection_id,
+            parent_id=parent_id,
+            record=record,
+            id_generator=self.id_generator,
+            id_field=self.id_field,
+            modified_field=self.modified_field,
+            auth=self.auth,
+        )
 
     def update_record(self, record, parent_id=None):
         """Update a record in the collection.
@@ -211,13 +232,15 @@ class Model:
         """
         parent_id = parent_id or self.parent_id
         record_id = record[self.id_field]
-        return self.storage.update(collection_id=self.collection_id,
-                                   parent_id=parent_id,
-                                   object_id=record_id,
-                                   record=record,
-                                   id_field=self.id_field,
-                                   modified_field=self.modified_field,
-                                   auth=self.auth)
+        return self.storage.update(
+            collection_id=self.collection_id,
+            parent_id=parent_id,
+            object_id=record_id,
+            record=record,
+            id_field=self.id_field,
+            modified_field=self.modified_field,
+            auth=self.auth,
+        )
 
     def delete_record(self, record, parent_id=None, last_modified=None):
         """Delete a record in the collection.
@@ -241,20 +264,23 @@ class Model:
         """
         parent_id = parent_id or self.parent_id
         record_id = record[self.id_field]
-        return self.storage.delete(collection_id=self.collection_id,
-                                   parent_id=parent_id,
-                                   object_id=record_id,
-                                   id_field=self.id_field,
-                                   modified_field=self.modified_field,
-                                   deleted_field=self.deleted_field,
-                                   auth=self.auth,
-                                   last_modified=last_modified)
+        return self.storage.delete(
+            collection_id=self.collection_id,
+            parent_id=parent_id,
+            object_id=record_id,
+            id_field=self.id_field,
+            modified_field=self.modified_field,
+            deleted_field=self.deleted_field,
+            auth=self.auth,
+            last_modified=last_modified,
+        )
 
 
 class ShareableModel(Model):
     """A protected collection interacts with the permission backend.
     """
-    permissions_field = '__permissions__'
+
+    permissions_field = "__permissions__"
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -269,14 +295,14 @@ class ShareableModel(Model):
     def _allow_write(self, perm_object_id):
         """Helper to give the ``write`` permission to the current user.
         """
-        self.permission.add_principal_to_ace(perm_object_id,
-                                             'write',
-                                             self.current_principal)
+        self.permission.add_principal_to_ace(
+            perm_object_id, "write", self.current_principal
+        )
 
     def _annotate(self, record, perm_object_id):
         permissions = self.permission.get_object_permissions(perm_object_id)
         # Permissions are not returned if user only has read permission.
-        writers = permissions.get('write', [])
+        writers = permissions.get("write", [])
         principals = self.prefixed_principals + [self.current_principal]
         if len(set(writers) & set(principals)) == 0:
             permissions = {}
@@ -284,17 +310,27 @@ class ShareableModel(Model):
         annotated = {**record, self.permissions_field: permissions}
         return annotated
 
-    def delete_records(self, filters=None, sorting=None, pagination_rules=None,
-                       limit=None, parent_id=None):
+    def delete_records(
+        self,
+        filters=None,
+        sorting=None,
+        pagination_rules=None,
+        limit=None,
+        parent_id=None,
+    ):
         """Delete permissions when collection records are deleted in bulk.
         """
-        deleted = super().delete_records(filters, sorting, pagination_rules, limit, parent_id)
+        deleted = super().delete_records(
+            filters, sorting, pagination_rules, limit, parent_id
+        )
         # Take a huge shortcut in case we want to delete everything.
         if not filters:
-            perm_ids = [self.get_permission_object_id(object_id='*')]
+            perm_ids = [self.get_permission_object_id(object_id="*")]
         else:
-            perm_ids = [self.get_permission_object_id(object_id=r[self.id_field])
-                        for r in deleted]
+            perm_ids = [
+                self.get_permission_object_id(object_id=r[self.id_field])
+                for r in deleted
+            ]
         self.permission.delete_object_permissions(*perm_ids)
         return deleted
 
@@ -341,7 +377,8 @@ class ShareableModel(Model):
         """Delete record and its associated permissions.
         """
         record = super().delete_record(
-            record_id, parent_id, last_modified=last_modified)
+            record_id, parent_id, last_modified=last_modified
+        )
         perm_object_id = self.get_permission_object_id(record_id)
         self.permission.delete_object_permissions(perm_object_id)
 

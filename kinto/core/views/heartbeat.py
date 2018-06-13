@@ -11,24 +11,27 @@ from kinto.core import Service
 logger = logging.getLogger(__name__)
 
 
-heartbeat = Service(name='heartbeat', path='/__heartbeat__',
-                    description='Server health')
+heartbeat = Service(
+    name="heartbeat", path="/__heartbeat__", description="Server health"
+)
 
 
 class HeartbeatResponseSchema(colander.MappingSchema):
-    body = colander.SchemaNode(colander.Mapping(unknown='preserve'))
+    body = colander.SchemaNode(colander.Mapping(unknown="preserve"))
 
 
 heartbeat_responses = {
-    '200': HeartbeatResponseSchema(
-        description='Server is working properly.'),
-    '503': HeartbeatResponseSchema(
-        description='One or more subsystems failing.')
+    "200": HeartbeatResponseSchema(description="Server is working properly."),
+    "503": HeartbeatResponseSchema(description="One or more subsystems failing."),
 }
 
 
-@heartbeat.get(permission=NO_PERMISSION_REQUIRED, tags=['Utilities'],
-               operation_id='__heartbeat__', response_schemas=heartbeat_responses)
+@heartbeat.get(
+    permission=NO_PERMISSION_REQUIRED,
+    tags=["Utilities"],
+    operation_id="__heartbeat__",
+    response_schemas=heartbeat_responses,
+)
 def get_heartbeat(request):
     """Return information about server health."""
     status = {}
@@ -52,7 +55,7 @@ def get_heartbeat(request):
         futures.append(future)
 
     # Wait for the results, with timeout.
-    seconds = float(request.registry.settings['heartbeat_timeout_seconds'])
+    seconds = float(request.registry.settings["heartbeat_timeout_seconds"])
     done, not_done = wait(futures, timeout=seconds)
 
     # A heartbeat is supposed to return True or False, and never raise.
@@ -82,17 +85,21 @@ class LbHeartbeatResponseSchema(colander.MappingSchema):
 
 
 lbheartbeat_responses = {
-    '200': LbHeartbeatResponseSchema(
-        description='Returned if server is reachable.')
+    "200": LbHeartbeatResponseSchema(description="Returned if server is reachable.")
 }
 
 
-lbheartbeat = Service(name='lbheartbeat', path='/__lbheartbeat__',
-                      description='Web head health')
+lbheartbeat = Service(
+    name="lbheartbeat", path="/__lbheartbeat__", description="Web head health"
+)
 
 
-@lbheartbeat.get(permission=NO_PERMISSION_REQUIRED, tags=['Utilities'],
-                 operation_id='__lbheartbeat__', response_schemas=lbheartbeat_responses)
+@lbheartbeat.get(
+    permission=NO_PERMISSION_REQUIRED,
+    tags=["Utilities"],
+    operation_id="__lbheartbeat__",
+    response_schemas=lbheartbeat_responses,
+)
 def get_lbheartbeat(request):
     """Return successful healthy response.
 
