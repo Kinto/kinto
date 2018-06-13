@@ -51,7 +51,6 @@ install-postgres: $(INSTALL_STAMP) $(DEV_STAMP)
 install-dev: $(INSTALL_STAMP) $(DEV_STAMP)
 $(DEV_STAMP): $(PYTHON) dev-requirements.txt
 	$(VENV)/bin/pip install -Ur dev-requirements.txt
-	@$(VENV)/bin/pip install -U black
 	touch $(DEV_STAMP)
 
 install-docs: $(DOC_STAMP)
@@ -85,7 +84,8 @@ migrate: install $(SERVER_CONFIG)
 tests-once: install-dev version-file install-postgres install-monitoring
 	$(VENV)/bin/py.test --cov-report term-missing --cov-fail-under 100 --cov kinto
 
-black: install-dev
+black:
+	$(VENV)/bin/pip install -U black
 	$(VENV)/bin/black kinto tests docs/conf.py
 
 flake8: install-dev
