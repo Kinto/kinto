@@ -19,18 +19,21 @@ def wrap_memcached_error(func):
             return func(*args, **kwargs)
         except TypeError:
             raise
-        except (memcache.Client.MemcachedKeyError,
-                memcache.Client.MemcachedStringEncodingError) as e:
+        except (
+            memcache.Client.MemcachedKeyError,
+            memcache.Client.MemcachedStringEncodingError,
+        ) as e:
             logger.exception(e)
             raise exceptions.BackendError(original=e)
+
     return wrapped
 
 
-def create_from_config(config, prefix=''):
+def create_from_config(config, prefix=""):
     """Redis client instantiation from settings.
     """
     settings = config.get_settings()
-    hosts = aslist(settings[prefix + 'hosts'])
+    hosts = aslist(settings[prefix + "hosts"])
     return memcache.Client(hosts)
 
 
@@ -67,7 +70,7 @@ class Cache(CacheBase):
         if not value:
             return None, 0
         data = json.loads(value)
-        return data['value'], data['ttl']
+        return data["value"], data["ttl"]
 
     def ttl(self, key):
         _, ttl = self._get(key)
@@ -91,7 +94,7 @@ class Cache(CacheBase):
     def set(self, key, value, ttl):
         if isinstance(value, bytes):
             raise TypeError("a string-like object is required, not 'bytes'")
-        value = json.dumps({'value': value, 'ttl': ceil(time() + ttl)})
+        value = json.dumps({"value": value, "ttl": ceil(time() + ttl)})
         self._client.set(self.prefix + key, value, int(ttl))
 
     @wrap_memcached_error
@@ -103,5 +106,5 @@ class Cache(CacheBase):
 
 def load_from_config(config):
     settings = config.get_settings()
-    client = create_from_config(config, prefix='cache_')
-    return Cache(client, cache_prefix=settings['cache_prefix'])
+    client = create_from_config(config, prefix="cache_")
+    return Cache(client, cache_prefix=settings["cache_prefix"])

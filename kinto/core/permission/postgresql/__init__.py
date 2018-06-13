@@ -67,10 +67,10 @@ class Permission(PermissionBase, MigratorMixin):
     :noindex:
     """  # NOQA
 
-    name = 'permission'
+    name = "permission"
     schema_version = 2
-    schema_file = os.path.join(HERE, 'schema.sql')
-    migrations_directory = os.path.join(HERE, 'migrations')
+    schema_file = os.path.join(HERE, "schema.sql")
+    migrations_directory = os.path.join(HERE, "migrations")
 
     def __init__(self, client, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -113,7 +113,7 @@ class Permission(PermissionBase, MigratorMixin):
             with self.client.connect() as conn:
                 result = conn.execute(query)
                 if result.rowcount > 0:
-                    return int(result.fetchone()['version'])
+                    return int(result.fetchone()["version"])
 
         # Either the metadata table doesn't exist, or it doesn't have
         # a permission_schema_version row. Many possiblities exist:
@@ -151,7 +151,7 @@ class Permission(PermissionBase, MigratorMixin):
         # Since called outside request (e.g. tests), force commit.
         with self.client.connect(force_commit=True) as conn:
             conn.execute(query)
-        logger.debug('Flushed PostgreSQL permission tables')
+        logger.debug("Flushed PostgreSQL permission tables")
 
     def add_user_principal(self, user_id, principal):
         query = """
@@ -190,7 +190,7 @@ class Permission(PermissionBase, MigratorMixin):
         with self.client.connect(readonly=True) as conn:
             result = conn.execute(query, dict(user_id=user_id))
             results = result.fetchall()
-        return set([r['principal'] for r in results])
+        return set([r["principal"] for r in results])
 
     def add_principal_to_ace(self, object_id, permission, principal):
         query = """
@@ -204,9 +204,10 @@ class Permission(PermissionBase, MigratorMixin):
                AND principal = :principal
         );"""
         with self.client.connect() as conn:
-            conn.execute(query, dict(object_id=object_id,
-                                     permission=permission,
-                                     principal=principal))
+            conn.execute(
+                query,
+                dict(object_id=object_id, permission=permission, principal=principal),
+            )
 
     def remove_principal_from_ace(self, object_id, permission, principal):
         query = """
@@ -215,9 +216,10 @@ class Permission(PermissionBase, MigratorMixin):
            AND permission = :permission
            AND principal = :principal;"""
         with self.client.connect() as conn:
-            conn.execute(query, dict(object_id=object_id,
-                                     permission=permission,
-                                     principal=principal))
+            conn.execute(
+                query,
+                dict(object_id=object_id, permission=permission, principal=principal),
+            )
 
     def get_object_permission_principals(self, object_id, permission):
         query = """
@@ -226,10 +228,11 @@ class Permission(PermissionBase, MigratorMixin):
          WHERE object_id = :object_id
            AND permission = :permission;"""
         with self.client.connect(readonly=True) as conn:
-            result = conn.execute(query, dict(object_id=object_id,
-                                              permission=permission))
+            result = conn.execute(
+                query, dict(object_id=object_id, permission=permission)
+            )
             results = result.fetchall()
-        return set([r['principal'] for r in results])
+        return set([r["principal"] for r in results])
 
     def get_authorized_principals(self, bound_permissions):
         # XXX: this method is not used, except in test suites :(
@@ -239,9 +242,9 @@ class Permission(PermissionBase, MigratorMixin):
         placeholders = {}
         perm_values = []
         for i, (obj, perm) in enumerate(bound_permissions):
-            placeholders['obj_{}'.format(i)] = obj
-            placeholders['perm_{}'.format(i)] = perm
-            perm_values.append('(:obj_{0}, :perm_{0})'.format(i))
+            placeholders["obj_{}".format(i)] = obj
+            placeholders["perm_{}".format(i)] = perm
+            perm_values.append("(:obj_{0}, :perm_{0})".format(i))
 
         query = """
         WITH required_perms AS (
@@ -250,13 +253,17 @@ class Permission(PermissionBase, MigratorMixin):
         SELECT principal
           FROM required_perms JOIN access_control_entries
             ON (object_id = column1 AND permission = column2);
-        """.format(','.join(perm_values))
+        """.format(
+            ",".join(perm_values)
+        )
         with self.client.connect(readonly=True) as conn:
             result = conn.execute(query, placeholders)
             results = result.fetchall()
-        return set([r['principal'] for r in results])
+        return set([r["principal"] for r in results])
 
-    def get_accessible_objects(self, principals, bound_permissions=None, with_children=True):
+    def get_accessible_objects(
+        self, principals, bound_permissions=None, with_children=True
+    ):
         placeholders = {}
 
         if bound_permissions is None:
@@ -268,7 +275,7 @@ class Permission(PermissionBase, MigratorMixin):
               FROM access_control_entries
              WHERE principal IN :principals
             """
-            placeholders['principals'] = tuple(principals)
+            placeholders["principals"] = tuple(principals)
 
         elif len(bound_permissions) == 0:
             # If the list of object permissions to filter on is empty, then
@@ -278,20 +285,21 @@ class Permission(PermissionBase, MigratorMixin):
         else:
             principals_values = []
             for i, principal in enumerate(principals):
-                placeholders['principal_{}'.format(i)] = principal
-                principals_values.append('(:principal_{})'.format(i))
+                placeholders["principal_{}".format(i)] = principal
+                principals_values.append("(:principal_{})".format(i))
 
             perm_values = []
             for i, (obj, perm) in enumerate(bound_permissions):
-                placeholders['obj_{}'.format(i)] = obj.replace('*', '%')
-                placeholders['perm_{}'.format(i)] = perm
-                perm_values.append('(:obj_{0}, :perm_{0})'.format(i))
+                placeholders["obj_{}".format(i)] = obj.replace("*", "%")
+                placeholders["perm_{}".format(i)] = perm
+                perm_values.append("(:obj_{0}, :perm_{0})".format(i))
 
             if with_children:
-                object_id_condition = 'object_id LIKE pattern'
+                object_id_condition = "object_id LIKE pattern"
             else:
-                object_id_condition = ('object_id LIKE pattern '
-                                       "AND object_id NOT LIKE pattern || '/%'")
+                object_id_condition = (
+                    "object_id LIKE pattern " "AND object_id NOT LIKE pattern || '/%'"
+                )
             query = """
             WITH required_perms AS (
               VALUES {perms}
@@ -310,9 +318,11 @@ class Permission(PermissionBase, MigratorMixin):
             SELECT object_id, permission
               FROM potential_objects
              WHERE {object_id_condition};
-            """.format(perms=','.join(perm_values),
-                       principals=','.join(principals_values),
-                       object_id_condition=object_id_condition)
+            """.format(
+                perms=",".join(perm_values),
+                principals=",".join(principals_values),
+                object_id_condition=object_id_condition,
+            )
 
         with self.client.connect(readonly=True) as conn:
             result = conn.execute(query, placeholders)
@@ -320,7 +330,7 @@ class Permission(PermissionBase, MigratorMixin):
 
         perms_by_id = {}
         for r in results:
-            perms_by_id.setdefault(r['object_id'], set()).add(r['permission'])
+            perms_by_id.setdefault(r["object_id"], set()).add(r["permission"])
         return perms_by_id
 
     def check_permission(self, principals, bound_permissions):
@@ -330,14 +340,14 @@ class Permission(PermissionBase, MigratorMixin):
         placeholders = {}
         perms_values = []
         for i, (obj, perm) in enumerate(bound_permissions):
-            placeholders['obj_{}'.format(i)] = obj
-            placeholders['perm_{}'.format(i)] = perm
-            perms_values.append('(:obj_{0}, :perm_{0})'.format(i))
+            placeholders["obj_{}".format(i)] = obj
+            placeholders["perm_{}".format(i)] = perm
+            perms_values.append("(:obj_{0}, :perm_{0})".format(i))
 
         principals_values = []
         for i, principal in enumerate(principals):
-            placeholders['principal_{}'.format(i)] = principal
-            principals_values.append('(:principal_{})'.format(i))
+            placeholders["principal_{}".format(i)] = principal
+            principals_values.append("(:principal_{})".format(i))
 
         query = """
         WITH required_perms AS (
@@ -354,20 +364,21 @@ class Permission(PermissionBase, MigratorMixin):
         SELECT COUNT(*) AS matched
           FROM required_principals JOIN allowed_principals
             ON (required_principals.column1 = principal);
-        """.format(perms=','.join(perms_values),
-                   principals=','.join(principals_values))
+        """.format(
+            perms=",".join(perms_values), principals=",".join(principals_values)
+        )
 
         with self.client.connect(readonly=True) as conn:
             result = conn.execute(query, placeholders)
             total = result.fetchone()
-        return total['matched'] > 0
+        return total["matched"] > 0
 
     def get_objects_permissions(self, objects_ids, permissions=None):
         object_ids_values = []
         placeholders = {}
         for i, obj_id in enumerate(objects_ids):
-            object_ids_values.append('({0}, :obj_id_{0})'.format(i))
-            placeholders['obj_id_{}'.format(i)] = obj_id
+            object_ids_values.append("({0}, :obj_id_{0})".format(i))
+            placeholders["obj_id_{}".format(i)] = obj_id
 
         query = """
         WITH required_object_ids AS (
@@ -380,13 +391,15 @@ class Permission(PermissionBase, MigratorMixin):
         ORDER BY column1 ASC;
         """
         safeholders = {
-            'objects_ids': ','.join(object_ids_values),
-            'permissions_condition': ''
+            "objects_ids": ",".join(object_ids_values),
+            "permissions_condition": "",
         }
         if permissions is not None:
-            safeholders['permissions_condition'] = """
+            safeholders[
+                "permissions_condition"
+            ] = """
               WHERE permission IN :permissions"""
-            placeholders['permissions'] = tuple(permissions)
+            placeholders["permissions"] = tuple(permissions)
 
         with self.client.connect(readonly=True) as conn:
             result = conn.execute(query.format_map(safeholders), placeholders)
@@ -396,9 +409,11 @@ class Permission(PermissionBase, MigratorMixin):
         for object_id in objects_ids:
             groupby_id[object_id] = {}
         for row in rows:
-            object_id, permission, principal = (row['object_id'],
-                                                row['permission'],
-                                                row['principal'])
+            object_id, permission, principal = (
+                row["object_id"],
+                row["permission"],
+                row["principal"],
+            )
             groupby_id[object_id].setdefault(permission, set()).add(principal)
         return list(groupby_id.values())
 
@@ -406,19 +421,17 @@ class Permission(PermissionBase, MigratorMixin):
         if not permissions:
             return
 
-        placeholders = {
-            'object_id': object_id
-        }
+        placeholders = {"object_id": object_id}
 
         new_aces = []
         specified_perms = []
         for i, (perm, principals) in enumerate(permissions.items()):
-            placeholders['perm_{}'.format(i)] = perm
-            specified_perms.append('(:perm_{})'.format(i))
+            placeholders["perm_{}".format(i)] = perm
+            specified_perms.append("(:perm_{})".format(i))
             for principal in set(principals):
                 j = len(new_aces)
-                placeholders['principal_{}'.format(j)] = principal
-                new_aces.append('(:perm_{}, :principal_{})'.format(i, j))
+                placeholders["principal_{}".format(j)] = principal
+                new_aces.append("(:perm_{}, :principal_{})".format(i, j))
 
         if not new_aces:
             query = """
@@ -428,7 +441,9 @@ class Permission(PermissionBase, MigratorMixin):
             DELETE FROM access_control_entries
              USING specified_perms
              WHERE object_id = :object_id AND permission = column1
-            """.format(specified_perms=','.join(specified_perms))
+            """.format(
+                specified_perms=",".join(specified_perms)
+            )
 
         else:
             query = """
@@ -451,8 +466,9 @@ class Permission(PermissionBase, MigratorMixin):
             INSERT INTO access_control_entries(object_id, permission, principal)
               SELECT DISTINCT d.object_id, n.column1, n.column2
                 FROM new_aces AS n, affected_object AS d;
-            """.format(specified_perms=','.join(specified_perms),
-                       new_aces=','.join(new_aces))
+            """.format(
+                specified_perms=",".join(specified_perms), new_aces=",".join(new_aces)
+            )
 
         with self.client.connect() as conn:
             conn.execute(query, placeholders)
@@ -464,8 +480,8 @@ class Permission(PermissionBase, MigratorMixin):
         object_ids_values = []
         placeholders = {}
         for i, obj_id in enumerate(object_id_list):
-            object_ids_values.append('(:obj_id_{})'.format(i))
-            placeholders['obj_id_{}'.format(i)] = obj_id.replace('*', '%')
+            object_ids_values.append("(:obj_id_{})".format(i))
+            placeholders["obj_id_{}".format(i)] = obj_id.replace("*", "%")
 
         query = """
         WITH object_ids AS (
@@ -475,9 +491,7 @@ class Permission(PermissionBase, MigratorMixin):
          USING object_ids
          WHERE object_id LIKE column1;"""
 
-        safeholders = {
-            'object_ids_values': ','.join(object_ids_values)
-        }
+        safeholders = {"object_ids_values": ",".join(object_ids_values)}
 
         if len(object_id_list) == 1:
             # Optimized version for just one object ID.  This can be
@@ -497,5 +511,5 @@ class Permission(PermissionBase, MigratorMixin):
 
 
 def load_from_config(config):
-    client = create_from_config(config, prefix='permission_')
+    client = create_from_config(config, prefix="permission_")
     return Permission(client=client)

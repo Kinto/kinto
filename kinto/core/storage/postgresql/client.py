@@ -9,8 +9,14 @@ import transaction as zope_transaction
 
 logger = logging.getLogger(__name__)
 
-BLACKLISTED_SETTINGS = ['backend', 'max_fetch_size',
-                        'max_size_bytes', 'prefix', 'strict_json', 'hosts']
+BLACKLISTED_SETTINGS = [
+    "backend",
+    "max_fetch_size",
+    "max_size_bytes",
+    "prefix",
+    "strict_json",
+    "hosts",
+]
 
 
 class PostgreSQLClient:
@@ -65,12 +71,14 @@ class PostgreSQLClient:
 _CLIENTS = defaultdict(dict)
 
 
-def create_from_config(config, prefix='', with_transaction=True):
+def create_from_config(config, prefix="", with_transaction=True):
     """Create a PostgreSQLClient client using settings in the provided config.
     """
     if sqlalchemy is None:
-        message = ('PostgreSQL SQLAlchemy dependency missing. '
-                   'Refer to installation section in documentation.')
+        message = (
+            "PostgreSQL SQLAlchemy dependency missing. "
+            "Refer to installation section in documentation."
+        )
         raise ImportWarning(message)
 
     from zope.sqlalchemy import ZopeTransactionExtension, invalidate
@@ -80,34 +88,39 @@ def create_from_config(config, prefix='', with_transaction=True):
 
     # Custom Kinto settings, unsupported by SQLAlchemy.
     blacklist = [prefix + setting for setting in BLACKLISTED_SETTINGS]
-    filtered_settings = {k: v for k, v in settings.items()
-                         if k not in blacklist}
-    transaction_per_request = with_transaction \
-        and filtered_settings.pop('transaction_per_request', False)
-    url = filtered_settings[prefix + 'url']
+    filtered_settings = {k: v for k, v in settings.items() if k not in blacklist}
+    transaction_per_request = with_transaction and filtered_settings.pop(
+        "transaction_per_request", False
+    )
+    url = filtered_settings[prefix + "url"]
     existing_client = _CLIENTS[transaction_per_request].get(url)
     if existing_client:
-        msg = ('Reuse existing PostgreSQL connection. '
-               'Parameters {}* will be ignored.'.format(prefix))
+        msg = (
+            "Reuse existing PostgreSQL connection. "
+            "Parameters {}* will be ignored.".format(prefix)
+        )
         warnings.warn(msg)
         return existing_client
 
     # Initialize SQLAlchemy engine from filtered_settings.
-    poolclass_key = prefix + 'poolclass'
-    filtered_settings.setdefault(poolclass_key, ('kinto.core.storage.postgresql.'
-                                                 'pool.QueuePoolWithMaxBacklog'))
-    filtered_settings[poolclass_key] = config.maybe_dotted(filtered_settings[poolclass_key])
+    poolclass_key = prefix + "poolclass"
+    filtered_settings.setdefault(
+        poolclass_key, ("kinto.core.storage.postgresql." "pool.QueuePoolWithMaxBacklog")
+    )
+    filtered_settings[poolclass_key] = config.maybe_dotted(
+        filtered_settings[poolclass_key]
+    )
     engine = sqlalchemy.engine_from_config(filtered_settings, prefix=prefix, url=url)
 
     # Initialize thread-safe session factory.
     options = {}
     if transaction_per_request:
         # Plug with Pyramid transaction manager
-        options['extension'] = ZopeTransactionExtension()
+        options["extension"] = ZopeTransactionExtension()
     session_factory = scoped_session(sessionmaker(bind=engine, **options))
 
     # Store one client per URI.
-    commit_manually = (not transaction_per_request)
+    commit_manually = not transaction_per_request
     client = PostgreSQLClient(session_factory, commit_manually, invalidate)
     _CLIENTS[transaction_per_request][url] = client
     return client

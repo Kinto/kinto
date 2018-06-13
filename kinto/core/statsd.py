@@ -15,14 +15,14 @@ class Client:
     def __init__(self, host, port, prefix):
         self._client = statsd_module.StatsClient(host, port, prefix=prefix)
 
-    def watch_execution_time(self, obj, prefix='', classname=None):
+    def watch_execution_time(self, obj, prefix="", classname=None):
         classname = classname or utils.classname(obj)
         members = dir(obj)
         for name in members:
             value = getattr(obj, name)
             is_method = isinstance(value, types.MethodType)
-            if not name.startswith('_') and is_method:
-                statsd_key = '{}.{}.{}'.format(prefix, classname, name)
+            if not name.startswith("_") and is_method:
+                statsd_key = "{}.{}.{}".format(prefix, classname, name)
                 decorated_method = self.timer(statsd_key)(value)
                 setattr(obj, name, decorated_method)
 
@@ -47,16 +47,18 @@ def load_from_config(config):
     # (see ``kinto.core.initialization``)
     # Raise a proper error if the ``statsd`` module is not installed.
     if statsd_module is None:
-        error_msg = 'Please install Kinto with monitoring dependencies (e.g. statsd package)'
+        error_msg = (
+            "Please install Kinto with monitoring dependencies (e.g. statsd package)"
+        )
         raise ConfigurationError(error_msg)
 
     settings = config.get_settings()
-    uri = settings['statsd_url']
+    uri = settings["statsd_url"]
     uri = urlparse(uri)
 
-    if settings['project_name'] != '':
-        prefix = settings['project_name']
+    if settings["project_name"] != "":
+        prefix = settings["project_name"]
     else:
-        prefix = settings['statsd_prefix']
+        prefix = settings["statsd_prefix"]
 
     return Client(uri.hostname, uri.port, prefix)

@@ -6,22 +6,26 @@ from kinto.core import Service
 from kinto.core.openapi import OpenAPI
 
 
-openapi = Service(name='openapi', path='/__api__', description='OpenAPI description')
+openapi = Service(name="openapi", path="/__api__", description="OpenAPI description")
 
 
 class OpenAPIResponseSchema(colander.MappingSchema):
-    body = colander.SchemaNode(colander.Mapping(unknown='preserve'))
+    body = colander.SchemaNode(colander.Mapping(unknown="preserve"))
 
 
 openapi_response_schemas = {
-    '200': OpenAPIResponseSchema(
-        description='Return an OpenAPI description of the running instance.')
+    "200": OpenAPIResponseSchema(
+        description="Return an OpenAPI description of the running instance."
+    )
 }
 
 
-@openapi.get(permission=NO_PERMISSION_REQUIRED,
-             response_schemas=openapi_response_schemas,
-             tags=['Utilities'], operation_id='get_openapi_spec')
+@openapi.get(
+    permission=NO_PERMISSION_REQUIRED,
+    response_schemas=openapi_response_schemas,
+    tags=["Utilities"],
+    operation_id="get_openapi_spec",
+)
 def openapi_view(request):
 
     # Only build json once

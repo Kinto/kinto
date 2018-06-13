@@ -14,7 +14,7 @@ class cache_forever:
             self.saved = self.wrapped(request, *args, **kwargs)
             if isinstance(self.saved, Response):
                 self.saved = None
-                raise ValueError('cache_forever cannot cache Response only its body')
+                raise ValueError("cache_forever cannot cache Response only its body")
 
         request.response.write(self.saved)
         return request.response
@@ -26,12 +26,13 @@ def synchronized(method):
 
     The decorator installs a mutex on the class instance.
     """
+
     def decorated(self, *args, **kwargs):
         try:
-            lock = getattr(self, '__lock__')
+            lock = getattr(self, "__lock__")
         except AttributeError:
             lock = threading.RLock()
-            setattr(self, '__lock__', lock)
+            setattr(self, "__lock__", lock)
 
         lock.acquire()
         try:
@@ -39,4 +40,5 @@ def synchronized(method):
         finally:
             lock.release()
         return result
+
     return decorated

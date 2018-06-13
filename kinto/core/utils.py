@@ -43,7 +43,7 @@ def strip_whitespace(v):
     :param str v: the string to strip.
     :rtype: str
     """
-    return v.strip(' \t\n\r') if v is not null else v
+    return v.strip(" \t\n\r") if v is not null else v
 
 
 def msec_time():
@@ -100,7 +100,7 @@ def random_bytes_hex(bytes_length):
     :param int bytes_length: number of random bytes.
     :rtype: str
     """
-    return hexlify(os.urandom(bytes_length)).decode('utf-8')
+    return hexlify(os.urandom(bytes_length)).decode("utf-8")
 
 
 def native_value(value):
@@ -124,11 +124,11 @@ def read_env(key, value):
     :param value: default value if undefined in environment
     :returns: the value from environment, coerced to python type
     """
-    envkey = key.replace('.', '_').replace('-', '_').upper()
+    envkey = key.replace(".", "_").replace("-", "_").upper()
     return native_value(os.getenv(envkey, value))
 
 
-def encode64(content, encoding='utf-8'):
+def encode64(content, encoding="utf-8"):
     """Encode some content in base64.
 
     :rtype: str
@@ -136,7 +136,7 @@ def encode64(content, encoding='utf-8'):
     return b64encode(content.encode(encoding)).decode(encoding)
 
 
-def decode64(encoded_content, encoding='utf-8'):
+def decode64(encoded_content, encoding="utf-8"):
     """Decode some base64 encoded content.
 
     :rtype: str
@@ -144,13 +144,11 @@ def decode64(encoded_content, encoding='utf-8'):
     return b64decode(encoded_content.encode(encoding)).decode(encoding)
 
 
-def hmac_digest(secret, message, encoding='utf-8'):
+def hmac_digest(secret, message, encoding="utf-8"):
     """Return hex digest of a message HMAC using secret"""
     if isinstance(secret, str):
         secret = secret.encode(encoding)
-    return hmac.new(secret,
-                    message.encode(encoding),
-                    hashlib.sha256).hexdigest()
+    return hmac.new(secret, message.encode(encoding), hashlib.sha256).hexdigest()
 
 
 def dict_subset(d, keys):
@@ -158,8 +156,8 @@ def dict_subset(d, keys):
     result = {}
 
     for key in keys:
-        if '.' in key:
-            field, subfield = key.split('.', 1)
+        if "." in key:
+            field, subfield = key.split(".", 1)
             if isinstance(d.get(field), collections.Mapping):
                 subvalue = dict_subset(d[field], [subfield])
                 result[field] = dict_merge(subvalue, result.get(field, {}))
@@ -194,10 +192,10 @@ def find_nested_value(d, path, default=None):
 
     # the challenge is to identify what is the root key, as dict keys may
     # contain dot characters themselves
-    parts = path.split('.')
+    parts = path.split(".")
 
     # build a list of all possible root keys from all the path parts
-    candidates = ['.'.join(parts[:i + 1]) for i in range(len(parts))]
+    candidates = [".".join(parts[: i + 1]) for i in range(len(parts))]
 
     # we start with the longest candidate paths as they're most likely to be the
     # ones we want if they match
@@ -208,25 +206,25 @@ def find_nested_value(d, path, default=None):
         return default
 
     # we have our root key, extract the new subpath and recur
-    subpath = path.replace(root + '.', '', 1)
+    subpath = path.replace(root + ".", "", 1)
     return find_nested_value(d.get(root), subpath, default=default)
 
 
 class COMPARISON(Enum):
-    LT = '<'
-    MIN = '>='
-    MAX = '<='
-    NOT = '!='
-    EQ = '=='
-    GT = '>'
-    IN = 'in'
-    EXCLUDE = 'exclude'
-    LIKE = 'like'
-    HAS = 'has'
+    LT = "<"
+    MIN = ">="
+    MAX = "<="
+    NOT = "!="
+    EQ = "=="
+    GT = ">"
+    IN = "in"
+    EXCLUDE = "exclude"
+    LIKE = "like"
+    HAS = "has"
     # The order matters here because we want to match
     # contains_any before contains_
-    CONTAINS_ANY = 'contains_any'
-    CONTAINS = 'contains'
+    CONTAINS_ANY = "contains_any"
+    CONTAINS = "contains"
 
 
 def reapply_cors(request, response):
@@ -238,24 +236,25 @@ def reapply_cors(request, response):
     """
     service = request.current_service
     if service:
-        request.info['cors_checked'] = False
+        request.info["cors_checked"] = False
         cors.apply_cors_post_request(service, request, response)
         response = cors.ensure_origin(service, request, response)
     else:
         # No existing service is concerned, and Cornice is not implied.
-        origin = request.headers.get('Origin')
+        origin = request.headers.get("Origin")
         if origin:
             settings = request.registry.settings
-            allowed_origins = set(aslist(settings['cors_origins']))
-            required_origins = {'*', origin}
+            allowed_origins = set(aslist(settings["cors_origins"]))
+            required_origins = {"*", origin}
             if allowed_origins.intersection(required_origins):
-                response.headers['Access-Control-Allow-Origin'] = origin
+                response.headers["Access-Control-Allow-Origin"] = origin
 
         # Import service here because kinto.core import utils
         from kinto.core import Service
+
         if Service.default_cors_headers:  # pragma: no branch
-            headers = ','.join(Service.default_cors_headers)
-            response.headers['Access-Control-Expose-Headers'] = headers
+            headers = ",".join(Service.default_cors_headers)
+            response.headers["Access-Control-Expose-Headers"] = headers
     return response
 
 
@@ -308,9 +307,9 @@ def prefixed_userid(request):
     # If pyramid_multiauth is used, a ``authn_type`` is set on request
     # when a policy succesfully authenticates a user.
     # (see :func:`kinto.core.initialization.setup_authentication`)
-    authn_type = getattr(request, 'authn_type', None)
+    authn_type = getattr(request, "authn_type", None)
     if authn_type is not None:
-        return '{}:{}'.format(authn_type, request.selected_userid)
+        return "{}:{}".format(authn_type, request.selected_userid)
 
 
 def prefixed_principals(request):
@@ -323,7 +322,7 @@ def prefixed_principals(request):
 
     # Remove unprefixed user id on effective_principals to avoid conflicts.
     # (it is added via Pyramid Authn policy effective principals)
-    prefix, userid = request.prefixed_userid.split(':', 1)
+    prefix, userid = request.prefixed_userid.split(":", 1)
     principals = [p for p in principals if p != userid]
 
     if request.prefixed_userid not in principals:
@@ -342,32 +341,31 @@ def build_request(original, dict_obj):
     :param original: the original request.
     :param dict_obj: a dict object with the sub-request specifications.
     """
-    api_prefix = '/{}'.format(original.upath_info.split('/')[1])
-    path = dict_obj['path']
+    api_prefix = "/{}".format(original.upath_info.split("/")[1])
+    path = dict_obj["path"]
     if not path.startswith(api_prefix):
         path = api_prefix + path
 
-    path = path.encode('utf-8')
+    path = path.encode("utf-8")
 
-    method = dict_obj.get('method') or 'GET'
+    method = dict_obj.get("method") or "GET"
 
     headers = dict(original.headers)
-    headers.update(**dict_obj.get('headers') or {})
+    headers.update(**dict_obj.get("headers") or {})
     # Body can have different length, do not use original header.
-    headers.pop('Content-Length', None)
+    headers.pop("Content-Length", None)
 
-    payload = dict_obj.get('body') or ''
+    payload = dict_obj.get("body") or ""
 
     # Payload is always a dict (from ``BatchRequestSchema.body``).
     # Send it as JSON for subrequests.
     if isinstance(payload, dict):
-        headers['Content-Type'] = 'application/json; charset=utf-8'
+        headers["Content-Type"] = "application/json; charset=utf-8"
         payload = json.dumps(payload)
 
-    request = Request.blank(path=path.decode('latin-1'),
-                            headers=headers,
-                            POST=payload,
-                            method=method)
+    request = Request.blank(
+        path=path.decode("latin-1"), headers=headers, POST=payload, method=method
+    )
     request.registry = original.registry
     apply_request_extensions(request)
 
@@ -387,18 +385,18 @@ def build_response(response, request):
     :param request: the request that was used to get the response.
     """
     dict_obj = {}
-    dict_obj['path'] = unquote(request.path)
-    dict_obj['status'] = response.status_code
-    dict_obj['headers'] = dict(response.headers)
+    dict_obj["path"] = unquote(request.path)
+    dict_obj["status"] = response.status_code
+    dict_obj["headers"] = dict(response.headers)
 
-    body = ''
-    if request.method != 'HEAD':
+    body = ""
+    if request.method != "HEAD":
         # XXX : Pyramid should not have built response body for HEAD!
         try:
             body = response.json
         except ValueError:
             body = response.body
-    dict_obj['body'] = body
+    dict_obj["body"] = body
 
     return dict_obj
 
@@ -419,13 +417,15 @@ def follow_subrequest(request, subrequest, **kwargs):
                 raise e
             raise resp
     except httpexceptions.HTTPRedirection as e:
-        new_location = e.headers['Location']
-        new_request = Request.blank(path=new_location,
-                                    headers=subrequest.headers,
-                                    POST=subrequest.body,
-                                    method=subrequest.method)
+        new_location = e.headers["Location"]
+        new_request = Request.blank(
+            path=new_location,
+            headers=subrequest.headers,
+            POST=subrequest.body,
+            method=subrequest.method,
+        )
         new_request.bound_data = subrequest.bound_data
-        new_request.parent = getattr(subrequest, 'parent', None)
+        new_request.parent = getattr(subrequest, "parent", None)
         return request.invoke_subrequest(new_request, **kwargs), new_request
 
 
@@ -433,7 +433,7 @@ def strip_uri_prefix(path):
     """
     Remove potential version prefix in URI.
     """
-    return re.sub(r'^(/v\d+)?', '', str(path))
+    return re.sub(r"^(/v\d+)?", "", str(path))
 
 
 def view_lookup(request, uri):
@@ -458,27 +458,27 @@ def view_lookup_registry(registry, uri):
     :rtype: tuple
     :returns: the resource name and the associated matchdict.
     """
-    api_prefix = '/{}'.format(registry.route_prefix)
-    path = (api_prefix + uri)
+    api_prefix = "/{}".format(registry.route_prefix)
+    path = api_prefix + uri
 
     q = registry.queryUtility
     routes_mapper = q(IRoutesMapper)
 
     fakerequest = Request.blank(path=path)
     info = routes_mapper(fakerequest)
-    matchdict, route = info['match'], info['route']
+    matchdict, route = info["match"], info["route"]
     if route is None:
-        raise ValueError('URI has no route')
+        raise ValueError("URI has no route")
 
-    resource_name = route.name.replace('-record', '')\
-                              .replace('-collection', '')
+    resource_name = route.name.replace("-record", "").replace("-collection", "")
     return resource_name, matchdict
 
 
 def instance_uri(request, resource_name, **params):
     """Return the URI for the given resource."""
-    return strip_uri_prefix(request.route_path(
-        '{}-record'.format(resource_name), **params))
+    return strip_uri_prefix(
+        request.route_path("{}-record".format(resource_name), **params)
+    )
 
 
 def instance_uri_registry(registry, resource_name, **params):
@@ -487,7 +487,7 @@ def instance_uri_registry(registry, resource_name, **params):
     This gins up a request using Request.blank and so does not support
     any routes with pregenerators.
     """
-    request = Request.blank(path='')
+    request = Request.blank(path="")
     request.registry = registry
     return instance_uri(request, resource_name, **params)
 
@@ -499,27 +499,25 @@ def parse_resource(resource):
     :returns: a dictionary with the bucket_id and collection_id of the resource
     """
 
-    error_msg = 'Resources should be defined as '
+    error_msg = "Resources should be defined as "
     "'/buckets/<bid>/collections/<cid>' or '<bid>/<cid>'. "
-    'with valid collection and bucket ids.'
+    "with valid collection and bucket ids."
 
     from kinto.views import NameGenerator
+
     id_generator = NameGenerator()
-    parts = resource.split('/')
+    parts = resource.split("/")
     if len(parts) == 2:
         bucket, collection = parts
     elif len(parts) == 5:
         _, _, bucket, _, collection = parts
     else:
         raise ValueError(error_msg)
-    if bucket == '' or collection == '':
+    if bucket == "" or collection == "":
         raise ValueError(error_msg)
     if not id_generator.match(bucket) or not id_generator.match(collection):
         raise ValueError(error_msg)
-    return {
-        'bucket': bucket,
-        'collection': collection
-    }
+    return {"bucket": bucket, "collection": collection}
 
 
 def apply_json_patch(record, ops):
@@ -535,23 +533,22 @@ def apply_json_patch(record, ops):
     data = {**record}
 
     # Permissions should always have read and write fields defined (to allow add)
-    permissions = {'read': set(), 'write': set()}
+    permissions = {"read": set(), "write": set()}
 
     # Get permissions if available on the resource (using SharableResource)
-    permissions.update(data.pop('__permissions__', {}))
+    permissions.update(data.pop("__permissions__", {}))
 
     # Permissions should be mapped as a dict, since jsonpatch doesn't accept
     # sets and lists are mapped as JSON arrays (not indexed by value)
     permissions = {k: {i: i for i in v} for k, v in permissions.items()}
 
-    resource = {'data': data, 'permissions': permissions}
+    resource = {"data": data, "permissions": permissions}
 
     # Allow patch permissions without value since key and value are equal on sets
     for op in ops:
         # 'path' is here since it was validated.
-        if op['path'].startswith(('/permissions/read/',
-                                  '/permissions/write/')):
-            op['value'] = op['path'].split('/')[-1]
+        if op["path"].startswith(("/permissions/read/", "/permissions/write/")):
+            op["value"] = op["path"].split("/")[-1]
 
     try:
         result = jsonpatch.apply_patch(resource, ops)
