@@ -7,7 +7,9 @@ This document describes changes between each past release.
 9.3.0 (unreleased)
 ------------------
 
-- Nothing changed yet.
+**Internal changes**
+
+- Update the Dockerfile with the new kinto --cache-backend option. (#1686)
 
 
 9.2.0 (2018-06-07)
