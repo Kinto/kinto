@@ -36,9 +36,9 @@ def test_cache_forever_doesnt_care_about_arguments():
     request2 = mock.MagicMock()
     request2.response = StringIO()
 
-    response1 = demo2(request1, 'Henri').getvalue()
-    response2 = demo2(request2, 'Paul').getvalue()
-    assert response1 == response2 == 'demo2: Henri'
+    response1 = demo2(request1, "Henri").getvalue()
+    response2 = demo2(request2, "Paul").getvalue()
+    assert response1 == response2 == "demo2: Henri"
 
 
 def test_each_function_is_cached_separately_for_the_life_of_the_process():
@@ -51,8 +51,8 @@ def test_each_function_is_cached_separately_for_the_life_of_the_process():
     response2 = demo2(request2).getvalue()
 
     assert response1 != response2
-    assert response1 == 'demo1'
-    assert response2 == 'demo2: Henri'
+    assert response1 == "demo1"
+    assert response2 == "demo2: Henri"
 
 
 def test_should_not_cache_responses():

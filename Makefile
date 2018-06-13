@@ -23,6 +23,7 @@ help:
 	@echo "  build-kinto-admin           build the Kinto admin UI plugin (requires npm)"
 	@echo "  serve                       start the kinto server on default port"
 	@echo "  migrate                     run the kinto migrations"
+	@echo "  black                       run the flake8 linter"
 	@echo "  flake8                      run the flake8 linter"
 	@echo "  tests                       run all the tests with all the supported python interpreters (same as travis)"
 	@echo "  tdd                         run pytest-watch to rerun tests automatically on changes for tdd"
@@ -82,6 +83,9 @@ migrate: install $(SERVER_CONFIG)
 
 tests-once: install-dev version-file install-postgres install-monitoring
 	$(VENV)/bin/py.test --cov-report term-missing --cov-fail-under 100 --cov kinto
+
+black: install-dev
+	$(VENV)/bin/black kinto tests
 
 flake8: install-dev
 	$(VENV)/bin/flake8 kinto tests

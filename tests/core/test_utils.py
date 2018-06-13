@@ -11,11 +11,21 @@ from pyramid import request as pyramid_request
 from pyramid import testing
 
 from kinto.core.utils import (
-    native_value, strip_whitespace, random_bytes_hex, read_env, hmac_digest,
-    current_service, follow_subrequest, build_request, dict_subset, dict_merge,
-    parse_resource, prefixed_principals, recursive_update_dict,
+    native_value,
+    strip_whitespace,
+    random_bytes_hex,
+    read_env,
+    hmac_digest,
+    current_service,
+    follow_subrequest,
+    build_request,
+    dict_subset,
+    dict_merge,
+    parse_resource,
+    prefixed_principals,
+    recursive_update_dict,
     instance_uri_registry,
-    find_nested_value
+    find_nested_value,
 )
 from kinto.core.testing import DummyRequest
 
@@ -32,40 +42,40 @@ def build_real_request(wsgi_environ):
 
 class NativeValueTest(unittest.TestCase):
     def test_simple_string(self):
-        self.assertEqual(native_value('value'), 'value')
+        self.assertEqual(native_value("value"), "value")
 
     def test_defined_string(self):
-        self.assertEqual(native_value('"value"'), 'value')
+        self.assertEqual(native_value('"value"'), "value")
 
     def test_null_value(self):
-        self.assertEqual(native_value('null'), None)
+        self.assertEqual(native_value("null"), None)
 
     def test_defined_null_as_text_value(self):
-        self.assertEqual(native_value('"null"'), 'null')
+        self.assertEqual(native_value('"null"'), "null")
 
     def test_integer(self):
-        self.assertEqual(native_value('7'), 7)
+        self.assertEqual(native_value("7"), 7)
 
     def test_defined_integer_as_text_value(self):
-        self.assertEqual(native_value('"7"'), '7')
+        self.assertEqual(native_value('"7"'), "7")
 
     def test_defined_simple_quote_string_as_text_value(self):
         self.assertEqual(native_value("'7'"), "'7'")
 
     def test_zero_and_one_coerce_to_integers(self):
-        self.assertEqual(native_value('1'), 1)
-        self.assertEqual(native_value('0'), 0)
+        self.assertEqual(native_value("1"), 1)
+        self.assertEqual(native_value("0"), 0)
 
     def test_float(self):
-        self.assertEqual(native_value('3.14'), 3.14)
+        self.assertEqual(native_value("3.14"), 3.14)
 
     def test_true_values(self):
-        true_strings = ['true']
+        true_strings = ["true"]
         true_values = [native_value(s) for s in true_strings]
         self.assertTrue(all(true_values))
 
     def test_false_values(self):
-        false_strings = ['false']
+        false_strings = ["false"]
         false_values = [native_value(s) for s in false_strings]
         self.assertFalse(any(false_values))
 
@@ -80,10 +90,10 @@ class NativeValueTest(unittest.TestCase):
 class StripWhitespaceTest(unittest.TestCase):
     def test_removes_all_kinds_of_spaces(self):
         value = " \t teaser \n \r"
-        self.assertEqual(strip_whitespace(value), 'teaser')
+        self.assertEqual(strip_whitespace(value), "teaser")
 
     def test_does_remove_middle_spaces(self):
-        self.assertEqual(strip_whitespace('a b c'), 'a b c')
+        self.assertEqual(strip_whitespace("a b c"), "a b c")
 
     def test_idempotent_for_null_values(self):
         self.assertEqual(strip_whitespace(colander.null), colander.null)
@@ -119,69 +129,69 @@ class HmacDigestTest(unittest.TestCase):
 
 class ReadEnvironmentTest(unittest.TestCase):
     def test_return_passed_value_if_not_defined_in_env(self):
-        self.assertEqual(read_env('missing', 12), 12)
+        self.assertEqual(read_env("missing", 12), 12)
 
     def test_return_env_value_if_defined_in_env(self):
-        os.environ.setdefault('KINTO_CONF', 'abc')
-        self.assertEqual(read_env('KINTO_CONF', 12), 'abc')
+        os.environ.setdefault("KINTO_CONF", "abc")
+        self.assertEqual(read_env("KINTO_CONF", 12), "abc")
 
     def test_return_env_name_as_uppercase(self):
-        os.environ.setdefault('KINTO_NAME', 'abc')
-        self.assertEqual(read_env('kinto.name', 12), 'abc')
+        os.environ.setdefault("KINTO_NAME", "abc")
+        self.assertEqual(read_env("kinto.name", 12), "abc")
 
     def test_return_env_value_is_coerced_to_python(self):
-        os.environ.setdefault('KINTO_CONF_NAME', '3.14')
-        self.assertEqual(read_env('kinto-conf.name', 12), 3.14)
+        os.environ.setdefault("KINTO_CONF_NAME", "3.14")
+        self.assertEqual(read_env("kinto-conf.name", 12), 3.14)
 
 
 class CurrentServiceTest(unittest.TestCase):
-
     def test_current_service_returns_the_service_for_existing_patterns(self):
         request = DummyRequest()
-        request.matched_route.pattern = '/buckets'
-        request.registry.cornice_services = {'/buckets': mock.sentinel.service}
+        request.matched_route.pattern = "/buckets"
+        request.registry.cornice_services = {"/buckets": mock.sentinel.service}
 
         self.assertEqual(current_service(request), mock.sentinel.service)
 
     def test_current_service_returns_none_for_unexisting_patterns(self):
         request = DummyRequest()
-        request.matched_route.pattern = '/unexisting'
+        request.matched_route.pattern = "/unexisting"
         request.registry.cornice_services = {}
 
         self.assertEqual(current_service(request), None)
 
 
 class PrefixedPrincipalsTest(unittest.TestCase):
-
     def test_removes_unprefixed_from_principals(self):
         request = DummyRequest()
-        request.effective_principals = ['foo', 'system.Authenticated']
-        request.prefixed_userid = 'basic:foo'
-        self.assertEqual(prefixed_principals(request),
-                         ['basic:foo', 'system.Authenticated'])
+        request.effective_principals = ["foo", "system.Authenticated"]
+        request.prefixed_userid = "basic:foo"
+        self.assertEqual(
+            prefixed_principals(request), ["basic:foo", "system.Authenticated"]
+        )
 
     def test_works_if_userid_is_not_in_principals(self):
         request = DummyRequest()
-        request.effective_principals = ['basic:foo', 'system.Authenticated']
-        request.prefixed_userid = 'basic:foo'
-        self.assertEqual(prefixed_principals(request),
-                         ['basic:foo', 'system.Authenticated'])
+        request.effective_principals = ["basic:foo", "system.Authenticated"]
+        request.prefixed_userid = "basic:foo"
+        self.assertEqual(
+            prefixed_principals(request), ["basic:foo", "system.Authenticated"]
+        )
 
 
 class BuildRequestTest(unittest.TestCase):
-
     def test_built_request_has_kinto_core_custom_methods(self):
-        original = build_real_request({'PATH_INFO': '/foo'})
+        original = build_real_request({"PATH_INFO": "/foo"})
         request = build_request(original, {"path": "bar"})
-        self.assertTrue(hasattr(request, 'current_service'))
+        self.assertTrue(hasattr(request, "current_service"))
 
 
 class FollowSubrequestTest(unittest.TestCase):
-
     def test_parent_and_bound_data_are_preserved(self):
         request = DummyRequest()
         request.invoke_subrequest.side_effect = (
-            httpexceptions.HTTPTemporaryRedirect, None)
+            httpexceptions.HTTPTemporaryRedirect,
+            None,
+        )
         subrequest = DummyRequest()
         subrequest.parent = mock.sentinel.parent
         subrequest.bound_data = mock.sentinel.bound_data
@@ -191,7 +201,6 @@ class FollowSubrequestTest(unittest.TestCase):
 
 
 class DictSubsetTest(unittest.TestCase):
-
     def test_extract_by_keys(self):
         obtained = dict_subset(dict(a=1, b=2), ["b"])
         expected = dict(b=2)
@@ -237,7 +246,6 @@ class DictSubsetTest(unittest.TestCase):
 
 
 class DictMergeTest(unittest.TestCase):
-
     def test_merge(self):
         obtained = dict_merge(dict(a=1, b=dict(c=2)), dict(b=dict(d=4)))
         expected = dict(a=1, b=dict(c=2, d=4))
@@ -245,7 +253,6 @@ class DictMergeTest(unittest.TestCase):
 
 
 class FindNestedValueTest(unittest.TestCase):
-
     def test_find_flat_value(self):
         record = {"a": 42}
         obtained = find_nested_value(record, "a")
@@ -302,12 +309,11 @@ class FindNestedValueTest(unittest.TestCase):
 
 
 class RecursiveUpdateDictTest(unittest.TestCase):
-
     def test_merge(self):
         a = {}
-        recursive_update_dict(a, {'b': {'c': 1}, 'd': 2})
-        self.assertEqual(a['b']['c'], 1)
-        self.assertEqual(a['d'], 2)
+        recursive_update_dict(a, {"b": {"c": 1}, "d": 2})
+        self.assertEqual(a["b"]["c"], 1)
+        self.assertEqual(a["d"], 2)
 
     def test_merge_non_dict(self):
         a = {}
@@ -317,10 +323,7 @@ class RecursiveUpdateDictTest(unittest.TestCase):
 
 class ParseResourceTest(unittest.TestCase):
 
-    expected = {
-        'bucket': 'bid',
-        'collection': 'cid'
-    }
+    expected = {"bucket": "bid", "collection": "cid"}
     error_msg = "Resources should be defined as "
     "'/buckets/<bid>/collections/<cid>' or '<bid>/<cid>'. "
     "with valid collection and bucket ids."
@@ -336,7 +339,7 @@ class ParseResourceTest(unittest.TestCase):
             self.assertEquals(str(excinfo.value), self.error_msg)
 
     def test_malformed_url_raises_an_exception(self):
-        input_arr = ['foo', '/', '/bar', 'baz/', '/fo/o', '/buckets/sbid/scid']
+        input_arr = ["foo", "/", "/bar", "baz/", "/fo/o", "/buckets/sbid/scid"]
         self._assert_error(input_arr)
 
     def test_returned_resources_match_the_expected_format(self):
@@ -348,20 +351,23 @@ class ParseResourceTest(unittest.TestCase):
         self._assert_success(input)
 
     def test_resources_must_be_valid_names(self):
-        input_arr = ['/buckets/bi+d1/collections/cid', '/buckets/bid1/collections/dci,d']
+        input_arr = [
+            "/buckets/bi+d1/collections/cid",
+            "/buckets/bid1/collections/dci,d",
+        ]
         self._assert_error(input_arr)
 
 
 class InstanceURIRegistryTest(unittest.TestCase):
-    @mock.patch('kinto.core.utils.instance_uri')
+    @mock.patch("kinto.core.utils.instance_uri")
     def test_instance_uri_registry_calls_instance_uri(self, instance_uri):
         registry = mock.Mock()
-        instance_uri_registry(registry, 'record', a=1)
+        instance_uri_registry(registry, "record", a=1)
         self.assertEqual(len(instance_uri.call_args_list), 1)
         (args, kwargs) = instance_uri.call_args_list[0]
         self.assertEqual(len(args), 2)
 
         self.assertEqual(args[0].registry, registry)
-        self.assertEqual(args[1], 'record')
+        self.assertEqual(args[1], "record")
 
-        self.assertEqual(kwargs, {'a': 1})
+        self.assertEqual(kwargs, {"a": 1})
