@@ -85,7 +85,7 @@ tests-once: install-dev version-file install-postgres install-monitoring
 	$(VENV)/bin/py.test --cov-report term-missing --cov-fail-under 100 --cov kinto
 
 black: install-dev
-	$(VENV)/bin/black kinto tests
+	$(VENV)/bin/black kinto tests docs/conf.py
 
 flake8: install-dev
 	$(VENV)/bin/flake8 kinto tests
