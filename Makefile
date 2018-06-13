@@ -51,6 +51,7 @@ install-postgres: $(INSTALL_STAMP) $(DEV_STAMP)
 install-dev: $(INSTALL_STAMP) $(DEV_STAMP)
 $(DEV_STAMP): $(PYTHON) dev-requirements.txt
 	$(VENV)/bin/pip install -Ur dev-requirements.txt
+	@$(VENV)/bin/pip install -U black
 	touch $(DEV_STAMP)
 
 install-docs: $(DOC_STAMP)
