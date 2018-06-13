@@ -7,7 +7,9 @@ This document describes changes between each past release.
 9.3.0 (unreleased)
 ------------------
 
-- Nothing changed yet.
+**Internal changes**
+
+- Use black to autoformat the code base. (#1688)
 
 
 9.2.0 (2018-06-07)
