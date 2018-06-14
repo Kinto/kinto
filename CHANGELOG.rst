@@ -7,6 +7,10 @@ This document describes changes between each past release.
 9.3.0 (unreleased)
 ------------------
 
+** Bug fixes**
+
+- Fixed bug where unresolved JSON pointers would crash server (fixes #1685)
+
 **Internal changes**
 
 - Update the Dockerfile with the new kinto --cache-backend option. (#1686)

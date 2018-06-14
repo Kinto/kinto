@@ -1,5 +1,5 @@
 import colander
-from jsonschema import Draft4Validator, ValidationError, SchemaError, validate
+from jsonschema import Draft4Validator, ValidationError, SchemaError, RefResolutionError, validate
 from pyramid.settings import asbool
 
 from kinto.core import utils
@@ -56,6 +56,13 @@ def validate_schema(data, schema, ignore_fields=[]):
             field = e.schema_path[-1]
         e.field = field
         raise e
+    # Raise an error here if a reference in the schema doesn't resolve.
+    # jsonschema doesn't provide schema validation checking upon creation yet,
+    # it must be validated against data.
+    # See https://github.com/Julian/jsonschema/issues/399
+    # For future support https://github.com/Julian/jsonschema/issues/346.
+    except RefResolutionError as e:
+        raise e
 
 
 def validate_from_bucket_schema_or_400(data, resource_name, request, ignore_fields=[]):
@@ -93,3 +100,5 @@ def validate_from_bucket_schema_or_400(data, resource_name, request, ignore_fiel
         validate_schema(data, schema, ignore_fields=ignore_fields)
     except ValidationError as e:
         raise_invalid(request, name=e.field, description=e.message)
+    except RefResolutionError as e:
+        raise_invalid(request, name='schema', description=str(e))
