@@ -79,3 +79,24 @@ class CollectionValidationTest(BaseWebTestWithSchema, unittest.TestCase):
                           {'data': {'phone': 42}},
                           headers=self.headers,
                           status=400)
+
+
+SCHEMA_UNRESOLVABLE = {
+    'properties': {
+        'phone': {'$ref': '#/definitions/phone'}
+    },
+}
+
+
+class CollectionUnresolvableTest(BaseWebTestWithSchema, unittest.TestCase):
+    def setUp(self):
+        super().setUp()
+        resp = self.app.put_json(BUCKET_URL,
+                                 {'data': {'group:schema': SCHEMA_UNRESOLVABLE}},
+                                 headers=self.headers)
+        self.collection = resp.json['data']
+
+    def test_unresolvable_errors_handled(self):
+        self.app.put_json(GROUP_URL,
+                          {'data': {'phone': 42}},
+                          headers=self.headers, status=400)

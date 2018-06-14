@@ -368,3 +368,39 @@ class BothBucketAndCollectionSchemas(BaseWebTestWithSchema, unittest.TestCase):
                            {'data': {'filters': 42, **VALID_RECORD}},
                            headers=self.headers,
                            status=400)
+
+
+SCHEMA_UNRESOLVABLE = {
+    'properties': {
+        'title': {'$ref': '#/definitions/title'}
+    },
+}
+
+
+class RecordsUnresolvableTest(BaseWebTestWithSchema, unittest.TestCase):
+    def setUp(self):
+        super().setUp()
+        resp = self.app.put_json(COLLECTION_URL,
+                                 {'data': {'schema': SCHEMA_UNRESOLVABLE}},
+                                 headers=self.headers)
+        self.collection = resp.json['data']
+
+    def test_unresolvable_errors_handled(self):
+        self.app.post_json(RECORDS_URL,
+                           {'data': {'title': 'b'}},
+                           headers=self.headers,
+                           status=400)
+
+
+class BucketUnresolvableRecordSchema(BaseWebTestWithSchema, unittest.TestCase):
+    def setUp(self):
+        super().setUp()
+        self.app.put_json(BUCKET_URL,
+                          {'data': {'record:schema': SCHEMA_UNRESOLVABLE}},
+                          headers=self.headers)
+
+    def test_records_are_valid_if_match_schema(self):
+        self.app.post_json(RECORDS_URL,
+                           {'data': {'title': 'b'}},
+                           headers=self.headers,
+                           status=400)

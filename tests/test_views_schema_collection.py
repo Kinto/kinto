@@ -79,3 +79,24 @@ class CollectionValidationTest(BaseWebTestWithSchema, unittest.TestCase):
                           {'data': {'displayFields': 42}},
                           headers=self.headers,
                           status=400)
+
+
+SCHEMA_UNRESOLVABLE = {
+    'properties': {
+        'displayFields': {'$ref': '#/definitions/displayFields'}
+    },
+}
+
+
+class CollectionUnresolvableTest(BaseWebTestWithSchema, unittest.TestCase):
+    def setUp(self):
+        super().setUp()
+        resp = self.app.put_json(BUCKET_URL,
+                                 {'data': {'collection:schema': SCHEMA_UNRESOLVABLE}},
+                                 headers=self.headers)
+        self.collection = resp.json['data']
+
+    def test_unresolvable_errors_handled(self):
+        self.app.put_json(COLLECTION_URL,
+                          {'data': {'displayFields': 42}},
+                          headers=self.headers, status=400)

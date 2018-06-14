@@ -5,7 +5,7 @@ from kinto.core import resource, utils
 from kinto.core.errors import raise_invalid
 from kinto.views import object_exists_or_404
 from kinto.schema_validation import (validate_from_bucket_schema_or_400, validate_schema,
-                                     ValidationError)
+                                     ValidationError, RefResolutionError)
 
 
 _parent_path = '/buckets/{{bucket_id}}/collections/{{collection_id}}'
@@ -66,6 +66,8 @@ class Record(resource.ShareableResource):
                 validate_schema(new, schema, ignore_fields=internal_fields)
             except ValidationError as e:
                 raise_invalid(self.request, name=e.field, description=e.message)
+            except RefResolutionError as e:
+                raise_invalid(self.request, name='schema', description=str(e))
 
             # Assign the schema version to the record.
             schema_timestamp = self._collection[self.model.modified_field]
