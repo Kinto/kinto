@@ -27,7 +27,7 @@ python-dateutil==2.7.3
 python-memcached==1.59
 raven==6.9.0
 repoze.lru==0.7
-requests==2.19.0
+requests==2.19.1
 simplejson==3.15.0
 six==1.11.0
 SQLAlchemy==1.2.8
