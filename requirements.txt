@@ -18,7 +18,7 @@ newrelic==3.2.2.94
 PasteDeploy==1.5.2
 plaster==1.0
 plaster-pastedeploy==0.5
-psycopg2==2.7.4
+psycopg2==2.7.5
 pycparser==2.18
 pyramid==1.9.2
 pyramid-multiauth==0.9.0
