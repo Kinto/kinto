@@ -7,7 +7,7 @@ This document describes changes between each past release.
 9.3.0 (unreleased)
 ------------------
 
-** Bug fixes**
+**Bug fixes**
 
 - Fixed bug where unresolved JSON pointers would crash server (fixes #1685)
 
