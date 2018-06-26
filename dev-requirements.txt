@@ -9,7 +9,7 @@ pytest-watch==4.2.0
 SQLAlchemy==1.2.8
 python-memcached==1.59
 tox==3.0.0
-WebTest==2.0.29
+WebTest==2.0.30
 werkzeug==0.14.1
 wheel==0.31.1
 zest.releaser==6.15.1
