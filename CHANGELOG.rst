@@ -15,6 +15,10 @@ This document describes changes between each past release.
 
 - Update the Dockerfile with the new kinto --cache-backend option. (#1686)
 
+**Internal changes**
+
+- Upgrade to kinto-admin v1.19.0
+
 
 9.2.0 (2018-06-07)
 ------------------
