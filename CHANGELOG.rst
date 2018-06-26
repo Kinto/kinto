@@ -4,7 +4,7 @@ Changelog
 This document describes changes between each past release.
 
 
-9.3.0 (unreleased)
+9.2.1 (2018-06-26)
 ------------------
 
 **Bug fixes**
@@ -14,9 +14,6 @@ This document describes changes between each past release.
 **Internal changes**
 
 - Update the Dockerfile with the new kinto --cache-backend option. (#1686)
-
-**Internal changes**
-
 - Upgrade to kinto-admin v1.19.0
 
 
