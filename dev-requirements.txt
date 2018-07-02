@@ -1,4 +1,4 @@
-bravado_core==5.0.3
+bravado_core==5.0.4
 flake8==3.5.0
 mock==2.0.0
 pytest==3.6.2
