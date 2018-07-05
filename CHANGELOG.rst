@@ -7,7 +7,9 @@ This document describes changes between each past release.
 9.3.0 (unreleased)
 ------------------
 
-- Nothing changed yet.
+**Internal changes**
+
+- Upgrade to kinto-admin v1.19.2
 
 
 9.2.2 (2018-06-28)
