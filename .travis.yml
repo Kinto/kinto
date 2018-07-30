@@ -31,6 +31,11 @@ matrix:
     - python: 3.6
       env:
         - TOX_ENV=py36
+    - python: 3.7
+      dist: xenial
+      sudo: true
+      env:
+        - TOX_ENV=py37
     - env: ENV=functional
       before_install:
         - make install-dev

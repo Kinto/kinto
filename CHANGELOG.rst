@@ -7,8 +7,9 @@ This document describes changes between each past release.
 9.3.0 (unreleased)
 ------------------
 
-- Nothing changed yet.
+**New features**
 
+- Include Python 3.7 support.
 
 9.2.3 (2018-07-05)
 ------------------
