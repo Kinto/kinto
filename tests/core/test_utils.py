@@ -13,7 +13,7 @@ from pyramid import testing
 from kinto.core.utils import (
     native_value, strip_whitespace, random_bytes_hex, read_env, hmac_digest,
     current_service, follow_subrequest, build_request, dict_subset, dict_merge,
-    parse_resource, prefixed_principals, recursive_update_dict,
+    parse_resource, prefixed_principals, recursive_update_dict, instance_uri_registry,
     find_nested_value
 )
 from kinto.core.testing import DummyRequest
@@ -400,6 +400,7 @@ class ParseResourceTest(unittest.TestCase):
     def test_malformed_record_name(self):
         input_arr = ['/buckets/bid/collections/cid/records/r#c@rds']
         self._assert_error(input_arr)
+
 
 class InstanceURIRegistryTest(unittest.TestCase):
     @mock.patch('kinto.core.utils.instance_uri')
