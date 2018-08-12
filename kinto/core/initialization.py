@@ -465,6 +465,7 @@ class EventResourceIdFilter:
                         return True
         return False
 
+
 def setup_listeners(config):
     # Register basic subscriber predicates, to filter events.
     config.add_subscriber_predicate('for_actions', EventActionFilter)
