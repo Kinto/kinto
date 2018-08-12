@@ -14,7 +14,6 @@ from kinto.core.utils import (
     native_value, strip_whitespace, random_bytes_hex, read_env, hmac_digest,
     current_service, follow_subrequest, build_request, dict_subset, dict_merge,
     parse_resource, prefixed_principals, recursive_update_dict,
-    instance_uri_registry,
     find_nested_value
 )
 from kinto.core.testing import DummyRequest
@@ -401,3 +400,17 @@ class ParseResourceTest(unittest.TestCase):
     def test_malformed_record_name(self):
         input_arr = ['/buckets/bid/collections/cid/records/r#c@rds']
         self._assert_error(input_arr)
+
+class InstanceURIRegistryTest(unittest.TestCase):
+    @mock.patch('kinto.core.utils.instance_uri')
+    def test_instance_uri_registry_calls_instance_uri(self, instance_uri):
+        registry = mock.Mock()
+        instance_uri_registry(registry, 'record', a=1)
+        self.assertEqual(len(instance_uri.call_args_list), 1)
+        (args, kwargs) = instance_uri.call_args_list[0]
+        self.assertEqual(len(args), 2)
+
+        self.assertEqual(args[0].registry, registry)
+        self.assertEqual(args[1], 'record')
+
+        self.assertEqual(kwargs, {'a': 1})
