@@ -6,7 +6,8 @@ from pyramid.config import Configurator
 
 from kinto.core import statsd
 from kinto.core.events import (ResourceChanged, AfterResourceChanged,
-                               ResourceRead, AfterResourceRead, ACTIONS)
+                               ResourceRead, AfterResourceRead, ACTIONS,
+                               notify_resource_event)
 from kinto.core.storage.exceptions import BackendError
 from kinto.core.testing import unittest
 
@@ -422,6 +423,33 @@ class BatchEventsTest(BaseEventTest, unittest.TestCase):
         self.app.post_json("/batch", body, headers=self.headers,
                            status=503)
         self.assertEqual(len(self.events), 0)
+
+
+class CascadingEventsTest(BaseEventTest, unittest.TestCase):
+    subscribed = (ResourceChanged,)
+
+    @classmethod
+    def listener(cls, event):
+        cls.events.append(event)
+        if len(event.impacted_records) > 1:
+            raise ValueError("Too many events {}".format(event.impacted_records))
+        # An event without records is impossible.
+        assert len(event.impacted_records) == 1
+        if event.impacted_records[0]['new']['name'] == 'de Paris':
+            new_record = {'name': 'de New York'}
+            parent_id = cls.collection_url
+            notify_resource_event(event.request, parent_id, event.payload['timestamp'], new_record,
+                                  ACTIONS.CREATE)
+
+    def test_event_can_trigger_other_event(self):
+        self.app.post_json(self.collection_url, self.body,
+                           headers=self.headers, status=201)
+        self.assertEqual(len(self.events), 2)
+        self.assertEqual(self.events[0].payload['action'], ACTIONS.CREATE.value)
+        self.assertEqual(len(self.events[0].impacted_records), 1)
+        self.assertEqual(self.events[1].payload['action'], ACTIONS.CREATE.value)
+        self.assertEqual(len(self.events[1].impacted_records), 1)
+        self.assertEqual(self.events[1].impacted_records[0]['new']['name'], 'de New York')
 
 
 def load_from_config(config, prefix):
