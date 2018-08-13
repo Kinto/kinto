@@ -66,6 +66,73 @@ class AfterResourceChanged(_ResourceEvent):
         self.impacted_records = impacted_records
 
 
+class EventCollector(object):
+    """A collection to gather events emitted over the course of a request.
+
+    Events are gathered by parent id, resource type, and event
+    type. This serves as a primitive normalization so that we can emit
+    fewer events.
+    """
+
+    def __init__(self):
+        self.event_dict = OrderedDict()
+        """The events as collected so far.
+
+        The key of the event_dict is a triple (resource_name,
+        parent_id, action). The value is a triple (impacted, request,
+        payload). If the same (resource_name, parent_id, action) is
+        encountered, we just extend the existing impacted with the new
+        impacted. N.B. this means all values in the payload must not
+        be specific to a single impacted_record. See
+        https://github.com/Kinto/kinto/issues/945 and
+        https://github.com/Kinto/kinto/issues/1731.
+        """
+
+    def add_event(self, resource_name, parent_id, action, payload, impacted, request):
+        key = (resource_name, parent_id, action)
+        if key not in self.event_dict:
+            value = (payload, impacted, request)
+            self.event_dict[key] = value
+        else:
+            old_value = self.event_dict[key]
+            (old_payload, old_impacted, old_request) = old_value
+            # May be a good idea to assert that old_payload == payload here.
+            old_impacted.extend(impacted)
+
+    def drain(self):
+        """Return an iterator that removes elements from this EventCollector.
+
+        This can be used to process events while still allowing events
+        to be added (for instance, as part of a cascade where events
+        add other events).
+
+        Items yielded will be of a tuple suitable for using as
+        arguments to EventCollector.add_event.
+        """
+        return EventCollectorDrain(self)
+
+
+class EventCollectorDrain(object):
+    """An iterator that drains an EventCollector.
+
+    Get one using EventCollector.drain()."""
+    def __init__(self, event_collector):
+        self.event_collector = event_collector
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        if self.event_collector.event_dict:
+            # Get the "first" key in insertion order, so as to process
+            # events in the same order they were queued.
+            key = next(iter(self.event_collector.event_dict.keys()))
+            value = self.event_collector.event_dict.pop(key)
+            return key + value
+        else:
+            raise StopIteration
+
+
 def notify_resource_events_before(handler, registry):
     """pyramid_tm "commit veto" hook to run ResourceChanged events.
 
@@ -74,7 +141,7 @@ def notify_resource_events_before(handler, registry):
     """
     def tween(request):
         response = handler(request)
-        for event in request.drain_resource_events():
+        for event in request.get_resource_events():
             request.registry.notify(event)
 
         return response
@@ -95,7 +162,7 @@ def setup_transaction_hook(config):
         if not success:  # pragma: no cover
             return
 
-        for event in request.drain_after_resource_events():
+        for event in request.get_resource_events(after_commit=True):
             try:
                 request.registry.notify(event)
             except Exception:
@@ -116,46 +183,41 @@ def setup_transaction_hook(config):
                      under=pyramid.tweens.EXCVIEW)
 
 
-def drain_resource_events(request):
+def get_resource_events(request, after_commit=False):
+    """Generator to iterate the list of events triggered on resources.
+
+    The list is sorted chronologically (see OrderedDict).
+
+    This drains the resource_events currently in the request, which
+    allows us to process new events as they are added by current
+    events. However, once the iteration is over, we merge all the
+    events we've emitted into a new resource_events, which we store on
+    the request so we can reprocess the same events in an after-commit
+    tween.
+
+    This generator must be completely consumed!
     """
-    Request helper to return the list of events triggered on resources.
-    The list is sorted chronologically (see OrderedDict)
-    """
-    by_resource = request.bound_data.get('resource_events', {})
-    afterwards = request.bound_data.setdefault('after_resource_events', OrderedDict())
+    by_resource = request.bound_data.get('resource_events', EventCollector())
+    afterwards = EventCollector()
 
-    while by_resource:
-        key = next(iter(by_resource.keys()))
-        event = by_resource.pop(key)
-        (action, payload, impacted, request) = event
+    for event_call in by_resource.drain():
+        afterwards.add_event(*event_call)
+        (_, _, action, payload, impacted, request) = event_call
 
-        after_event = afterwards.get(key, None)
-        if not after_event:
-            afterwards[key] = event
+        if after_commit:
+            if action == ACTIONS.READ:
+                event_cls = AfterResourceRead
+            else:
+                event_cls = AfterResourceChanged
         else:
-            after_impacted = afterwards[key][2]
-            after_impacted.extend(impacted)
-
-        if action == ACTIONS.READ:
-            event_cls = ResourceRead
-        else:
-            event_cls = ResourceChanged
+            if action == ACTIONS.READ:
+                event_cls = ResourceRead
+            else:
+                event_cls = ResourceChanged
 
         yield event_cls(payload, impacted, request)
 
-
-def drain_after_resource_events(request):
-    by_resource = request.bound_data.get('after_resource_events')
-    while by_resource:
-        key = next(iter(by_resource.keys()))
-        event = by_resource.pop(key)
-        (action, payload, impacted, request) = event
-        if action == ACTIONS.READ:
-            event_cls = AfterResourceRead
-        else:
-            event_cls = AfterResourceChanged
-
-        yield event_cls(payload, impacted, request)
+    request.bound_data['resource_events'] = afterwards
 
 
 def notify_resource_event(request, parent_id, timestamp, data, action,
@@ -184,30 +246,22 @@ def notify_resource_event(request, parent_id, timestamp, data, action,
         impacted = [{'new': data, 'old': old}]
 
     # Get previously triggered events.
-    events = request.bound_data.setdefault('resource_events', OrderedDict())
+    events = request.bound_data.setdefault('resource_events', EventCollector())
 
     resource_name = resource_name or request.current_resource_name
+    matchdict = resource_data or dict(request.matchdict)
 
-    # Group events by resource and action.
-    group_by = '{}-{}-{}'.format(resource_name, parent_id, action.value)
+    payload = {'timestamp': timestamp,
+               'action': action.value,
+               # Deprecated: don't actually use URI (see #945).
+               'uri': strip_uri_prefix(request.path),
+               'user_id': request.prefixed_userid,
+               'resource_name': resource_name}
 
-    if group_by in events:
-        # Add to impacted records of existing event.
-        already_impacted = events[group_by][2]
-        already_impacted.extend(impacted)
-    else:
-        # Create new event.
-        payload = {'timestamp': timestamp,
-                   'action': action.value,
-                   'uri': strip_uri_prefix(request.path),
-                   'user_id': request.prefixed_userid,
-                   'resource_name': resource_name}
+    # Deprecated: don't actually use `resource_name_id` either (see #945).
+    if 'id' in request.matchdict:
+        matchdict[resource_name + '_id'] = matchdict.pop('id')
 
-        matchdict = resource_data or dict(request.matchdict)
+    payload.update(**matchdict)
 
-        if 'id' in request.matchdict:
-            matchdict[resource_name + '_id'] = matchdict.pop('id')
-
-        payload.update(**matchdict)
-
-        events[group_by] = (action, payload, impacted, request)
+    events.add_event(resource_name, parent_id, action, payload, impacted, request)

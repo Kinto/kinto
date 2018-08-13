@@ -164,10 +164,8 @@ def includeme(config):
     config.registry.api_capabilities = {}
 
     # Resource events helpers.
-    config.add_request_method(events.drain_resource_events,
-                              name='drain_resource_events')
-    config.add_request_method(events.drain_after_resource_events,
-                              name='drain_after_resource_events')
+    config.add_request_method(events.get_resource_events,
+                              name='get_resource_events')
     config.add_request_method(events.notify_resource_event,
                               name='notify_resource_event')
 
