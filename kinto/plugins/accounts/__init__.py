@@ -27,7 +27,7 @@ def includeme(config):
 
     settings = config.get_settings()
 
-    # Check that the account policy is mentionned in docs if included.
+    # Check that the account policy is mentioned in config if included.
     accountClass = 'AccountsAuthenticationPolicy'
     policy = None
     for k, v in settings.items():

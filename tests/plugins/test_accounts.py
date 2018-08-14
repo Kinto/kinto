@@ -33,7 +33,7 @@ class BadAccountsConfigTest(support.BaseWebTest, unittest.TestCase):
                 'includes': 'kinto.plugins.accounts',
                 'multiauth.policies': 'basicauth',
             })
-        assert "Account policy missing" in cm.exception
+        assert "Account policy missing" in str(cm.exception)
 
 
 class HelloViewTest(AccountsWebTest):
