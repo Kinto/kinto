@@ -55,6 +55,12 @@ Event subscribers can then pick up those events and act upon them.
 .. autoclass:: kinto.core.events.AfterResourceChanged
 
 
+It can be useful to emit events, especially if you wish to simulate
+resources (as in e.g. `kinto-changes`).
+
+.. autofunction:: kinto.core.events.notify_resource_event
+
+
 Transactions
 ------------
 
@@ -115,7 +121,7 @@ events contain a ``payload`` attribute with the following information:
   `Pyramid request matchdict <http://docs.pylonsproject.org/projects/pyramid/en/latest/glossary.html#term-matchdict>`_)
 
 And provides the list of affected records in the ``impacted_records`` attribute.
-This list contains dictionnaries with ``new`` and ``old`` keys. For creation
+This list contains dictionaries with ``new`` and ``old`` keys. For creation
 events, only ``new`` is provided. For deletion events, only ``old`` is provided.
 This also allows listeners to react on particular field change or handle *diff*
 between versions.
@@ -132,8 +138,10 @@ Example, when deleting a collection with two records:
 Event listeners
 ---------------
 
-It is possible for an application or a plugin to listen to events and execute
-some code. Triggered code on events is synchronously called when a request is handled.
+It is possible for an application or a plugin to listen to events and
+execute some code. Triggered code on events is synchronously called
+when a request is handled. An event handler can itself trigger other
+events.
 
 *Kinto-Core* offers custom listeners that can be activated through configuration,
 so that every Kinto-Core-based application can benefit from **pluggable listeners**
