@@ -7,12 +7,22 @@ This document describes changes between each past release.
 9.3.0 (unreleased)
 ------------------
 
+**Breaking changes**
+
+- ``kinto.core.events.get_resource_events`` now returns a generator
+  rather than a list.
+
+
 **New features**
 
 - Include Python 3.7 support.
-- kinto.core.events now supports ``resource_name`` and
-  ``resource_data``. These are useful when emitting events from one
-  view "as though" they came from another view.
+- ``kinto.core.events.notify_resource_event`` now supports
+  ``resource_name`` and ``resource_data``. These are useful when
+  emitting events from one view "as though" they came from another
+  view.
+- Resource events can now trigger other resource events, which are
+  handled correctly. This might be handy if one resource wants to
+  simulate events on another "virtual" resource, as in ``kinto-changes``.
 
 9.2.3 (2018-07-05)
 ------------------
