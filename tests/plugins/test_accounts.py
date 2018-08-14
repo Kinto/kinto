@@ -25,6 +25,17 @@ class AccountsWebTest(support.BaseWebTest, unittest.TestCase):
         return super().get_app_settings(extras)
 
 
+class BadAccountsConfigTest(support.BaseWebTest, unittest.TestCase):
+
+    def test_raise_configuration_if_accounts_not_mentioned(self):
+        with self.assertRaises(ConfigurationError) as cm:
+            self.make_app({
+                'includes': 'kinto.plugins.accounts',
+                'multiauth.policies': 'basicauth',
+            })
+        assert "Account policy missing" in cm.exception
+
+
 class HelloViewTest(AccountsWebTest):
 
     def test_accounts_capability_if_enabled(self):

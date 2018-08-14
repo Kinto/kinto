@@ -11,6 +11,12 @@ This document describes changes between each past release.
 
 - Include Python 3.7 support.
 
+**Bug fixes**
+
+- Raise a configuration error if the ``kinto.plugin.accounts`` is included without being enabled in policies.
+  Without this *kinto-admin* would present a confusing login experience (fixes #1734).
+
+
 9.2.3 (2018-07-05)
 ------------------
 
