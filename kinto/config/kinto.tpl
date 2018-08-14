@@ -32,8 +32,8 @@ use = egg:kinto
 # https://kinto.readthedocs.io/en/latest/configuration/settings.html#plugins
 # https://github.com/uralbash/awesome-pyramid
 kinto.includes = kinto.plugins.default_bucket
-#                kinto.plugins.admin
-#                kinto.plugins.accounts
+                 kinto.plugins.admin
+                 kinto.plugins.accounts
 #                kinto.plugins.history
 #                kinto.plugins.quotas
 
@@ -82,7 +82,7 @@ kinto.permission_url = {permission_url}
 # https://kinto.readthedocs.io/en/latest/configuration/settings.html#authentication
 #
 kinto.userid_hmac_secret = {secret}
-multiauth.policies = basicauth
+multiauth.policies = account
 # Any pyramid multiauth setting can be specified for custom authentication
 # https://github.com/uralbash/awesome-pyramid#authentication
 #
@@ -92,12 +92,13 @@ multiauth.policies = basicauth
 # Set `kinto.includes` to `kinto.plugins.accounts`
 # Enable authenticated policy.
 # Set `multiauth.policies` to `account`
-# multiauth.policy.account.use = kinto.plugins.accounts.authentication.AccountsAuthenticationPolicy
+multiauth.policy.account.use = kinto.plugins.accounts.authentication.AccountsAuthenticationPolicy
 # Allow anyone to create accounts.
-# kinto.account_create_principals = system.Everyone
+kinto.account_create_principals = system.Everyone
 # Set user 'account:admin' as the administrator.
-# kinto.account_write_principals = account:admin
-# kinto.account_read_principals = account:admin
+kinto.account_write_principals = account:admin
+# Allow administrators to create buckets
+kinto.bucket_create_principals = account:admin
 #
 # Kinto-portier authentication
 # https://github.com/Kinto/kinto-portier
