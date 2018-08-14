@@ -426,30 +426,49 @@ class BatchEventsTest(BaseEventTest, unittest.TestCase):
 
 
 class CascadingEventsTest(BaseEventTest, unittest.TestCase):
-    subscribed = (ResourceChanged,)
+    subscribed = (ResourceChanged, AfterResourceChanged)
 
     @classmethod
     def listener(cls, event):
+        """Have the first "de Paris" event trigger a follow-up "de New York" event."""
         cls.events.append(event)
+        if not isinstance(event, ResourceChanged):
+            return
         if len(event.impacted_records) > 1:
             raise ValueError("Too many events {}".format(event.impacted_records))
         # An event without records is impossible.
         assert len(event.impacted_records) == 1
         if event.impacted_records[0]['new']['name'] == 'de Paris':
             new_record = {'name': 'de New York'}
-            parent_id = cls.collection_url
+            # Trying to match the Mushroom (i.e. UserResource) parent
+            # ID to test event grouping
+            parent_id = event.request.prefixed_userid
             notify_resource_event(event.request, parent_id, event.payload['timestamp'], new_record,
                                   ACTIONS.CREATE)
 
     def test_event_can_trigger_other_event(self):
         self.app.post_json(self.collection_url, self.body,
                            headers=self.headers, status=201)
-        self.assertEqual(len(self.events), 2)
-        self.assertEqual(self.events[0].payload['action'], ACTIONS.CREATE.value)
-        self.assertEqual(len(self.events[0].impacted_records), 1)
-        self.assertEqual(self.events[1].payload['action'], ACTIONS.CREATE.value)
-        self.assertEqual(len(self.events[1].impacted_records), 1)
-        self.assertEqual(self.events[1].impacted_records[0]['new']['name'], 'de New York')
+        resource_changed_events = [e for e in self.events if isinstance(e, ResourceChanged)]
+        self.assertEqual(len(resource_changed_events), 2)
+        self.assertEqual(resource_changed_events[0].payload['action'], ACTIONS.CREATE.value)
+        self.assertEqual(len(resource_changed_events[0].impacted_records), 1)
+        self.assertEqual(resource_changed_events[1].payload['action'], ACTIONS.CREATE.value)
+        self.assertEqual(len(resource_changed_events[1].impacted_records), 1)
+        self.assertEqual(resource_changed_events[1].impacted_records[0]['new']['name'],
+                         'de New York')
+
+    def test_cascading_events_are_merged(self):
+        print("Posted to", self.collection_url)
+        self.app.post_json(self.collection_url, self.body,
+                           headers=self.headers, status=201)
+        relevant_events = [e for e in self.events if isinstance(e, AfterResourceChanged)]
+        self.assertEqual(len(relevant_events), 1)
+        merged_event = relevant_events[0]
+        self.assertEqual(merged_event.payload['action'], ACTIONS.CREATE.value)
+        self.assertEqual(len(merged_event.impacted_records), 2)
+        self.assertEqual(merged_event.impacted_records[0]['new']['name'], 'de Paris')
+        self.assertEqual(merged_event.impacted_records[1]['new']['name'], 'de New York')
 
 
 def load_from_config(config, prefix):

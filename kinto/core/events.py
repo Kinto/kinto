@@ -97,7 +97,7 @@ class EventCollector(object):
             old_value = self.event_dict[key]
             (old_payload, old_impacted, old_request) = old_value
             # May be a good idea to assert that old_payload == payload here.
-            old_impacted.extend(impacted)
+            self.event_dict[key] = (old_payload, old_impacted + impacted, old_request)
 
     def drain(self):
         """Return an iterator that removes elements from this EventCollector.
