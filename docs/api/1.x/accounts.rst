@@ -43,10 +43,10 @@ You can then use it in your config:
 .. code-block:: ini
 
     # Allow anyone to create accounts.
-    kinto.account_create_principals = account:admin
+    kinto.account_create_principals = system.Everyone
+    # But also allow the admin to delete etc.
     kinto.account_write_principals = account:admin
 
-	
 .. _accounts-auth:
 
 Authentication
