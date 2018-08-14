@@ -90,9 +90,6 @@ DEFAULT_SETTINGS = {
     'version_prefix_redirect_enabled': True,
     'trailing_slash_redirect_enabled': True,
     'multiauth.groupfinder': 'kinto.core.authorization.groupfinder',
-    'multiauth.policies': 'basicauth',
-    'multiauth.policy.basicauth.use': ('kinto.core.authentication.'
-                                       'BasicAuthAuthenticationPolicy'),
     'multiauth.authorization_policy': ('kinto.core.authorization.'
                                        'AuthorizationPolicy'),
 }
