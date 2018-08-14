@@ -453,13 +453,14 @@ class CascadingEventsTest(BaseEventTest, unittest.TestCase):
         self.assertEqual(len(resource_changed_events), 2)
         self.assertEqual(resource_changed_events[0].payload['action'], ACTIONS.CREATE.value)
         self.assertEqual(len(resource_changed_events[0].impacted_records), 1)
+        self.assertEqual(resource_changed_events[0].impacted_records[0]['new']['name'],
+                         'de Paris')
         self.assertEqual(resource_changed_events[1].payload['action'], ACTIONS.CREATE.value)
         self.assertEqual(len(resource_changed_events[1].impacted_records), 1)
         self.assertEqual(resource_changed_events[1].impacted_records[0]['new']['name'],
                          'de New York')
 
     def test_cascading_events_are_merged(self):
-        print("Posted to", self.collection_url)
         self.app.post_json(self.collection_url, self.body,
                            headers=self.headers, status=201)
         relevant_events = [e for e in self.events if isinstance(e, AfterResourceChanged)]
