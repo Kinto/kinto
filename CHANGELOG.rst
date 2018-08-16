@@ -4,8 +4,8 @@ Changelog
 This document describes changes between each past release.
 
 
-9.3.0 (unreleased)
-------------------
+10.0.0 (2018-08-16)
+-------------------
 
 **Breaking changes**
 
