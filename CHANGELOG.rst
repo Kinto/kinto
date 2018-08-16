@@ -30,6 +30,10 @@ This document describes changes between each past release.
   Without this *kinto-admin* would present a confusing login experience (fixes #1734).
 
 
+**Internal changes**
+
+- Upgrade kinto-admin to v1.20.0
+
 9.2.3 (2018-07-05)
 ------------------
 
