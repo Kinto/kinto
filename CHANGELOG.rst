@@ -11,6 +11,10 @@ This document describes changes between each past release.
 
 - Include Python 3.7 support.
 
+**Internal changes**
+
+- Upgrade kinto-admin to v1.20.0
+
 9.2.3 (2018-07-05)
 ------------------
 
