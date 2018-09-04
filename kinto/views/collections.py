@@ -56,4 +56,4 @@ def on_collections_deleted(event):
                            with_deleted=False)
         storage.purge_deleted(collection_id=None,
                               parent_id=parent_id)
-        permission.delete_object_permissions(parent_id)
+        permission.delete_object_permissions(parent_id + '/*')
