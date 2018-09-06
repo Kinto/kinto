@@ -11,11 +11,13 @@ This document describes changes between each past release.
 
 - Include Python 3.7 support.
 
+**Bug fixes**
+
+- Deleting a collection doesn't delete access_control_entrries for its children (fixes #1647)
+
+
 9.2.3 (2018-07-05)
 ------------------
-
-**Bug fixes**
-- Deleting a collection doesn't delete access_control_entrries for its children (fixes #1647)
 
 **Internal changes**
 
