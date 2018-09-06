@@ -34,15 +34,12 @@ This document describes changes between each past release.
 
 - Raise a configuration error if the ``kinto.plugin.accounts`` is included without being enabled in policies.
   Without this *kinto-admin* would present a confusing login experience (fixes #1734).
+- Deleting a collection doesn't delete access_control_entrries for its children (fixes #1647)
 
 
 **Internal changes**
 
 - Upgrade kinto-admin to v1.20.0
-
-**Bug fixes**
-
-- Deleting a collection doesn't delete access_control_entrries for its children (fixes #1647)
 
 
 9.2.3 (2018-07-05)
