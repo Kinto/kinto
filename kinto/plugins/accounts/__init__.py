@@ -1,8 +1,12 @@
+import re
+
 from kinto.authorization import PERMISSIONS_INHERITANCE_TREE
 from pyramid.exceptions import ConfigurationError
 
 ACCOUNT_CACHE_KEY = 'accounts:{}:verified'
 ACCOUNT_POLICY_NAME = 'account'
+
+DOCS_URL = "https://kinto.readthedocs.io/en/stable/api/1.x/accounts.html"
 
 
 def includeme(config):
@@ -21,13 +25,28 @@ def includeme(config):
         'read': {'account': ['write', 'read']}
     }
 
-    # Add some safety to avoid weird behaviour with basicauth default policy.
     settings = config.get_settings()
+
+    # Check that the account policy is mentioned in config if included.
+    accountClass = 'AccountsAuthenticationPolicy'
+    policy = None
+    for k, v in settings.items():
+        m = re.match('multiauth\.policy\.(.*)\.use', k)
+        if m:
+            if v.endswith(accountClass):
+                policy = m.group(1)
+
+    if not policy:
+        error_msg = ("Account policy missing the 'multiauth.policy.*.use' "
+                     "setting. See {} in docs {}.").format(accountClass, DOCS_URL)
+        raise ConfigurationError(error_msg)
+
+    # Add some safety to avoid weird behaviour with basicauth default policy.
     auth_policies = settings['multiauth.policies']
-    if 'basicauth' in auth_policies and 'account' in auth_policies:
-        if auth_policies.index('basicauth') < auth_policies.index('account'):
-            error_msg = ("'basicauth' should not be mentioned before 'account' "
-                         "in 'multiauth.policies' setting.")
+    if 'basicauth' in auth_policies and policy in auth_policies:
+        if auth_policies.index('basicauth') < auth_policies.index(policy):
+            error_msg = ("'basicauth' should not be mentioned before '%s' "
+                         "in 'multiauth.policies' setting.") % policy
             raise ConfigurationError(error_msg)
 
     # We assume anyone in account_create_principals is to create
