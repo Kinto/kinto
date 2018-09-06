@@ -6,6 +6,7 @@ Contributors
 * Aditya Bhasin <conlini@gmail.com>
 * Aiman Parvaiz <aimanparvaiz@gmail.com>
 * Anh <anh.trinhtrung@gmail.com>
+* Alexander Ryabkov <alexryabkov@gmail.com>
 * Alexis Metaireau <alexis@mozilla.com>
 * Andy McKay <amckay@mozilla.com>
 * Anthony Garuccio <garuccio124@gmail.com>
