@@ -158,6 +158,10 @@ class CollectionDeletionTest(BaseWebTest, unittest.TestCase):
         self.app.put_json(self.collection_url, MINIMALIST_COLLECTION,
                           headers=headers, status=201)
 
+    def test_collection_permissions_are_removed_after_collection_deleted(self):
+        self.assertDictEqual(self.permission.get_object_permissions(
+                             self.collection_url), {})
+
     def test_records_permissions_are_removed_after_collection_deleted(self):
         self.assertDictEqual(self.permission.get_object_permissions(
                              self.record_url), {})
