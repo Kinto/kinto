@@ -14,6 +14,9 @@ This document describes changes between each past release.
 9.2.3 (2018-07-05)
 ------------------
 
+**Bug fixes**
+- Deleting a collection doesn't delete access_control_entrries for its children (fixes #1647)
+
 **Internal changes**
 
 - Upgrade to kinto-admin v1.19.2
