@@ -300,7 +300,7 @@ class JsonPatchOperationSchema(colander.MappingSchema):
         return colander.OneOf(op_values)
 
     def path_validator():
-        return colander.Regex('(/\w*)+')
+        return colander.Regex('(/\\w*)+')
 
     op = colander.SchemaNode(colander.String(), validator=op_validator())
     path = colander.SchemaNode(colander.String(), validator=path_validator())
