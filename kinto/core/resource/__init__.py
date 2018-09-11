@@ -992,8 +992,8 @@ class UserResource:
                 )
                 continue
 
-            allKeywords = '|'.join([i.name.lower() for i in COMPARISON])
-            m = re.match(r'^('+allKeywords+')_([\w\.]+)$', param)
+            all_keywords = '|'.join([i.name.lower() for i in COMPARISON])
+            m = re.match(r'^(' + all_keywords + r')_([\w\.]+)$', param)
             if m:
                 keyword, field = m.groups()
                 operator = getattr(COMPARISON, keyword.upper())
