@@ -181,24 +181,24 @@ def main(args=None):
 
     elif which_command == 'migrate':
         dry_run = parsed_args['dry_run']
-        env = bootstrap(config_file)
+        env = bootstrap(config_file, options={'command': 'migrate'})
         scripts.migrate(env, dry_run=dry_run)
 
     elif which_command == 'delete-collection':
-        env = bootstrap(config_file)
+        env = bootstrap(config_file, options={'command': 'delete-collection'})
         return scripts.delete_collection(env,
                                          parsed_args['bucket'],
                                          parsed_args['collection'])
 
     elif which_command == 'rebuild-quotas':
         dry_run = parsed_args['dry_run']
-        env = bootstrap(config_file)
+        env = bootstrap(config_file, options={'command': 'rebuild-quotas'})
         return scripts.rebuild_quotas(env, dry_run=dry_run)
 
     elif which_command == 'create-user':
         username = parsed_args['username']
         password = parsed_args['password']
-        env = bootstrap(config_file)
+        env = bootstrap(config_file, options={'command': 'create-user'})
         return create_user(env, username=username, password=password)
 
     elif which_command == 'start':
