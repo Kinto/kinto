@@ -4,11 +4,18 @@ Changelog
 This document describes changes between each past release.
 
 
-10.0.1 (unreleased)
+10.1.0 (unreleased)
 -------------------
 
 **Bug fixes**
+
 - Deleting a collection doesn't delete access_control_entrries for its children (fixes #1647)
+
+**New features**
+
+- The registry now has a "command" setting during one-off commands
+  such as ``kinto migrate``. This can be useful for plugins that want
+  to behave differently during a migration, for instance. (#1762)
 
 
 10.0.0 (2018-08-16)
