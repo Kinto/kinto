@@ -1,11 +1,10 @@
-import mock
 import unittest
 
 from kinto import main
 from .support import BaseWebTest
 
-class TestMain(BaseWebTest, unittest.TestCase):
 
+class TestMain(BaseWebTest, unittest.TestCase):
     def test_init_sets_command_on_registry(self):
         app = main({'command': 'migrate'}, None, **self.get_app_settings())
 
