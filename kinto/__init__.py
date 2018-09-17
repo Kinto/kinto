@@ -43,6 +43,8 @@ def main(global_config, config=None, **settings):
     if not config:
         config = Configurator(settings=settings, root_factory=RouteFactory)
 
+    config.registry.command = global_config and global_config.get('command', None)
+
     # Force project name, since it determines settings prefix.
     config.add_settings({'kinto.project_name': 'kinto'})
 
