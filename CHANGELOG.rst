@@ -4,7 +4,7 @@ Changelog
 This document describes changes between each past release.
 
 
-10.1.0 (unreleased)
+10.1.0 (2018-09-17)
 -------------------
 
 **Bug fixes**
@@ -13,7 +13,7 @@ This document describes changes between each past release.
 
 **New features**
 
-- The registry now has a "command" setting during one-off commands
+- The registry now has a "command" attribute during one-off commands
   such as ``kinto migrate``. This can be useful for plugins that want
   to behave differently during a migration, for instance. (#1762)
 
