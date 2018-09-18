@@ -110,6 +110,7 @@ class HelloViewTest(OpenIDWebTest):
         auth = resp.json['securityDefinitions']['auth0']['authorizationUrl']
         assert auth == 'https://auth.mozilla.auth0.com/authorize'
 
+
 class PolicyTest(unittest.TestCase):
     def setUp(self):
         mocked = mock.patch('kinto.plugins.openid.requests.get')
