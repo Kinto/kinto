@@ -7,7 +7,9 @@ This document describes changes between each past release.
 10.1.1 (unreleased)
 -------------------
 
-- Nothing changed yet.
+**Bug fixes**
+
+- Fix for adding extra OpenId providers (fixes #1509)
 
 
 10.1.0 (2018-09-17)
