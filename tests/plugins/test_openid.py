@@ -46,6 +46,12 @@ class OpenIDWebTest(support.BaseWebTest, unittest.TestCase):
         settings["multiauth.policy.google.userid_field"] = 'email'
         return settings
 
+    def test_openid_multiple_providers(self):
+        resp = self.app.get('/')
+        capabilities = resp.json['capabilities']
+        providers = capabilities['openid']['providers']
+        assert len(providers) == 2
+
 
 class OpenIDWithoutPolicyTest(support.BaseWebTest, unittest.TestCase):
 
@@ -59,6 +65,33 @@ class OpenIDWithoutPolicyTest(support.BaseWebTest, unittest.TestCase):
         resp = self.app.get('/')
         capabilities = resp.json['capabilities']
         assert 'openid' not in capabilities
+
+
+class OpenIDOnePolicyTest(support.BaseWebTest, unittest.TestCase):
+
+    @classmethod
+    def get_app_settings(cls, extras=None):
+        settings = super().get_app_settings(extras)
+        openid_policy = 'kinto.plugins.openid.OpenIDConnectPolicy'
+        settings['includes'] = 'kinto.plugins.openid'
+        settings['multiauth.policies'] = 'google'
+        settings['multiauth.policy.auth0.use'] = openid_policy
+        settings['multiauth.policy.auth0.issuer'] = 'https://auth.mozilla.auth0.com'
+        settings['multiauth.policy.auth0.client_id'] = 'abc'
+        settings["multiauth.policy.auth0.client_secret"] = 'xyz'
+
+        settings['multiauth.policy.google.use'] = openid_policy
+        settings['multiauth.policy.google.issuer'] = 'https://accounts.google.com'
+        settings['multiauth.policy.google.client_id'] = '123'
+        settings["multiauth.policy.google.client_secret"] = '789'
+        settings["multiauth.policy.google.userid_field"] = 'email'
+        return settings
+
+    def test_openid_one_provider(self):
+        resp = self.app.get('/')
+        capabilities = resp.json['capabilities']
+        providers = capabilities['openid']['providers']
+        assert len(providers) == 1
 
 
 class HelloViewTest(OpenIDWebTest):
@@ -76,7 +109,6 @@ class HelloViewTest(OpenIDWebTest):
         assert 'auth0' in resp.json['securityDefinitions']
         auth = resp.json['securityDefinitions']['auth0']['authorizationUrl']
         assert auth == 'https://auth.mozilla.auth0.com/authorize'
-
 
 class PolicyTest(unittest.TestCase):
     def setUp(self):
