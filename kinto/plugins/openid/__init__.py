@@ -91,12 +91,11 @@ def includeme(config):
     for policy in aslist(settings['multiauth.policies']):
         v = settings.get('multiauth.policy.%s.use' % policy, '')
         if v.endswith('OpenIDConnectPolicy'):
-            openid_policies.append(v)
+            openid_policies.append(policy)
 
     if len(openid_policies) == 0:
         # Do not add the capability if no policy is configured.
         return
-
     providers_infos = []
     for name in openid_policies:
         issuer = settings['multiauth.policy.%s.issuer' % name]
