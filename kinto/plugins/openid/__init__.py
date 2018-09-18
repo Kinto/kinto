@@ -1,4 +1,3 @@
-import re
 
 import requests
 from pyramid import authentication as base_auth
@@ -96,6 +95,7 @@ def includeme(config):
     if len(openid_policies) == 0:
         # Do not add the capability if no policy is configured.
         return
+    
     providers_infos = []
     for name in openid_policies:
         issuer = settings['multiauth.policy.%s.issuer' % name]
