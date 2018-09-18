@@ -86,4 +86,5 @@ Contributors
 * Vitor Falcao <vitor.falcaor@gmail.com>
 * Wil Clouser <wclouser@mozilla.com>
 * Yann Klis <yann.klis@gmail.com>
+* Jeff Schobelock <jswhatnot15@gmail.com>
 
