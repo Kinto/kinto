@@ -2,6 +2,7 @@ import re
 
 import requests
 from pyramid import authentication as base_auth
+from pyramid.settings import aslist
 from pyramid.interfaces import IAuthenticationPolicy
 from zope.interface import implementer
 
@@ -87,7 +88,7 @@ def includeme(config):
     settings = config.get_settings()
 
     openid_policies = []
-    for policy in settings['multiauth.policies'].split(" "):
+    for policy in aslist(settings['multiauth.policies']):
         v = settings.get('multiauth.policy.%s.use' % policy, '')
         if v.endswith('OpenIDConnectPolicy'):
             openid_policies.append(v)
