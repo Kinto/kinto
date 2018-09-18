@@ -87,11 +87,10 @@ def includeme(config):
     settings = config.get_settings()
 
     openid_policies = []
-    for k, v in settings.items():
-        m = re.match('multiauth\.policy\.(.*)\.use', k)
-        if m:
-            if v.endswith('OpenIDConnectPolicy'):
-                openid_policies.append(m.group(1))
+    for policy in settings['multiauth.policies'].split(" "):
+        v = settings.get('multiauth.policy.%s.use' % policy, '')
+        if v.endswith('OpenIDConnectPolicy'):
+            openid_policies.append(v)
 
     if len(openid_policies) == 0:
         # Do not add the capability if no policy is configured.
