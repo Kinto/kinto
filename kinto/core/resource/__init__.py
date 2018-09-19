@@ -738,7 +738,7 @@ class UserResource:
 
         parent_id = self.get_parent_id(self.request)
         self.request.notify_resource_event(parent_id=parent_id,
-                                           timestamp=self.timestamp,
+                                           timestamp=self.model.timestamp(),
                                            data=result,
                                            action=action,
                                            old=old)

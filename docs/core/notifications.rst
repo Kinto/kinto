@@ -110,7 +110,8 @@ Payload
 The :class:`kinto.core.events.ResourceChanged` and :class:`kinto.core.events.AfterResourceChanged`
 events contain a ``payload`` attribute with the following information:
 
-- **timestamp**: the time of the event
+- **timestamp**: the collection timestamp of the ``(parent_id, resource_name)`` pair for
+  which this event was sent
 - **action**: what happened. 'create', 'update' or 'delete'
 - **uri**: the uri of the impacted resource
 - **user_id**: the authenticated user id
