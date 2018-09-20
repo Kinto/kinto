@@ -737,8 +737,13 @@ class UserResource:
         }
 
         parent_id = self.get_parent_id(self.request)
+        # Use self.model.timestamp() instead of self.timestamp because
+        # self.timestamp is @reify'd relatively early in the request,
+        # so doesn't correspond to any time that is relevant to the
+        # event. See #1769.
+        timestamp = self.model.timestamp()
         self.request.notify_resource_event(parent_id=parent_id,
-                                           timestamp=self.model.timestamp(),
+                                           timestamp=timestamp,
                                            data=result,
                                            action=action,
                                            old=old)
