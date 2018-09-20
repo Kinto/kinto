@@ -118,6 +118,18 @@ class ResourceChangedTest(BaseEventTest, unittest.TestCase):
         self.assertEqual(self.events[0].payload['action'],
                          ACTIONS.CREATE.value)
 
+    def test_put_event_has_sensible_timestamp(self):
+        body = {**self.body}
+        body['data']['id'] = record_id = str(uuid.uuid4())
+        record_url = self.get_item_url(record_id)
+        resp = self.app.put_json(record_url, body,
+                                 headers=self.headers, status=201)
+        self.assertEqual(len(self.events), 1)
+        self.assertEqual(self.events[0].payload['action'],
+                         ACTIONS.CREATE.value)
+        self.assertEqual(self.events[0].payload['timestamp'],
+                         resp.json['data']['last_modified'])
+
     def test_not_triggered_on_failed_put(self):
         body = {**self.body}
         body['data']['id'] = record_id = str(uuid.uuid4())
