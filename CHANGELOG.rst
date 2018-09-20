@@ -7,7 +7,12 @@ This document describes changes between each past release.
 10.1.1 (unreleased)
 -------------------
 
-- Nothing changed yet.
+**Bug fixes**
+
+- Change the meaning of ``event.payload["timestamp"]``. Previously it
+  was ``@reify``\ 'd, which meant that it was calculated from before
+  whatever thing triggered the event. Now we use a "fresh"
+  timestamp. (Fixes #1469.)
 
 
 10.1.0 (2018-09-17)
