@@ -9,6 +9,7 @@ This document describes changes between each past release.
 
 **Bug fixes**
 
+- Fix for adding extra OpenId providers (fixes #1509)
 - Change the meaning of ``event.payload["timestamp"]``. Previously it
   was ``@reify``\ 'd, which meant that it was calculated from before
   whatever thing triggered the event. Now we use a "fresh"
