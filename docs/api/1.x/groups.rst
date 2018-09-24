@@ -41,7 +41,7 @@ Creating a group
 
     .. sourcecode:: bash
 
-        $ echo '{"data": {"members": ["basicauth:206691a25679e4e1135f16aa77ebcf211c767393c4306cfffe6cc228ac0886b6"]}}' | http POST http://localhost:8888/v1/buckets/blog/groups --auth="token:bob-token" --verbose
+        $ echo '{"data": {"members": ["account:alice"]}}' | http POST http://localhost:8888/v1/buckets/blog/groups --auth="bob:p4ssw0rd" --verbose
 
     .. sourcecode:: http
 
@@ -58,7 +58,7 @@ Creating a group
         {
             "data": {
                 "members": [
-                    "basicauth:206691a25679e4e1135f16aa77ebcf211c767393c4306cfffe6cc228ac0886b6"
+                    "account:alice"
                 ]
             }
         }
@@ -79,12 +79,12 @@ Creating a group
                 "id": "wZjuQfpS",
                 "last_modified": 1434644222033,
                 "members": [
-                    "basicauth:206691a25679e4e1135f16aa77ebcf211c767393c4306cfffe6cc228ac0886b6"
+                    "account:alice"
                 ]
             },
             "permissions": {
                 "write": [
-                    "basicauth:206691a25679e4e1135f16aa77ebcf211c767393c4306cfffe6cc228ac0886b6"
+                    "account:alice"
                 ]
             }
         }
@@ -107,7 +107,7 @@ Replacing a group
 
     .. sourcecode:: bash
 
-        $ echo '{"data": {"members": ["basicauth:206691a25679e4e1135f16aa77ebcf211c767393c4306cfffe6cc228ac0886b6"]}}' | http put http://localhost:8888/v1/buckets/blog/groups/readers --auth="token:bob-token" --verbose
+        $ echo '{"data": {"members": ["account:alice"]}}' | http put http://localhost:8888/v1/buckets/blog/groups/readers --auth="bob:p4ssw0rd" --verbose
 
     .. sourcecode:: http
 
@@ -124,7 +124,7 @@ Replacing a group
         {
             "data": {
                 "members": [
-                    "basicauth:206691a25679e4e1135f16aa77ebcf211c767393c4306cfffe6cc228ac0886b6"
+                    "account:alice"
                 ]
             }
         }
@@ -145,12 +145,12 @@ Replacing a group
                 "id": "readers",
                 "last_modified": 1434645661227,
                 "members": [
-                    "basicauth:206691a25679e4e1135f16aa77ebcf211c767393c4306cfffe6cc228ac0886b6"
+                    "account:alice"
                 ]
             },
             "permissions": {
                 "write": [
-                    "basicauth:206691a25679e4e1135f16aa77ebcf211c767393c4306cfffe6cc228ac0886b6"
+                    "account:bob"
                 ]
             }
         }
@@ -175,7 +175,7 @@ Modify a group
 
     .. sourcecode:: bash
 
-        $ echo '{"data": {"members": ["basicauth:206691a25679e4e1135f16aa77ebcf211c767393c4306cfffe6cc228ac0886b6"]}}' | http patch http://localhost:8888/v1/buckets/blog/groups/readers --auth="token:bob-token" --verbose
+        $ echo '{"data": {"members": ["account:alice"]}}' | http patch http://localhost:8888/v1/buckets/blog/groups/readers --auth="bob:p4ssw0rd" --verbose
 
     .. sourcecode:: http
 
@@ -192,7 +192,7 @@ Modify a group
         {
             "data": {
                 "members": [
-                    "basicauth:206691a25679e4e1135f16aa77ebcf211c767393c4306cfffe6cc228ac0886b6"
+                    "account:alice"
                 ]
             }
         }
@@ -213,12 +213,12 @@ Modify a group
                 "id": "readers",
                 "last_modified": 1434645661227,
                 "members": [
-                    "basicauth:206691a25679e4e1135f16aa77ebcf211c767393c4306cfffe6cc228ac0886b6"
+                    "account:alice"
                 ]
             },
             "permissions": {
                 "write": [
-                    "basicauth:206691a25679e4e1135f16aa77ebcf211c767393c4306cfffe6cc228ac0886b6"
+                    "account:bob"
                 ]
             }
         }
@@ -243,7 +243,7 @@ Retrieving a group
 
     .. sourcecode:: bash
 
-        $ http get http://localhost:8888/v1/buckets/blog/groups/readers --auth="token:bob-token" --verbose
+        $ http get http://localhost:8888/v1/buckets/blog/groups/readers --auth="bob:p4ssw0rd" --verbose
 
     .. sourcecode:: http
 
@@ -273,12 +273,12 @@ Retrieving a group
                 "id": "readers",
                 "last_modified": 1434645661227,
                 "members": [
-                    "basicauth:206691a25679e4e1135f16aa77ebcf211c767393c4306cfffe6cc228ac0886b6"
+                    "account:alice"
                 ]
             },
             "permissions": {
                 "write": [
-                    "basicauth:206691a25679e4e1135f16aa77ebcf211c767393c4306cfffe6cc228ac0886b6"
+                    "account:bob"
                 ]
             }
         }
@@ -303,7 +303,7 @@ Retrieving all groups
 
     .. sourcecode:: bash
 
-        $ http get http://localhost:8888/v1/buckets/blog/groups --auth="token:bob-token" --verbose
+        $ http get http://localhost:8888/v1/buckets/blog/groups --auth="bob:p4ssw0rd" --verbose
 
     .. sourcecode:: http
 
@@ -335,7 +335,7 @@ Retrieving all groups
                     "id": "vAQSwSca",
                     "last_modified": 1439468156451,
                     "members": [
-                        "basicauth:206691a25679e4e1135f16aa77ebcf211c767393c4306cfffe6cc228ac0886b6"
+                        "account:alice"
                     ]
                 }
             ]
@@ -361,7 +361,7 @@ Deleting all groups
 
     .. sourcecode:: bash
 
-        $ http delete http://localhost:8888/v1/buckets/blog/groups --auth="token:bob-token" --verbose
+        $ http delete http://localhost:8888/v1/buckets/blog/groups --auth="bob:p4ssw0rd" --verbose
 
     .. sourcecode:: http
 
@@ -417,7 +417,7 @@ Deleting a group
 
     .. sourcecode:: bash
 
-        $ http delete http://localhost:8888/v1/buckets/blog/groups/readers --auth="token:bob-token" --verbose
+        $ http delete http://localhost:8888/v1/buckets/blog/groups/readers --auth="bob:p4ssw0rd" --verbose
 
     .. sourcecode:: http
 
@@ -487,7 +487,7 @@ Just modify the ``group:schema`` attribute of the parent bucket object:
           "required": ["email"]
         }
       }
-    }' | http PATCH "http://localhost:8888/v1/buckets/blog" --auth token:admin-token --verbose
+    }' | http PATCH "http://localhost:8888/v1/buckets/blog" --auth bob:p4ssw0rd --verbose
 
 .. code-block:: http
 
@@ -560,7 +560,7 @@ Just modify the ``group:schema`` attribute of the parent bucket object:
         },
         "permissions": {
             "write": [
-                "basicauth:780f1ecd9f57b01bef79608b45916d3bddd17f83461ac6240402e0ffff3596c5"
+                "account:bob"
             ]
         }
     }

@@ -36,8 +36,8 @@ The following objects are created:
 +---------------------------------+-------------+----------------------------------------------------+
 | Object                          | Permissions | Principals                                         |
 +=================================+=============+====================================================+
-| Bucket ``servicedenuages_blog`` | ``write``   | ``fxaoauth:<alexis id>``                           |
-|                                 |             | ``fxaoauth:<mathieu id>``                          |
+| Bucket ``servicedenuages_blog`` | ``write``   | ``account:<alexis id>``                            |
+|                                 |             | ``account:<mathieu id>``                           |
 +---------------------------------+-------------+----------------------------------------------------+
 | Collection ``article``          | ``write``   | ``/bucket/servicedenuages_blog/groups/moderators`` |
 |                                 +-------------+----------------------------------------------------+
@@ -56,15 +56,15 @@ The following objects are created:
 - A ``wiki`` bucket, where new groups can be created by authenticated users;
 - An ``article`` collection is created.
 
-+-------------------------+---------------------+---------------------------------+
-| Object                  | Permissions         | Principals                      |
-+=========================+=====================+=================================+
-| Bucket ``wiki``         | ``write``           | ``fxa:<wiki administrator id>`` |
-+-------------------------+---------------------+---------------------------------+
-| Collection ``articles`` | ``write``           | ``system.Authenticated``        |
-|                         +---------------------+---------------------------------+
-|                         | ``read``            | ``system.Everyone``             |
-+-------------------------+---------------------+---------------------------------+
++-------------------------+---------------------+-------------------------------------+
+| Object                  | Permissions         | Principals                          |
++=========================+=====================+=====================================+
+| Bucket ``wiki``         | ``write``           | ``account:<wiki administrator id>`` |
++-------------------------+---------------------+-------------------------------------+
+| Collection ``articles`` | ``write``           | ``system.Authenticated``            |
+|                         +---------------------+-------------------------------------+
+|                         | ``read``            | ``system.Everyone``                 |
++-------------------------+---------------------+-------------------------------------+
 
 
 A Company Wiki
@@ -83,7 +83,7 @@ The following objects are created:
 +--------------------------+--------------+-------------------------------------------+
 | Object                   | Permissions  | Principals                                |
 +==========================+==============+===========================================+
-| Bucket ``companywiki``   | ``write``    | ``fxa:<wiki administrator id>``           |
+| Bucket ``companywiki``   | ``write``    | ``account:<wiki administrator id>``       |
 +--------------------------+--------------+-------------------------------------------+
 | Group ``employees``      | ``write``    | ``/buckets/companywiki/groups/managers``  |
 +--------------------------+--------------+-------------------------------------------+
@@ -114,23 +114,23 @@ The following objects are created:
 +------------------------------------------+---------------------+------------------------------------------------+
 | Object                                   | Permissions         | Principals                                     |
 +==========================================+=====================+================================================+
-| Bucket ``microblog``                     | ``write``           | ``fxa:<microblog administrator id>``           |
+| Bucket ``microblog``                     | ``write``           | ``account:<microblog administrator id>``       |
 |                                          +---------------------+------------------------------------------------+
 |                                          | ``group:create``    | ``system.Authenticated``                       |
 +------------------------------------------+---------------------+------------------------------------------------+
 | Collection ``articles``                  | ``record:create``   | ``system.Authenticated``                       |
 +------------------------------------------+---------------------+------------------------------------------------+
-| Group ``alexis_buddies``                 | ``write``           | ``fxa:<alexis id>``                            |
+| Group ``alexis_buddies``                 | ``write``           | ``account:<alexis id>``                        |
 +------------------------------------------+---------------------+------------------------------------------------+
-| A public message                         | ``write``           | ``fxa:<alexis id>``                            |
+| A public message                         | ``write``           | ``account:<alexis id>``                        |
 |                                          +---------------------+------------------------------------------------+
 |                                          | ``read``            | ``system.Everyone``                            |
 +------------------------------------------+---------------------+------------------------------------------------+
-| A direct message for a user              | ``write``           | ``fxa:<alexis id>``                            |
+| A direct message for a user              | ``write``           | ``account:<alexis id>``                        |
 |                                          +---------------------+------------------------------------------------+
-|                                          | ``read``            | ``fxa:<tarek id>``                             |
+|                                          | ``read``            | ``account:<tarek id>``                         |
 +------------------------------------------+---------------------+------------------------------------------------+
-| A private message for a group            | ``write``           | ``fxa:<alexis id>``                            |
+| A private message for a group            | ``write``           | ``account:<alexis id>``                        |
 |                                          +---------------------+------------------------------------------------+
 |                                          | ``read``            | ``/buckets/microblog/groups/alexis_following`` |
 +------------------------------------------+---------------------+------------------------------------------------+
@@ -170,7 +170,7 @@ The following objects are created:
 | Bucket ``payments``  | ``write``   | ``hawk:<payment app>``  |
 +----------------------+-------------+-------------------------+
 | On every record      | ``read``    | ``hawk:<selling app>``  |
-|                      |             | ``fxa:<buyer id>``      |
+|                      |             | ``account:<buyer id>``  |
 +----------------------+-------------+-------------------------+
 
 This ensures every app can list the receipts of every buyer, and that each

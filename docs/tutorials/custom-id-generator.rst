@@ -87,7 +87,7 @@ well done!
         },
         "permissions": {
             "write": [
-                "basicauth:2025f72e6967625e3e878288b55d8946839e51968d11991b8a7dd0f040d4b6f0"
+                "account:user"
             ]
         }
     }

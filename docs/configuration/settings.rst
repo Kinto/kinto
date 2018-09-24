@@ -359,7 +359,7 @@ Example output:
 ::
 
     {"Pid": 19240, "Type": "root", "Timestamp": 1489067815875679744, "Severity": 6, "Hostname": "pluo", "Logger": "%", "EnvVersion": "2.0", "Fields": {"message": "Running kinto 6.1.0.dev0."}}
-    {"Pid": 19240, "Type": "root", "Timestamp": 1489067817834153984, "Severity": 4, "Hostname": "pluo", "Logger": "%", "EnvVersion": "2.0", "Fields": {"perm": "read", "userid": "basicauth:cbd3731f18c97ebe1d31d9846b5f1b95cf8eeeae586e201277263434041e99d1", "message": "Permission not granted.", "uri": "/buckets/123"}}
+    {"Pid": 19240, "Type": "root", "Timestamp": 1489067817834153984, "Severity": 4, "Hostname": "pluo", "Logger": "%", "EnvVersion": "2.0", "Fields": {"perm": "read", "userid": "ldap:john@corp.com", "message": "Permission not granted.", "uri": "/buckets/123"}}
 
 
 Handling exceptions with Sentry
@@ -409,26 +409,93 @@ New Relic can be enabled (disabled by default):
     kinto.newrelic_env = prod
 
 
+.. _configuration-plugins:
+
+Plugins
+=======
+
+It is possible to extend the default Kinto behaviors by using "plugins".
+
+The list of plugins to load at startup can be specified in the settings, as a
+list of Python modules:
+
+.. code-block:: ini
+
+    kinto.includes = kinto.plugins.default_bucket
+                     kinto.plugins.history
+                     kinto.plugins.admin
+                     kinto-attachment
+                     custom-myplugin
+
++---------------------------------------+--------------------------------------------------------------------------+
+| Built-in plugins                      | What does it do?                                                         |
++=======================================+==========================================================================+
+| ``kinto.plugins.accounts``            | It allows users to sign-up and authenticate using username and password  |
+|                                       | (:ref:`more details <api-accounts>`).                                    |
++---------------------------------------+--------------------------------------------------------------------------+
+| ``kinto.plugins.admin``               | It is a Web admin UI to manage data from a Kinto server.                 |
+|                                       | (:ref:`more details <kinto-admin>`).                                     |
++---------------------------------------+--------------------------------------------------------------------------+
+| ``kinto.plugins.default_bucket``      | It enables a personal bucket ``default``, where collections are created  |
+|                                       | implicitly (:ref:`more details <buckets-default-id>`).                   |
++---------------------------------------+--------------------------------------------------------------------------+
+| ``kinto.plugins.flush``               | Adds an endpoint to completely remove all data from the database backend |
+|                                       | for testing/staging purposes. (:ref:`more details <api-flush>`).         |
++---------------------------------------+--------------------------------------------------------------------------+
+| ``kinto.plugins.history``             | It tracks every action performed on objects within a bucket              |
+|                                       | (:ref:`more details <api-history>`).                                     |
++---------------------------------------+--------------------------------------------------------------------------+
+| ``kinto.plugins.openid``              | It allows to authenticate users using OpenID Connect from Google,        |
+|                                       | Microsoft, Auth0, etc. (:ref:`more details <api-openid>`).               |
++---------------------------------------+--------------------------------------------------------------------------+
+| ``kinto.plugins.quotas``              | It allows to limit storage per collection size, number of records, etc.  |
+|                                       | (:ref:`more details <api-quotas>`).                                      |
++---------------------------------------+--------------------------------------------------------------------------+
+
+
+There are `many available packages`_ in Pyramid ecosystem, and it is straightforward to build one,
+since the specified module must just define an ``includeme(config)`` function.
+
+.. _many available packages: https://github.com/ITCase/awesome-pyramid
+
+See `our list of community plugins <https://github.com/Kinto/kinto/wiki/Plugins>`_.
+
+See also: :ref:`tutorial-write-plugin` for more in-depth informations on how
+to create your own plugin.
+
+
+Pluggable components
+::::::::::::::::::::
+
+:term:`Pluggable` components can be substituted from configuration files,
+as long as the replacement follows the original component API.
+
+.. code-block:: ini
+
+    kinto.logging_renderer = your_log_renderer.CustomRenderer
+
+This is the simplest way to extend *Kinto*, but will be limited to its
+existing components (cache, storage, log renderer, ...).
+
+In order to add extra features, including external packages is the way to go!
+
+
 .. _configuration-authentication:
 
 Authentication
 ==============
 
-By default, *Kinto* relies on *Basic Auth* to authenticate users.
+Kinto authentication mechanism is entirely pluggable. We call them :term:`authentication policies`.
 
-User registration is not necessary. A unique user idenfier will be created
-for each ``username:password`` pair.
+It is possible to enable several authentication policies. **The order matters**: when multiple policies are configured, the first one in the list that succeeds is picked.
 
-*Kinto* is compatible with any third-party authentication service.
+**The name matters**: the policy name that is picked will be used as the prefix of the :term:`user ID` (eg. ``ldap:alice``).
 
 +--------------------------------+-------------------------------------------------------+--------------------------------------------------------------------------+
 | Setting name                   | Default                                               | What does it do?                                                         |
 +================================+=======================================================+==========================================================================+
-| kinto.userid_hmac_secret       | ``''``                                                | The secret used to create the user ID from a ``username:password`` pair. |
-|                                |                                                       | This value should be unique to each instance and kept secret.            |
-+--------------------------------+-------------------------------------------------------+--------------------------------------------------------------------------+
-| multiauth.policies             | ``basicauth``                                         | The list of authentication policies aliases that are enabled.            |
-|                                |                                                       | Each alias is configuration using dedicated settings as explained        |
+| multiauth.policies             | `` ``                                                 | The list of authentication policies names that are enabled.              |
+|                                |                                                       | Each policy is configured using dedicated settings as explained          |
 |                                |                                                       | below.                                                                   |
 +--------------------------------+-------------------------------------------------------+--------------------------------------------------------------------------+
 | multiauth.authorization_policy | ``kinto.authorization.AuthorizationPolicy``           | Python *dotted* path the authorization policy to use for the permission  |
@@ -439,45 +506,69 @@ for each ``username:password`` pair.
 Authentication setup
 ::::::::::::::::::::
 
-*Kinto* relies on :github:`pyramid multiauth <mozilla-services/pyramid_multiauth>`
-to initialise authentication.
-
-Therefore, any authentication policy can be specified through configuration.
-
-In the following example, Basic Auth, Persona, and IP Auth are all enabled:
+Any authentication policy can be specified through configuration. The list of names in ``multiauth.policies`` is the starting point for *Kinto* to read the respective parameters (``multiauth.policy.{name}.*`` settings).
 
 .. code-block:: ini
 
-    multiauth.policies = basicauth pyramid_persona ipauth
+    multiauth.policies = google
+    multiauth.policy.google.use = kinto.plugins.openid.OpenIDConnectPolicy
+    multiauth.policy.google.issuer = https://accounts.google.com
+    multiauth.policy.google.client_id = 42XXXX365001.apps.googleusercontent.com
+    multiauth.policy.google.client_secret = UAlL-054uyh5in4b6u8jhg5o3hnj
 
-    multiauth.policy.ipauth.use = pyramid_ipauth.IPAuthentictionPolicy
-    multiauth.policy.ipauth.ipaddrs = 192.168.0.*
-    multiauth.policy.ipauth.userid = LAN-user
-    multiauth.policy.ipauth.principals = trusted
+.. _settings-accounts:
 
-Permission handling and authorisation mechanisms are specified directly via
-configuration. This allows for customised solutions ranging from very simple
-to highly complex.
+Accounts
+::::::::
 
+With the built-in :ref:`accounts plugin <api-accounts>`, users can sign-up and authenticate with username and password.
 
-Basic Auth
-::::::::::
+A common setup would be the following:
 
-``basicauth`` is enabled via ``multiauth.policies`` by default.
-
-.. code-block:: ini
-
-    multiauth.policies = basicauth
-
-By default an internal *Basic Auth* policy is used, where any `login:password` pair
-will be accepted, meaning that no account creation is required.
-
-In order to replace it by another one:
+* Anyone can create accounts
+* A specific ``admin`` can manage them all
 
 .. code-block:: ini
 
-    multiauth.policies = basicauth
-    multiauth.policy.basicauth.use = myproject.authn.BasicAuthPolicy
+    # Enable built-in plugin.
+    kinto.includes = kinto.plugins.accounts
+
+    # Enable authenticated policy.
+    multiauth.policies = account
+    multiauth.policy.account.use = kinto.plugins.accounts.AccountsPolicy
+
+    # Allow anyone to create accounts.
+    kinto.account_create_principals = system.Everyone
+
+    # Set the session time to live in seconds
+    kinto.account_cache_ttl_seconds = 30
+
+You can use the ``create-user`` command to create an admin:
+
+.. code-block:: bash
+
+    $ kinto create-user --ini /etc/kinto.ini --username admin --password ThisIsN0tASecurePassword
+
+You can then use this ``account:admin`` in your config:
+
+.. code-block:: ini
+
+    # Allow anyone to create accounts.
+    kinto.account_create_principals = system.Everyone
+    # But also allow the admin to update, delete them etc.
+    kinto.account_write_principals = account:admin
+
+**About account management**
+
+You can set ``account_create_principals`` if you want to limit account creation to certain users. The most common situation is when you want to have a small number of administrators, who are responsible for creating accounts for other users. In this case, you should add the administrators to both ``account_create_principals`` and ``account_write_principals``.
+
+.. code-block:: ini
+
+    kinto.account_create_principals = account:admin ldap:jack@corp.com /buckets/bid/groups/admin
+    kinto.account_write_principals = account:admin ldap:jack@corp.com /buckets/bid/groups/admin
+
+See the :ref:`API docs <api-accounts>` to create accounts, change passwords etc.
+
 
 .. _settings-openid:
 
@@ -486,7 +577,7 @@ OpenID Connect
 
 First of all, you must find an Identity Provider. Google Identity Platform for example, but it may also be Auth0, Microsoft, Yahoo, Paypal, Bitbucket, Ebay, Salesforce, ... or whichever platform that publishes its discovery metadata as JSON.
 
-The ``google`` name below was chosen arbitrarily. Note that it will become the user ID prefix (e.g. ``google:someuser@gmail.com``) and will appear in the authorized redirect URL.
+The ``google`` name below was chosen arbitrarily. As stated above, it will become the user ID prefix (e.g. ``google:someuser@gmail.com``) and will appear in the OAuth authorized redirect URL.
 
 While setting up the Identity Provider, you might have to fill some URLs related to your Kinto instance. For example, if you run a single page app on ``localhost:3000`` that interacts with a server on ``localhost:8888``, you should set:
 
@@ -546,6 +637,37 @@ Of course, multiple OpenID providers can be enabled on the same Kinto server:
     # ...
 
 
+.. _settings-basicauth:
+
+Legacy Basic Auth
+:::::::::::::::::
+
+In the first versions of Kinto, we had a built-in ``basicauth`` policy enabled by default.
+
+Basically it generates a unique :term:`user identifier` from any username/password combination using a HMAC secret.
+
+Even if it was convenient to get started, we decided to get rid of it because it was very confusing. But you can enable it with the follow configuration:
+
+.. code-block:: ini
+
+    multiauth.policies = basicauth
+
+    kinto.userid_hmac_secret = have-you-seen-the-new-carioca
+    multiauth.policy.basicauth.use = kinto.core.authentication.BasicAuthAuthenticationPolicy
+
+.. _settings-kinto-auth-plugins:
+
+Other Kinto plugins
+:::::::::::::::::::
+
+* `Kinto LDAP <https://github.com/Kinto/kinto-ldap>`_: Validate Basic Auth provided user login and password with an LDAP server.
+* `Kinto Facebook <https://github.com/Kinto/kinto-facebook>`_:  Authentication using Facebook OAuth2 bearer tokens.
+* `Kinto Portier <https://github.com/Kinto/kinto-portier>`_: Authentication using an email address.
+* `Kinto Hawk <https://github.com/Kinto/kinto-hawk>`_: Authentication using... Hawk.
+* `Kinto Fxa <https://github.com/Kinto/kinto-fxa>`_: Authentication using Firefox Accounts OAuth2 bearer tokens.
+
+.. _settings-custom-auth:
+
 Custom Authentication
 :::::::::::::::::::::
 
@@ -553,77 +675,30 @@ Using the various `Pyramid authentication packages
 <https://github.com/ITCase/awesome-pyramid#authentication>`_, it is possible
 to plug in any kind of authentication.
 
-
-Firefox Accounts
-::::::::::::::::
-
-Enabling :term:`Firefox Accounts` consists of including ``kinto_fxa`` in
-configuration, mentioning ``fxa`` among policies, and providing appropriate
-values for OAuth2 client settings.
-
-See :github:`mozilla-services/kinto-fxa`.
-
-
-.. _configuration-plugins:
-
-Plugins
-=======
-
-It is possible to extend the default Kinto behaviors by using "plugins".
-
-The list of plugins to load at startup can be specified in the settings, as a
-list of Python modules:
+In the following example, internal accounts, Persona, and IP Auth are all enabled:
 
 .. code-block:: ini
 
-    kinto.includes = kinto.plugins.default_bucket
-                     kinto.plugins.history
-                     kinto.plugins.admin
-                     kinto-attachment
-                     custom-myplugin
+    multiauth.policies = account pyramid_persona ipauth
 
-+---------------------------------------+--------------------------------------------------------------------------+
-| Built-in plugins                      | What does it do?                                                         |
-+=======================================+==========================================================================+
-| ``kinto.plugins.default_bucket``      | It enables a personal bucket ``default``, where collections are created  |
-|                                       | implicitly (:ref:`more details <buckets-default-id>`).                   |
-+---------------------------------------+--------------------------------------------------------------------------+
-| ``kinto.plugins.history``             | It tracks every action performed on objects within a bucket              |
-|                                       | (:ref:`more details <api-history>`).                                     |
-+---------------------------------------+--------------------------------------------------------------------------+
-| ``kinto.plugins.admin``               | It is a Web admin UI to manage data from a Kinto server.                 |
-|                                       | (:ref:`more details <kinto-admin>`).                                     |
-+---------------------------------------+--------------------------------------------------------------------------+
-| ``kinto.plugins.flush``               | Adds an endpoint to completely remove all data from the database backend |
-|                                       | for testing/staging purposes. (:ref:`more details <api-flush>`).         |
-+---------------------------------------+--------------------------------------------------------------------------+
+    multiauth.policy.account.use = kinto.plugins.account.AccountsPolicy
 
+    multiauth.policy.ipauth.use = pyramid_ipauth.IPAuthentictionPolicy
+    multiauth.policy.ipauth.ipaddrs = 192.168.0.*
+    multiauth.policy.ipauth.userid = LAN-user
+    multiauth.policy.ipauth.principals = trusted
 
-There are `many available packages`_ in Pyramid ecosystem, and it is straightforward to build one,
-since the specified module must just define an ``includeme(config)`` function.
+Permission handling and authorisation mechanisms are specified directly via
+configuration. This allows for customised solutions ranging from very simple
+to highly complex.
 
-.. _many available packages: https://github.com/ITCase/awesome-pyramid
+.. note::
 
-See `our list of community plugins <https://github.com/Kinto/kinto/wiki/Plugins>`_.
+    *Kinto* relies on :github:`pyramid multiauth <mozilla-services/pyramid_multiauth>` to initialise authentication.
 
-See also: :ref:`tutorial-write-plugin` for more in-depth informations on how
-to create your own plugin.
+.. seealso::
 
-
-Pluggable components
-::::::::::::::::::::
-
-:term:`Pluggable` components can be substituted from configuration files,
-as long as the replacement follows the original component API.
-
-.. code-block:: ini
-
-    kinto.logging_renderer = your_log_renderer.CustomRenderer
-
-This is the simplest way to extend *Kinto*, but will be limited to its
-existing components (cache, storage, log renderer, ...).
-
-In order to add extra features, including external packages is the way to go!
+    Check out our tutorial about :ref:`implementing a custom authentication <tutorial-github>`
 
 
 .. _configuring-notifications:

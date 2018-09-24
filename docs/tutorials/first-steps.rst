@@ -16,13 +16,8 @@ like. We'll be using the :ref:`Mozilla demo server <run-kinto-mozilla-demo>`.
 
 .. important::
 
-    In this tutorial we will use a Basic Authentication, which computes a
-    user id based on the token provided in the request.
-
-    This method has many limitations but has the advantage of not needing
-    specific setup or third-party services before you get started.
-
-    :ref:`Read more about authentication in Kinto <authentication>`.
+    In this tutorial we will use :ref:`Kinto internal accounts <api-accounts>`.
+    But obviously it would work any authentication, like OpenID, LDAP etc.
 
 In this tutorial, we'll set out to build an offline-first application,
 following the typical architecture for a Kinto application. We'll have
@@ -62,22 +57,67 @@ these fields:
 In order to keep each user's data separate, we'll use the default
 *personal bucket*.
 
-Basic data storage APIs
-=======================
+Account
+=======
 
-Using the `httpie <http://httpie.org>`_ tool we can post a sample record in the
-``tasks`` collection:
+Since we use internal accounts, we will start by creating one :)
+
+Using the `httpie <http://httpie.org>`_ tool, it is as simple as:
+
+.. code-block:: shell
+
+    $ echo '{"data": {"password": "s3cr3t"}}' | \
+        http PUT https://kinto.dev.mozaws.net/v1/accounts/bob -v
+
+.. code-block:: http
+
+    HTTP/1.1 201 Created
+    Access-Control-Expose-Headers: Backoff, Retry-After, Content-Length, Alert
+    Connection: keep-alive
+    Content-Length: 169
+    Content-Type: application/json
+    Date: Mon, 24 Sep 2018 17:19:45 GMT
+    ETag: "1537809585495"
+    Last-Modified: Mon, 24 Sep 2018 17:19:45 GMT
+    Server: nginx
+    X-Content-Type-Options: nosniff
+
+    {
+        "data": {
+            "id": "bob",
+            "last_modified": 1537809585495,
+            "password": "$2b$12$e6XaBTSCS12WvIE7wa8BK.YoiERsPq2lCl7MNe0q2gR5XLiWBvzJq"
+        },
+        "permissions": {
+            "write": [
+                "account:bob"
+            ]
+        }
+    }
 
 .. note::
 
     Please `consider reading httpie documentation <https://github.com/jkbrzt/httpie#proxies>`_
     for more information (if you need to configure a proxy, for instance).
 
+.. note::
+
+    If this fails on your server, this means your server is not configured with the accounts feature enabled.
+    You can double check by having a look at the ``"capabilities"`` field in the
+    :ref:`root URL <api-utilities-hello>` (eg. ``https://kinto.dev.mozaws.net/v1/``).
+
+
+Basic data storage APIs
+=======================
+
+Now that we have a user, we can authenticate and post a sample record in the
+``tasks`` collection:
+
 .. code-block:: shell
 
     $ echo '{"data": {"description": "Write a tutorial explaining Kinto", "status": "todo"}}' | \
         http POST https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks/records \
-             -v --auth 'token:my-secret'
+             -v --auth 'bob:s3cr3t'
 
 .. code-block:: http
 
@@ -99,7 +139,7 @@ Using the `httpie <http://httpie.org>`_ tool we can post a sample record in the
         },
         "permissions": {
             "write": [
-                "basicauth:10ea4e5fbf849196a4fe8a9c250b737dd5ef17abbeb8f99692d62828465a9823"
+                "account:bob"
             ]
         }
     }
@@ -120,7 +160,7 @@ Let us fetch our new collection of tasks:
 .. code-block:: shell
 
     $ http GET https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks/records \
-           -v --auth 'token:my-secret'
+           -v --auth 'bob:s3cr3t'
 
 .. code-block:: http
 
@@ -158,7 +198,7 @@ We can also update one of our tasks using its ``id``:
 
     $ echo '{"data": {"status": "doing"}}' | \
          http PATCH https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks/records/a5f490b2-218e-4d71-ac5a-f046ae285c55 \
-              -v  --auth 'token:my-secret'
+              -v  --auth 'bob:s3cr3t'
 
 .. code-block:: http
 
@@ -180,7 +220,7 @@ We can also update one of our tasks using its ``id``:
         },
         "permissions": {
             "write": [
-                "basicauth:10ea4e5fbf849196a4fe8a9c250b737dd5ef17abbeb8f99692d62828465a9823"
+                "account:bob"
             ]
         }
     }
@@ -208,7 +248,7 @@ while we fetched the collection earlier - you kept a note, didn't you?):
     $ echo '{"data": {"status": "done"}}' | \
         http PATCH https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks/records/a5f490b2-218e-4d71-ac5a-f046ae285c55 \
             If-Match:'"1434641515332"' \
-            -v  --auth 'token:my-secret'
+            -v  --auth 'bob:s3cr3t'
 
 .. code-block:: http
 
@@ -237,7 +277,7 @@ single record and merge attributes locally:
 .. code-block:: shell
 
     $ http GET https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks/records/a5f490b2-218e-4d71-ac5a-f046ae285c55 \
-           -v  --auth 'token:my-secret'
+           -v  --auth 'bob:s3cr3t'
 
 .. code-block:: http
 
@@ -261,7 +301,7 @@ single record and merge attributes locally:
         },
         "permissions": {
             "write": [
-                "basicauth:10ea4e5fbf849196a4fe8a9c250b737dd5ef17abbeb8f99692d62828465a9823"
+                "account:bob"
             ]
         }
     }
@@ -287,7 +327,7 @@ record ``ETag`` value:
     $ echo '{"data": {"status": "done"}}' | \
         http PATCH https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks/records/a5f490b2-218e-4d71-ac5a-f046ae285c55 \
             If-Match:'"1436172229372"' \
-            -v  --auth 'token:my-secret'
+            -v  --auth 'bob:s3cr3t'
 
 .. code-block:: http
 
@@ -309,7 +349,7 @@ record ``ETag`` value:
         },
         "permissions": {
             "write": [
-                "basicauth:10ea4e5fbf849196a4fe8a9c250b737dd5ef17abbeb8f99692d62828465a9823"
+                "account:bob"
             ]
         }
     }
@@ -321,7 +361,7 @@ You can also delete the record and use the same mechanism to avoid conflicts:
 
     $ http DELETE https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks/records/a5f490b2-218e-4d71-ac5a-f046ae285c55 \
            If-Match:'"1436172442466"' \
-           -v  --auth 'token:my-secret'
+           -v  --auth 'bob:s3cr3t'
 
 .. code-block:: http
 
@@ -352,7 +392,7 @@ Just add the ``_since`` querystring filter, using the value of any ``ETag`` (or
 .. code-block:: shell
 
     $ http GET https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks/records?_since="1434642603605" \
-           -v  --auth 'token:my-secret'
+           -v  --auth 'bob:s3cr3t'
 
 .. code-block:: http
 
@@ -393,7 +433,7 @@ application-specific bucket called ``todo``.
 .. code-block:: shell
 
     $ http PUT https://kinto.dev.mozaws.net/v1/buckets/todo \
-        -v --auth 'token:my-secret'
+        -v --auth 'bob:s3cr3t'
 
 .. code-block:: http
 
@@ -413,7 +453,7 @@ application-specific bucket called ``todo``.
         },
         "permissions": {
             "write": [
-                "basicauth:10ea4e5fbf849196a4fe8a9c250b737dd5ef17abbeb8f99692d62828465a9823"
+                "account:bob"
             ]
         }
     }
@@ -430,7 +470,7 @@ authenticated users (i.e. ``system.Authenticated``):
 
     $ echo '{"permissions": {"record:create": ["system.Authenticated"]}}' | \
         http PUT https://kinto.dev.mozaws.net/v1/buckets/todo/collections/tasks \
-            -v --auth 'token:my-secret'
+            -v --auth 'bob:s3cr3t'
 
 .. code-block:: http
 
@@ -453,7 +493,7 @@ authenticated users (i.e. ``system.Authenticated``):
                 "system.Authenticated"
             ],
             "write": [
-                "basicauth:10ea4e5fbf849196a4fe8a9c250b737dd5ef17abbeb8f99692d62828465a9823"
+                "account:bob"
             ]
         }
     }
@@ -470,7 +510,7 @@ Now Alice can create a task in this collection:
 
     $ echo '{"data": {"description": "Alice task", "status": "todo"}}' | \
         http POST https://kinto.dev.mozaws.net/v1/buckets/todo/collections/tasks/records \
-        -v --auth 'token:alice-token'
+        -v --auth 'alice:p4ssw0rd'
 
 .. code-block:: http
 
@@ -492,7 +532,7 @@ Now Alice can create a task in this collection:
         },
         "permissions": {
             "write": [
-                "basicauth:9be2b51de8544fbed4539382d0885f8643c0185c90fb23201d7bbe86d70b4a44"
+                "account:alice"
             ]
         }
     }
@@ -503,7 +543,7 @@ And Bob can also create a task:
 
     $ echo '{"data": {"description": "Bob new task", "status": "todo"}}' | \
         http POST https://kinto.dev.mozaws.net/v1/buckets/todo/collections/tasks/records \
-        -v --auth 'token:bob-token'
+        -v --auth 'bob:s3cr3t'
 
 .. code-block:: http
 
@@ -525,7 +565,7 @@ And Bob can also create a task:
         },
         "permissions": {
             "write": [
-                "basicauth:a103c2e714a04615783de8a03fef1c7fee221214387dd07993bb9aed1f2f2148"
+                "account:bob"
             ]
         }
     }
@@ -537,10 +577,10 @@ permission on her records:
 .. code-block:: shell
 
     $ echo '{"permissions": {
-        "read": ["basicauth:a103c2e714a04615783de8a03fef1c7fee221214387dd07993bb9aed1f2f2148"]
+        "read": ["account:bob"]
     }}' | \
     http PATCH https://kinto.dev.mozaws.net/v1/buckets/todo/collections/tasks/records/2fa91620-f4fa-412e-aee0-957a7ad2dc0e \
-        -v --auth 'token:alice-token'
+        -v --auth 'alice:p4ssw0rd'
 
 .. code-block:: http
 
@@ -562,10 +602,10 @@ permission on her records:
         },
         "permissions": {
             "read": [
-                "basicauth:a103c2e714a04615783de8a03fef1c7fee221214387dd07993bb9aed1f2f2148"
+                "account:bob"
             ],
             "write": [
-                "basicauth:9be2b51de8544fbed4539382d0885f8643c0185c90fb23201d7bbe86d70b4a44"
+                "account:alice"
             ]
         }
     }
@@ -576,7 +616,7 @@ If Bob wants to get the record list, he will get his records as well as Alice's 
 .. code-block:: shell
 
     $ http GET https://kinto.dev.mozaws.net/v1/buckets/todo/collections/tasks/records \
-           -v --auth 'token:bob-token'
+           -v --auth 'bob:s3cr3t'
 
 .. code-block:: http
 
@@ -618,7 +658,7 @@ bucket:
 
     $ echo '{"permissions": {"group:create": ["system.Authenticated"]}}' | \
         http PATCH https://kinto.dev.mozaws.net/v1/buckets/todo \
-            -v --auth 'token:my-secret'
+            -v --auth 'bob:s3cr3t'
 
 .. code-block:: http
 
@@ -641,7 +681,7 @@ bucket:
                 "system.Authenticated"
             ],
             "write": [
-                "basicauth:10ea4e5fbf849196a4fe8a9c250b737dd5ef17abbeb8f99692d62828465a9823"
+                "account:bob"
             ]
         }
     }
@@ -651,10 +691,10 @@ Now Alice can create a group of her friends (Bob and Mary):
 .. code-block:: shell
 
     $ echo '{"data": {
-        "members": ["basicauth:a103c2e714a04615783de8a03fef1c7fee221214387dd07993bb9aed1f2f2148",
-                    "basicauth:8d1661a89bd2670f3c42616e3527fa30521743e4b9825fa4ea05adc45ef695b6"]
+        "members": ["account:bob",
+                    "account:mary"]
     }}' | http PUT https://kinto.dev.mozaws.net/v1/buckets/todo/groups/alice-friends \
-        -v --auth 'token:alice-token'
+        -v --auth 'alice:p4ssw0rd'
 
 .. code-block:: http
 
@@ -672,13 +712,13 @@ Now Alice can create a group of her friends (Bob and Mary):
             "id": "alice-friends",
             "last_modified": 1434647004644,
             "members": [
-                "basicauth:a103c2e714a04615783de8a03fef1c7fee221214387dd07993bb9aed1f2f2148",
-                "basicauth:8d1661a89bd2670f3c42616e3527fa30521743e4b9825fa4ea05adc45ef695b6"
+                "account:bob",
+                "account:mary"
             ]
         },
         "permissions": {
             "write": [
-                "basicauth:9be2b51de8544fbed4539382d0885f8643c0185c90fb23201d7bbe86d70b4a44"
+                "account:alice"
             ]
         }
     }
@@ -693,7 +733,7 @@ Now Alice can share records directly with her group of friends:
         }
     }' | \
     http PATCH https://kinto.dev.mozaws.net/v1/buckets/todo/collections/tasks/records/2fa91620-f4fa-412e-aee0-957a7ad2dc0e \
-        -v --auth 'token:alice-token'
+        -v --auth 'alice:p4ssw0rd'
 
 .. code-block:: http
 
@@ -713,11 +753,11 @@ Now Alice can share records directly with her group of friends:
         },
         "permissions": {
             "read": [
-                "basicauth:a103c2e714a04615783de8a03fef1c7fee221214387dd07993bb9aed1f2f2148",
+                "account:bob",
                 "/buckets/todo/groups/alice-friends"
             ],
             "write": [
-                "basicauth:9be2b51de8544fbed4539382d0885f8643c0185c90fb23201d7bbe86d70b4a44"
+                "account:alice"
             ]
         }
     }
@@ -727,7 +767,7 @@ And now Mary can access the record:
 .. code-block:: shell
 
     $ http GET https://kinto.dev.mozaws.net/v1/buckets/todo/collections/tasks/records/2fa91620-f4fa-412e-aee0-957a7ad2dc0e \
-        -v --auth 'token:mary-token'
+        -v --auth 'mary:wh1sp3r'
 
 
 .. note::

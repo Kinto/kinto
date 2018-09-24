@@ -3,6 +3,9 @@ import re
 from kinto.authorization import PERMISSIONS_INHERITANCE_TREE
 from pyramid.exceptions import ConfigurationError
 
+from authentication import AccountsAuthenticationPolicy as AccountsPolicy
+
+
 ACCOUNT_CACHE_KEY = 'accounts:{}:verified'
 ACCOUNT_POLICY_NAME = 'account'
 
@@ -28,12 +31,12 @@ def includeme(config):
     settings = config.get_settings()
 
     # Check that the account policy is mentioned in config if included.
-    accountClass = 'AccountsAuthenticationPolicy'
+    accountClass = 'AccountsPolicy'
     policy = None
     for k, v in settings.items():
         m = re.match('multiauth\.policy\.(.*)\.use', k)
         if m:
-            if v.endswith(accountClass):
+            if v.endswith(accountClass) or v.endswith("AccountsAuthenticationPolicy"):
                 policy = m.group(1)
 
     if not policy:

@@ -353,20 +353,20 @@ Create a bucket and collection:
 
 ::
 
-    $ http --auth token:alice-token --verbose PUT http://localhost:8888/v1/buckets/example
-    $ http --auth token:alice-token --verbose PUT http://localhost:8888/v1/buckets/example/collections/notes
+    $ http --auth alice:s3cr3t --verbose PUT http://localhost:8888/v1/buckets/example
+    $ http --auth alice:s3cr3t --verbose PUT http://localhost:8888/v1/buckets/example/collections/notes
 
 Add a new record:
 
 ::
 
-    $ echo '{"data": {"note": "kinto"}}' | http --auth token:alice-token --verbose POST http://localhost:8888/v1/buckets/example/collections/notes/records
+    $ echo '{"data": {"note": "kinto"}}' | http --auth alice:s3cr3t --verbose POST http://localhost:8888/v1/buckets/example/collections/notes/records
 
 It should now be possible to search for it:
 
 ::
 
-    $ http --auth token:alice-token --verbose POST http://localhost:8888/v1/buckets/default/collections/assets/search
+    $ http --auth alice:s3cr3t --verbose POST http://localhost:8888/v1/buckets/default/collections/assets/search
 
 .. code-block:: http
     :emphasize-lines: 20-24

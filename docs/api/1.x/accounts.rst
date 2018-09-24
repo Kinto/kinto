@@ -14,38 +14,10 @@ Administrators configured in settings can manage users accounts.
 Setup
 =====
 
-Add the following settings to the ``.ini`` file:
+Details about accounts configuration are given in :ref:`the settings section <settings-accounts>`.
 
-.. code-block:: ini
+Basically, you can check if the ``accounts`` feature is enabled if it is mentioned in the ``"capabilities"`` field on the :ref:`root URL <api-utilities-hello>`.
 
-    # Enable built-in plugin.
-    kinto.includes = kinto.plugins.accounts
-
-    # Enable authenticated policy.
-    multiauth.policies = account
-    multiauth.policy.account.use = kinto.plugins.accounts.authentication.AccountsAuthenticationPolicy
-
-    # Allow anyone to create accounts.
-    kinto.account_create_principals = system.Everyone
-
-    # Set the session time to live in seconds
-    kinto.account_cache_ttl_seconds = 30
-
-
-You can use the ``create-user`` command to create an admin:
-
-.. code-block:: bash
-
-    kinto create-user --ini /etc/kinto.ini --username admin --password ThisIsN0tASecurePassword
-
-You can then use it in your config:
-
-.. code-block:: ini
-
-    # Allow anyone to create accounts.
-    kinto.account_create_principals = system.Everyone
-    # But also allow the admin to delete etc.
-    kinto.account_write_principals = account:admin
 
 .. _accounts-auth:
 
@@ -54,8 +26,8 @@ Authentication
 
 Accounts are defined using a username and a password, and uses *Basic Authentication*.
 
-For example, once the ``bob`` account has been created, you can check if authentication
-works using the :ref:`Hello view <api-utilities>`.
+For example, once the ``bob`` account has been created (see below), you can check if authentication
+works using the :ref:`root URL <api-utilities-hello>`.
 
 .. sourcecode:: bash
 
@@ -177,10 +149,10 @@ Alternatively, accounts can be created using POST.  Supply the user id and passw
 
         $ echo '{"data": {"id": "bob", password": "azerty123"}}' | http POST http://localhost:8888/v1/accounts --verbose
 
+.. note::
 
-By default, users can only create their own accounts. "Administrators", meaning anyone who matches ``account_write_principals``, can create accounts for other users as well.
+    Depending on the :ref:`configuration <settings-accounts>`, you may not be allowed to create accounts.
 
-You can set ``account_create_principals`` if you want to limit account creation to certain users. The most common situation is when you want to have a small number of administrators, who are responsible for creating accounts for other users. In this case, you should add the administrators to both ``account_create_principals`` and ``account_write_principals``.
 
 .. _accounts-udpate:
 
@@ -197,7 +169,7 @@ Change password
 
     .. sourcecode:: bash
 
-        $ echo '{"data": {"password": "azerty123"}}' | http PUT http://localhost:8888/v1/accounts/bob --verbose --auth 'bob:azerty123'
+        $ echo '{"data": {"password": "qwerty123"}}' | http PUT http://localhost:8888/v1/accounts/bob --verbose --auth 'bob:azerty123'
 
     .. sourcecode:: http
 
@@ -213,7 +185,7 @@ Change password
 
         {
             "data": {
-                "password": "azerty123"
+                "password": "qwerty123"
             }
         }
 
@@ -302,24 +274,23 @@ Manage accounts
 ===============
 
 It is possible to configure administrators in settings. They will be able to manage
-others users accounts via the API.
+others users accounts.
 
-First create the actual accounts:
+For example, create somebody else account:
 
 ::
 
-    $ echo '{"data": {"password": "azerty123"}}' | http PUT http://localhost:8888/v1/accounts/admin
+    $ echo '{"data": {"id": "sam-body", password": "else"}}' | http POST http://localhost:8888/v1/accounts --auth admin:s3cr3t
 
-Then mention the created accounts via the following settings in the ``.ini`` file.
-For example to account IDs ``admin`` and members of the ``admin`` groups in the ``bid`` bucket:
+List accounts:
 
-.. code-block:: ini
+::
 
-    # Give read/write access to all accounts to ``account:admin``.
-    kinto.account_write_principals = account:admin /buckets/bid/groups/admin
-    kinto.account_read_principals = account:admin /buckets/bid/groups/admin
+    $ http GET http://localhost:8888/v1/accounts --auth admin:s3cr3t
 
-.. note::
 
-    It is not very convenient to require a server restart for configuring administrators.
-    But we thought it was acceptable as a first iteration.
+Or delete some account:
+
+::
+
+    $ http DELETE http://localhost:8888/v1/accounts/sam-body --auth admin:s3cr3t

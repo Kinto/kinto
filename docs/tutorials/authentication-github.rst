@@ -8,6 +8,10 @@ In this tutorial, we will authenticate users using GitHub.
 Users obtain a Bearer token from GitHub and use it in an ``Authenticatìon`` header.
 Leveraging Kinto pluggability, a custom authentication policy is specified in settings in order to validate it.
 
+.. important::
+
+    This is a tutorial that demonstrates the authentication pluggability of Kinto
+
 Custom authentication
 ---------------------
 
@@ -72,7 +76,7 @@ enable a new policy pointing to your Python class:
 
 .. code-block:: ini
 
-    multiauth.policies = github basicauth
+    multiauth.policies = github
 
     multiauth.policy.github.use = kinto_github.GitHubAuthenticationPolicy
 
@@ -82,33 +86,13 @@ Kinto should start without errors.
 Test it
 '''''''
 
-Since we left ``basicauth`` in settings, it should still be accepted:
-
+Let's try with a random string, that obviously will fail to authenticate:
 ::
 
-    $ http GET http://localhost:8888/v1/ --auth token:alice-token
-
-.. code-block:: javascript
-
-    {
-        "http_api_version": "1.2",
-        "project_docs": "https://kinto.readthedocs.io/",
-        "project_name": "kinto",
-        "project_version": "1.11.0.dev0",
-        "settings": {
-            "attachment.base_url": "http://localhost:7777",
-            "batch_max_requests": 25,
-            "readonly": false
-        },
-        "url": "http://localhost:8888/v1/",
-        "user": {
-            "bucket": "71aefbc6-d333-832b-8e39-18da76d11bae",
-            "id": "basicauth:63279e82e351f8f318eea09ae5e3bcfc3b9e3eee06e9befacbf17102e0595dad"
-        }
-    }
+    $ http GET http://localhost:8888/v1/ "Authorization: blabla"
 
 
-And since the ``github`` authentication is also enabled (*but does nothing yet*), you
+Since our ``github`` authentication is enabled (*but does nothing yet*), you
 should see its output in the console when a request comes in.
 
 .. code-block:: shell
@@ -117,7 +101,7 @@ should see its output in the console when a request comes in.
     Starting server in PID 8079.
     serving on http://0.0.0.0:8888
     Check GitHub
-    2016-01-26 11:59:04,918 INFO  [kinto.core.initialization][waitress] "GET   /v1/" 200 (1 ms) request.summary lang=None; uid=63279e82e351f8f318eea09ae5e3bcfc3b9e3eee06e9befacbf17102e0595dad; errno=None; agent=HTTPie/0.9.2; authn_type=BasicAuth; time=2016-01-26T11:59:04
+    2016-01-26 11:59:04,918 INFO  [kinto.core.initialization][waitress] "GET   /v1/" 200 (1 ms) request.summary lang=None; uid=None; errno=None; agent=HTTPie/0.9.2; authn_type=BasicAuth; time=2016-01-26T11:59:04
 
 
 GitHub token validation
@@ -332,12 +316,13 @@ Use it in permissions
 '''''''''''''''''''''
 
 The user id ``github:<username>`` can now be used in permissions definitions.
-It is much more convenient than Basic Auth identifiers!
+
+For example, give @Natim the permission to read the bucket I create:
 
 ::
 
-    $ echo '{"permissions": {"read": ["github:leplatrem"]}}' | \
-        http PUT http://localhost:8888/v0/buckets/test  --auth='token:another-user-token'
+    $ echo '{"permissions": {"read": ["github:Natim"]}}' | \
+        http PUT http://localhost:8888/v0/buckets/test "Authorization:github+Bearer 7f7f911969279d8b16a12f44b8bc6e2d216dc51e"
 
 
 Cache the token validation

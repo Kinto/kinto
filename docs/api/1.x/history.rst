@@ -37,7 +37,7 @@ Retrieve history
 
     .. sourcecode:: bash
 
-        $ http GET http://localhost:8888/v1/buckets/blog/history --auth="token:bob-token" --verbose
+        $ http GET http://localhost:8888/v1/buckets/blog/history --auth="bob:p4ssw0rd" --verbose
 
     .. sourcecode:: http
 
@@ -81,13 +81,13 @@ Retrieve history
                         },
                         "permissions": {
                             "write": [
-                                "basicauth:43181ac0ae7581a23288c25a98786ef9db86433c62a04fd6071d11653ee69089"
+                                "account:bob"
                             ]
                         }
                     },
                     "timestamp": 1469006098757,
                     "uri": "/buckets/blog/collections/articles/records/b3b76c56-b6df-4195-8189-d79da4a128e1",
-                    "user_id": "basicauth:43181ac0ae7581a23288c25a98786ef9db86433c62a04fd6071d11653ee69089",
+                    "user_id": "account:bob",
                 }
             ]
         }
@@ -181,7 +181,7 @@ to merge the changes that happened remotely with her local ones.
 
     $ RECORD_URI="buckets/blog/collections/articles/records/xyz"
     $ LOCAL_TIMESTAMP="1469006098757"
-    $ http GET http://localhost:8888/v1/buckets/blog/history?uri=$RECORD_URI&_since=$LOCAL_TIMESTAMP --auth="token:bob-token" --verbose
+    $ http GET http://localhost:8888/v1/buckets/blog/history?uri=$RECORD_URI&_since=$LOCAL_TIMESTAMP --auth="bob:p4ssw0rd" --verbose
 
 Each entries gives the state in which the record was modified. Computing the difference between
 two steps and applying it to the local record is a possible way of solving conflicts automatically.

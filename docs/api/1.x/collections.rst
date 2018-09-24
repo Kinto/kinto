@@ -50,7 +50,7 @@ List bucket collections
 
    .. sourcecode:: bash
 
-      $ http GET http://localhost:8888/v1/buckets/blog/collections --auth="token:bob-token" --verbose
+      $ http GET http://localhost:8888/v1/buckets/blog/collections --auth="bob:p4ssw0rd" --verbose
 
    .. sourcecode:: http
 
@@ -112,7 +112,7 @@ Delete bucket collections
 
     .. sourcecode:: bash
 
-        $ http delete http://localhost:8888/v1/buckets/blog/collections --auth="token:bob-token" --verbose
+        $ http delete http://localhost:8888/v1/buckets/blog/collections --auth="bob:p4ssw0rd" --verbose
 
     .. sourcecode:: http
 
@@ -176,7 +176,7 @@ Creating a collection
 
    .. sourcecode:: bash
 
-      $ echo '{"data": {"id": "articles"}}' | http POST http://localhost:8888/v1/buckets/blog/collections --auth="token:bob-token" --verbose
+      $ echo '{"data": {"id": "articles"}}' | http POST http://localhost:8888/v1/buckets/blog/collections --auth="bob:p4ssw0rd" --verbose
 
    .. sourcecode:: http
 
@@ -212,7 +212,7 @@ Creating a collection
           },
           "permissions": {
               "write": [
-                  "basicauth:797df8e4abfb8426cccaeba3b69109c9e8d09fcdfe264d5bba1eb2a239bcf832"
+                  "account:bob"
               ]
           }
       }
@@ -240,7 +240,7 @@ Replacing a collection
 
     .. sourcecode:: bash
 
-        $ http put http://localhost:8888/v1/buckets/blog/collections/articles --auth="token:bob-token" --verbose
+        $ http put http://localhost:8888/v1/buckets/blog/collections/articles --auth="bob:p4ssw0rd" --verbose
 
     .. sourcecode:: http
 
@@ -269,7 +269,7 @@ Replacing a collection
             },
             "permissions": {
                 "write": [
-                    "basicauth:206691a25679e4e1135f16aa77ebcf211c767393c4306cfffe6cc228ac0886b6"
+                    "account:bob"
                 ]
             }
         }
@@ -298,7 +298,7 @@ Updating a collection
 
     .. sourcecode:: bash
 
-        $ echo '{"data": {"fingerprint": "9cae1b2d0f2b7d09bcf5c1bf51544274"}}' | http patch http://localhost:8888/v1/buckets/blog/collections/articles --auth="token:bob-token" --verbose
+        $ echo '{"data": {"fingerprint": "9cae1b2d0f2b7d09bcf5c1bf51544274"}}' | http patch http://localhost:8888/v1/buckets/blog/collections/articles --auth="bob:p4ssw0rd" --verbose
 
     .. sourcecode:: http
 
@@ -335,7 +335,7 @@ Updating a collection
             },
             "permissions": {
                 "write": [
-                    "basicauth:206691a25679e4e1135f16aa77ebcf211c767393c4306cfffe6cc228ac0886b6"
+                    "account:bob"
                 ]
             }
         }
@@ -360,7 +360,7 @@ Retrieving an existing collection
 
     .. sourcecode:: bash
 
-        $ http get http://localhost:8888/v1/buckets/blog/collections/articles --auth="token:bob-token" --verbose
+        $ http get http://localhost:8888/v1/buckets/blog/collections/articles --auth="bob:p4ssw0rd" --verbose
 
     .. sourcecode:: http
 
@@ -393,7 +393,7 @@ Retrieving an existing collection
             },
             "permissions": {
                 "write": [
-                    "basicauth:206691a25679e4e1135f16aa77ebcf211c767393c4306cfffe6cc228ac0886b6"
+                    "account:bob"
                 ]
             }
         }
@@ -418,7 +418,7 @@ Deleting a collection
 
     .. sourcecode:: bash
 
-        $ http delete http://localhost:8888/v1/buckets/blog/collections/articles --auth="token:bob-token" --verbose
+        $ http delete http://localhost:8888/v1/buckets/blog/collections/articles --auth="bob:p4ssw0rd" --verbose
 
     .. sourcecode:: http
 
@@ -498,7 +498,7 @@ Just modify the ``schema`` attribute of the collection object:
           "required": ["title"]
         }
       }
-    }' | http PATCH "http://localhost:8888/v1/buckets/blog/collections/articles" --auth token:admin-token --verbose
+    }' | http PATCH "http://localhost:8888/v1/buckets/blog/collections/articles" --auth bob:p4ssw0rd --verbose
 
 .. code-block:: http
 
@@ -567,7 +567,7 @@ Just modify the ``schema`` attribute of the collection object:
         },
         "permissions": {
             "write": [
-                "basicauth:780f1ecd9f57b01bef79608b45916d3bddd17f83461ac6240402e0ffff3596c5"
+                "account:bob"
             ]
         }
     }
@@ -583,7 +583,7 @@ Once a schema has been defined, the posted records must match it:
 
     $ echo '{"data": {
         "body": "Fails if no title"
-    }}' | http POST http://localhost:8888/v1/buckets/blog/collections/articles/records --auth "token:admin-token"
+    }}' | http POST http://localhost:8888/v1/buckets/blog/collections/articles/records --auth "bob:p4ssw0rd"
 
 .. code-block:: http
 
@@ -637,7 +637,7 @@ to an empty mapping.
 
 .. code-block:: bash
 
-    echo '{"data": {"schema": {}} }' | http PATCH "http://localhost:8888/v1/buckets/blog/collections/articles" --auth token:admin-token --verbose
+    echo '{"data": {"schema": {}} }' | http PATCH "http://localhost:8888/v1/buckets/blog/collections/articles" --auth bob:p4ssw0rd --verbose
 
 .. code-block:: http
 
@@ -678,7 +678,7 @@ to an empty mapping.
         },
         "permissions": {
             "write": [
-                "basicauth:780f1ecd9f57b01bef79608b45916d3bddd17f83461ac6240402e0ffff3596c5"
+                "account:bob"
             ]
         }
     }
@@ -748,7 +748,7 @@ To achieve that, just modify the ``collection:schema`` attribute of the parent b
           }
         }
       }
-    }' | http PATCH "http://localhost:8888/v1/buckets/blog" --auth token:admin-token --verbose
+    }' | http PATCH "http://localhost:8888/v1/buckets/blog" --auth bob:p4ssw0rd --verbose
 
 
 .. _collection-caching:
@@ -765,13 +765,13 @@ For example, set it to ``3600`` (1 hour):
 
 .. code-block:: bash
 
-    echo '{"data": {"cache_expires": 3600} }' | http PATCH "http://localhost:8888/v1/buckets/blog/collections/articles" --auth token:admin-token
+    echo '{"data": {"cache_expires": 3600} }' | http PATCH "http://localhost:8888/v1/buckets/blog/collections/articles" --auth bob:p4ssw0rd
 
 From now on, the cache control headers are set for the `GET` requests:
 
 .. code-block:: bash
 
-    http  "http://localhost:8888/v1/buckets/blog/collections/articles/records" --auth token:admin-token
+    http  "http://localhost:8888/v1/buckets/blog/collections/articles/records" --auth bob:p4ssw0rd
 
 .. code-block:: http
     :emphasize-lines: 3,8
@@ -797,7 +797,7 @@ If set to ``0``, the collection records become explicitly uncacheable (``no-cach
 
 .. code-block:: bash
 
-    echo '{"data": {"cache_expires": 0} }' | http PATCH "http://localhost:8888/v1/buckets/blog/collections/articles" --auth token:admin-token
+    echo '{"data": {"cache_expires": 0} }' | http PATCH "http://localhost:8888/v1/buckets/blog/collections/articles" --auth bob:p4ssw0rd
 
 .. code-block:: http
     :emphasize-lines: 3,8,10
