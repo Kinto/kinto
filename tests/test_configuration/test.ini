@@ -99,15 +99,6 @@ kinto.account_create_principals = system.Everyone
 kinto.account_write_principals = account:admin
 # Allow administrators to create buckets
 kinto.bucket_create_principals = account:admin
-#
-# Kinto-portier authentication
-# https://github.com/Kinto/kinto-portier
-# Set `multiauth.policies` to `portier`
-# multiauth.policy.portier.use = kinto_portier.authentication.PortierOAuthAuthenticationPolicy
-# kinto.portier.broker_url = https://broker.portier.io
-# kinto.portier.webapp.authorized_domains = *.github.io
-# kinto.portier.cache_ttl_seconds = 300
-# kinto.portier.state.ttl_seconds = 3600
 
 # Notifications
 # https://kinto.readthedocs.io/en/latest/configuration/settings.html#notifications
