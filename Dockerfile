@@ -19,7 +19,7 @@ RUN \
     apt-get install -y nodejs; \
     cd kinto/plugins/admin; npm install; npm run build; \
     pip3 install -e /app[postgresql,memcached,monitoring] -c /app/requirements.txt; \
-    pip3 install kinto-pusher kinto-attachment kinto-emailer kinto-elasticsearch; \
+    pip3 install kinto-attachment kinto-emailer kinto-elasticsearch kinto-portier kinto-redis; \
     kinto init --ini $KINTO_INI --host 0.0.0.0 --backend=memory --cache-backend=memory; \
     apt-get purge -y -qq gcc libssl-dev libffi-dev libpq-dev curl nodejs; \
     apt-get autoremove -y -qq; \
