@@ -3,11 +3,11 @@ import re
 from kinto.authorization import PERMISSIONS_INHERITANCE_TREE
 from pyramid.exceptions import ConfigurationError
 
-from authentication import AccountsAuthenticationPolicy as AccountsPolicy
+from .authentication import AccountsAuthenticationPolicy as AccountsPolicy
+from .utils import ACCOUNT_CACHE_KEY, ACCOUNT_POLICY_NAME
 
 
-ACCOUNT_CACHE_KEY = 'accounts:{}:verified'
-ACCOUNT_POLICY_NAME = 'account'
+__all__ = ['ACCOUNT_CACHE_KEY', 'ACCOUNT_POLICY_NAME', 'AccountsPolicy']
 
 DOCS_URL = "https://kinto.readthedocs.io/en/stable/api/1.x/accounts.html"
 

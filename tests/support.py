@@ -25,7 +25,10 @@ class BaseWebTest(testing.BaseWebTest):
 
     @classmethod
     def get_app_settings(cls, extras=None):
-        settings = {**DEFAULT_SETTINGS}
+        settings = {
+            **DEFAULT_SETTINGS,
+            'multiauth.policies': 'basicauth',
+        }
         if extras is not None:
             settings.update(extras)
         settings = super().get_app_settings(extras=settings)

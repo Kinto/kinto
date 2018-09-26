@@ -35,6 +35,17 @@ class FunctionalTest(unittest.TestCase):
         self.session = requests.Session()
         self.session.auth = DEFAULT_AUTH
 
+    def setUp(self):
+        # Create accounts used in the different tests.
+        requests.post(urljoin(self.server_url, '/accounts'),
+                      json={"data": {"id": "user", "password": "p4ssw0rd"}})
+        requests.post(urljoin(self.server_url, '/accounts'),
+                      json={"data": {"id": "bob", "password": "s3cr3t"}})
+        requests.post(urljoin(self.server_url, '/accounts'),
+                      json={"data": {"id": "alice", "password": "wh1sp3r"}})
+        requests.post(urljoin(self.server_url, '/accounts'),
+                      json={"data": {"id": "mary", "password": "s4f3"}})
+
     def tearDown(self):
         # Delete all the created objects
         flush_url = urljoin(self.server_url, '/__flush__')
@@ -170,7 +181,7 @@ class FunctionalTest(unittest.TestCase):
                       collection['permissions']['record:create'])
 
         # Create a new tasks for Alice
-        alice_auth = ('token', 'alice-secret-%s' % uuid.uuid4())
+        alice_auth = ('alice', 'wh1sp3r')
         alice_task = build_task()
         resp = self.session.post(
             collection_url,
@@ -181,7 +192,7 @@ class FunctionalTest(unittest.TestCase):
         self.assertIn('write', collection['permissions'])
         alice_task_id = collection['data']['id']
 
-        bob_auth = ('token', 'bob-secret-%s' % uuid.uuid4())
+        bob_auth = ('bob', 's3cr3t')
 
         # Bob has no task yet.
         resp = self.session.get(collection_url, auth=bob_auth)
@@ -223,7 +234,7 @@ class FunctionalTest(unittest.TestCase):
         self.assertEqual(resp.status_code, 200)
 
         # Get mary's userid
-        mary_auth = ('token', 'mary-secret-%s' % uuid.uuid4())
+        mary_auth = ('mary', 's4f3')
         resp = self.session.get('{}/'.format(self.server_url), auth=mary_auth)
         self.assertEqual(resp.status_code, 200)
         hello = resp.json()

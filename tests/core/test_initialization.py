@@ -254,7 +254,11 @@ class ApplicationWrapperTest(unittest.TestCase):
 
 class StatsDConfigurationTest(unittest.TestCase):
     def setUp(self):
-        settings = {**kinto.core.DEFAULT_SETTINGS, 'statsd_url': 'udp://host:8080'}
+        settings = {
+            **kinto.core.DEFAULT_SETTINGS,
+            'statsd_url': 'udp://host:8080',
+            'multiauth.policies': 'basicauth',
+        }
         self.config = Configurator(settings=settings)
         self.config.registry.storage = {}
         self.config.registry.cache = {}
@@ -434,7 +438,8 @@ class PluginsTest(unittest.TestCase):
         config = Configurator(settings={**kinto.core.DEFAULT_SETTINGS})
         config.add_settings({
             'permission_backend': 'kinto.core.permission.memory',
-            'includes': 'tests.core.testplugin'
+            'includes': 'tests.core.testplugin',
+            'multiauth.policies': 'basicauth',
         })
         kinto.core.initialize(config, '0.0.1', 'name')
         return webtest.TestApp(config.make_wsgi_app())
