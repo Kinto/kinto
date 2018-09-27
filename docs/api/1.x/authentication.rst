@@ -14,8 +14,6 @@ But the main methods you are most likely to encounter will read the ``Authorizat
 * :ref:`Kinto Accounts <api-accounts>` expects a valid username and password as *Basic Auth*
 * :ref:`OpenID Connect <api-openid>` will validate a *Bearer Access Token* against an :term:`Identity Provider`
 
-If the authentication fails, the server will return a |status-401| error response. It can also return a |status-403| error response, which would mean that the operation performed on the resource is not allowed to unauthenticated users :)
-
 
 Getting started
 ---------------
@@ -58,6 +56,17 @@ The currently authenticated *user ID* can be obtained on the :ref:`root URL <api
         }
         ...
     }
+
+
+Error responses
+---------------
+
+As shown in the above section, the easiest way to check your authentication credentials is to use the :ref:`root URL <api-utilities-hello>`.
+
+When authentication fails when interacting with API, you can have two kinds of error responses:
+
+* a |status-401| error response, which means that no authentication method succeeded
+* a |status-403| error response, which could mean that the operation performed on the resource is not allowed for you :) If you didn't authenticate, this could also mean that the operation is not allowed to anonymous users.
 
 
 Available methods
