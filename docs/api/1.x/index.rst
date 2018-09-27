@@ -12,6 +12,8 @@ Full detailed API documentation:
    :maxdepth: 1
 
    authentication
+   accounts
+   openid
    buckets
    collections
    records
@@ -23,7 +25,6 @@ Full detailed API documentation:
    selecting_fields
    history
    quotas
-   accounts
    utilities
    batch
    openapi

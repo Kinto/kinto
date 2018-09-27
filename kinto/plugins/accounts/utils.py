@@ -1,6 +1,10 @@
 import bcrypt
 
 
+ACCOUNT_CACHE_KEY = 'accounts:{}:verified'
+ACCOUNT_POLICY_NAME = 'account'
+
+
 def hash_password(password):
     # Store password safely in database as str
     # (bcrypt.hashpw returns base64 bytes).

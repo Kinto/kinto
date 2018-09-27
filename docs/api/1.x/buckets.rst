@@ -28,7 +28,7 @@ Creating a bucket
 
     .. sourcecode:: bash
 
-        $ echo '{"data": {"id": "blog"}}' | http POST http://localhost:8888/v1/buckets --auth="token:bob-token" --verbose
+        $ echo '{"data": {"id": "blog"}}' | http POST http://localhost:8888/v1/buckets --auth="bob:p4ssw0rd" --verbose
 
     .. sourcecode:: http
 
@@ -67,7 +67,7 @@ Creating a bucket
             },
             "permissions": {
                 "write": [
-                    "basicauth:206691a25679e4e1135f16aa77ebcf211c767393c4306cfffe6cc228ac0886b6"
+                    "account:bob"
                 ]
             }
         }
@@ -98,7 +98,7 @@ Replacing a bucket
 
     .. sourcecode:: bash
 
-        $ http put http://localhost:8888/v1/buckets/blog --auth="token:bob-token"
+        $ http put http://localhost:8888/v1/buckets/blog --auth="bob:p4ssw0rd"
 
     .. sourcecode:: http
 
@@ -129,7 +129,7 @@ Replacing a bucket
             },
             "permissions": {
                 "write": [
-                    "basicauth:206691a25679e4e1135f16aa77ebcf211c767393c4306cfffe6cc228ac0886b6"
+                    "account:bob"
                 ]
             }
         }
@@ -154,7 +154,7 @@ Retrieve an existing bucket
 
     .. sourcecode:: bash
 
-        $ http get http://localhost:8888/v1/buckets/blog --auth="token:bob-token" --verbose
+        $ http get http://localhost:8888/v1/buckets/blog --auth="bob:p4ssw0rd" --verbose
 
     .. sourcecode:: http
 
@@ -188,7 +188,7 @@ Retrieve an existing bucket
             },
             "permissions": {
                 "write": [
-                    "basicauth:206691a25679e4e1135f16aa77ebcf211c767393c4306cfffe6cc228ac0886b6"
+                    "account:bob"
                 ]
             }
         }
@@ -229,7 +229,7 @@ Deleting a bucket
 
     .. sourcecode:: bash
 
-        $ http delete http://localhost:8888/v1/buckets/blog --auth="token:bob-token" --verbose
+        $ http delete http://localhost:8888/v1/buckets/blog --auth="bob:p4ssw0rd" --verbose
 
     .. sourcecode:: http
 
@@ -281,7 +281,7 @@ Retrieving all buckets
 
     .. sourcecode:: bash
 
-        $ http get http://localhost:8888/v1/buckets --auth="token:bob-token" --verbose
+        $ http get http://localhost:8888/v1/buckets --auth="bob:p4ssw0rd" --verbose
 
     .. sourcecode:: http
 
@@ -336,7 +336,7 @@ Delete all buckets
 
     .. sourcecode:: bash
 
-        $ http delete http://localhost:8888/v1/buckets --auth="token:bob-token" --verbose
+        $ http delete http://localhost:8888/v1/buckets --auth="bob:p4ssw0rd" --verbose
 
     .. sourcecode:: http
 
@@ -396,7 +396,7 @@ bucket implicitly creates the collections objects on their first use.
 
     .. sourcecode:: bash
 
-        $ http get http://localhost:8888/v1/buckets/default -v --auth='token:bob-token'
+        $ http get http://localhost:8888/v1/buckets/default -v --auth='bob:p4ssw0rd'
 
     .. sourcecode:: http
 
@@ -429,7 +429,7 @@ bucket implicitly creates the collections objects on their first use.
             },
             "permissions": {
                 "write": [
-                    "basicauth:62e79bedacd2508c7da3dfb16e9724501fb4bdf9a830de7f8abcc8f7f1496c35"
+                    "account:bob"
                 ]
             }
         }
@@ -447,7 +447,7 @@ For convenience, the actual default bucket id is provided in the root URL of *Ki
 
     .. sourcecode:: bash
 
-        $ http get http://localhost:8888/v1/ -v --follow --auth='token:bob-token'
+        $ http get http://localhost:8888/v1/ -v --follow --auth='bob:p4ssw0rd'
 
     **Example Response**
 
@@ -470,7 +470,7 @@ For convenience, the actual default bucket id is provided in the root URL of *Ki
                 "batch_max_requests": 25,
             },
             "user": {
-                "id": "basicauth:62e79bedacd2508c7da3dfb16e9724501fb4bdf9a830de7f8abcc8f7f1496c35",
+                "id": "account:bob",
                 "bucket": "b8f3fa97-3e0a-00ae-7f07-ce8ce05ce0e5",
             }
         }

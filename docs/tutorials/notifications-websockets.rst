@@ -58,12 +58,17 @@ Test Pusher events
 Now that *Kinto* runs locally and is configured to send events to *Pusher*, you
 should be able to see them in the *Debug Console* of your *Pusher dashboard*.
 
-For example, create an arbitrary record with `httpie <http://httpie.org>`_
+For example, with `httpie <http://httpie.org>`_, create an :ref:`account <api-accounts>` and create an arbitrary record in the :ref:`default bucket <buckets-default-id>`:
+
+.. code-block:: shell
+
+    $ echo '{"data":{"password":"s3cr3t"}}' | \
+        http POST http://localhost:8888/v1/accounts/alice
 
 .. code-block:: shell
 
     $ echo '{"data":{"name":"bob"}}' | \
-        http POST http://localhost:8888/v1/buckets/default/collections/tasks/records --auth token:alice-token
+        http POST http://localhost:8888/v1/buckets/default/collections/tasks/records --auth alice:s3cr3t
 
 This created a record, and you should see the generated event in the dashboard.
 

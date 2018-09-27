@@ -68,6 +68,18 @@ If you have `Docker <https://docker.com/>`_, *Kinto* can be started locally with
 The server should now be running on http://localhost:8888
 
 
+Create the admin account
+------------------------
+
+The accounts feature is enabled in the default configuration. You have to create an ``admin`` account with a custom password:
+
+.. code-block:: shell
+
+    curl -X PUT http://localhost:8888/v1/accounts/admin \
+         -d '{"data": {"password": "s3cr3t"}}' \
+         -H 'Content-Type:application/json'
+
+
 Environment variables
 ---------------------
 
@@ -229,6 +241,18 @@ Then install the package using the default configuration:
     kinto start
 
 The server should now be running on http://localhost:8888
+
+
+Create the admin account
+------------------------
+
+The accounts feature is enabled in the default configuration. You have to create an ``admin`` account with a custom password:
+
+.. code-block:: shell
+
+    curl -X PUT http://localhost:8888/v1/accounts/admin \
+         -d '{"data": {"password": "s3cr3t"}}' \
+         -H 'Content-Type:application/json'
 
 
 .. _run-kinto-from-source:

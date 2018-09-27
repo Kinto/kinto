@@ -10,8 +10,7 @@ from kinto.core import resource, utils
 from kinto.core.errors import raise_invalid, http_error
 from kinto.core.events import ResourceChanged, ACTIONS
 
-from . import ACCOUNT_CACHE_KEY, ACCOUNT_POLICY_NAME
-from .utils import hash_password
+from .utils import hash_password, ACCOUNT_CACHE_KEY, ACCOUNT_POLICY_NAME
 
 
 def _extract_posted_body_id(request):

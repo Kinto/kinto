@@ -38,6 +38,7 @@ and the JSON can contain anything.
 A **collection** is a group of records. Records are manipulated as a list
 and can be filtered or sorted. Clients can obtain the list of changes that
 occured on the collection records since a certain revision (e.g. *last synchronisation*).
+A JSON schema can optionally be defined on the collection.
 
 A **bucket** is an abstract notion used to organize collections and their
 permissions.
@@ -70,10 +71,9 @@ to several objects.
 Authentication
 ==============
 
-Kinto doesn't provide users management, like user sign-up, password modification, etc.
-
-Kinto can rely on a third-party called "`Identity provider <https://en.wikipedia.org/wiki/Identity_provider>`_"
-like *Auth0*, *GitHub* or *Google* in order to authenticate the incoming request and assign a :term:`user id`.
+Kinto reads the request headers in order to authenticate the incoming request and assign a :term:`user id`.
+It can rely on a third-party called "`Identity provider <https://en.wikipedia.org/wiki/Identity_provider>`_"
+like *Auth0*, *GitHub* or *Google*.
 
 .. _concepts-permissions:
 

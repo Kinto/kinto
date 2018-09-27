@@ -11,6 +11,15 @@ a storage API for a blog application.
     Some general details are provided in the :ref:`kinto-concepts` and :ref:`api-permissions`
     sections. Make sure you are familiar with main concepts before starting this.
 
+.. important::
+
+    In this tutorial, we use the :ref:`internal accounts plugin <api-accounts>`.
+
+    We create the following accounts::
+
+        $ echo '{"data": {"password": "s3cr3t"}}' | http PUT http://localhost:8888/v1/accounts/julia
+        $ echo '{"data": {"password": "wh1sp3r"}}' | http PUT http://localhost:8888/v1/accounts/natim
+
 
 Basic permission setup
 ======================
@@ -24,7 +33,7 @@ Let's start by giving all authenticated users read access to the bucket.
 
     $ echo '{"permissions": {"read": ["system.Authenticated"]}}' | \
         http PUT https://kinto.dev.mozaws.net/v1/buckets/servicedenuages-blog \
-        --auth token:my-secret
+        --auth julia:s3cr3t
 
 .. code-block:: http
 
@@ -48,7 +57,7 @@ Let's start by giving all authenticated users read access to the bucket.
                 "system.Authenticated"
             ],
             "write": [
-                "basicauth:631c2d625ee5726172cf67c6750de10a3e1a04bcd603bc9ad6d6b196fa8257a6"
+                "account:julia"
             ]
         }
     }
@@ -60,7 +69,7 @@ buckets: ``articles`` and ``comments``.
 .. code-block:: shell
 
     $ http PUT https://kinto.dev.mozaws.net/v1/buckets/servicedenuages-blog/collections/articles \
-        --auth token:my-secret
+        --auth julia:s3cr3t
 
 .. code-block:: http
 
@@ -81,7 +90,7 @@ buckets: ``articles`` and ``comments``.
         },
         "permissions": {
             "write": [
-                "basicauth:631c2d625ee5726172cf67c6750de10a3e1a04bcd603bc9ad6d6b196fa8257a6"
+                "account:julia"
             ]
         }
     }
@@ -89,7 +98,7 @@ buckets: ``articles`` and ``comments``.
 .. code-block:: shell
 
     $ http PUT https://kinto.dev.mozaws.net/v1/buckets/servicedenuages-blog/collections/comments \
-        --auth token:my-secret
+        --auth julia:s3cr3t
 
 .. code-block:: http
 
@@ -110,12 +119,12 @@ buckets: ``articles`` and ``comments``.
         },
         "permissions": {
             "write": [
-                "basicauth:631c2d625ee5726172cf67c6750de10a3e1a04bcd603bc9ad6d6b196fa8257a6"
+                "account:julia"
             ]
         }
     }
 
-Thanks to the `read` permission that we set previously, all authenticated users
+Thanks to the ``read`` permission that we set previously, all authenticated users
 will be able to read both collections.
 
 Let's verify that. Create an article:
@@ -124,7 +133,7 @@ Let's verify that. Create an article:
 
     $ echo '{"data":{"title": "My article", "content": "my content", "published_at": "Thu Jul 16 16:44:15 CEST 2015"}}' | \
         http POST https://kinto.dev.mozaws.net/v1/buckets/servicedenuages-blog/collections/articles/records \
-        --auth token:my-secret
+        --auth julia:s3cr3t
 
 .. code-block:: http
 
@@ -147,7 +156,7 @@ Let's verify that. Create an article:
         },
         "permissions": {
             "write": [
-                "basicauth:631c2d625ee5726172cf67c6750de10a3e1a04bcd603bc9ad6d6b196fa8257a6"
+                "account:julia"
             ]
         }
     }
@@ -157,7 +166,7 @@ Indeed, using another user like *natim*, we can read the article:
 .. code-block:: shell
 
     $ http GET https://kinto.dev.mozaws.net/v1/buckets/servicedenuages-blog/collections/articles/records/b8c4cc34-f184-4b4d-8cad-e135a3f0308c \
-        --auth token:natim-token
+        --auth natim:wh1sp3r
 
 .. code-block:: http
 
@@ -181,7 +190,7 @@ Indeed, using another user like *natim*, we can read the article:
         },
         "permissions": {
             "write": [
-                "basicauth:631c2d625ee5726172cf67c6750de10a3e1a04bcd603bc9ad6d6b196fa8257a6"
+                "account:julia"
             ]
         }
     }
@@ -193,7 +202,7 @@ permissions of the ``comments`` collections:
 
     $ echo '{"permissions": {"record:create": ["system.Authenticated"]}}' | \
         http PATCH https://kinto.dev.mozaws.net/v1/buckets/servicedenuages-blog/collections/comments \
-        --auth token:my-secret
+        --auth julia:s3cr3t
 
 .. code-block:: http
 
@@ -217,7 +226,7 @@ permissions of the ``comments`` collections:
                 "system.Authenticated"
             ],
             "write": [
-                "basicauth:631c2d625ee5726172cf67c6750de10a3e1a04bcd603bc9ad6d6b196fa8257a6"
+                "account:julia"
             ]
         }
     }
@@ -228,7 +237,7 @@ Now every authenticated user, like *natim* here, can add a comment.
 
     $ echo '{"data":{"article_id": "b8c4cc34-f184-4b4d-8cad-e135a3f0308c", "comment": "my comment", "author": "*natim*"}}' | \
         http POST https://kinto.dev.mozaws.net/v1/buckets/servicedenuages-blog/collections/comments/records \
-        --auth token:natim-token
+        --auth natim:wh1sp3r
 
 .. code-block:: http
 
@@ -250,7 +259,7 @@ Now every authenticated user, like *natim* here, can add a comment.
         },
         "permissions": {
             "write": [
-                "basicauth:df93ca0ecaeaa3126595f6785b39c408be2539173c991a7b2e3181a9826a69bc"
+                "account:natim"
             ]
         }
     }
@@ -259,17 +268,16 @@ Now every authenticated user, like *natim* here, can add a comment.
 Permissions and groups
 ======================
 
-So far only the creator of the initial bucket (i.e. the blog admin) can write
+So far only the creator of the initial bucket (i.e. julia, the blog admin) can write
 articles. Let's invite some writers to create articles!
 
-We will create a new group called ``writers`` with *natim* as a principal
-member.
+We will create a new group called ``writers`` with *natim* as one of the members.
 
 .. code-block:: shell
 
-    $ echo '{"data": {"members": ["basicauth:df93ca0ecaeaa3126595f6785b39c408be2539173c991a7b2e3181a9826a69bc"]}}' | \
+    $ echo '{"data": {"members": ["account:natim"]}}' | \
         http PUT https://kinto.dev.mozaws.net/v1/buckets/servicedenuages-blog/groups/writers \
-        --auth token:my-secret
+        --auth julia:s3cr3t
 
 .. code-block:: http
 
@@ -288,12 +296,12 @@ member.
             "id": "writers",
             "last_modified": 1437058498218,
             "members": [
-                "basicauth:df93ca0ecaeaa3126595f6785b39c408be2539173c991a7b2e3181a9826a69bc"
+                "account:natim"
             ]
         },
         "permissions": {
             "write": [
-                "basicauth:631c2d625ee5726172cf67c6750de10a3e1a04bcd603bc9ad6d6b196fa8257a6"
+                "account:julia"
             ]
         }
     }
@@ -304,7 +312,7 @@ Now we grant the `write` permission on the blog bucket to the ``writers`` group.
 
     $ echo '{"permissions": {"write": ["/buckets/servicedenuages-blog/groups/writers"]}}' | \
         http PATCH https://kinto.dev.mozaws.net/v1/buckets/servicedenuages-blog \
-        --auth token:my-secret
+        --auth julia:s3cr3t
 
 .. code-block:: http
 
@@ -328,7 +336,7 @@ Now we grant the `write` permission on the blog bucket to the ``writers`` group.
                 "system.Authenticated"
             ],
             "write": [
-                "basicauth:631c2d625ee5726172cf67c6750de10a3e1a04bcd603bc9ad6d6b196fa8257a6",
+                "account:julia",
                 "/buckets/servicedenuages-blog/groups/writers"
             ]
         }
@@ -340,7 +348,7 @@ Now *natim* can write new articles!
 
     $ echo '{"data":{"title": "natim article", "content": "natims content", "published_at": "Thu Jul 16 16:59:16 CEST 2015"}}' | \
         http POST https://kinto.dev.mozaws.net/v1/buckets/servicedenuages-blog/collections/articles/records \
-        --auth token:natim-token
+        --auth natim:wh1sp3r
 
 .. code-block:: http
 
@@ -362,7 +370,7 @@ Now *natim* can write new articles!
         },
         "permissions": {
             "write": [
-                "basicauth:df93ca0ecaeaa3126595f6785b39c408be2539173c991a7b2e3181a9826a69bc"
+                "account:natim"
             ]
         }
     }
@@ -375,9 +383,7 @@ One can fetch the list of articles.
 
 .. code-block:: shell
 
-    $ http GET \
-        https://kinto.dev.mozaws.net/v1/buckets/servicedenuages-blog/collections/articles/records \
-        --auth token:alice-token
+    $ http GET https://kinto.dev.mozaws.net/v1/buckets/servicedenuages-blog/collections/articles/records
 
 .. code-block:: http
 
@@ -415,9 +421,7 @@ Or the list of comments.
 
 .. code-block:: shell
 
-    $ http GET \
-        https://kinto.dev.mozaws.net/v1/buckets/servicedenuages-blog/collections/comments/records \
-        --auth token:alice-token
+    $ http GET https://kinto.dev.mozaws.net/v1/buckets/servicedenuages-blog/collections/comments/records
 
 .. code-block:: http
 

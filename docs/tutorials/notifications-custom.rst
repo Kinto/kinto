@@ -148,15 +148,15 @@ Create a bucket (using `HTTPie <http://httpie.org>`_):
 
 .. code-block:: shell
 
-    $ http --auth token:alice-token --verbose PUT http://localhost:8888/v1/buckets/bid1
-    $ http --auth token:alice-token --verbose PUT http://localhost:8888/v1/buckets/bid2
+    $ http --auth alice:s3cr3t --verbose PUT http://localhost:8888/v1/buckets/bid1
+    $ http --auth alice:s3cr3t --verbose PUT http://localhost:8888/v1/buckets/bid2
 
 Now, every response has a ``Buckets-Created`` header:
 
 .. code-block:: shell
     :emphasize-lines: 6
 
-    $ http --auth token:alice-token --verbose GET http://localhost:8888/v1/
+    $ http --auth alice:s3cr3t --verbose GET http://localhost:8888/v1/
 
     HTTP/1.1 200 OK
     Content-Length: 66
@@ -256,7 +256,7 @@ Create a record (using `HTTPie <http://httpie.org>`_):
 .. code-block:: shell
 
     $ echo '{"data": {"note": "kinto"}}' | \
-        http --auth token:alice-token --verbose POST http://localhost:8888/v1/buckets/default/collections/notes/records
+        http --auth alice:s3cr3t --verbose POST http://localhost:8888/v1/buckets/default/collections/notes/records
 
 The server response is returned immediately.
 
@@ -264,6 +264,6 @@ But 2 seconds later, look at the worker output:
 
 ::
 
-    {'resource_name': 'record', 'user_id': 'basicauth:fea1e21d339299506d89e60f048cefd5b424ea641ba48267c35a4ce921439fa4', 'timestamp': 1453459942672, 'uri': '/buckets/c8c94a74-5bf6-9fb0-5b72-b0777da6718e/collections/assets/records', 'bucket_id': 'c8c94a74-5bf6-9fb0-5b72-b0777da6718e', 'action': 'create', 'collection_id': 'assets'}
+    {'resource_name': 'record', 'user_id': 'account:alice', 'timestamp': 1453459942672, 'uri': '/buckets/c8c94a74-5bf6-9fb0-5b72-b0777da6718e/collections/assets/records', 'bucket_id': 'c8c94a74-5bf6-9fb0-5b72-b0777da6718e', 'action': 'create', 'collection_id': 'assets'}
 
 It worked!

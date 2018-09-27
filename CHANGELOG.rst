@@ -45,6 +45,10 @@ This document describes changes between each past release.
   rather than a list.
 
 
+**Breaking changes**
+
+- The ``basicauth`` policy is not used by default anymore
+
 **New features**
 
 - Include Python 3.7 support.

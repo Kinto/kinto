@@ -140,22 +140,6 @@ That means that a user is always able to replace or delete the records she creat
     current behaviour instead of always granting ``write`` on current user!
 
 
-BasicAuth trickery
-------------------
-
-Like for user resources, if *Basic Auth* authentication is enabled, the predictable
-user id can be used to define semi-private or public if the ``user:pass`` is
-known and shared (for example ``public:`` is a valid user:pass combination).
-
-For example, get the user id obtained in the hello :ref:`root view <api-utilities>` with a
-user:pass combination and use it in the permissions JSON payloads, or settings:
-
-::
-
-    kinto.{collection}_read_principals = basicauth:631c2d625ee5726172cf67c6750de10a3e1a04bcd603bc9ad6d6b196fa8257a6
-
-
-
 Related/Inherited permissions
 -----------------------------
 
@@ -250,7 +234,7 @@ Or during application init (or scripts):
         kinto.core.initialize(config, __version__)
         # ...
 
-        some_user_id = 'basicauth:ut082jghnrgnjnj'
+        some_user_id = 'ldap:alice@corp.com'
         permission_object_id = '/articles'
         permission = 'create'
         config.registry.permission.add_principal_to_ace(permission_object_id,

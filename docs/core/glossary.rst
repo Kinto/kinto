@@ -3,6 +3,10 @@ Glossary
 
 .. glossary::
 
+    authentication policy
+    authentication policies
+        An authentication method enabled in :ref:`configuration <configuration-authentication>`
+
     Kinto-Core HTTP API
         A system of rules that explains the way to interact with the HTTP API
         :term:`endpoints` (utilities, synchronization, headers etc.), and how data
@@ -46,11 +50,9 @@ Glossary
     user id
     user identifier
     user identifiers
-        A string that identifies a user. When using the built-in *Basic Auth*
-        authentication, *Kinto-Core* uses cryptography (HMAC) to generate an
-        identification string.
-
-        See `Pyramid authentication`_.
+        A string that identifies a user. It is prefixed with the authentication
+        policy name (eg. ``account:alice``, ``ldap:bob``, ``google:me@gmail.com``, ...).
+        These identifiers are used to refer to users in :ref:`permissions <concepts-permissions>` or :ref:`groups <concepts-groups>`.
 
     object
     objects
@@ -86,6 +88,3 @@ Glossary
     ACLs
     Access Control List
         A list of Access Control Entities (ACE).
-
-
-.. _Pyramid authentication: http://docs.pylonsproject.org/docs/pyramid/en/latest/narr/security.html

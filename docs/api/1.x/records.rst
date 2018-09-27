@@ -30,7 +30,7 @@ Uploading a record
 
     .. sourcecode:: bash
 
-        $ echo '{"data": {"foo": "bar"}}' | http post http://localhost:8888/v1/buckets/blog/collections/articles/records --auth="token:bob-token" --verbose
+        $ echo '{"data": {"foo": "bar"}}' | http post http://localhost:8888/v1/buckets/blog/collections/articles/records --auth="bob:p4ssw0rd" --verbose
 
     .. sourcecode:: http
 
@@ -69,7 +69,7 @@ Uploading a record
             },
             "permissions": {
                 "write": [
-                    "basicauth:206691a25679e4e1135f16aa77ebcf211c767393c4306cfffe6cc228ac0886b6"
+                    "account:bob"
                 ]
             }
         }
@@ -100,7 +100,7 @@ Replacing a record
 
     .. sourcecode:: bash
 
-        $ echo '{"data": {"foo": "baz"}}' | http put http://localhost:8888/v1/buckets/blog/collections/articles/records/89881454-e4e9-4ef0-99a9-404d95900352 --auth="token:bob-token" --verbose
+        $ echo '{"data": {"foo": "baz"}}' | http put http://localhost:8888/v1/buckets/blog/collections/articles/records/89881454-e4e9-4ef0-99a9-404d95900352 --auth="bob:p4ssw0rd" --verbose
 
     .. sourcecode:: http
 
@@ -139,7 +139,7 @@ Replacing a record
           },
           "permissions": {
               "write": [
-                  "basicauth:206691a25679e4e1135f16aa77ebcf211c767393c4306cfffe6cc228ac0886b6"
+                  "account:bob"
               ]
           }
         }
@@ -165,7 +165,7 @@ Updating a record
 
     .. sourcecode:: bash
 
-        $ echo '{"data": {"status": "done"}}' | http patch http://localhost:8888/v1/buckets/blog/collections/articles/records/89881454-e4e9-4ef0-99a9-404d95900352 --auth="token:bob-token" --verbose
+        $ echo '{"data": {"status": "done"}}' | http patch http://localhost:8888/v1/buckets/blog/collections/articles/records/89881454-e4e9-4ef0-99a9-404d95900352 --auth="bob:p4ssw0rd" --verbose
 
     .. sourcecode:: http
 
@@ -205,7 +205,7 @@ Updating a record
           },
           "permissions": {
               "write": [
-                  "basicauth:206691a25679e4e1135f16aa77ebcf211c767393c4306cfffe6cc228ac0886b6"
+                  "account:bob"
               ]
           }
         }
@@ -230,7 +230,7 @@ Retrieving stored records
 
     .. sourcecode:: bash
 
-        $ http get http://localhost:8888/v1/buckets/blog/collections/articles/records --auth="token:bob-token" --verbose
+        $ http get http://localhost:8888/v1/buckets/blog/collections/articles/records --auth="bob:p4ssw0rd" --verbose
 
     .. sourcecode:: http
 
@@ -281,7 +281,7 @@ Retrieving a specific record
 
     .. sourcecode:: bash
 
-        $ http get http://localhost:8888/v1/buckets/blog/collections/articles/records/89881454-e4e9-4ef0-99a9-404d95900352 --auth="token:bob-token" --verbose
+        $ http get http://localhost:8888/v1/buckets/blog/collections/articles/records/89881454-e4e9-4ef0-99a9-404d95900352 --auth="bob:p4ssw0rd" --verbose
 
     .. sourcecode:: http
 
@@ -315,7 +315,7 @@ Retrieving a specific record
             },
             "permissions": {
                 "write": [
-                    "basicauth:206691a25679e4e1135f16aa77ebcf211c767393c4306cfffe6cc228ac0886b6"
+                    "account:bob"
                 ]
             }
         }
@@ -336,7 +336,7 @@ Delete stored records
 
     .. sourcecode:: bash
 
-        $ http delete http://localhost:8888/v1/buckets/blog/collections/articles/records --auth="token:bob-token" --verbose
+        $ http delete http://localhost:8888/v1/buckets/blog/collections/articles/records --auth="bob:p4ssw0rd" --verbose
 
     .. sourcecode:: http
 
@@ -383,7 +383,7 @@ Deleting a single record
 
     .. sourcecode:: bash
 
-        $ http delete http://localhost:8888/v1/buckets/blog/collections/articles/records/89881454-e4e9-4ef0-99a9-404d95900352 --auth="token:bob-token" --verbose
+        $ http delete http://localhost:8888/v1/buckets/blog/collections/articles/records/89881454-e4e9-4ef0-99a9-404d95900352 --auth="bob:p4ssw0rd" --verbose
 
     .. sourcecode:: http
 

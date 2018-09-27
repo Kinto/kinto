@@ -27,7 +27,7 @@ On each kind of object the set of permissions can be:
 
 In the case of a creation, since an object can have several kinds of children, the
 permission is prefixed by the type of child (for instance ``group:create``,
-``collection:create``). When a user is allowed to create a child, she is allowed
+``collection:create`` on buckets). When a user is allowed to create a child, she is allowed
 to read the parent attributes as well as listing accessible objects via the
 plural endpoint.
 
@@ -99,7 +99,7 @@ During the authentication phase, a set of :term:`principals` for the current
 authenticated *user* will be bound to to the request.
 
 The main principal is considered the **user ID** and follows this formalism:
-``{type}:{identifier}`` (e.g. for Firefox Account: ``fxa:32aa95a474c984d41d395e2d0b614aa2``).
+``{policy}:{identifier}`` (e.g. with :ref:`internal accounts <api-accounts>`: ``account:alice``).
 When a user is added to :ref:`a group <groups>`, they receive a principal.
 
 There are two special principals:
@@ -119,17 +119,17 @@ definition is ``read: ["system.Everyone"], write: ["/buckets/pictures/groups/fri
 
 .. _api-current-userid:
 
-Get the current user ID
------------------------
+Get the current user ID and principals
+--------------------------------------
 
 The currently authenticated *user ID* can be obtained on the root URL.
 
 .. code-block:: bash
 
-    $ http GET http://localhost:8888/v1/ --auth token:my-secret
+    $ http GET http://localhost:8888/v1/ --auth bob:my-secret
 
 .. code-block:: http
-    :emphasize-lines: 16
+    :emphasize-lines: 15-23
 
     HTTP/1.1 200 OK
     Access-Control-Expose-Headers: Backoff, Retry-After, Alert, Content-Length
@@ -146,13 +146,19 @@ The currently authenticated *user ID* can be obtained on the root URL.
         },
         "url": "http://localhost:8888/v1/",
         "user": {
-            "id": "basicauth:631c2d625ee5726172cf67c6750de10a3e1a04bcd603bc9ad6d6b196fa8257a6"
-        },
+            "bucket": "4399ed6c-802e-3278-5d01-44f261f0bab4",
+            "id": "account:bob",
+            "principals": [
+                "account:bob",
+                "system.Everyone",
+                "system.Authenticated"
+            ]
+        }
         "version": "1.4.0"
     }
 
 
-In this case the user ID is: ``basicauth:631c2d625ee5726172cf67c6750de10a3e1a04bcd603bc9ad6d6b196fa8257a6``
+In this case the user ID is: ``account:bob``
 
 .. note::
 
@@ -212,7 +218,7 @@ Retrieve objects permissions
 
     .. sourcecode:: bash
 
-        $ http GET http://localhost:8888/v1/buckets/default --auth token:bob-token --verbose
+        $ http GET http://localhost:8888/v1/buckets/default --auth bob:p4ssw0rd --verbose
 
     .. sourcecode:: http
 
@@ -245,7 +251,7 @@ Retrieve objects permissions
             },
             "permissions": {
                 "write": [
-                    "basicauth:206691a25679e4e1135f16aa77ebcf211c767393c4306cfffe6cc228ac0886b6"
+                    "account:bob"
                 ]
             }
         }
@@ -278,7 +284,7 @@ itself, using the same :ref:`PATCH <record-patch>` and :ref:`PUT
 
         $ echo '{"permissions": {"read": ["system.Authenticated"]}}' | \
           http PATCH https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks \
-          --auth token:bob-token
+          --auth bob:p4ssw0rd
 
     .. sourcecode:: http
 
@@ -324,7 +330,7 @@ itself, using the same :ref:`PATCH <record-patch>` and :ref:`PUT
                     "system.Authenticated"
                 ],
                 "write": [
-                    "basicauth:206691a25679e4e1135f16aa77ebcf211c767393c4306cfffe6cc228ac0886b6"
+                    "account:bob"
                 ]
             }
         }
@@ -342,7 +348,7 @@ itself, using the same :ref:`PATCH <record-patch>` and :ref:`PUT
 
         $ echo '{"permissions": {"write": ["groups:writers"]}}' | \
           http PUT https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks \
-          --auth token:bob-token
+          --auth bob:p4ssw0rd
 
     .. sourcecode:: http
 
@@ -386,7 +392,7 @@ itself, using the same :ref:`PATCH <record-patch>` and :ref:`PUT
             "permissions": {
                 "write": [
                     "groups:writers",
-                    "basicauth:206691a25679e4e1135f16aa77ebcf211c767393c4306cfffe6cc228ac0886b6"
+                    "account:bob"
                 ]
             }
         }
@@ -408,7 +414,7 @@ List every permissions
 
     .. sourcecode:: bash
 
-        $ http GET https://kinto.dev.mozaws.net/v1/permissions --auth token:bob-token
+        $ http GET https://kinto.dev.mozaws.net/v1/permissions --auth bob:p4ssw0rd
 
     .. sourcecode:: http
 
