@@ -17,12 +17,12 @@ class OpenAPITest(BaseWebTest, unittest.TestCase):
         self.api_doc = self.generator.generate()
 
     def test_assign_base_path(self):
-        self.assertEquals(self.api_doc['basePath'], "/{}".format(self.api_prefix))
+        self.assertEqual(self.api_doc['basePath'], "/{}".format(self.api_prefix))
 
     def test_default_security_generator(self):
-        self.assertEquals(self.api_doc['paths']['/']['get']['security'], [])
-        self.assertEquals(self.api_doc['paths']['/mushrooms']['get']['security'],
-                          [{'basicauth': []}])
+        self.assertEqual(self.api_doc['paths']['/']['get']['security'], [])
+        self.assertEqual(self.api_doc['paths']['/mushrooms']['get']['security'],
+                         [{'basicauth': []}])
 
     def test_security_extensions(self):
         method = {
@@ -35,18 +35,18 @@ class OpenAPITest(BaseWebTest, unittest.TestCase):
         self.generator.expose_authentication_method("fxa", method)
         api_doc = self.generator.generate()
 
-        self.assertEquals(api_doc['securityDefinitions']['fxa'], method)
+        self.assertEqual(api_doc['securityDefinitions']['fxa'], method)
         self.assertCountEqual(api_doc['paths']['/mushrooms']['get']['security'],
                               [{'basicauth': []}, {'fxa': ['kinto']}])
 
     def test_default_tags(self):
-        self.assertEquals(self.api_doc['paths']['/mushrooms']['get']['tags'],
-                          ['Mushrooms'])
-        self.assertEquals(self.api_doc['paths']['/mushrooms/{id}']['get']['tags'],
-                          ['Mushrooms'])
+        self.assertEqual(self.api_doc['paths']['/mushrooms']['get']['tags'],
+                         ['Mushrooms'])
+        self.assertEqual(self.api_doc['paths']['/mushrooms/{id}']['get']['tags'],
+                         ['Mushrooms'])
 
     def test_default_operation_ids(self):
-        self.assertEquals(self.api_doc['paths']['/mushrooms']['get']['operationId'],
-                          'get_mushrooms')
-        self.assertEquals(self.api_doc['paths']['/mushrooms/{id}']['get']['operationId'],
-                          'get_mushroom')
+        self.assertEqual(self.api_doc['paths']['/mushrooms']['get']['operationId'],
+                         'get_mushrooms')
+        self.assertEqual(self.api_doc['paths']['/mushrooms/{id}']['get']['operationId'],
+                         'get_mushroom')

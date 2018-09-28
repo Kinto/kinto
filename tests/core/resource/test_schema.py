@@ -32,7 +32,7 @@ class ResourceSchemaTest(unittest.TestCase):
         schema_instance = PreserveSchema()
         deserialized = schema_instance.deserialize({'foo': 'bar'})
         self.assertIn('foo', deserialized)
-        self.assertEquals(deserialized['foo'], 'bar')
+        self.assertEqual(deserialized['foo'], 'bar')
 
     def test_ignore_unknwon_fields_when_specified(self):
         class PreserveSchema(schema.ResourceSchema):
@@ -117,7 +117,7 @@ class HeaderFieldSchemaTest(unittest.TestCase):
     def test_decode_unicode(self):
         value = '\xe7 is not a c'
         deserialized = self.schema.deserialize(value.encode('utf-8'))
-        self.assertEquals(deserialized, value)
+        self.assertEqual(deserialized, value)
 
     def test_bad_unicode_raises_invalid(self):
         value = b'utf8 \xe9'
@@ -129,7 +129,7 @@ class QueryFieldSchemaTest(unittest.TestCase):
     def test_deserialize_integer_between_quotes(self):
         self.schema = schema.QueryField(colander.Integer())
         deserialized = self.schema.deserialize("123")
-        self.assertEquals(deserialized, 123)
+        self.assertEqual(deserialized, 123)
 
 
 class FieldListSchemaTest(unittest.TestCase):
@@ -140,17 +140,17 @@ class FieldListSchemaTest(unittest.TestCase):
     def test_deserialize_as_list(self):
         value = 'foo,-bar,123'
         deserialized = self.schema.deserialize(value)
-        self.assertEquals(deserialized, ['foo', '-bar', '123'])
+        self.assertEqual(deserialized, ['foo', '-bar', '123'])
 
     def test_handle_drop(self):
         value = colander.null
         deserialized = self.schema.deserialize(value)
-        self.assertEquals(deserialized, colander.drop)
+        self.assertEqual(deserialized, colander.drop)
 
     def test_handle_empty(self):
         value = ''
         deserialized = self.schema.deserialize(value)
-        self.assertEquals(deserialized, [])
+        self.assertEqual(deserialized, [])
 
     def test_raises_invalid_if_not_string(self):
         value = 123
@@ -167,12 +167,12 @@ class HeaderQuotedIntegerSchemaTest(unittest.TestCase):
     def test_deserialize_as_integer(self):
         value = '"123"'
         deserialized = self.schema.deserialize(value)
-        self.assertEquals(deserialized, 123)
+        self.assertEqual(deserialized, 123)
 
     def test_deserialize_any(self):
         value = '*'
         deserialized = self.schema.deserialize(value)
-        self.assertEquals(deserialized, '*')
+        self.assertEqual(deserialized, '*')
 
     def test_unquoted_raises_invalid(self):
         value = '123'
@@ -208,14 +208,14 @@ class RecordSchemaTest(unittest.TestCase):
         bound = self.schema.bind(data=schema.ResourceSchema())
         value = {'data': {'foo': 'bar'}}
         deserialized = bound.deserialize(value)
-        self.assertEquals(deserialized, value)
+        self.assertEqual(deserialized, value)
 
     def test_binds_permissions(self):
         permissions = schema.PermissionsSchema(permissions=('sleep', ))
         bound = self.schema.bind(permissions=permissions)
         value = {'permissions': {'sleep': []}}
         deserialized = bound.deserialize(value)
-        self.assertEquals(deserialized, value)
+        self.assertEqual(deserialized, value)
 
     def test_allow_binding_perms_after_data(self):
         bound = self.schema.bind(data=schema.ResourceSchema())
@@ -223,7 +223,7 @@ class RecordSchemaTest(unittest.TestCase):
         bound = bound.bind(permissions=permissions)
         value = {'data': {'foo': 'bar'}, 'permissions': {'sleep': []}}
         deserialized = bound.deserialize(value)
-        self.assertEquals(deserialized, value)
+        self.assertEqual(deserialized, value)
 
     def test_doesnt_allow_permissions_unless_bound(self):
         bound = self.schema.bind(data=schema.ResourceSchema())
@@ -240,35 +240,35 @@ class RequestSchemaTest(unittest.TestCase):
         header = colander.MappingSchema(missing={'foo': 'bar'})
         bound = self.schema.bind(header=header)
         deserialized = bound.deserialize({})
-        self.assertEquals(deserialized['header'], {'foo': 'bar'})
+        self.assertEqual(deserialized['header'], {'foo': 'bar'})
 
     def test_querystring_supports_binding(self):
         querystring = colander.MappingSchema(missing={'foo': 'bar'})
         bound = self.schema.bind(querystring=querystring)
         deserialized = bound.deserialize({})
-        self.assertEquals(deserialized['querystring'], {'foo': 'bar'})
+        self.assertEqual(deserialized['querystring'], {'foo': 'bar'})
 
     def test_default_header_if_not_bound(self):
         bound = self.schema.bind()
-        self.assertEquals(type(bound['header']), schema.HeaderSchema)
+        self.assertEqual(type(bound['header']), schema.HeaderSchema)
 
     def test_default_querystring_if_not_bound(self):
         bound = self.schema.bind()
-        self.assertEquals(type(bound['querystring']), schema.QuerySchema)
+        self.assertEqual(type(bound['querystring']), schema.QuerySchema)
 
     def test_header_preserve_unknown_fields(self):
         value = {'header': {'foo': 'bar'}}
         deserialized = self.schema.bind().deserialize(value)
-        self.assertEquals(deserialized, value)
+        self.assertEqual(deserialized, value)
 
     def test_querystring_preserve_unknown_fields(self):
         value = {'querystring': {'foo': 'bar'}}
         deserialized = self.schema.bind().deserialize(value)
-        self.assertEquals(deserialized, value)
+        self.assertEqual(deserialized, value)
 
     def test_drops(self):
         deserialized = self.schema.bind().deserialize({})
-        self.assertEquals(deserialized, {})
+        self.assertEqual(deserialized, {})
 
 
 class PayloadRequestSchemaTest(unittest.TestCase):
@@ -280,7 +280,7 @@ class PayloadRequestSchemaTest(unittest.TestCase):
         body = colander.MappingSchema(missing={'foo': 'bar'})
         bound = self.schema.bind(body=body)
         deserialized = bound.deserialize({})
-        self.assertEquals(deserialized['body'], {'foo': 'bar'})
+        self.assertEqual(deserialized['body'], {'foo': 'bar'})
 
     def test_body_supports_binding_after_other_binds(self):
         querystring = colander.MappingSchema(missing={'foo': 'bar'})
@@ -288,8 +288,8 @@ class PayloadRequestSchemaTest(unittest.TestCase):
         body = colander.MappingSchema(missing={'foo': 'beer'})
         bound = bound.bind(body=body)
         deserialized = bound.deserialize({})
-        self.assertEquals(deserialized['querystring'], {'foo': 'bar'})
-        self.assertEquals(deserialized['body'], {'foo': 'beer'})
+        self.assertEqual(deserialized['querystring'], {'foo': 'bar'})
+        self.assertEqual(deserialized['body'], {'foo': 'beer'})
 
 
 class CollectionQuerySchemaTest(unittest.TestCase):
@@ -318,7 +318,7 @@ class CollectionQuerySchemaTest(unittest.TestCase):
     def test_decode_valid_querystring(self):
         self.maxDiff = None
         deserialized = self.schema.deserialize(self.querystring)
-        self.assertEquals(deserialized, {
+        self.assertEqual(deserialized, {
             '_limit': 2,
             '_sort': ['toto', 'tata'],
             '_token': 'abc',
@@ -400,15 +400,14 @@ class ResourceReponsesTest(unittest.TestCase):
         responses = self.handler.get_and_bind('record', 'get',
                                               record=self.record)
         ok_response = responses['200']
-        self.assertEquals(self.record['data'], ok_response['body']['data'])
+        self.assertEqual(self.record['data'], ok_response['body']['data'])
 
     def test_get_and_bind_assign_resource_schema_to_collections(self):
         responses = self.handler.get_and_bind('collection', 'get',
                                               record=self.record)
         ok_response = responses['200']
         # XXX: Data is repeated because it's a colander sequence type index
-        self.assertEquals(self.record['data'],
-                          ok_response['body']['data']['data'])
+        self.assertEqual(self.record['data'], ok_response['body']['data']['data'])
 
     def test_responses_doesnt_have_permissions_if_not_bound(self):
         responses = self.handler.get_and_bind('record', 'get',
@@ -437,5 +436,5 @@ class ShareableResourceReponsesTest(unittest.TestCase):
         responses = self.handler.get_and_bind('record', 'get',
                                               record=self.record)
         ok_response = responses['200']
-        self.assertEquals(self.record['permissions'],
-                          ok_response['body']['permissions'])
+        self.assertEqual(self.record['permissions'],
+                         ok_response['body']['permissions'])

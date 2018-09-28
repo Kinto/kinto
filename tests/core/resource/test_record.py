@@ -238,20 +238,20 @@ class PatchTest(BaseTest):
         self.assertNotEquals(after, before)
 
     def test_patch_record_returns_updated_fields(self):
-        self.assertEquals(self.stored['id'], self.result['id'])
-        self.assertEquals(self.result['position'], 10)
+        self.assertEqual(self.stored['id'], self.result['id'])
+        self.assertEqual(self.result['position'], 10)
 
     def test_record_timestamp_is_not_updated_if_none_for_missing_field(self):
         self.validated['body'] = {'data': {'polo': None}}
         result = self.resource.patch()['data']
-        self.assertEquals(self.result['last_modified'],
-                          result['last_modified'])
+        self.assertEqual(self.result['last_modified'],
+                         result['last_modified'])
 
     def test_record_timestamp_is_not_updated_if_no_field_changed(self):
         self.validated['body'] = {'data': {'position': 10}}
         result = self.resource.patch()['data']
-        self.assertEquals(self.result['last_modified'],
-                          result['last_modified'])
+        self.assertEqual(self.result['last_modified'],
+                         result['last_modified'])
 
     def test_collection_timestamp_is_not_updated_if_no_field_changed(self):
         self.validated['body'] = {'data': {'position': 10}}
@@ -261,15 +261,14 @@ class PatchTest(BaseTest):
         self.resource.request.validated = self.validated
         self.resource.collection_get()['data']
         last_modified = int(self.last_response.headers['ETag'][1:-1])
-        self.assertEquals(self.result['last_modified'], last_modified)
+        self.assertEqual(self.result['last_modified'], last_modified)
 
     def test_timestamp_is_not_updated_if_no_change_after_preprocessed(self):
         with mock.patch.object(self.resource, 'process_record') as mocked:
             mocked.return_value = self.result
             self.validated['body'] = {'data': {'position': 20}}
             result = self.resource.patch()['data']
-            self.assertEquals(self.result['last_modified'],
-                              result['last_modified'])
+            self.assertEqual(self.result['last_modified'], result['last_modified'])
 
     def test_returns_changed_fields_among_provided_if_behaviour_is_diff(self):
         self.validated['body'] = {'data': {'unread': True, 'position': 15}}

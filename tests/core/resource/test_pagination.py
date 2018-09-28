@@ -67,7 +67,7 @@ class PaginationTest(BasePaginationTest):
         self.resource.collection_get()
         headers = self.last_response.headers
         count = headers['Total-Records']
-        self.assertEquals(int(count), 20)
+        self.assertEqual(int(count), 20)
 
     def test_return_next_page_url_is_given_in_headers(self):
         self.validated['querystring'] = {'_limit': 10}
@@ -237,7 +237,7 @@ class PaginatedDeleteTest(BasePaginationTest):
         self.resource.collection_delete()
         headers = self.last_response.headers
         count = headers['Total-Records']
-        self.assertEquals(int(count), 20)
+        self.assertEqual(int(count), 20)
 
     def test_paginated_delete_second_to_last_gets_next_header(self):
         self.resource.collection_get()

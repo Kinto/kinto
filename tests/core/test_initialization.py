@@ -194,7 +194,7 @@ class ApplicationWrapperTest(unittest.TestCase):
         mocked_newrelic.WSGIApplicationWrapper.return_value = 'wrappedApp'
         app = kinto.core.install_middlewares(mock.sentinel.app, settings)
         mocked_newrelic.initialize.assert_called_with('/foo/bar.ini', 'test')
-        self.assertEquals(app, 'wrappedApp')
+        self.assertEqual(app, 'wrappedApp')
 
     @unittest.skipIf(initialization.newrelic is None,
                      "newrelic is not installed.")
@@ -203,14 +203,14 @@ class ApplicationWrapperTest(unittest.TestCase):
         settings = {'newrelic_config': False}
         app = kinto.core.install_middlewares(mock.sentinel.app, settings)
         mocked_newrelic.initialize.assert_not_called()
-        self.assertEquals(app, mock.sentinel.app)
+        self.assertEqual(app, mock.sentinel.app)
 
     @mock.patch('kinto.core.initialization.ProfilerMiddleware')
     def test_profiler_is_not_installed_if_set_to_false(self, mocked_profiler):
         settings = {'profiler_enabled': False}
         app = kinto.core.install_middlewares(mock.sentinel.app, settings)
         mocked_profiler.initialize.assert_not_called()
-        self.assertEquals(app, mock.sentinel.app)
+        self.assertEqual(app, mock.sentinel.app)
 
     @mock.patch('kinto.core.initialization.ProfilerMiddleware')
     def test_profiler_is_installed_if_set_to_true(self, mocked_profiler):
@@ -226,7 +226,7 @@ class ApplicationWrapperTest(unittest.TestCase):
             restrictions='*kinto.core*',
             profile_dir='/tmp/path')
 
-        self.assertEquals(app, 'wrappedApp')
+        self.assertEqual(app, 'wrappedApp')
 
     def test_load_default_settings_handle_prefix_attributes(self):
         config = mock.MagicMock()

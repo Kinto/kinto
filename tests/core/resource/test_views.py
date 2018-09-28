@@ -480,7 +480,7 @@ class InvalidRecordTest(BaseWebTest, unittest.TestCase):
             "]")
         for message in messages:
             self.assertIn(message, resp.json['message'])
-        self.assertEquals(len("".join(messages)), len(resp.json['message']))
+        self.assertEqual(len("".join(messages)), len(resp.json['message']))
 
 
 class IgnoredFieldsTest(BaseWebTest, unittest.TestCase):

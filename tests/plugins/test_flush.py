@@ -93,7 +93,7 @@ class FlushViewTest(BaseWebTest, unittest.TestCase):
 
     def test_flush_returns_json(self):
         response = self.app.post('/__flush__', headers=self.headers, status=202)
-        self.assertEquals(response.json, {})
+        self.assertEqual(response.json, {})
 
     def test_flush_capability_if_enabled(self):
         resp = self.app.get('/')

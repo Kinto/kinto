@@ -57,14 +57,14 @@ class ConfigTest(unittest.TestCase):
     def test_hmac_secret_is_text(self, mocked_render_template):
         config.init('kinto.ini', backend='postgresql', cache_backend='postgresql')
         args, kwargs = list(mocked_render_template.call_args)
-        self.assertEquals(type(kwargs['secret']), str)
+        self.assertEqual(type(kwargs['secret']), str)
 
     @mock.patch('kinto.config.render_template')
     def test_init_postgresql_values(self, mocked_render_template):
         config.init('kinto.ini', backend='postgresql', cache_backend='postgresql')
 
         args, kwargs = list(mocked_render_template.call_args)
-        self.assertEquals(args, ('kinto.tpl', 'kinto.ini'))
+        self.assertEqual(args, ('kinto.tpl', 'kinto.ini'))
 
         postgresql_url = "postgres://postgres:postgres@localhost/postgres"
         self.assertDictEqual(kwargs, {
@@ -85,7 +85,7 @@ class ConfigTest(unittest.TestCase):
         config.init('kinto.ini', backend='postgresql', cache_backend='memcached')
 
         args, kwargs = list(mocked_render_template.call_args)
-        self.assertEquals(args, ('kinto.tpl', 'kinto.ini'))
+        self.assertEqual(args, ('kinto.tpl', 'kinto.ini'))
 
         postgresql_url = "postgres://postgres:postgres@localhost/postgres"
         cache_url = '127.0.0.1:11211 127.0.0.2:11211'
@@ -107,7 +107,7 @@ class ConfigTest(unittest.TestCase):
         config.init('kinto.ini', backend='redis', cache_backend='redis')
 
         args, kwargs = list(mocked_render_template.call_args)
-        self.assertEquals(args, ('kinto.tpl', 'kinto.ini'))
+        self.assertEqual(args, ('kinto.tpl', 'kinto.ini'))
 
         redis_url = "redis://localhost:6379"
         self.maxDiff = None  # See the full diff in case of error
@@ -129,7 +129,7 @@ class ConfigTest(unittest.TestCase):
         config.init('kinto.ini', backend='memory', cache_backend='memory')
 
         args, kwargs = list(mocked_render_template.call_args)
-        self.assertEquals(args, ('kinto.tpl', 'kinto.ini'))
+        self.assertEqual(args, ('kinto.tpl', 'kinto.ini'))
 
         self.assertDictEqual(kwargs, {
             'host': '127.0.0.1',

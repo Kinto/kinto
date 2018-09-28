@@ -3,6 +3,13 @@ Changelog
 
 This document describes changes between each past release.
 
+10.1.2 (2018-09-28)
+-------------------
+
+**Bug fixes**
+
+- Deprecate assertEquals and use assertEqual (fixes #1780)
+
 
 10.1.2 (unreleased)
 -------------------

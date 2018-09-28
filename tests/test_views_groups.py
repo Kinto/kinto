@@ -186,18 +186,18 @@ class GroupManagementTest(BaseWebTest, unittest.TestCase):
         self.app.delete('/buckets/beers/groups', headers=self.headers,
                         status=200)
 
-        self.assertEquals(self.permission.get_user_principals('fxa:me'), set())
-        self.assertEquals(self.permission.get_user_principals('natim'), set())
-        self.assertEquals(self.permission.get_user_principals('alexis'), set())
+        self.assertEqual(self.permission.get_user_principals('fxa:me'), set())
+        self.assertEqual(self.permission.get_user_principals('natim'), set())
+        self.assertEqual(self.permission.get_user_principals('alexis'), set())
 
     def test_group_is_added_to_user_principals_when_added_to_members(self):
         self.create_group('beers', 'moderators', ['natim', 'mat'])
 
         self.app.get('/buckets/beers/groups', headers=self.headers, status=200)
-        self.assertEquals(self.permission.get_user_principals('natim'),
-                          {'/buckets/beers/groups/moderators'})
-        self.assertEquals(self.permission.get_user_principals('mat'),
-                          {'/buckets/beers/groups/moderators'})
+        self.assertEqual(self.permission.get_user_principals('natim'),
+                         {'/buckets/beers/groups/moderators'})
+        self.assertEqual(self.permission.get_user_principals('mat'),
+                         {'/buckets/beers/groups/moderators'})
 
     def test_group_is_added_to_user_principals_on_members_add_with_patch(self):
         self.create_group('beers', 'moderators', ['natim', 'mat'])
@@ -206,12 +206,12 @@ class GroupManagementTest(BaseWebTest, unittest.TestCase):
         self.app.patch_json(group_url, group,
                             headers=self.headers, status=200)
         self.app.get('/buckets/beers/groups', headers=self.headers, status=200)
-        self.assertEquals(self.permission.get_user_principals('natim'),
-                          {group_url})
-        self.assertEquals(self.permission.get_user_principals('mat'),
-                          {group_url})
-        self.assertEquals(self.permission.get_user_principals('alice'),
-                          {group_url})
+        self.assertEqual(self.permission.get_user_principals('natim'),
+                         {group_url})
+        self.assertEqual(self.permission.get_user_principals('mat'),
+                         {group_url})
+        self.assertEqual(self.permission.get_user_principals('alice'),
+                         {group_url})
 
     def test_group_member_removal_updates_user_principals(self):
         self.create_group('beers', 'moderators', ['natim', 'mat'])
@@ -220,25 +220,25 @@ class GroupManagementTest(BaseWebTest, unittest.TestCase):
         self.app.put_json(group_url, group,
                           headers=self.headers, status=200)
         self.app.get('/buckets/beers/groups', headers=self.headers, status=200)
-        self.assertEquals(self.permission.get_user_principals('natim'), set())
-        self.assertEquals(self.permission.get_user_principals('mat'),
-                          {group_url})
+        self.assertEqual(self.permission.get_user_principals('natim'), set())
+        self.assertEqual(self.permission.get_user_principals('mat'),
+                         {group_url})
 
     def test_group_with_authenticated_is_added_to_everbody(self):
         self.create_group('beers', 'reviewers', ['system.Authenticated'])
-        self.assertEquals(self.permission.get_user_principals('natim'),
-                          {'/buckets/beers/groups/reviewers'})
-        self.assertEquals(self.permission.get_user_principals('mat'),
-                          {'/buckets/beers/groups/reviewers'})
+        self.assertEqual(self.permission.get_user_principals('natim'),
+                         {'/buckets/beers/groups/reviewers'})
+        self.assertEqual(self.permission.get_user_principals('mat'),
+                         {'/buckets/beers/groups/reviewers'})
 
     def test_group_member_removal_updates_user_principals_with_patch(self):
         self.create_group('beers', 'moderators', ['natim', 'mat'])
         group_url = '/buckets/beers/groups/moderators'
         group = {'data': {'members': ['mat']}}
         self.app.patch_json(group_url, group, headers=self.headers, status=200)
-        self.assertEquals(self.permission.get_user_principals('natim'), set())
-        self.assertEquals(self.permission.get_user_principals('mat'),
-                          {group_url})
+        self.assertEqual(self.permission.get_user_principals('natim'), set())
+        self.assertEqual(self.permission.get_user_principals('mat'),
+                         {group_url})
 
     def test_groups_can_be_created_after_deletion(self):
         self.create_group('beers', 'moderators')
