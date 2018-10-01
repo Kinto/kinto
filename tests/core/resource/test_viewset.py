@@ -49,8 +49,8 @@ class ViewSetTest(unittest.TestCase):
 
     def test_arguments_are_merged_on_initialization(self):
         viewset = ViewSet(collection_path=mock.sentinel.collection_path)
-        self.assertEquals(viewset.collection_path,
-                          mock.sentinel.collection_path)
+        self.assertEqual(viewset.collection_path,
+                         mock.sentinel.collection_path)
 
     def test_default_arguments_are_copied_before_being_returned(self):
         original_arguments = {}
@@ -58,14 +58,14 @@ class ViewSetTest(unittest.TestCase):
             collection_get_arguments=original_arguments)
         viewset.responses = mock.MagicMock()
         arguments = viewset.collection_arguments(mock.MagicMock(), 'GET')
-        self.assertEquals(original_arguments, {})
+        self.assertEqual(original_arguments, {})
         self.assertNotEquals(original_arguments, arguments)
 
     def test_permission_private_is_set_by_default(self):
         viewset = ViewSet()
         viewset.responses = mock.MagicMock()
         args = viewset.collection_arguments(mock.MagicMock(), 'GET')
-        self.assertEquals(args['permission'], 'private')
+        self.assertEqual(args['permission'], 'private')
 
     def test_schema_is_added_when_method_matches(self):
         viewset = ViewSet()
@@ -247,24 +247,22 @@ class ViewSetTest(unittest.TestCase):
 
     def test_get_service_name_returns_the_viewset_name_if_defined(self):
         viewset = ViewSet(name='fakename')
-        self.assertEquals(
-            viewset.get_service_name('record', mock.MagicMock),
-            'fakename-record')
+        self.assertEqual(viewset.get_service_name('record', mock.MagicMock),
+                         'fakename-record')
 
     def test_get_service_name_returns_resource_att_if_not_callable(self):
         viewset = ViewSet()
         resource = mock.MagicMock()
         resource.name = 'fakename'
-        self.assertEquals(
-            viewset.get_service_name('record', resource),
-            'fakename-record')
+        self.assertEqual(viewset.get_service_name('record', resource),
+                         'fakename-record')
 
     def test_get_service_name_doesnt_use_callable_as_a_name(self):
         viewset = ViewSet()
         resource = mock.MagicMock()
         resource.name = lambda x: 'should not be called'
         resource.__name__ = "FakeName"
-        self.assertEquals(
+        self.assertEqual(
             viewset.get_service_name('record', resource),
             'fakename-record')
 
@@ -391,7 +389,7 @@ class TestViewsetBindedSchemas(unittest.TestCase):
         value = {'querystring': {'_sort': 'foo,-bar'}}
         deserialized = schema.deserialize(value)
         expected = {'querystring': {'_sort': ['foo', '-bar']}}
-        self.assertEquals(deserialized, expected)
+        self.assertEqual(deserialized, expected)
 
     def test_get_collection_deserialize_fields(self):
         arguments = self.viewset.collection_arguments(self.resource, 'GET')
@@ -399,7 +397,7 @@ class TestViewsetBindedSchemas(unittest.TestCase):
         value = {'querystring': {'_fields': 'foo,bar'}}
         deserialized = schema.deserialize(value)
         expected = {'querystring': {'_fields': ['foo', 'bar']}}
-        self.assertEquals(deserialized, expected)
+        self.assertEqual(deserialized, expected)
 
     def test_get_record_deserialize_fields(self):
         arguments = self.viewset.record_arguments(self.resource, 'GET')
@@ -407,7 +405,7 @@ class TestViewsetBindedSchemas(unittest.TestCase):
         value = {'querystring': {'_fields': 'foo,bar'}}
         deserialized = schema.deserialize(value)
         expected = {'querystring': {'_fields': ['foo', 'bar']}}
-        self.assertEquals(deserialized, expected)
+        self.assertEqual(deserialized, expected)
 
     def test_patch_record_validate_response_behavior(self):
         arguments = self.viewset.collection_arguments(self.resource, 'PATCH')
@@ -421,7 +419,7 @@ class TestViewsetSchemasTest(unittest.TestCase):
     def test_partial_schema_ignores_unknown(self):
         schema = PartialSchema()
         result = schema.deserialize({'foo': 'bar'})
-        self.assertEquals(result, {})
+        self.assertEqual(result, {})
 
     def test_strict_schema_raise_on_unknown(self):
         schema = StrictSchema()
@@ -435,7 +433,7 @@ class ShareableViewSetTest(unittest.TestCase):
         viewset.responses = mock.MagicMock()
         resource = mock.MagicMock()
         args = viewset.collection_arguments(resource, 'GET')
-        self.assertEquals(args['permission'], 'dynamic')
+        self.assertEqual(args['permission'], 'dynamic')
 
     def test_get_service_arguments_has_default_factory(self):
         viewset = ShareableViewSet()
@@ -535,7 +533,7 @@ class RegisterTest(unittest.TestCase):
         # Only the collection views should have been added.
         # 3 calls: two registering the service classes,
         # one for the collection_get
-        self.assertEquals(len(service_cls.mock_calls), 3)
+        self.assertEqual(len(service_cls.mock_calls), 3)
         service_cls.assert_any_call('fake-collection', '/fake', depth=1,
                                     **self.viewset.get_service_arguments())
         service_cls().add_view.assert_any_call(
@@ -556,7 +554,7 @@ class RegisterTest(unittest.TestCase):
         # Only the collection views should have been added.
         # 3 calls: two registering the service classes,
         # one for the collection_get
-        self.assertEquals(len(service_class.mock_calls), 3)
+        self.assertEqual(len(service_class.mock_calls), 3)
         service_class.assert_any_call('fake-record', '/fake/{id}', depth=1,
                                       **self.viewset.get_service_arguments())
         service_class().add_view.assert_any_call(

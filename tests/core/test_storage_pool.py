@@ -43,8 +43,8 @@ class QueuePoolWithMaxBacklogTest(unittest.TestCase):
         # The pool allows an overflow of 1, so we can
         # take another, ephemeral connection without any error.
         self.take_connection()
-        self.assertEquals(len(self.connections), 3)
-        self.assertEquals(len(self.errors), 0)
+        self.assertEqual(len(self.connections), 3)
+        self.assertEqual(len(self.errors), 0)
 
     def test_max_backlog_fails_when_reached(self):
         self.exhaust_pool()
@@ -55,14 +55,14 @@ class QueuePoolWithMaxBacklogTest(unittest.TestCase):
         thread1.start()
         thread2 = threading.Thread(target=self.take_connection)
         thread2.start()
-        self.assertEquals(len(self.connections), 3)
-        self.assertEquals(len(self.errors), 0)
+        self.assertEqual(len(self.connections), 3)
+        self.assertEqual(len(self.errors), 0)
         # The pool is now exhausted and at maximum backlog.
         # Trying to take another connection fails immediately.
         t1 = time.time()
         self.take_connection()
         t2 = time.time()
-        self.assertEquals(len(self.connections), 3)
+        self.assertEqual(len(self.connections), 3)
         # This checks that it failed immediately rather than timing out.
         self.assertTrue(t2 - t1 < 1.1)
         self.assertTrue(len(self.errors) >= 1)
@@ -70,8 +70,8 @@ class QueuePoolWithMaxBacklogTest(unittest.TestCase):
         # And eventually, the blocked threads will time out.
         thread1.join()
         thread2.join()
-        self.assertEquals(len(self.connections), 3)
-        self.assertEquals(len(self.errors), 3)
+        self.assertEqual(len(self.connections), 3)
+        self.assertEqual(len(self.errors), 3)
 
     def test_recreates_reinstantiate_with_same_pool_class(self):
         from kinto.core.storage.postgresql.pool import QueuePoolWithMaxBacklog

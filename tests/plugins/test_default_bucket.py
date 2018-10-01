@@ -69,8 +69,8 @@ class DefaultBucketViewTest(FormattedErrorMixin, DefaultBucketWebTest):
 
     def test_unauthenticated_bucket_access_raises_json_401(self):
         resp = self.app.get(self.bucket_url, status=401)
-        self.assertEquals(resp.json['message'],
-                          'Please authenticate yourself to use this endpoint.')
+        self.assertEqual(resp.json['message'],
+                         'Please authenticate yourself to use this endpoint.')
 
     def test_bucket_id_is_an_uuid_with_dashes(self):
         bucket = self.app.get(self.bucket_url, headers=self.headers)
@@ -133,7 +133,7 @@ class DefaultBucketViewTest(FormattedErrorMixin, DefaultBucketWebTest):
             self.bucket_url.replace('default', 'default-1234'),
             headers=self.headers, status=201)
         bucket_id = resp.json['data']['id']
-        self.assertEquals(bucket_id, 'default-1234')
+        self.assertEqual(bucket_id, 'default-1234')
 
         # We can then create the collection
         collection_url = '/buckets/default-1234/collections/default'
@@ -143,7 +143,7 @@ class DefaultBucketViewTest(FormattedErrorMixin, DefaultBucketWebTest):
             status=201)
         resp = self.app.get('/buckets/default-1234/collections',
                             headers=self.headers)
-        self.assertEquals(resp.json['data'][0]['id'], 'default')
+        self.assertEqual(resp.json['data'][0]['id'], 'default')
 
     def test_bucket_id_in_body_can_be_default(self):
         self.app.put_json('/buckets/default',

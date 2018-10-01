@@ -161,15 +161,15 @@ class BaseTestStorage:
     def test_create_works_as_expected(self):
         stored = self.create_record()
         retrieved = self.storage.get(object_id=stored['id'], **self.storage_kw)
-        self.assertEquals(retrieved, stored)
+        self.assertEqual(retrieved, stored)
 
     def test_create_copies_the_record_before_modifying_it(self):
         self.create_record()
-        self.assertEquals(self.record.get('id'), None)
+        self.assertEqual(self.record.get('id'), None)
 
     def test_create_uses_the_resource_id_generator(self):
         record = self.create_record(id_generator=lambda: RECORD_ID)
-        self.assertEquals(record['id'], RECORD_ID)
+        self.assertEqual(record['id'], RECORD_ID)
 
     def test_create_supports_unicode_for_parent_and_id(self):
         unicode_id = 'Rémy'
@@ -214,7 +214,7 @@ class BaseTestStorage:
                                      **self.storage_kw)
         retrieved = self.storage.get(object_id=RECORD_ID,
                                      **self.storage_kw)
-        self.assertEquals(retrieved, record)
+        self.assertEqual(retrieved, record)
 
     def test_update_overwrites_record_id(self):
         stored = self.create_record()
@@ -223,7 +223,7 @@ class BaseTestStorage:
         self.storage.update(object_id=record_id, record=self.record,
                             **self.storage_kw)
         retrieved = self.storage.get(object_id=record_id, **self.storage_kw)
-        self.assertEquals(retrieved[self.id_field], record_id)
+        self.assertEqual(retrieved[self.id_field], record_id)
 
     def test_update_generates_a_new_last_modified_field_if_not_present(self):
         stored = self.create_record()
@@ -266,7 +266,7 @@ class BaseTestStorage:
 
         records, count = self.storage.get_all(
             include_deleted=True, **self.storage_kw)
-        self.assertEquals(records[0][self.modified_field], last_modified)
+        self.assertEqual(records[0][self.modified_field], last_modified)
 
     def test_delete_raise_when_unknown(self):
         self.assertRaises(
@@ -284,8 +284,8 @@ class BaseTestStorage:
 
         records, total_records = self.storage.get_all(parent_id='ab*', collection_id='c',
                                                       include_deleted=True)
-        self.assertEquals(len(records), 2)
-        self.assertEquals(total_records, 1)
+        self.assertEqual(len(records), 2)
+        self.assertEqual(total_records, 1)
 
     def test_get_all_does_proper_parent_id_pattern_matching(self):
         self.create_record(parent_id='abc', collection_id='c')
@@ -294,8 +294,8 @@ class BaseTestStorage:
 
         records, total_records = self.storage.get_all(parent_id='ab*', collection_id='c',
                                                       include_deleted=True)
-        self.assertEquals(len(records), 1)
-        self.assertEquals(len(records), total_records)
+        self.assertEqual(len(records), 1)
+        self.assertEqual(len(records), total_records)
 
     def test_get_all_parent_id_handles_collisions(self):
         abc1 = self.create_record(parent_id='abc1', collection_id='c',
@@ -304,11 +304,11 @@ class BaseTestStorage:
                                   record={'id': 'abc', 'secret_data': 'abc2'})
         records, total_records = self.storage.get_all(parent_id='ab*', collection_id='c',
                                                       include_deleted=True)
-        self.assertEquals(len(records), 2)
-        self.assertEquals(len(records), total_records)
+        self.assertEqual(len(records), 2)
+        self.assertEqual(len(records), total_records)
         records.sort(key=lambda record: record['secret_data'])
-        self.assertEquals(records[0], abc1)
-        self.assertEquals(records[1], abc2)
+        self.assertEqual(records[0], abc1)
+        self.assertEqual(records[1], abc2)
 
     def test_get_all_return_all_values(self):
         for x in range(10):
@@ -317,8 +317,8 @@ class BaseTestStorage:
             self.create_record(record)
 
         records, total_records = self.storage.get_all(**self.storage_kw)
-        self.assertEquals(len(records), 10)
-        self.assertEquals(len(records), total_records)
+        self.assertEqual(len(records), 10)
+        self.assertEqual(len(records), total_records)
 
     def test_get_all_handle_limit(self):
         for x in range(10):
@@ -902,11 +902,11 @@ class TimestampsTest:
 
         # Check that the record was assigned the specified timestamp.
         retrieved = self.storage.get(object_id=RECORD_ID, **self.storage_kw)
-        self.assertEquals(retrieved[self.modified_field], last_modified)
+        self.assertEqual(retrieved[self.modified_field], last_modified)
 
         # Collection timestamp is now the same as its only record.
         collection_ts = self.storage.collection_timestamp(**self.storage_kw)
-        self.assertEquals(collection_ts, last_modified)
+        self.assertEqual(collection_ts, last_modified)
 
     def test_create_ignores_specified_last_modified_if_in_the_past(self):
         # Create a first record, and get the timestamp.
@@ -922,13 +922,12 @@ class TimestampsTest:
         # Check that record timestamp is the one specified.
         retrieved = self.storage.get(object_id=RECORD_ID, **self.storage_kw)
         self.assertLess(retrieved[self.modified_field], timestamp_before)
-        self.assertEquals(retrieved[self.modified_field],
-                          record[self.modified_field])
+        self.assertEqual(retrieved[self.modified_field], record[self.modified_field])
 
         # Check that collection timestamp was not changed. Someone importing
         # records in the past must assume the synchronization consequences.
         timestamp = self.storage.collection_timestamp(**self.storage_kw)
-        self.assertEquals(timestamp, timestamp_before)
+        self.assertEqual(timestamp, timestamp_before)
 
     def test_create_ignores_specified_last_modified_if_equal(self):
         # Create a first record, and get the timestamp.
@@ -970,7 +969,7 @@ class TimestampsTest:
         # Check that collection timestamp took the one specified (in future).
         timestamp = self.storage.collection_timestamp(**self.storage_kw)
         self.assertGreater(timestamp, timestamp_before)
-        self.assertEquals(timestamp, retrieved[self.modified_field])
+        self.assertEqual(timestamp, retrieved[self.modified_field])
 
     def test_update_ignores_specified_last_modified_if_in_the_past(self):
         stored = self.create_record()
@@ -985,13 +984,13 @@ class TimestampsTest:
         # Check that record timestamp is the one specified.
         retrieved = self.storage.get(object_id=record_id, **self.storage_kw)
         self.assertLess(retrieved[self.modified_field], timestamp_before)
-        self.assertEquals(retrieved[self.modified_field],
-                          stored[self.modified_field])
+        self.assertEqual(retrieved[self.modified_field],
+                         stored[self.modified_field])
 
         # Check that collection timestamp was not changed. Someone importing
         # records in the past must assume the synchronization consequences.
         timestamp = self.storage.collection_timestamp(**self.storage_kw)
-        self.assertEquals(timestamp, timestamp_before)
+        self.assertEqual(timestamp, timestamp_before)
 
     def test_update_ignores_specified_last_modified_if_equal(self):
         stored = self.create_record()

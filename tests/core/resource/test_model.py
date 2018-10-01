@@ -79,7 +79,7 @@ class IsolatedModelsTest(BaseTest):
     def test_list_is_filtered_by_user(self):
         resp = self.resource.collection_get()
         records = resp['data']
-        self.assertEquals(len(records), 0)
+        self.assertEqual(len(records), 0)
 
     def test_update_record_of_another_user_will_create_it(self):
         self.resource.request.validated['body'] = {'data': {'some': 'record'}}

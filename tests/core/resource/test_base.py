@@ -13,7 +13,7 @@ class ResourceTest(BaseTest):
     def test_get_parent_id_default_to_prefixed_userid(self):
         request = self.get_request()
         parent_id = self.resource.get_parent_id(request)
-        self.assertEquals(parent_id, 'basicauth:bob')
+        self.assertEqual(parent_id, 'basicauth:bob')
 
     def test_raise_if_backend_fails_to_obtain_timestamp(self):
         request = self.get_request()
@@ -50,7 +50,7 @@ class ShareableResourceTest(BaseTest):
     def test_get_parent_id_is_empty(self):
         request = self.get_request()
         parent_id = self.resource.get_parent_id(request)
-        self.assertEquals(parent_id, '')
+        self.assertEqual(parent_id, '')
 
 
 class NewResource(UserResource):
@@ -65,8 +65,8 @@ class ParentIdOverrideResourceTest(BaseTest):
         request = self.get_request()
 
         parent_id = self.resource.get_parent_id(request)
-        self.assertEquals(parent_id, 'overrided')
-        self.assertEquals(self.resource.model.parent_id, 'overrided')
+        self.assertEqual(parent_id, 'overrided')
+        self.assertEqual(self.resource.model.parent_id, 'overrided')
 
 
 class CustomModelResource(UserResource):
@@ -79,4 +79,4 @@ class CustomModelResource(UserResource):
 class CustomModelResourceTets(unittest.TestCase):
     def test_custom_model_is_not_overriden(self):
         c = CustomModelResource(request=mock.MagicMock())
-        self.assertEquals(c.model.name, mock.sentinel.model)
+        self.assertEqual(c.model.name, mock.sentinel.model)

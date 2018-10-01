@@ -22,7 +22,7 @@ class ErrorViewTest(FormattedErrorMixin, BaseWebTest, unittest.TestCase):
         with mock.patch.dict(self.app.app.registry.settings, [('backoff', 10)]):
             response = self.app.get(self.sample_url, headers=self.headers, status=200)
         self.assertIn('Backoff', response.headers)
-        self.assertEquals(response.headers['Backoff'], '10')
+        self.assertEqual(response.headers['Backoff'], '10')
 
     def test_backoff_headers_is_present_if_less_than_percentage(self):
         with mock.patch.dict(self.app.app.registry.settings, [('backoff', 10),
@@ -30,7 +30,7 @@ class ErrorViewTest(FormattedErrorMixin, BaseWebTest, unittest.TestCase):
             with mock.patch('kinto.core.initialization.random.random', return_value=0.4):
                 response = self.app.get(self.sample_url, headers=self.headers, status=200)
         self.assertIn('Backoff', response.headers)
-        self.assertEquals(response.headers['Backoff'], '10')
+        self.assertEqual(response.headers['Backoff'], '10')
 
     def test_backoff_headers_is_not_present_if_greater_than_percentage(self):
         with mock.patch.dict(self.app.app.registry.settings, [('backoff', 10),

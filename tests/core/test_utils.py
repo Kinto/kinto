@@ -333,7 +333,7 @@ class ParseResourceTest(unittest.TestCase):
         for input in input_arr:
             with pytest.raises(ValueError) as excinfo:
                 parse_resource(input)
-            self.assertEquals(str(excinfo.value), self.error_msg)
+            self.assertEqual(str(excinfo.value), self.error_msg)
 
     def test_malformed_url_raises_an_exception(self):
         input_arr = ['foo', '/', '/bar', 'baz/', '/fo/o', '/buckets/sbid/scid']

@@ -92,7 +92,7 @@ class PermissionTest:
         principal = 'bar'
         self.permission.add_user_principal(user_id, principal)
         retrieved = self.permission.get_user_principals(user_id)
-        self.assertEquals(retrieved, {principal})
+        self.assertEqual(retrieved, {principal})
 
     def test_add_twice_a_principal_to_a_user_add_it_once(self):
         user_id = 'foo'
@@ -100,7 +100,7 @@ class PermissionTest:
         self.permission.add_user_principal(user_id, principal)
         self.permission.add_user_principal(user_id, principal)
         retrieved = self.permission.get_user_principals(user_id)
-        self.assertEquals(retrieved, {principal})
+        self.assertEqual(retrieved, {principal})
 
     def test_can_remove_a_principal_for_an_unknown_user(self):
         self.permission.remove_user_principal('foo', 'bar')
@@ -113,7 +113,7 @@ class PermissionTest:
         self.permission.add_user_principal(user_id, principal2)
         self.permission.remove_user_principal(user_id, principal)
         retrieved = self.permission.get_user_principals(user_id)
-        self.assertEquals(retrieved, {principal2})
+        self.assertEqual(retrieved, {principal2})
 
     def test_can_remove_a_unexisting_principal_to_a_user(self):
         user_id = 'foo'
@@ -123,7 +123,7 @@ class PermissionTest:
         self.permission.remove_user_principal(user_id, principal)
         self.permission.remove_user_principal(user_id, principal2)
         retrieved = self.permission.get_user_principals(user_id)
-        self.assertEquals(retrieved, set())
+        self.assertEqual(retrieved, set())
 
     def test_can_remove_principal_from_every_users(self):
         user_id1 = 'foo1'
@@ -137,16 +137,16 @@ class PermissionTest:
         self.permission.remove_principal('unknown')
 
         retrieved = self.permission.get_user_principals(user_id1)
-        self.assertEquals(retrieved, set())
+        self.assertEqual(retrieved, set())
         retrieved = self.permission.get_user_principals(user_id2)
-        self.assertEquals(retrieved, {principal2})
+        self.assertEqual(retrieved, {principal2})
 
     def test_authenticated_is_returned_for_everybody(self):
         user_id = 'foo'
         principal = 'bar'
         self.permission.add_user_principal('system.Authenticated', principal)
         retrieved = self.permission.get_user_principals(user_id)
-        self.assertEquals(retrieved, {principal})
+        self.assertEqual(retrieved, {principal})
 
     #
     # get_object_permission_principals()
@@ -159,7 +159,7 @@ class PermissionTest:
         self.permission.add_principal_to_ace(object_id, permission, principal)
         retrieved = self.permission.get_object_permission_principals(
             object_id, permission)
-        self.assertEquals(retrieved, {principal})
+        self.assertEqual(retrieved, {principal})
 
     def test_add_twice_a_principal_to_an_object_permission_add_it_once(self):
         object_id = 'foo'
@@ -169,7 +169,7 @@ class PermissionTest:
         self.permission.add_principal_to_ace(object_id, permission, principal)
         retrieved = self.permission.get_object_permission_principals(
             object_id, permission)
-        self.assertEquals(retrieved, {principal})
+        self.assertEqual(retrieved, {principal})
 
     def test_can_remove_a_principal_from_an_object_permission(self):
         object_id = 'foo'
@@ -182,7 +182,7 @@ class PermissionTest:
                                                   principal)
         retrieved = self.permission.get_object_permission_principals(
             object_id, permission)
-        self.assertEquals(retrieved, {principal2})
+        self.assertEqual(retrieved, {principal2})
 
     def test_principals_is_empty_if_no_permission(self):
         object_id = 'foo'
@@ -193,7 +193,7 @@ class PermissionTest:
                                                   principal)
         retrieved = self.permission.get_object_permission_principals(
             object_id, permission)
-        self.assertEquals(retrieved, set())
+        self.assertEqual(retrieved, set())
 
     def test_can_remove_an_unexisting_principal_to_an_object_permission(self):
         object_id = 'foo'
@@ -205,7 +205,7 @@ class PermissionTest:
                                                   principal)
         retrieved = self.permission.get_object_permission_principals(
             object_id, permission)
-        self.assertEquals(retrieved, {principal2})
+        self.assertEqual(retrieved, {principal2})
 
     #
     # check_permission()
@@ -266,11 +266,11 @@ class PermissionTest:
         self.permission.add_principal_to_ace(object_id, 'write', user_id)
         principals = self.permission.get_authorized_principals(
             [(object_id, 'write'), (object_id, 'read')])
-        self.assertEquals(principals, {user_id})
+        self.assertEqual(principals, {user_id})
 
     def test_get_authorized_principals_handles_empty_set(self):
         principals = self.permission.get_authorized_principals([])
-        self.assertEquals(principals, set())
+        self.assertEqual(principals, set())
 
     #
     # get_accessible_objects()
@@ -284,14 +284,14 @@ class PermissionTest:
         self.permission.add_principal_to_ace('id3', 'write', 'user2')
         per_object_ids = self.permission.get_accessible_objects(
             ['user1', 'group'])
-        self.assertEquals(sorted(per_object_ids.keys()), ['id1', 'id2'])
-        self.assertEquals(per_object_ids['id1'],
-                          set(['write', 'record:create']))
-        self.assertEquals(per_object_ids['id2'], set(['read']))
+        self.assertEqual(sorted(per_object_ids.keys()), ['id1', 'id2'])
+        self.assertEqual(per_object_ids['id1'],
+                         set(['write', 'record:create']))
+        self.assertEqual(per_object_ids['id2'], set(['read']))
 
     def test_accessible_objects_supports_empty_list(self):
         per_object_ids = self.permission.get_accessible_objects(['user1', 'group'], [])
-        self.assertEquals(per_object_ids, {})
+        self.assertEqual(per_object_ids, {})
 
     def test_accessible_objects_from_permission(self):
         self.permission.add_principal_to_ace('id1', 'write', 'user1')
@@ -304,7 +304,7 @@ class PermissionTest:
         per_object_ids = self.permission.get_accessible_objects(
             ['user1', 'group'],
             [('*', 'read')])
-        self.assertEquals(sorted(per_object_ids.keys()), ['id1', 'id2'])
+        self.assertEqual(sorted(per_object_ids.keys()), ['id1', 'id2'])
 
     def test_accessible_objects_with_pattern(self):
         self.permission.add_principal_to_ace('/url1/id', 'write', 'user1')
@@ -312,7 +312,7 @@ class PermissionTest:
         per_object_ids = self.permission.get_accessible_objects(
             ['user1'],
             [('*url1*', 'write')])
-        self.assertEquals(sorted(per_object_ids.keys()), ['/url1/id'])
+        self.assertEqual(sorted(per_object_ids.keys()), ['/url1/id'])
 
     def test_accessible_objects_with_pattern_matches_whole_id(self):
         self.permission.add_principal_to_ace('/url1/id', 'write', 'user1')
@@ -322,7 +322,7 @@ class PermissionTest:
             ['user1'],
             [('/url1/*', 'write')],
             with_children=False)
-        self.assertEquals(sorted(per_object_ids.keys()), ['/url1/id'])
+        self.assertEqual(sorted(per_object_ids.keys()), ['/url1/id'])
 
     def test_accessible_objects_several_bound_permissions(self):
         self.permission.add_principal_to_ace('/url/a/id/1', 'write', 'user1')
@@ -332,8 +332,8 @@ class PermissionTest:
             ['user1'],
             [('/url/a/id/*', 'read'),
              ('/url/a/id/*', 'write')])
-        self.assertEquals(sorted(per_object_ids.keys()),
-                          ['/url/a/id/1', '/url/a/id/2'])
+        self.assertEqual(sorted(per_object_ids.keys()),
+                         ['/url/a/id/1', '/url/a/id/2'])
 
     def test_accessible_objects_without_match(self):
         self.permission.add_principal_to_ace('/url/a', 'write', 'user1')
@@ -347,8 +347,8 @@ class PermissionTest:
              ('/url/a', 'read'),
              ('/url/a/id/*', 'write'),
              ('/url/a/id/*', 'read')])
-        self.assertEquals(sorted(per_object_ids.keys()),
-                          ['/url/a', '/url/a/id/1', '/url/a/id/2'])
+        self.assertEqual(sorted(per_object_ids.keys()),
+                         ['/url/a', '/url/a/id/1', '/url/a/id/2'])
 
     #
     # get_object_permissions()

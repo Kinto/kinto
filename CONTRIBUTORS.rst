@@ -5,6 +5,7 @@ Contributors
 * Adam Chainz <adam@adamj.eu>
 * Aditya Bhasin <conlini@gmail.com>
 * Aiman Parvaiz <aimanparvaiz@gmail.com>
+* Ajey B. Kulkarni <bkajey@gmail.com>
 * Anh <anh.trinhtrung@gmail.com>
 * Alexander Ryabkov <alexryabkov@gmail.com>
 * Alexis Metaireau <alexis@mozilla.com>

@@ -62,11 +62,11 @@ class FunctionalTest(unittest.TestCase):
         # 201 created with data and permission.write
         resp = self.session.post(collection_url, json={"data": task})
         resp.raise_for_status()
-        self.assertEquals(resp.status_code, 201)
+        self.assertEqual(resp.status_code, 201)
         record = resp.json()
 
-        self.assertEquals(record['data']['description'], task['description'])
-        self.assertEquals(record['data']['status'], task['status'])
+        self.assertEqual(record['data']['description'], task['description'])
+        self.assertEqual(record['data']['status'], task['status'])
         self.assertIn('write', record['permissions'])
 
         # Create a new one with PUT and If-None-Match: "*"
@@ -78,11 +78,11 @@ class FunctionalTest(unittest.TestCase):
                                 headers={'If-None-Match': '*'})
         resp.raise_for_status()
         resp.raise_for_status()
-        self.assertEquals(resp.status_code, 201)
+        self.assertEqual(resp.status_code, 201)
         record = resp.json()
 
-        self.assertEquals(record['data']['description'], task['description'])
-        self.assertEquals(record['data']['status'], task['status'])
+        self.assertEqual(record['data']['description'], task['description'])
+        self.assertEqual(record['data']['status'], task['status'])
         self.assertIn('write', record['permissions'])
 
         # Fetch the collection list and see the tasks (save the etag)

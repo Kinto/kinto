@@ -89,7 +89,7 @@ class CacheTest:
         stored = 'toto'
         self.cache.set('foobar', stored, 42)
         retrieved = self.cache.get('foobar')
-        self.assertEquals(retrieved, stored)
+        self.assertEqual(retrieved, stored)
 
     def test_values_remains_python_dict(self):
         def setget(k, v):

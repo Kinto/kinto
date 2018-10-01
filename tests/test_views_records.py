@@ -82,7 +82,7 @@ class RecordsViewTest(BaseWebTest, unittest.TestCase):
         record = response.json['data']
         del record['id']
         del record['last_modified']
-        self.assertEquals(record, MINIMALIST_RECORD['data'])
+        self.assertEqual(record, MINIMALIST_RECORD['data'])
 
     def test_records_are_isolated_by_bucket_and_by_collection(self):
         # By collection.
@@ -314,8 +314,8 @@ class RecordsViewMergeTest(BaseWebTest, unittest.TestCase):
                                    json,
                                    headers=headers,
                                    status=200)
-        self.assertEquals(resp.json['data']['grain']['one'], 1)
-        self.assertEquals(resp.json['data']['grain']['two'], 2)
+        self.assertEqual(resp.json['data']['grain']['one'], 1)
+        self.assertEqual(resp.json['data']['grain']['two'], 2)
 
     def test_merge_patch_remove_nones(self):
         headers = {**self.headers, 'Content-Type': 'application/merge-patch+json'}
@@ -428,7 +428,7 @@ class RecordsViewPatchTest(BaseWebTest, unittest.TestCase):
         perms = resp.json['permissions']
         data = resp.json['data']
         self.assertNotIn('alice', perms['read'])
-        self.assertEquals('alice', data['old'])
+        self.assertEqual('alice', data['old'])
 
     def test_patch_raises_400_on_wrong_path(self):
         json = [{'op': 'add', 'path': '/permissions/destroy/me'}]

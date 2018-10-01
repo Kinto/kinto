@@ -34,7 +34,7 @@ class RouteFactoryTest(unittest.TestCase):
             request.upath_info = uri
             context = RouteFactory(request)
 
-            self.assertEquals(context.required_permission, permission)
+            self.assertEqual(context.required_permission, permission)
 
     def test_http_unknown_does_not_raise_a_500(self):
         self.assert_request_resolves_to("unknown", None)
@@ -63,7 +63,7 @@ class RouteFactoryTest(unittest.TestCase):
             request.matchdict = {'bucket_id': 'abc'}
             context = RouteFactory(request)
 
-            self.assertEquals(context.required_permission, 'create')
+            self.assertEqual(context.required_permission, 'create')
 
     def test_http_put_existing_record_resolves_in_a_write_permission(self):
         self.assert_request_resolves_to("put", "write")
@@ -78,7 +78,7 @@ class RouteFactoryTest(unittest.TestCase):
             # Do the actual call.
             request = DummyRequest(method='put')
             context = RouteFactory(request)
-            self.assertEquals(context.current_record, mock.sentinel.record)
+            self.assertEqual(context.current_record, mock.sentinel.record)
 
     def test_http_patch_resolves_in_a_write_permission(self):
         self.assert_request_resolves_to("patch", "write")
@@ -152,7 +152,7 @@ class RouteFactoryTest(unittest.TestCase):
             '/obj/3': ['obj:create']
         }
         context.fetch_shared_records('read', ['userid'], None)
-        self.assertEquals(sorted(context.shared_ids), ['1', '3'])
+        self.assertEqual(sorted(context.shared_ids), ['1', '3'])
 
     def test_fetch_shared_records_sets_shared_ids_if_empty(self):
         request = DummyRequest()
@@ -302,12 +302,12 @@ class GuestAuthorizationPolicyTest(unittest.TestCase):
         self.request.path = '/comments'
         self.context.resource_name = 'comment'
         obj_id = self.context.get_permission_object_id(self.request, '*')
-        self.assertEquals(obj_id, '/comments/sub/*')
+        self.assertEqual(obj_id, '/comments/sub/*')
 
         self.request.path = '/articles'
         self.context.resource_name = 'article'
         obj_id = self.context.get_permission_object_id(self.request, '*')
-        self.assertEquals(obj_id, '/articles/*')
+        self.assertEqual(obj_id, '/articles/*')
 
 
 class GroupFinderTest(unittest.TestCase):
