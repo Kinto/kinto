@@ -111,7 +111,7 @@ batch = Service(name='batch', path='/batch',
                 description='Batch operations')
 
 
-@batch.post(schema=BatchRequest,
+@batch.post(schema=BatchRequest(),
             validators=(colander_validator,),
             content_type=CONTENT_TYPES,
             permission=NO_PERMISSION_REQUIRED,

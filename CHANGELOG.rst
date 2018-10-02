@@ -3,6 +3,12 @@ Changelog
 
 This document describes changes between each past release.
 
+10.1.2 (2018-10-02)
+------------------
+**Bug fixes**
+- Set schema to an instance instead of class (fixes #1781)
+
+
 10.1.2 (2018-09-28)
 -------------------
 
