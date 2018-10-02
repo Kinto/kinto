@@ -1022,6 +1022,9 @@ class UserResource:
                 if has_invalid_value:
                     raise_invalid(self.request, **error_details)
 
+            if '\x00' in field:
+                raise_invalid(self.request, **error_details)
+
             if field == self.model.modified_field and value == '':
                 raise_invalid(self.request, **error_details)
 
