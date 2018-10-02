@@ -201,7 +201,14 @@ class ErrorPostgresViewTest(FormattedErrorMixin, PostgreSQLTest, unittest.TestCa
     sample_url = "/mushrooms"
 
     def test_400_with_invalid_query_field(self):
+        # test null in field name
         response = self.app.get(self.sample_url + '?field\x00="2"',
+                                headers=self.headers, status=400)
+        self.assertFormattedError(response, 400, ERRORS.INVALID_PARAMETERS,
+                                  "Invalid parameters", "Invalid value for")
+
+        # test null in value
+        response = self.app.get(self.sample_url + '?field="\x00"',
                                 headers=self.headers, status=400)
         self.assertFormattedError(response, 400, ERRORS.INVALID_PARAMETERS,
                                   "Invalid parameters", "Invalid value for")

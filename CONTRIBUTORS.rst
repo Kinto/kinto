@@ -60,6 +60,7 @@ Contributors
 * Niraj <https://github.com/niraj8>
 * Oron Gola <oron.golar@gmail.com>
 * Palash Nigam <npalash25@gmail.com>
+* Pascal Roessner <roessner.pascal@gmail.com>
 * PeriGK <per.gkolias@gmail.com>
 * Peter Bengtsson <mail@peterbe.com>
 * realsumit <sumitsarinofficial@gmail.com>

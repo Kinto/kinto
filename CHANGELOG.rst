@@ -9,14 +9,8 @@ This document describes changes between each past release.
 **Bug fixes**
 
 - Set schema to an instance instead of class (fixes #1781)
-
-
-10.1.2 (2018-09-28)
--------------------
-
-**Bug fixes**
-
 - Deprecate assertEquals and use assertEqual (fixes #1780)
+- Fix for invalid filter parameters (see #1787)
 
 
 10.1.2 (unreleased)
