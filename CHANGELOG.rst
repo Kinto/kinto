@@ -3,20 +3,28 @@ Changelog
 
 This document describes changes between each past release.
 
-10.1.2 (2018-10-02)
+10.2.0 (unreleased)
+-------------------
+
+**Breaking changes**
+
+- The ``basicauth`` policy is not used by default anymore
+
+**Internal changes**
+
+- Deprecate assertEquals and use assertEqual (fixes #1780)
+- Set schema to an instance instead of class (fixes #1781)
+
+10.1.2 (2018-10-03)
 -------------------
 
 **Bug fixes**
 
-- Set schema to an instance instead of class (fixes #1781)
-- Deprecate assertEquals and use assertEqual (fixes #1780)
-- Fix for invalid filter parameters (see #1787)
+- Fix OpenID login in Kinto-Admin (Kinto/kinto-admin#641)
 
+**Internal changes**
 
-10.1.2 (unreleased)
--------------------
-
-- Nothing changed yet.
+- Upgrade kinto-admin to v1.20.2
 
 
 10.1.1 (2018-09-20)
@@ -52,11 +60,6 @@ This document describes changes between each past release.
 
 - ``kinto.core.events.get_resource_events`` now returns a generator
   rather than a list.
-
-
-**Breaking changes**
-
-- The ``basicauth`` policy is not used by default anymore
 
 **New features**
 

@@ -116,6 +116,18 @@ class ErrorViewTest(FormattedErrorMixin, BaseWebTest, unittest.TestCase):
         self.assertFormattedError(response, 400, ERRORS.INVALID_PARAMETERS, "Bad Request",
                                   "Invalid URL path.")
 
+    def test_400_when_query_field_contains_nul_character(self):
+        response = self.app.get(self.sample_url + '?field\x00="2"',
+                                headers=self.headers, status=400)
+        self.assertFormattedError(response, 400, ERRORS.INVALID_PARAMETERS,
+                                  "Invalid parameters", "Invalid value for")
+
+    def test_400_when_query_value_contains_nul_character(self):
+        response = self.app.get(self.sample_url + '?field="\x00"',
+                                headers=self.headers, status=400)
+        self.assertFormattedError(response, 400, ERRORS.INVALID_PARAMETERS,
+                                  "Invalid parameters", "Invalid value for")
+
     def test_info_link_in_error_responses_can_be_configured(self):
         with mock.patch('tests.core.testapp.views.Mushroom._extract_filters',
                         side_effect=ValueError):
@@ -195,23 +207,6 @@ class ErrorViewTest(FormattedErrorMixin, BaseWebTest, unittest.TestCase):
                 self.app.get(self.sample_url, headers=self.headers, status=500)
         self.assertTrue(mocked_logger.error.called)
         self.assertEqual(mocked_logger.error.call_args[1]['exc_info'], custom_error)
-
-
-class ErrorPostgresViewTest(FormattedErrorMixin, PostgreSQLTest, unittest.TestCase):
-    sample_url = "/mushrooms"
-
-    def test_400_with_invalid_query_field(self):
-        # test null in field name
-        response = self.app.get(self.sample_url + '?field\x00="2"',
-                                headers=self.headers, status=400)
-        self.assertFormattedError(response, 400, ERRORS.INVALID_PARAMETERS,
-                                  "Invalid parameters", "Invalid value for")
-
-        # test null in value
-        response = self.app.get(self.sample_url + '?field="\x00"',
-                                headers=self.headers, status=400)
-        self.assertFormattedError(response, 400, ERRORS.INVALID_PARAMETERS,
-                                  "Invalid parameters", "Invalid value for")
 
 
 class RedirectViewTest(FormattedErrorMixin, BaseWebTest, unittest.TestCase):
