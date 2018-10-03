@@ -3,6 +3,17 @@ Changelog
 
 This document describes changes between each past release.
 
+10.1.2 (unreleased)
+-------------------
+
+**Bug fixes**
+
+- Fix OpenID login in Kinto-Admin (Kinto/kinto-admin#641)
+
+**Internal changes**
+
+- Upgrade kinto-admin to v1.20.2
+
 
 10.1.1 (2018-09-20)
 -------------------
