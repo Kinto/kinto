@@ -7,7 +7,7 @@ from kinto.core.errors import ERRORS, http_error
 from kinto.core.testing import FormattedErrorMixin
 from kinto.core.storage import exceptions as storage_exceptions
 
-from .support import BaseWebTest, authorize, PostgreSQLTest
+from .support import BaseWebTest, authorize
 
 
 class ErrorViewTest(FormattedErrorMixin, BaseWebTest, unittest.TestCase):
