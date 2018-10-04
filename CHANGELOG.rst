@@ -10,6 +10,10 @@ This document describes changes between each past release.
 
 - The ``basicauth`` policy is not used by default anymore
 
+**Bug fixes**
+
+- Fix crash when querystring filter contains NUL (0x00) character (fixes #1704)
+
 **Internal changes**
 
 - Deprecate assertEquals and use assertEqual (fixes #1780)
