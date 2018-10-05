@@ -18,6 +18,7 @@ This document describes changes between each past release.
 
 - Deprecate assertEquals and use assertEqual (fixes #1780)
 - Set schema to an instance instead of class (fixes #1781)
+- Upgrade kinto-admin to v1.21.0
 
 
 10.1.2 (2018-10-03)
