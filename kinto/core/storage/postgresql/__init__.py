@@ -12,6 +12,10 @@ from kinto.core.storage.postgresql.migrator import MigratorMixin
 from kinto.core.utils import COMPARISON
 
 
+from kinto.core.storage import Filter, Sort
+from kinto.core.storage.postgresql.client import PostgreSQLClient
+from pyramid.config import Configurator
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 logger = logging.getLogger(__name__)
 HERE = os.path.dirname(__file__)
 
@@ -77,23 +81,23 @@ class Storage(StorageBase, MigratorMixin):
     schema_file = os.path.join(HERE, 'schema.sql')
     migrations_directory = os.path.join(HERE, 'migrations')
 
-    def __init__(self, client, max_fetch_size, *args, readonly=False, **kwargs):
+    def __init__(self, client: PostgreSQLClient, max_fetch_size: int, *args, readonly: bool = False, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.client = client
         self._max_fetch_size = max_fetch_size
         self.readonly = readonly
 
-    def create_schema(self, dry_run=False):
+    def create_schema(self, dry_run: bool = False) -> None:
         """Override create_schema to ensure DB encoding and TZ are OK.
         """
         self._check_database_encoding()
         self._check_database_timezone()
         return super().create_schema(dry_run)
 
-    def initialize_schema(self, dry_run=False):
+    def initialize_schema(self, dry_run: bool = False) -> None:
         return self.create_or_migrate_schema(dry_run)
 
-    def _check_database_timezone(self):
+    def _check_database_timezone(self) -> None:
         # Make sure database has UTC timezone.
         query = "SELECT current_setting('TIMEZONE') AS timezone;"
         with self.client.connect() as conn:
@@ -105,7 +109,7 @@ class Storage(StorageBase, MigratorMixin):
             warnings.warn(msg)
             logger.warning(msg)
 
-    def _check_database_encoding(self):
+    def _check_database_encoding(self) -> None:
         # Make sure database is UTF-8.
         query = """
         SELECT pg_encoding_to_char(encoding) AS encoding
@@ -119,7 +123,7 @@ class Storage(StorageBase, MigratorMixin):
         if encoding != 'utf8':  # pragma: no cover
             raise AssertionError('Unexpected database encoding {}'.format(encoding))
 
-    def get_installed_version(self):
+    def get_installed_version(self) -> int:
         """Return current version of schema or None if not any found.
         """
         # Check for records table, which definitely indicates a new
@@ -173,7 +177,7 @@ class Storage(StorageBase, MigratorMixin):
             MAX_FLUSHABLE_SCHEMA_VERSION = 20
             return MAX_FLUSHABLE_SCHEMA_VERSION
 
-    def flush(self, auth=None):
+    def flush(self, auth: Optional[str] = None) -> None:
         """Delete records from tables without destroying schema.
 
         This is used in test suites as well as in the flush plugin.
@@ -186,7 +190,7 @@ class Storage(StorageBase, MigratorMixin):
             conn.execute(query)
         logger.debug('Flushed PostgreSQL storage tables')
 
-    def collection_timestamp(self, collection_id, parent_id, auth=None):
+    def collection_timestamp(self, collection_id: str, parent_id: str, auth: Optional[str] = None) -> int:
         query_existing = """
         WITH existing_timestamps AS (
           -- Timestamp of latest record.
@@ -239,10 +243,10 @@ class Storage(StorageBase, MigratorMixin):
 
         return record['last_epoch']
 
-    def create(self, collection_id, parent_id, record, id_generator=None,
-               id_field=DEFAULT_ID_FIELD,
-               modified_field=DEFAULT_MODIFIED_FIELD,
-               auth=None):
+    def create(self, collection_id: str, parent_id: str, record: Dict[str, Any], id_generator: Optional[Callable] = None,
+               id_field: str = DEFAULT_ID_FIELD,
+               modified_field: str = DEFAULT_MODIFIED_FIELD,
+               auth: Optional[str] = None) -> Dict[str, Any]:
         id_generator = id_generator or self.id_generator
         record = {**record}
         if id_field in record:
@@ -314,10 +318,10 @@ class Storage(StorageBase, MigratorMixin):
         record[modified_field] = inserted['last_modified']
         return record
 
-    def get(self, collection_id, parent_id, object_id,
-            id_field=DEFAULT_ID_FIELD,
-            modified_field=DEFAULT_MODIFIED_FIELD,
-            auth=None):
+    def get(self, collection_id: str, parent_id: str, object_id: str,
+            id_field: str = DEFAULT_ID_FIELD,
+            modified_field: str = DEFAULT_MODIFIED_FIELD,
+            auth: Optional[str] = None) -> Dict[str, Union[List[str], str, int]]:
         query = """
         SELECT as_epoch(last_modified) AS last_modified, data
           FROM records
@@ -341,10 +345,10 @@ class Storage(StorageBase, MigratorMixin):
         record[modified_field] = existing['last_modified']
         return record
 
-    def update(self, collection_id, parent_id, object_id, record,
-               id_field=DEFAULT_ID_FIELD,
-               modified_field=DEFAULT_MODIFIED_FIELD,
-               auth=None):
+    def update(self, collection_id: str, parent_id: str, object_id: str, record: Dict[str, Union[str, List[str], int, bytes]],
+               id_field: str = DEFAULT_ID_FIELD,
+               modified_field: str = DEFAULT_MODIFIED_FIELD,
+               auth: Optional[str] = None) -> Dict[str, Union[List[str], str, int]]:
 
         # Remove redundancy in data field
         query_record = {**record}
@@ -378,11 +382,11 @@ class Storage(StorageBase, MigratorMixin):
         record[modified_field] = updated['last_modified']
         return record
 
-    def delete(self, collection_id, parent_id, object_id,
-               id_field=DEFAULT_ID_FIELD, with_deleted=True,
-               modified_field=DEFAULT_MODIFIED_FIELD,
-               deleted_field=DEFAULT_DELETED_FIELD,
-               auth=None, last_modified=None):
+    def delete(self, collection_id: str, parent_id: str, object_id: str,
+               id_field: str = DEFAULT_ID_FIELD, with_deleted: bool = True,
+               modified_field: str = DEFAULT_MODIFIED_FIELD,
+               deleted_field: str = DEFAULT_DELETED_FIELD,
+               auth: Optional[str] = None, last_modified: Optional[int] = None) -> Dict[str, Union[int, str]]:
         if with_deleted:
             query = """
             UPDATE records
@@ -424,12 +428,12 @@ class Storage(StorageBase, MigratorMixin):
         record[deleted_field] = True
         return record
 
-    def delete_all(self, collection_id, parent_id, filters=None,
-                   sorting=None, pagination_rules=None, limit=None,
-                   id_field=DEFAULT_ID_FIELD, with_deleted=True,
-                   modified_field=DEFAULT_MODIFIED_FIELD,
-                   deleted_field=DEFAULT_DELETED_FIELD,
-                   auth=None):
+    def delete_all(self, collection_id: Optional[str], parent_id: str, filters: Optional[List[Filter]] = None,
+                   sorting: Optional[List[Sort]] = None, pagination_rules: Optional[List[List[Filter]]] = None, limit: Optional[int] = None,
+                   id_field: str = DEFAULT_ID_FIELD, with_deleted: bool = True,
+                   modified_field: str = DEFAULT_MODIFIED_FIELD,
+                   deleted_field: str = DEFAULT_DELETED_FIELD,
+                   auth: Optional[str] = None) -> List[Dict[str, Union[int, str]]]:
         if with_deleted:
             query = """
             WITH matching_records AS (
@@ -532,10 +536,10 @@ class Storage(StorageBase, MigratorMixin):
 
         return records
 
-    def purge_deleted(self, collection_id, parent_id, before=None,
-                      id_field=DEFAULT_ID_FIELD,
-                      modified_field=DEFAULT_MODIFIED_FIELD,
-                      auth=None):
+    def purge_deleted(self, collection_id: Optional[str], parent_id: str, before: Optional[int] = None,
+                      id_field: str = DEFAULT_ID_FIELD,
+                      modified_field: str = DEFAULT_MODIFIED_FIELD,
+                      auth: Optional[str] = None) -> int:
         delete_tombstones = """
         DELETE
         FROM records
@@ -581,12 +585,12 @@ class Storage(StorageBase, MigratorMixin):
 
         return deleted
 
-    def get_all(self, collection_id, parent_id, filters=None, sorting=None,
-                pagination_rules=None, limit=None, include_deleted=False,
-                id_field=DEFAULT_ID_FIELD,
-                modified_field=DEFAULT_MODIFIED_FIELD,
-                deleted_field=DEFAULT_DELETED_FIELD,
-                auth=None):
+    def get_all(self, collection_id: str, parent_id: str, filters: Optional[List[Filter]] = None, sorting: Optional[List[Sort]] = None,
+                pagination_rules: Optional[List[List[Filter]]] = None, limit: Optional[int] = None, include_deleted: bool = False,
+                id_field: str = DEFAULT_ID_FIELD,
+                modified_field: str = DEFAULT_MODIFIED_FIELD,
+                deleted_field: str = DEFAULT_DELETED_FIELD,
+                auth: Optional[str] = None) -> Any:
         query = """
         WITH collection_filtered AS (
             SELECT id, last_modified, data, deleted
@@ -668,8 +672,8 @@ class Storage(StorageBase, MigratorMixin):
 
         return records, count_total
 
-    def _format_conditions(self, filters, id_field, modified_field,
-                           prefix='filters'):
+    def _format_conditions(self, filters: List[Filter], id_field: str, modified_field: str,
+                           prefix: str = 'filters') -> Any:
         """Format the filters list in SQL, with placeholders for safe escaping.
 
         .. note::
@@ -845,7 +849,7 @@ class Storage(StorageBase, MigratorMixin):
         safe_sql = ' AND '.join(conditions)
         return safe_sql, holders
 
-    def _format_pagination(self, pagination_rules, id_field, modified_field):
+    def _format_pagination(self, pagination_rules: List[List[Filter]], id_field: str, modified_field: str) -> Union[Tuple[str, Dict[str, Union[int, str]]], Tuple[str, Dict[str, int]], Tuple[str, Dict[str, str]]]:
         """Format the pagination rules in SQL, with placeholders for
         safe escaping.
 
@@ -876,7 +880,7 @@ class Storage(StorageBase, MigratorMixin):
         safe_sql = ' OR '.join(['({})'.format(r) for r in rules])
         return safe_sql, placeholders
 
-    def _format_sorting(self, sorting, id_field, modified_field):
+    def _format_sorting(self, sorting: List[Sort], id_field: str, modified_field: str) -> Union[Tuple[str, Dict[str, str]], Tuple[str, Dict[Any, Any]]]:
         """Format the sorting in SQL, with placeholders for safe escaping.
 
         .. note::
@@ -913,7 +917,7 @@ class Storage(StorageBase, MigratorMixin):
         return safe_sql, holders
 
 
-def load_from_config(config):
+def load_from_config(config: Configurator) -> Storage:
     settings = config.get_settings()
     max_fetch_size = int(settings['storage_max_fetch_size'])
     strict = settings.get('storage_strict_json', False)
