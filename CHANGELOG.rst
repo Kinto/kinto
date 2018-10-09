@@ -3,22 +3,51 @@ Changelog
 
 This document describes changes between each past release.
 
-10.2.0 (unreleased)
+11.0.0 (2018-10-09)
 -------------------
 
 **Breaking changes**
 
-- The ``basicauth`` policy is not used by default anymore
+- The ``basicauth`` policy is not used by default anymore (#1736)
+
+If your application relies on this specific behaviour, you now have to add explicitly settings:
+
+.. code-block:: ini
+
+    multiauth.policies = basicauth
+    multiauth.policy.basicauth.use = kinto.core.authentication.BasicAuthAuthenticationPolicy
+
+But **it is recommended** to use other authentication policies like the *OpenID Connect* or the *accounts* plugin instead.
+
+.. code-block:: ini
+
+    # Enable plugin.
+    kinto.includes = kinto.plugins.accounts
+
+    # Enable authenticated policy.
+    multiauth.policies = account
+    multiauth.policy.account.use = kinto.plugins.accounts.AccountsPolicy
+
+    # Allow anyone to create their own account.
+    kinto.account_create_principals = system.Everyone
+
+You will find more details the `authentication settings section of the documentation <https://kinto.readthedocs.io/en/stable/configuration/settings.html#authentication>`_
 
 **Bug fixes**
 
 - Fix crash when querystring filter contains NUL (0x00) character (fixes #1704)
+- Many bugs were fixed in the Kinto Admin UI (see `v1.21.0 <https://github.com/Kinto/kinto-admin/releases/tag/v1.21.0>`_)
+
+**Documentation**
+
+- Huge refactor of documentation about authentication (#1736)
 
 **Internal changes**
 
+- Upgrade kinto-admin to v1.21.0
 - Deprecate assertEquals and use assertEqual (fixes #1780)
 - Set schema to an instance instead of class (fixes #1781)
-- Upgrade kinto-admin to v1.21.0
+- Fix DeprecationWarning for unrecognized backslash escapes (#1758)
 
 
 10.1.2 (2018-10-03)
