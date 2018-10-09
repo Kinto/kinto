@@ -15,7 +15,6 @@ If your application relies on this specific behaviour, you now have to add expli
 .. code-block:: ini
 
     multiauth.policies = basicauth
-    multiauth.policy.basicauth.use = kinto.core.authentication.BasicAuthAuthenticationPolicy
 
 But **it is recommended** to use other authentication policies like the *OpenID Connect* or the *accounts* plugin instead.
 
