@@ -119,7 +119,7 @@ class AccountCreationTest(AccountsWebTest):
             resp = self.app.get('/', headers=get_user_headers('me', 'bouh'))
             assert resp.json['user']['id'] == 'account:me'
 
-            mocked_bcrypt.checkpw.assert_called_once()
+            assert mocked_bcrypt.checkpw.call_count == 1
 
     def test_authentication_checks_bcrypt_again_if_password_changes(self):
         self.app.post_json('/accounts', {'data': {'id': 'me', 'password': 'bouh'}},
@@ -450,7 +450,7 @@ class CreateUserTest(unittest.TestCase):
             with mock.patch('kinto.plugins.accounts.scripts.getpass.getpass', side_effect=[
                     "password", "p4ssw0rd", "password", "password"]):
                 code = scripts.create_user({'registry': self.registry}, None, None)
-                self.registry.storage.update.assert_called_once()
+                assert self.registry.storage.update.call_count == 1
                 self.registry.permission.add_principal_to_ace.assert_called_with(
                     "/accounts/username", "write", "account:username")
                 assert code == 0
@@ -460,14 +460,14 @@ class CreateUserTest(unittest.TestCase):
             with mock.patch('kinto.plugins.accounts.scripts.getpass.getpass',
                             return_value="password"):
                 code = scripts.create_user({'registry': self.registry})
-                self.registry.storage.update.assert_called_once()
+                assert self.registry.storage.update.call_count == 1
                 self.registry.permission.add_principal_to_ace.assert_called_with(
                     "/accounts/username", "write", "account:username")
                 assert code == 0
 
     def test_create_user_with_valid_username_and_password_parameters(self):
         code = scripts.create_user({'registry': self.registry}, "username", "password")
-        self.registry.storage.update.assert_called_once()
+        assert self.registry.storage.update.call_count == 1
         self.registry.permission.add_principal_to_ace.assert_called_with(
             "/accounts/username", "write", "account:username")
         assert code == 0
