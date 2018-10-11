@@ -1,8 +1,8 @@
-import mock
 import time
 import threading
 import unittest
 from uuid import uuid4
+from unittest import mock
 
 from pyramid import testing
 from pyramid import httpexceptions

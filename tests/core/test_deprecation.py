@@ -1,7 +1,6 @@
 import datetime
 import json
-
-import mock
+from unittest import mock
 
 from kinto.core.errors import ERRORS
 from kinto.core.testing import unittest

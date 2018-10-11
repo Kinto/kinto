@@ -1,5 +1,5 @@
 import unittest
-import mock
+from unittest import mock
 
 from kinto.core.testing import DummyRequest
 from kinto.plugins.openid import OpenIDConnectPolicy

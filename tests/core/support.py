@@ -1,5 +1,5 @@
-import mock
 import functools
+from unittest import mock
 
 from pyramid.security import IAuthorizationPolicy, Authenticated, Everyone
 from zope.interface import implementer

@@ -1,4 +1,4 @@
-import mock
+from unittest import mock
 
 from kinto.core import scripts
 from kinto.core.storage.exceptions import RecordNotFoundError

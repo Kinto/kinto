@@ -1,5 +1,6 @@
+from unittest import mock
+
 import colander
-import mock
 
 from kinto.core.testing import unittest
 from kinto.core import schema

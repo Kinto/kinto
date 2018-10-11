@@ -1,8 +1,8 @@
 import json
 import os
 import unittest
+from unittest import mock
 
-import mock
 from pyramid import testing
 
 from kinto.core.cache import postgresql as postgresql_cache

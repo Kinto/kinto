@@ -2,8 +2,8 @@ import os
 import threading
 import unittest
 from collections import defaultdict
+from unittest import mock
 
-import mock
 import webtest
 from cornice import errors as cornice_errors
 from pyramid.url import parse_url_overrides

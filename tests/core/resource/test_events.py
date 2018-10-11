@@ -1,6 +1,6 @@
-import mock
 import uuid
 from contextlib import contextmanager
+from unittest import mock
 
 from pyramid.config import Configurator
 

@@ -1,9 +1,9 @@
 import codecs
-import mock
 import os
 import tempfile
 import unittest
 from time import strftime
+from unittest import mock
 
 from kinto import config
 from kinto import __version__

@@ -1,7 +1,7 @@
 import colander
-import mock
 import uuid
 import unittest
+from unittest import mock
 
 from pyramid.response import Response
 

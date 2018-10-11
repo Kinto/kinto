@@ -1,5 +1,5 @@
-import mock
 import uuid
+from unittest import mock
 
 from kinto.core import authentication
 from kinto.core import utils

@@ -1,5 +1,5 @@
-import mock
 import unittest
+from unittest import mock
 
 from kinto.core.utils import sqlalchemy
 from kinto.core.permission import (PermissionBase, memory as memory_backend,

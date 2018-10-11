@@ -1,7 +1,7 @@
 import json
 import re
 import unittest
-import mock
+from unittest import mock
 
 from pyramid import testing
 

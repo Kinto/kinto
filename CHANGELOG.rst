@@ -10,6 +10,10 @@ This document describes changes between each past release.
 
 - Add ability to configure the ``project_name`` in settings, shown in the `root URL <https://kinto.readthedocs.io/en/stable/api/1.x/utilities.html#get>`_ (fixes #1809)
 
+**Internal changes**
+
+- Use mock from the standard library.
+
 
 11.0.0 (2018-10-09)
 -------------------
