@@ -15,6 +15,12 @@ class HelloViewTest(BaseWebTest, unittest.TestCase):
                          'https://kinto.readthedocs.io/')
         self.assertEqual(response.json['url'], 'http://localhost/v1/')
 
+    def test_project_name_can_be_overriden(self):
+        settings = {'project_name': 'RemoteSettings'}
+        app = self.make_app(settings=settings)
+        resp = app.get('/')
+        self.assertEqual(resp.json['project_name'], 'RemoteSettings')
+
     def test_hides_user_info_if_anonymous(self):
         response = self.app.get('/')
         self.assertNotIn('user', response.json)

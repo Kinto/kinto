@@ -141,6 +141,7 @@ kinto.bucket_create_principals = account:admin
 # kinto.version_json_path = ./version.json
 # kinto.error_info_link = https://github.com/kinto/kinto/issues/
 # kinto.project_docs = https://kinto.readthedocs.io
+# kinto.project_name = kinto
 # kinto.project_version =
 # kinto.version_prefix_redirect_enabled = true
 

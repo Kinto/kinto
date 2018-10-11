@@ -156,7 +156,7 @@ class ListenerSetupTest(unittest.TestCase):
 
         config = self.make_app({
             # With real/full initialization, these should not be necessary:
-            'project_name': 'kinto',
+            'settings_prefix': 'kinto',
             'event_listeners': 'kvstore'
         })
 

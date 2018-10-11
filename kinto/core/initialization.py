@@ -421,7 +421,7 @@ def setup_listeners(config):
 
     write_actions = (ACTIONS.CREATE, ACTIONS.UPDATE, ACTIONS.DELETE)
     settings = config.get_settings()
-    project_name = settings.get('project_name', '')
+    settings_prefix = settings.get('settings_prefix', '')
     listeners = aslist(settings['event_listeners'])
 
     for name in listeners:
@@ -435,7 +435,7 @@ def setup_listeners(config):
         except (ImportError, AttributeError):
             module_setting = prefix + 'use'
             # Read from ENV or settings.
-            module_value = utils.read_env('{}.{}'.format(project_name, module_setting),
+            module_value = utils.read_env('{}.{}'.format(settings_prefix, module_setting),
                                           settings.get(module_setting))
             listener_mod = config.maybe_dotted(module_value)
             listener = listener_mod.load_from_config(config, prefix)
@@ -449,7 +449,7 @@ def setup_listeners(config):
         # Optional filter by event action.
         actions_setting = prefix + 'actions'
         # Read from ENV or settings.
-        actions_value = utils.read_env('{}.{}'.format(project_name, actions_setting),
+        actions_value = utils.read_env('{}.{}'.format(settings_prefix, actions_setting),
                                        settings.get(actions_setting, ''))
         actions = aslist(actions_value)
         if len(actions) > 0:
@@ -460,7 +460,7 @@ def setup_listeners(config):
         # Optional filter by event resource name.
         resource_setting = prefix + 'resources'
         # Read from ENV or settings.
-        resource_value = utils.read_env('{}.{}'.format(project_name, resource_setting),
+        resource_value = utils.read_env('{}.{}'.format(settings_prefix, resource_setting),
                                         settings.get(resource_setting, ''))
         resource_names = aslist(resource_value)
 
@@ -481,25 +481,24 @@ def load_default_settings(config, default_settings):
     """
     settings = config.get_settings()
 
-    project_name = settings['project_name']
+    settings_prefix = settings['settings_prefix']
 
     def _prefixed_keys(key):
         unprefixed = key
-        if key.startswith('kinto.') or key.startswith(project_name + '.'):
+        if key.startswith(settings_prefix + '.'):
             unprefixed = key.split('.', 1)[1]
-        project_prefix = '{}.{}'.format(project_name, unprefixed)
-        kinto_prefix = 'kinto.{}'.format(unprefixed)
-        return unprefixed, project_prefix, kinto_prefix
+        project_prefix = '{}.{}'.format(settings_prefix, unprefixed)
+        return unprefixed, project_prefix
 
     # Fill settings with default values if not defined.
     for key, default_value in sorted(default_settings.items()):
-        unprefixed, project_prefix, kinto_prefix = keys = _prefixed_keys(key)
+        unprefixed, project_prefix = keys = _prefixed_keys(key)
         is_defined = len(set(settings.keys()).intersection(set(keys))) > 0
         if not is_defined:
             settings[unprefixed] = default_value
 
     for key, value in sorted(settings.items()):
-        unprefixed, project_prefix, kinto_prefix = keys = _prefixed_keys(key)
+        unprefixed, project_prefix = keys = _prefixed_keys(key)
 
         # Fail if not only one is defined.
         defined = set(settings.keys()).intersection(set(keys))
@@ -513,14 +512,13 @@ def load_default_settings(config, default_settings):
         # e.g. HTTP_PORT, READINGLIST_HTTP_PORT, KINTO_HTTP_PORT
         from_env = utils.read_env(unprefixed, value)
         from_env = utils.read_env(project_prefix, from_env)
-        from_env = utils.read_env(kinto_prefix, from_env)
 
         settings[unprefixed] = from_env
 
     config.add_settings(settings)
 
 
-def initialize(config, version=None, project_name='', default_settings=None):
+def initialize(config, version=None, settings_prefix='', default_settings=None):
     """Initialize kinto.core with the given configuration, version and project
     name.
 
@@ -531,7 +529,7 @@ def initialize(config, version=None, project_name='', default_settings=None):
     :type config: ~pyramid:pyramid.config.Configurator
     :param str version: Current project version (e.g. '0.0.1') if not defined
         in application settings.
-    :param str project_name: Project name if not defined
+    :param str settings_prefix: Project name if not defined
         in application settings.
     :param dict default_settings: Override kinto.core default settings values.
     """
@@ -539,11 +537,11 @@ def initialize(config, version=None, project_name='', default_settings=None):
 
     settings = config.get_settings()
 
-    project_name = settings.pop('kinto.project_name',
-                                settings.get('project_name')) or project_name
-    settings['project_name'] = project_name
-    if not project_name:
-        warnings.warn('No value specified for `project_name`')
+    settings_prefix = settings.pop('kinto.settings_prefix',
+                                   settings.get('settings_prefix')) or settings_prefix
+    settings['settings_prefix'] = settings_prefix
+    if not settings_prefix:
+        warnings.warn('No value specified for `settings_prefix`')
 
     kinto_core_defaults = {**DEFAULT_SETTINGS}
 
