@@ -26,7 +26,7 @@ class InitializationTest(unittest.TestCase):
         self.assertEqual(config.registry.settings['project_version'], '0.0.1')
 
     def test_project_version_uses_setting_if_specified(self):
-        config = Configurator(settings={'kinto.project_version': '1.0.0'})
+        config = Configurator(settings={'name.project_version': '1.0.0'})
         kinto.core.initialize(config, '0.0.1', 'name')
         self.assertEqual(config.registry.settings['project_version'], '1.0.0')
 
@@ -36,39 +36,39 @@ class InitializationTest(unittest.TestCase):
         self.assertEqual(config.registry.settings['http_api_version'], '0.1')
 
     def test_http_api_version_uses_setting_if_specified(self):
-        config = Configurator(settings={'kinto.http_api_version': '1.3'})
+        config = Configurator(settings={'name.http_api_version': '1.3'})
         kinto.core.initialize(config, '0.0.1', 'name')
         self.assertEqual(config.registry.settings['http_api_version'], '1.3')
 
-    def test_warns_if_project_name_is_empty(self):
-        config = Configurator(settings={'kinto.project_name': ''})
+    def test_warns_if_settings_prefix_is_empty(self):
+        config = Configurator(settings={'kinto.settings_prefix': ''})
         with mock.patch('kinto.core.initialization.warnings.warn') as mocked:
             kinto.core.initialize(config, '0.0.1')
-            error_msg = 'No value specified for `project_name`'
+            error_msg = 'No value specified for `settings_prefix`'
             mocked.assert_any_call(error_msg)
 
-    def test_warns_if_project_name_is_missing(self):
+    def test_warns_if_settings_prefix_is_missing(self):
         config = Configurator()
         with mock.patch('kinto.core.initialization.warnings.warn') as mocked:
             kinto.core.initialize(config, '0.0.1')
-            error_msg = 'No value specified for `project_name`'
+            error_msg = 'No value specified for `settings_prefix`'
             mocked.assert_any_call(error_msg)
 
-    def test_set_the_project_name_if_specified(self):
+    def test_set_the_settings_prefix_if_specified(self):
         config = Configurator()
         kinto.core.initialize(config, '0.0.1', 'kinto')
-        self.assertEqual(config.registry.settings['project_name'],
+        self.assertEqual(config.registry.settings['settings_prefix'],
                          'kinto')
 
-    def test_set_the_project_name_from_settings_even_if_specified(self):
-        config = Configurator(settings={'kinto.project_name': 'kinto'})
+    def test_set_the_settings_prefix_from_settings_even_if_specified(self):
+        config = Configurator(settings={'kinto.settings_prefix': 'kinto'})
         kinto.core.initialize(config, '0.0.1', 'readinglist')
-        self.assertEqual(config.registry.settings['project_name'],
+        self.assertEqual(config.registry.settings['settings_prefix'],
                          'kinto')
 
     def test_warns_if_not_https(self):
         with mock.patch('kinto.core.initialization.warnings.warn') as mocked:
-            config = Configurator(settings={'project_name': 'kinto',
+            config = Configurator(settings={'settings_prefix': 'kinto',
                                             'kinto.http_scheme': 'https'})
             kinto.core.initialize(config, '0.0.1')
             self.assertFalse(mocked.called)
@@ -80,26 +80,25 @@ class InitializationTest(unittest.TestCase):
 
     def test_default_settings_are_overriden_if_specified_in_initialize(self):
         config = Configurator()
-        defaults = {'kinto.paginate_by': 102}
-        kinto.core.initialize(config, '0.0.1', 'project_name',
-                              default_settings=defaults)
+        defaults = {'paginate_by': 102}
+        kinto.core.initialize(config, '0.0.1', 'prefix', default_settings=defaults)
         self.assertEqual(config.registry.settings['paginate_by'], 102)
 
     def test_default_settings_are_overriden_by_application(self):
-        config = Configurator(settings={'kinto.paginate_by': 10})
-        kinto.core.initialize(config, '0.0.1', 'project_name')
+        config = Configurator(settings={'prefix.paginate_by': 10})
+        kinto.core.initialize(config, '0.0.1', 'prefix')
         self.assertEqual(config.registry.settings['paginate_by'], 10)
 
     def test_specified_default_settings_are_overriden_by_application(self):
-        config = Configurator(settings={'kinto.paginate_by': 5})
-        defaults = {'kinto.paginate_by': 10}
-        kinto.core.initialize(config, '0.0.1', 'project_name',
+        config = Configurator(settings={'settings_prefix.paginate_by': 5})
+        defaults = {'settings_prefix.paginate_by': 10}
+        kinto.core.initialize(config, '0.0.1', 'settings_prefix',
                               default_settings=defaults)
         self.assertEqual(config.registry.settings['paginate_by'], 5)
 
     def test_backends_are_not_instantiated_by_default(self):
         config = Configurator(settings={**kinto.core.DEFAULT_SETTINGS})
-        kinto.core.initialize(config, '0.0.1', 'project_name')
+        kinto.core.initialize(config, '0.0.1', 'settings_prefix')
         self.assertFalse(hasattr(config.registry, 'storage'))
         self.assertFalse(hasattr(config.registry, 'cache'))
         self.assertFalse(hasattr(config.registry, 'permission'))
@@ -108,25 +107,25 @@ class InitializationTest(unittest.TestCase):
         def config_fails(settings):
             config = Configurator(settings=settings)
             with self.assertRaises(ConfigurationError):
-                kinto.core.initialize(config, '0.0.1', 'project_name')
+                kinto.core.initialize(config, '0.0.1', 'settings_prefix')
 
-        config_fails({'kinto.storage_backend': 'kinto.core.cache.memory'})
-        config_fails({'kinto.cache_backend': 'kinto.core.storage.memory'})
-        config_fails({'kinto.permission_backend': 'kinto.core.storage.memory'})
+        config_fails({'settings_prefix.storage_backend': 'kinto.core.cache.memory'})
+        config_fails({'settings_prefix.cache_backend': 'kinto.core.storage.memory'})
+        config_fails({'settings_prefix.permission_backend': 'kinto.core.storage.memory'})
 
     def test_environment_values_override_configuration(self):
         import os
 
-        envkey = 'KINTO_PROJECT_NAME'
+        envkey = 'KINTO_SETTINGS_PREFIX'
         os.environ[envkey] = 'abc'
 
-        config = Configurator(settings={'kinto.project_name': 'kinto'})
+        config = Configurator(settings={'kinto.settings_prefix': 'kinto'})
         kinto.core.initialize(config, '0.0.1')
 
         os.environ.pop(envkey)
 
-        project_used = config.registry.settings['project_name']
-        self.assertEqual(project_used, 'abc')
+        prefix_used = config.registry.settings['settings_prefix']
+        self.assertEqual(prefix_used, 'abc')
 
 
 class ProjectSettingsTest(unittest.TestCase):
@@ -141,7 +140,7 @@ class ProjectSettingsTest(unittest.TestCase):
         }
         self.assertEqual(self.settings(settings)['paginate_by'], 3.14)
 
-    def test_uses_project_name(self):
+    def test_uses_settings_prefix(self):
         settings = {
             'kinto.paginate_by': 42,
         }
@@ -168,7 +167,7 @@ class ProjectSettingsTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.settings(settings)
 
-    def test_environment_can_specify_project_name(self):
+    def test_environment_can_specify_settings_prefix(self):
         import os
 
         envkey = 'KINTO_STORAGE_BACKEND'
@@ -231,12 +230,12 @@ class ApplicationWrapperTest(unittest.TestCase):
     def test_load_default_settings_handle_prefix_attributes(self):
         config = mock.MagicMock()
 
-        settings = {'project_name': 'myapp'}
+        settings = {'settings_prefix': 'myapp'}
 
         config.get_settings.return_value = settings
         initialization.load_default_settings(
             config, {'multiauth.policies': 'basicauth',
-                     'kinto.http_scheme': 'https',
+                     'myapp.http_scheme': 'https',
                      'myapp.http_host': 'localhost:8888'})
 
         self.assertIn('multiauth.policies', settings)
@@ -308,19 +307,19 @@ class StatsDConfigurationTest(unittest.TestCase):
         c.watch_execution_time.assert_any_call(None, prefix='authentication')
 
     def test_statsd_counts_nothing_on_anonymous_requests(self):
-        kinto.core.initialize(self.config, '0.0.1', 'project_name')
+        kinto.core.initialize(self.config, '0.0.1', 'settings_prefix')
         app = webtest.TestApp(self.config.make_wsgi_app())
         app.get('/')
         self.assertFalse(self.mocked.count.called)
 
     def test_statsd_counts_views_and_methods(self):
-        kinto.core.initialize(self.config, '0.0.1', 'project_name')
+        kinto.core.initialize(self.config, '0.0.1', 'settings_prefix')
         app = webtest.TestApp(self.config.make_wsgi_app())
         app.get('/v0/__heartbeat__')
         self.mocked().count.assert_any_call('view.heartbeat.GET')
 
     def test_statsd_counts_unknown_urls(self):
-        kinto.core.initialize(self.config, '0.0.1', 'project_name')
+        kinto.core.initialize(self.config, '0.0.1', 'settings_prefix')
         app = webtest.TestApp(self.config.make_wsgi_app())
         app.get('/v0/coucou', status=404)
         self.assertFalse(self.mocked.count.called)
@@ -328,14 +327,14 @@ class StatsDConfigurationTest(unittest.TestCase):
     @mock.patch('kinto.core.utils.hmac_digest')
     def test_statsd_counts_unique_users(self, digest_mocked):
         digest_mocked.return_value = 'mat'
-        kinto.core.initialize(self.config, '0.0.1', 'project_name')
+        kinto.core.initialize(self.config, '0.0.1', 'settings_prefix')
         app = webtest.TestApp(self.config.make_wsgi_app())
         headers = {'Authorization': 'Basic bWF0Og=='}
         app.get('/v0/', headers=headers)
         self.mocked().count.assert_any_call('users', unique='basicauth.mat')
 
     def test_statsd_counts_authentication_types(self):
-        kinto.core.initialize(self.config, '0.0.1', 'project_name')
+        kinto.core.initialize(self.config, '0.0.1', 'settings_prefix')
         app = webtest.TestApp(self.config.make_wsgi_app())
         headers = {'Authorization': 'Basic bWF0Og=='}
         app.get('/v0/', headers=headers)

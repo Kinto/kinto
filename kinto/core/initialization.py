@@ -485,21 +485,20 @@ def load_default_settings(config, default_settings):
 
     def _prefixed_keys(key):
         unprefixed = key
-        if key.startswith('kinto.') or key.startswith(settings_prefix + '.'):
+        if key.startswith(settings_prefix + '.'):
             unprefixed = key.split('.', 1)[1]
         project_prefix = '{}.{}'.format(settings_prefix, unprefixed)
-        kinto_prefix = 'kinto.{}'.format(unprefixed)
-        return unprefixed, project_prefix, kinto_prefix
+        return unprefixed, project_prefix
 
     # Fill settings with default values if not defined.
     for key, default_value in sorted(default_settings.items()):
-        unprefixed, project_prefix, kinto_prefix = keys = _prefixed_keys(key)
+        unprefixed, project_prefix = keys = _prefixed_keys(key)
         is_defined = len(set(settings.keys()).intersection(set(keys))) > 0
         if not is_defined:
             settings[unprefixed] = default_value
 
     for key, value in sorted(settings.items()):
-        unprefixed, project_prefix, kinto_prefix = keys = _prefixed_keys(key)
+        unprefixed, project_prefix = keys = _prefixed_keys(key)
 
         # Fail if not only one is defined.
         defined = set(settings.keys()).intersection(set(keys))
@@ -513,7 +512,6 @@ def load_default_settings(config, default_settings):
         # e.g. HTTP_PORT, READINGLIST_HTTP_PORT, KINTO_HTTP_PORT
         from_env = utils.read_env(unprefixed, value)
         from_env = utils.read_env(project_prefix, from_env)
-        from_env = utils.read_env(kinto_prefix, from_env)
 
         settings[unprefixed] = from_env
 
