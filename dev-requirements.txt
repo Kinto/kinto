@@ -1,6 +1,5 @@
 bravado_core==5.0.6
 flake8==3.5.0
-mock==2.0.0
 pytest==3.8.2
 pytest-cache==1.0
 pytest-cov==2.6.0

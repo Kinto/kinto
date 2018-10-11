@@ -1,6 +1,6 @@
 import json
-import mock
 import time
+from unittest import mock
 
 from kinto.core.testing import ThreadMixin
 

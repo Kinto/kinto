@@ -1,4 +1,4 @@
-import mock
+from unittest import mock
 
 from pyramid import testing
 from pyramid.exceptions import ConfigurationError

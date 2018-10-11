@@ -1,9 +1,9 @@
 import unittest
 import os
 import pytest
+from unittest import mock
 
 import colander
-import mock
 from kinto.core import includeme
 from kinto.core import DEFAULT_SETTINGS
 from pyramid import httpexceptions

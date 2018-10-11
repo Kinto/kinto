@@ -1,6 +1,6 @@
-import mock
 import pytest
 import time
+from unittest import mock
 
 from pyramid import testing
 

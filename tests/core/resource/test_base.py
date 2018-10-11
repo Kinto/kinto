@@ -1,5 +1,6 @@
-import mock
 import unittest
+from unittest import mock
+
 from pyramid import httpexceptions
 
 from kinto.core.resource import UserResource, ShareableResource

@@ -1,5 +1,5 @@
-import mock
 import unittest
+from unittest import mock
 
 from kinto.core import utils
 from kinto.core.testing import get_user_headers

@@ -1,4 +1,5 @@
-import mock
+from unittest import mock
+
 import webtest
 
 from pyramid.config import Configurator

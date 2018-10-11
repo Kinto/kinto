@@ -1,8 +1,8 @@
 import json
 import logging
 import unittest
+from unittest import mock
 
-import mock
 from pyramid import testing
 
 from kinto.core import DEFAULT_SETTINGS, initialization, JsonLogFormatter

@@ -1,4 +1,5 @@
-import mock
+from unittest import mock
+
 import colander
 from cornice.validators import colander_validator
 from pyramid import exceptions

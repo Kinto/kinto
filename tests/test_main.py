@@ -1,11 +1,11 @@
 import builtins
 import logging
-import mock
 import os
 import pytest
 import sys
 import tempfile
 import unittest
+from unittest import mock
 
 from io import StringIO
 

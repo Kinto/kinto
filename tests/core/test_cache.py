@@ -1,6 +1,6 @@
-import mock
-import unittest
 import time
+import unittest
+from unittest import mock
 
 from kinto.core.utils import sqlalchemy, memcache
 from kinto.core.cache import (CacheBase, memory as memory_backend, memcached as memcached_backend,

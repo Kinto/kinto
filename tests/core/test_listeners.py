@@ -1,6 +1,7 @@
-import mock
 import os
 import uuid
+from unittest import mock
+
 from pyramid import testing
 
 from kinto.core import initialization

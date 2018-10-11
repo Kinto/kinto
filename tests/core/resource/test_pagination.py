@@ -1,8 +1,8 @@
 import random
 from base64 import b64encode, b64decode
-
-import mock
+from unittest import mock
 from urllib.parse import parse_qs, urlparse
+
 from pyramid.httpexceptions import HTTPBadRequest
 
 from kinto.core.utils import json

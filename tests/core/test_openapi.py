@@ -1,5 +1,5 @@
 import unittest
-import mock
+from unittest import mock
 
 from cornice.service import get_services
 from kinto.core.openapi import OpenAPI

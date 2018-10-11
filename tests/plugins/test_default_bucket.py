@@ -1,6 +1,6 @@
-import mock
 import unittest
 from uuid import UUID
+from unittest import mock
 
 from pyramid.httpexceptions import HTTPBadRequest
 
