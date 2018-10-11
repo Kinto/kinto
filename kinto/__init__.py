@@ -46,7 +46,7 @@ def main(global_config, config=None, **settings):
 
     config.registry.command = global_config and global_config.get('command', None)
 
-    # Force settings prefix, since it determines settings prefix.
+    # Force settings prefix.
     config.add_settings({'kinto.settings_prefix': 'kinto'})
 
     kinto.core.initialize(config,
