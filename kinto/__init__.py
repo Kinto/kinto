@@ -35,7 +35,8 @@ DEFAULT_SETTINGS = {
     'bucket_id_generator': 'kinto.views.NameGenerator',
     'collection_id_generator': 'kinto.views.NameGenerator',
     'group_id_generator': 'kinto.views.NameGenerator',
-    'record_id_generator': 'kinto.views.RelaxedUUID'
+    'record_id_generator': 'kinto.views.RelaxedUUID',
+    'project_name': 'kinto',
 }
 
 
@@ -45,8 +46,8 @@ def main(global_config, config=None, **settings):
 
     config.registry.command = global_config and global_config.get('command', None)
 
-    # Force project name, since it determines settings prefix.
-    config.add_settings({'kinto.project_name': 'kinto'})
+    # Force settings prefix.
+    config.add_settings({'kinto.settings_prefix': 'kinto'})
 
     kinto.core.initialize(config,
                           version=__version__,
