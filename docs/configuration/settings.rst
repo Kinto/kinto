@@ -904,6 +904,8 @@ Project information
 | kinto.project_docs                    | ``https://kinto.readthedocs.io``           | The URL where the documentation of the Kinto instance can be found. Will |
 |                                       |                                            | be returned in :ref:`the hello view <api-utilities>`.                    |
 +---------------------------------------+--------------------------------------------+--------------------------------------------------------------------------+
+| kinto.project_name                    | ``kinto``                                  | The name of your project (powered by Kinto)                              |
++---------------------------------------+--------------------------------------------+--------------------------------------------------------------------------+
 | kinto.project_version                 | ``''``                                     | The version of the project. Will be returned in :ref:`the hello view     |
 |                                       |                                            | <api-utilities>`. By default, this is the major version of Kinto.        |
 +---------------------------------------+--------------------------------------------+--------------------------------------------------------------------------+
