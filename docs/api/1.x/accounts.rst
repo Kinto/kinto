@@ -280,7 +280,7 @@ For example, create somebody else account:
 
 ::
 
-    $ echo '{"data": {"id": "sam-body", password": "else"}}' | http POST http://localhost:8888/v1/accounts --auth admin:s3cr3t
+    $ echo '{"data": {"id": "sam-body", "password": "else"}}' | http POST http://localhost:8888/v1/accounts --auth admin:s3cr3t
 
 List accounts:
 
