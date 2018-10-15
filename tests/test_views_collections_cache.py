@@ -40,8 +40,8 @@ class SpecificSettingsTest(BaseWebTest, unittest.TestCase):
     @classmethod
     def get_app_settings(cls, extras=None):
         settings = super().get_app_settings(extras)
-        settings['kinto.blog_record_cache_expires_seconds'] = '30'
-        settings['kinto.browser_top500_record_cache_expires_seconds'] = '60'
+        settings['kinto.blog.record_cache_expires_seconds'] = '30'
+        settings['kinto.browser.top500.record_cache_expires_seconds'] = '60'
         return settings
 
     def setUp(self):

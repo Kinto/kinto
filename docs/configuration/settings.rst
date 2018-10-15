@@ -879,8 +879,8 @@ It can also be specified per bucket or collections for records:
 
 .. code-block:: ini
 
-    kinto.blog_record_cache_expires_seconds = 30
-    kinto.blog_articles_record_cache_expires_seconds = 3600
+    kinto.blog.record_cache_expires_seconds = 30
+    kinto.blog.articles.record_cache_expires_seconds = 3600
 
 If set to ``0`` then the resource becomes uncacheable (``no-cache``).
 
