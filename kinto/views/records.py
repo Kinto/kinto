@@ -114,5 +114,6 @@ class Record(resource.ShareableResource):
             for s in (by_collection, by_bucket, by_collection_legacy, by_bucket_legacy):
                 cache_expires = settings.get(s)
                 if cache_expires is not None:
-                    response.cache_expires(seconds=int(cache_expires))
-                    return
+                    break
+        if cache_expires is not None:
+            response.cache_expires(seconds=int(cache_expires))
