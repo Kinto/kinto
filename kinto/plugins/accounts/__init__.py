@@ -34,7 +34,7 @@ def includeme(config):
     accountClass = 'AccountsPolicy'
     policy = None
     for k, v in settings.items():
-        m = re.match('multiauth\.policy\.(.*)\.use', k)
+        m = re.match('multiauth\\.policy\\.(.*)\\.use', k)
         if m:
             if v.endswith(accountClass) or v.endswith("AccountsAuthenticationPolicy"):
                 policy = m.group(1)
