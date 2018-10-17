@@ -11,6 +11,12 @@ API
 Changelog
 ---------
 
+1.21 (unreleased)
+'''''''''''''''''
+
+- Allow dots (``.``) in records IDs
+
+
 1.20 (2018-06-07)
 '''''''''''''''''
 
