@@ -160,6 +160,20 @@ class RecordsViewTest(BaseWebTest, unittest.TestCase):
                           headers=self.headers,
                           status=400)
 
+    def test_records_ids_do_not_allow_every_character(self):
+        record = {"data": {"id": "bad:id:format"}}
+        self.app.post_json(self.collection_url,
+                           record,
+                           headers=self.headers,
+                           status=400)
+
+    def test_records_ids_can_contain_some_specific_characters(self):
+        record = {"data": {"id": "this_is.Like-A-Domain.fr"}}
+        self.app.post_json(self.collection_url,
+                           record,
+                           headers=self.headers,
+                           status=201)
+
     def test_create_a_record_update_collection_timestamp(self):
         collection_resp = self.app.get(self.collection_url,
                                        headers=self.headers)

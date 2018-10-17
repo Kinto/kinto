@@ -6,6 +6,12 @@ This document describes changes between each past release.
 11.1.0 (unreleased)
 -------------------
 
+**API**
+
+- Allow dots (``.``) in records IDs
+
+API is now at version **1.21**. See `API changelog`_.
+
 **New features**
 
 - Add ability to configure the ``project_name`` in settings, shown in the `root URL <https://kinto.readthedocs.io/en/stable/api/1.x/utilities.html#get>`_ (fixes #1809)

@@ -19,7 +19,7 @@ class NameGenerator(generators.Generator):
 class RelaxedUUID(generators.UUID4):
     """A generator that generates UUIDs but accepts any string.
     """
-    regexp = generators.Generator.regexp
+    regexp = r'^[a-zA-Z0-9][a-zA-Z0-9\\._-]*$'  # same as `generators.Generator` with dots.
 
 
 def object_exists_or_404(request, collection_id, object_id, parent_id=''):
