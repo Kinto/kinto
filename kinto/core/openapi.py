@@ -48,7 +48,7 @@ class OpenAPI(CorniceSwagger):
 
         """
         cls.security_definitions[method_name] = definition
-        cls.security_roles[method_name] = definition.get('scopes', {}).keys()
+        cls.security_roles[method_name] = definition.get("scopes", {}).keys()
 
     def __init__(self, services, request):
         super().__init__(services)
@@ -56,18 +56,18 @@ class OpenAPI(CorniceSwagger):
         self.request = request
         self.settings = request.registry.settings
 
-        self.api_title = self.settings['project_name']
-        self.api_version = self.settings['http_api_version']
-        self.ignore_ctypes = ['application/json-patch+json']
+        self.api_title = self.settings["project_name"]
+        self.api_version = self.settings["http_api_version"]
+        self.ignore_ctypes = ["application/json-patch+json"]
 
         # Matches the base routing address - See kinto.core.initialization
-        self.base_path = '/v{}'.format(self.api_version.split('.')[0])
+        self.base_path = "/v{}".format(self.api_version.split(".")[0])
 
     def generate(self):
         base_spec = {
-            'host': self.request.host,
-            'schemes': [self.settings.get('http_scheme') or 'http'],
-            'securityDefinitions': self.security_definitions,
+            "host": self.request.host,
+            "schemes": [self.settings.get("http_scheme") or "http"],
+            "securityDefinitions": self.security_definitions,
         }
 
         return super(OpenAPI, self).generate(swagger=base_spec)
@@ -76,8 +76,8 @@ class OpenAPI(CorniceSwagger):
         """Povides default tags to views."""
 
         base_tag = service.name.capitalize()
-        base_tag = base_tag.replace('-collection', 's')
-        base_tag = base_tag.replace('-record', 's')
+        base_tag = base_tag.replace("-collection", "s")
+        base_tag = base_tag.replace("-record", "s")
 
         return [base_tag]
 
@@ -85,20 +85,17 @@ class OpenAPI(CorniceSwagger):
         """Povides default operation ids to methods if not defined on view."""
 
         method = method.lower()
-        method_mapping = {
-            'post': 'create',
-            'put': 'update'
-        }
+        method_mapping = {"post": "create", "put": "update"}
         if method in method_mapping:
             method = method_mapping[method]
 
         resource = service.name
-        if method == 'create':
-            resource = resource.replace('-collection', '')
+        if method == "create":
+            resource = resource.replace("-collection", "")
 
-        resource = resource.replace('-collection', 's')
-        resource = resource.replace('-record', '')
-        op_id = '{}_{}'.format(method, resource)
+        resource = resource.replace("-collection", "s")
+        resource = resource.replace("-record", "")
+        op_id = "{}_{}".format(method, resource)
 
         return op_id
 
@@ -113,7 +110,7 @@ class OpenAPI(CorniceSwagger):
             if met == method:
                 break
 
-        if args.get('permission') == '__no_permission_required__':
+        if args.get("permission") == "__no_permission_required__":
             return []
         else:
             return [{name: list(roles)} for name, roles in self.security_roles.items()]

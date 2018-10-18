@@ -7,49 +7,51 @@ from .authentication import AccountsAuthenticationPolicy as AccountsPolicy
 from .utils import ACCOUNT_CACHE_KEY, ACCOUNT_POLICY_NAME
 
 
-__all__ = ['ACCOUNT_CACHE_KEY', 'ACCOUNT_POLICY_NAME', 'AccountsPolicy']
+__all__ = ["ACCOUNT_CACHE_KEY", "ACCOUNT_POLICY_NAME", "AccountsPolicy"]
 
 DOCS_URL = "https://kinto.readthedocs.io/en/stable/api/1.x/accounts.html"
 
 
 def includeme(config):
     config.add_api_capability(
-        'accounts',
-        description='Manage user accounts.',
-        url='https://kinto.readthedocs.io/en/latest/api/1.x/accounts.html')
+        "accounts",
+        description="Manage user accounts.",
+        url="https://kinto.readthedocs.io/en/latest/api/1.x/accounts.html",
+    )
 
-    config.scan('kinto.plugins.accounts.views')
+    config.scan("kinto.plugins.accounts.views")
 
-    PERMISSIONS_INHERITANCE_TREE['root'].update({
-        'account:create': {}
-    })
-    PERMISSIONS_INHERITANCE_TREE['account'] = {
-        'write': {'account': ['write']},
-        'read': {'account': ['write', 'read']}
+    PERMISSIONS_INHERITANCE_TREE["root"].update({"account:create": {}})
+    PERMISSIONS_INHERITANCE_TREE["account"] = {
+        "write": {"account": ["write"]},
+        "read": {"account": ["write", "read"]},
     }
 
     settings = config.get_settings()
 
     # Check that the account policy is mentioned in config if included.
-    accountClass = 'AccountsPolicy'
+    accountClass = "AccountsPolicy"
     policy = None
     for k, v in settings.items():
-        m = re.match('multiauth\\.policy\\.(.*)\\.use', k)
+        m = re.match("multiauth\\.policy\\.(.*)\\.use", k)
         if m:
             if v.endswith(accountClass) or v.endswith("AccountsAuthenticationPolicy"):
                 policy = m.group(1)
 
     if not policy:
-        error_msg = ("Account policy missing the 'multiauth.policy.*.use' "
-                     "setting. See {} in docs {}.").format(accountClass, DOCS_URL)
+        error_msg = (
+            "Account policy missing the 'multiauth.policy.*.use' " "setting. See {} in docs {}."
+        ).format(accountClass, DOCS_URL)
         raise ConfigurationError(error_msg)
 
     # Add some safety to avoid weird behaviour with basicauth default policy.
-    auth_policies = settings['multiauth.policies']
-    if 'basicauth' in auth_policies and policy in auth_policies:
-        if auth_policies.index('basicauth') < auth_policies.index(policy):
-            error_msg = ("'basicauth' should not be mentioned before '%s' "
-                         "in 'multiauth.policies' setting.") % policy
+    auth_policies = settings["multiauth.policies"]
+    if "basicauth" in auth_policies and policy in auth_policies:
+        if auth_policies.index("basicauth") < auth_policies.index(policy):
+            error_msg = (
+                "'basicauth' should not be mentioned before '%s' "
+                "in 'multiauth.policies' setting."
+            ) % policy
             raise ConfigurationError(error_msg)
 
     # We assume anyone in account_create_principals is to create
@@ -58,17 +60,19 @@ def includeme(config):
     # "admin", defined as someone matching account_write_principals.
     # Therefore any account that is in account_create_principals
     # should be in account_write_principals too.
-    creators = set(settings.get('account_create_principals', '').split())
-    admins = set(settings.get('account_write_principals', '').split())
+    creators = set(settings.get("account_create_principals", "").split())
+    admins = set(settings.get("account_write_principals", "").split())
     cant_create_anything = creators.difference(admins)
     # system.Everyone isn't an account.
-    cant_create_anything.discard('system.Everyone')
+    cant_create_anything.discard("system.Everyone")
     if cant_create_anything:
-        message = ('Configuration has some principals in account_create_principals '
-                   'but not in account_write_principals. These principals will only be '
-                   'able to create their own accounts. This may not be what you want.\n'
-                   'If you want these users to be able to create accounts for other users, '
-                   'add them to account_write_principals.\n'
-                   'Affected users: {}'.format(list(cant_create_anything)))
+        message = (
+            "Configuration has some principals in account_create_principals "
+            "but not in account_write_principals. These principals will only be "
+            "able to create their own accounts. This may not be what you want.\n"
+            "If you want these users to be able to create accounts for other users, "
+            "add them to account_write_principals.\n"
+            "Affected users: {}".format(list(cant_create_anything))
+        )
 
         raise ConfigurationError(message)

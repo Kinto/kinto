@@ -1,0 +1,9 @@
+actions:
+  black:
+    run: black --check --diff {files}
+    fix: black {files}
+    include: "*.py"
+
+  flake8:
+    run: flake8 {files}
+    include: "*.py"

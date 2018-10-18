@@ -12,10 +12,9 @@ from kinto.core.utils import merge_dicts, build_request, build_response
 from kinto.core.resource.viewset import CONTENT_TYPES
 
 
-subrequest_logger = logging.getLogger('subrequest.summary')
+subrequest_logger = logging.getLogger("subrequest.summary")
 
-valid_http_method = colander.OneOf(('GET', 'HEAD', 'DELETE', 'TRACE',
-                                    'POST', 'PUT', 'PATCH'))
+valid_http_method = colander.OneOf(("GET", "HEAD", "DELETE", "TRACE", "POST", "PUT", "PATCH"))
 
 
 def string_values(node, cstruct):
@@ -27,47 +26,44 @@ def string_values(node, cstruct):
     """
     are_strings = [isinstance(v, str) for v in cstruct.values()]
     if not all(are_strings):
-        error_msg = '{} contains non string value'.format(cstruct)
+        error_msg = "{} contains non string value".format(cstruct)
         raise colander.Invalid(node, error_msg)
 
 
 class BatchRequestSchema(colander.MappingSchema):
-    method = colander.SchemaNode(colander.String(),
-                                 validator=valid_http_method,
-                                 missing=colander.drop)
-    path = colander.SchemaNode(colander.String(),
-                               validator=colander.Regex('^/'))
-    headers = colander.SchemaNode(colander.Mapping(unknown='preserve'),
-                                  validator=string_values,
-                                  missing=colander.drop)
-    body = colander.SchemaNode(colander.Mapping(unknown='preserve'),
-                               missing=colander.drop)
+    method = colander.SchemaNode(
+        colander.String(), validator=valid_http_method, missing=colander.drop
+    )
+    path = colander.SchemaNode(colander.String(), validator=colander.Regex("^/"))
+    headers = colander.SchemaNode(
+        colander.Mapping(unknown="preserve"), validator=string_values, missing=colander.drop
+    )
+    body = colander.SchemaNode(colander.Mapping(unknown="preserve"), missing=colander.drop)
 
     @staticmethod
     def schema_type():
-        return colander.Mapping(unknown='raise')
+        return colander.Mapping(unknown="raise")
 
 
 class BatchPayloadSchema(colander.MappingSchema):
     defaults = BatchRequestSchema(missing=colander.drop).clone()
-    requests = colander.SchemaNode(colander.Sequence(),
-                                   BatchRequestSchema())
+    requests = colander.SchemaNode(colander.Sequence(), BatchRequestSchema())
 
     @staticmethod
     def schema_type():
-        return colander.Mapping(unknown='raise')
+        return colander.Mapping(unknown="raise")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # On defaults, path is not mandatory.
-        self.get('defaults').get('path').missing = colander.drop
+        self.get("defaults").get("path").missing = colander.drop
 
     def deserialize(self, cstruct=colander.null):
         """Preprocess received data to carefully merge defaults.
         """
         if cstruct is not colander.null:
-            defaults = cstruct.get('defaults')
-            requests = cstruct.get('requests')
+            defaults = cstruct.get("defaults")
+            requests = cstruct.get("requests")
             if isinstance(defaults, dict) and isinstance(requests, list):
                 for request in requests:
                     if isinstance(request, dict):
@@ -82,11 +78,10 @@ class BatchRequest(colander.MappingSchema):
 class BatchResponseSchema(colander.MappingSchema):
     status = colander.SchemaNode(colander.Integer())
     path = colander.SchemaNode(colander.String())
-    headers = colander.SchemaNode(colander.Mapping(unknown='preserve'),
-                                  validator=string_values,
-                                  missing=colander.drop)
-    body = colander.SchemaNode(colander.Mapping(unknown='preserve'),
-                               missing=colander.drop)
+    headers = colander.SchemaNode(
+        colander.Mapping(unknown="preserve"), validator=string_values, missing=colander.drop
+    )
+    body = colander.SchemaNode(colander.Mapping(unknown="preserve"), missing=colander.drop)
 
 
 class BatchResponseBodySchema(colander.MappingSchema):
@@ -102,35 +97,37 @@ class ErrorResponseSchema(colander.MappingSchema):
 
 
 batch_responses = {
-    '200': BatchResponse(description='Return a list of operation responses.'),
-    '400': ErrorResponseSchema(description='The request was badly formatted.'),
-    'default': ErrorResponseSchema(description='an unknown error occurred.')
+    "200": BatchResponse(description="Return a list of operation responses."),
+    "400": ErrorResponseSchema(description="The request was badly formatted."),
+    "default": ErrorResponseSchema(description="an unknown error occurred."),
 }
 
-batch = Service(name='batch', path='/batch',
-                description='Batch operations')
+batch = Service(name="batch", path="/batch", description="Batch operations")
 
 
-@batch.post(schema=BatchRequest(),
-            validators=(colander_validator,),
-            content_type=CONTENT_TYPES,
-            permission=NO_PERMISSION_REQUIRED,
-            tags=['Batch'], operation_id='batch',
-            response_schemas=batch_responses)
+@batch.post(
+    schema=BatchRequest(),
+    validators=(colander_validator,),
+    content_type=CONTENT_TYPES,
+    permission=NO_PERMISSION_REQUIRED,
+    tags=["Batch"],
+    operation_id="batch",
+    response_schemas=batch_responses,
+)
 def post_batch(request):
-    requests = request.validated['body']['requests']
+    requests = request.validated["body"]["requests"]
 
     request.log_context(batch_size=len(requests))
 
-    limit = request.registry.settings['batch_max_requests']
+    limit = request.registry.settings["batch_max_requests"]
     if limit and len(requests) > int(limit):
-        error_msg = 'Number of requests is limited to {}'.format(limit)
-        request.errors.add('body', 'requests', error_msg)
+        error_msg = "Number of requests is limited to {}".format(limit)
+        request.errors.add("body", "requests", error_msg)
         return
 
-    if any([batch.path in req['path'] for req in requests]):
-        error_msg = 'Recursive call on {} endpoint is forbidden.'.format(batch.path)
-        request.errors.add('body', 'requests', error_msg)
+    if any([batch.path in req["path"] for req in requests]):
+        error_msg = "Recursive call on {} endpoint is forbidden.".format(batch.path)
+        request.errors.add("body", "requests", error_msg)
         return
 
     responses = []
@@ -138,13 +135,14 @@ def post_batch(request):
     for subrequest_spec in requests:
         subrequest = build_request(request, subrequest_spec)
 
-        log_context = {**request.log_context(),
-                       'path': subrequest.path,
-                       'method': subrequest.method}
+        log_context = {
+            **request.log_context(),
+            "path": subrequest.path,
+            "method": subrequest.method,
+        }
         try:
             # Invoke subrequest without individual transaction.
-            resp, subrequest = request.follow_subrequest(subrequest,
-                                                         use_tweens=False)
+            resp, subrequest = request.follow_subrequest(subrequest, use_tweens=False)
         except httpexceptions.HTTPException as e:
             # Since some request in the batch failed, we need to stop the parent request
             # through Pyramid's transaction manager. 5XX errors are already caught by
@@ -153,17 +151,15 @@ def post_batch(request):
             if e.status_code == 409:
                 request.tm.abort()
 
-            if e.content_type == 'application/json':
+            if e.content_type == "application/json":
                 resp = e
             else:
                 # JSONify raw Pyramid errors.
                 resp = errors.http_error(e)
 
-        subrequest_logger.info('subrequest.summary', extra=log_context)
+        subrequest_logger.info("subrequest.summary", extra=log_context)
 
         dict_resp = build_response(resp, subrequest)
         responses.append(dict_resp)
 
-    return {
-        'responses': responses
-    }
+    return {"responses": responses}

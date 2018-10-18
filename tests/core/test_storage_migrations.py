@@ -12,25 +12,25 @@ from kinto.core.storage.postgresql.migrator import MigratorMixin
 from kinto.core.testing import skip_if_no_postgresql
 
 
-@mock.patch.object(MigratorMixin, '_execute_sql_file')
+@mock.patch.object(MigratorMixin, "_execute_sql_file")
 class MigratorTest(unittest.TestCase):
     def setUp(self):
         self.migrator = MigratorMixin()
         here = os.path.dirname(__file__)
-        migrations_directory = os.path.join(here, 'migrations')
+        migrations_directory = os.path.join(here, "migrations")
         self.migrator.migrations_directory = migrations_directory
         self.migrator.schema_version = 6
 
     def test_schema_is_created_if_no_version(self, execute_sql):
-        with mock.patch.object(self.migrator, 'create_schema') as create_schema:
-            with mock.patch.object(self.migrator, 'get_installed_version') as installed_version:
+        with mock.patch.object(self.migrator, "create_schema") as create_schema:
+            with mock.patch.object(self.migrator, "get_installed_version") as installed_version:
                 installed_version.return_value = None
                 self.migrator.create_or_migrate_schema()
         self.assertTrue(create_schema.called)
 
     def test_schema_is_not_touched_if_already_current(self, execute_sql):
         # Patch to keep track of SQL files executed.
-        with mock.patch.object(self.migrator, 'get_installed_version') as installed_version:
+        with mock.patch.object(self.migrator, "get_installed_version") as installed_version:
             installed_version.return_value = 6
             self.migrator.create_or_migrate_schema()
         self.assertFalse(execute_sql.called)
@@ -45,26 +45,25 @@ class MigratorTest(unittest.TestCase):
 
         self.migrator.create_or_migrate_schema()
         sql_called = execute_sql.call_args_list[-3][0][0]
-        self.assertIn('migrations/migration_003_004.sql', sql_called)
+        self.assertIn("migrations/migration_003_004.sql", sql_called)
         sql_called = execute_sql.call_args_list[-2][0][0]
-        self.assertIn('migrations/migration_004_005.sql', sql_called)
+        self.assertIn("migrations/migration_004_005.sql", sql_called)
         sql_called = execute_sql.call_args_list[-1][0][0]
-        self.assertIn('migrations/migration_005_006.sql', sql_called)
+        self.assertIn("migrations/migration_005_006.sql", sql_called)
 
     def test_migration_files_are_listed_if_ran_with_dry_run(self, execute_sql):
         self._walk_from_3_to_6()
 
-        with mock.patch('kinto.core.storage.postgresql.migrator.logger') as mocked:
+        with mock.patch("kinto.core.storage.postgresql.migrator.logger") as mocked:
             self.migrator.create_or_migrate_schema(dry_run=True)
 
-        output = ''.join([repr(call) for call in mocked.info.call_args_list])
-        self.assertIn('migrations/migration_003_004.sql', output)
-        self.assertIn('migrations/migration_004_005.sql', output)
-        self.assertIn('migrations/migration_005_006.sql', output)
+        output = "".join([repr(call) for call in mocked.info.call_args_list])
+        self.assertIn("migrations/migration_003_004.sql", output)
+        self.assertIn("migrations/migration_004_005.sql", output)
+        self.assertIn("migrations/migration_005_006.sql", output)
 
     def test_migration_fails_if_intermediary_version_is_missing(self, execute_sql):
-        with mock.patch.object(self.migrator,
-                               'get_installed_version') as current:
+        with mock.patch.object(self.migrator, "get_installed_version") as current:
             current.return_value = -1
             self.assertRaises(AssertionError, self.migrator.create_or_migrate_schema)
 
@@ -74,10 +73,12 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         from kinto.core.utils import sqlalchemy
+
         if sqlalchemy is None:
             return
 
         from .test_storage import PostgreSQLStorageTest
+
         self.settings = {**PostgreSQLStorageTest.settings}
         self.config = testing.setUp()
         self.config.add_settings(self.settings)
@@ -150,24 +151,24 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
         self._delete_everything()
 
         # Install old schema
-        self._load_schema('schema/postgresql-storage-1.6.sql')
+        self._load_schema("schema/postgresql-storage-1.6.sql")
 
         # Create a sample record using some code that is compatible with the
         # schema in place in cliquet 1.6.
         with self.storage.client.connect() as conn:
-            before = {'drink': 'cacao'}
+            before = {"drink": "cacao"}
             query = """
             INSERT INTO records (user_id, resource_name, data)
             VALUES (:user_id, :resource_name, (:data)::JSON)
             RETURNING id, as_epoch(last_modified) AS last_modified;
             """
-            placeholders = dict(user_id='jean-louis',
-                                resource_name='test',
-                                data=json.dumps(before))
+            placeholders = dict(
+                user_id="jean-louis", resource_name="test", data=json.dumps(before)
+            )
             result = conn.execute(query, placeholders)
             inserted = result.fetchone()
-            before['id'] = str(inserted['id'])
-            before['last_modified'] = inserted['last_modified']
+            before["id"] = str(inserted["id"])
+            before["last_modified"] = inserted["last_modified"]
 
         # In cliquet 1.6, version = 1.
         version = self.storage.get_installed_version()
@@ -181,14 +182,14 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
         self.assertEqual(version, self.version)
 
         # Check that previously created record is still here
-        migrated, count = self.storage.get_all('test', 'jean-louis')
+        migrated, count = self.storage.get_all("test", "jean-louis")
         self.assertEqual(migrated[0], before)
 
         # Check that new records can be created
-        r = self.storage.create('test', ',jean-louis', {'drink': 'mate'})
+        r = self.storage.create("test", ",jean-louis", {"drink": "mate"})
 
         # And deleted
-        self.storage.delete('test', ',jean-louis', r['id'])
+        self.storage.delete("test", ",jean-louis", r["id"])
 
     def test_every_available_migration_succeeds_if_tables_were_flushed(self):
         # During tests, tables can be flushed.
@@ -203,17 +204,19 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
         last_version = postgresql_storage.Storage.schema_version
         postgresql_storage.Storage.schema_version = 11
 
-        self._load_schema('schema/postgresql-storage-11.sql')
+        self._load_schema("schema/postgresql-storage-11.sql")
 
         insert_query = """
         INSERT INTO records (id, parent_id, collection_id, data, last_modified)
         VALUES (:id, :parent_id, :collection_id, (:data)::JSONB, from_epoch(:last_modified))
         """
-        placeholders = dict(id='rid',
-                            parent_id='jean-louis',
-                            collection_id='test',
-                            data=json.dumps({'drink': 'mate'}),
-                            last_modified=123456)
+        placeholders = dict(
+            id="rid",
+            parent_id="jean-louis",
+            collection_id="test",
+            data=json.dumps({"drink": "mate"}),
+            last_modified=123456,
+        )
         with self.storage.client.connect() as conn:
             conn.execute(insert_query, placeholders)
 
@@ -230,7 +233,7 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
 
         # Check that the rotted tombstone has been removed, but the
         # original record remains.
-        records, count = self.storage.get_all('test', 'jean-louis')
+        records, count = self.storage.get_all("test", "jean-louis")
         # Only the record remains.
         assert len(records) == 1
         assert count == 1
@@ -239,24 +242,28 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
         self._delete_everything()
         last_version = postgresql_storage.Storage.schema_version
 
-        self._load_schema('schema/postgresql-storage-11.sql')
+        self._load_schema("schema/postgresql-storage-11.sql")
         # Schema 11 is essentially the same as schema 17
         postgresql_storage.Storage.schema_version = 17
         with self.storage.client.connect() as conn:
-            conn.execute("""
+            conn.execute(
+                """
             UPDATE metadata SET value = '17'
             WHERE name = 'storage_schema_version';
-            """)
+            """
+            )
 
         insert_query = """
         INSERT INTO records (id, parent_id, collection_id, data, last_modified)
         VALUES (:id, :parent_id, :collection_id, (:data)::JSONB, from_epoch(:last_modified))
         """
-        placeholders = dict(id='rid',
-                            parent_id='jean-louis',
-                            collection_id='test',
-                            data=json.dumps({'drink': 'mate'}),
-                            last_modified=123456)
+        placeholders = dict(
+            id="rid",
+            parent_id="jean-louis",
+            collection_id="test",
+            data=json.dumps({"drink": "mate"}),
+            last_modified=123456,
+        )
         with self.storage.client.connect() as conn:
             conn.execute(insert_query, placeholders)
 
@@ -272,11 +279,10 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
         self.storage.initialize_schema()
 
         # Check that the record took precedence of over the tombstone.
-        records, count = self.storage.get_all('test', 'jean-louis',
-                                              include_deleted=True)
+        records, count = self.storage.get_all("test", "jean-louis", include_deleted=True)
         assert len(records) == 1
         assert count == 1
-        assert records[0]['drink'] == 'mate'
+        assert records[0]["drink"] == "mate"
 
 
 @skip_if_no_postgresql
@@ -284,10 +290,12 @@ class PostgresqlPermissionMigrationTest(unittest.TestCase):
     def __init__(self, *args, **kw):
         super().__init__(*args, **kw)
         from kinto.core.utils import sqlalchemy
+
         if sqlalchemy is None:
             return
 
         from .test_permission import PostgreSQLPermissionTest
+
         settings = {**PostgreSQLPermissionTest.settings}
         config = testing.setUp()
         config.add_settings(settings)
@@ -370,7 +378,7 @@ class PostgresqlPermissionMigrationTest(unittest.TestCase):
         elaborated along future migrations.
         """
         # Install old schema
-        self._load_schema('schema/postgresql-permission-1.sql')
+        self._load_schema("schema/postgresql-permission-1.sql")
 
         # Create some permissions data using some code that is
         # compatible with the schema in place.
@@ -397,21 +405,21 @@ class PostgresqlPermissionMigrationTest(unittest.TestCase):
         self.assertEqual(version, self.permission.schema_version)
 
         # Check that previously created data is still available
-        remy_principals = self.permission.get_user_principals('remy')
-        self.assertEqual(remy_principals, set(['admin']))
+        remy_principals = self.permission.get_user_principals("remy")
+        self.assertEqual(remy_principals, set(["admin"]))
 
         remy_objects = self.permission.get_accessible_objects(
-            ['remy', 'admin', 'system.Authenticated'])
-        self.assertEqual(remy_objects, {
-            'sailboat': set(['write']),
-            'sailboat/log': set(['read', 'write']),
-        })
+            ["remy", "admin", "system.Authenticated"]
+        )
+        self.assertEqual(
+            remy_objects, {"sailboat": set(["write"]), "sailboat/log": set(["read", "write"])}
+        )
 
         # Check that new records can be created
-        self.permission.add_user_principal('ethan', 'crew')
+        self.permission.add_user_principal("ethan", "crew")
 
         # And deleted
-        self.permission.remove_principal_from_ace('sailboat/log', 'read', 'system.Authenticated')
+        self.permission.remove_principal_from_ace("sailboat/log", "read", "system.Authenticated")
 
 
 @skip_if_no_postgresql
@@ -419,10 +427,12 @@ class PostgresqlCacheMigrationTest(unittest.TestCase):
     def __init__(self, *args, **kw):
         super().__init__(*args, **kw)
         from kinto.core.utils import sqlalchemy
+
         if sqlalchemy is None:
             return
 
         from .test_cache import PostgreSQLCacheTest
+
         settings = {**PostgreSQLCacheTest.settings}
         config = testing.setUp()
         config.add_settings(settings)

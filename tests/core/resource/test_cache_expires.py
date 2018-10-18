@@ -2,11 +2,11 @@ from . import BaseTest
 
 
 class CacheExpires(BaseTest):
-    setting = 'test_cache_expires_seconds'
+    setting = "test_cache_expires_seconds"
 
     def get_context(self):
         context = super().get_context()
-        context.resource_name = 'test'
+        context.resource_name = "test"
         return context
 
     def get_request(self):
@@ -28,7 +28,7 @@ class CacheExpires(BaseTest):
 
     def test_cache_expires_is_also_on_record_get(self):
         stored = self.model.create_record({})
-        self.resource.record_id = stored['id']
+        self.resource.record_id = stored["id"]
         settings = self.resource.request.registry.settings
         settings[self.setting] = 3
         self.resource.get()

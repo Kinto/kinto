@@ -8,7 +8,7 @@ from kinto.core import schema
 
 class TimeStampTest(unittest.TestCase):
     def setUp(self):
-        patch = mock.patch('kinto.core.schema.msec_time')
+        patch = mock.patch("kinto.core.schema.msec_time")
         self.time_mocked = patch.start()
         self.time_mocked.return_value = 666
         self.addCleanup(patch.stop)
@@ -26,12 +26,10 @@ class TimeStampTest(unittest.TestCase):
 
 class URLTest(unittest.TestCase):
     def test_supports_full_url(self):
-        url = 'https://user:pass@myserver:9999/feeling.html#anchor'
+        url = "https://user:pass@myserver:9999/feeling.html#anchor"
         deserialized = schema.URL().deserialize(url)
         self.assertEqual(deserialized, url)
 
     def test_raises_invalid_if_no_scheme(self):
-        url = 'myserver/feeling.html#anchor'
-        self.assertRaises(colander.Invalid,
-                          schema.URL().deserialize,
-                          url)
+        url = "myserver/feeling.html#anchor"
+        self.assertRaises(colander.Invalid, schema.URL().deserialize, url)

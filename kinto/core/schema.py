@@ -22,9 +22,10 @@ class TimeStamp(colander.SchemaNode):
             added_on = TimeStamp()
             read_on = TimeStamp(auto_now=False, missing=-1)
     """
+
     schema_type = colander.Integer
 
-    title = 'Epoch timestamp'
+    title = "Epoch timestamp"
     """Default field title."""
 
     auto_now = True
@@ -49,6 +50,7 @@ class URL(colander.SchemaNode):
         class BookmarkSchema(ResourceSchema):
             url = URL()
     """
+
     schema_type = colander.String
     validator = colander.All(colander.url, colander.Length(min=1, max=2048))
 
@@ -71,9 +73,9 @@ class HeaderField(colander.SchemaNode):
     def deserialize(self, cstruct=colander.null):
         if isinstance(cstruct, bytes):
             try:
-                cstruct = cstruct.decode('utf-8')
+                cstruct = cstruct.decode("utf-8")
             except UnicodeDecodeError:
-                raise colander.Invalid(self, msg='Headers should be UTF-8 encoded')
+                raise colander.Invalid(self, msg="Headers should be UTF-8 encoded")
         return super(HeaderField, self).deserialize(cstruct)
 
 
@@ -92,13 +94,13 @@ class FieldList(QueryField):
     """String field representing a list of attributes."""
 
     schema_type = colander.Sequence
-    error_message = 'The value should be a list of comma separated attributes'
+    error_message = "The value should be a list of comma separated attributes"
     missing = colander.drop
     fields = colander.SchemaNode(colander.String(), missing=colander.drop)
 
     def deserialize(self, cstruct=colander.null):
         if isinstance(cstruct, str):
-            cstruct = cstruct.split(',')
+            cstruct = cstruct.split(",")
         return super(FieldList, self).deserialize(cstruct)
 
 
@@ -106,12 +108,12 @@ class HeaderQuotedInteger(HeaderField):
     """Integer between "" used in precondition headers."""
 
     schema_type = colander.String
-    error_message = 'The value should be integer between double quotes.'
+    error_message = "The value should be integer between double quotes."
     validator = colander.Regex('^"([0-9]+?)"$|\\*', msg=error_message)
 
     def deserialize(self, cstruct=colander.null):
         param = super(HeaderQuotedInteger, self).deserialize(cstruct)
-        if param is colander.drop or param == '*':
+        if param is colander.drop or param == "*":
             return param
 
         return int(param[1:-1])

@@ -19,20 +19,18 @@ class BaseTest(unittest.TestCase):
     def setUp(self):
         self.storage = storage_memory.Storage()
         self.cache = cache_memory.Cache(cache_prefix="", cache_max_size_bytes=1000)
-        self.resource = self.resource_class(request=self.get_request(),
-                                            context=self.get_context())
+        self.resource = self.resource_class(request=self.get_request(), context=self.get_context())
         self.resource.schema = StrictSchema
         self.model = self.resource.model
-        self.patch_known_field = mock.patch.object(self.resource,
-                                                   'is_known_field')
-        self.validated = {'body': {}, 'header': {}, 'querystring': {}}
+        self.patch_known_field = mock.patch.object(self.resource, "is_known_field")
+        self.validated = {"body": {}, "header": {}, "querystring": {}}
         self.resource.request.validated = self.validated
 
     def tearDown(self):
         mock.patch.stopall()
 
-    def get_request(self, resource_name=''):
-        request = DummyRequest(method='GET')
+    def get_request(self, resource_name=""):
+        request = DummyRequest(method="GET")
         request.current_resource_name = resource_name
         request.registry.cache = self.cache
         request.registry.storage = self.storage

@@ -11,7 +11,6 @@ built_index = os.path.join(build_folder, "index.html")
 
 
 class AdminViewTest(BaseWebTest, unittest.TestCase):
-
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -31,7 +30,7 @@ class AdminViewTest(BaseWebTest, unittest.TestCase):
     @classmethod
     def get_app_settings(self, extras=None):
         settings = super().get_app_settings(extras)
-        settings['includes'] = 'kinto.plugins.admin'
+        settings["includes"] = "kinto.plugins.admin"
         return settings
 
     def setUp(self):
@@ -39,27 +38,27 @@ class AdminViewTest(BaseWebTest, unittest.TestCase):
 
     def test_capability_is_exposed(self):
         self.maxDiff = None
-        resp = self.app.get('/')
-        capabilities = resp.json['capabilities']
-        self.assertIn('admin', capabilities)
-        self.assertIn('version', capabilities['admin'])
-        del capabilities['admin']['version']
+        resp = self.app.get("/")
+        capabilities = resp.json["capabilities"]
+        self.assertIn("admin", capabilities)
+        self.assertIn("version", capabilities["admin"])
+        del capabilities["admin"]["version"]
         expected = {
             "description": "Serves the admin console.",
             "url": ("https://github.com/Kinto/kinto-admin/"),
         }
-        self.assertEqual(expected, capabilities['admin'])
+        self.assertEqual(expected, capabilities["admin"])
 
     def test_permission_endpoint_is_enabled_with_admin(self):
-        resp = self.app.get('/')
-        capabilities = resp.json['capabilities']
-        assert 'permissions_endpoint' in capabilities
+        resp = self.app.get("/")
+        capabilities = resp.json["capabilities"]
+        assert "permissions_endpoint" in capabilities
 
     def test_admin_index_cat_be_reached(self):
         self.maxDiff = None
-        resp = self.app.get('/admin/')
-        assert "html" in resp.body.decode('utf-8')
+        resp = self.app.get("/admin/")
+        assert "html" in resp.body.decode("utf-8")
 
     def test_admin_redirect_without_trailing_slash(self):
-        resp = self.app.get('/admin', status=307)
-        self.assertTrue(resp.headers['location'].endswith('/admin/'))
+        resp = self.app.get("/admin", status=307)
+        self.assertTrue(resp.headers["location"].endswith("/admin/"))

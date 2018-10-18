@@ -17,92 +17,83 @@ from .support import PostgreSQLTest, USER_PRINCIPAL
 
 @skip_if_no_postgresql
 class TransactionTest(PostgreSQLTest, unittest.TestCase):
-
     def test_heartbeat_releases_transaction_lock(self):
         for i in range(4):
             # 4 calls because we have 3 backends
             # See bug Kinto/kinto#804
-            self.app.get('/__heartbeat__')
+            self.app.get("/__heartbeat__")
 
     def test_storage_operations_are_committed_on_success(self):
         request_create = {
-            'method': 'POST',
-            'path': '/mushrooms',
-            'body': {'data': {'name': 'Trompette de la mort'}}
+            "method": "POST",
+            "path": "/mushrooms",
+            "body": {"data": {"name": "Trompette de la mort"}},
         }
-        body = {'requests': [request_create, request_create, request_create]}
-        self.app.post_json('/batch', body, headers=self.headers)
-        resp = self.app.get('/mushrooms', headers=self.headers)
-        self.assertEqual(len(resp.json['data']), 3)
+        body = {"requests": [request_create, request_create, request_create]}
+        self.app.post_json("/batch", body, headers=self.headers)
+        resp = self.app.get("/mushrooms", headers=self.headers)
+        self.assertEqual(len(resp.json["data"]), 3)
 
     def test_transaction_isolation_within_request(self):
         request_create = {
-            'method': 'POST',
-            'path': '/mushrooms',
-            'body': {'data': {'name': 'Vesse de loup'}}
+            "method": "POST",
+            "path": "/mushrooms",
+            "body": {"data": {"name": "Vesse de loup"}},
         }
-        request_get = {
-            'method': 'GET',
-            'path': '/mushrooms',
-        }
-        body = {'requests': [request_create, request_get]}
-        resp = self.app.post_json('/batch', body, headers=self.headers)
-        self.assertEqual(resp.json['responses'][1]['body']['data'][0]['name'],
-                         'Vesse de loup')
+        request_get = {"method": "GET", "path": "/mushrooms"}
+        body = {"requests": [request_create, request_get]}
+        resp = self.app.post_json("/batch", body, headers=self.headers)
+        self.assertEqual(resp.json["responses"][1]["body"]["data"][0]["name"], "Vesse de loup")
 
     def test_modifications_are_rolled_back_on_error(self):
         self.run_failing_batch()
 
-        resp = self.app.get('/mushrooms', headers=self.headers)
-        self.assertEqual(len(resp.json['data']), 0)
+        resp = self.app.get("/mushrooms", headers=self.headers)
+        self.assertEqual(len(resp.json["data"]), 0)
 
     def test_modifications_are_not_rolled_back_on_401_error(self):
         request_create = {
-            'method': 'POST',
-            'path': '/mushrooms',
-            'body': {'data': {'name': 'Vesse de loup'}}
+            "method": "POST",
+            "path": "/mushrooms",
+            "body": {"data": {"name": "Vesse de loup"}},
         }
-        request_get = {
-            'method': 'GET',
-            'path': '/this-is-an-unknown-url',
-        }
-        body = {'requests': [request_create, request_get]}
-        resp = self.app.post_json('/batch', body, headers=self.headers)
-        resp = self.app.get('/mushrooms', headers=self.headers)
-        self.assertEqual(len(resp.json['data']), 1)
+        request_get = {"method": "GET", "path": "/this-is-an-unknown-url"}
+        body = {"requests": [request_create, request_get]}
+        resp = self.app.post_json("/batch", body, headers=self.headers)
+        resp = self.app.get("/mushrooms", headers=self.headers)
+        self.assertEqual(len(resp.json["data"]), 1)
 
     def test_modifications_are_rolled_back_on_409_error(self):
         bucket_create = {
-            'method': 'POST',
-            'path': '/mushrooms',
-            'body': {'data': {'name': 'Vesse de loup', 'last_modified': 123}}
+            "method": "POST",
+            "path": "/mushrooms",
+            "body": {"data": {"name": "Vesse de loup", "last_modified": 123}},
         }
         bucket_ccreate = {
-            'method': 'POST',
-            'path': '/mushrooms',
-            'body': {'data': {'name': 'Vesse de loup', 'last_modified': 123}}
+            "method": "POST",
+            "path": "/mushrooms",
+            "body": {"data": {"name": "Vesse de loup", "last_modified": 123}},
         }
-        body = {'requests': [bucket_create, bucket_ccreate]}
-        resp = self.app.post_json('/batch', body, headers=self.headers)
-        response = resp.json['responses'][1]
-        self.assertEqual(response['status'], 409)
-        resp = self.app.get('/mushrooms', headers=self.headers)
-        self.assertEqual(len(resp.json['data']), 0)
+        body = {"requests": [bucket_create, bucket_ccreate]}
+        resp = self.app.post_json("/batch", body, headers=self.headers)
+        response = resp.json["responses"][1]
+        self.assertEqual(response["status"], 409)
+        resp = self.app.get("/mushrooms", headers=self.headers)
+        self.assertEqual(len(resp.json["data"]), 0)
 
     def test_modifications_are_rolled_back_on_error_accross_backends(self):
         self.run_failing_post()
 
-        resp = self.app.get('/psilos', headers=self.headers)
-        self.assertEqual(len(resp.json['data']), 0)
+        resp = self.app.get("/psilos", headers=self.headers)
+        self.assertEqual(len(resp.json["data"]), 0)
 
 
 class IntegrityConstraintTest(PostgreSQLTest, unittest.TestCase):
-
     @classmethod
     def get_app_settings(cls, extras=None):
         settings = super().get_app_settings(extras)
         if sqlalchemy is not None:
-            settings.pop('storage_poolclass', None)  # Use real pool.
+            settings.pop("storage_poolclass", None)  # Use real pool.
         return settings
 
     def test_concurrent_transactions_do_not_fail(self):
@@ -112,18 +103,19 @@ class IntegrityConstraintTest(PostgreSQLTest, unittest.TestCase):
         # are consistent. # See Kinto/kinto#1125.
 
         # Make requests slow.
-        patch = mock.patch('kinto.core.resource.UserResource.postprocess',
-                           lambda s, r, a='read', old=None: time.sleep(0.2) or {})
+        patch = mock.patch(
+            "kinto.core.resource.UserResource.postprocess",
+            lambda s, r, a="read", old=None: time.sleep(0.2) or {},
+        )
         patch.start()
         self.addCleanup(patch.stop)
 
         # Same object created in two concurrent requests.
-        body = {'data': {'id': str(uuid4())}}
+        body = {"data": {"id": str(uuid4())}}
         results = set()
 
         def create_object():
-            r = self.app.post_json('/psilos', body, headers=self.headers,
-                                   status=(201, 200, 409))
+            r = self.app.post_json("/psilos", body, headers=self.headers, status=(201, 200, 409))
             results.add(r.status_code)
 
         thread1 = threading.Thread(target=create_object)
@@ -140,28 +132,24 @@ class IntegrityConstraintTest(PostgreSQLTest, unittest.TestCase):
 class TransactionCacheTest(PostgreSQLTest, unittest.TestCase):
     def setUp(self):
         def cache_and_fails(this, *args, **kwargs):
-            self.cache.set('test-cache', 'a value', ttl=100)
-            raise BackendError('boom')
+            self.cache.set("test-cache", "a value", ttl=100)
+            raise BackendError("boom")
 
-        patch = mock.patch.object(
-            self.permission,
-            'add_principal_to_ace',
-            wraps=cache_and_fails)
+        patch = mock.patch.object(self.permission, "add_principal_to_ace", wraps=cache_and_fails)
         self.addCleanup(patch.stop)
         patch.start()
 
     def test_cache_backend_operations_are_always_committed(self):
-        self.app.post_json('/psilos',
-                           {'data': {'name': 'Amanite'}},
-                           headers=self.headers,
-                           status=503)
+        self.app.post_json(
+            "/psilos", {"data": {"name": "Amanite"}}, headers=self.headers, status=503
+        )
 
         # Storage was rolled back.
-        resp = self.app.get('/psilos', headers=self.headers)
-        self.assertEqual(len(resp.json['data']), 0)
+        resp = self.app.get("/psilos", headers=self.headers)
+        self.assertEqual(len(resp.json["data"]), 0)
 
         # Cache was committed.
-        self.assertEqual(self.cache.get('test-cache'), 'a value')
+        self.assertEqual(self.cache.get("test-cache"), "a value")
 
 
 @skip_if_no_postgresql
@@ -176,14 +164,8 @@ class TransactionEventsTest(PostgreSQLTest, unittest.TestCase):
 
     def send_batch_create(self, app, **kwargs):
         body = {
-            "defaults": {
-                "method": "POST",
-                "body": {'data': {'name': 'Vesse de loup'}},
-            },
-            "requests": [
-                {"path": '/mushrooms'},
-                {"path": '/mushrooms'}
-            ]
+            "defaults": {"method": "POST", "body": {"data": {"name": "Vesse de loup"}}},
+            "requests": [{"path": "/mushrooms"}, {"path": "/mushrooms"}],
         }
         return app.post_json("/batch", body, headers=self.headers, **kwargs)
 
@@ -193,11 +175,10 @@ class TransactionEventsTest(PostgreSQLTest, unittest.TestCase):
             extra_record = {"id": "3.14", "z": 42}
             storage.create("mushroom", USER_PRINCIPAL, extra_record)
 
-        app = self.make_app_with_subscribers([(events.ResourceChanged,
-                                               store_record)])
+        app = self.make_app_with_subscribers([(events.ResourceChanged, store_record)])
         self.send_batch_create(app)
-        resp = app.get('/mushrooms', headers=self.headers)
-        self.assertEqual(len(resp.json['data']), 2 + 1)
+        resp = app.get("/mushrooms", headers=self.headers)
+        self.assertEqual(len(resp.json["data"]), 2 + 1)
 
     def test_resourcechanged_is_rolledback_with_transaction(self):
         def store_record(event):
@@ -205,55 +186,51 @@ class TransactionEventsTest(PostgreSQLTest, unittest.TestCase):
             extra_record = {"id": "3.14", "z": 42}
             storage.create("mushroom", USER_PRINCIPAL, extra_record)
 
-        app = self.make_app_with_subscribers([(events.ResourceChanged,
-                                               store_record)])
+        app = self.make_app_with_subscribers([(events.ResourceChanged, store_record)])
         # We want to patch the following method so that it raises an exception,
         # to make sure the rollback is happening correctly.
-        to_patch = 'transaction._manager.ThreadTransactionManager.commit'
+        to_patch = "transaction._manager.ThreadTransactionManager.commit"
         with mock.patch(to_patch) as mocked:
             mocked.side_effect = ValueError
             self.send_batch_create(app, status=500)
-        resp = app.get('/mushrooms', headers=self.headers)
-        self.assertEqual(len(resp.json['data']), 0)
+        resp = app.get("/mushrooms", headers=self.headers)
+        self.assertEqual(len(resp.json["data"]), 0)
 
     def test_resourcechanged_can_rollback_whole_request(self):
         def store_record(event):
             raise httpexceptions.HTTPInsufficientStorage()
 
-        app = self.make_app_with_subscribers([(events.ResourceChanged,
-                                               store_record)])
+        app = self.make_app_with_subscribers([(events.ResourceChanged, store_record)])
         self.send_batch_create(app, status=507)
-        resp = app.get('/mushrooms', headers=self.headers)
-        self.assertEqual(len(resp.json['data']), 0)
+        resp = app.get("/mushrooms", headers=self.headers)
+        self.assertEqual(len(resp.json["data"]), 0)
 
     def test_afterresourcechanged_cannot_rollback_whole_request(self):
         def store_record(event):
             raise httpexceptions.HTTPInsufficientStorage()
 
-        app = self.make_app_with_subscribers([(events.AfterResourceChanged,
-                                               store_record)])
+        app = self.make_app_with_subscribers([(events.AfterResourceChanged, store_record)])
         self.send_batch_create(app, status=200)
-        resp = app.get('/mushrooms', headers=self.headers)
-        self.assertEqual(len(resp.json['data']), 2)
+        resp = app.get("/mushrooms", headers=self.headers)
+        self.assertEqual(len(resp.json["data"]), 2)
 
 
 @skip_if_no_postgresql
 class WithoutTransactionTest(PostgreSQLTest, unittest.TestCase):
-
     @classmethod
     def get_app_settings(cls, extras=None):
         settings = super().get_app_settings(extras)
-        settings['transaction_per_request'] = False
+        settings["transaction_per_request"] = False
         return settings
 
     def test_modifications_are_not_rolled_back_on_error(self):
         self.run_failing_batch()
 
-        resp = self.app.get('/mushrooms', headers=self.headers)
-        self.assertEqual(len(resp.json['data']), 2)
+        resp = self.app.get("/mushrooms", headers=self.headers)
+        self.assertEqual(len(resp.json["data"]), 2)
 
     def test_modifications_are_not_rolled_back_on_error_accross_backends(self):
         self.run_failing_post()
 
-        resp = self.app.get('/psilos', headers=self.headers)
-        self.assertEqual(len(resp.json['data']), 1)
+        resp = self.app.get("/psilos", headers=self.headers)
+        self.assertEqual(len(resp.json["data"]), 1)

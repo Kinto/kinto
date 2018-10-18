@@ -8,11 +8,11 @@ class BackendError(Exception):
     :param Exception original: the wrapped exception raised by underlying
         library.
     """
+
     def __init__(self, original=None, message=None, *args, **kwargs):
         self.original = original
         if message is None:
-            message = '{}: {}'.format(original.__class__.__name__,
-                                      original)
+            message = "{}: {}".format(original.__class__.__name__, original)
         super().__init__(message, *args, **kwargs)
 
 
@@ -20,6 +20,7 @@ class RecordNotFoundError(Exception):
     """An exception raised when a specific record could not be found.
 
     """
+
     pass
 
 
@@ -34,8 +35,9 @@ class UnicityError(IntegrityError):
     record violates the unicity constraints defined by the resource.
 
     """
+
     def __init__(self, field, record, *args, **kwargs):
         self.field = field
         self.record = record
-        self.msg = '{} is not unique: {}'.format(field, record)
+        self.msg = "{} is not unique: {}".format(field, record)
         super().__init__(*args, **kwargs)

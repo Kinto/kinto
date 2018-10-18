@@ -139,17 +139,25 @@ Get started!
 
    Now you can make your changes locally.
 
-6. When you're done making changes, check that your changes pass the tests::
+6. When you're done making changes, check that your changes pass linting (requires python >= 3.6)::
+
+    tox -e lint
+
+7. Don't forget to check that your changes pass the tests::
 
     make tests
 
-7. Commit your changes and push your branch to GitHub::
+8. (Optional) Install a git hook::
 
-    $ git add .
-    $ git commit -m "Your detailed description of your changes."
-    $ git push origin name-of-your-bugfix-or-feature
+    therapist install
 
-8. Submit a pull request through the GitHub website.
+9. Commit your changes and push your branch to GitHub::
+
+    git add .
+    git commit -m "Your detailed description of your changes."
+    git push origin name-of-your-bugfix-or-feature
+
+10. Submit a pull request through the GitHub website.
 
 
 Testing methodology
