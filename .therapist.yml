@@ -1,9 +1,15 @@
 actions:
   black:
-    run: black --check --diff {files}
+    run: black --check {files}
     fix: black {files}
     include: "*.py"
+    exclude:
+      - .venv/
+      - kinto/plugins/admin/node_modules/
 
   flake8:
     run: flake8 {files}
     include: "*.py"
+    exclude:
+      - .venv/
+      - kinto/plugins/admin/node_modules/
