@@ -8,7 +8,7 @@ from pyramid import testing
 from kinto import main as kinto_main
 from kinto.core.errors import ERRORS
 from kinto.core.storage import Sort
-from kinto.core.storage.exceptions import RecordNotFoundError
+from kinto.core.storage.exceptions import ObjectNotFoundError
 from kinto.core.testing import FormattedErrorMixin, sqlalchemy, skip_if_no_statsd
 from kinto.plugins.quotas import scripts
 from kinto.plugins.quotas.listener import (
@@ -494,28 +494,28 @@ class QuotaListenerTest(QuotaWebTest):
             {"collection_count": 0, "record_count": 0, "storage_size": record_size(self.bucket)},
         )
 
-        with pytest.raises(RecordNotFoundError):
+        with pytest.raises(ObjectNotFoundError):
             self.storage.get(
                 collection_id=QUOTA_RESOURCE_NAME,
                 parent_id="{}/collections/a".format(self.bucket_uri),
                 object_id=COLLECTION_QUOTA_OBJECT_ID,
             )
 
-        with pytest.raises(RecordNotFoundError):
+        with pytest.raises(ObjectNotFoundError):
             self.storage.get(
                 collection_id=QUOTA_RESOURCE_NAME,
                 parent_id="{}/collections/b".format(self.bucket_uri),
                 object_id=COLLECTION_QUOTA_OBJECT_ID,
             )
 
-        with pytest.raises(RecordNotFoundError):
+        with pytest.raises(ObjectNotFoundError):
             self.storage.get(
                 collection_id=QUOTA_RESOURCE_NAME,
                 parent_id="{}/collections/c".format(self.bucket_uri),
                 object_id=COLLECTION_QUOTA_OBJECT_ID,
             )
 
-        with pytest.raises(RecordNotFoundError):
+        with pytest.raises(ObjectNotFoundError):
             self.storage.get(
                 collection_id=QUOTA_RESOURCE_NAME,
                 parent_id=self.collection_uri,

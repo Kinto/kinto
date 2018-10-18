@@ -2,7 +2,7 @@ import copy
 
 from pyramid.httpexceptions import HTTPInsufficientStorage
 from kinto.core.errors import http_error, ERRORS
-from kinto.core.storage.exceptions import RecordNotFoundError
+from kinto.core.storage.exceptions import ObjectNotFoundError
 from kinto.core.utils import instance_uri
 
 from .utils import record_size
@@ -108,7 +108,7 @@ def on_resource_changed(event):
                 object_id=BUCKET_QUOTA_OBJECT_ID,
             )
         )
-    except RecordNotFoundError:
+    except ObjectNotFoundError:
         bucket_info = {"collection_count": 0, "record_count": 0, "storage_size": 0}
 
     collection_info = {"record_count": 0, "storage_size": 0}
@@ -121,7 +121,7 @@ def on_resource_changed(event):
                     object_id=COLLECTION_QUOTA_OBJECT_ID,
                 )
             )
-        except RecordNotFoundError:
+        except ObjectNotFoundError:
             pass
 
     # Update the bucket quotas values for each impacted record.

@@ -31,7 +31,7 @@ def account_check(username, password, request):
         existing = request.registry.storage.get(
             parent_id=parent_id, collection_id="account", object_id=username
         )
-    except storage_exceptions.RecordNotFoundError:
+    except storage_exceptions.ObjectNotFoundError:
         return None
 
     hashed = existing["password"].encode(encoding="utf-8")
