@@ -16,8 +16,8 @@ class SortingTest(BaseTest):
         random.shuffle(indices)
 
         for i in indices:
-            record = {"title": "MoFo #{0:02}".format(i), "status": i % 4, "unread": (i % 2 == 0)}
-            self.model.create_record(record)
+            object = {"title": "MoFo #{0:02}".format(i), "status": i % 4, "unread": (i % 2 == 0)}
+            self.model.create_object(object)
 
     def test_sort_works_with_empty_list(self):
         self.resource.model.parent_id = "alice"
@@ -111,7 +111,7 @@ class SortingTest(BaseTest):
         tstamp = self.model.timestamp()
         self.assertEqual(result["data"][0]["last_modified"], tstamp)
 
-    def test_default_sort_is_last_modified_records_have_same_status(self):
+    def test_default_sort_is_last_modified_objects_have_same_status(self):
         self.resource.request.validated["querystring"] = {"_sort": ["status"]}
         result = self.resource.collection_get()
         self.assertEqual(result["data"][0]["status"], 0)
@@ -128,10 +128,10 @@ class SubobjectSortingTest(BaseTest):
         random.shuffle(indices)
 
         for i in indices:
-            record = {"party": {"candidate": "Marie", "voters": i}, "location": "Creuse"}
-            self.model.create_record(record)
+            object = {"party": {"candidate": "Marie", "voters": i}, "location": "Creuse"}
+            self.model.create_object(object)
 
-    def test_records_can_be_sorted_by_subobjects(self):
+    def test_objects_can_be_sorted_by_subobjects(self):
         self.resource.request.validated["querystring"] = {"_sort": ["party.voters"]}
         result = self.resource.collection_get()
         values = [item["party"]["voters"] for item in result["data"]]

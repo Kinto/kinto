@@ -86,7 +86,7 @@ class Cache(CacheBase):
         if ttl == 0:
             self.delete(key)
         else:
-            # We can't use touch here because we need to update the TTL value in the record.
+            # We can't use touch here because we need to update the TTL value in the object.
             value = self.get(key)
             self.set(key, value, ttl)
 

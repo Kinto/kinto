@@ -18,10 +18,10 @@ class BasePaginationTest(BaseTest):
         indices = list(range(20))
         random.shuffle(indices)
         for i in indices:
-            record = {"title": "MoFo #{0:02}".format(i), "status": i % 4, "unread": (i % 2 == 0)}
+            object = {"title": "MoFo #{0:02}".format(i), "status": i % 4, "unread": (i % 2 == 0)}
             if i % 3 == 0:
-                record["optional"] = True
-            self.model.create_record(record)
+                object["optional"] = True
+            self.model.create_object(object)
 
         self.validated = self.resource.request.validated
 
@@ -56,11 +56,11 @@ class PaginationTest(BasePaginationTest):
             result = self.resource.collection_get()
             self.assertEqual(len(result["data"]), 5)
 
-    def test_return_total_records_in_headers(self):
+    def test_return_total_objects_in_headers(self):
         self.validated["querystring"] = {"_limit": 5}
         self.resource.collection_get()
         headers = self.last_response.headers
-        count = headers["Total-Records"]
+        count = headers["Total-Objects"]
         self.assertEqual(int(count), 20)
 
     def test_return_next_page_url_is_given_in_headers(self):
@@ -75,7 +75,7 @@ class PaginationTest(BasePaginationTest):
         self.assertIn("_limit", queryparams)
         self.assertIn("_token", queryparams)
 
-    def test_next_page_url_gives_distinct_records(self):
+    def test_next_page_url_gives_distinct_objects(self):
         self.validated["querystring"] = {"_limit": 10}
         results1 = self.resource.collection_get()
         self._setup_next_page()
@@ -84,7 +84,7 @@ class PaginationTest(BasePaginationTest):
         results_id2 = set([x["id"] for x in results2["data"]])
         self.assertFalse(results_id1.intersection(results_id2))
 
-    def test_next_page_url_gives_distinct_records_with_forced_limit(self):
+    def test_next_page_url_gives_distinct_objects_with_forced_limit(self):
         with mock.patch.dict(self.resource.request.registry.settings, [("paginate_by", 5)]):
             results1 = self.resource.collection_get()
             self._setup_next_page()
@@ -96,10 +96,10 @@ class PaginationTest(BasePaginationTest):
 
     def test_twice_the_same_next_page(self):
         self.validated["querystring"] = {"_limit": 10}
-        records = self.resource.collection_get()
-        first_ids = [r["id"] for r in records["data"]]
-        records = self.resource.collection_get()
-        second_ids = [r["id"] for r in records["data"]]
+        objects = self.resource.collection_get()
+        first_ids = [r["id"] for r in objects["data"]]
+        objects = self.resource.collection_get()
+        second_ids = [r["id"] for r in objects["data"]]
         self.assertEqual(first_ids, second_ids)
 
     def test_stops_giving_next_page_at_the_end_of_first_page(self):
@@ -212,8 +212,8 @@ class PaginatedDeleteTest(BasePaginationTest):
         self.assertEqual(len(result["data"]), 3)
 
     def test_paginated_delete(self):
-        all_records = self.resource.collection_get()
-        expected_ids = [r["id"] for r in all_records["data"]]
+        all_objects = self.resource.collection_get()
+        expected_ids = [r["id"] for r in all_objects["data"]]
         # Page 1
         self.validated["querystring"]["_limit"] = 10
         results1 = self.resource.collection_delete()
@@ -224,17 +224,17 @@ class PaginatedDeleteTest(BasePaginationTest):
         results2_ids = [r["id"] for r in results2["data"]]
         self.assertEqual(expected_ids, results1_ids + results2_ids)
 
-    def test_return_total_records_in_headers_matching_deletable(self):
+    def test_return_total_objects_in_headers_matching_deletable(self):
         self.validated["querystring"] = {"_limit": 5}
         self.resource.collection_delete()
         headers = self.last_response.headers
-        count = headers["Total-Records"]
+        count = headers["Total-Objects"]
         self.assertEqual(int(count), 20)
 
     def test_paginated_delete_second_to_last_gets_next_header(self):
         self.resource.collection_get()
         get_all_headers = self.last_response.headers
-        count = int(get_all_headers["Total-Records"]) - 1
+        count = int(get_all_headers["Total-Objects"]) - 1
 
         self.validated["querystring"] = {"_limit": 1}
         headers = []
@@ -263,7 +263,7 @@ class BuildPaginationTokenTest(BaseTest):
     def setUp(self):
         super().setUp()
         self.patch_known_field.start()
-        self.record = {
+        self.object = {
             "id": 1,
             "status": 2,
             "unread": True,
@@ -274,62 +274,62 @@ class BuildPaginationTokenTest(BaseTest):
         }
 
     def test_token_contains_current_offset(self):
-        token = self.resource._build_pagination_token([("last_modified", -1)], self.record, 42)
+        token = self.resource._build_pagination_token([("last_modified", -1)], self.object, 42)
         tokeninfo = json.loads(b64decode(token).decode("ascii"))
         self.assertEqual(tokeninfo["offset"], 42)
 
     def test_no_sorting_default_to_modified_field(self):
-        token = self.resource._build_pagination_token([("last_modified", -1)], self.record, 42)
+        token = self.resource._build_pagination_token([("last_modified", -1)], self.object, 42)
         tokeninfo = json.loads(b64decode(token).decode("ascii"))
-        self.assertDictEqual(tokeninfo["last_record"], {"last_modified": 1234})
+        self.assertDictEqual(tokeninfo["last_object"], {"last_modified": 1234})
 
     def test_sorting_handle_both_rules(self):
         token = self.resource._build_pagination_token(
-            [("status", -1), ("last_modified", -1)], self.record, 34
+            [("status", -1), ("last_modified", -1)], self.object, 34
         )
         tokeninfo = json.loads(b64decode(token).decode("ascii"))
-        self.assertDictEqual(tokeninfo["last_record"], {"last_modified": 1234, "status": 2})
+        self.assertDictEqual(tokeninfo["last_object"], {"last_modified": 1234, "status": 2})
 
     def test_sorting_handle_ordering_direction(self):
         token = self.resource._build_pagination_token(
-            [("status", 1), ("last_modified", 1)], self.record, 32
+            [("status", 1), ("last_modified", 1)], self.object, 32
         )
         tokeninfo = json.loads(b64decode(token).decode("ascii"))
-        self.assertEqual(tokeninfo["last_record"], {"last_modified": 1234, "status": 2})
+        self.assertEqual(tokeninfo["last_object"], {"last_modified": 1234, "status": 2})
 
     def test_multiple_sorting_keep_all(self):
         token = self.resource._build_pagination_token(
-            [("status", 1), ("title", -1), ("last_modified", -1)], self.record, 31
+            [("status", 1), ("title", -1), ("last_modified", -1)], self.object, 31
         )
         tokeninfo = json.loads(b64decode(token).decode("ascii"))
         self.assertEqual(
-            tokeninfo["last_record"], {"last_modified": 1234, "status": 2, "title": "Title"}
+            tokeninfo["last_object"], {"last_modified": 1234, "status": 2, "title": "Title"}
         )
 
     def test_sorting_on_nested_field(self):
         token = self.resource._build_pagination_token(
-            [("nested.subvalue", -1), ("title", 1)], self.record, 88
+            [("nested.subvalue", -1), ("title", 1)], self.object, 88
         )
         tokeninfo = json.loads(b64decode(token).decode("ascii"))
-        self.assertEqual(tokeninfo["last_record"], {"title": "Title", "nested.subvalue": 42})
+        self.assertEqual(tokeninfo["last_object"], {"title": "Title", "nested.subvalue": 42})
 
     def test_disambiguate_fieldname_containing_dots(self):
         token = self.resource._build_pagination_token(
-            [("nested.other.subvalue", -1), ("title", 1)], self.record, 88
+            [("nested.other.subvalue", -1), ("title", 1)], self.object, 88
         )
         tokeninfo = json.loads(b64decode(token).decode("ascii"))
-        self.assertEqual(tokeninfo["last_record"], {"title": "Title", "nested.other.subvalue": 43})
+        self.assertEqual(tokeninfo["last_object"], {"title": "Title", "nested.other.subvalue": 43})
 
     def test_strip_malformed_sort_field(self):
         token = self.resource._build_pagination_token(
-            [("non.existent", -1), ("title", 1)], self.record, 88
+            [("non.existent", -1), ("title", 1)], self.object, 88
         )
         tokeninfo = json.loads(b64decode(token).decode("ascii"))
-        self.assertEqual(tokeninfo["last_record"], {"title": "Title"})
+        self.assertEqual(tokeninfo["last_object"], {"title": "Title"})
 
     def test_can_build_while_sorting_on_missing_field(self):
         token = self.resource._build_pagination_token(
-            [("unknown", 1), ("title", -1), ("last_modified", -1)], self.record, 31
+            [("unknown", 1), ("title", -1), ("last_modified", -1)], self.object, 31
         )
         tokeninfo = json.loads(b64decode(token).decode("ascii"))
-        self.assertEqual(tokeninfo["last_record"], {"last_modified": 1234, "title": "Title"})
+        self.assertEqual(tokeninfo["last_object"], {"last_modified": 1234, "title": "Title"})

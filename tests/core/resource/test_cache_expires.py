@@ -26,9 +26,9 @@ class CacheExpires(BaseTest):
         self.resource.collection_get()
         self.last_response.cache_expires.assert_called_with(seconds=3)
 
-    def test_cache_expires_is_also_on_record_get(self):
-        stored = self.model.create_record({})
-        self.resource.record_id = stored["id"]
+    def test_cache_expires_is_also_on_object_get(self):
+        stored = self.model.create_object({})
+        self.resource.object_id = stored["id"]
         settings = self.resource.request.registry.settings
         settings[self.setting] = 3
         self.resource.get()

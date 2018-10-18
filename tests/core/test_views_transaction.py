@@ -170,23 +170,23 @@ class TransactionEventsTest(PostgreSQLTest, unittest.TestCase):
         return app.post_json("/batch", body, headers=self.headers, **kwargs)
 
     def test_resourcechanged_is_executed_within_transaction(self):
-        def store_record(event):
+        def store_object(event):
             storage = event.request.registry.storage
-            extra_record = {"id": "3.14", "z": 42}
-            storage.create("mushroom", USER_PRINCIPAL, extra_record)
+            extra_object = {"id": "3.14", "z": 42}
+            storage.create("mushroom", USER_PRINCIPAL, extra_object)
 
-        app = self.make_app_with_subscribers([(events.ResourceChanged, store_record)])
+        app = self.make_app_with_subscribers([(events.ResourceChanged, store_object)])
         self.send_batch_create(app)
         resp = app.get("/mushrooms", headers=self.headers)
         self.assertEqual(len(resp.json["data"]), 2 + 1)
 
     def test_resourcechanged_is_rolledback_with_transaction(self):
-        def store_record(event):
+        def store_object(event):
             storage = event.request.registry.storage
-            extra_record = {"id": "3.14", "z": 42}
-            storage.create("mushroom", USER_PRINCIPAL, extra_record)
+            extra_object = {"id": "3.14", "z": 42}
+            storage.create("mushroom", USER_PRINCIPAL, extra_object)
 
-        app = self.make_app_with_subscribers([(events.ResourceChanged, store_record)])
+        app = self.make_app_with_subscribers([(events.ResourceChanged, store_object)])
         # We want to patch the following method so that it raises an exception,
         # to make sure the rollback is happening correctly.
         to_patch = "transaction._manager.ThreadTransactionManager.commit"
@@ -197,19 +197,19 @@ class TransactionEventsTest(PostgreSQLTest, unittest.TestCase):
         self.assertEqual(len(resp.json["data"]), 0)
 
     def test_resourcechanged_can_rollback_whole_request(self):
-        def store_record(event):
+        def store_object(event):
             raise httpexceptions.HTTPInsufficientStorage()
 
-        app = self.make_app_with_subscribers([(events.ResourceChanged, store_record)])
+        app = self.make_app_with_subscribers([(events.ResourceChanged, store_object)])
         self.send_batch_create(app, status=507)
         resp = app.get("/mushrooms", headers=self.headers)
         self.assertEqual(len(resp.json["data"]), 0)
 
     def test_afterresourcechanged_cannot_rollback_whole_request(self):
-        def store_record(event):
+        def store_object(event):
             raise httpexceptions.HTTPInsufficientStorage()
 
-        app = self.make_app_with_subscribers([(events.AfterResourceChanged, store_record)])
+        app = self.make_app_with_subscribers([(events.AfterResourceChanged, store_object)])
         self.send_batch_create(app, status=200)
         resp = app.get("/mushrooms", headers=self.headers)
         self.assertEqual(len(resp.json["data"]), 2)

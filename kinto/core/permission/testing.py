@@ -267,13 +267,13 @@ class PermissionTest:
 
     def test_accessible_objects(self):
         self.permission.add_principal_to_ace("id1", "write", "user1")
-        self.permission.add_principal_to_ace("id1", "record:create", "group")
+        self.permission.add_principal_to_ace("id1", "object:create", "group")
         self.permission.add_principal_to_ace("id2", "read", "user1")
         self.permission.add_principal_to_ace("id2", "read", "user2")
         self.permission.add_principal_to_ace("id3", "write", "user2")
         per_object_ids = self.permission.get_accessible_objects(["user1", "group"])
         self.assertEqual(sorted(per_object_ids.keys()), ["id1", "id2"])
-        self.assertEqual(per_object_ids["id1"], set(["write", "record:create"]))
+        self.assertEqual(per_object_ids["id1"], set(["write", "object:create"]))
         self.assertEqual(per_object_ids["id2"], set(["read"]))
 
     def test_accessible_objects_supports_empty_list(self):

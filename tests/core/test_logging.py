@@ -149,8 +149,8 @@ class JsonFormatterTest(unittest.TestCase):
     def test_logger_name(self):
         JsonLogFormatter.init_from_settings({"project_name": "kintowe"})
         f = JsonLogFormatter()
-        record = logging.LogRecord("app.log", logging.DEBUG, "", 0, "coucou", (), None)
-        result = f.format(record)
+        object = logging.LogObject("app.log", logging.DEBUG, "", 0, "coucou", (), None)
+        result = f.format(object)
         logged = json.loads(result)
         self.assertEqual(logged["Logger"], "kintowe")
         self.assertEqual(logged["Type"], "app.log")

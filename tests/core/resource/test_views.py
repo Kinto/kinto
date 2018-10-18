@@ -9,7 +9,7 @@ from kinto.core.testing import unittest, FormattedErrorMixin
 from ..support import BaseWebTest
 
 
-MINIMALIST_RECORD = {"name": "Champignon"}
+MINIMALIST_OBJECT = {"name": "Champignon"}
 
 
 class UserResourcePermissionTest(BaseWebTest, unittest.TestCase):
@@ -17,31 +17,31 @@ class UserResourcePermissionTest(BaseWebTest, unittest.TestCase):
 
     def test_views_require_authentication(self):
         self.app.get(self.collection_url, status=401)
-        body = {"data": MINIMALIST_RECORD}
+        body = {"data": MINIMALIST_OBJECT}
         self.app.post_json(self.collection_url, body, status=401)
-        record_url = self.get_item_url("abc")
-        self.app.get(record_url, status=401)
-        self.app.put_json(record_url, body, status=401)
-        self.app.patch_json(record_url, body, status=401)
-        self.app.delete(record_url, status=401)
+        object_url = self.get_item_url("abc")
+        self.app.get(object_url, status=401)
+        self.app.put_json(object_url, body, status=401)
+        self.app.patch_json(object_url, body, status=401)
+        self.app.delete(object_url, status=401)
 
     def test_collection_operations_are_authorized_if_authenticated(self):
-        body = {"data": MINIMALIST_RECORD}
+        body = {"data": MINIMALIST_OBJECT}
         self.app.get(self.collection_url, headers=self.headers, status=200)
         self.app.post_json(self.collection_url, body, headers=self.headers, status=201)
         self.app.delete(self.collection_url, headers=self.headers, status=200)
 
-    def test_record_operations_are_authorized_if_authenticated(self):
-        body = {"data": MINIMALIST_RECORD}
+    def test_object_operations_are_authorized_if_authenticated(self):
+        body = {"data": MINIMALIST_OBJECT}
         resp = self.app.post_json(self.collection_url, body, headers=self.headers, status=201)
-        record = resp.json["data"]
-        record_url = self.get_item_url(record["id"])
+        object = resp.json["data"]
+        object_url = self.get_item_url(object["id"])
         unknown_url = self.get_item_url(uuid.uuid4())
 
-        self.app.get(record_url, headers=self.headers, status=200)
-        self.app.patch_json(record_url, body, headers=self.headers, status=200)
-        self.app.delete(record_url, headers=self.headers, status=200)
-        self.app.put_json(record_url, body, headers=self.headers, status=201)
+        self.app.get(object_url, headers=self.headers, status=200)
+        self.app.patch_json(object_url, body, headers=self.headers, status=200)
+        self.app.delete(object_url, headers=self.headers, status=200)
+        self.app.put_json(object_url, body, headers=self.headers, status=201)
         self.app.put_json(unknown_url, body, headers=self.headers, status=201)
 
 
@@ -61,7 +61,7 @@ class ShareableResourcePermissionTest(AuthzAuthnTest):
         self.add_permission(self.collection_url, "toadstool:create")
 
     def test_permissions_are_associated_to_object_uri_without_prefix(self):
-        body = {"data": MINIMALIST_RECORD, "permissions": {"read": ["group:readers"]}}
+        body = {"data": MINIMALIST_OBJECT, "permissions": {"read": ["group:readers"]}}
         resp = self.app.post_json(self.collection_url, body, headers=self.headers)
         object_uri = self.get_item_url(resp.json["data"]["id"])
         backend = self.permission
@@ -69,7 +69,7 @@ class ShareableResourcePermissionTest(AuthzAuthnTest):
         self.assertEqual(stored_perms, {"group:readers"})
 
     def test_permissions_are_not_modified_if_not_specified(self):
-        body = {"data": MINIMALIST_RECORD, "permissions": {"read": ["group:readers"]}}
+        body = {"data": MINIMALIST_OBJECT, "permissions": {"read": ["group:readers"]}}
         resp = self.app.post_json(self.collection_url, body, headers=self.headers)
         object_uri = self.get_item_url(resp.json["data"]["id"])
         body.pop("permissions")
@@ -79,7 +79,7 @@ class ShareableResourcePermissionTest(AuthzAuthnTest):
         self.assertEqual(resp.json["permissions"]["read"], ["group:readers"])
 
     def test_data_is_always_required_when_schema_has_required_fields(self):
-        body = {"data": MINIMALIST_RECORD, "permissions": {"read": ["group:readers"]}}
+        body = {"data": MINIMALIST_OBJECT, "permissions": {"read": ["group:readers"]}}
         resp = self.app.post_json(self.collection_url, body, headers=self.headers)
         object_uri = self.get_item_url(resp.json["data"]["id"])
 
@@ -88,17 +88,17 @@ class ShareableResourcePermissionTest(AuthzAuthnTest):
 
     def test_data_is_not_required_when_schema_has_no_required_fields(self):
         self.add_permission("/psilos", "psilo:create")
-        body = {"data": MINIMALIST_RECORD, "permissions": {"read": ["group:readers"]}}
+        body = {"data": MINIMALIST_OBJECT, "permissions": {"read": ["group:readers"]}}
         resp = self.app.post_json("/psilos", body, headers=self.headers)
         object_uri = "/psilos/{}".format(resp.json["data"]["id"])
 
         body.pop("data")
         resp = self.app.put_json(object_uri, body, headers=self.headers)
-        self.assertEqual(resp.json["data"]["name"], MINIMALIST_RECORD["name"])
+        self.assertEqual(resp.json["data"]["name"], MINIMALIST_OBJECT["name"])
 
     def test_data_are_not_modified_if_not_specified_on_schemaless(self):
         self.add_permission("/spores", "spore:create")
-        body = {"data": MINIMALIST_RECORD, "permissions": {"read": ["group:readers"]}}
+        body = {"data": MINIMALIST_OBJECT, "permissions": {"read": ["group:readers"]}}
         resp = self.app.post_json("/spores", body, headers=self.headers)
         object_uri = "/spores/{}".format(resp.json["data"]["id"])
         self.add_permission(object_uri, "write")
@@ -106,10 +106,10 @@ class ShareableResourcePermissionTest(AuthzAuthnTest):
         body.pop("data")
         resp = self.app.put_json(object_uri, body, headers=self.headers)
 
-        self.assertEqual(resp.json["data"]["name"], MINIMALIST_RECORD["name"])
+        self.assertEqual(resp.json["data"]["name"], MINIMALIST_OBJECT["name"])
 
     def test_permissions_can_be_modified_using_patch(self):
-        body = {"data": MINIMALIST_RECORD, "permissions": {"read": ["group:readers"]}}
+        body = {"data": MINIMALIST_OBJECT, "permissions": {"read": ["group:readers"]}}
         resp = self.app.post_json(self.collection_url, body, headers=self.headers)
         body = {"permissions": {"read": ["fxa:user"]}}
         uri = self.get_item_url(resp.json["data"]["id"])
@@ -120,7 +120,7 @@ class ShareableResourcePermissionTest(AuthzAuthnTest):
     def test_unknown_permissions_are_not_accepted(self):
         self.maxDiff = None
         body = {
-            "data": MINIMALIST_RECORD,
+            "data": MINIMALIST_OBJECT,
             "permissions": {"read": ["group:readers"], "unknown": ["jacques"]},
         }
         resp = self.app.post_json(self.collection_url, body, headers=self.headers, status=400)
@@ -137,7 +137,7 @@ class CollectionAuthzGrantedTest(AuthzAuthnTest):
     def test_collection_post_is_granted_when_authorized(self):
         self.add_permission(self.collection_url, "toadstool:create")
         self.app.post_json(
-            self.collection_url, {"data": MINIMALIST_RECORD}, headers=self.headers, status=201
+            self.collection_url, {"data": MINIMALIST_OBJECT}, headers=self.headers, status=201
         )
 
     def test_collection_delete_is_granted_when_authorized(self):
@@ -149,7 +149,7 @@ class CollectionAuthzDeniedTest(AuthzAuthnTest):
     def test_views_require_authentication(self):
         self.app.get(self.collection_url, status=401)
 
-        body = {"data": MINIMALIST_RECORD}
+        body = {"data": MINIMALIST_OBJECT}
         self.app.post_json(self.collection_url, body, status=401)
 
     def test_collection_get_is_denied_when_not_authorized(self):
@@ -157,90 +157,90 @@ class CollectionAuthzDeniedTest(AuthzAuthnTest):
 
     def test_collection_post_is_denied_when_not_authorized(self):
         self.app.post_json(
-            self.collection_url, {"data": MINIMALIST_RECORD}, headers=self.headers, status=403
+            self.collection_url, {"data": MINIMALIST_OBJECT}, headers=self.headers, status=403
         )
 
     def test_collection_delete_is_denied_when_not_authorized(self):
         self.app.delete(self.collection_url, headers=self.headers, status=403)
 
 
-class RecordAuthzGrantedTest(AuthzAuthnTest):
+class ObjectAuthzGrantedTest(AuthzAuthnTest):
     def setUp(self):
         super().setUp()
         self.add_permission(self.collection_url, "toadstool:create")
 
         resp = self.app.post_json(
-            self.collection_url, {"data": MINIMALIST_RECORD}, headers=self.headers
+            self.collection_url, {"data": MINIMALIST_OBJECT}, headers=self.headers
         )
-        self.record = resp.json["data"]
-        self.record_url = self.get_item_url()
-        self.unknown_record_url = self.get_item_url(uuid.uuid4())
+        self.object = resp.json["data"]
+        self.object_url = self.get_item_url()
+        self.unknown_object_url = self.get_item_url(uuid.uuid4())
 
-    def test_record_get_is_granted_when_authorized(self):
-        self.add_permission(self.record_url, "read")
-        self.app.get(self.record_url, headers=self.headers, status=200)
+    def test_object_get_is_granted_when_authorized(self):
+        self.add_permission(self.object_url, "read")
+        self.app.get(self.object_url, headers=self.headers, status=200)
 
-    def test_record_patch_is_granted_when_authorized(self):
-        self.add_permission(self.record_url, "write")
+    def test_object_patch_is_granted_when_authorized(self):
+        self.add_permission(self.object_url, "write")
         self.app.patch_json(
-            self.record_url, {"data": MINIMALIST_RECORD}, headers=self.headers, status=200
+            self.object_url, {"data": MINIMALIST_OBJECT}, headers=self.headers, status=200
         )
 
-    def test_record_delete_is_granted_when_authorized(self):
-        self.add_permission(self.record_url, "write")
-        self.app.delete(self.record_url, headers=self.headers, status=200)
+    def test_object_delete_is_granted_when_authorized(self):
+        self.add_permission(self.object_url, "write")
+        self.app.delete(self.object_url, headers=self.headers, status=200)
 
-    def test_record_put_on_existing_record_is_granted_when_authorized(self):
-        self.add_permission(self.record_url, "write")
+    def test_object_put_on_existing_object_is_granted_when_authorized(self):
+        self.add_permission(self.object_url, "write")
         self.app.put_json(
-            self.record_url, {"data": MINIMALIST_RECORD}, headers=self.headers, status=200
+            self.object_url, {"data": MINIMALIST_OBJECT}, headers=self.headers, status=200
         )
 
-    def test_record_put_on_unexisting_record_is_granted_when_authorized(self):
+    def test_object_put_on_unexisting_object_is_granted_when_authorized(self):
         self.add_permission(self.collection_url, "toadstool:create")
         self.app.put_json(
-            self.unknown_record_url, {"data": MINIMALIST_RECORD}, headers=self.headers, status=201
+            self.unknown_object_url, {"data": MINIMALIST_OBJECT}, headers=self.headers, status=201
         )
 
 
-class RecordAuthzDeniedTest(AuthzAuthnTest):
+class ObjectAuthzDeniedTest(AuthzAuthnTest):
     def setUp(self):
         super().setUp()
-        # Add permission to create a sample record.
+        # Add permission to create a sample object.
         self.add_permission(self.collection_url, "toadstool:create")
         resp = self.app.post_json(
-            self.collection_url, {"data": MINIMALIST_RECORD}, headers=self.headers
+            self.collection_url, {"data": MINIMALIST_OBJECT}, headers=self.headers
         )
-        self.record = resp.json["data"]
-        self.record_url = self.get_item_url()
-        self.unknown_record_url = self.get_item_url(uuid.uuid4())
+        self.object = resp.json["data"]
+        self.object_url = self.get_item_url()
+        self.unknown_object_url = self.get_item_url(uuid.uuid4())
         # Remove every permissions.
         self.permission.flush()
 
     def test_views_require_authentication(self):
         url = self.get_item_url("abc")
         self.app.get(url, status=401)
-        self.app.put_json(url, {"data": MINIMALIST_RECORD}, status=401)
-        self.app.patch_json(url, {"data": MINIMALIST_RECORD}, status=401)
+        self.app.put_json(url, {"data": MINIMALIST_OBJECT}, status=401)
+        self.app.patch_json(url, {"data": MINIMALIST_OBJECT}, status=401)
         self.app.delete(url, status=401)
 
-    def test_record_get_is_denied_when_not_authorized(self):
-        self.app.get(self.record_url, headers=self.headers, status=403)
+    def test_object_get_is_denied_when_not_authorized(self):
+        self.app.get(self.object_url, headers=self.headers, status=403)
 
-    def test_record_patch_is_denied_when_not_authorized(self):
+    def test_object_patch_is_denied_when_not_authorized(self):
         self.app.patch_json(
-            self.record_url, {"data": MINIMALIST_RECORD}, headers=self.headers, status=403
+            self.object_url, {"data": MINIMALIST_OBJECT}, headers=self.headers, status=403
         )
 
-    def test_record_put_is_denied_when_not_authorized(self):
+    def test_object_put_is_denied_when_not_authorized(self):
         self.app.put_json(
-            self.record_url, {"data": MINIMALIST_RECORD}, headers=self.headers, status=403
+            self.object_url, {"data": MINIMALIST_OBJECT}, headers=self.headers, status=403
         )
 
-    def test_record_delete_is_denied_when_not_authorized(self):
-        self.app.delete(self.record_url, headers=self.headers, status=403)
+    def test_object_delete_is_denied_when_not_authorized(self):
+        self.app.delete(self.object_url, headers=self.headers, status=403)
 
-    def test_record_put_on_unexisting_record_is_rejected_if_write_perm(self):
+    def test_object_put_on_unexisting_object_is_rejected_if_write_perm(self):
         object_id = self.collection_url
         self.permission.remove_principal_from_ace(
             object_id, "toadstool:create", self.principal
@@ -248,11 +248,11 @@ class RecordAuthzDeniedTest(AuthzAuthnTest):
 
         self.permission.add_principal_to_ace(object_id, "write", self.principal)
         self.app.put_json(
-            self.unknown_record_url, {"data": MINIMALIST_RECORD}, headers=self.headers, status=403
+            self.unknown_object_url, {"data": MINIMALIST_OBJECT}, headers=self.headers, status=403
         )
 
 
-class RecordAuthzGrantedOnCollectionTest(AuthzAuthnTest):
+class ObjectAuthzGrantedOnCollectionTest(AuthzAuthnTest):
     def setUp(self):
         super().setUp()
         self.add_permission(self.collection_url, "toadstool:create")
@@ -262,28 +262,28 @@ class RecordAuthzGrantedOnCollectionTest(AuthzAuthnTest):
         self.guest_id = resp.json["user"]["id"]
 
         body = {
-            "data": MINIMALIST_RECORD,
+            "data": MINIMALIST_OBJECT,
             "permissions": {"write": [self.guest_id], "read": [self.guest_id]},
         }
         resp = self.app.post_json(self.collection_url, body, headers=self.headers)
-        self.record = resp.json["data"]
-        self.record_url = self.get_item_url()
+        self.object = resp.json["data"]
+        self.object_url = self.get_item_url()
 
-        # Add another private record
+        # Add another private object
         resp = self.app.post_json(
             self.collection_url,
-            {"data": MINIMALIST_RECORD, "permissions": {"read": [self.principal]}},
+            {"data": MINIMALIST_OBJECT, "permissions": {"read": [self.principal]}},
             headers=self.headers,
         )
 
-    def test_guest_can_access_the_record(self):
-        self.app.get(self.record_url, headers=self.guest_headers, status=200)
+    def test_guest_can_access_the_object(self):
+        self.app.get(self.object_url, headers=self.guest_headers, status=200)
 
-    def test_guest_can_see_the_record_in_the_list_of_records(self):
+    def test_guest_can_see_the_object_in_the_list_of_objects(self):
         resp = self.app.get(self.collection_url, headers=self.guest_headers, status=200)
         self.assertEqual(len(resp.json["data"]), 1)
 
-    def test_guest_can_remove_its_records_from_the_list_of_records(self):
+    def test_guest_can_remove_its_objects_from_the_list_of_objects(self):
         resp = self.app.delete(self.collection_url, headers=self.guest_headers, status=200)
         self.assertEqual(len(resp.json["data"]), 1)
         resp = self.app.get(self.collection_url, headers=self.headers, status=200)
@@ -330,18 +330,18 @@ class OptionalSchemaTest(BaseWebTest, unittest.TestCase):
         self.assertIn("edible", resp.json["data"])
 
 
-class InvalidRecordTest(BaseWebTest, unittest.TestCase):
+class InvalidObjectTest(BaseWebTest, unittest.TestCase):
     def setUp(self):
         super().setUp()
-        body = {"data": MINIMALIST_RECORD}
+        body = {"data": MINIMALIST_OBJECT}
         resp = self.app.post_json(self.collection_url, body, headers=self.headers)
-        self.record = resp.json["data"]
+        self.object = resp.json["data"]
 
-        self.invalid_record = {"data": {"name": 42}}
+        self.invalid_object = {"data": {"name": 42}}
 
-    def test_invalid_record_returns_json_formatted_error(self):
+    def test_invalid_object_returns_json_formatted_error(self):
         resp = self.app.post_json(
-            self.collection_url, self.invalid_record, headers=self.headers, status=400
+            self.collection_url, self.invalid_object, headers=self.headers, status=400
         )
         # XXX: weird resp.json['message']
         self.assertDictEqual(
@@ -375,66 +375,66 @@ class InvalidRecordTest(BaseWebTest, unittest.TestCase):
         self.assertIn("Unrecognized keys in mapping", resp.json["message"])
         self.assertIn("datta", resp.json["message"])
 
-    def test_create_invalid_record_returns_400(self):
+    def test_create_invalid_object_returns_400(self):
         self.app.post_json(
-            self.collection_url, self.invalid_record, headers=self.headers, status=400
+            self.collection_url, self.invalid_object, headers=self.headers, status=400
         )
 
-    def test_modify_with_invalid_record_returns_400(self):
+    def test_modify_with_invalid_object_returns_400(self):
         self.app.patch_json(
-            self.get_item_url(), self.invalid_record, headers=self.headers, status=400
+            self.get_item_url(), self.invalid_object, headers=self.headers, status=400
         )
 
     def test_modify_with_unknown_attribute_returns_400(self):
         self.app.patch_json(self.get_item_url(), {"datta": {}}, headers=self.headers, status=400)
 
-    def test_replace_with_invalid_record_returns_400(self):
+    def test_replace_with_invalid_object_returns_400(self):
         self.app.put_json(
-            self.get_item_url(), self.invalid_record, headers=self.headers, status=400
+            self.get_item_url(), self.invalid_object, headers=self.headers, status=400
         )
 
     def test_id_is_validated_on_post(self):
-        record = {**MINIMALIST_RECORD, "id": 3.14}
-        self.app.post_json(self.collection_url, {"data": record}, headers=self.headers, status=400)
+        object = {**MINIMALIST_OBJECT, "id": 3.14}
+        self.app.post_json(self.collection_url, {"data": object}, headers=self.headers, status=400)
 
         with mock.patch.object(
             self.app.app.registry.id_generators[""], "match", return_value=True
         ):
             self.app.post_json(
-                self.collection_url, {"data": record}, headers=self.headers, status=400
+                self.collection_url, {"data": object}, headers=self.headers, status=400
             )
 
     def test_id_is_preserved_on_post(self):
-        record = {**MINIMALIST_RECORD, "id": "472be9ec-26fe-461b-8282-9c4e4b207ab3"}
-        resp = self.app.post_json(self.collection_url, {"data": record}, headers=self.headers)
-        self.assertEqual(resp.json["data"]["id"], record["id"])
+        object = {**MINIMALIST_OBJECT, "id": "472be9ec-26fe-461b-8282-9c4e4b207ab3"}
+        resp = self.app.post_json(self.collection_url, {"data": object}, headers=self.headers)
+        self.assertEqual(resp.json["data"]["id"], object["id"])
 
-    def test_200_is_returned_if_id_matches_existing_record(self):
-        record = {**MINIMALIST_RECORD, "id": self.record["id"]}
-        self.app.post_json(self.collection_url, {"data": record}, headers=self.headers, status=200)
+    def test_200_is_returned_if_id_matches_existing_object(self):
+        object = {**MINIMALIST_OBJECT, "id": self.object["id"]}
+        self.app.post_json(self.collection_url, {"data": object}, headers=self.headers, status=200)
 
-    def test_invalid_accept_header_on_collections_returns_406(self):
+    def test_invalid_accept_header_on_plural_endpoints_returns_406(self):
         headers = {**self.headers, "Accept": "text/plain"}
         resp = self.app.post(self.collection_url, "", headers=headers, status=406)
         self.assertEqual(resp.json["code"], 406)
         message = "Accept header should be one of ['application/json']"
         self.assertEqual(resp.json["message"], message)
 
-    def test_invalid_content_type_header_on_collections_returns_415(self):
+    def test_invalid_content_type_header_on_plural_endpoints_returns_415(self):
         headers = {**self.headers, "Content-Type": "text/plain"}
         resp = self.app.post(self.collection_url, "", headers=headers, status=415)
         self.assertEqual(resp.json["code"], 415)
         message = "Content-Type header should be one of ['application/json']"
         self.assertEqual(resp.json["message"], message)
 
-    def test_invalid_accept_header_on_record_returns_406(self):
+    def test_invalid_accept_header_on_object_returns_406(self):
         headers = {**self.headers, "Accept": "text/plain"}
         resp = self.app.get(self.get_item_url(), headers=headers, status=406)
         self.assertEqual(resp.json["code"], 406)
         message = "Accept header should be one of ['application/json']"
         self.assertEqual(resp.json["message"], message)
 
-    def test_invalid_content_type_header_on_record_returns_415(self):
+    def test_invalid_content_type_header_on_object_returns_415(self):
         headers = {**self.headers, "Content-Type": "text/plain"}
         resp = self.app.patch_json(self.get_item_url(), "", headers=headers, status=415)
         self.assertEqual(resp.json["code"], 415)
@@ -455,13 +455,13 @@ class InvalidRecordTest(BaseWebTest, unittest.TestCase):
 class IgnoredFieldsTest(BaseWebTest, unittest.TestCase):
     def setUp(self):
         super().setUp()
-        body = {"data": MINIMALIST_RECORD}
+        body = {"data": MINIMALIST_OBJECT}
         resp = self.app.post_json(self.collection_url, body, headers=self.headers)
-        self.record = resp.json["data"]
+        self.object = resp.json["data"]
 
     def test_last_modified_is_not_validated_and_overwritten(self):
-        record = {**MINIMALIST_RECORD, "last_modified": "abc"}
-        resp = self.app.post_json(self.collection_url, {"data": record}, headers=self.headers)
+        object = {**MINIMALIST_OBJECT, "last_modified": "abc"}
+        resp = self.app.post_json(self.collection_url, {"data": object}, headers=self.headers)
         self.assertNotEqual(resp.json["data"]["last_modified"], "abc")
 
     def test_modify_works_with_invalid_last_modified(self):
@@ -470,8 +470,8 @@ class IgnoredFieldsTest(BaseWebTest, unittest.TestCase):
         self.assertNotEqual(resp.json["data"]["last_modified"], "abc")
 
     def test_replace_works_with_invalid_last_modified(self):
-        record = {**MINIMALIST_RECORD, "last_modified": "abc"}
-        resp = self.app.put_json(self.get_item_url(), {"data": record}, headers=self.headers)
+        object = {**MINIMALIST_OBJECT, "last_modified": "abc"}
+        resp = self.app.put_json(self.get_item_url(), {"data": object}, headers=self.headers)
         self.assertNotEqual(resp.json["data"]["last_modified"], "abc")
 
 
@@ -481,9 +481,9 @@ class InvalidBodyTest(BaseWebTest, unittest.TestCase):
 
     def setUp(self):
         super().setUp()
-        body = {"data": MINIMALIST_RECORD}
+        body = {"data": MINIMALIST_OBJECT}
         resp = self.app.post_json(self.collection_url, body, headers=self.headers)
-        self.record = resp.json["data"]
+        self.object = resp.json["data"]
 
     def test_invalid_body_returns_json_formatted_error(self):
         self.maxDiff = None
@@ -531,10 +531,10 @@ class InvalidBodyTest(BaseWebTest, unittest.TestCase):
         self.app.patch(self.get_item_url(), headers=self.headers, status=400)
 
     def test_modify_shareable_resource_with_empty_body_returns_400(self):
-        body = {"data": MINIMALIST_RECORD}
+        body = {"data": MINIMALIST_OBJECT}
         resp = self.app.post_json("/toadstools", body, headers=self.headers)
-        record = resp.json["data"]
-        item_url = "/toadstools/{}".format(record["id"])
+        object = resp.json["data"]
+        item_url = "/toadstools/{}".format(object["id"])
         self.app.patch(item_url, headers=self.headers, status=400)
 
 
@@ -543,16 +543,16 @@ class InvalidPermissionsTest(BaseWebTest, unittest.TestCase):
 
     def setUp(self):
         super().setUp()
-        body = {"data": MINIMALIST_RECORD}
+        body = {"data": MINIMALIST_OBJECT}
         resp = self.app.post_json(self.collection_url, body, headers=self.headers)
-        self.record = resp.json["data"]
+        self.object = resp.json["data"]
         self.invalid_body = {
-            "data": MINIMALIST_RECORD,
+            "data": MINIMALIST_OBJECT,
             "permissions": {"read": "book"},
         }  # book not list
 
     def test_permissions_are_not_accepted_on_normal_resources(self):
-        body = {"data": MINIMALIST_RECORD, "permissions": {"read": ["book"]}}
+        body = {"data": MINIMALIST_OBJECT, "permissions": {"read": ["book"]}}
         resp = self.app.post_json("/mushrooms", body, headers=self.headers, status=400)
         self.assertIn("Unrecognized keys in mapping", resp.json["message"])
         self.assertIn("permissions", resp.json["message"])
@@ -633,12 +633,12 @@ class StorageErrorTest(BaseWebTest, unittest.TestCase):
         )
 
     def test_backend_errors_are_served_as_503(self):
-        body = {"data": MINIMALIST_RECORD}
+        body = {"data": MINIMALIST_OBJECT}
         with self.storage_error_patcher:
             self.app.post_json(self.collection_url, body, headers=self.headers, status=503)
 
     def test_backend_errors_original_error_is_logged(self):
-        body = {"data": MINIMALIST_RECORD}
+        body = {"data": MINIMALIST_OBJECT}
         with mock.patch("kinto.core.views.errors.logger.critical") as mocked:
             with self.storage_error_patcher:
                 self.app.post_json(self.collection_url, body, headers=self.headers, status=503)
@@ -652,7 +652,7 @@ class PaginationNextURLTest(BaseWebTest, unittest.TestCase):
 
     def setUp(self):
         super().setUp()
-        body = {"data": MINIMALIST_RECORD}
+        body = {"data": MINIMALIST_OBJECT}
         self.app.post_json(self.collection_url, body, headers=self.headers)
         self.app.post_json(self.collection_url, body, headers=self.headers)
 
@@ -696,7 +696,7 @@ class SchemaLessPartialResponseTest(BaseWebTest, unittest.TestCase):
         super().setUp()
         body = {"data": {"size": 42, "category": "some-cat", "owner": "loco"}}
         resp = self.app.post_json(self.collection_url, body, headers=self.headers)
-        self.record = resp.json
+        self.object = resp.json
 
     def test_unspecified_fields_are_excluded(self):
         resp = self.app.get(self.collection_url + "?_fields=size,category")

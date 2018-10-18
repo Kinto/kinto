@@ -15,14 +15,14 @@ class FakeViewSet(ViewSet):
     """Fake viewset class used for tests."""
 
     collection_path = "/{resource_name}"
-    record_path = "/{resource_name}/{{id}}"
+    object_path = "/{resource_name}/{{id}}"
 
     collection_methods = ("GET",)
-    record_methods = ("PUT",)
+    object_methods = ("PUT",)
 
     def __init__(self):
         self.collection_arguments = self.arguments
-        self.record_arguments = self.arguments
+        self.object_arguments = self.arguments
         self.update = mock.MagicMock()
         self.responses = mock.MagicMock()
 
@@ -39,9 +39,9 @@ class FakeResource:
     def __init__(self):
         # Create fake views which are in fact mock sentinels.
         # {type}_{method} will map to the sentinel with the same name.
-        for endpoint_type in ("collection", "record"):
+        for endpoint_type in ("collection", "object"):
             for method in ("get", "put", "patch", "delete"):
-                if endpoint_type == "record":
+                if endpoint_type == "object":
                     view_name = method
                 else:
                     view_name = "_".join((endpoint_type, method))
@@ -126,24 +126,24 @@ class ViewSetTest(unittest.TestCase):
         )
 
     @mock.patch("kinto.core.resource.viewset.RequestSchema")
-    def test_default_arguments_are_used_for_record_arguments(self, mocked):
+    def test_default_arguments_are_used_for_object_arguments(self, mocked):
         default_arguments = {"cors_headers": mock.sentinel.cors_headers}
 
         default_get_arguments = {"accept": mock.sentinel.accept}
 
-        default_record_arguments = {"cors_origins": mock.sentinel.record_cors_origins}
+        default_object_arguments = {"cors_origins": mock.sentinel.object_cors_origins}
 
-        record_get_arguments = {"error_handler": mock.sentinel.error_handler}
+        object_get_arguments = {"error_handler": mock.sentinel.error_handler}
 
         viewset = ViewSet(
             default_arguments=default_arguments,
             default_get_arguments=default_get_arguments,
-            default_record_arguments=default_record_arguments,
-            record_get_arguments=record_get_arguments,
+            default_object_arguments=default_object_arguments,
+            object_get_arguments=object_get_arguments,
         )
 
         viewset.responses = mock.MagicMock()
-        arguments = viewset.record_arguments(mock.MagicMock(), "get")
+        arguments = viewset.object_arguments(mock.MagicMock(), "get")
 
         self.assertDictEqual(
             arguments,
@@ -151,7 +151,7 @@ class ViewSetTest(unittest.TestCase):
                 "schema": mocked().bind(),
                 "accept": mock.sentinel.accept,
                 "cors_headers": mock.sentinel.cors_headers,
-                "cors_origins": mock.sentinel.record_cors_origins,
+                "cors_origins": mock.sentinel.object_cors_origins,
                 "error_handler": mock.sentinel.error_handler,
                 "validators": [colander_validator],
                 "response_schemas": viewset.responses.get_and_bind(),
@@ -168,48 +168,48 @@ class ViewSetTest(unittest.TestCase):
             "error_handler": mock.sentinel.default_error_handler,
             "cors_headers": mock.sentinel.default_cors_headers,  # <<
         }
-        default_record_arguments = {
-            "cors_origins": mock.sentinel.default_record_cors_origin,
-            "error_handler": mock.sentinel.default_record_error_handler,  # <<
+        default_object_arguments = {
+            "cors_origins": mock.sentinel.default_object_cors_origin,
+            "error_handler": mock.sentinel.default_object_error_handler,  # <<
         }
 
-        record_get_arguments = {"cors_origins": mock.sentinel.record_get_cors_origin}  # <<
+        object_get_arguments = {"cors_origins": mock.sentinel.object_get_cors_origin}  # <<
 
         viewset = ViewSet(
             default_arguments=default_arguments,
-            default_record_arguments=default_record_arguments,
-            record_get_arguments=record_get_arguments,
+            default_object_arguments=default_object_arguments,
+            object_get_arguments=object_get_arguments,
         )
 
         viewset.responses = mock.MagicMock()
-        arguments = viewset.record_arguments(mock.MagicMock(), "get")
+        arguments = viewset.object_arguments(mock.MagicMock(), "get")
 
         self.assertDictEqual(
             arguments,
             {
                 "schema": mocked().bind(),
                 "cors_headers": mock.sentinel.default_cors_headers,
-                "error_handler": mock.sentinel.default_record_error_handler,
-                "cors_origins": mock.sentinel.record_get_cors_origin,
+                "error_handler": mock.sentinel.default_object_error_handler,
+                "cors_origins": mock.sentinel.object_get_cors_origin,
                 "validators": [colander_validator],
                 "response_schemas": viewset.responses.get_and_bind(),
             },
         )
 
     @mock.patch("kinto.core.resource.viewset.RequestSchema")
-    def test_service_arguments_arent_inherited_by_record_arguments(self, mocked):
+    def test_service_arguments_arent_inherited_by_object_arguments(self, mocked):
         service_arguments = {"description": "The little book of calm"}
 
         default_arguments = {"cors_headers": mock.sentinel.cors_headers}
         viewset = ViewSet(
             default_arguments=default_arguments,
             service_arguments=service_arguments,
-            default_record_arguments={},
-            record_get_arguments={},
+            default_object_arguments={},
+            object_get_arguments={},
         )
 
         viewset.responses = mock.MagicMock()
-        arguments = viewset.record_arguments(mock.MagicMock(), "get")
+        arguments = viewset.object_arguments(mock.MagicMock(), "get")
 
         self.assertDictEqual(
             arguments,
@@ -223,20 +223,20 @@ class ViewSetTest(unittest.TestCase):
 
     def test_get_service_name_returns_the_viewset_name_if_defined(self):
         viewset = ViewSet(name="fakename")
-        self.assertEqual(viewset.get_service_name("record", mock.MagicMock), "fakename-record")
+        self.assertEqual(viewset.get_service_name("object", mock.MagicMock), "fakename-object")
 
     def test_get_service_name_returns_resource_att_if_not_callable(self):
         viewset = ViewSet()
         resource = mock.MagicMock()
         resource.name = "fakename"
-        self.assertEqual(viewset.get_service_name("record", resource), "fakename-record")
+        self.assertEqual(viewset.get_service_name("object", resource), "fakename-object")
 
     def test_get_service_name_doesnt_use_callable_as_a_name(self):
         viewset = ViewSet()
         resource = mock.MagicMock()
         resource.name = lambda x: "should not be called"
         resource.__name__ = "FakeName"
-        self.assertEqual(viewset.get_service_name("record", resource), "fakename-record")
+        self.assertEqual(viewset.get_service_name("object", resource), "fakename-object")
 
     def test_get_service_arguments_has_no_factory_by_default(self):
         viewset = ViewSet()
@@ -246,61 +246,61 @@ class ViewSetTest(unittest.TestCase):
     def test_is_endpoint_enabled_returns_true_if_unknown(self):
         viewset = ViewSet()
         config = {}
-        is_enabled = viewset.is_endpoint_enabled("record", "fake", "get", config)
+        is_enabled = viewset.is_endpoint_enabled("object", "fake", "get", config)
         self.assertTrue(is_enabled)
 
     def test_is_endpoint_enabled_returns_false_if_disabled(self):
         viewset = ViewSet()
-        config = {"record_fake_get_enabled": False}
-        is_enabled = viewset.is_endpoint_enabled("record", "fake", "get", config)
+        config = {"object_fake_get_enabled": False}
+        is_enabled = viewset.is_endpoint_enabled("object", "fake", "get", config)
         self.assertFalse(is_enabled)
 
     def test_is_endpoint_enabled_returns_true_if_enabled(self):
         viewset = ViewSet()
-        config = {"record_fake_get_enabled": True}
-        is_enabled = viewset.is_endpoint_enabled("record", "fake", "get", config)
+        config = {"object_fake_get_enabled": True}
+        is_enabled = viewset.is_endpoint_enabled("object", "fake", "get", config)
         self.assertTrue(is_enabled)
 
     def test_is_endpoint_enabled_returns_false_for_put_if_readonly(self):
         viewset = ViewSet()
         config = {"readonly": True}
-        is_enabled = viewset.is_endpoint_enabled("record", "fake", "put", config)
+        is_enabled = viewset.is_endpoint_enabled("object", "fake", "put", config)
         self.assertFalse(is_enabled)
 
     def test_is_endpoint_enabled_returns_false_for_post_if_readonly(self):
         viewset = ViewSet()
         config = {"readonly": True}
-        is_enabled = viewset.is_endpoint_enabled("record", "fake", "post", config)
+        is_enabled = viewset.is_endpoint_enabled("object", "fake", "post", config)
         self.assertFalse(is_enabled)
 
     def test_is_endpoint_enabled_returns_false_for_patch_if_readonly(self):
         viewset = ViewSet()
         config = {"readonly": True}
-        is_enabled = viewset.is_endpoint_enabled("record", "fake", "patch", config)
+        is_enabled = viewset.is_endpoint_enabled("object", "fake", "patch", config)
         self.assertFalse(is_enabled)
 
     def test_is_endpoint_enabled_returns_false_for_delete_if_readonly(self):
         viewset = ViewSet()
         config = {"readonly": True}
-        is_enabled = viewset.is_endpoint_enabled("record", "fake", "delete", config)
+        is_enabled = viewset.is_endpoint_enabled("object", "fake", "delete", config)
         self.assertFalse(is_enabled)
 
     def test_is_endpoint_enabled_returns_true_for_get_if_readonly(self):
         viewset = ViewSet()
         config = {"readonly": True}
-        is_enabled = viewset.is_endpoint_enabled("record", "fake", "get", config)
+        is_enabled = viewset.is_endpoint_enabled("object", "fake", "get", config)
         self.assertTrue(is_enabled)
 
     def test_is_endpoint_enabled_returns_true_for_options_if_readonly(self):
         viewset = ViewSet()
         config = {"readonly": True}
-        is_enabled = viewset.is_endpoint_enabled("record", "fake", "options", config)
+        is_enabled = viewset.is_endpoint_enabled("object", "fake", "options", config)
         self.assertTrue(is_enabled)
 
     def test_is_endpoint_enabled_returns_true_for_head_if_readonly(self):
         viewset = ViewSet()
         config = {"readonly": True}
-        is_enabled = viewset.is_endpoint_enabled("record", "fake", "head", config)
+        is_enabled = viewset.is_endpoint_enabled("object", "fake", "head", config)
         self.assertTrue(is_enabled)
 
 
@@ -312,15 +312,15 @@ class TestViewsetBindedSchemas(unittest.TestCase):
 
     def test_request_schemas_have_header_and_querystring(self):
         self.viewset = ViewSet(
-            default_get_arguments={}, default_record_arguments={}, record_get_arguments={}
+            default_get_arguments={}, default_object_arguments={}, object_get_arguments={}
         )
-        arguments = self.viewset.record_arguments(self.resource, "GET")
+        arguments = self.viewset.object_arguments(self.resource, "GET")
         schema = arguments["schema"]
         self.assertIn("querystring", schema)
         self.assertIn("header", schema)
 
     def test_payload_request_schemas_have_a_body(self):
-        arguments = self.viewset.record_arguments(self.resource, "PUT")
+        arguments = self.viewset.object_arguments(self.resource, "PUT")
         schema = arguments["schema"]
         self.assertIn("body", schema)
 
@@ -340,15 +340,15 @@ class TestViewsetBindedSchemas(unittest.TestCase):
         expected = {"querystring": {"_fields": ["foo", "bar"]}}
         self.assertEqual(deserialized, expected)
 
-    def test_get_record_deserialize_fields(self):
-        arguments = self.viewset.record_arguments(self.resource, "GET")
+    def test_get_object_deserialize_fields(self):
+        arguments = self.viewset.object_arguments(self.resource, "GET")
         schema = arguments["schema"]
         value = {"querystring": {"_fields": "foo,bar"}}
         deserialized = schema.deserialize(value)
         expected = {"querystring": {"_fields": ["foo", "bar"]}}
         self.assertEqual(deserialized, expected)
 
-    def test_patch_record_validate_response_behavior(self):
+    def test_patch_object_validate_response_behavior(self):
         arguments = self.viewset.collection_arguments(self.resource, "PATCH")
         schema = arguments["schema"]
         invalid = {"header": {"Response-Behavior": "impolite"}}
@@ -437,7 +437,7 @@ class RegisterTest(unittest.TestCase):
         service_class().add_view.assert_any_call("GET", "collection_get", klass=self.resource)
 
     @mock.patch("kinto.core.resource.Service")
-    def test_record_views_are_registered_in_cornice(self, service_class):
+    def test_object_views_are_registered_in_cornice(self, service_class):
         venusian_callback = register_resource(self.resource, viewset=self.viewset)
 
         config = mock.MagicMock()
@@ -448,7 +448,7 @@ class RegisterTest(unittest.TestCase):
         venusian_callback(context, None, None)
 
         service_class.assert_any_call(
-            "fake-record", "/fake/{id}", depth=1, **self.viewset.get_service_arguments()
+            "fake-object", "/fake/{id}", depth=1, **self.viewset.get_service_arguments()
         )
         service_class().add_view.assert_any_call("PUT", "put", klass=self.resource)
 
@@ -457,7 +457,7 @@ class RegisterTest(unittest.TestCase):
         venusian_callback = register_resource(self.resource, viewset=self.viewset)
 
         context = mock.MagicMock()
-        context.registry.settings = {"record_fake_put_enabled": False}
+        context.registry.settings = {"object_fake_put_enabled": False}
         context.config.with_package.return_value = context
         venusian_callback(context, None, None)
 
@@ -471,7 +471,7 @@ class RegisterTest(unittest.TestCase):
         service_cls().add_view.assert_any_call("GET", "collection_get", klass=self.resource)
 
     @mock.patch("kinto.core.resource.Service")
-    def test_record_methods_are_skipped_if_not_enabled(self, service_class):
+    def test_object_methods_are_skipped_if_not_enabled(self, service_class):
         venusian_callback = register_resource(self.resource, viewset=self.viewset)
 
         context = mock.MagicMock()
@@ -484,13 +484,13 @@ class RegisterTest(unittest.TestCase):
         # one for the collection_get
         self.assertEqual(len(service_class.mock_calls), 3)
         service_class.assert_any_call(
-            "fake-record", "/fake/{id}", depth=1, **self.viewset.get_service_arguments()
+            "fake-object", "/fake/{id}", depth=1, **self.viewset.get_service_arguments()
         )
         service_class().add_view.assert_any_call("PUT", "put", klass=self.resource)
 
     @mock.patch("kinto.core.resource.Service")
-    def test_endpoint_is_skipped_if_record_path_is_none(self, service_cls):
-        self.viewset.record_path = None
+    def test_endpoint_is_skipped_if_object_path_is_none(self, service_cls):
+        self.viewset.object_path = None
 
         venusian_callback = register_resource(self.resource, viewset=self.viewset)
         config = mock.MagicMock()

@@ -36,47 +36,47 @@ class MemoryBasedStorage(StorageBase):
         # Nothing to do.
         pass
 
-    def strip_deleted_record(
+    def strip_deleted_object(
         self,
-        collection_id,
+        resource_name,
         parent_id,
-        record,
+        object,
         id_field=DEFAULT_ID_FIELD,
         modified_field=DEFAULT_MODIFIED_FIELD,
         deleted_field=DEFAULT_DELETED_FIELD,
     ):
-        """Strip the record of all its fields expect id and timestamp,
+        """Strip the object of all its fields expect id and timestamp,
         and set the deletion field value (e.g deleted=True)
         """
         deleted = {}
-        deleted[id_field] = record[id_field]
-        deleted[modified_field] = record[modified_field]
+        deleted[id_field] = object[id_field]
+        deleted[modified_field] = object[modified_field]
         deleted[deleted_field] = True
         return deleted
 
-    def set_record_timestamp(
+    def set_object_timestamp(
         self,
-        collection_id,
+        resource_name,
         parent_id,
-        record,
+        object,
         modified_field=DEFAULT_MODIFIED_FIELD,
         last_modified=None,
     ):
         timestamp = self.bump_and_store_timestamp(
-            collection_id, parent_id, record, modified_field, last_modified=last_modified
+            resource_name, parent_id, object, modified_field, last_modified=last_modified
         )
-        record[modified_field] = timestamp
-        return record
+        object[modified_field] = timestamp
+        return object
 
-    def extract_record_set(
-        self, records, filters, sorting, id_field, deleted_field, pagination_rules=None, limit=None
+    def extract_object_set(
+        self, objects, filters, sorting, id_field, deleted_field, pagination_rules=None, limit=None
     ):
-        """Take the list of records and handle filtering, sorting and
+        """Take the list of objects and handle filtering, sorting and
         pagination.
 
         """
-        return extract_record_set(
-            records,
+        return extract_object_set(
+            objects,
             filters=filters,
             sorting=sorting,
             id_field=id_field,
@@ -85,7 +85,7 @@ class MemoryBasedStorage(StorageBase):
             limit=limit,
         )
 
-    def bump_timestamp(self, collection_timestamp, record, modified_field, last_modified):
+    def bump_timestamp(self, collection_timestamp, object, modified_field, last_modified):
         """Timestamp are base on current millisecond.
 
         .. note ::
@@ -94,13 +94,13 @@ class MemoryBasedStorage(StorageBase):
             the time will slide into the future. It is not problematic since
             the timestamp notion is opaque, and behaves like a revision number.
         """
-        is_specified = record is not None and modified_field in record or last_modified is not None
+        is_specified = object is not None and modified_field in object or last_modified is not None
         if is_specified:
-            # If there is a timestamp in the new record, try to use it.
+            # If there is a timestamp in the new object, try to use it.
             if last_modified is not None:
                 current = last_modified
             else:
-                current = record[modified_field]
+                current = object[modified_field]
 
             # If it is equal to current collection timestamp, bump it.
             if current == collection_timestamp:
@@ -121,7 +121,7 @@ class MemoryBasedStorage(StorageBase):
         return current, collection_timestamp
 
     def bump_and_store_timestamp(
-        self, collection_id, parent_id, record=None, modified_field=None, last_modified=None
+        self, resource_name, parent_id, object=None, modified_field=None, last_modified=None
     ):
         """Use the bump_timestamp to get its next value and store the collection_timestamp.
         """
@@ -131,7 +131,7 @@ class MemoryBasedStorage(StorageBase):
 class Storage(MemoryBasedStorage):
     """Storage backend implementation in memory.
 
-    Useful for development or testing purposes, but records are lost after
+    Useful for development or testing purposes, but objects are lost after
     each server restart.
 
     Enable in configuration::
@@ -155,98 +155,98 @@ class Storage(MemoryBasedStorage):
         self._timestamps = defaultdict(dict)
 
     @synchronized
-    def collection_timestamp(self, collection_id, parent_id, auth=None):
-        ts = self._timestamps[parent_id].get(collection_id)
+    def collection_timestamp(self, resource_name, parent_id, auth=None):
+        ts = self._timestamps[parent_id].get(resource_name)
         if ts is not None:
             return ts
         if self.readonly:
             error_msg = "Cannot initialize empty collection timestamp when running in readonly."
             raise exceptions.BackendError(message=error_msg)
-        return self.bump_and_store_timestamp(collection_id, parent_id)
+        return self.bump_and_store_timestamp(resource_name, parent_id)
 
     def bump_and_store_timestamp(
-        self, collection_id, parent_id, record=None, modified_field=None, last_modified=None
+        self, resource_name, parent_id, object=None, modified_field=None, last_modified=None
     ):
         """Use the bump_timestamp to get its next value and store the collection_timestamp.
         """
-        current_collection_timestamp = self._timestamps[parent_id].get(collection_id, 0)
+        current_collection_timestamp = self._timestamps[parent_id].get(resource_name, 0)
 
         current, collection_timestamp = self.bump_timestamp(
-            current_collection_timestamp, record, modified_field, last_modified
+            current_collection_timestamp, object, modified_field, last_modified
         )
-        self._timestamps[parent_id][collection_id] = collection_timestamp
+        self._timestamps[parent_id][resource_name] = collection_timestamp
 
         return current
 
     @synchronized
     def create(
         self,
-        collection_id,
+        resource_name,
         parent_id,
-        record,
+        object,
         id_generator=None,
         id_field=DEFAULT_ID_FIELD,
         modified_field=DEFAULT_MODIFIED_FIELD,
         auth=None,
     ):
         id_generator = id_generator or self.id_generator
-        record = {**record}
-        if id_field in record:
-            # Raise unicity error if record with same id already exists.
+        object = {**object}
+        if id_field in object:
+            # Raise unicity error if object with same id already exists.
             try:
-                existing = self.get(collection_id, parent_id, record[id_field])
+                existing = self.get(resource_name, parent_id, object[id_field])
                 raise exceptions.UnicityError(id_field, existing)
-            except exceptions.RecordNotFoundError:
+            except exceptions.ObjectNotFoundError:
                 pass
         else:
-            record[id_field] = id_generator()
+            object[id_field] = id_generator()
 
-        self.set_record_timestamp(collection_id, parent_id, record, modified_field=modified_field)
-        _id = record[id_field]
-        record = ujson.loads(self.json.dumps(record))
-        self._store[parent_id][collection_id][_id] = record
-        self._cemetery[parent_id][collection_id].pop(_id, None)
-        return record
+        self.set_object_timestamp(resource_name, parent_id, object, modified_field=modified_field)
+        _id = object[id_field]
+        object = ujson.loads(self.json.dumps(object))
+        self._store[parent_id][resource_name][_id] = object
+        self._cemetery[parent_id][resource_name].pop(_id, None)
+        return object
 
     @synchronized
     def get(
         self,
-        collection_id,
+        resource_name,
         parent_id,
         object_id,
         id_field=DEFAULT_ID_FIELD,
         modified_field=DEFAULT_MODIFIED_FIELD,
         auth=None,
     ):
-        collection = self._store[parent_id][collection_id]
+        collection = self._store[parent_id][resource_name]
         if object_id not in collection:
-            raise exceptions.RecordNotFoundError(object_id)
+            raise exceptions.ObjectNotFoundError(object_id)
         return {**collection[object_id]}
 
     @synchronized
     def update(
         self,
-        collection_id,
+        resource_name,
         parent_id,
         object_id,
-        record,
+        object,
         id_field=DEFAULT_ID_FIELD,
         modified_field=DEFAULT_MODIFIED_FIELD,
         auth=None,
     ):
-        record = {**record}
-        record[id_field] = object_id
-        record = ujson.loads(self.json.dumps(record))
+        object = {**object}
+        object[id_field] = object_id
+        object = ujson.loads(self.json.dumps(object))
 
-        self.set_record_timestamp(collection_id, parent_id, record, modified_field=modified_field)
-        self._store[parent_id][collection_id][object_id] = record
-        self._cemetery[parent_id][collection_id].pop(object_id, None)
-        return record
+        self.set_object_timestamp(resource_name, parent_id, object, modified_field=modified_field)
+        self._store[parent_id][resource_name][object_id] = object
+        self._cemetery[parent_id][resource_name].pop(object_id, None)
+        return object
 
     @synchronized
     def delete(
         self,
-        collection_id,
+        resource_name,
         parent_id,
         object_id,
         id_field=DEFAULT_ID_FIELD,
@@ -256,30 +256,30 @@ class Storage(MemoryBasedStorage):
         auth=None,
         last_modified=None,
     ):
-        existing = self.get(collection_id, parent_id, object_id)
-        # Need to delete the last_modified field of the record.
+        existing = self.get(resource_name, parent_id, object_id)
+        # Need to delete the last_modified field of the object.
         del existing[modified_field]
 
-        self.set_record_timestamp(
-            collection_id,
+        self.set_object_timestamp(
+            resource_name,
             parent_id,
             existing,
             modified_field=modified_field,
             last_modified=last_modified,
         )
-        existing = self.strip_deleted_record(collection_id, parent_id, existing)
+        existing = self.strip_deleted_object(resource_name, parent_id, existing)
 
         # Add to deleted items, remove from store.
         if with_deleted:
             deleted = {**existing}
-            self._cemetery[parent_id][collection_id][object_id] = deleted
-        self._store[parent_id][collection_id].pop(object_id)
+            self._cemetery[parent_id][resource_name][object_id] = deleted
+        self._store[parent_id][resource_name].pop(object_id)
         return existing
 
     @synchronized
     def purge_deleted(
         self,
-        collection_id,
+        resource_name,
         parent_id,
         before=None,
         id_field=DEFAULT_ID_FIELD,
@@ -294,25 +294,25 @@ class Storage(MemoryBasedStorage):
         }
         num_deleted = 0
         for pid, collections in by_parent_id.items():
-            if collection_id is not None:
-                collections = {collection_id: collections[collection_id]}
-            for collection, colrecords in collections.items():
+            if resource_name is not None:
+                collections = {resource_name: collections[resource_name]}
+            for collection, colobjects in collections.items():
                 if before is None:
                     kept = {}
                 else:
                     kept = {
                         key: value
-                        for key, value in colrecords.items()
+                        for key, value in colobjects.items()
                         if value[modified_field] >= before
                     }
                 self._cemetery[pid][collection] = kept
-                num_deleted += len(colrecords) - len(kept)
+                num_deleted += len(colobjects) - len(kept)
         return num_deleted
 
     @synchronized
     def get_all(
         self,
-        collection_id,
+        resource_name,
         parent_id,
         filters=None,
         sorting=None,
@@ -325,10 +325,10 @@ class Storage(MemoryBasedStorage):
         auth=None,
     ):
 
-        records = _get_objects_by_parent_id(self._store, parent_id, collection_id)
+        objects = _get_objects_by_parent_id(self._store, parent_id, resource_name)
 
-        records, count = self.extract_record_set(
-            records=records,
+        objects, count = self.extract_object_set(
+            objects=objects,
             filters=filters,
             sorting=None,
             id_field=id_field,
@@ -336,10 +336,10 @@ class Storage(MemoryBasedStorage):
         )
         deleted = []
         if include_deleted:
-            deleted = _get_objects_by_parent_id(self._cemetery, parent_id, collection_id)
+            deleted = _get_objects_by_parent_id(self._cemetery, parent_id, resource_name)
 
-        records, count = self.extract_record_set(
-            records=records + deleted,
+        objects, count = self.extract_object_set(
+            objects=objects + deleted,
             filters=filters,
             sorting=sorting,
             id_field=id_field,
@@ -347,12 +347,12 @@ class Storage(MemoryBasedStorage):
             pagination_rules=pagination_rules,
             limit=limit,
         )
-        return records, count
+        return objects, count
 
     @synchronized
     def delete_all(
         self,
-        collection_id,
+        resource_name,
         parent_id,
         filters=None,
         sorting=None,
@@ -364,9 +364,9 @@ class Storage(MemoryBasedStorage):
         deleted_field=DEFAULT_DELETED_FIELD,
         auth=None,
     ):
-        records = _get_objects_by_parent_id(self._store, parent_id, collection_id, with_meta=True)
-        records, count = self.extract_record_set(
-            records=records,
+        objects = _get_objects_by_parent_id(self._store, parent_id, resource_name, with_meta=True)
+        objects, count = self.extract_object_set(
+            objects=objects,
             filters=filters,
             sorting=sorting,
             pagination_rules=pagination_rules,
@@ -377,7 +377,7 @@ class Storage(MemoryBasedStorage):
 
         deleted = [
             self.delete(
-                r.pop("__collection_id__"),
+                r.pop("__resource_name__"),
                 r.pop("__parent_id__"),
                 r[id_field],
                 id_field=id_field,
@@ -385,13 +385,13 @@ class Storage(MemoryBasedStorage):
                 modified_field=modified_field,
                 deleted_field=deleted_field,
             )
-            for r in records
+            for r in objects
         ]
         return deleted
 
 
-def extract_record_set(
-    records,
+def extract_object_set(
+    objects,
     filters,
     sorting,
     pagination_rules=None,
@@ -400,11 +400,11 @@ def extract_record_set(
     deleted_field=DEFAULT_DELETED_FIELD,
 ):
     """Apply filters, sorting, limit, and pagination rules to the list of
-    `records`.
+    `objects`.
 
     """
-    filtered = list(apply_filters(records, filters or []))
-    total_records = len(filtered)
+    filtered = list(apply_filters(objects, filters or []))
+    total_objects = len(filtered)
 
     if pagination_rules:
         paginated = []
@@ -421,36 +421,36 @@ def extract_record_set(
     if limit:
         sorted_ = list(sorted_)[:limit]
 
-    return sorted_, total_records - filtered_deleted
+    return sorted_, total_objects - filtered_deleted
 
 
-def canonical_json(record):
-    return json.dumps(record, sort_keys=True, separators=(",", ":"))
+def canonical_json(object):
+    return json.dumps(object, sort_keys=True, separators=(",", ":"))
 
 
-def apply_filters(records, filters):
-    """Filter the specified records, using basic iteration.
+def apply_filters(objects, filters):
+    """Filter the specified objects, using basic iteration.
     """
 
-    def contains_filtering(record_value, search_term):
-        if record_value == MISSING:
+    def contains_filtering(object_value, search_term):
+        if object_value == MISSING:
             return False
         try:
             search_set = set([canonical_json(v) for v in search_term])
-            record_value_set = set([canonical_json(v) for v in record_value])
+            object_value_set = set([canonical_json(v) for v in object_value])
         except TypeError:
             return False
-        return record_value_set.intersection(search_set) == search_set
+        return object_value_set.intersection(search_set) == search_set
 
-    def contains_any_filtering(record_value, search_term):
-        if record_value == MISSING:
+    def contains_any_filtering(object_value, search_term):
+        if object_value == MISSING:
             return False
         try:
             search_set = set([canonical_json(v) for v in search_term])
-            record_value_set = set([canonical_json(v) for v in record_value])
+            object_value_set = set([canonical_json(v) for v in object_value])
         except TypeError:
             return False
-        return record_value_set.intersection(search_set)
+        return object_value_set.intersection(search_set)
 
     operators = {
         COMPARISON.LT: operator.lt,
@@ -465,7 +465,7 @@ def apply_filters(records, filters):
         COMPARISON.CONTAINS: contains_filtering,
         COMPARISON.CONTAINS_ANY: contains_any_filtering,
     }
-    for record in records:
+    for object in objects:
         matches = True
         for f in filters:
             right = f.value
@@ -473,7 +473,7 @@ def apply_filters(records, filters):
                 if isinstance(right, int):
                     right = str(right)
 
-            left = find_nested_value(record, f.field, MISSING)
+            left = find_nested_value(object, f.field, MISSING)
 
             if f.operator in (COMPARISON.IN, COMPARISON.EXCLUDE):
                 right, left = left, right
@@ -498,7 +498,7 @@ def apply_filters(records, filters):
             else:
                 matches = matches and operators[f.operator](left, right)
         if matches:
-            yield record
+            yield object
 
 
 def schwartzian_transform(value):
@@ -533,16 +533,16 @@ def schwartzian_transform(value):
     raise ValueError("Unknown value: {}".format(value))  # pragma: no cover
 
 
-def apply_sorting(records, sorting):
-    """Sort the specified records, using cumulative python sorting.
+def apply_sorting(objects, sorting):
+    """Sort the specified objects, using cumulative python sorting.
     """
-    result = list(records)
+    result = list(objects)
 
     if not result:
         return result
 
-    def column(record, name):
-        return schwartzian_transform(find_nested_value(record, name, default=MISSING))
+    def column(object, name):
+        return schwartzian_transform(find_nested_value(object, name, default=MISSING))
 
     for sort in reversed(sorting):
         result = sorted(result, key=lambda r: column(r, sort.field), reverse=(sort.direction < 0))
@@ -550,7 +550,7 @@ def apply_sorting(records, sorting):
     return result
 
 
-def _get_objects_by_parent_id(store, parent_id, collection_id, with_meta=False):
+def _get_objects_by_parent_id(store, parent_id, resource_name, with_meta=False):
     if parent_id is not None:
         parent_id_match = re.compile("^{}$".format(parent_id.replace("*", ".*")))
         by_parent_id = {
@@ -561,12 +561,12 @@ def _get_objects_by_parent_id(store, parent_id, collection_id, with_meta=False):
 
     objects = []
     for pid, collections in by_parent_id.items():
-        if collection_id is not None:
-            collections = {collection_id: collections[collection_id]}
+        if resource_name is not None:
+            collections = {resource_name: collections[resource_name]}
         for collection, colobjects in collections.items():
             for r in colobjects.values():
                 if with_meta:
-                    objects.append(dict(__collection_id__=collection, __parent_id__=pid, **r))
+                    objects.append(dict(__resource_name__=collection, __parent_id__=pid, **r))
                 else:
                     objects.append(r)
     return objects

@@ -16,8 +16,8 @@ class BackendError(Exception):
         super().__init__(message, *args, **kwargs)
 
 
-class RecordNotFoundError(Exception):
-    """An exception raised when a specific record could not be found.
+class ObjectNotFoundError(Exception):
+    """An exception raised when a specific object could not be found.
 
     """
 
@@ -32,12 +32,12 @@ class UnicityError(IntegrityError):
     """An exception raised on unicity constraint violation.
 
     Raised by storage backend when the creation or the modification of a
-    record violates the unicity constraints defined by the resource.
+    object violates the unicity constraints defined by the resource.
 
     """
 
-    def __init__(self, field, record, *args, **kwargs):
+    def __init__(self, field, object, *args, **kwargs):
         self.field = field
-        self.record = record
-        self.msg = "{} is not unique: {}".format(field, record)
+        self.object = object
+        self.msg = "{} is not unique: {}".format(field, object)
         super().__init__(*args, **kwargs)

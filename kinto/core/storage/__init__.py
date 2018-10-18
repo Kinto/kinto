@@ -10,7 +10,7 @@ from . import generators
 
 
 class Missing:
-    """Dummy value to represent a value that is completely absent from a record.
+    """Dummy value to represent a value that is completely absent from a object.
 
     Handling these correctly is important for pagination.
     """
@@ -37,7 +37,7 @@ DEFAULT_DELETED_FIELD = "deleted"
 _HEARTBEAT_DELETE_RATE = 0.6
 _HEARTBEAT_COLLECTION_ID = "__heartbeat__"
 _HEART_PARENT_ID = _HEARTBEAT_COLLECTION_ID
-_HEARTBEAT_RECORD = {"__heartbeat__": True}
+_HEARTBEAT_OBJECT = {"__heartbeat__": True}
 
 
 class StorageBase:
@@ -78,15 +78,15 @@ class StorageBase:
         """
         raise NotImplementedError
 
-    def collection_timestamp(self, collection_id, parent_id, auth=None):
-        """Get the highest timestamp of every objects in this `collection_id` for
+    def collection_timestamp(self, resource_name, parent_id, auth=None):
+        """Get the highest timestamp of every objects in this `resource_name` for
         this `parent_id`.
 
         .. note::
 
             This should take deleted objects into account.
 
-        :param str collection_id: the collection id.
+        :param str resource_name: the resource name.
         :param str parent_id: the collection parent.
 
         :returns: the latest timestamp of the collection.
@@ -96,15 +96,15 @@ class StorageBase:
 
     def create(
         self,
-        collection_id,
+        resource_name,
         parent_id,
-        record,
+        object,
         id_generator=None,
         id_field=DEFAULT_ID_FIELD,
         modified_field=DEFAULT_MODIFIED_FIELD,
         auth=None,
     ):
-        """Create the specified `object` in this `collection_id` for this `parent_id`.
+        """Create the specified `object` in this `resource_name` for this `parent_id`.
         Assign the id to the object, using the attribute
         :attr:`kinto.core.resource.model.Model.id_field`.
 
@@ -114,9 +114,9 @@ class StorageBase:
 
         :raises: :exc:`kinto.core.storage.exceptions.UnicityError`
 
-        :param str collection_id: the collection id.
+        :param str resource_name: the resource name.
         :param str parent_id: the collection parent.
-        :param dict record: the object to create.
+        :param dict object: the object to create.
 
         :returns: the newly created object.
         :rtype: dict
@@ -125,7 +125,7 @@ class StorageBase:
 
     def get(
         self,
-        collection_id,
+        resource_name,
         parent_id,
         object_id,
         id_field=DEFAULT_ID_FIELD,
@@ -135,9 +135,9 @@ class StorageBase:
         """Retrieve the object with specified `object_id`, or raise error
         if not found.
 
-        :raises: :exc:`kinto.core.storage.exceptions.RecordNotFoundError`
+        :raises: :exc:`kinto.core.storage.exceptions.ObjectNotFoundError`
 
-        :param str collection_id: the collection id.
+        :param str resource_name: the resource name.
         :param str parent_id: the collection parent.
 
         :param str object_id: unique identifier of the object
@@ -149,10 +149,10 @@ class StorageBase:
 
     def update(
         self,
-        collection_id,
+        resource_name,
         parent_id,
         object_id,
-        record,
+        object,
         id_field=DEFAULT_ID_FIELD,
         modified_field=DEFAULT_MODIFIED_FIELD,
         auth=None,
@@ -166,10 +166,10 @@ class StorageBase:
 
             This will update the collection timestamp.
 
-        :param str collection_id: the collection id.
+        :param str resource_name: the resource name.
         :param str parent_id: the collection parent.
         :param str object_id: unique identifier of the object
-        :param dict record: the object to update or create.
+        :param dict object: the object to update or create.
 
         :returns: the updated object.
         :rtype: dict
@@ -178,7 +178,7 @@ class StorageBase:
 
     def delete(
         self,
-        collection_id,
+        resource_name,
         parent_id,
         object_id,
         id_field=DEFAULT_ID_FIELD,
@@ -199,13 +199,13 @@ class StorageBase:
 
             This will update the collection timestamp.
 
-        :raises: :exc:`kinto.core.storage.exceptions.RecordNotFoundError`
+        :raises: :exc:`kinto.core.storage.exceptions.ObjectNotFoundError`
 
-        :param str collection_id: the collection id.
+        :param str resource_name: the resource name.
         :param str parent_id: the collection parent.
 
         :param str object_id: unique identifier of the object
-        :param bool with_deleted: track deleted record with a tombstone
+        :param bool with_deleted: track deleted object with a tombstone
 
         :returns: the deleted object, with minimal set of attributes.
         :rtype: dict
@@ -214,7 +214,7 @@ class StorageBase:
 
     def delete_all(
         self,
-        collection_id,
+        resource_name,
         parent_id,
         filters=None,
         sorting=None,
@@ -226,9 +226,9 @@ class StorageBase:
         deleted_field=DEFAULT_DELETED_FIELD,
         auth=None,
     ):
-        """Delete all objects in this `collection_id` for this `parent_id`.
+        """Delete all objects in this `resource_name` for this `parent_id`.
 
-        :param str collection_id: the collection id.
+        :param str resource_name: the resource name.
         :param str parent_id: the collection parent.
 
         :param filters: Optionnally filter the objects to delete.
@@ -249,7 +249,7 @@ class StorageBase:
         :param int limit: Optionnally limit the number of objects to be
             deleted.
 
-        :param bool with_deleted: track deleted records with a tombstone
+        :param bool with_deleted: track deleted objects with a tombstone
 
         :returns: the list of deleted objects, with minimal set of attributes.
         :rtype: list
@@ -258,17 +258,17 @@ class StorageBase:
 
     def purge_deleted(
         self,
-        collection_id,
+        resource_name,
         parent_id,
         before=None,
         id_field=DEFAULT_ID_FIELD,
         modified_field=DEFAULT_MODIFIED_FIELD,
         auth=None,
     ):
-        """Delete all deleted object tombstones in this `collection_id`
+        """Delete all deleted object tombstones in this `resource_name`
         for this `parent_id`.
 
-        :param str collection_id: the collection id.
+        :param str resource_name: the resource name.
         :param str parent_id: the collection parent.
 
         :param int before: Optionnal timestamp to limit deletion (exclusive)
@@ -281,7 +281,7 @@ class StorageBase:
 
     def get_all(
         self,
-        collection_id,
+        resource_name,
         parent_id,
         filters=None,
         sorting=None,
@@ -293,9 +293,9 @@ class StorageBase:
         deleted_field=DEFAULT_DELETED_FIELD,
         auth=None,
     ):
-        """Retrieve all objects in this `collection_id` for this `parent_id`.
+        """Retrieve all objects in this `resource_name` for this `parent_id`.
 
-        :param str collection_id: the collection id.
+        :param str resource_name: the resource name.
 
         :param str parent_id: the collection parent, possibly
             containing a wildcard '*'. (This can happen when
@@ -346,7 +346,7 @@ def heartbeat(backend):
         try:
             auth = request.headers.get("Authorization")
             storage_kw = dict(
-                collection_id=_HEARTBEAT_COLLECTION_ID, parent_id=_HEART_PARENT_ID, auth=auth
+                resource_name=_HEARTBEAT_COLLECTION_ID, parent_id=_HEART_PARENT_ID, auth=auth
             )
             if asbool(request.registry.settings.get("readonly")):
                 # Do not try to write in readonly mode.
@@ -356,7 +356,7 @@ def heartbeat(backend):
                     backend.delete_all(**storage_kw)
                     backend.purge_deleted(**storage_kw)  # Kinto/kinto#985
                 else:
-                    backend.create(record=_HEARTBEAT_RECORD, **storage_kw)
+                    backend.create(object=_HEARTBEAT_OBJECT, **storage_kw)
             return True
         except Exception:
             logger.exception("Heartbeat Error")

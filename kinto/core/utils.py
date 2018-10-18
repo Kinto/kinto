@@ -470,13 +470,13 @@ def view_lookup_registry(registry, uri):
     if route is None:
         raise ValueError("URI has no route")
 
-    resource_name = route.name.replace("-record", "").replace("-collection", "")
+    resource_name = route.name.replace("-object", "").replace("-collection", "")
     return resource_name, matchdict
 
 
 def instance_uri(request, resource_name, **params):
     """Return the URI for the given resource."""
-    return strip_uri_prefix(request.route_path("{}-record".format(resource_name), **params))
+    return strip_uri_prefix(request.route_path("{}-object".format(resource_name), **params))
 
 
 def instance_uri_registry(registry, resource_name, **params):
@@ -491,10 +491,10 @@ def instance_uri_registry(registry, resource_name, **params):
 
 
 def parse_resource(resource):
-    """Extract the bucket_id and collection_id of the given resource (URI)
+    """Extract the bucket_id and resource_name of the given resource (URI)
 
     :param str resource: a uri formatted /buckets/<bid>/collections/<cid> or <bid>/<cid>.
-    :returns: a dictionary with the bucket_id and collection_id of the resource
+    :returns: a dictionary with the bucket_id and resource_name of the resource
     """
 
     error_msg = "Resources should be defined as "
@@ -518,17 +518,17 @@ def parse_resource(resource):
     return {"bucket": bucket, "collection": collection}
 
 
-def apply_json_patch(record, ops):
+def apply_json_patch(object, ops):
     """
     Apply JSON Patch operations using jsonpatch.
 
-    :param record: base record where changes should be applied (not in-place).
+    :param object: base object where changes should be applied (not in-place).
     :param list changes: list of JSON patch operations.
     :param bool only_data: param to limit the scope of the patch only to 'data'.
-    :returns dict data: patched record data.
-             dict permissions: patched record permissions
+    :returns dict data: patched object data.
+             dict permissions: patched object permissions
     """
-    data = {**record}
+    data = {**object}
 
     # Permissions should always have read and write fields defined (to allow add)
     permissions = {"read": set(), "write": set()}

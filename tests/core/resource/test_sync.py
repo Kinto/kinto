@@ -63,7 +63,7 @@ class SinceModifiedTest(ThreadMixin, BaseTest):
         self.resource = self.resource_class(request=self.get_request(), context=self.get_context())
         self.resource.request.validated = self.validated
         result = self.resource.collection_delete()
-        modification = max([record["last_modified"] for record in result["data"]])
+        modification = max([object["last_modified"] for object in result["data"]])
         header = int(self.last_response.headers["ETag"][1:-1])
         self.assertEqual(header, modification)
 
@@ -92,7 +92,7 @@ class SinceModifiedTest(ThreadMixin, BaseTest):
         result = self.resource.collection_post()["data"]
         current = result["last_modified"]
 
-        self.resource.record_id = result["id"]
+        self.resource.object_id = result["id"]
         self.resource.delete()
 
         self.validated["querystring"] = {"_since": current}
@@ -127,15 +127,15 @@ class SinceModifiedTest(ThreadMixin, BaseTest):
 
     def test_timestamp_are_always_incremented_on_creation(self):
         def read_timestamp():
-            record = self.resource.collection_post()["data"]
-            return record["last_modified"]
+            object = self.resource.collection_post()["data"]
+            return object["last_modified"]
 
         before = read_timestamp()
         now = read_timestamp()
         after = read_timestamp()
         self.assertTrue(before < now < after)
 
-    def test_records_created_during_fetch_are_above_fetch_timestamp(self):
+    def test_objects_created_during_fetch_are_above_fetch_timestamp(self):
 
         timestamps = {}
 
@@ -151,22 +151,22 @@ class SinceModifiedTest(ThreadMixin, BaseTest):
                 fetch_at = self.last_response.headers["ETag"][1:-1]
                 timestamps["fetch"] = int(fetch_at)
 
-        # Create a real record with no patched timestamp
+        # Create a real object with no patched timestamp
         self.resource.collection_post()
 
         # Some client start fetching
         thread = self._create_thread(target=long_fetch)
         thread.start()
 
-        # Create record while other is fetching
+        # Create object while other is fetching
         time.sleep(0.020)  # 20 msec
         # Instantiate a new resource/request to avoid shared references with
         # the other one running in a thread:
         resource = self.resource_class(request=self.get_request(), context=self.get_context())
         resource.request.validated = self.validated
         resource.request.validated["body"] = {"data": {}}
-        record = resource.collection_post()["data"]
-        timestamps["post"] = record["last_modified"]
+        object = resource.collection_post()["data"]
+        timestamps["post"] = object["last_modified"]
 
         # Wait for the fetch to finish
         thread.join()

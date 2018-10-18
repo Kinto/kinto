@@ -33,7 +33,7 @@ def migrate(env, dry_run=False):
                 getattr(registry, backend).initialize_schema(dry_run=dry_run)
 
 
-def delete_collection(env, bucket_id, collection_id):
+def delete_collection(env, bucket_id, resource_name):
     registry = env["registry"]
     settings = registry.settings
     readonly_mode = asbool(settings.get("readonly", False))
@@ -44,39 +44,39 @@ def delete_collection(env, bucket_id, collection_id):
         return 31
 
     bucket = "/buckets/{}".format(bucket_id)
-    collection = "/buckets/{}/collections/{}".format(bucket_id, collection_id)
+    collection = "/buckets/{}/collections/{}".format(bucket_id, resource_name)
 
     try:
-        registry.storage.get(collection_id="bucket", parent_id="", object_id=bucket_id)
-    except storage_exceptions.RecordNotFoundError:
+        registry.storage.get(resource_name="bucket", parent_id="", object_id=bucket_id)
+    except storage_exceptions.ObjectNotFoundError:
         logger.error("Bucket '{}' does not exist.".format(bucket))
         return 32
 
     try:
-        registry.storage.get(collection_id="collection", parent_id=bucket, object_id=collection_id)
-    except storage_exceptions.RecordNotFoundError:
+        registry.storage.get(resource_name="collection", parent_id=bucket, object_id=resource_name)
+    except storage_exceptions.ObjectNotFoundError:
         logger.error("Collection '{}' does not exist.".format(collection))
         return 33
 
     deleted = registry.storage.delete_all(
-        collection_id="record", parent_id=collection, with_deleted=False
+        resource_name="object", parent_id=collection, with_deleted=False
     )
     if len(deleted) == 0:
-        logger.info("No records found for '{}'.".format(collection))
+        logger.info("No objects found for '{}'.".format(collection))
     else:
-        logger.info("{} record(s) were deleted.".format(len(deleted)))
+        logger.info("{} object(s) were deleted.".format(len(deleted)))
 
     registry.storage.delete(
-        collection_id="collection", parent_id=bucket, object_id=collection_id, with_deleted=False
+        resource_name="collection", parent_id=bucket, object_id=resource_name, with_deleted=False
     )
     logger.info("'{}' collection object was deleted.".format(collection))
 
-    record = "/buckets/{bucket_id}" "/collections/{collection_id}" "/records/{record_id}"
+    object = "/buckets/{bucket_id}" "/collections/{resource_name}" "/objects/{object_id}"
 
     registry.permission.delete_object_permissions(
         collection,
         *[
-            record.format(bucket_id=bucket_id, collection_id=collection_id, record_id=r["id"])
+            object.format(bucket_id=bucket_id, resource_name=resource_name, object_id=r["id"])
             for r in deleted
         ]
     )
@@ -91,7 +91,7 @@ def rebuild_quotas(env, dry_run=False):
     """Administrative command to rebuild quota usage information.
 
     This command recomputes the amount of space used by all
-    collections and all buckets and updates the quota records in the
+    collections and all buckets and updates the quota objects in the
     storage backend to their correct values. This can be useful when
     cleaning up after a bug like e.g.
     https://github.com/Kinto/kinto/issues/1226.

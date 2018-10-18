@@ -137,7 +137,7 @@ class Permission(PermissionBase):
                 ]
             perms = {}
             for ace in aces:
-                # Should work with 'permission:/url/id:record:create'.
+                # Should work with 'permission:/url/id:object:create'.
                 permission = ace.split(":", 2)[2]
                 perms[permission] = set(self._store[ace])
             result.append(perms)

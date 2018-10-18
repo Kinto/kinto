@@ -9,7 +9,7 @@ class FilteringTest(BaseTest):
         super().setUp()
         self.validated = self.resource.request.validated
         self.patch_known_field.start()
-        records = [
+        objects = [
             {"title": "MoFo", "status": 0, "favorite": True, "colors": ["blue", "red"]},
             {"title": "MoFo", "status": 1, "favorite": False, "colors": ["blue", "gray"]},
             {"title": "MoFo", "status": 2, "favorite": False, "sometimes": "available"},
@@ -25,13 +25,13 @@ class FilteringTest(BaseTest):
                 "aliases": [{"ll": "ls -l"}, {"rm": "rm -i"}],
             },
         ]
-        for r in records:
-            self.model.create_record(r)
+        for r in objects:
+            self.model.create_object(r)
 
     def test_list_can_be_filtered_on_deleted_with_since(self):
         since = self.model.timestamp()
-        r = self.model.create_record({})
-        self.model.delete_record(r)
+        r = self.model.create_object({})
+        self.model.delete_object(r)
         self.validated["querystring"] = {"_since": since, "deleted": True}
         result = self.resource.collection_get()
         self.assertEqual(len(result["data"]), 1)
@@ -39,14 +39,14 @@ class FilteringTest(BaseTest):
 
     def test_filter_on_id_is_supported(self):
         self.patch_known_field.stop()
-        r = self.model.create_record({})
+        r = self.model.create_object({})
         self.validated["querystring"] = {"id": "{}".format(r["id"])}
         result = self.resource.collection_get()
         self.assertEqual(result["data"][0], r)
 
     def test_list_cannot_be_filtered_on_deleted_without_since(self):
-        r = self.model.create_record({})
-        self.model.delete_record(r)
+        r = self.model.create_object({})
+        self.model.delete_object(r)
         self.validated["querystring"] = {"deleted": True}
         result = self.resource.collection_get()
         self.assertEqual(len(result["data"]), 0)
@@ -57,11 +57,11 @@ class FilteringTest(BaseTest):
         result = self.resource.collection_get()
         self.assertEqual(len(result["data"]), 0)
 
-    def test_number_of_records_matches_filter(self):
+    def test_number_of_objects_matches_filter(self):
         self.validated["querystring"] = {"status": 1}
         self.resource.collection_get()
         headers = self.last_response.headers
-        self.assertEqual(int(headers["Total-Records"]), 2)
+        self.assertEqual(int(headers["Total-Objects"]), 2)
 
     def test_single_basic_filter_by_attribute(self):
         self.validated["querystring"] = {"status": 1}
@@ -274,13 +274,13 @@ class FilteringTest(BaseTest):
         for value in values:
             assert 3 in value or 5 in value
 
-    def test_contains_fails_on_a_non_sequence_record_value(self):
+    def test_contains_fails_on_a_non_sequence_object_value(self):
         self.validated["querystring"] = {"contains_favorite": [True]}
         result = self.resource.collection_get()
         values = result["data"]
         assert len(values) == 0
 
-    def test_contains_any_fails_on_a_non_sequence_record_value(self):
+    def test_contains_any_fails_on_a_non_sequence_object_value(self):
         self.validated["querystring"] = {"contains_any_favorite": [True]}
         result = self.resource.collection_get()
         values = result["data"]
@@ -293,10 +293,10 @@ class SubobjectFilteringTest(BaseTest):
         self.validated = self.resource.request.validated
         self.patch_known_field.start()
         for i in range(6):
-            record = {"party": {"candidate": "Marie", "voters": i}, "location": "Creuse"}
-            self.model.create_record(record)
+            object = {"party": {"candidate": "Marie", "voters": i}, "location": "Creuse"}
+            self.model.create_object(object)
 
-    def test_records_can_be_filtered_by_subobjects(self):
+    def test_objects_can_be_filtered_by_subobjects(self):
         self.validated["querystring"] = {"party.voters": 1}
         result = self.resource.collection_get()
         values = [item["party"]["voters"] for item in result["data"]]
@@ -319,7 +319,7 @@ class JSONFilteringTest(BaseTest):
         super().setUp()
         self.validated = self.resource.request.validated
         self.patch_known_field.start()
-        records = [
+        objects = [
             {
                 "id": "strawberry",
                 "flavor": "strawberry",
@@ -339,8 +339,8 @@ class JSONFilteringTest(BaseTest):
             {"id": "watermelon-1", "flavor": "watermelon", "author": "null"},
             {"id": "watermelon-2", "flavor": "watermelon", "author": 0},
         ]
-        for r in records:
-            self.model.create_record(r)
+        for r in objects:
+            self.model.create_object(r)
 
     def test_filter_by_empty_array(self):
         self.validated["querystring"] = {"orders": []}

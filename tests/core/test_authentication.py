@@ -94,8 +94,8 @@ class AuthenticationPoliciesTest(BaseWebTest, unittest.TestCase):
         self.addCleanup(patch.stop)
         mocked = patch.start()
         body = {"data": {"name": "haha"}}
-        record_url = self.get_item_url(uuid.uuid4())
-        self.app.put_json(record_url, body, headers=self.headers)
+        object_url = self.get_item_url(uuid.uuid4())
+        self.app.put_json(object_url, body, headers=self.headers)
         self.assertEqual(mocked.call_count, 1)
 
 

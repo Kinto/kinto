@@ -97,7 +97,7 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
 
     def _delete_everything(self):
         q = """
-        DROP TABLE IF EXISTS records CASCADE;
+        DROP TABLE IF EXISTS objects CASCADE;
         DROP TABLE IF EXISTS deleted CASCADE;
         DROP TABLE IF EXISTS metadata CASCADE;
         DROP FUNCTION IF EXISTS resource_timestamp(VARCHAR, VARCHAR);
@@ -118,7 +118,7 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
         self._delete_everything()
         self.storage.initialize_schema(dry_run=True)
         query = """SELECT 1 FROM information_schema.tables
-        WHERE table_name = 'records';"""
+        WHERE table_name = 'objects';"""
         with self.storage.client.connect(readonly=True) as conn:
             result = conn.execute(query)
         self.assertEqual(result.rowcount, 0)
@@ -145,7 +145,7 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
         """Test every migration available in kinto.core code base since
         version 1.6.
 
-        Records migration test is currently very naive, and should be
+        Objects migration test is currently very naive, and should be
         elaborated along future migrations.
         """
         self._delete_everything()
@@ -153,12 +153,12 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
         # Install old schema
         self._load_schema("schema/postgresql-storage-1.6.sql")
 
-        # Create a sample record using some code that is compatible with the
+        # Create a sample object using some code that is compatible with the
         # schema in place in cliquet 1.6.
         with self.storage.client.connect() as conn:
             before = {"drink": "cacao"}
             query = """
-            INSERT INTO records (user_id, resource_name, data)
+            INSERT INTO objects (user_id, resource_name, data)
             VALUES (:user_id, :resource_name, (:data)::JSON)
             RETURNING id, as_epoch(last_modified) AS last_modified;
             """
@@ -181,11 +181,11 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
         version = self.storage.get_installed_version()
         self.assertEqual(version, self.version)
 
-        # Check that previously created record is still here
+        # Check that previously created object is still here
         migrated, count = self.storage.get_all("test", "jean-louis")
         self.assertEqual(migrated[0], before)
 
-        # Check that new records can be created
+        # Check that new objects can be created
         r = self.storage.create("test", ",jean-louis", {"drink": "mate"})
 
         # And deleted
@@ -207,13 +207,13 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
         self._load_schema("schema/postgresql-storage-11.sql")
 
         insert_query = """
-        INSERT INTO records (id, parent_id, collection_id, data, last_modified)
-        VALUES (:id, :parent_id, :collection_id, (:data)::JSONB, from_epoch(:last_modified))
+        INSERT INTO objects (id, parent_id, resource_name, data, last_modified)
+        VALUES (:id, :parent_id, :resource_name, (:data)::JSONB, from_epoch(:last_modified))
         """
         placeholders = dict(
             id="rid",
             parent_id="jean-louis",
-            collection_id="test",
+            resource_name="test",
             data=json.dumps({"drink": "mate"}),
             last_modified=123456,
         )
@@ -221,8 +221,8 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
             conn.execute(insert_query, placeholders)
 
         create_tombstone = """
-        INSERT INTO deleted (id, parent_id, collection_id, last_modified)
-        VALUES (:id, :parent_id, :collection_id, from_epoch(:last_modified))
+        INSERT INTO deleted (id, parent_id, resource_name, last_modified)
+        VALUES (:id, :parent_id, :resource_name, from_epoch(:last_modified))
         """
         with self.storage.client.connect() as conn:
             conn.execute(create_tombstone, placeholders)
@@ -232,10 +232,10 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
         self.storage.initialize_schema()
 
         # Check that the rotted tombstone has been removed, but the
-        # original record remains.
-        records, count = self.storage.get_all("test", "jean-louis")
-        # Only the record remains.
-        assert len(records) == 1
+        # original object remains.
+        objects, count = self.storage.get_all("test", "jean-louis")
+        # Only the object remains.
+        assert len(objects) == 1
         assert count == 1
 
     def test_migration_18_merges_tombstones(self):
@@ -254,13 +254,13 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
             )
 
         insert_query = """
-        INSERT INTO records (id, parent_id, collection_id, data, last_modified)
-        VALUES (:id, :parent_id, :collection_id, (:data)::JSONB, from_epoch(:last_modified))
+        INSERT INTO objects (id, parent_id, resource_name, data, last_modified)
+        VALUES (:id, :parent_id, :resource_name, (:data)::JSONB, from_epoch(:last_modified))
         """
         placeholders = dict(
             id="rid",
             parent_id="jean-louis",
-            collection_id="test",
+            resource_name="test",
             data=json.dumps({"drink": "mate"}),
             last_modified=123456,
         )
@@ -268,8 +268,8 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
             conn.execute(insert_query, placeholders)
 
         create_tombstone = """
-        INSERT INTO deleted (id, parent_id, collection_id, last_modified)
-        VALUES (:id, :parent_id, :collection_id, from_epoch(:last_modified))
+        INSERT INTO deleted (id, parent_id, resource_name, last_modified)
+        VALUES (:id, :parent_id, :resource_name, from_epoch(:last_modified))
         """
         with self.storage.client.connect() as conn:
             conn.execute(create_tombstone, placeholders)
@@ -278,11 +278,11 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
         postgresql_storage.Storage.schema_version = last_version
         self.storage.initialize_schema()
 
-        # Check that the record took precedence of over the tombstone.
-        records, count = self.storage.get_all("test", "jean-louis", include_deleted=True)
-        assert len(records) == 1
+        # Check that the object took precedence of over the tombstone.
+        objects, count = self.storage.get_all("test", "jean-louis", include_deleted=True)
+        assert len(objects) == 1
         assert count == 1
-        assert records[0]["drink"] == "mate"
+        assert objects[0]["drink"] == "mate"
 
 
 @skip_if_no_postgresql
@@ -374,7 +374,7 @@ class PostgresqlPermissionMigrationTest(unittest.TestCase):
     def test_every_available_migration(self):
         """Test every permission migration available in code base.
 
-        Records migration test is currently very naive, and should be
+        Objects migration test is currently very naive, and should be
         elaborated along future migrations.
         """
         # Install old schema
@@ -415,7 +415,7 @@ class PostgresqlPermissionMigrationTest(unittest.TestCase):
             remy_objects, {"sailboat": set(["write"]), "sailboat/log": set(["read", "write"])}
         )
 
-        # Check that new records can be created
+        # Check that new objects can be created
         self.permission.add_user_principal("ethan", "crew")
 
         # And deleted

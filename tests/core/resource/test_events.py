@@ -67,26 +67,26 @@ class ResourceReadTest(BaseEventTest, unittest.TestCase):
 
     def test_get_sends_read_event(self):
         resp = self.app.post_json(self.collection_url, self.body, headers=self.headers, status=201)
-        record_id = resp.json["data"]["id"]
-        record_url = self.get_item_url(record_id)
-        self.app.get(record_url, headers=self.headers)
+        object_id = resp.json["data"]["id"]
+        object_url = self.get_item_url(object_id)
+        self.app.get(object_url, headers=self.headers)
         self.assertEqual(len(self.events), 1)
         self.assertEqual(self.events[0].payload["action"], ACTIONS.READ.value)
-        self.assertEqual(len(self.events[0].read_records), 1)
+        self.assertEqual(len(self.events[0].read_objects), 1)
 
     def test_collection_get_sends_read_event(self):
         self.app.get(self.collection_url, headers=self.headers)
         self.assertEqual(len(self.events), 1)
         self.assertEqual(self.events[0].payload["action"], ACTIONS.READ.value)
-        self.assertEqual(len(self.events[0].read_records), 0)
+        self.assertEqual(len(self.events[0].read_objects), 0)
 
     def test_post_sends_read_if_id_already_exists(self):
         resp = self.app.post_json(self.collection_url, self.body, headers=self.headers, status=201)
-        record = resp.json["data"]
+        object = resp.json["data"]
         body = {**self.body}
-        body["data"]["id"] = record["id"]
+        body["data"]["id"] = object["id"]
 
-        # a second post with the same record id
+        # a second post with the same object id
         self.app.post_json(self.collection_url, body, headers=self.headers, status=200)
         self.assertEqual(len(self.events), 1)
         self.assertEqual(self.events[0].payload["action"], ACTIONS.READ.value)
@@ -110,49 +110,49 @@ class ResourceChangedTest(BaseEventTest, unittest.TestCase):
 
     def test_put_sends_create_action(self):
         body = {**self.body}
-        body["data"]["id"] = record_id = str(uuid.uuid4())
-        record_url = self.get_item_url(record_id)
-        self.app.put_json(record_url, body, headers=self.headers, status=201)
+        body["data"]["id"] = object_id = str(uuid.uuid4())
+        object_url = self.get_item_url(object_id)
+        self.app.put_json(object_url, body, headers=self.headers, status=201)
         self.assertEqual(len(self.events), 1)
         self.assertEqual(self.events[0].payload["action"], ACTIONS.CREATE.value)
 
     def test_put_event_has_sensible_timestamp(self):
         body = {**self.body}
-        body["data"]["id"] = record_id = str(uuid.uuid4())
-        record_url = self.get_item_url(record_id)
-        resp = self.app.put_json(record_url, body, headers=self.headers, status=201)
+        body["data"]["id"] = object_id = str(uuid.uuid4())
+        object_url = self.get_item_url(object_id)
+        resp = self.app.put_json(object_url, body, headers=self.headers, status=201)
         self.assertEqual(len(self.events), 1)
         self.assertEqual(self.events[0].payload["action"], ACTIONS.CREATE.value)
         self.assertEqual(self.events[0].payload["timestamp"], resp.json["data"]["last_modified"])
 
     def test_not_triggered_on_failed_put(self):
         body = {**self.body}
-        body["data"]["id"] = record_id = str(uuid.uuid4())
-        record_url = self.get_item_url(record_id)
-        self.app.put_json(record_url, body, headers=self.headers)
+        body["data"]["id"] = object_id = str(uuid.uuid4())
+        object_url = self.get_item_url(object_id)
+        self.app.put_json(object_url, body, headers=self.headers)
         headers = {**self.headers, "If-Match": '"12345"'}
-        self.app.put_json(record_url, body, headers=headers, status=412)
+        self.app.put_json(object_url, body, headers=headers, status=412)
         self.assertEqual(len(self.events), 1)
         self.assertEqual(self.events[0].payload["action"], ACTIONS.CREATE.value)
 
     def test_patch_sends_update_action(self):
         resp = self.app.post_json(self.collection_url, self.body, headers=self.headers, status=201)
-        record = resp.json["data"]
-        record_url = self.get_item_url(record["id"])
+        object = resp.json["data"]
+        object_url = self.get_item_url(object["id"])
 
-        self.app.patch_json(record_url, self.body, headers=self.headers, status=200)
+        self.app.patch_json(object_url, self.body, headers=self.headers, status=200)
         self.assertEqual(len(self.events), 2)
         self.assertEqual(self.events[0].payload["action"], ACTIONS.CREATE.value)
         self.assertEqual(self.events[1].payload["action"], ACTIONS.UPDATE.value)
 
-    def test_put_sends_update_action_if_record_exists(self):
+    def test_put_sends_update_action_if_object_exists(self):
         body = {**self.body}
-        body["data"]["id"] = record_id = str(uuid.uuid4())
-        record_url = self.get_item_url(record_id)
-        self.app.put_json(record_url, body, headers=self.headers, status=201)
+        body["data"]["id"] = object_id = str(uuid.uuid4())
+        object_url = self.get_item_url(object_id)
+        self.app.put_json(object_url, body, headers=self.headers, status=201)
 
         body["data"]["more"] = "stuff"
-        self.app.put_json(record_url, body, headers=self.headers, status=200)
+        self.app.put_json(object_url, body, headers=self.headers, status=200)
 
         self.assertEqual(len(self.events), 2)
         self.assertEqual(self.events[0].payload["action"], ACTIONS.CREATE.value)
@@ -160,10 +160,10 @@ class ResourceChangedTest(BaseEventTest, unittest.TestCase):
 
     def test_delete_sends_delete_action(self):
         resp = self.app.post_json(self.collection_url, self.body, headers=self.headers, status=201)
-        record = resp.json["data"]
-        record_url = self.get_item_url(record["id"])
+        object = resp.json["data"]
+        object_url = self.get_item_url(object["id"])
 
-        self.app.delete(record_url, headers=self.headers, status=200)
+        self.app.delete(object_url, headers=self.headers, status=200)
         self.assertEqual(len(self.events), 2)
         self.assertEqual(self.events[0].payload["action"], ACTIONS.CREATE.value)
         self.assertEqual(self.events[1].payload["action"], ACTIONS.DELETE.value)
@@ -193,12 +193,12 @@ class ResourceChangedTest(BaseEventTest, unittest.TestCase):
     def test_permissions_are_stripped_from_event_on_protected_resource(self):
         app = self.make_app(settings={"psilo_write_principals": "system.Authenticated"})
         resp = app.post_json("/psilos", self.body, headers=self.headers, status=201)
-        record = resp.json["data"]
-        record_url = "/psilos/{}".format(record["id"])
-        app.patch_json(record_url, {"data": {"name": "De barcelona"}}, headers=self.headers)
-        impacted_records = self.events[-1].impacted_records
-        self.assertNotIn("__permissions__", impacted_records[0]["new"])
-        self.assertNotIn("__permissions__", impacted_records[0]["old"])
+        object = resp.json["data"]
+        object_url = "/psilos/{}".format(object["id"])
+        app.patch_json(object_url, {"data": {"name": "De barcelona"}}, headers=self.headers)
+        impacted_objects = self.events[-1].impacted_objects
+        self.assertNotIn("__permissions__", impacted_objects[0]["new"])
+        self.assertNotIn("__permissions__", impacted_objects[0]["old"])
 
 
 class AfterResourceChangedTest(BaseEventTest, unittest.TestCase):
@@ -223,72 +223,72 @@ class AfterResourceReadTest(BaseEventTest, unittest.TestCase):
         self.assertEqual(len(self.events), 0)
 
 
-class ImpactedRecordsTest(BaseEventTest, unittest.TestCase):
+class ImpactedObjectsTest(BaseEventTest, unittest.TestCase):
 
     subscribed = (ResourceChanged,)
 
-    def test_create_has_new_record_and_no_old_in_payload(self):
+    def test_create_has_new_object_and_no_old_in_payload(self):
         resp = self.app.post_json(self.collection_url, self.body, headers=self.headers)
-        record = resp.json["data"]
-        impacted_records = self.events[-1].impacted_records
-        self.assertEqual(len(impacted_records), 1)
-        self.assertNotIn("old", impacted_records[0])
-        self.assertEqual(impacted_records[0]["new"], record)
+        object = resp.json["data"]
+        impacted_objects = self.events[-1].impacted_objects
+        self.assertEqual(len(impacted_objects), 1)
+        self.assertNotIn("old", impacted_objects[0])
+        self.assertEqual(impacted_objects[0]["new"], object)
 
     def test_collection_delete_has_old_and_new_in_payload(self):
         resp = self.app.post_json(self.collection_url, self.body, headers=self.headers)
-        record1 = resp.json["data"]
+        object1 = resp.json["data"]
         resp = self.app.post_json(self.collection_url, self.body, headers=self.headers)
-        record2 = resp.json["data"]
+        object2 = resp.json["data"]
 
         self.app.delete(self.collection_url, headers=self.headers, status=200)
 
-        impacted_records = self.events[-1].impacted_records
-        self.assertEqual(len(impacted_records), 2)
-        impacted_records = sorted(impacted_records, key=lambda x: x["old"]["last_modified"])
-        self.assertEqual(impacted_records[0]["old"], record1)
-        self.assertEqual(impacted_records[1]["old"], record2)
-        self.assertEqual(impacted_records[0]["new"]["deleted"], True)
-        self.assertEqual(impacted_records[1]["new"]["deleted"], True)
-        self.assertEqual(impacted_records[0]["old"]["id"], impacted_records[0]["new"]["id"])
-        self.assertEqual(impacted_records[1]["old"]["id"], impacted_records[1]["new"]["id"])
-        deleted_ids = {impacted_records[0]["new"]["id"], impacted_records[1]["new"]["id"]}
-        self.assertEqual(deleted_ids, {record1["id"], record2["id"]})
+        impacted_objects = self.events[-1].impacted_objects
+        self.assertEqual(len(impacted_objects), 2)
+        impacted_objects = sorted(impacted_objects, key=lambda x: x["old"]["last_modified"])
+        self.assertEqual(impacted_objects[0]["old"], object1)
+        self.assertEqual(impacted_objects[1]["old"], object2)
+        self.assertEqual(impacted_objects[0]["new"]["deleted"], True)
+        self.assertEqual(impacted_objects[1]["new"]["deleted"], True)
+        self.assertEqual(impacted_objects[0]["old"]["id"], impacted_objects[0]["new"]["id"])
+        self.assertEqual(impacted_objects[1]["old"]["id"], impacted_objects[1]["new"]["id"])
+        deleted_ids = {impacted_objects[0]["new"]["id"], impacted_objects[1]["new"]["id"]}
+        self.assertEqual(deleted_ids, {object1["id"], object2["id"]})
 
-    def test_update_has_old_and_new_record(self):
+    def test_update_has_old_and_new_object(self):
         resp = self.app.post_json(self.collection_url, self.body, headers=self.headers, status=201)
-        record = resp.json["data"]
-        record_url = self.get_item_url(record["id"])
-        self.app.patch_json(record_url, {"data": {"name": "en boite"}}, headers=self.headers)
-        impacted_records = self.events[-1].impacted_records
-        self.assertEqual(len(impacted_records), 1)
-        self.assertEqual(impacted_records[0]["new"]["id"], record["id"])
-        self.assertEqual(impacted_records[0]["new"]["id"], impacted_records[0]["old"]["id"])
-        self.assertEqual(impacted_records[0]["old"]["name"], "de Paris")
-        self.assertEqual(impacted_records[0]["new"]["name"], "en boite")
+        object = resp.json["data"]
+        object_url = self.get_item_url(object["id"])
+        self.app.patch_json(object_url, {"data": {"name": "en boite"}}, headers=self.headers)
+        impacted_objects = self.events[-1].impacted_objects
+        self.assertEqual(len(impacted_objects), 1)
+        self.assertEqual(impacted_objects[0]["new"]["id"], object["id"])
+        self.assertEqual(impacted_objects[0]["new"]["id"], impacted_objects[0]["old"]["id"])
+        self.assertEqual(impacted_objects[0]["old"]["name"], "de Paris")
+        self.assertEqual(impacted_objects[0]["new"]["name"], "en boite")
 
-    def test_delete_has_old_and_new_record_in_payload(self):
+    def test_delete_has_old_and_new_object_in_payload(self):
         resp = self.app.post_json(self.collection_url, self.body, headers=self.headers, status=201)
-        record = resp.json["data"]
-        record_url = self.get_item_url(record["id"])
-        self.app.delete(record_url, headers=self.headers, status=200)
+        object = resp.json["data"]
+        object_url = self.get_item_url(object["id"])
+        self.app.delete(object_url, headers=self.headers, status=200)
 
-        impacted_records = self.events[-1].impacted_records
-        self.assertEqual(len(impacted_records), 1)
-        self.assertEqual(impacted_records[0]["old"], record)
-        self.assertEqual(impacted_records[0]["new"]["id"], record["id"])
-        self.assertEqual(impacted_records[0]["new"]["deleted"], True)
+        impacted_objects = self.events[-1].impacted_objects
+        self.assertEqual(len(impacted_objects), 1)
+        self.assertEqual(impacted_objects[0]["old"], object)
+        self.assertEqual(impacted_objects[0]["new"]["id"], object["id"])
+        self.assertEqual(impacted_objects[0]["new"]["deleted"], True)
 
 
 class BatchEventsTest(BaseEventTest, unittest.TestCase):
 
     subscribed = (ResourceChanged, ResourceRead)
 
-    def test_impacted_records_are_merged(self):
-        record_id = str(uuid.uuid4())
-        record_url = self.get_item_url(record_id)
+    def test_impacted_objects_are_merged(self):
+        object_id = str(uuid.uuid4())
+        object_url = self.get_item_url(object_id)
         body = {
-            "defaults": {"method": "PUT", "path": record_url},
+            "defaults": {"method": "PUT", "path": object_url},
             "requests": [
                 {"body": {"data": {"name": "foo"}}},
                 {"body": {"data": {"name": "bar"}}},
@@ -301,11 +301,11 @@ class BatchEventsTest(BaseEventTest, unittest.TestCase):
 
         create_event = self.events[0]
         self.assertEqual(create_event.payload["action"], "create")
-        self.assertEqual(len(create_event.impacted_records), 1)
-        self.assertNotIn("old", create_event.impacted_records[0])
+        self.assertEqual(len(create_event.impacted_objects), 1)
+        self.assertNotIn("old", create_event.impacted_objects[0])
         update_event = self.events[1]
         self.assertEqual(update_event.payload["action"], "update")
-        impacted = update_event.impacted_records
+        impacted = update_event.impacted_objects
         self.assertEqual(len(impacted), 2)
         self.assertEqual(impacted[0]["old"]["name"], "foo")
         self.assertEqual(impacted[0]["new"]["name"], "bar")
@@ -313,9 +313,9 @@ class BatchEventsTest(BaseEventTest, unittest.TestCase):
         self.assertEqual(impacted[1]["new"]["name"], "baz")
         delete_event = self.events[2]
         self.assertEqual(delete_event.payload["action"], "delete")
-        self.assertEqual(len(delete_event.impacted_records), 1)
-        self.assertIn("old", delete_event.impacted_records[0])
-        self.assertIn("new", delete_event.impacted_records[0])
+        self.assertEqual(len(delete_event.impacted_objects), 1)
+        self.assertIn("old", delete_event.impacted_objects[0])
+        self.assertIn("new", delete_event.impacted_objects[0])
 
     def test_one_event_is_sent_per_resource(self):
         body = {
@@ -375,17 +375,17 @@ class CascadingEventsTest(BaseEventTest, unittest.TestCase):
         cls.events.append(event)
         if not isinstance(event, ResourceChanged):
             return
-        if len(event.impacted_records) > 1:
-            raise ValueError("Too many events {}".format(event.impacted_records))
-        # An event without records is impossible.
-        assert len(event.impacted_records) == 1
-        if event.impacted_records[0]["new"]["name"] == "de Paris":
-            new_record = {"name": "de New York"}
+        if len(event.impacted_objects) > 1:
+            raise ValueError("Too many events {}".format(event.impacted_objects))
+        # An event without objects is impossible.
+        assert len(event.impacted_objects) == 1
+        if event.impacted_objects[0]["new"]["name"] == "de Paris":
+            new_object = {"name": "de New York"}
             # Trying to match the Mushroom (i.e. UserResource) parent
             # ID to test event grouping
             parent_id = event.request.prefixed_userid
             notify_resource_event(
-                event.request, parent_id, event.payload["timestamp"], new_record, ACTIONS.CREATE
+                event.request, parent_id, event.payload["timestamp"], new_object, ACTIONS.CREATE
             )
 
     def test_event_can_trigger_other_event(self):
@@ -393,12 +393,12 @@ class CascadingEventsTest(BaseEventTest, unittest.TestCase):
         resource_changed_events = [e for e in self.events if isinstance(e, ResourceChanged)]
         self.assertEqual(len(resource_changed_events), 2)
         self.assertEqual(resource_changed_events[0].payload["action"], ACTIONS.CREATE.value)
-        self.assertEqual(len(resource_changed_events[0].impacted_records), 1)
-        self.assertEqual(resource_changed_events[0].impacted_records[0]["new"]["name"], "de Paris")
+        self.assertEqual(len(resource_changed_events[0].impacted_objects), 1)
+        self.assertEqual(resource_changed_events[0].impacted_objects[0]["new"]["name"], "de Paris")
         self.assertEqual(resource_changed_events[1].payload["action"], ACTIONS.CREATE.value)
-        self.assertEqual(len(resource_changed_events[1].impacted_records), 1)
+        self.assertEqual(len(resource_changed_events[1].impacted_objects), 1)
         self.assertEqual(
-            resource_changed_events[1].impacted_records[0]["new"]["name"], "de New York"
+            resource_changed_events[1].impacted_objects[0]["new"]["name"], "de New York"
         )
 
     def test_cascading_events_are_merged(self):
@@ -407,9 +407,9 @@ class CascadingEventsTest(BaseEventTest, unittest.TestCase):
         self.assertEqual(len(relevant_events), 1)
         merged_event = relevant_events[0]
         self.assertEqual(merged_event.payload["action"], ACTIONS.CREATE.value)
-        self.assertEqual(len(merged_event.impacted_records), 2)
-        self.assertEqual(merged_event.impacted_records[0]["new"]["name"], "de Paris")
-        self.assertEqual(merged_event.impacted_records[1]["new"]["name"], "de New York")
+        self.assertEqual(len(merged_event.impacted_objects), 2)
+        self.assertEqual(merged_event.impacted_objects[0]["new"]["name"], "de Paris")
+        self.assertEqual(merged_event.impacted_objects[1]["new"]["name"], "de New York")
 
 
 def load_from_config(config, prefix):
