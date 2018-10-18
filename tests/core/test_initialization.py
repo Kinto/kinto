@@ -229,6 +229,17 @@ class ApplicationWrapperTest(unittest.TestCase):
         self.assertNotIn("myapp.http_host", settings)
         self.assertEqual(settings["http_host"], "localhost:8888")
 
+    def test_load_default_settings_doesnt_parse_version(self):
+        config = mock.MagicMock()
+
+        settings = {'settings_prefix': 'myapp'}
+
+        config.get_settings.return_value = settings
+        initialization.load_default_settings(
+            config, {'http_api_version': '1.20'})
+
+        self.assertEqual(settings['http_api_version'], '1.20')
+
 
 class StatsDConfigurationTest(unittest.TestCase):
     def setUp(self):
