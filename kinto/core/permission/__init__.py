@@ -6,11 +6,10 @@ from pyramid.settings import asbool
 logger = logging.getLogger(__name__)
 
 
-__HEARTBEAT_KEY__ = '__heartbeat__'
+__HEARTBEAT_KEY__ = "__heartbeat__"
 
 
 class PermissionBase:
-
     def __init__(self, *args, **kwargs):
         pass
 
@@ -189,14 +188,15 @@ def heartbeat(backend):
         :rtype: bool
         """
         try:
-            if asbool(request.registry.settings.get('readonly')):
+            if asbool(request.registry.settings.get("readonly")):
                 # Do not try to write in readonly mode.
                 backend.get_user_principals(__HEARTBEAT_KEY__)
             else:
-                backend.add_user_principal(__HEARTBEAT_KEY__, 'alive')
-                backend.remove_user_principal(__HEARTBEAT_KEY__, 'alive')
+                backend.add_user_principal(__HEARTBEAT_KEY__, "alive")
+                backend.remove_user_principal(__HEARTBEAT_KEY__, "alive")
         except Exception:
-            logger.exception('Heartbeat Error')
+            logger.exception("Heartbeat Error")
             return False
         return True
+
     return ping

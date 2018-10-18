@@ -11,9 +11,11 @@ class BasicAuthAuthenticationPolicy(base_auth.BasicAuthAuthenticationPolicy):
     account).
 
     """
+
     def __init__(self, *args, **kwargs):
         def noop_check(*a):
             return []
+
         super().__init__(noop_check, *args, **kwargs)
 
     def effective_principals(self, request):
@@ -31,16 +33,16 @@ class BasicAuthAuthenticationPolicy(base_auth.BasicAuthAuthenticationPolicy):
             if not username:
                 return
 
-            hmac_secret = settings['userid_hmac_secret']
-            credentials = '{}:{}'.format(*credentials)
+            hmac_secret = settings["userid_hmac_secret"]
+            credentials = "{}:{}".format(*credentials)
             userid = utils.hmac_digest(hmac_secret, credentials)
             return userid
 
 
 def includeme(config):
     config.add_api_capability(
-        'basicauth',
-        description='Very basic authentication sessions. Not for production use.',
-        url='http://kinto.readthedocs.io/en/stable/api/1.x/authentication.html',
+        "basicauth",
+        description="Very basic authentication sessions. Not for production use.",
+        url="http://kinto.readthedocs.io/en/stable/api/1.x/authentication.html",
     )
-    OpenAPI.expose_authentication_method('basicauth', {'type': 'basic'})
+    OpenAPI.expose_authentication_method("basicauth", {"type": "basic"})

@@ -27,14 +27,14 @@ class Permission(PermissionBase):
 
     @synchronized
     def add_user_principal(self, user_id, principal):
-        user_key = 'user:{}'.format(user_id)
+        user_key = "user:{}".format(user_id)
         user_principals = self._store.get(user_key, set())
         user_principals.add(principal)
         self._store[user_key] = user_principals
 
     @synchronized
     def remove_user_principal(self, user_id, principal):
-        user_key = 'user:{}'.format(user_id)
+        user_key = "user:{}".format(user_id)
         user_principals = self._store.get(user_key, set())
         try:
             user_principals.remove(principal)
@@ -57,22 +57,22 @@ class Permission(PermissionBase):
     @synchronized
     def get_user_principals(self, user_id):
         # Fetch the groups the user is in.
-        user_key = 'user:{}'.format(user_id)
+        user_key = "user:{}".format(user_id)
         members = self._store.get(user_key, set())
         # Fetch the groups system.Authenticated is in.
-        group_authenticated = self._store.get('user:system.Authenticated', set())
+        group_authenticated = self._store.get("user:system.Authenticated", set())
         return members | group_authenticated
 
     @synchronized
     def add_principal_to_ace(self, object_id, permission, principal):
-        permission_key = 'permission:{}:{}'.format(object_id, permission)
+        permission_key = "permission:{}:{}".format(object_id, permission)
         object_permission_principals = self._store.get(permission_key, set())
         object_permission_principals.add(principal)
         self._store[permission_key] = object_permission_principals
 
     @synchronized
     def remove_principal_from_ace(self, object_id, permission, principal):
-        permission_key = 'permission:{}:{}'.format(object_id, permission)
+        permission_key = "permission:{}:{}".format(object_id, permission)
         object_permission_principals = self._store.get(permission_key, set())
         try:
             object_permission_principals.remove(principal)
@@ -86,7 +86,7 @@ class Permission(PermissionBase):
 
     @synchronized
     def get_object_permission_principals(self, object_id, permission):
-        permission_key = 'permission:{}:{}'.format(object_id, permission)
+        permission_key = "permission:{}:{}".format(object_id, permission)
         members = self._store.get(permission_key, set())
         return members
 
@@ -96,15 +96,15 @@ class Permission(PermissionBase):
         candidates = []
         if bound_permissions is None:
             for key, value in self._store.items():
-                _, object_id, permission = key.split(':', 2)
+                _, object_id, permission = key.split(":", 2)
                 candidates.append((object_id, permission, value))
         else:
             for pattern, perm in bound_permissions:
-                id_match = '.*' if with_children else '[^/]+'
-                regexp = re.compile('^{}$'.format(pattern.replace('*', id_match)))
+                id_match = ".*" if with_children else "[^/]+"
+                regexp = re.compile("^{}$".format(pattern.replace("*", id_match)))
                 for key, value in self._store.items():
                     if key.endswith(perm):
-                        object_id = key.split(':')[1]
+                        object_id = key.split(":")[1]
                         if regexp.match(object_id):
                             candidates.append((object_id, perm, value))
 
@@ -126,15 +126,19 @@ class Permission(PermissionBase):
         result = []
         for object_id in objects_ids:
             if permissions is None:
-                aces = [k for k in self._store.keys()
-                        if k.startswith('permission:{}:'.format(object_id))]
+                aces = [
+                    k
+                    for k in self._store.keys()
+                    if k.startswith("permission:{}:".format(object_id))
+                ]
             else:
-                aces = ['permission:{}:{}'.format(object_id, permission)
-                        for permission in permissions]
+                aces = [
+                    "permission:{}:{}".format(object_id, permission) for permission in permissions
+                ]
             perms = {}
             for ace in aces:
                 # Should work with 'permission:/url/id:record:create'.
-                permission = ace.split(':', 2)[2]
+                permission = ace.split(":", 2)[2]
                 perms[permission] = set(self._store[ace])
             result.append(perms)
         return result
@@ -142,7 +146,7 @@ class Permission(PermissionBase):
     @synchronized
     def replace_object_permissions(self, object_id, permissions):
         for permission, principals in permissions.items():
-            permission_key = 'permission:{}:{}'.format(object_id, permission)
+            permission_key = "permission:{}:{}".format(object_id, permission)
             if permission_key in self._store and len(principals) == 0:
                 del self._store[permission_key]
             elif principals:
@@ -153,9 +157,9 @@ class Permission(PermissionBase):
     def delete_object_permissions(self, *object_id_list):
         to_delete = []
         for key in self._store.keys():
-            object_id = key.split(':')[1]
+            object_id = key.split(":")[1]
             for pattern in object_id_list:
-                regexp = re.compile('^{}$'.format(pattern.replace('*', '.*')))
+                regexp = re.compile("^{}$".format(pattern.replace("*", ".*")))
                 if regexp.match(object_id):
                     to_delete.append(key)
         for k in to_delete:

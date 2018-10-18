@@ -62,6 +62,7 @@ class Cache(CacheBase):
 
     :noindex:
     """  # NOQA
+
     def __init__(self, client, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.client = client
@@ -76,12 +77,12 @@ class Cache(CacheBase):
         with self.client.connect(readonly=True) as conn:
             result = conn.execute(query)
             if result.rowcount > 0:
-                logger.info('PostgreSQL cache schema is up-to-date.')
+                logger.info("PostgreSQL cache schema is up-to-date.")
                 return
 
         # Create schema
         here = os.path.dirname(__file__)
-        sql_file = os.path.join(here, 'schema.sql')
+        sql_file = os.path.join(here, "schema.sql")
 
         if dry_run:
             logger.info("Create cache schema from '{}'".format(sql_file))
@@ -92,7 +93,7 @@ class Cache(CacheBase):
             schema = f.read()
         with self.client.connect(force_commit=True) as conn:
             conn.execute(schema)
-        logger.info('Created PostgreSQL cache tables')
+        logger.info("Created PostgreSQL cache tables")
 
     def flush(self):
         query = """
@@ -101,7 +102,7 @@ class Cache(CacheBase):
         # Since called outside request (e.g. tests), force commit.
         with self.client.connect(force_commit=True) as conn:
             conn.execute(query)
-        logger.debug('Flushed PostgreSQL cache tables')
+        logger.debug("Flushed PostgreSQL cache tables")
 
     def ttl(self, key):
         query = """
@@ -113,7 +114,7 @@ class Cache(CacheBase):
         with self.client.connect(readonly=True) as conn:
             result = conn.execute(query, dict(key=self.prefix + key))
             if result.rowcount > 0:
-                return result.fetchone()['ttl']
+                return result.fetchone()["ttl"]
         return -1
 
     def expire(self, key, ttl):
@@ -136,8 +137,7 @@ class Cache(CacheBase):
         """
         value = json.dumps(value)
         with self.client.connect() as conn:
-            conn.execute(query, dict(key=self.prefix + key,
-                                     value=value, ttl=ttl))
+            conn.execute(query, dict(key=self.prefix + key, value=value, ttl=ttl))
 
     def get(self, key):
         purge = """
@@ -150,25 +150,25 @@ class Cache(CacheBase):
             FOR UPDATE
         ) del
         WHERE del.key = c.key;"""
-        query = 'SELECT value FROM cache WHERE key = :key AND now() < ttl;'
+        query = "SELECT value FROM cache WHERE key = :key AND now() < ttl;"
         with self.client.connect() as conn:
             conn.execute(purge)
             result = conn.execute(query, dict(key=self.prefix + key))
             if result.rowcount > 0:
-                value = result.fetchone()['value']
+                value = result.fetchone()["value"]
                 return json.loads(value)
 
     def delete(self, key):
-        query = 'DELETE FROM cache WHERE key = :key RETURNING value;'
+        query = "DELETE FROM cache WHERE key = :key RETURNING value;"
         with self.client.connect() as conn:
             result = conn.execute(query, dict(key=self.prefix + key))
             if result.rowcount > 0:
-                value = result.fetchone()['value']
+                value = result.fetchone()["value"]
                 return json.loads(value)
         return None
 
 
 def load_from_config(config):
     settings = config.get_settings()
-    client = create_from_config(config, prefix='cache_', with_transaction=False)
-    return Cache(client=client, cache_prefix=settings['cache_prefix'])
+    client = create_from_config(config, prefix="cache_", with_transaction=False)
+    return Cache(client=client, cache_prefix=settings["cache_prefix"])

@@ -22,11 +22,10 @@ def allowed_from_settings(settings, principals):
 
     XXX: This helper will be useful for Kinto/kinto#894
     """
-    perms_settings = {k: aslist(v) for k, v in settings.items()
-                      if k.endswith('_principals')}
+    perms_settings = {k: aslist(v) for k, v in settings.items() if k.endswith("_principals")}
     from_settings = {}
     for key, allowed_principals in perms_settings.items():
-        resource_name, permission, _ = key.split('_')
+        resource_name, permission, _ = key.split("_")
         # Keep the known permissions only.
         if resource_name not in PERMISSIONS_INHERITANCE_TREE.keys():
             continue
@@ -34,26 +33,26 @@ def allowed_from_settings(settings, principals):
         if not bool(set(principals) & set(allowed_principals)):
             continue
         # ``collection_create_principals`` means ``collection:create`` in bucket.
-        if permission == 'create':
-            permission = '{resource_name}:{permission}'.format(
-                resource_name=resource_name,
-                permission=permission)
+        if permission == "create":
+            permission = "{resource_name}:{permission}".format(
+                resource_name=resource_name, permission=permission
+            )
             resource_name = {  # resource parents.
-                'collection': 'bucket',
-                'group': 'bucket',
-                'record': 'collection',
-                'bucket': 'root',
-                'account': 'root',
-            }.get(resource_name, '')
+                "collection": "bucket",
+                "group": "bucket",
+                "record": "collection",
+                "bucket": "root",
+                "account": "root",
+            }.get(resource_name, "")
         # Store them in a convenient way.
         from_settings.setdefault(resource_name, set()).add(permission)
     return from_settings
 
 
 class PermissionsModel:
-    id_field = 'id'
-    modified_field = 'last_modified'
-    deleted_field = 'deleted'
+    id_field = "id"
+    modified_field = "last_modified"
+    deleted_field = "deleted"
 
     def __init__(self, request):
         self.request = request
@@ -61,18 +60,24 @@ class PermissionsModel:
     def timestamp(self, parent_id=None):
         return 0
 
-    def get_records(self, filters=None, sorting=None, pagination_rules=None,
-                    limit=None, include_deleted=False, parent_id=None):
+    def get_records(
+        self,
+        filters=None,
+        sorting=None,
+        pagination_rules=None,
+        limit=None,
+        include_deleted=False,
+        parent_id=None,
+    ):
         # Invert the permissions inheritance tree.
         perms_descending_tree = {}
         for on_resource, tree in PERMISSIONS_INHERITANCE_TREE.items():
             for obtained_perm, obtained_from in tree.items():
                 for from_resource, perms in obtained_from.items():
                     for perm in perms:
-                        perms_descending_tree.setdefault(from_resource, {})\
-                                             .setdefault(perm, {})\
-                                             .setdefault(on_resource, set())\
-                                             .add(obtained_perm)
+                        perms_descending_tree.setdefault(from_resource, {}).setdefault(
+                            perm, {}
+                        ).setdefault(on_resource, set()).add(obtained_perm)
 
         # Obtain current principals.
         principals = self.request.prefixed_principals
@@ -85,39 +90,37 @@ class PermissionsModel:
         from_settings = allowed_from_settings(self.request.registry.settings, principals)
 
         # Add additional resources and permissions defined in settings/plugins
-        for root_perm in from_settings.get('root', []):
-            resource_name, _ = root_perm.split(':')
-            perms_by_object_uri.setdefault('/', set()).add(root_perm)
-            perms_descending_tree.setdefault('root', {}).update({root_perm: {'root': {root_perm}}})
+        for root_perm in from_settings.get("root", []):
+            resource_name, _ = root_perm.split(":")
+            perms_by_object_uri.setdefault("/", set()).add(root_perm)
+            perms_descending_tree.setdefault("root", {}).update({root_perm: {"root": {root_perm}}})
 
         # Expand permissions obtained from backend with the object URIs that
         # correspond to permissions allowed from settings.
-        allowed_resources = {'bucket', 'collection', 'group'} & set(from_settings.keys())
+        allowed_resources = {"bucket", "collection", "group"} & set(from_settings.keys())
         if allowed_resources:
             storage = self.request.registry.storage
-            every_bucket, _ = storage.get_all(parent_id='', collection_id='bucket')
+            every_bucket, _ = storage.get_all(parent_id="", collection_id="bucket")
             for bucket in every_bucket:
-                bucket_uri = '/buckets/{id}'.format_map(bucket)
+                bucket_uri = "/buckets/{id}".format_map(bucket)
                 for res in allowed_resources:
                     resource_perms = from_settings[res]
                     # Bucket is always fetched.
-                    if res == 'bucket':
+                    if res == "bucket":
                         perms_by_object_uri.setdefault(bucket_uri, set()).update(resource_perms)
                         continue
                     # Fetch bucket collections and groups.
                     # XXX: wrong approach: query in a loop!
-                    every_subobjects, _ = storage.get_all(parent_id=bucket_uri,
-                                                          collection_id=res)
+                    every_subobjects, _ = storage.get_all(parent_id=bucket_uri, collection_id=res)
                     for subobject in every_subobjects:
-                        subobj_uri = bucket_uri + '/{0}s/{1}'.format(res, subobject['id'])
+                        subobj_uri = bucket_uri + "/{0}s/{1}".format(res, subobject["id"])
                         perms_by_object_uri.setdefault(subobj_uri, set()).update(resource_perms)
 
         entries = []
         for object_uri, perms in perms_by_object_uri.items():
             try:
                 # Obtain associated res from object URI
-                resource_name, matchdict = core_utils.view_lookup(self.request,
-                                                                  object_uri)
+                resource_name, matchdict = core_utils.view_lookup(self.request, object_uri)
             except ValueError:
                 # Skip permissions entries that are not linked to an object URI
                 continue
@@ -125,12 +128,12 @@ class PermissionsModel:
             # For consistency with event payloads, if resource has an id,
             # prefix it with its resource name
             if "id" in matchdict:
-                matchdict[resource_name + '_id'] = matchdict['id']
+                matchdict[resource_name + "_id"] = matchdict["id"]
 
             # The imaginary "root" resource gets mapped to the hello
             # view. Handle it explicitly.
-            if resource_name == 'hello':
-                resource_name = 'root'
+            if resource_name == "hello":
+                resource_name = "root"
 
             # Expand implicit permissions using descending tree.
             permissions = set(perms)
@@ -140,16 +143,22 @@ class PermissionsModel:
                 # (e.g "bucket:write" gives "bucket:read" but not "group:read")
                 permissions |= obtained[resource_name]
 
-            entry = dict(uri=object_uri,
-                         resource_name=resource_name,
-                         permissions=list(permissions),
-                         **matchdict)
+            entry = dict(
+                uri=object_uri,
+                resource_name=resource_name,
+                permissions=list(permissions),
+                **matchdict
+            )
             entries.append(entry)
 
-        return extract_record_set(entries, filters=filters, sorting=sorting,
-                                  id_field='uri',
-                                  pagination_rules=pagination_rules,
-                                  limit=limit)
+        return extract_record_set(
+            entries,
+            filters=filters,
+            sorting=sorting,
+            id_field="uri",
+            pagination_rules=pagination_rules,
+            limit=limit,
+        )
 
 
 class PermissionsSchema(resource.ResourceSchema):
@@ -157,22 +166,21 @@ class PermissionsSchema(resource.ResourceSchema):
     resource_name = colander.SchemaNode(colander.String())
     permissions = colander.Sequence(colander.SchemaNode(colander.String()))
     bucket_id = colander.SchemaNode(colander.String())
-    collection_id = colander.SchemaNode(colander.String(),
-                                        missing=colander.drop)
-    group_id = colander.SchemaNode(colander.String(),
-                                   missing=colander.drop)
-    record_id = colander.SchemaNode(colander.String(),
-                                    missing=colander.drop)
+    collection_id = colander.SchemaNode(colander.String(), missing=colander.drop)
+    group_id = colander.SchemaNode(colander.String(), missing=colander.drop)
+    record_id = colander.SchemaNode(colander.String(), missing=colander.drop)
 
     class Options:
         preserve_unknown = False
 
 
-@resource.register(name='permissions',
-                   description='List of user permissions',
-                   collection_path='/permissions',
-                   record_path=None,
-                   collection_methods=('GET',))
+@resource.register(
+    name="permissions",
+    description="List of user permissions",
+    collection_path="/permissions",
+    record_path=None,
+    collection_methods=("GET",),
+)
 class Permissions(resource.ShareableResource):
 
     schema = PermissionsSchema
@@ -185,16 +193,14 @@ class Permissions(resource.ShareableResource):
         # Permissions entries are not stored with timestamp, so do not
         # force it.
         result = super()._extract_sorting(limit)
-        without_last_modified = [s for s in result
-                                 if s.field != self.model.modified_field]
+        without_last_modified = [s for s in result if s.field != self.model.modified_field]
         # For pagination, there must be at least one sort criteria.
         # We use ``uri`` because its values are unique.
-        if 'uri' not in [s.field for s in without_last_modified]:
-            without_last_modified.append(Sort('uri', -1))
+        if "uri" not in [s.field for s in without_last_modified]:
+            without_last_modified.append(Sort("uri", -1))
         return without_last_modified
 
     def _extract_filters(self):
         result = super()._extract_filters()
-        without_last_modified = [s for s in result
-                                 if s.field != self.model.modified_field]
+        without_last_modified = [s for s in result if s.field != self.model.modified_field]
         return without_last_modified

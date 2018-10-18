@@ -151,7 +151,6 @@ Get started!
 
     therapist install
 
-
 9. Commit your changes and push your branch to GitHub::
 
     git add .

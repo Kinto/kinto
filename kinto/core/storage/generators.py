@@ -9,7 +9,7 @@ class Generator:
     resource level to validate record id in requests paths.
     """
 
-    regexp = r'^[a-zA-Z0-9][a-zA-Z0-9_-]*$'
+    regexp = r"^[a-zA-Z0-9][a-zA-Z0-9_-]*$"
     """Default record id pattern. Can be changed to comply with custom ids."""
 
     def __init__(self, config=None):
@@ -17,7 +17,7 @@ class Generator:
         self._regexp = None
 
         if not self.match(self()):
-            error_msg = 'Generated record id does comply with regexp.'
+            error_msg = "Generated record id does comply with regexp."
             raise ValueError(error_msg)
 
     def match(self, record_id):
@@ -50,8 +50,8 @@ class UUID4(Generator):
     duplicate would be about 50% (`source <http://en.wikipedia.org/wiki/\
 Universally_unique_identifier#Random_UUID_probability_of_duplicates>`_).
     """
-    regexp = (r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-'
-              r'[0-9a-f]{4}-[0-9a-f]{12}$')
+
+    regexp = r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-" r"[0-9a-f]{4}-[0-9a-f]{12}$"
     """UUID4 accurate pattern."""
 
     def __call__(self):

@@ -24,68 +24,35 @@ from kinto.core import authorization as core_authorization
 # automatically provides it
 # Ex: bucket:read is granted by both bucket:write and bucket:read
 PERMISSIONS_INHERITANCE_TREE = {
-    'root': {  # Granted via settings only.
-        'bucket:create': {},
-        'write': {},
-        'read': {},
+    "root": {"bucket:create": {}, "write": {}, "read": {}},  # Granted via settings only.
+    "bucket": {
+        "write": {"bucket": ["write"]},
+        "read": {"bucket": ["write", "read"]},
+        "read:attributes": {"bucket": ["write", "read", "collection:create", "group:create"]},
+        "group:create": {"bucket": ["write", "group:create"]},
+        "collection:create": {"bucket": ["write", "collection:create"]},
     },
-    'bucket': {
-        'write': {
-            'bucket': ['write']
-        },
-        'read': {
-            'bucket': ['write', 'read'],
-        },
-        'read:attributes': {
-            'bucket': ['write', 'read', 'collection:create', 'group:create']
-        },
-        'group:create': {
-            'bucket': ['write', 'group:create']
-        },
-        'collection:create': {
-            'bucket': ['write', 'collection:create']
-        },
+    "group": {
+        "write": {"bucket": ["write"], "group": ["write"]},
+        "read": {"bucket": ["write", "read"], "group": ["write", "read"]},
     },
-    'group': {
-        'write': {
-            'bucket': ['write'],
-            'group': ['write']
+    "collection": {
+        "write": {"bucket": ["write"], "collection": ["write"]},
+        "read": {"bucket": ["write", "read"], "collection": ["write", "read"]},
+        "read:attributes": {
+            "bucket": ["write", "read"],
+            "collection": ["write", "read", "record:create"],
         },
-        'read': {
-            'bucket': ['write', 'read'],
-            'group': ['write', 'read']
+        "record:create": {"bucket": ["write"], "collection": ["write", "record:create"]},
+    },
+    "record": {
+        "write": {"bucket": ["write"], "collection": ["write"], "record": ["write"]},
+        "read": {
+            "bucket": ["write", "read"],
+            "collection": ["write", "read"],
+            "record": ["write", "read"],
         },
     },
-    'collection': {
-        'write': {
-            'bucket': ['write'],
-            'collection': ['write'],
-        },
-        'read': {
-            'bucket': ['write', 'read'],
-            'collection': ['write', 'read'],
-        },
-        'read:attributes': {
-            'bucket': ['write', 'read'],
-            'collection': ['write', 'read', 'record:create'],
-        },
-        'record:create': {
-            'bucket': ['write'],
-            'collection': ['write', 'record:create']
-        },
-    },
-    'record': {
-        'write': {
-            'bucket': ['write'],
-            'collection': ['write'],
-            'record': ['write']
-        },
-        'read': {
-            'bucket': ['write', 'read'],
-            'collection': ['write', 'read'],
-            'record': ['write', 'read']
-        },
-    }
 }
 
 
@@ -94,7 +61,7 @@ def _resource_endpoint(object_uri):
     the specified `object_uri`. Returns `(None, None)` for the root URL plural
     endpoint.
     """
-    obj_parts = object_uri.split('/')
+    obj_parts = object_uri.split("/")
     plural_endpoint = len(obj_parts) % 2 == 0
     if plural_endpoint:
         # /buckets/bid/collections -> /buckets/bid
@@ -102,21 +69,21 @@ def _resource_endpoint(object_uri):
 
     if len(obj_parts) <= 2:
         # Root URL /buckets -> ('', False)
-        return '', False
+        return "", False
 
     # /buckets/bid -> buckets
     resource_name = obj_parts[-2]
     # buckets -> bucket
-    resource_name = resource_name.rstrip('s')
+    resource_name = resource_name.rstrip("s")
     return resource_name, plural_endpoint
 
 
 def _relative_object_uri(resource_name, object_uri):
     """Returns object_uri
     """
-    obj_parts = object_uri.split('/')
+    obj_parts = object_uri.split("/")
     for length in range(len(obj_parts) + 1):
-        parent_uri = '/'.join(obj_parts[:length])
+        parent_uri = "/".join(obj_parts[:length])
         parent_resource_name, _ = _resource_endpoint(parent_uri)
         if resource_name == parent_resource_name:
             return parent_uri
@@ -144,7 +111,7 @@ def _inherited_permissions(object_uri, permission):
 
     # When requesting permissions for a single object, we check if they are any
     # specific inherited permissions for the attributes.
-    attributes_permission = '{}:attributes'.format(permission) if not plural else permission
+    attributes_permission = "{}:attributes".format(permission) if not plural else permission
     inherited_perms = object_perms_tree.get(attributes_permission, object_perms_tree[permission])
 
     granters = set()

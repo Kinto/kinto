@@ -10,18 +10,19 @@ from . import BaseTest
 
 
 class ResourceTest(BaseTest):
-
     def test_get_parent_id_default_to_prefixed_userid(self):
         request = self.get_request()
         parent_id = self.resource.get_parent_id(request)
-        self.assertEqual(parent_id, 'basicauth:bob')
+        self.assertEqual(parent_id, "basicauth:bob")
 
     def test_raise_if_backend_fails_to_obtain_timestamp(self):
         request = self.get_request()
 
-        with mock.patch.object(request.registry.storage,
-                               'collection_timestamp',
-                               side_effect=storage_exceptions.BackendError):
+        with mock.patch.object(
+            request.registry.storage,
+            "collection_timestamp",
+            side_effect=storage_exceptions.BackendError,
+        ):
             with self.assertRaises(storage_exceptions.BackendError):
                 self.resource_class(request)
 
@@ -30,13 +31,15 @@ class ResourceTest(BaseTest):
 
         excepted_exc = httpexceptions.HTTPServiceUnavailable
 
-        request.registry.settings = {'readonly': 'true'}
-        with mock.patch.object(request.registry.storage,
-                               'collection_timestamp',
-                               side_effect=storage_exceptions.BackendError):
+        request.registry.settings = {"readonly": "true"}
+        with mock.patch.object(
+            request.registry.storage,
+            "collection_timestamp",
+            side_effect=storage_exceptions.BackendError,
+        ):
             with self.assertRaises(excepted_exc) as cm:
                 self.resource_class(request)
-                self.assertIn('writable', cm.exception.message)
+                self.assertIn("writable", cm.exception.message)
 
 
 class ShareableResourceTest(BaseTest):
@@ -51,7 +54,7 @@ class ShareableResourceTest(BaseTest):
     def test_get_parent_id_is_empty(self):
         request = self.get_request()
         parent_id = self.resource.get_parent_id(request)
-        self.assertEqual(parent_id, '')
+        self.assertEqual(parent_id, "")
 
 
 class NewResource(UserResource):
@@ -66,8 +69,8 @@ class ParentIdOverrideResourceTest(BaseTest):
         request = self.get_request()
 
         parent_id = self.resource.get_parent_id(request)
-        self.assertEqual(parent_id, 'overrided')
-        self.assertEqual(self.resource.model.parent_id, 'overrided')
+        self.assertEqual(parent_id, "overrided")
+        self.assertEqual(self.resource.model.parent_id, "overrided")
 
 
 class CustomModelResource(UserResource):

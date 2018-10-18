@@ -7,7 +7,7 @@ from kinto.core.storage import generators, memory, postgresql, exceptions, Stora
 from kinto.core.storage import Filter, Sort, MISSING
 from kinto.core.storage.testing import StorageTest
 from kinto.core.storage.utils import paginated
-from kinto.core.testing import (unittest, skip_if_no_postgresql)
+from kinto.core.testing import unittest, skip_if_no_postgresql
 
 
 class GeneratorTest(unittest.TestCase):
@@ -17,33 +17,33 @@ class GeneratorTest(unittest.TestCase):
     def test_id_generator_must_respect_storage_backends(self):
         class Dumb(generators.Generator):
             def __call__(self):
-                return '*' * 80
+                return "*" * 80
 
         self.assertRaises(ValueError, Dumb)
 
     def test_default_generator_allow_underscores_dash_alphabet(self):
         class Dumb(generators.Generator):
             def __call__(self):
-                return '1234'
+                return "1234"
 
         generator = Dumb()
-        self.assertTrue(generator.match('1_2_3-abc'))
-        self.assertTrue(generator.match('abc_123'))
-        self.assertFalse(generator.match('-1_2_3-abc'))
-        self.assertFalse(generator.match('_1_2_3-abc'))
+        self.assertTrue(generator.match("1_2_3-abc"))
+        self.assertTrue(generator.match("abc_123"))
+        self.assertFalse(generator.match("-1_2_3-abc"))
+        self.assertFalse(generator.match("_1_2_3-abc"))
 
     def test_uuid_generator_pattern_allows_uuid_only(self):
-        invalid_uuid = 'XXX-00000000-0000-5000-a000-000000000000'
+        invalid_uuid = "XXX-00000000-0000-5000-a000-000000000000"
         generator = generators.UUID4()
         self.assertFalse(generator.match(invalid_uuid))
 
     def test_uuid_generator_pattern_is_not_restricted_to_uuid4(self):
         generator = generators.UUID4()
-        valid_uuid = 'fd800e8d-e8e9-3cac-f502-816cbed9bb6c'
+        valid_uuid = "fd800e8d-e8e9-3cac-f502-816cbed9bb6c"
         self.assertTrue(generator.match(valid_uuid))
-        invalid_uuid4 = '00000000-0000-5000-a000-000000000000'
+        invalid_uuid4 = "00000000-0000-5000-a000-000000000000"
         self.assertTrue(generator.match(invalid_uuid4))
-        invalid_uuid4 = '00000000-0000-4000-e000-000000000000'
+        invalid_uuid4 = "00000000-0000-4000-e000-000000000000"
         self.assertTrue(generator.match(invalid_uuid4))
 
 
@@ -55,14 +55,14 @@ class StorageBaseTest(unittest.TestCase):
         calls = [
             (self.storage.initialize_schema,),
             (self.storage.flush,),
-            (self.storage.collection_timestamp, '', ''),
-            (self.storage.create, '', '', {}),
-            (self.storage.get, '', '', ''),
-            (self.storage.update, '', '', '', {}),
-            (self.storage.delete, '', '', ''),
-            (self.storage.delete_all, '', ''),
-            (self.storage.purge_deleted, '', ''),
-            (self.storage.get_all, '', ''),
+            (self.storage.collection_timestamp, "", ""),
+            (self.storage.create, "", "", {}),
+            (self.storage.get, "", "", ""),
+            (self.storage.update, "", "", "", {}),
+            (self.storage.delete, "", "", ""),
+            (self.storage.delete_all, "", ""),
+            (self.storage.purge_deleted, "", ""),
+            (self.storage.get_all, "", ""),
         ]
         for call in calls:
             self.assertRaises(NotImplementedError, *call)
@@ -85,16 +85,15 @@ class MemoryBasedStorageTest(unittest.TestCase):
 
 class MemoryStorageTest(StorageTest, unittest.TestCase):
     backend = memory
-    settings = {
-        'storage_strict_json': True
-    }
+    settings = {"storage_strict_json": True}
 
     def setUp(self):
         super().setUp()
         self.client_error_patcher = mock.patch.object(
             self.storage,
-            'bump_and_store_timestamp',
-            side_effect=exceptions.BackendError("Segmentation fault."))
+            "bump_and_store_timestamp",
+            side_effect=exceptions.BackendError("Segmentation fault."),
+        )
 
     def test_backend_error_provides_original_exception(self):
         pass
@@ -113,53 +112,49 @@ class MemoryStorageTest(StorageTest, unittest.TestCase):
 
 
 class LenientMemoryStorageTest(MemoryStorageTest):
-    settings = {
-        'storage_strict_json': False
-    }
+    settings = {"storage_strict_json": False}
 
     def test_create_bytes_raises(self):
-        data = {'steak': 'haché'.encode(encoding='utf-8')}
-        self.assertIsInstance(data['steak'], bytes)
+        data = {"steak": "haché".encode(encoding="utf-8")}
+        self.assertIsInstance(data["steak"], bytes)
         self.assertIsNotNone(self.create_record(data))
 
     def test_update_bytes_raises(self):
         record = self.create_record()
 
-        new_record = {'steak': 'haché'.encode(encoding='utf-8')}
-        self.assertIsInstance(new_record['steak'], bytes)
+        new_record = {"steak": "haché".encode(encoding="utf-8")}
+        self.assertIsInstance(new_record["steak"], bytes)
 
-        self.assertIsNotNone(self.storage.update(
-                                object_id=record['id'],
-                                record=new_record,
-                                **self.storage_kw))
+        self.assertIsNotNone(
+            self.storage.update(object_id=record["id"], record=new_record, **self.storage_kw)
+        )
 
 
 @skip_if_no_postgresql
 class PostgreSQLStorageTest(StorageTest, unittest.TestCase):
     backend = postgresql
     settings = {
-        'storage_max_fetch_size': 10000,
-        'storage_backend': 'kinto.core.storage.postgresql',
-        'storage_poolclass': 'sqlalchemy.pool.StaticPool',
-        'storage_url': 'postgres://postgres:postgres@localhost:5432/testdb',
-        'storage_strict_json': True
+        "storage_max_fetch_size": 10000,
+        "storage_backend": "kinto.core.storage.postgresql",
+        "storage_poolclass": "sqlalchemy.pool.StaticPool",
+        "storage_url": "postgres://postgres:postgres@localhost:5432/testdb",
+        "storage_strict_json": True,
     }
 
     def setUp(self):
         super().setUp()
         self.client_error_patcher = mock.patch.object(
-            self.storage.client,
-            'session_factory',
-            side_effect=sqlalchemy.exc.SQLAlchemyError)
+            self.storage.client, "session_factory", side_effect=sqlalchemy.exc.SQLAlchemyError
+        )
 
     def test_number_of_fetched_records_can_be_limited_in_settings(self):
         for i in range(4):
-            self.create_record({'phone': 'tel-{}'.format(i)})
+            self.create_record({"phone": "tel-{}".format(i)})
 
         results, count = self.storage.get_all(**self.storage_kw)
         self.assertEqual(len(results), 4)
 
-        settings = {**self.settings, 'storage_max_fetch_size': 2}
+        settings = {**self.settings, "storage_max_fetch_size": 2}
         config = self._get_config(settings=settings)
         limited = self.backend.load_from_config(config)
 
@@ -169,15 +164,15 @@ class PostgreSQLStorageTest(StorageTest, unittest.TestCase):
 
     def test_number_of_fetched_records_is_per_page(self):
         for i in range(10):
-            self.create_record({'number': i})
+            self.create_record({"number": i})
 
-        settings = {**self.settings, 'storage_max_fetch_size': 2}
+        settings = {**self.settings, "storage_max_fetch_size": 2}
         config = self._get_config(settings=settings)
         backend = self.backend.load_from_config(config)
 
-        results, count = backend.get_all(pagination_rules=[
-                                             [Filter('number', 1, COMPARISON.GT)]
-                                         ], **self.storage_kw)
+        results, count = backend.get_all(
+            pagination_rules=[[Filter("number", 1, COMPARISON.GT)]], **self.storage_kw
+        )
         self.assertEqual(count, 10)
         self.assertEqual(len(results), 2)
 
@@ -212,35 +207,37 @@ class PostgreSQLStorageTest(StorageTest, unittest.TestCase):
         config = self._get_config()
         storage1 = self.backend.load_from_config(config)
         storage2 = self.backend.load_from_config(config)
-        self.assertEqual(id(storage1.client),
-                         id(storage2.client))
+        self.assertEqual(id(storage1.client), id(storage2.client))
 
     def test_warns_if_configured_pool_size_differs_for_same_backend_type(self):
         self.backend.load_from_config(self._get_config())
-        settings = {**self.settings, 'storage_pool_size': 1}
-        msg = ('Reuse existing PostgreSQL connection. Parameters storage_* '
-               'will be ignored.')
-        with mock.patch('kinto.core.storage.postgresql.client.'
-                        'warnings.warn') as mocked:
+        settings = {**self.settings, "storage_pool_size": 1}
+        msg = "Reuse existing PostgreSQL connection. Parameters storage_* " "will be ignored."
+        with mock.patch("kinto.core.storage.postgresql.client." "warnings.warn") as mocked:
             self.backend.load_from_config(self._get_config(settings=settings))
             mocked.assert_any_call(msg)
 
     def test_get_all_raises_if_missing_on_strange_query(self):
         with self.assertRaises(ValueError):
-            self.storage.get_all('some-collection', 'some-parent',
-                                 filters=[Filter("author", MISSING, COMPARISON.HAS)])
+            self.storage.get_all(
+                "some-collection",
+                "some-parent",
+                filters=[Filter("author", MISSING, COMPARISON.HAS)],
+            )
 
     def test_integrity_error_rollsback_transaction(self):
-        client = postgresql.create_from_config(self._get_config(),
-                                               prefix='storage_',
-                                               with_transaction=False)
+        client = postgresql.create_from_config(
+            self._get_config(), prefix="storage_", with_transaction=False
+        )
         with self.assertRaises(exceptions.IntegrityError):
             with client.connect() as conn:
                 # Make some change in a table.
-                conn.execute("""
+                conn.execute(
+                    """
                 INSERT INTO records
                 VALUES ('rock-and-roll', 'music', 'genre', NOW(), '{}', FALSE);
-                """)
+                """
+                )
                 # Go into a failing integrity constraint.
                 query = "INSERT INTO timestamps VALUES ('a', 'b', NOW());"
                 conn.execute(query)
@@ -250,26 +247,28 @@ class PostgreSQLStorageTest(StorageTest, unittest.TestCase):
 
         # Check that change in the above table was rolledback.
         with client.connect() as conn:
-            result = conn.execute("""
+            result = conn.execute(
+                """
             SELECT FROM records
              WHERE parent_id = 'music'
                AND collection_id = 'genre';
-            """)
+            """
+            )
         self.assertEqual(result.rowcount, 0)
 
     def test_conflicts_handled_correctly(self):
         config = self._get_config()
         storage = self.backend.load_from_config(config)
-        storage.create(collection_id='genre', parent_id='music',
-                       record={'id': 'rock-and-roll'})
+        storage.create(collection_id="genre", parent_id="music", record={"id": "rock-and-roll"})
 
         def record_not_found(*args, **kwargs):
             raise exceptions.RecordNotFoundError()
 
-        with mock.patch.object(storage, 'get', side_effect=record_not_found):
+        with mock.patch.object(storage, "get", side_effect=record_not_found):
             with self.assertRaises(exceptions.UnicityError):
-                storage.create(collection_id='genre', parent_id='music',
-                               record={'id': 'rock-and-roll'})
+                storage.create(
+                    collection_id="genre", parent_id="music", record={"id": "rock-and-roll"}
+                )
 
 
 class PaginatedTest(unittest.TestCase):
@@ -289,19 +288,21 @@ class PaginatedTest(unittest.TestCase):
         self.storage.get_all.side_effect = sample_records_side_effect
 
     def test_paginated_passes_sort(self):
-        i = paginated(self.storage, sorting=[Sort('id', -1)])
-        next(i)   # make the generator do anything
-        self.storage.get_all.assert_called_with(sorting=[Sort('id', -1)],
-                                                limit=25, pagination_rules=None)
+        i = paginated(self.storage, sorting=[Sort("id", -1)])
+        next(i)  # make the generator do anything
+        self.storage.get_all.assert_called_with(
+            sorting=[Sort("id", -1)], limit=25, pagination_rules=None
+        )
 
     def test_paginated_passes_batch_size(self):
-        i = paginated(self.storage, sorting=[Sort('id', -1)], batch_size=17)
-        next(i)   # make the generator do anything
-        self.storage.get_all.assert_called_with(sorting=[Sort('id', -1)],
-                                                limit=17, pagination_rules=None)
+        i = paginated(self.storage, sorting=[Sort("id", -1)], batch_size=17)
+        next(i)  # make the generator do anything
+        self.storage.get_all.assert_called_with(
+            sorting=[Sort("id", -1)], limit=17, pagination_rules=None
+        )
 
     def test_paginated_yields_records(self):
-        iter = paginated(self.storage, sorting=[Sort('id', -1)])
+        iter = paginated(self.storage, sorting=[Sort("id", -1)])
         assert next(iter) == {"id": "record-01", "flavor": "strawberry"}
 
     def test_paginated_fetches_next_page(self):
@@ -315,13 +316,17 @@ class PaginatedTest(unittest.TestCase):
 
         self.storage.get_all.side_effect = get_all_mock
 
-        list(paginated(self.storage, sorting=[Sort('id', -1)]))
+        list(paginated(self.storage, sorting=[Sort("id", -1)]))
         assert self.storage.get_all.call_args_list == [
-            mock.call(sorting=[Sort('id', -1)], limit=25, pagination_rules=None),
-            mock.call(sorting=[Sort('id', -1)], limit=25, pagination_rules=[
-                [Filter('id', 'record-03', COMPARISON.LT)]
-            ]),
-            mock.call(sorting=[Sort('id', -1)], limit=25, pagination_rules=[
-                [Filter('id', 'record-01', COMPARISON.LT)]
-            ]),
+            mock.call(sorting=[Sort("id", -1)], limit=25, pagination_rules=None),
+            mock.call(
+                sorting=[Sort("id", -1)],
+                limit=25,
+                pagination_rules=[[Filter("id", "record-03", COMPARISON.LT)]],
+            ),
+            mock.call(
+                sorting=[Sort("id", -1)],
+                limit=25,
+                pagination_rules=[[Filter("id", "record-01", COMPARISON.LT)]],
+            ),
         ]

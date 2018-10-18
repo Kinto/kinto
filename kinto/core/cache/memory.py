@@ -36,7 +36,7 @@ class Cache(CacheBase):
         current = msec_time()
         expired = [k for k, v in self._ttl.items() if current >= v]
         for expired_item_key in expired:
-            self.delete(expired_item_key[len(self.prefix):])
+            self.delete(expired_item_key[len(self.prefix) :])
 
     def _clean_oversized(self):
         if self._quota < self.max_size_bytes:
@@ -45,7 +45,7 @@ class Cache(CacheBase):
         for key, value in sorted(self._created_at.items(), key=lambda k: k[1]):
             if self._quota < (self.max_size_bytes * 0.8):
                 break
-            self.delete(key[len(self.prefix):])
+            self.delete(key[len(self.prefix) :])
 
     @synchronized
     def ttl(self, key):
@@ -87,8 +87,10 @@ class Cache(CacheBase):
 
 def load_from_config(config):
     settings = config.get_settings()
-    return Cache(cache_prefix=settings['cache_prefix'],
-                 cache_max_size_bytes=settings['cache_max_size_bytes'])
+    return Cache(
+        cache_prefix=settings["cache_prefix"],
+        cache_max_size_bytes=settings["cache_max_size_bytes"],
+    )
 
 
 def size_of(key, value):

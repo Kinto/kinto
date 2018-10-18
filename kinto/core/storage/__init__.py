@@ -9,11 +9,12 @@ import ujson
 from . import generators
 
 
-class Missing():
+class Missing:
     """Dummy value to represent a value that is completely absent from a record.
 
     Handling these correctly is important for pagination.
     """
+
     pass
 
 
@@ -23,20 +24,20 @@ MISSING = Missing()
 logger = logging.getLogger(__name__)
 
 
-Filter = namedtuple('Filter', ['field', 'value', 'operator'])
+Filter = namedtuple("Filter", ["field", "value", "operator"])
 """Filtering properties."""
 
-Sort = namedtuple('Sort', ['field', 'direction'])
+Sort = namedtuple("Sort", ["field", "direction"])
 """Sorting properties."""
 
-DEFAULT_ID_FIELD = 'id'
-DEFAULT_MODIFIED_FIELD = 'last_modified'
-DEFAULT_DELETED_FIELD = 'deleted'
+DEFAULT_ID_FIELD = "id"
+DEFAULT_MODIFIED_FIELD = "last_modified"
+DEFAULT_DELETED_FIELD = "deleted"
 
 _HEARTBEAT_DELETE_RATE = 0.6
-_HEARTBEAT_COLLECTION_ID = '__heartbeat__'
+_HEARTBEAT_COLLECTION_ID = "__heartbeat__"
 _HEART_PARENT_ID = _HEARTBEAT_COLLECTION_ID
-_HEARTBEAT_RECORD = {'__heartbeat__': True}
+_HEARTBEAT_RECORD = {"__heartbeat__": True}
 
 
 class StorageBase:
@@ -93,10 +94,16 @@ class StorageBase:
         """
         raise NotImplementedError
 
-    def create(self, collection_id, parent_id, record, id_generator=None,
-               id_field=DEFAULT_ID_FIELD,
-               modified_field=DEFAULT_MODIFIED_FIELD,
-               auth=None):
+    def create(
+        self,
+        collection_id,
+        parent_id,
+        record,
+        id_generator=None,
+        id_field=DEFAULT_ID_FIELD,
+        modified_field=DEFAULT_MODIFIED_FIELD,
+        auth=None,
+    ):
         """Create the specified `object` in this `collection_id` for this `parent_id`.
         Assign the id to the object, using the attribute
         :attr:`kinto.core.resource.model.Model.id_field`.
@@ -116,10 +123,15 @@ class StorageBase:
         """
         raise NotImplementedError
 
-    def get(self, collection_id, parent_id, object_id,
-            id_field=DEFAULT_ID_FIELD,
-            modified_field=DEFAULT_MODIFIED_FIELD,
-            auth=None):
+    def get(
+        self,
+        collection_id,
+        parent_id,
+        object_id,
+        id_field=DEFAULT_ID_FIELD,
+        modified_field=DEFAULT_MODIFIED_FIELD,
+        auth=None,
+    ):
         """Retrieve the object with specified `object_id`, or raise error
         if not found.
 
@@ -135,10 +147,16 @@ class StorageBase:
         """
         raise NotImplementedError
 
-    def update(self, collection_id, parent_id, object_id, record,
-               id_field=DEFAULT_ID_FIELD,
-               modified_field=DEFAULT_MODIFIED_FIELD,
-               auth=None):
+    def update(
+        self,
+        collection_id,
+        parent_id,
+        object_id,
+        record,
+        id_field=DEFAULT_ID_FIELD,
+        modified_field=DEFAULT_MODIFIED_FIELD,
+        auth=None,
+    ):
         """Overwrite the `object` with the specified `object_id`.
 
         If the specified id is not found, the object is created with the
@@ -158,11 +176,18 @@ class StorageBase:
         """
         raise NotImplementedError
 
-    def delete(self, collection_id, parent_id, object_id,
-               id_field=DEFAULT_ID_FIELD, with_deleted=True,
-               modified_field=DEFAULT_MODIFIED_FIELD,
-               deleted_field=DEFAULT_DELETED_FIELD,
-               auth=None, last_modified=None):
+    def delete(
+        self,
+        collection_id,
+        parent_id,
+        object_id,
+        id_field=DEFAULT_ID_FIELD,
+        with_deleted=True,
+        modified_field=DEFAULT_MODIFIED_FIELD,
+        deleted_field=DEFAULT_DELETED_FIELD,
+        auth=None,
+        last_modified=None,
+    ):
         """Delete the object with specified `object_id`, and raise error
         if not found.
 
@@ -187,12 +212,20 @@ class StorageBase:
         """
         raise NotImplementedError
 
-    def delete_all(self, collection_id, parent_id, filters=None,
-                   sorting=None, pagination_rules=None, limit=None,
-                   id_field=DEFAULT_ID_FIELD, with_deleted=True,
-                   modified_field=DEFAULT_MODIFIED_FIELD,
-                   deleted_field=DEFAULT_DELETED_FIELD,
-                   auth=None):
+    def delete_all(
+        self,
+        collection_id,
+        parent_id,
+        filters=None,
+        sorting=None,
+        pagination_rules=None,
+        limit=None,
+        id_field=DEFAULT_ID_FIELD,
+        with_deleted=True,
+        modified_field=DEFAULT_MODIFIED_FIELD,
+        deleted_field=DEFAULT_DELETED_FIELD,
+        auth=None,
+    ):
         """Delete all objects in this `collection_id` for this `parent_id`.
 
         :param str collection_id: the collection id.
@@ -223,10 +256,15 @@ class StorageBase:
         """
         raise NotImplementedError
 
-    def purge_deleted(self, collection_id, parent_id, before=None,
-                      id_field=DEFAULT_ID_FIELD,
-                      modified_field=DEFAULT_MODIFIED_FIELD,
-                      auth=None):
+    def purge_deleted(
+        self,
+        collection_id,
+        parent_id,
+        before=None,
+        id_field=DEFAULT_ID_FIELD,
+        modified_field=DEFAULT_MODIFIED_FIELD,
+        auth=None,
+    ):
         """Delete all deleted object tombstones in this `collection_id`
         for this `parent_id`.
 
@@ -241,12 +279,20 @@ class StorageBase:
         """
         raise NotImplementedError
 
-    def get_all(self, collection_id, parent_id, filters=None, sorting=None,
-                pagination_rules=None, limit=None, include_deleted=False,
-                id_field=DEFAULT_ID_FIELD,
-                modified_field=DEFAULT_MODIFIED_FIELD,
-                deleted_field=DEFAULT_DELETED_FIELD,
-                auth=None):
+    def get_all(
+        self,
+        collection_id,
+        parent_id,
+        filters=None,
+        sorting=None,
+        pagination_rules=None,
+        limit=None,
+        include_deleted=False,
+        id_field=DEFAULT_ID_FIELD,
+        modified_field=DEFAULT_MODIFIED_FIELD,
+        deleted_field=DEFAULT_DELETED_FIELD,
+        auth=None,
+    ):
         """Retrieve all objects in this `collection_id` for this `parent_id`.
 
         :param str collection_id: the collection id.
@@ -298,11 +344,11 @@ def heartbeat(backend):
         :rtype: bool
         """
         try:
-            auth = request.headers.get('Authorization')
-            storage_kw = dict(collection_id=_HEARTBEAT_COLLECTION_ID,
-                              parent_id=_HEART_PARENT_ID,
-                              auth=auth)
-            if asbool(request.registry.settings.get('readonly')):
+            auth = request.headers.get("Authorization")
+            storage_kw = dict(
+                collection_id=_HEARTBEAT_COLLECTION_ID, parent_id=_HEART_PARENT_ID, auth=auth
+            )
+            if asbool(request.registry.settings.get("readonly")):
                 # Do not try to write in readonly mode.
                 backend.get_all(**storage_kw)
             else:
@@ -313,7 +359,7 @@ def heartbeat(backend):
                     backend.create(record=_HEARTBEAT_RECORD, **storage_kw)
             return True
         except Exception:
-            logger.exception('Heartbeat Error')
+            logger.exception("Heartbeat Error")
             return False
 
     return ping

@@ -50,6 +50,5 @@ class QueuePoolWithMaxBacklog(QueuePool):
 
     def recreate(self):
         new_self = QueuePool.recreate(self)
-        new_self._pool = _QueueWithMaxBacklog(self._pool.maxsize,
-                                              self._pool.max_backlog)
+        new_self._pool = _QueueWithMaxBacklog(self._pool.maxsize, self._pool.max_backlog)
         return new_self

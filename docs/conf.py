@@ -19,11 +19,12 @@ import sys
 # have an absolute __file__
 __HERE__ = os.path.dirname(os.path.abspath(__file__))
 
-on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
+on_rtd = os.environ.get("READTHEDOCS", None) == "True"
 
 if not on_rtd:  # only import and set the theme if we're building docs locally
     import sphinx_rtd_theme
-    html_theme = 'sphinx_rtd_theme'
+
+    html_theme = "sphinx_rtd_theme"
     html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 
 # otherwise, readthedocs.io uses their theme by default, so no need to specify
@@ -32,7 +33,7 @@ if not on_rtd:  # only import and set the theme if we're building docs locally
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
-sys.path.insert(0, os.path.abspath('..'))
+sys.path.insert(0, os.path.abspath(".."))
 
 # -- General configuration ------------------------------------------------
 
@@ -43,31 +44,29 @@ sys.path.insert(0, os.path.abspath('..'))
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    'sphinx.ext.autodoc',
-    'sphinxcontrib.httpdomain',
-    'sphinx.ext.extlinks',
-    'sphinx.ext.intersphinx',
+    "sphinx.ext.autodoc",
+    "sphinxcontrib.httpdomain",
+    "sphinx.ext.extlinks",
+    "sphinx.ext.intersphinx",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ['_templates']
-html_additional_pages = {
-    'index': 'indexcontent.html',
-}
+templates_path = ["_templates"]
+html_additional_pages = {"index": "indexcontent.html"}
 
 
 # The suffix of source filenames.
-source_suffix = '.rst'
+source_suffix = ".rst"
 
 # The encoding of source files.
 # source_encoding = 'utf-8-sig'
 
 # The master toctree document.
-master_doc = 'index'
+master_doc = "index"
 
 # General information about the project.
-project = 'Kinto'
-copyright = '2015-%s — Mozilla Services' % datetime.datetime.now().year
+project = "Kinto"
+copyright = "2015-%s — Mozilla Services" % datetime.datetime.now().year
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -80,59 +79,59 @@ release = ".".join(version.split(".")[:2])
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
-exclude_patterns = ['_build']
+exclude_patterns = ["_build"]
 
 # The name of the Pygments (syntax highlighting) style to use.
-pygments_style = 'sphinx'
+pygments_style = "sphinx"
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
+html_static_path = ["_static"]
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'Kintodoc'
+htmlhelp_basename = "Kintodoc"
 
 
 # -- Options for autodoc --------------------------------------------------
 
-autodoc_member_order = 'bysource'
+autodoc_member_order = "bysource"
 # Enable nitpicky mode - which ensures that all references in the docs
 # resolve.
 # See: http://stackoverflow.com/a/30624034/186202
 nitpicky = True
 nitpick_ignore = [
-    ('py:class', 'Exception'),
-    ('py:class', 'bool'),
-    ('py:class', 'cornice.Service'),
-    ('py:class', 'dict'),
-    ('py:class', 'float'),
-    ('py:class', 'int'),
-    ('py:class', 'list'),
-    ('py:class', 'str'),
-    ('py:class', 'tuple'),
+    ("py:class", "Exception"),
+    ("py:class", "bool"),
+    ("py:class", "cornice.Service"),
+    ("py:class", "dict"),
+    ("py:class", "float"),
+    ("py:class", "int"),
+    ("py:class", "list"),
+    ("py:class", "str"),
+    ("py:class", "tuple"),
     # Member autodoc fails with those:
     # kinto.core.resource.schema
-    ('py:class', 'Integer'),
-    ('py:class', 'String'),
+    ("py:class", "Integer"),
+    ("py:class", "String"),
     # kinto.core.resource
-    ('py:class', 'Model'),
-    ('py:class', 'ResourceSchema'),
-    ('py:class', 'ShareableModel'),
-    ('py:class', 'ShareableViewSet'),
-    ('py:class', 'ViewSet'),
-    ('py:class', 'Sequence'),
+    ("py:class", "Model"),
+    ("py:class", "ResourceSchema"),
+    ("py:class", "ShareableModel"),
+    ("py:class", "ShareableViewSet"),
+    ("py:class", "ViewSet"),
+    ("py:class", "Sequence"),
     # kinto.core.resource.schema
-    ('py:attr', 'colander.null'),
+    ("py:attr", "colander.null"),
 ]
 
 
 # -- Options of extlinks --------------------------------------------------
 
 extlinks = {
-    'github': ('https://github.com/%s/', ''),
-    'rtd': ('https://%s.readthedocs.io', ''),
-    'blog': ('http://www.servicedenuages.fr/%s', '')
+    "github": ("https://github.com/%s/", ""),
+    "rtd": ("https://%s.readthedocs.io", ""),
+    "blog": ("http://www.servicedenuages.fr/%s", ""),
 }
 
 
@@ -159,16 +158,16 @@ rst_epilog = """
 # --
 def setup(app):
     # path relative to _static
-    app.add_stylesheet('theme_overrides.css')
-    app.add_javascript('piwik.js')
+    app.add_stylesheet("theme_overrides.css")
+    app.add_javascript("piwik.js")
 
 
 # -- Options for intersphinx --------------------------------------------------
 
 intersphinx_mapping = {
-    'colander': ('https://colander.readthedocs.io/en/latest/', None),
-    'cornice': ('https://cornice.readthedocs.io/en/latest/', None),
-    'pyramid': ('https://pyramid.readthedocs.io/en/latest/', None)
+    "colander": ("https://colander.readthedocs.io/en/latest/", None),
+    "cornice": ("https://cornice.readthedocs.io/en/latest/", None),
+    "pyramid": ("https://pyramid.readthedocs.io/en/latest/", None),
 }
 
 # -- Options for LaTeX output ---------------------------------------------
@@ -179,8 +178,7 @@ latex_elements = {}
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    ('index', 'Kinto.tex', 'Kinto Documentation',
-     'Mozilla Services — Da French Team', 'manual'),
+    ("index", "Kinto.tex", "Kinto Documentation", "Mozilla Services — Da French Team", "manual")
 ]
 
 
@@ -188,10 +186,7 @@ latex_documents = [
 
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
-man_pages = [
-    ('index', 'kinto', 'Kinto Documentation',
-     ['Mozilla Services — Da French Team'], 1)
-]
+man_pages = [("index", "kinto", "Kinto Documentation", ["Mozilla Services — Da French Team"], 1)]
 
 
 # -- Options for Texinfo output -------------------------------------------
@@ -200,8 +195,13 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    ('index', 'Kinto', 'Kinto Documentation',
-     'Mozilla Services — Da French Team', 'Kinto',
-     'A remote storage service with syncing and sharing abilities.',
-     'Miscellaneous'),
+    (
+        "index",
+        "Kinto",
+        "Kinto Documentation",
+        "Mozilla Services — Da French Team",
+        "Kinto",
+        "A remote storage service with syncing and sharing abilities.",
+        "Miscellaneous",
+    )
 ]

@@ -9,9 +9,9 @@ from .utils import ACCOUNT_CACHE_KEY, ACCOUNT_POLICY_NAME
 
 def account_check(username, password, request):
     settings = request.registry.settings
-    hmac_secret = settings['userid_hmac_secret']
+    hmac_secret = settings["userid_hmac_secret"]
     cache_key = utils.hmac_digest(hmac_secret, ACCOUNT_CACHE_KEY.format(username))
-    cache_ttl = int(settings.get('account_cache_ttl_seconds', 30))
+    cache_ttl = int(settings.get("account_cache_ttl_seconds", 30))
     hashed_password = utils.hmac_digest(cache_key, password)
 
     # Check cache to see whether somebody has recently logged in with the same
@@ -28,14 +28,14 @@ def account_check(username, password, request):
     # Back to standard procedure
     parent_id = username
     try:
-        existing = request.registry.storage.get(parent_id=parent_id,
-                                                collection_id='account',
-                                                object_id=username)
+        existing = request.registry.storage.get(
+            parent_id=parent_id, collection_id="account", object_id=username
+        )
     except storage_exceptions.RecordNotFoundError:
         return None
 
-    hashed = existing['password'].encode(encoding='utf-8')
-    pwd_str = password.encode(encoding='utf-8')
+    hashed = existing["password"].encode(encoding="utf-8")
+    pwd_str = password.encode(encoding="utf-8")
     # Check if password is valid (it is a very expensive computation)
     if bcrypt.checkpw(pwd_str, hashed):
         cache.set(cache_key, hashed_password, ttl=cache_ttl)
@@ -47,6 +47,7 @@ class AccountsAuthenticationPolicy(base_auth.BasicAuthAuthenticationPolicy):
 
     It will check that the credentials exist in the account resource.
     """
+
     name = ACCOUNT_POLICY_NAME
 
     def __init__(self, *args, **kwargs):

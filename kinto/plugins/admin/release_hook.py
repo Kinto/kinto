@@ -19,4 +19,4 @@ def after_checkout(data):
 
         The ``node_modules`` folder is excluded using :file:`MANIFEST.in`.
     """
-    subprocess.run(['make', 'build-kinto-admin'])
+    subprocess.run(["make", "build-kinto-admin"])
