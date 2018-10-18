@@ -1,0 +1,2 @@
+therapist==1.5.0
+black==18.9b0
