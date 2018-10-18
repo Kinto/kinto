@@ -788,7 +788,7 @@ class TimestampsTest:
         def create_item():
             for i in range(100):
                 obj = self.create_object()
-                obtained.append((obj["last_modified"], object["id"]))
+                obtained.append((obj["last_modified"], obj["id"]))
 
         thread1 = self._create_thread(target=create_item)
         thread2 = self._create_thread(target=create_item)

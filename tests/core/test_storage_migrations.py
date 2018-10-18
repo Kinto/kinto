@@ -89,16 +89,18 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
     def setUp(self):
         # Start empty.
         self._delete_everything()
-        # Create schema in its last version
-        self.storage.initialize_schema()
 
     def tearDown(self):
         postgresql_storage.Storage.schema_version = self.version
+        # Finish empty.
+        self._delete_everything()
 
     def _delete_everything(self):
         q = """
+        DROP TABLE IF EXISTS records CASCADE;
         DROP TABLE IF EXISTS objects CASCADE;
         DROP TABLE IF EXISTS deleted CASCADE;
+        DROP TABLE IF EXISTS timestamps CASCADE;
         DROP TABLE IF EXISTS metadata CASCADE;
         DROP FUNCTION IF EXISTS resource_timestamp(VARCHAR, VARCHAR);
         DROP FUNCTION IF EXISTS collection_timestamp(VARCHAR, VARCHAR);
@@ -115,7 +117,6 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
             conn.execute(old_schema)
 
     def test_does_not_execute_if_ran_with_dry(self):
-        self._delete_everything()
         self.storage.initialize_schema(dry_run=True)
         query = """SELECT 1 FROM information_schema.tables
         WHERE table_name = 'objects';"""
@@ -124,10 +125,14 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
         self.assertEqual(result.rowcount, 0)
 
     def test_schema_sets_the_current_version(self):
+        # Create schema in its last version
+        self.storage.initialize_schema()
         version = self.storage.get_installed_version()
         self.assertEqual(version, self.version)
 
     def test_schema_is_considered_first_version_if_no_version_detected(self):
+        # Create schema in its last version
+        self.storage.initialize_schema()
         with self.storage.client.connect() as conn:
             q = "DELETE FROM metadata WHERE name = 'storage_schema_version';"
             conn.execute(q)
@@ -135,6 +140,8 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
         self.assertEqual(self.storage.get_installed_version(), 1)
 
     def test_schema_is_considered_20_if_server_is_wiped(self):
+        # Create schema in its last version
+        self.storage.initialize_schema()
         with self.storage.client.connect() as conn:
             q = "DELETE FROM metadata;"
             conn.execute(q)
@@ -148,7 +155,6 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
         Objects migration test is currently very naive, and should be
         elaborated along future migrations.
         """
-        self._delete_everything()
 
         # Install old schema
         self._load_schema("schema/postgresql-storage-1.6.sql")
@@ -158,7 +164,7 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
         with self.storage.client.connect() as conn:
             before = {"drink": "cacao"}
             query = """
-            INSERT INTO objects (user_id, resource_name, data)
+            INSERT INTO records (user_id, resource_name, data)
             VALUES (:user_id, :resource_name, (:data)::JSON)
             RETURNING id, as_epoch(last_modified) AS last_modified;
             """
@@ -192,6 +198,7 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
         self.storage.delete("test", ",jean-louis", r["id"])
 
     def test_every_available_migration_succeeds_if_tables_were_flushed(self):
+        self.storage.initialize_schema()
         # During tests, tables can be flushed.
         self.storage.flush()
         self.storage.initialize_schema()
@@ -200,20 +207,19 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
         self.assertEqual(version, self.version)
 
     def test_migration_12_clean_tombstones(self):
-        self._delete_everything()
         last_version = postgresql_storage.Storage.schema_version
         postgresql_storage.Storage.schema_version = 11
 
         self._load_schema("schema/postgresql-storage-11.sql")
 
         insert_query = """
-        INSERT INTO objects (id, parent_id, resource_name, data, last_modified)
-        VALUES (:id, :parent_id, :resource_name, (:data)::JSONB, from_epoch(:last_modified))
+        INSERT INTO records (id, parent_id, collection_id, data, last_modified)
+        VALUES (:id, :parent_id, :collection_id, (:data)::JSONB, from_epoch(:last_modified))
         """
         placeholders = dict(
             id="rid",
             parent_id="jean-louis",
-            resource_name="test",
+            collection_id="test",
             data=json.dumps({"drink": "mate"}),
             last_modified=123456,
         )
@@ -221,8 +227,8 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
             conn.execute(insert_query, placeholders)
 
         create_tombstone = """
-        INSERT INTO deleted (id, parent_id, resource_name, last_modified)
-        VALUES (:id, :parent_id, :resource_name, from_epoch(:last_modified))
+        INSERT INTO deleted (id, parent_id, collection_id, last_modified)
+        VALUES (:id, :parent_id, :collection_id, from_epoch(:last_modified))
         """
         with self.storage.client.connect() as conn:
             conn.execute(create_tombstone, placeholders)
@@ -239,7 +245,6 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
         assert count == 1
 
     def test_migration_18_merges_tombstones(self):
-        self._delete_everything()
         last_version = postgresql_storage.Storage.schema_version
 
         self._load_schema("schema/postgresql-storage-11.sql")
@@ -254,13 +259,13 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
             )
 
         insert_query = """
-        INSERT INTO objects (id, parent_id, resource_name, data, last_modified)
-        VALUES (:id, :parent_id, :resource_name, (:data)::JSONB, from_epoch(:last_modified))
+        INSERT INTO records (id, parent_id, collection_id, data, last_modified)
+        VALUES (:id, :parent_id, :collection_id, (:data)::JSONB, from_epoch(:last_modified))
         """
         placeholders = dict(
             id="rid",
             parent_id="jean-louis",
-            resource_name="test",
+            collection_id="test",
             data=json.dumps({"drink": "mate"}),
             last_modified=123456,
         )
@@ -268,8 +273,8 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
             conn.execute(insert_query, placeholders)
 
         create_tombstone = """
-        INSERT INTO deleted (id, parent_id, resource_name, last_modified)
-        VALUES (:id, :parent_id, :resource_name, from_epoch(:last_modified))
+        INSERT INTO deleted (id, parent_id, collection_id, last_modified)
+        VALUES (:id, :parent_id, :collection_id, from_epoch(:last_modified))
         """
         with self.storage.client.connect() as conn:
             conn.execute(create_tombstone, placeholders)

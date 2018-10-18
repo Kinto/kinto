@@ -77,7 +77,7 @@ class Storage(StorageBase, MigratorMixin):
 
     # MigratorMixin attributes.
     name = "storage"
-    schema_version = 20
+    schema_version = 21
     schema_file = os.path.join(HERE, "schema.sql")
     migrations_directory = os.path.join(HERE, "migrations")
 
@@ -128,10 +128,10 @@ class Storage(StorageBase, MigratorMixin):
         """
         # Check for objects table, which definitely indicates a new
         # DB. (metadata can exist if the permission schema ran first.)
-        objects_table_query = """
+        table_exists_query = """
         SELECT table_name
           FROM information_schema.tables
-         WHERE table_name = 'objects';
+         WHERE table_name = '{}';
         """
         schema_version_metadata_query = """
         SELECT value AS version
@@ -140,10 +140,12 @@ class Storage(StorageBase, MigratorMixin):
          ORDER BY LPAD(value, 3, '0') DESC;
         """
         with self.client.connect() as conn:
-            result = conn.execute(objects_table_query)
+            result = conn.execute(table_exists_query.format("objects"))
             objects_table_exists = result.rowcount > 0
+            result = conn.execute(table_exists_query.format("records"))
+            records_table_exists = result.rowcount > 0
 
-            if not objects_table_exists:
+            if not objects_table_exists and not records_table_exists:
                 return
 
             result = conn.execute(schema_version_metadata_query)
