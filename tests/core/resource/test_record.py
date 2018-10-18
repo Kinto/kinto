@@ -12,26 +12,26 @@ from . import BaseTest
 
 class GetTest(BaseTest):
     def test_get_object_returns_all_fields(self):
-        object = self.model.create_object({"field": "value"})
-        self.resource.object_id = object["id"]
+        obj = self.model.create_object({"field": "value"})
+        self.resource.object_id = obj["id"]
         result = self.resource.get()["data"]
         self.assertIn(self.resource.model.id_field, result)
         self.assertIn(self.resource.model.modified_field, result)
         self.assertIn("field", result)
 
     def test_etag_is_provided(self):
-        object = self.model.create_object({"field": "value"})
-        self.resource.object_id = object["id"]
+        obj = self.model.create_object({"field": "value"})
+        self.resource.object_id = obj["id"]
         self.resource.get()
         self.assertIn("ETag", self.last_response.headers)
 
     def test_etag_contains_object_timestamp(self):
-        object = self.model.create_object({"field": "value"})
-        self.resource.object_id = object["id"]
+        obj = self.model.create_object({"field": "value"})
+        self.resource.object_id = obj["id"]
         # Create another one, bump collection timestamp.
         self.model.create_object({"field": "value"})
         self.resource.get()
-        expected = '"{}"'.format(object["last_modified"])
+        expected = '"{}"'.format(obj["last_modified"])
         self.assertEqual(expected, self.last_response.headers["ETag"])
 
 
@@ -66,8 +66,8 @@ class PutTest(BaseTest):
             self.assertEqual(patched.call_count, 1)
 
     def test_relies_on_plural_endpoint_create_even_when_previously_deleted(self):
-        object = self.model.create_object({"field": "value"})
-        self.resource.object_id = object["id"]
+        obj = self.model.create_object({"field": "value"})
+        self.resource.object_id = obj["id"]
         self.resource.delete()["data"]
 
         self.validated["body"] = {"data": {"field": "new"}}
@@ -126,37 +126,37 @@ class PutTest(BaseTest):
 
 class DeleteTest(BaseTest):
     def test_delete_object_returns_last_timestamp(self):
-        object = {"field": "value"}
-        object = {**self.model.create_object(object)}
-        self.resource.object_id = object["id"]
+        obj = {"field": "value"}
+        obj = {**self.model.create_object(obj)}
+        self.resource.object_id = obj["id"]
         result = self.resource.delete()["data"]
-        self.assertNotEqual(result["last_modified"], object["last_modified"])
+        self.assertNotEqual(result["last_modified"], obj["last_modified"])
 
     def test_etag_is_provided(self):
-        object = self.model.create_object({"field": "value"})
-        self.resource.object_id = object["id"]
+        obj = self.model.create_object({"field": "value"})
+        self.resource.object_id = obj["id"]
         self.resource.delete()
         self.assertIn("ETag", self.last_response.headers)
 
     def test_etag_contains_deleted_timestamp(self):
-        object = self.model.create_object({"field": "value"})
-        self.resource.object_id = object["id"]
+        obj = self.model.create_object({"field": "value"})
+        self.resource.object_id = obj["id"]
         deleted = self.resource.delete()
         expected = '"{}"'.format(deleted["data"]["last_modified"])
         self.assertEqual(expected, self.last_response.headers["ETag"])
 
     def test_delete_object_returns_stripped_object(self):
-        object = self.model.create_object({"field": "value"})
-        self.resource.object_id = object["id"]
+        obj = self.model.create_object({"field": "value"})
+        self.resource.object_id = obj["id"]
         result = self.resource.delete()["data"]
-        self.assertEqual(result["id"], object["id"])
+        self.assertEqual(result["id"], obj["id"])
         self.assertNotIn("field", result)
         self.assertIn("last_modified", result)
 
     def test_delete_uses_last_modified_from_querystring(self):
-        object = self.model.create_object({"field": "value"})
-        last_modified = object[self.model.modified_field] + 20
-        self.resource.object_id = object["id"]
+        obj = self.model.create_object({"field": "value"})
+        last_modified = obj[self.model.modified_field] + 20
+        self.resource.object_id = obj["id"]
         self.validated["querystring"]["last_modified"] = last_modified
         result = self.resource.delete()["data"]
         self.validated = self.validated
@@ -168,17 +168,17 @@ class DeleteTest(BaseTest):
         self.assertEqual(retrieved[self.model.modified_field], last_modified)
 
     def test_delete_ignores_last_modified_if_equal(self):
-        object = self.model.create_object({"field": "value"})
-        last_modified = object[self.model.modified_field]
-        self.resource.object_id = object["id"]
+        obj = self.model.create_object({"field": "value"})
+        last_modified = obj[self.model.modified_field]
+        self.resource.object_id = obj["id"]
         self.validated["querystring"]["last_modified"] = last_modified
         result = self.resource.delete()["data"]
         self.assertGreater(result[self.model.modified_field], last_modified)
 
     def test_delete_ignores_last_modified_if_less(self):
-        object = self.model.create_object({"field": "value"})
-        last_modified = object[self.model.modified_field] - 20
-        self.resource.object_id = object["id"]
+        obj = self.model.create_object({"field": "value"})
+        last_modified = obj[self.model.modified_field] - 20
+        self.resource.object_id = obj["id"]
         self.validated["querystring"]["last_modified"] = last_modified
         result = self.resource.delete()["data"]
         self.assertGreater(result[self.model.modified_field], last_modified)
@@ -187,8 +187,8 @@ class DeleteTest(BaseTest):
         def raise_objectnotfound(*args, **kwargs):
             raise storage_exceptions.ObjectNotFoundError
 
-        object = self.model.create_object({"field": "value"})
-        self.resource.object_id = object["id"]
+        obj = self.model.create_object({"field": "value"})
+        self.resource.object_id = obj["id"]
         with mock.patch.object(self.model, "delete_object", side_effect=raise_objectnotfound):
             self.assertRaises(httpexceptions.HTTPNotFound, self.resource.delete)
 

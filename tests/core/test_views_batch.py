@@ -130,8 +130,8 @@ class BatchViewTest(BaseWebTest, unittest.TestCase):
         resp = self.app.post_json("/batch", body, headers=self.headers)
         response = resp.json["responses"][0]
         self.assertEqual(response["status"], 201)
-        object = response["body"]["data"]
-        self.assertEqual(object["name"], "Trompette de la mort")
+        obj = response["body"]["data"]
+        self.assertEqual(obj["name"], "Trompette de la mort")
 
     def test_400_error_message_is_forwarded(self):
         headers = {**self.headers, "If-Match": '"*"'}

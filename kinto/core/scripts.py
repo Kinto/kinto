@@ -71,12 +71,12 @@ def delete_collection(env, bucket_id, resource_name):
     )
     logger.info("'{}' collection object was deleted.".format(collection))
 
-    object = "/buckets/{bucket_id}" "/collections/{resource_name}" "/objects/{object_id}"
+    obj = "/buckets/{bucket_id}" "/collections/{resource_name}" "/objects/{object_id}"
 
     registry.permission.delete_object_permissions(
         collection,
         *[
-            object.format(bucket_id=bucket_id, resource_name=resource_name, object_id=r["id"])
+            obj.format(bucket_id=bucket_id, resource_name=resource_name, object_id=r["id"])
             for r in deleted
         ]
     )

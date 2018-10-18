@@ -34,8 +34,8 @@ class UserResourcePermissionTest(BaseWebTest, unittest.TestCase):
     def test_object_operations_are_authorized_if_authenticated(self):
         body = {"data": MINIMALIST_OBJECT}
         resp = self.app.post_json(self.collection_url, body, headers=self.headers, status=201)
-        object = resp.json["data"]
-        object_url = self.get_item_url(object["id"])
+        obj = resp.json["data"]
+        object_url = self.get_item_url(obj["id"])
         unknown_url = self.get_item_url(uuid.uuid4())
 
         self.app.get(object_url, headers=self.headers, status=200)
@@ -394,24 +394,24 @@ class InvalidObjectTest(BaseWebTest, unittest.TestCase):
         )
 
     def test_id_is_validated_on_post(self):
-        object = {**MINIMALIST_OBJECT, "id": 3.14}
-        self.app.post_json(self.collection_url, {"data": object}, headers=self.headers, status=400)
+        obj = {**MINIMALIST_OBJECT, "id": 3.14}
+        self.app.post_json(self.collection_url, {"data": obj}, headers=self.headers, status=400)
 
         with mock.patch.object(
             self.app.app.registry.id_generators[""], "match", return_value=True
         ):
             self.app.post_json(
-                self.collection_url, {"data": object}, headers=self.headers, status=400
+                self.collection_url, {"data": obj}, headers=self.headers, status=400
             )
 
     def test_id_is_preserved_on_post(self):
-        object = {**MINIMALIST_OBJECT, "id": "472be9ec-26fe-461b-8282-9c4e4b207ab3"}
-        resp = self.app.post_json(self.collection_url, {"data": object}, headers=self.headers)
-        self.assertEqual(resp.json["data"]["id"], object["id"])
+        obj = {**MINIMALIST_OBJECT, "id": "472be9ec-26fe-461b-8282-9c4e4b207ab3"}
+        resp = self.app.post_json(self.collection_url, {"data": obj}, headers=self.headers)
+        self.assertEqual(resp.json["data"]["id"], obj["id"])
 
     def test_200_is_returned_if_id_matches_existing_object(self):
-        object = {**MINIMALIST_OBJECT, "id": self.object["id"]}
-        self.app.post_json(self.collection_url, {"data": object}, headers=self.headers, status=200)
+        obj = {**MINIMALIST_OBJECT, "id": self.object["id"]}
+        self.app.post_json(self.collection_url, {"data": obj}, headers=self.headers, status=200)
 
     def test_invalid_accept_header_on_plural_endpoints_returns_406(self):
         headers = {**self.headers, "Accept": "text/plain"}
@@ -460,8 +460,8 @@ class IgnoredFieldsTest(BaseWebTest, unittest.TestCase):
         self.object = resp.json["data"]
 
     def test_last_modified_is_not_validated_and_overwritten(self):
-        object = {**MINIMALIST_OBJECT, "last_modified": "abc"}
-        resp = self.app.post_json(self.collection_url, {"data": object}, headers=self.headers)
+        obj = {**MINIMALIST_OBJECT, "last_modified": "abc"}
+        resp = self.app.post_json(self.collection_url, {"data": obj}, headers=self.headers)
         self.assertNotEqual(resp.json["data"]["last_modified"], "abc")
 
     def test_modify_works_with_invalid_last_modified(self):
@@ -470,8 +470,8 @@ class IgnoredFieldsTest(BaseWebTest, unittest.TestCase):
         self.assertNotEqual(resp.json["data"]["last_modified"], "abc")
 
     def test_replace_works_with_invalid_last_modified(self):
-        object = {**MINIMALIST_OBJECT, "last_modified": "abc"}
-        resp = self.app.put_json(self.get_item_url(), {"data": object}, headers=self.headers)
+        obj = {**MINIMALIST_OBJECT, "last_modified": "abc"}
+        resp = self.app.put_json(self.get_item_url(), {"data": obj}, headers=self.headers)
         self.assertNotEqual(resp.json["data"]["last_modified"], "abc")
 
 
@@ -533,8 +533,8 @@ class InvalidBodyTest(BaseWebTest, unittest.TestCase):
     def test_modify_shareable_resource_with_empty_body_returns_400(self):
         body = {"data": MINIMALIST_OBJECT}
         resp = self.app.post_json("/toadstools", body, headers=self.headers)
-        object = resp.json["data"]
-        item_url = "/toadstools/{}".format(object["id"])
+        obj = resp.json["data"]
+        item_url = "/toadstools/{}".format(obj["id"])
         self.app.patch(item_url, headers=self.headers, status=400)
 
 

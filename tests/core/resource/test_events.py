@@ -82,9 +82,9 @@ class ResourceReadTest(BaseEventTest, unittest.TestCase):
 
     def test_post_sends_read_if_id_already_exists(self):
         resp = self.app.post_json(self.collection_url, self.body, headers=self.headers, status=201)
-        object = resp.json["data"]
+        obj = resp.json["data"]
         body = {**self.body}
-        body["data"]["id"] = object["id"]
+        body["data"]["id"] = obj["id"]
 
         # a second post with the same object id
         self.app.post_json(self.collection_url, body, headers=self.headers, status=200)
@@ -137,8 +137,8 @@ class ResourceChangedTest(BaseEventTest, unittest.TestCase):
 
     def test_patch_sends_update_action(self):
         resp = self.app.post_json(self.collection_url, self.body, headers=self.headers, status=201)
-        object = resp.json["data"]
-        object_url = self.get_item_url(object["id"])
+        obj = resp.json["data"]
+        object_url = self.get_item_url(obj["id"])
 
         self.app.patch_json(object_url, self.body, headers=self.headers, status=200)
         self.assertEqual(len(self.events), 2)
@@ -160,8 +160,8 @@ class ResourceChangedTest(BaseEventTest, unittest.TestCase):
 
     def test_delete_sends_delete_action(self):
         resp = self.app.post_json(self.collection_url, self.body, headers=self.headers, status=201)
-        object = resp.json["data"]
-        object_url = self.get_item_url(object["id"])
+        obj = resp.json["data"]
+        object_url = self.get_item_url(obj["id"])
 
         self.app.delete(object_url, headers=self.headers, status=200)
         self.assertEqual(len(self.events), 2)
@@ -193,8 +193,8 @@ class ResourceChangedTest(BaseEventTest, unittest.TestCase):
     def test_permissions_are_stripped_from_event_on_protected_resource(self):
         app = self.make_app(settings={"psilo_write_principals": "system.Authenticated"})
         resp = app.post_json("/psilos", self.body, headers=self.headers, status=201)
-        object = resp.json["data"]
-        object_url = "/psilos/{}".format(object["id"])
+        obj = resp.json["data"]
+        object_url = "/psilos/{}".format(obj["id"])
         app.patch_json(object_url, {"data": {"name": "De barcelona"}}, headers=self.headers)
         impacted_objects = self.events[-1].impacted_objects
         self.assertNotIn("__permissions__", impacted_objects[0]["new"])
@@ -229,11 +229,11 @@ class ImpactedObjectsTest(BaseEventTest, unittest.TestCase):
 
     def test_create_has_new_object_and_no_old_in_payload(self):
         resp = self.app.post_json(self.collection_url, self.body, headers=self.headers)
-        object = resp.json["data"]
+        obj = resp.json["data"]
         impacted_objects = self.events[-1].impacted_objects
         self.assertEqual(len(impacted_objects), 1)
         self.assertNotIn("old", impacted_objects[0])
-        self.assertEqual(impacted_objects[0]["new"], object)
+        self.assertEqual(impacted_objects[0]["new"], obj)
 
     def test_collection_delete_has_old_and_new_in_payload(self):
         resp = self.app.post_json(self.collection_url, self.body, headers=self.headers)
@@ -257,26 +257,26 @@ class ImpactedObjectsTest(BaseEventTest, unittest.TestCase):
 
     def test_update_has_old_and_new_object(self):
         resp = self.app.post_json(self.collection_url, self.body, headers=self.headers, status=201)
-        object = resp.json["data"]
-        object_url = self.get_item_url(object["id"])
+        obj = resp.json["data"]
+        object_url = self.get_item_url(obj["id"])
         self.app.patch_json(object_url, {"data": {"name": "en boite"}}, headers=self.headers)
         impacted_objects = self.events[-1].impacted_objects
         self.assertEqual(len(impacted_objects), 1)
-        self.assertEqual(impacted_objects[0]["new"]["id"], object["id"])
+        self.assertEqual(impacted_objects[0]["new"]["id"], obj["id"])
         self.assertEqual(impacted_objects[0]["new"]["id"], impacted_objects[0]["old"]["id"])
         self.assertEqual(impacted_objects[0]["old"]["name"], "de Paris")
         self.assertEqual(impacted_objects[0]["new"]["name"], "en boite")
 
     def test_delete_has_old_and_new_object_in_payload(self):
         resp = self.app.post_json(self.collection_url, self.body, headers=self.headers, status=201)
-        object = resp.json["data"]
-        object_url = self.get_item_url(object["id"])
+        obj = resp.json["data"]
+        object_url = self.get_item_url(obj["id"])
         self.app.delete(object_url, headers=self.headers, status=200)
 
         impacted_objects = self.events[-1].impacted_objects
         self.assertEqual(len(impacted_objects), 1)
-        self.assertEqual(impacted_objects[0]["old"], object)
-        self.assertEqual(impacted_objects[0]["new"]["id"], object["id"])
+        self.assertEqual(impacted_objects[0]["old"], obj)
+        self.assertEqual(impacted_objects[0]["new"]["id"], obj["id"])
         self.assertEqual(impacted_objects[0]["new"]["deleted"], True)
 
 

@@ -293,8 +293,8 @@ class SubobjectFilteringTest(BaseTest):
         self.validated = self.resource.request.validated
         self.patch_known_field.start()
         for i in range(6):
-            object = {"party": {"candidate": "Marie", "voters": i}, "location": "Creuse"}
-            self.model.create_object(object)
+            obj = {"party": {"candidate": "Marie", "voters": i}, "location": "Creuse"}
+            self.model.create_object(obj)
 
     def test_objects_can_be_filtered_by_subobjects(self):
         self.validated["querystring"] = {"party.voters": 1}

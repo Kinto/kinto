@@ -190,23 +190,23 @@ class Storage(MemoryBasedStorage):
         auth=None,
     ):
         id_generator = id_generator or self.id_generator
-        object = {**object}
-        if id_field in object:
+        obj = {**object}
+        if id_field in obj:
             # Raise unicity error if object with same id already exists.
             try:
-                existing = self.get(resource_name, parent_id, object[id_field])
+                existing = self.get(resource_name, parent_id, obj[id_field])
                 raise exceptions.UnicityError(id_field, existing)
             except exceptions.ObjectNotFoundError:
                 pass
         else:
-            object[id_field] = id_generator()
+            obj[id_field] = id_generator()
 
-        self.set_object_timestamp(resource_name, parent_id, object, modified_field=modified_field)
-        _id = object[id_field]
-        object = ujson.loads(self.json.dumps(object))
-        self._store[parent_id][resource_name][_id] = object
+        self.set_object_timestamp(resource_name, parent_id, obj, modified_field=modified_field)
+        _id = obj[id_field]
+        obj = ujson.loads(self.json.dumps(obj))
+        self._store[parent_id][resource_name][_id] = obj
         self._cemetery[parent_id][resource_name].pop(_id, None)
-        return object
+        return obj
 
     @synchronized
     def get(
@@ -234,14 +234,14 @@ class Storage(MemoryBasedStorage):
         modified_field=DEFAULT_MODIFIED_FIELD,
         auth=None,
     ):
-        object = {**object}
-        object[id_field] = object_id
-        object = ujson.loads(self.json.dumps(object))
+        obj = {**object}
+        obj[id_field] = object_id
+        obj = ujson.loads(self.json.dumps(obj))
 
-        self.set_object_timestamp(resource_name, parent_id, object, modified_field=modified_field)
-        self._store[parent_id][resource_name][object_id] = object
+        self.set_object_timestamp(resource_name, parent_id, obj, modified_field=modified_field)
+        self._store[parent_id][resource_name][object_id] = obj
         self._cemetery[parent_id][resource_name].pop(object_id, None)
-        return object
+        return obj
 
     @synchronized
     def delete(
@@ -424,8 +424,8 @@ def extract_object_set(
     return sorted_, total_objects - filtered_deleted
 
 
-def canonical_json(object):
-    return json.dumps(object, sort_keys=True, separators=(",", ":"))
+def canonical_json(obj):
+    return json.dumps(obj, sort_keys=True, separators=(",", ":"))
 
 
 def apply_filters(objects, filters):
@@ -465,7 +465,7 @@ def apply_filters(objects, filters):
         COMPARISON.CONTAINS: contains_filtering,
         COMPARISON.CONTAINS_ANY: contains_any_filtering,
     }
-    for object in objects:
+    for obj in objects:
         matches = True
         for f in filters:
             right = f.value
@@ -473,7 +473,7 @@ def apply_filters(objects, filters):
                 if isinstance(right, int):
                     right = str(right)
 
-            left = find_nested_value(object, f.field, MISSING)
+            left = find_nested_value(obj, f.field, MISSING)
 
             if f.operator in (COMPARISON.IN, COMPARISON.EXCLUDE):
                 right, left = left, right
@@ -498,7 +498,7 @@ def apply_filters(objects, filters):
             else:
                 matches = matches and operators[f.operator](left, right)
         if matches:
-            yield object
+            yield obj
 
 
 def schwartzian_transform(value):
@@ -541,8 +541,8 @@ def apply_sorting(objects, sorting):
     if not result:
         return result
 
-    def column(object, name):
-        return schwartzian_transform(find_nested_value(object, name, default=MISSING))
+    def column(obj, name):
+        return schwartzian_transform(find_nested_value(obj, name, default=MISSING))
 
     for sort in reversed(sorting):
         result = sorted(result, key=lambda r: column(r, sort.field), reverse=(sort.direction < 0))

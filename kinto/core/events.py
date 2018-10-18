@@ -70,7 +70,7 @@ class AfterResourceChanged(_ResourceEvent):
         self.impacted_objects = impacted_objects
 
 
-class EventCollector(object):
+class EventCollector:
     """A collection to gather events emitted over the course of a request.
 
     Events are gathered by parent id, resource type, and event
@@ -116,7 +116,7 @@ class EventCollector(object):
         return EventCollectorDrain(self)
 
 
-class EventCollectorDrain(object):
+class EventCollectorDrain:
     """An iterator that drains an EventCollector.
 
     Get one using EventCollector.drain()."""

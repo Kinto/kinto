@@ -173,7 +173,7 @@ class Model:
             auth=self.auth,
         )
 
-    def create_object(self, object, parent_id=None):
+    def create_object(self, obj, parent_id=None):
         """Create a object in the collection.
 
         Override to perform actions or post-process objects after their
@@ -181,9 +181,9 @@ class Model:
 
         .. code-block:: python
 
-            def create_object(self, object):
-                object = super().create_object(object)
-                idx = index.store(object)
+            def create_object(self, obj):
+                obj = super().create_object(obj)
+                idx = index.store(obj)
                 object['index'] = idx
                 return object
 
@@ -197,14 +197,14 @@ class Model:
         return self.storage.create(
             resource_name=self.resource_name,
             parent_id=parent_id,
-            object=object,
+            object=obj,
             id_generator=self.id_generator,
             id_field=self.id_field,
             modified_field=self.modified_field,
             auth=self.auth,
         )
 
-    def update_object(self, object, parent_id=None):
+    def update_object(self, obj, parent_id=None):
         """Update a object in the collection.
 
         Override to perform actions or post-process objects after their
@@ -212,8 +212,8 @@ class Model:
 
         .. code-block:: python
 
-            def update_object(self, object, parent_id=None):
-                object = super().update_object(object, parent_id)
+            def update_object(self, obj, parent_id=None):
+                obj = super().update_object(obj, parent_id)
                 subject = 'Object {} was changed'.format(object[self.id_field])
                 send_email(subject)
                 return object
@@ -224,18 +224,18 @@ class Model:
         :rtype: dict
         """
         parent_id = parent_id or self.parent_id
-        object_id = object[self.id_field]
+        object_id = obj[self.id_field]
         return self.storage.update(
             resource_name=self.resource_name,
             parent_id=parent_id,
             object_id=object_id,
-            object=object,
+            object=obj,
             id_field=self.id_field,
             modified_field=self.modified_field,
             auth=self.auth,
         )
 
-    def delete_object(self, object, parent_id=None, last_modified=None):
+    def delete_object(self, obj, parent_id=None, last_modified=None):
         """Delete a object in the collection.
 
         Override to perform actions or post-process objects after deletion
@@ -243,9 +243,9 @@ class Model:
 
         .. code-block:: python
 
-            def delete_object(self, object):
-                deleted = super().delete_object(object)
-                erase_media(object)
+            def delete_object(self, obj):
+                deleted = super().delete_object(obj)
+                erase_media(obj)
                 deleted['media'] = 0
                 return deleted
 
@@ -256,7 +256,7 @@ class Model:
         :rtype: dict
         """
         parent_id = parent_id or self.parent_id
-        object_id = object[self.id_field]
+        object_id = obj[self.id_field]
         return self.storage.delete(
             resource_name=self.resource_name,
             parent_id=parent_id,
@@ -290,7 +290,7 @@ class ShareableModel(Model):
         """
         self.permission.add_principal_to_ace(perm_object_id, "write", self.current_principal)
 
-    def _annotate(self, object, perm_object_id):
+    def _annotate(self, obj, perm_object_id):
         permissions = self.permission.get_object_permissions(perm_object_id)
         # Permissions are not returned if user only has read permission.
         writers = permissions.get("write", [])
@@ -298,7 +298,7 @@ class ShareableModel(Model):
         if len(set(writers) & set(principals)) == 0:
             permissions = {}
         # Insert the permissions values in the response.
-        annotated = {**object, self.permissions_field: permissions}
+        annotated = {**obj, self.permissions_field: permissions}
         return annotated
 
     def delete_objects(
@@ -318,10 +318,10 @@ class ShareableModel(Model):
     def get_object(self, object_id, parent_id=None):
         """Fetch current permissions and add them to returned object.
         """
-        object = super().get_object(object_id, parent_id)
+        obj = super().get_object(object_id, parent_id)
         perm_object_id = self.get_permission_object_id(object_id)
 
-        return self._annotate(object, perm_object_id)
+        return self._annotate(obj, perm_object_id)
 
     def create_object(self, object, parent_id=None):
         """Create object and set specified permissions.
@@ -329,13 +329,13 @@ class ShareableModel(Model):
         The current principal is added to the owner (``write`` permission).
         """
         permissions = object.pop(self.permissions_field, {})
-        object = super().create_object(object, parent_id)
-        object_id = object[self.id_field]
+        obj = super().create_object(object, parent_id)
+        object_id = obj[self.id_field]
         perm_object_id = self.get_permission_object_id(object_id)
         self.permission.replace_object_permissions(perm_object_id, permissions)
         self._allow_write(perm_object_id)
 
-        return self._annotate(object, perm_object_id)
+        return self._annotate(obj, perm_object_id)
 
     def update_object(self, object, parent_id=None):
         """Update object and the specified permissions.
@@ -346,19 +346,19 @@ class ShareableModel(Model):
         The current principal is added to the owner (``write`` permission).
         """
         permissions = object.pop(self.permissions_field, {})
-        object = super().update_object(object, parent_id)
-        object_id = object[self.id_field]
+        obj = super().update_object(object, parent_id)
+        object_id = obj[self.id_field]
         perm_object_id = self.get_permission_object_id(object_id)
         self.permission.replace_object_permissions(perm_object_id, permissions)
         self._allow_write(perm_object_id)
 
-        return self._annotate(object, perm_object_id)
+        return self._annotate(obj, perm_object_id)
 
     def delete_object(self, object_id, parent_id=None, last_modified=None):
         """Delete object and its associated permissions.
         """
-        object = super().delete_object(object_id, parent_id, last_modified=last_modified)
+        obj = super().delete_object(object_id, parent_id, last_modified=last_modified)
         perm_object_id = self.get_permission_object_id(object_id)
         self.permission.delete_object_permissions(perm_object_id)
 
-        return object
+        return obj

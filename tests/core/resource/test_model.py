@@ -26,10 +26,10 @@ class CreateTest(BaseTest):
         self.model.get_object(object_id)  # not raising
 
     def test_create_object_returns_at_least_id_and_last_modified(self):
-        object = self.resource.collection_post()["data"]
-        self.assertIn(self.resource.model.id_field, object)
-        self.assertIn(self.resource.model.modified_field, object)
-        self.assertIn("field", object)
+        obj = self.resource.collection_post()["data"]
+        self.assertIn(self.resource.model.id_field, obj)
+        self.assertIn(self.resource.model.modified_field, obj)
+        self.assertIn("field", obj)
 
 
 class DeleteModelTest(BaseTest):

@@ -297,7 +297,7 @@ class UserResource:
         self._add_cache_header(self.request.response)
         self._raise_304_if_not_modified()
         # Collections are considered resources that always exist
-        self._raise_412_if_modified(object={})
+        self._raise_412_if_modified(obj={})
 
         headers = self.request.response.headers
 
@@ -326,7 +326,7 @@ class UserResource:
             headers["Next-Page"] = next_page
 
         if partial_fields:
-            objects = [dict_subset(object, partial_fields) for object in objects]
+            objects = [dict_subset(obj, partial_fields) for obj in objects]
 
         headers["Total-Objects"] = str(total_objects)
 
@@ -360,21 +360,21 @@ class UserResource:
         except (HTTPNotFound, KeyError, ValueError):
             existing = None
 
-        self._raise_412_if_modified(object=existing)
+        self._raise_412_if_modified(obj=existing)
 
         if existing:
-            object = existing
+            obj = existing
             action = ACTIONS.READ
         else:
             new_object = self.process_object(new_object)
-            object = self.model.create_object(new_object)
+            obj = self.model.create_object(new_object)
             self.request.response.status_code = 201
             action = ACTIONS.CREATE
 
-        timestamp = object[self.model.modified_field]
+        timestamp = obj[self.model.modified_field]
         self._add_timestamp_header(self.request.response, timestamp=timestamp)
 
-        return self.postprocess(object, action=action)
+        return self.postprocess(obj, action=action)
 
     def collection_delete(self):
         """Model ``DELETE`` endpoint: delete multiple objects.
@@ -388,7 +388,7 @@ class UserResource:
             if filters are invalid.
         """
         # Collections are considered resources that always exist
-        self._raise_412_if_modified(object={})
+        self._raise_412_if_modified(obj={})
 
         filters = self._extract_filters()
         limit = self._extract_limit()
@@ -436,18 +436,18 @@ class UserResource:
             in the iterim.
         """
         self._raise_400_if_invalid_id(self.object_id)
-        object = self._get_object_or_404(self.object_id)
-        timestamp = object[self.model.modified_field]
+        obj = self._get_object_or_404(self.object_id)
+        timestamp = obj[self.model.modified_field]
         self._add_timestamp_header(self.request.response, timestamp=timestamp)
         self._add_cache_header(self.request.response)
-        self._raise_304_if_not_modified(object)
-        self._raise_412_if_modified(object)
+        self._raise_304_if_not_modified(obj)
+        self._raise_412_if_modified(obj)
 
         partial_fields = self._extract_partial_fields()
         if partial_fields:
-            object = dict_subset(object, partial_fields)
+            obj = dict_subset(obj, partial_fields)
 
-        return self.postprocess(object)
+        return self.postprocess(obj)
 
     def put(self):
         """Object ``PUT`` endpoint: create or replace the provided object and
@@ -474,7 +474,7 @@ class UserResource:
         except HTTPNotFound:
             existing = None
 
-        self._raise_412_if_modified(object=existing)
+        self._raise_412_if_modified(obj=existing)
 
         # If `data` is not provided, use existing object (or empty if creation)
         post_object = self.request.validated["body"].get("data", existing) or {}
@@ -485,16 +485,16 @@ class UserResource:
         new_object = self.process_object(post_object, old=existing)
 
         if existing:
-            object = self.model.update_object(new_object)
+            obj = self.model.update_object(new_object)
         else:
-            object = self.model.create_object(new_object)
+            obj = self.model.create_object(new_object)
             self.request.response.status_code = 201
 
-        timestamp = object[self.model.modified_field]
+        timestamp = obj[self.model.modified_field]
         self._add_timestamp_header(self.request.response, timestamp=timestamp)
 
         action = existing and ACTIONS.UPDATE or ACTIONS.CREATE
-        return self.postprocess(object, action=action, old=existing)
+        return self.postprocess(obj, action=action, old=existing)
 
     def patch(self):
         """Object ``PATCH`` endpoint: modify a object and return its
@@ -594,18 +594,18 @@ class UserResource:
             in the iterim.
         """
         self._raise_400_if_invalid_id(self.object_id)
-        object = self._get_object_or_404(self.object_id)
-        self._raise_412_if_modified(object)
+        obj = self._get_object_or_404(self.object_id)
+        self._raise_412_if_modified(obj)
 
         # Retreive the last_modified information from a querystring if present.
         last_modified = self.request.validated["querystring"].get("last_modified")
 
         # If less or equal than current object. Ignore it.
-        if last_modified and last_modified <= object[self.model.modified_field]:
+        if last_modified and last_modified <= obj[self.model.modified_field]:
             last_modified = None
 
         try:
-            deleted = self.model.delete_object(object, last_modified=last_modified)
+            deleted = self.model.delete_object(obj, last_modified=last_modified)
         except storage_exceptions.ObjectNotFoundError:
             # Delete might fail if the object was deleted since we
             # fetched it from the storage (ref Kinto/kinto#1407). This
@@ -626,7 +626,7 @@ class UserResource:
         timestamp = deleted[self.model.modified_field]
         self._add_timestamp_header(self.request.response, timestamp=timestamp)
 
-        return self.postprocess(deleted, action=ACTIONS.DELETE, old=object)
+        return self.postprocess(deleted, action=ACTIONS.DELETE, old=obj)
 
     #
     # Data processing
@@ -827,7 +827,7 @@ class UserResource:
             error_details = {"location": "path", "description": "Invalid object id"}
             raise_invalid(self.request, **error_details)
 
-    def _raise_304_if_not_modified(self, object=None):
+    def _raise_304_if_not_modified(self, obj=None):
         """Raise 304 if current timestamp is inferior to the one specified
         in headers.
 
@@ -841,8 +841,8 @@ class UserResource:
         if if_none_match == "*":
             return
 
-        if object:
-            current_timestamp = object[self.model.modified_field]
+        if obj:
+            current_timestamp = obj[self.model.modified_field]
         else:
             current_timestamp = self.model.timestamp()
 
@@ -851,7 +851,7 @@ class UserResource:
             self._add_timestamp_header(response, timestamp=current_timestamp)
             raise response
 
-    def _raise_412_if_modified(self, object=None):
+    def _raise_412_if_modified(self, obj=None):
         """Raise 412 if current timestamp is superior to the one
         specified in headers.
 
@@ -862,7 +862,7 @@ class UserResource:
         if_none_match = self.request.validated["header"].get("If-None-Match")
 
         # Check if object exists
-        object_exists = object is not None
+        object_exists = obj is not None
 
         # If no precondition headers, just ignore
         if not if_match and not if_none_match:
@@ -884,14 +884,14 @@ class UserResource:
         else:
             return
 
-        if object:
-            current_timestamp = object[self.model.modified_field]
+        if obj:
+            current_timestamp = obj[self.model.modified_field]
         else:
             current_timestamp = self.model.timestamp()
 
         if current_timestamp != modified_since:
             error_msg = "Resource was modified meanwhile"
-            details = {"existing": object} if object else {}
+            details = {"existing": obj} if obj else {}
             response = http_error(
                 HTTPPreconditionFailed(),
                 errno=ERRORS.MODIFIED_MEANWHILE,
@@ -1200,14 +1200,14 @@ class ShareableResource(UserResource):
 
         return filters
 
-    def _raise_412_if_modified(self, object=None):
+    def _raise_412_if_modified(self, obj=None):
         """Do not provide the permissions among the object fields.
         Ref: https://github.com/Kinto/kinto/issues/224
         """
-        if object:
-            object = {**object}
-            object.pop(self.model.permissions_field, None)
-        return super()._raise_412_if_modified(object)
+        if obj:
+            obj = {**obj}
+            obj.pop(self.model.permissions_field, None)
+        return super()._raise_412_if_modified(obj)
 
     def process_object(self, new, old=None):
         """Read permissions from request body, and in the case of ``PUT`` every

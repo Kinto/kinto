@@ -16,8 +16,8 @@ class SortingTest(BaseTest):
         random.shuffle(indices)
 
         for i in indices:
-            object = {"title": "MoFo #{0:02}".format(i), "status": i % 4, "unread": (i % 2 == 0)}
-            self.model.create_object(object)
+            obj = {"title": "MoFo #{0:02}".format(i), "status": i % 4, "unread": (i % 2 == 0)}
+            self.model.create_object(obj)
 
     def test_sort_works_with_empty_list(self):
         self.resource.model.parent_id = "alice"
@@ -128,8 +128,8 @@ class SubobjectSortingTest(BaseTest):
         random.shuffle(indices)
 
         for i in indices:
-            object = {"party": {"candidate": "Marie", "voters": i}, "location": "Creuse"}
-            self.model.create_object(object)
+            obj = {"party": {"candidate": "Marie", "voters": i}, "location": "Creuse"}
+            self.model.create_object(obj)
 
     def test_objects_can_be_sorted_by_subobjects(self):
         self.resource.request.validated["querystring"] = {"_sort": ["party.voters"]}

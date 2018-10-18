@@ -102,8 +102,8 @@ class Storage(StorageBase, MigratorMixin):
         query = "SELECT current_setting('TIMEZONE') AS timezone;"
         with self.client.connect() as conn:
             result = conn.execute(query)
-            object = result.fetchone()
-        timezone = object["timezone"].upper()
+            obj = result.fetchone()
+        timezone = obj["timezone"].upper()
         if timezone != "UTC":  # pragma: no cover
             msg = "Database timezone is not UTC ({})".format(timezone)
             warnings.warn(msg)
@@ -118,8 +118,8 @@ class Storage(StorageBase, MigratorMixin):
         """
         with self.client.connect() as conn:
             result = conn.execute(query)
-            object = result.fetchone()
-        encoding = object["encoding"].lower()
+            obj = result.fetchone()
+        encoding = obj["encoding"].lower()
         if encoding != "utf8":  # pragma: no cover
             raise AssertionError("Unexpected database encoding {}".format(encoding))
 
@@ -236,14 +236,14 @@ class Storage(StorageBase, MigratorMixin):
                         "Cannot initialize empty collection timestamp " "when running in readonly."
                     )
                     raise exceptions.BackendError(message=error_msg)
-                object = row
+                obj = row
             else:
                 create_result = conn.execute(
                     create_if_missing, dict(last_modified=existing_ts, **placeholders)
                 )
-                object = create_result.fetchone() or row
+                obj = create_result.fetchone() or row
 
-        return object["last_epoch"]
+        return obj["last_epoch"]
 
     def create(
         self,
@@ -256,8 +256,8 @@ class Storage(StorageBase, MigratorMixin):
         auth=None,
     ):
         id_generator = id_generator or self.id_generator
-        object = {**object}
-        if id_field in object:
+        obj = {**object}
+        if id_field in obj:
             # Optimistically raise unicity error if object with same
             # id already exists.
             # Even if this check doesn't find one, be robust against
@@ -265,15 +265,15 @@ class Storage(StorageBase, MigratorMixin):
             # Still, this reduces write load because SELECTs are
             # cheaper than INSERTs.
             try:
-                existing = self.get(resource_name, parent_id, object[id_field])
+                existing = self.get(resource_name, parent_id, obj[id_field])
                 raise exceptions.UnicityError(id_field, existing)
             except exceptions.ObjectNotFoundError:
                 pass
         else:
-            object[id_field] = id_generator()
+            obj[id_field] = id_generator()
 
         # Remove redundancy in data field
-        query_object = {**object}
+        query_object = {**obj}
         query_object.pop(id_field, None)
         query_object.pop(modified_field, None)
 
@@ -309,10 +309,10 @@ class Storage(StorageBase, MigratorMixin):
 
         safe_holders = {}
         placeholders = dict(
-            object_id=object[id_field],
+            object_id=obj[id_field],
             parent_id=parent_id,
             resource_name=resource_name,
-            last_modified=object.get(modified_field),
+            last_modified=obj.get(modified_field),
             data=self.json.dumps(query_object),
         )
         with self.client.connect() as conn:
@@ -320,13 +320,13 @@ class Storage(StorageBase, MigratorMixin):
             inserted = result.fetchone()
 
         if not inserted["inserted"]:
-            object = inserted["data"]
-            object[id_field] = inserted["id"]
-            object[modified_field] = inserted["last_modified"]
-            raise exceptions.UnicityError(id_field, object)
+            obj = inserted["data"]
+            obj[id_field] = inserted["id"]
+            obj[modified_field] = inserted["last_modified"]
+            raise exceptions.UnicityError(id_field, obj)
 
-        object[modified_field] = inserted["last_modified"]
-        return object
+        obj[modified_field] = inserted["last_modified"]
+        return obj
 
     def get(
         self,
@@ -353,10 +353,10 @@ class Storage(StorageBase, MigratorMixin):
             else:
                 existing = result.fetchone()
 
-        object = existing["data"]
-        object[id_field] = object_id
-        object[modified_field] = existing["last_modified"]
-        return object
+        obj = existing["data"]
+        obj[id_field] = object_id
+        obj[modified_field] = existing["last_modified"]
+        return obj
 
     def update(
         self,
@@ -399,9 +399,9 @@ class Storage(StorageBase, MigratorMixin):
             result = conn.execute(query, placeholders)
             updated = result.fetchone()
 
-        object = {**object, id_field: object_id}
-        object[modified_field] = updated["last_modified"]
-        return object
+        obj = {**object, id_field: object_id}
+        obj[modified_field] = updated["last_modified"]
+        return obj
 
     def delete(
         self,
@@ -451,12 +451,12 @@ class Storage(StorageBase, MigratorMixin):
                 raise exceptions.ObjectNotFoundError(object_id)
             inserted = result.fetchone()
 
-        object = {}
-        object[modified_field] = inserted["last_modified"]
-        object[id_field] = object_id
+        obj = {}
+        obj[modified_field] = inserted["last_modified"]
+        obj[id_field] = object_id
 
-        object[deleted_field] = True
-        return object
+        obj[deleted_field] = True
+        return obj
 
     def delete_all(
         self,
@@ -562,11 +562,11 @@ class Storage(StorageBase, MigratorMixin):
 
         objects = []
         for result in deleted:
-            object = {}
-            object[id_field] = result["id"]
-            object[modified_field] = result["last_modified"]
-            object[deleted_field] = True
-            objects.append(object)
+            obj = {}
+            obj[id_field] = result["id"]
+            obj[modified_field] = result["last_modified"]
+            obj[deleted_field] = True
+            objects.append(obj)
 
         return objects
 
@@ -705,10 +705,10 @@ class Storage(StorageBase, MigratorMixin):
 
         objects = []
         for result in retrieved:
-            object = result["data"]
-            object[id_field] = result["id"]
-            object[modified_field] = result["last_modified"]
-            objects.append(object)
+            obj = result["data"]
+            obj[id_field] = result["id"]
+            obj[modified_field] = result["last_modified"]
+            objects.append(obj)
 
         return objects, count_total
 

@@ -18,10 +18,10 @@ class BasePaginationTest(BaseTest):
         indices = list(range(20))
         random.shuffle(indices)
         for i in indices:
-            object = {"title": "MoFo #{0:02}".format(i), "status": i % 4, "unread": (i % 2 == 0)}
+            obj = {"title": "MoFo #{0:02}".format(i), "status": i % 4, "unread": (i % 2 == 0)}
             if i % 3 == 0:
-                object["optional"] = True
-            self.model.create_object(object)
+                obj["optional"] = True
+            self.model.create_object(obj)
 
         self.validated = self.resource.request.validated
 

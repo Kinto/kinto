@@ -37,8 +37,8 @@ class CollectionPermissionTest(PermissionTest):
 class ObtainObjectPermissionTest(PermissionTest):
     def setUp(self):
         super().setUp()
-        object = self.resource.model.create_object({})
-        object_id = object["id"]
+        obj = self.resource.model.create_object({})
+        object_id = obj["id"]
         object_uri = "/articles/{}".format(object_id)
         self.permission.add_principal_to_ace(object_uri, "read", "basicauth:bob")
         self.permission.add_principal_to_ace(object_uri, "read", "account:readonly")
@@ -172,8 +172,8 @@ class SpecifyObjectPermissionTest(PermissionTest):
 class DeletedObjectPermissionTest(PermissionTest):
     def setUp(self):
         super().setUp()
-        object = self.resource.model.create_object({})
-        self.resource.object_id = object_id = object["id"]
+        obj = self.resource.model.create_object({})
+        self.resource.object_id = object_id = obj["id"]
         self.object_uri = "/articles/{}".format(object_id)
         self.resource.request.route_path.return_value = self.object_uri
         self.resource.request.path = self.object_uri

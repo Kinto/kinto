@@ -120,13 +120,13 @@ class LenientMemoryStorageTest(MemoryStorageTest):
         self.assertIsNotNone(self.create_object(data))
 
     def test_update_bytes_raises(self):
-        object = self.create_object()
+        obj = self.create_object()
 
         new_object = {"steak": "haché".encode(encoding="utf-8")}
         self.assertIsInstance(new_object["steak"], bytes)
 
         self.assertIsNotNone(
-            self.storage.update(object_id=object["id"], object=new_object, **self.storage_kw)
+            self.storage.update(object_id=obj["id"], obj=new_object, **self.storage_kw)
         )
 
 
@@ -259,7 +259,7 @@ class PostgreSQLStorageTest(StorageTest, unittest.TestCase):
     def test_conflicts_handled_correctly(self):
         config = self._get_config()
         storage = self.backend.load_from_config(config)
-        storage.create(resource_name="genre", parent_id="music", object={"id": "rock-and-roll"})
+        storage.create(resource_name="genre", parent_id="music", obj={"id": "rock-and-roll"})
 
         def object_not_found(*args, **kwargs):
             raise exceptions.ObjectNotFoundError()
@@ -267,7 +267,7 @@ class PostgreSQLStorageTest(StorageTest, unittest.TestCase):
         with mock.patch.object(storage, "get", side_effect=object_not_found):
             with self.assertRaises(exceptions.UnicityError):
                 storage.create(
-                    resource_name="genre", parent_id="music", object={"id": "rock-and-roll"}
+                    resource_name="genre", parent_id="music", obj={"id": "rock-and-roll"}
                 )
 
 

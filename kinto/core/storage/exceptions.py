@@ -36,8 +36,8 @@ class UnicityError(IntegrityError):
 
     """
 
-    def __init__(self, field, object, *args, **kwargs):
+    def __init__(self, field, obj, *args, **kwargs):
         self.field = field
         self.object = object
-        self.msg = "{} is not unique: {}".format(field, object)
+        self.msg = "{} is not unique: {}".format(field, obj)
         super().__init__(*args, **kwargs)

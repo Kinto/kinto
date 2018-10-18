@@ -247,58 +247,58 @@ class DictMergeTest(unittest.TestCase):
 
 class FindNestedValueTest(unittest.TestCase):
     def test_find_flat_value(self):
-        object = {"a": 42}
-        obtained = find_nested_value(object, "a")
+        obj = {"a": 42}
+        obtained = find_nested_value(obj, "a")
         self.assertEqual(obtained, 42)
 
     def test_find_nested_value(self):
-        object = {"a": {"b": 42}}
-        obtained = find_nested_value(object, "a.b")
+        obj = {"a": {"b": 42}}
+        obtained = find_nested_value(obj, "a.b")
         self.assertEqual(obtained, 42)
 
     def test_find_deeply_nested_value(self):
-        object = {"a": {"b": {"c": 42}}}
-        obtained = find_nested_value(object, "a.b.c")
+        obj = {"a": {"b": {"c": 42}}}
+        obtained = find_nested_value(obj, "a.b.c")
         self.assertEqual(obtained, 42)
 
     def test_find_dotted_path_value(self):
-        object = {"a.b": 42}
-        obtained = find_nested_value(object, "a.b")
+        obj = {"a.b": 42}
+        obtained = find_nested_value(obj, "a.b")
         self.assertEqual(obtained, 42)
 
     def test_find_nested_dotted_path_value(self):
-        object = {"a": {"b.c": 42}}
-        obtained = find_nested_value(object, "a.b.c")
+        obj = {"a": {"b.c": 42}}
+        obtained = find_nested_value(obj, "a.b.c")
         self.assertEqual(obtained, 42)
 
-        object = {"a.b": {"c.d": 42}}
-        obtained = find_nested_value(object, "a.b.c.d")
+        obj = {"a.b": {"c.d": 42}}
+        obtained = find_nested_value(obj, "a.b.c.d")
         self.assertEqual(obtained, 42)
 
-        object = {"a": {"b": {"a": {"b": 42}}}}
-        obtained = find_nested_value(object, "a.b.a.b")
+        obj = {"a": {"b": {"a": {"b": 42}}}}
+        obtained = find_nested_value(obj, "a.b.a.b")
         self.assertEqual(obtained, 42)
 
     def test_find_disambiguated_dotted_path_values(self):
         # XXX: To be honest, this is a really scary use case. Probably a
         # limitation of the dotted path notation we may want to document.
         # At least this test acts as documentation for now.
-        object = {"a": {"b": 0}, "a.b": 42}
-        obtained = find_nested_value(object, "a.b")
+        obj = {"a": {"b": 0}, "a.b": 42}
+        obtained = find_nested_value(obj, "a.b")
         self.assertEqual(obtained, 42)
 
     def test_unmatched_path_returns_none(self):
-        object = {"a": 42}
-        self.assertIsNone(find_nested_value(object, "x"))
-        self.assertIsNone(find_nested_value(object, "a.b"))
-        self.assertIsNone(find_nested_value(object, "x.a"))
+        obj = {"a": 42}
+        self.assertIsNone(find_nested_value(obj, "x"))
+        self.assertIsNone(find_nested_value(obj, "a.b"))
+        self.assertIsNone(find_nested_value(obj, "x.a"))
 
     def test_fallback_default_value(self):
-        object = {"a": {"c": 42}}
-        self.assertEqual(find_nested_value(object, "x", 1337), 1337)
-        self.assertEqual(find_nested_value(object, "a.b", 1337), 1337)
-        self.assertEqual(find_nested_value(object, "x.a", 1337), 1337)
-        self.assertEqual(find_nested_value(object, "a.c.d", 1337), 1337)
+        obj = {"a": {"c": 42}}
+        self.assertEqual(find_nested_value(obj, "x", 1337), 1337)
+        self.assertEqual(find_nested_value(obj, "a.b", 1337), 1337)
+        self.assertEqual(find_nested_value(obj, "x.a", 1337), 1337)
+        self.assertEqual(find_nested_value(obj, "a.c.d", 1337), 1337)
 
 
 class RecursiveUpdateDictTest(unittest.TestCase):

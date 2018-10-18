@@ -63,7 +63,7 @@ class SinceModifiedTest(ThreadMixin, BaseTest):
         self.resource = self.resource_class(request=self.get_request(), context=self.get_context())
         self.resource.request.validated = self.validated
         result = self.resource.collection_delete()
-        modification = max([object["last_modified"] for object in result["data"]])
+        modification = max([obj["last_modified"] for obj in result["data"]])
         header = int(self.last_response.headers["ETag"][1:-1])
         self.assertEqual(header, modification)
 
@@ -127,8 +127,8 @@ class SinceModifiedTest(ThreadMixin, BaseTest):
 
     def test_timestamp_are_always_incremented_on_creation(self):
         def read_timestamp():
-            object = self.resource.collection_post()["data"]
-            return object["last_modified"]
+            obj = self.resource.collection_post()["data"]
+            return obj["last_modified"]
 
         before = read_timestamp()
         now = read_timestamp()
@@ -165,8 +165,8 @@ class SinceModifiedTest(ThreadMixin, BaseTest):
         resource = self.resource_class(request=self.get_request(), context=self.get_context())
         resource.request.validated = self.validated
         resource.request.validated["body"] = {"data": {}}
-        object = resource.collection_post()["data"]
-        timestamps["post"] = object["last_modified"]
+        obj = resource.collection_post()["data"]
+        timestamps["post"] = obj["last_modified"]
 
         # Wait for the fetch to finish
         thread.join()

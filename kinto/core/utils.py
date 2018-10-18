@@ -518,7 +518,7 @@ def parse_resource(resource):
     return {"bucket": bucket, "collection": collection}
 
 
-def apply_json_patch(object, ops):
+def apply_json_patch(obj, ops):
     """
     Apply JSON Patch operations using jsonpatch.
 
@@ -528,7 +528,7 @@ def apply_json_patch(object, ops):
     :returns dict data: patched object data.
              dict permissions: patched object permissions
     """
-    data = {**object}
+    data = {**obj}
 
     # Permissions should always have read and write fields defined (to allow add)
     permissions = {"read": set(), "write": set()}
