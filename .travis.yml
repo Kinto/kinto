@@ -9,7 +9,6 @@ addons:
 env:
   - TOX_ENV=py35
   - TOX_ENV=py35-raw
-  - TOX_ENV=flake8
   - TOX_ENV=docs
 install:
   - pip install tox
