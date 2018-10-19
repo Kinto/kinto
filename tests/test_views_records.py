@@ -50,7 +50,7 @@ class RecordsViewTest(BaseWebTest, unittest.TestCase):
 
     def test_unknown_collection_does_not_query_timestamp(self):
         other_collection = self.collection_url.replace("barley", "pills")
-        patch = mock.patch.object(self.app.app.registry.storage, "collection_timestamp")
+        patch = mock.patch.object(self.app.app.registry.storage, "resource_timestamp")
         self.addCleanup(patch.stop)
         mocked = patch.start()
         self.app.get(other_collection, headers=self.headers, status=404)
@@ -139,7 +139,7 @@ class RecordsViewTest(BaseWebTest, unittest.TestCase):
         record = {**MINIMALIST_RECORD, "permissions": {"record:create": ["fxa:user"]}}
         self.app.put_json(self.record_url, record, headers=self.headers, status=400)
 
-    def test_create_a_record_update_collection_timestamp(self):
+    def test_create_a_record_update_resource_timestamp(self):
         collection_resp = self.app.get(self.collection_url, headers=self.headers)
         old_timestamp = int(json.loads(collection_resp.headers["ETag"]))
         self.app.post_json(
@@ -180,7 +180,7 @@ class RecordsViewTest(BaseWebTest, unittest.TestCase):
             self.collection_url, record, headers=get_user_headers("tartanpion"), status=403
         )
 
-    def test_update_a_record_update_collection_timestamp(self):
+    def test_update_a_record_update_resource_timestamp(self):
         collection_resp = self.app.get(self.collection_url, headers=self.headers)
         old_timestamp = int(json.loads(collection_resp.headers["ETag"]))
         self.app.put_json(self.record_url, MINIMALIST_RECORD, headers=self.headers, status=200)
@@ -188,7 +188,7 @@ class RecordsViewTest(BaseWebTest, unittest.TestCase):
         new_timestamp = int(json.loads(collection_resp.headers["ETag"]))
         assert old_timestamp < new_timestamp
 
-    def test_delete_a_record_update_collection_timestamp(self):
+    def test_delete_a_record_update_resource_timestamp(self):
         collection_resp = self.app.get(self.collection_url, headers=self.headers)
         old_timestamp = int(json.loads(collection_resp.headers["ETag"]))
         self.app.delete(self.record_url, headers=self.headers, status=200)

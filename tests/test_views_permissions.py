@@ -183,7 +183,7 @@ class EntriesTest(PermissionsViewTest):
 
     def test_permissions_list_can_be_paginated(self):
         resp = self.app.get("/permissions?_limit=2", headers=self.headers)
-        self.assertEqual(resp.headers["Total-Records"], "5")
+        self.assertEqual(resp.headers["Total-Objects"], "5")
         self.assertIn("Next-Page", resp.headers)
         self.assertEqual(len(resp.json["data"]), 2)
 

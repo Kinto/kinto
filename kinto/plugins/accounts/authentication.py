@@ -29,7 +29,7 @@ def account_check(username, password, request):
     parent_id = username
     try:
         existing = request.registry.storage.get(
-            parent_id=parent_id, collection_id="account", object_id=username
+            parent_id=parent_id, resource_name="account", object_id=username
         )
     except storage_exceptions.ObjectNotFoundError:
         return None

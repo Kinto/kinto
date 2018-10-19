@@ -52,7 +52,7 @@ class AccountCreationTest(AccountsWebTest):
     def test_password_is_stored_encrypted(self):
         self.app.put_json("/accounts/alice", {"data": {"password": "123456"}}, status=201)
         stored = self.app.app.registry.storage.get(
-            parent_id="alice", collection_id="account", object_id="alice"
+            parent_id="alice", resource_name="account", object_id="alice"
         )
         assert stored["password"] != "123456"
 

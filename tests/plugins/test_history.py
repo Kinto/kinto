@@ -120,7 +120,7 @@ class HistoryViewTest(HistoryWebTest):
     def test_bucket_delete_destroys_its_history_entries(self):
         self.app.delete(self.bucket_uri, headers=self.headers)
         storage = self.app.app.registry.storage
-        stored_in_backend, _ = storage.get_all(parent_id="/buckets/test", collection_id="history")
+        stored_in_backend, _ = storage.get_all(parent_id="/buckets/test", resource_name="history")
         assert len(stored_in_backend) == 0
 
     def test_delete_all_buckets_destroys_history_entries(self):
@@ -130,7 +130,7 @@ class HistoryViewTest(HistoryWebTest):
 
         # Entries about deleted bucket are gone.
         storage = self.app.app.registry.storage
-        stored_in_backend, _ = storage.get_all(parent_id="/buckets/1", collection_id="history")
+        stored_in_backend, _ = storage.get_all(parent_id="/buckets/1", resource_name="history")
         assert len(stored_in_backend) == 0
 
         # Entries of other buckets are still here.

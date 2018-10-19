@@ -95,10 +95,10 @@ def resource_create_object(request, resource_cls, uri):
 
     data = {"id": obj_id}
     try:
-        obj = resource.model.create_record(data)
+        obj = resource.model.create_object(data)
     except UnicityError as e:
-        # The record already exists; skip running events
-        return e.record
+        # The object already exists; skip running events
+        return e.object
 
     # Since the current request is not a resource (but a straight Service),
     # we simulate a request on a resource.

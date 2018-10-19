@@ -30,5 +30,5 @@ Counting
 
 In order to count the number of records, for a specific field value for example,
 without fetching the actual collection, a ``HEAD`` request can be
-used. The ``Total-Records`` response header will then provide the
+used. The ``Total-Objects`` response header will then provide the
 total number of records.

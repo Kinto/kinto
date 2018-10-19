@@ -23,29 +23,29 @@ class HistorySchema(resource.ResourceSchema):
 
 
 # Add custom OpenAPI tags/operation ids
-collection_get_arguments = getattr(ViewSet, "collection_get_arguments", {})
-collection_delete_arguments = getattr(ViewSet, "collection_delete_arguments", {})
+plural_get_arguments = getattr(ViewSet, "plural_get_arguments", {})
+plural_delete_arguments = getattr(ViewSet, "plural_delete_arguments", {})
 
 get_history_arguments = {
     "tags": ["History"],
     "operation_id": "get_history",
-    **collection_get_arguments,
+    **plural_get_arguments,
 }
 delete_history_arguments = {
     "tags": ["History"],
     "operation_id": "delete_history",
-    **collection_delete_arguments,
+    **plural_delete_arguments,
 }
 
 
 @resource.register(
     name="history",
-    collection_path="/buckets/{{bucket_id}}/history",
-    record_path=None,
-    collection_methods=("GET", "DELETE"),
+    plural_path="/buckets/{{bucket_id}}/history",
+    object_path=None,
+    plural_methods=("GET", "DELETE"),
     default_arguments={"tags": ["History"]},
-    collection_get_arguments=get_history_arguments,
-    collection_delete_arguments=delete_history_arguments,
+    plural_get_arguments=get_history_arguments,
+    plural_delete_arguments=delete_history_arguments,
 )
 class History(resource.ShareableResource):
 
