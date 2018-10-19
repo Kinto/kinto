@@ -76,7 +76,7 @@ class OpenAPI(CorniceSwagger):
         """Povides default tags to views."""
 
         base_tag = service.name.capitalize()
-        base_tag = base_tag.replace("-collection", "s")
+        base_tag = base_tag.replace("-plural", "s")
         base_tag = base_tag.replace("-object", "s")
 
         return [base_tag]
@@ -91,9 +91,9 @@ class OpenAPI(CorniceSwagger):
 
         resource = service.name
         if method == "create":
-            resource = resource.replace("-collection", "")
+            resource = resource.replace("-plural", "")
 
-        resource = resource.replace("-collection", "s")
+        resource = resource.replace("-plural", "s")
         resource = resource.replace("-object", "")
         op_id = "{}_{}".format(method, resource)
 

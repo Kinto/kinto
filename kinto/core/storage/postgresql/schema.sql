@@ -78,7 +78,7 @@ BEGIN
         ORDER BY last_modified DESC
         LIMIT 1
       )
-      -- Timestamp when collection was empty.
+      -- Timestamp when resource was empty.
       UNION
       (
         SELECT last_modified
@@ -94,7 +94,7 @@ BEGIN
     -- This bumps the current timestamp to 1 msec in the future if the previous
     -- timestamp is equal to the current one (or higher if was bumped already).
     --
-    -- If a bunch of requests from the same user on the same collection
+    -- If a bunch of requests from the same user on the same resource
     -- arrive in the same millisecond, the unicity constraint can raise
     -- an error (operation is cancelled).
     -- See https://github.com/mozilla-services/cliquet/issues/25

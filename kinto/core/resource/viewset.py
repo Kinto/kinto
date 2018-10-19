@@ -12,8 +12,8 @@ from .schema import (
     RequestSchema,
     PayloadRequestSchema,
     PatchHeaderSchema,
-    CollectionQuerySchema,
-    CollectionGetQuerySchema,
+    PluralQuerySchema,
+    PluralGetQuerySchema,
     ObjectGetQuerySchema,
     ObjectSchema,
     ResourceReponses,
@@ -55,10 +55,10 @@ class ViewSet:
     """
 
     service_name = "{resource_name}-{endpoint_type}"
-    collection_path = "/{resource_name}s"
+    plural_path = "/{resource_name}s"
     object_path = "/{resource_name}s/{{id}}"
 
-    collection_methods = ("GET", "POST", "DELETE")
+    plural_methods = ("GET", "POST", "DELETE")
     object_methods = ("GET", "PUT", "PATCH", "DELETE")
 
     readonly_methods = ("GET", "OPTIONS", "HEAD")
@@ -67,7 +67,7 @@ class ViewSet:
 
     responses = ResourceReponses()
 
-    service_arguments = {"description": "Collection of {resource_name}"}
+    service_arguments = {"description": "Set of {resource_name}"}
 
     default_arguments = {
         "permission": authorization.PRIVATE,
@@ -84,11 +84,9 @@ class ViewSet:
         "schema": PayloadRequestSchema().bind(header=PatchHeaderSchema()),
     }
 
-    default_collection_arguments = {
-        "schema": RequestSchema().bind(querystring=CollectionQuerySchema())
-    }
-    collection_get_arguments = {
-        "schema": RequestSchema().bind(querystring=CollectionGetQuerySchema()),
+    default_plural_arguments = {"schema": RequestSchema().bind(querystring=PluralQuerySchema())}
+    plural_get_arguments = {
+        "schema": RequestSchema().bind(querystring=PluralGetQuerySchema()),
         "cors_headers": (
             "Next-Page",
             "Total-Objects",
@@ -99,7 +97,7 @@ class ViewSet:
             "Pragma",
         ),
     }
-    collection_post_arguments = {"schema": PayloadRequestSchema()}
+    plural_post_arguments = {"schema": PayloadRequestSchema()}
     default_object_arguments = {}
     object_get_arguments = {
         "schema": RequestSchema().bind(querystring=ObjectGetQuerySchema()),
@@ -109,7 +107,7 @@ class ViewSet:
     def __init__(self, **kwargs):
         self.update(**kwargs)
         self.object_arguments = functools.partial(self.get_view_arguments, "object")
-        self.collection_arguments = functools.partial(self.get_view_arguments, "collection")
+        self.plural_arguments = functools.partial(self.get_view_arguments, "plural")
 
     def update(self, **kwargs):
         """Update viewset attributes with provided values."""
@@ -119,7 +117,7 @@ class ViewSet:
         """Return the Pyramid/Cornice view arguments for the given endpoint
         type and method.
 
-        :param str endpoint_type: either "collection" or "object".
+        :param str endpoint_type: either "plural" or "object".
         :param resource_cls: the resource class.
         :param str method: the HTTP method.
         """
@@ -169,7 +167,7 @@ class ViewSet:
         """Return the view method name located on the resource object, for the
         given type and method.
 
-        * For collections, this will be "collection_{method|lower}
+        * For plural, this will be "plural_{method|lower}
         * For objects, this will be "{method|lower}.
         """
         if endpoint_type == "object":

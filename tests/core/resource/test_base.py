@@ -20,7 +20,7 @@ class ResourceTest(BaseTest):
 
         with mock.patch.object(
             request.registry.storage,
-            "collection_timestamp",
+            "resource_timestamp",
             side_effect=storage_exceptions.BackendError,
         ):
             with self.assertRaises(storage_exceptions.BackendError):
@@ -34,7 +34,7 @@ class ResourceTest(BaseTest):
         request.registry.settings = {"readonly": "true"}
         with mock.patch.object(
             request.registry.storage,
-            "collection_timestamp",
+            "resource_timestamp",
             side_effect=storage_exceptions.BackendError,
         ):
             with self.assertRaises(excepted_exc) as cm:

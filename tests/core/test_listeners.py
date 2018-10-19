@@ -15,7 +15,7 @@ UID = str(uuid.uuid4())
 
 class ViewSet:
     def get_name(*args, **kw):
-        return "collection"
+        return "mushrooms"
 
 
 class Service:
@@ -28,11 +28,11 @@ class Match:
 
 
 class Request:
-    path = "/1/bucket/collection/"
+    path = "/1/school/students/"
     prefixed_userid = "tarek"
     matchdict = {"id": UID}
     registry = matched_route = Match()
-    current_resource_name = "bucket"
+    current_resource_name = "school"
 
 
 class ListenerSetupTest(unittest.TestCase):

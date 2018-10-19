@@ -250,8 +250,8 @@ class QuerySchema(colander.MappingSchema):
         return values
 
 
-class CollectionQuerySchema(QuerySchema):
-    """Querystring schema used with collections."""
+class PluralQuerySchema(QuerySchema):
+    """Querystring schema used with plural endpoints."""
 
     _limit = QueryField(colander.Integer(), validator=positive_big_integer)
     _sort = FieldList()
@@ -269,8 +269,8 @@ class ObjectGetQuerySchema(QuerySchema):
     _fields = FieldList()
 
 
-class CollectionGetQuerySchema(CollectionQuerySchema):
-    """Querystring schema for GET collection requests."""
+class PluralGetQuerySchema(PluralQuerySchema):
+    """Querystring schema for GET plural endpoints requests."""
 
     _fields = FieldList()
 
@@ -410,7 +410,7 @@ class ObjectResponseSchema(colander.MappingSchema):
         return kwargs.get("object")
 
 
-class CollectionResponseSchema(colander.MappingSchema):
+class PluralResponseSchema(colander.MappingSchema):
     """Response schema used with plural endpoints."""
 
     header = ResponseHeaderSchema()
@@ -418,9 +418,9 @@ class CollectionResponseSchema(colander.MappingSchema):
     @colander.deferred
     def body(node, kwargs):
         resource = kwargs.get("object")["data"]
-        collection = colander.MappingSchema()
-        collection["data"] = colander.SequenceSchema(resource, missing=[])
-        return collection
+        datalist = colander.MappingSchema()
+        datalist["data"] = colander.SequenceSchema(resource, missing=[])
+        return datalist
 
 
 class ResourceReponses:
@@ -437,8 +437,8 @@ class ResourceReponses:
         "default": ErrorResponseSchema(description="Unexpected error."),
     }
     default_object_schemas = {"200": ObjectResponseSchema(description="Return the target object.")}
-    default_collection_schemas = {
-        "200": CollectionResponseSchema(description="Return a list of matching objects.")
+    default_plural_schemas = {
+        "200": PluralResponseSchema(description="Return a list of matching objects.")
     }
     default_get_schemas = {
         "304": NotModifiedResponseSchema(

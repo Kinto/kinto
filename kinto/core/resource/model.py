@@ -1,14 +1,14 @@
 class Model:
-    """A collection stores and manipulate objects in its attached storage.
+    """A resource stores and manipulate objects in its attached storage.
 
     It is not aware of HTTP environment nor HTTP API.
 
     Objects are isolated according to the provided `name` and `parent_id`.
 
     Those notions have no particular semantic and can represent anything.
-    For example, the collection `name` can be the *type* of objects stored, and
-    `parent_id` can be the current *user id* or *a group* where the collection
-    belongs. If left empty, the collection objects are not isolated.
+    For example, the resource `name` can be the *type* of objects stored, and
+    `parent_id` can be the current *user id* or *a group* where the resource
+    belongs. If left empty, the resource objects are not isolated.
     """
 
     id_field = "id"
@@ -37,13 +37,13 @@ class Model:
         self.auth = auth
 
     def timestamp(self, parent_id=None):
-        """Fetch the collection current timestamp.
+        """Fetch the resource current timestamp.
 
         :param str parent_id: optional filter for parent id
         :rtype: int
         """
         parent_id = parent_id or self.parent_id
-        return self.storage.collection_timestamp(
+        return self.storage.resource_timestamp(
             resource_name=self.resource_name, parent_id=parent_id, auth=self.auth
         )
 
@@ -56,7 +56,7 @@ class Model:
         include_deleted=False,
         parent_id=None,
     ):
-        """Fetch the collection objects.
+        """Fetch the resource objects.
 
         Override to post-process objects after feching them from storage.
 
@@ -110,7 +110,7 @@ class Model:
     def delete_objects(
         self, filters=None, sorting=None, pagination_rules=None, limit=None, parent_id=None
     ):
-        """Delete multiple collection objects.
+        """Delete multiple resource objects.
 
         Override to post-process objects after their deletion from storage.
 
@@ -174,7 +174,7 @@ class Model:
         )
 
     def create_object(self, obj, parent_id=None):
-        """Create a object in the collection.
+        """Create a object in the resource.
 
         Override to perform actions or post-process objects after their
         creation in storage.
@@ -205,7 +205,7 @@ class Model:
         )
 
     def update_object(self, obj, parent_id=None):
-        """Update a object in the collection.
+        """Update a object in the resource.
 
         Override to perform actions or post-process objects after their
         modification in storage.
@@ -236,7 +236,7 @@ class Model:
         )
 
     def delete_object(self, obj, parent_id=None, last_modified=None):
-        """Delete a object in the collection.
+        """Delete a object in the resource.
 
         Override to perform actions or post-process objects after deletion
         from storage for example:
@@ -270,7 +270,7 @@ class Model:
 
 
 class ShareableModel(Model):
-    """A protected collection interacts with the permission backend.
+    """A protected resource interacts with the permission backend.
     """
 
     permissions_field = "__permissions__"
@@ -304,7 +304,7 @@ class ShareableModel(Model):
     def delete_objects(
         self, filters=None, sorting=None, pagination_rules=None, limit=None, parent_id=None
     ):
-        """Delete permissions when collection objects are deleted in bulk.
+        """Delete permissions when resource objects are deleted in bulk.
         """
         deleted = super().delete_objects(filters, sorting, pagination_rules, limit, parent_id)
         # Take a huge shortcut in case we want to delete everything.

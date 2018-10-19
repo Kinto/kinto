@@ -95,8 +95,8 @@ def register_resource(resource_cls, settings=None, viewset=None, depth=1, **kwar
         service.viewset = viewset
         service.resource = resource_cls
         service.type = endpoint_type
-        # Attach collection and object paths.
-        service.collection_path = viewset.collection_path.format_map(path_values)
+        # Attach plural and object paths.
+        service.plural_path = viewset.plural_path.format_map(path_values)
         service.object_path = (
             viewset.object_path.format_map(path_values)
             if viewset.object_path is not None
@@ -140,7 +140,7 @@ def register_resource(resource_cls, settings=None, viewset=None, depth=1, **kwar
             raise pyramid_exceptions.ConfigurationError(msg)
 
         # A service for the list.
-        service = register_service("collection", config.registry.settings)
+        service = register_service("plural", config.registry.settings)
         config.add_cornice_service(service)
         # An optional one for object endpoint.
         if getattr(viewset, "object_path") is not None:
@@ -216,7 +216,7 @@ class UserResource:
 
     @reify
     def timestamp(self):
-        """Return the current collection timestamp.
+        """Return the current resource timestamp.
 
         :rtype: int
         """
@@ -227,11 +227,11 @@ class UserResource:
             if not is_readonly:
                 raise e
             # If the instance is configured to be readonly, and if the
-            # collection is empty, the backend will try to bump the timestamp.
+            # resource is empty, the backend will try to bump the timestamp.
             # It fails if the configured db user has not write privileges.
             logger.exception(e)
             error_msg = (
-                "Collection timestamp cannot be written. "
+                "Resource timestamp cannot be written. "
                 "Objects endpoint must be hit at least once from a "
                 "writable instance."
             )
@@ -279,16 +279,16 @@ class UserResource:
     # End-points
     #
 
-    def collection_get(self):
+    def plural_get(self):
         """Model ``GET`` endpoint: retrieve multiple objects.
 
         :raises: :exc:`~pyramid:pyramid.httpexceptions.HTTPNotModified` if
-            ``If-None-Match`` header is provided and collection not
+            ``If-None-Match`` header is provided and the resource not
             modified in the interim.
 
         :raises:
             :exc:`~pyramid:pyramid.httpexceptions.HTTPPreconditionFailed` if
-            ``If-Match`` header is provided and collection modified
+            ``If-Match`` header is provided and the resource modified
             in the iterim.
         :raises: :exc:`~pyramid:pyramid.httpexceptions.HTTPBadRequest`
             if filters or sorting are invalid.
@@ -296,7 +296,7 @@ class UserResource:
         self._add_timestamp_header(self.request.response)
         self._add_cache_header(self.request.response)
         self._raise_304_if_not_modified()
-        # Collections are considered resources that always exist
+        # Plural endpoints are considered resources that always exist
         self._raise_412_if_modified(obj={})
 
         headers = self.request.response.headers
@@ -332,7 +332,7 @@ class UserResource:
 
         return self.postprocess(objects)
 
-    def collection_post(self):
+    def plural_post(self):
         """Model ``POST`` endpoint: create a object.
 
         If the new object id conflicts against an existing one, the
@@ -341,7 +341,7 @@ class UserResource:
 
         :raises:
             :exc:`~pyramid:pyramid.httpexceptions.HTTPPreconditionFailed` if
-            ``If-Match`` header is provided and collection modified
+            ``If-Match`` header is provided and resource modified
             in the iterim.
 
         .. seealso::
@@ -376,18 +376,18 @@ class UserResource:
 
         return self.postprocess(obj, action=action)
 
-    def collection_delete(self):
+    def plural_delete(self):
         """Model ``DELETE`` endpoint: delete multiple objects.
 
         :raises:
             :exc:`~pyramid:pyramid.httpexceptions.HTTPPreconditionFailed` if
-            ``If-Match`` header is provided and collection modified
+            ``If-Match`` header is provided and resource modified
             in the iterim.
 
         :raises: :exc:`~pyramid:pyramid.httpexceptions.HTTPBadRequest`
             if filters are invalid.
         """
-        # Collections are considered resources that always exist
+        # Plural endpoint are considered resources that always exist
         self._raise_412_if_modified(obj={})
 
         filters = self._extract_filters()
@@ -805,10 +805,10 @@ class UserResource:
         """
         resource_name = self.context.resource_name if self.context else ""
         setting_key = "{}_cache_expires_seconds".format(resource_name)
-        collection_expires = self.request.registry.settings.get(setting_key)
+        cache_expires = self.request.registry.settings.get(setting_key)
         is_anonymous = self.request.prefixed_userid is None
-        if collection_expires and is_anonymous:
-            response.cache_expires(seconds=int(collection_expires))
+        if cache_expires and is_anonymous:
+            response.cache_expires(seconds=int(cache_expires))
         else:
             # Since `Expires` response header provides an HTTP data with a
             # resolution in seconds, do not use Pyramid `cache_expires()` in
@@ -1187,7 +1187,7 @@ class ShareableResource(UserResource):
 
     def _extract_filters(self):
         """Override default filters extraction from QueryString to allow
-        partial collection of objects.
+        partial sets of objects.
 
         XXX: find more elegant approach to add custom filters.
         """

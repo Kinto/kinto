@@ -55,7 +55,7 @@ class StorageBaseTest(unittest.TestCase):
         calls = [
             (self.storage.initialize_schema,),
             (self.storage.flush,),
-            (self.storage.collection_timestamp, "", ""),
+            (self.storage.resource_timestamp, "", ""),
             (self.storage.create, "", "", {}),
             (self.storage.get, "", "", ""),
             (self.storage.update, "", "", "", {}),
@@ -80,7 +80,7 @@ class MemoryBasedStorageTest(unittest.TestCase):
     def test_backend_raise_not_implemented_error(self):
         storage = memory.MemoryBasedStorage()
         with pytest.raises(NotImplementedError):
-            storage.bump_and_store_timestamp("object", "/buckets/foo/collections/bar")
+            storage.bump_and_store_timestamp("object", "/school/foo/students/bar")
 
 
 class MemoryStorageTest(StorageTest, unittest.TestCase):
@@ -220,9 +220,7 @@ class PostgreSQLStorageTest(StorageTest, unittest.TestCase):
     def test_get_all_raises_if_missing_on_strange_query(self):
         with self.assertRaises(ValueError):
             self.storage.get_all(
-                "some-collection",
-                "some-parent",
-                filters=[Filter("author", MISSING, COMPARISON.HAS)],
+                "some-resource", "some-parent", filters=[Filter("author", MISSING, COMPARISON.HAS)]
             )
 
     def test_integrity_error_rollsback_transaction(self):

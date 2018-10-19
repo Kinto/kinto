@@ -35,14 +35,14 @@ class PartialFieldsTest(PartialResponseBase):
 
     def test_fields_parameter_do_projection_on_get_all(self):
         self.validated["querystring"]["_fields"] = ["field"]
-        obj = self.resource.collection_get()["data"][0]
+        obj = self.resource.plural_get()["data"][0]
         self.assertIn("field", obj)
         self.assertNotIn("other", obj)
 
     def test_fail_if_fields_parameter_is_invalid(self):
         self.validated["querystring"]["_fields"] = "invalid_field"
         self.assertRaises(httpexceptions.HTTPBadRequest, self.resource.get)
-        self.assertRaises(httpexceptions.HTTPBadRequest, self.resource.collection_get)
+        self.assertRaises(httpexceptions.HTTPBadRequest, self.resource.plural_get)
 
     def test_can_have_multiple_fields(self):
         self.validated["querystring"]["_fields"] = ["field", "other"]

@@ -16,24 +16,24 @@ class UserResourcePermissionTest(BaseWebTest, unittest.TestCase):
     authorization_policy = "kinto.core.authorization.AuthorizationPolicy"
 
     def test_views_require_authentication(self):
-        self.app.get(self.collection_url, status=401)
+        self.app.get(self.plural_url, status=401)
         body = {"data": MINIMALIST_OBJECT}
-        self.app.post_json(self.collection_url, body, status=401)
+        self.app.post_json(self.plural_url, body, status=401)
         object_url = self.get_item_url("abc")
         self.app.get(object_url, status=401)
         self.app.put_json(object_url, body, status=401)
         self.app.patch_json(object_url, body, status=401)
         self.app.delete(object_url, status=401)
 
-    def test_collection_operations_are_authorized_if_authenticated(self):
+    def test_plural_operations_are_authorized_if_authenticated(self):
         body = {"data": MINIMALIST_OBJECT}
-        self.app.get(self.collection_url, headers=self.headers, status=200)
-        self.app.post_json(self.collection_url, body, headers=self.headers, status=201)
-        self.app.delete(self.collection_url, headers=self.headers, status=200)
+        self.app.get(self.plural_url, headers=self.headers, status=200)
+        self.app.post_json(self.plural_url, body, headers=self.headers, status=201)
+        self.app.delete(self.plural_url, headers=self.headers, status=200)
 
     def test_object_operations_are_authorized_if_authenticated(self):
         body = {"data": MINIMALIST_OBJECT}
-        resp = self.app.post_json(self.collection_url, body, headers=self.headers, status=201)
+        resp = self.app.post_json(self.plural_url, body, headers=self.headers, status=201)
         obj = resp.json["data"]
         object_url = self.get_item_url(obj["id"])
         unknown_url = self.get_item_url(uuid.uuid4())
@@ -48,7 +48,7 @@ class UserResourcePermissionTest(BaseWebTest, unittest.TestCase):
 class AuthzAuthnTest(BaseWebTest, unittest.TestCase):
     authorization_policy = "kinto.core.authorization.AuthorizationPolicy"
     # Shareable resource.
-    collection_url = "/toadstools"
+    plural_url = "/toadstools"
 
     def add_permission(self, object_id, permission, principal=None):
         if not principal:
@@ -58,11 +58,11 @@ class AuthzAuthnTest(BaseWebTest, unittest.TestCase):
 
 class ShareableResourcePermissionTest(AuthzAuthnTest):
     def setUp(self):
-        self.add_permission(self.collection_url, "toadstool:create")
+        self.add_permission(self.plural_url, "toadstool:create")
 
     def test_permissions_are_associated_to_object_uri_without_prefix(self):
         body = {"data": MINIMALIST_OBJECT, "permissions": {"read": ["group:readers"]}}
-        resp = self.app.post_json(self.collection_url, body, headers=self.headers)
+        resp = self.app.post_json(self.plural_url, body, headers=self.headers)
         object_uri = self.get_item_url(resp.json["data"]["id"])
         backend = self.permission
         stored_perms = backend.get_object_permission_principals(object_uri, "read")
@@ -70,7 +70,7 @@ class ShareableResourcePermissionTest(AuthzAuthnTest):
 
     def test_permissions_are_not_modified_if_not_specified(self):
         body = {"data": MINIMALIST_OBJECT, "permissions": {"read": ["group:readers"]}}
-        resp = self.app.post_json(self.collection_url, body, headers=self.headers)
+        resp = self.app.post_json(self.plural_url, body, headers=self.headers)
         object_uri = self.get_item_url(resp.json["data"]["id"])
         body.pop("permissions")
 
@@ -80,7 +80,7 @@ class ShareableResourcePermissionTest(AuthzAuthnTest):
 
     def test_data_is_always_required_when_schema_has_required_fields(self):
         body = {"data": MINIMALIST_OBJECT, "permissions": {"read": ["group:readers"]}}
-        resp = self.app.post_json(self.collection_url, body, headers=self.headers)
+        resp = self.app.post_json(self.plural_url, body, headers=self.headers)
         object_uri = self.get_item_url(resp.json["data"]["id"])
 
         body.pop("data")
@@ -110,7 +110,7 @@ class ShareableResourcePermissionTest(AuthzAuthnTest):
 
     def test_permissions_can_be_modified_using_patch(self):
         body = {"data": MINIMALIST_OBJECT, "permissions": {"read": ["group:readers"]}}
-        resp = self.app.post_json(self.collection_url, body, headers=self.headers)
+        resp = self.app.post_json(self.plural_url, body, headers=self.headers)
         body = {"permissions": {"read": ["fxa:user"]}}
         uri = self.get_item_url(resp.json["data"]["id"])
         resp = self.app.patch_json(uri, body, headers=self.headers)
@@ -123,54 +123,54 @@ class ShareableResourcePermissionTest(AuthzAuthnTest):
             "data": MINIMALIST_OBJECT,
             "permissions": {"read": ["group:readers"], "unknown": ["jacques"]},
         }
-        resp = self.app.post_json(self.collection_url, body, headers=self.headers, status=400)
+        resp = self.app.post_json(self.plural_url, body, headers=self.headers, status=400)
         self.assertEqual(
             resp.json["message"], 'permissions in body: "unknown" is not one of read, write'
         )
 
 
-class CollectionAuthzGrantedTest(AuthzAuthnTest):
-    def test_collection_get_is_granted_when_authorized(self):
-        self.add_permission(self.collection_url, "read")
-        self.app.get(self.collection_url, headers=self.headers, status=200)
+class PluralEndpointAuthzGrantedTest(AuthzAuthnTest):
+    def test_plural_get_is_granted_when_authorized(self):
+        self.add_permission(self.plural_url, "read")
+        self.app.get(self.plural_url, headers=self.headers, status=200)
 
-    def test_collection_post_is_granted_when_authorized(self):
-        self.add_permission(self.collection_url, "toadstool:create")
+    def test_plural_post_is_granted_when_authorized(self):
+        self.add_permission(self.plural_url, "toadstool:create")
         self.app.post_json(
-            self.collection_url, {"data": MINIMALIST_OBJECT}, headers=self.headers, status=201
+            self.plural_url, {"data": MINIMALIST_OBJECT}, headers=self.headers, status=201
         )
 
-    def test_collection_delete_is_granted_when_authorized(self):
-        self.add_permission(self.collection_url, "write")
-        self.app.delete(self.collection_url, headers=self.headers, status=200)
+    def test_plural_delete_is_granted_when_authorized(self):
+        self.add_permission(self.plural_url, "write")
+        self.app.delete(self.plural_url, headers=self.headers, status=200)
 
 
-class CollectionAuthzDeniedTest(AuthzAuthnTest):
+class PluralEndpointAuthzDeniedTest(AuthzAuthnTest):
     def test_views_require_authentication(self):
-        self.app.get(self.collection_url, status=401)
+        self.app.get(self.plural_url, status=401)
 
         body = {"data": MINIMALIST_OBJECT}
-        self.app.post_json(self.collection_url, body, status=401)
+        self.app.post_json(self.plural_url, body, status=401)
 
-    def test_collection_get_is_denied_when_not_authorized(self):
-        self.app.get(self.collection_url, headers=self.headers, status=403)
+    def test_plural_get_is_denied_when_not_authorized(self):
+        self.app.get(self.plural_url, headers=self.headers, status=403)
 
-    def test_collection_post_is_denied_when_not_authorized(self):
+    def test_plural_post_is_denied_when_not_authorized(self):
         self.app.post_json(
-            self.collection_url, {"data": MINIMALIST_OBJECT}, headers=self.headers, status=403
+            self.plural_url, {"data": MINIMALIST_OBJECT}, headers=self.headers, status=403
         )
 
-    def test_collection_delete_is_denied_when_not_authorized(self):
-        self.app.delete(self.collection_url, headers=self.headers, status=403)
+    def test_plural_delete_is_denied_when_not_authorized(self):
+        self.app.delete(self.plural_url, headers=self.headers, status=403)
 
 
 class ObjectAuthzGrantedTest(AuthzAuthnTest):
     def setUp(self):
         super().setUp()
-        self.add_permission(self.collection_url, "toadstool:create")
+        self.add_permission(self.plural_url, "toadstool:create")
 
         resp = self.app.post_json(
-            self.collection_url, {"data": MINIMALIST_OBJECT}, headers=self.headers
+            self.plural_url, {"data": MINIMALIST_OBJECT}, headers=self.headers
         )
         self.object = resp.json["data"]
         self.object_url = self.get_item_url()
@@ -197,7 +197,7 @@ class ObjectAuthzGrantedTest(AuthzAuthnTest):
         )
 
     def test_object_put_on_unexisting_object_is_granted_when_authorized(self):
-        self.add_permission(self.collection_url, "toadstool:create")
+        self.add_permission(self.plural_url, "toadstool:create")
         self.app.put_json(
             self.unknown_object_url, {"data": MINIMALIST_OBJECT}, headers=self.headers, status=201
         )
@@ -207,9 +207,9 @@ class ObjectAuthzDeniedTest(AuthzAuthnTest):
     def setUp(self):
         super().setUp()
         # Add permission to create a sample object.
-        self.add_permission(self.collection_url, "toadstool:create")
+        self.add_permission(self.plural_url, "toadstool:create")
         resp = self.app.post_json(
-            self.collection_url, {"data": MINIMALIST_OBJECT}, headers=self.headers
+            self.plural_url, {"data": MINIMALIST_OBJECT}, headers=self.headers
         )
         self.object = resp.json["data"]
         self.object_url = self.get_item_url()
@@ -241,7 +241,7 @@ class ObjectAuthzDeniedTest(AuthzAuthnTest):
         self.app.delete(self.object_url, headers=self.headers, status=403)
 
     def test_object_put_on_unexisting_object_is_rejected_if_write_perm(self):
-        object_id = self.collection_url
+        object_id = self.plural_url
         self.permission.remove_principal_from_ace(
             object_id, "toadstool:create", self.principal
         )  # Added in setUp.
@@ -252,10 +252,10 @@ class ObjectAuthzDeniedTest(AuthzAuthnTest):
         )
 
 
-class ObjectAuthzGrantedOnCollectionTest(AuthzAuthnTest):
+class ObjectAuthzGrantedOnPluralEndpointTest(AuthzAuthnTest):
     def setUp(self):
         super().setUp()
-        self.add_permission(self.collection_url, "toadstool:create")
+        self.add_permission(self.plural_url, "toadstool:create")
 
         self.guest_headers = {**self.headers, "Authorization": "Basic bmF0aW06"}
         resp = self.app.get("/", headers=self.guest_headers)
@@ -265,13 +265,13 @@ class ObjectAuthzGrantedOnCollectionTest(AuthzAuthnTest):
             "data": MINIMALIST_OBJECT,
             "permissions": {"write": [self.guest_id], "read": [self.guest_id]},
         }
-        resp = self.app.post_json(self.collection_url, body, headers=self.headers)
+        resp = self.app.post_json(self.plural_url, body, headers=self.headers)
         self.object = resp.json["data"]
         self.object_url = self.get_item_url()
 
         # Add another private object
         resp = self.app.post_json(
-            self.collection_url,
+            self.plural_url,
             {"data": MINIMALIST_OBJECT, "permissions": {"read": [self.principal]}},
             headers=self.headers,
         )
@@ -280,52 +280,52 @@ class ObjectAuthzGrantedOnCollectionTest(AuthzAuthnTest):
         self.app.get(self.object_url, headers=self.guest_headers, status=200)
 
     def test_guest_can_see_the_object_in_the_list_of_objects(self):
-        resp = self.app.get(self.collection_url, headers=self.guest_headers, status=200)
+        resp = self.app.get(self.plural_url, headers=self.guest_headers, status=200)
         self.assertEqual(len(resp.json["data"]), 1)
 
     def test_guest_can_remove_its_objects_from_the_list_of_objects(self):
-        resp = self.app.delete(self.collection_url, headers=self.guest_headers, status=200)
+        resp = self.app.delete(self.plural_url, headers=self.guest_headers, status=200)
         self.assertEqual(len(resp.json["data"]), 1)
-        resp = self.app.get(self.collection_url, headers=self.headers, status=200)
+        resp = self.app.get(self.plural_url, headers=self.headers, status=200)
         self.assertEqual(len(resp.json["data"]), 1)
 
 
 class StrictSchemaTest(BaseWebTest, unittest.TestCase):
-    collection_url = "/moistures"
+    plural_url = "/moistures"
 
     def test_accept_empty_body(self):
-        resp = self.app.post(self.collection_url, headers=self.headers)
+        resp = self.app.post(self.plural_url, headers=self.headers)
         self.assertIn("id", resp.json["data"])
         resp = self.app.put(self.get_item_url(uuid.uuid4()), headers=self.headers)
         self.assertIn("id", resp.json["data"])
 
     def test_data_can_be_specified(self):
-        resp = self.app.post_json(self.collection_url, {"data": {}}, headers=self.headers)
+        resp = self.app.post_json(self.plural_url, {"data": {}}, headers=self.headers)
         self.assertIn("id", resp.json["data"])
 
     def test_data_fields_are_ignored(self):
         resp = self.app.post_json(
-            self.collection_url, {"data": {"icq": "9427392"}}, headers=self.headers
+            self.plural_url, {"data": {"icq": "9427392"}}, headers=self.headers
         )
         self.assertNotIn("icq", resp.json["data"])
 
 
 class OptionalSchemaTest(BaseWebTest, unittest.TestCase):
-    collection_url = "/psilos"
+    plural_url = "/psilos"
 
     def test_accept_empty_body(self):
-        resp = self.app.post(self.collection_url, headers=self.headers)
+        resp = self.app.post(self.plural_url, headers=self.headers)
         self.assertIn("id", resp.json["data"])
         resp = self.app.put(self.get_item_url(uuid.uuid4()), headers=self.headers)
         self.assertIn("id", resp.json["data"])
 
     def test_data_can_be_specified(self):
-        resp = self.app.post_json(self.collection_url, {"data": {}}, headers=self.headers)
+        resp = self.app.post_json(self.plural_url, {"data": {}}, headers=self.headers)
         self.assertIn("id", resp.json["data"])
 
     def test_known_fields_are_saved(self):
         resp = self.app.post_json(
-            self.collection_url, {"data": {"edible": False}}, headers=self.headers
+            self.plural_url, {"data": {"edible": False}}, headers=self.headers
         )
         self.assertIn("edible", resp.json["data"])
 
@@ -334,14 +334,14 @@ class InvalidObjectTest(BaseWebTest, unittest.TestCase):
     def setUp(self):
         super().setUp()
         body = {"data": MINIMALIST_OBJECT}
-        resp = self.app.post_json(self.collection_url, body, headers=self.headers)
+        resp = self.app.post_json(self.plural_url, body, headers=self.headers)
         self.object = resp.json["data"]
 
         self.invalid_object = {"data": {"name": 42}}
 
     def test_invalid_object_returns_json_formatted_error(self):
         resp = self.app.post_json(
-            self.collection_url, self.invalid_object, headers=self.headers, status=400
+            self.plural_url, self.invalid_object, headers=self.headers, status=400
         )
         # XXX: weird resp.json['message']
         self.assertDictEqual(
@@ -362,12 +362,12 @@ class InvalidObjectTest(BaseWebTest, unittest.TestCase):
         )
 
     def test_empty_body_returns_400(self):
-        resp = self.app.post(self.collection_url, "", headers=self.headers, status=400)
+        resp = self.app.post(self.plural_url, "", headers=self.headers, status=400)
         self.assertEqual(resp.json["message"], "data in body: Required")
 
     def test_unknown_attribute_returns_400(self):
         resp = self.app.post(
-            self.collection_url,
+            self.plural_url,
             '{"data": {"name": "ML"}, "datta": {}}',
             headers=self.headers,
             status=400,
@@ -376,9 +376,7 @@ class InvalidObjectTest(BaseWebTest, unittest.TestCase):
         self.assertIn("datta", resp.json["message"])
 
     def test_create_invalid_object_returns_400(self):
-        self.app.post_json(
-            self.collection_url, self.invalid_object, headers=self.headers, status=400
-        )
+        self.app.post_json(self.plural_url, self.invalid_object, headers=self.headers, status=400)
 
     def test_modify_with_invalid_object_returns_400(self):
         self.app.patch_json(
@@ -395,34 +393,32 @@ class InvalidObjectTest(BaseWebTest, unittest.TestCase):
 
     def test_id_is_validated_on_post(self):
         obj = {**MINIMALIST_OBJECT, "id": 3.14}
-        self.app.post_json(self.collection_url, {"data": obj}, headers=self.headers, status=400)
+        self.app.post_json(self.plural_url, {"data": obj}, headers=self.headers, status=400)
 
         with mock.patch.object(
             self.app.app.registry.id_generators[""], "match", return_value=True
         ):
-            self.app.post_json(
-                self.collection_url, {"data": obj}, headers=self.headers, status=400
-            )
+            self.app.post_json(self.plural_url, {"data": obj}, headers=self.headers, status=400)
 
     def test_id_is_preserved_on_post(self):
         obj = {**MINIMALIST_OBJECT, "id": "472be9ec-26fe-461b-8282-9c4e4b207ab3"}
-        resp = self.app.post_json(self.collection_url, {"data": obj}, headers=self.headers)
+        resp = self.app.post_json(self.plural_url, {"data": obj}, headers=self.headers)
         self.assertEqual(resp.json["data"]["id"], obj["id"])
 
     def test_200_is_returned_if_id_matches_existing_object(self):
         obj = {**MINIMALIST_OBJECT, "id": self.object["id"]}
-        self.app.post_json(self.collection_url, {"data": obj}, headers=self.headers, status=200)
+        self.app.post_json(self.plural_url, {"data": obj}, headers=self.headers, status=200)
 
     def test_invalid_accept_header_on_plural_endpoints_returns_406(self):
         headers = {**self.headers, "Accept": "text/plain"}
-        resp = self.app.post(self.collection_url, "", headers=headers, status=406)
+        resp = self.app.post(self.plural_url, "", headers=headers, status=406)
         self.assertEqual(resp.json["code"], 406)
         message = "Accept header should be one of ['application/json']"
         self.assertEqual(resp.json["message"], message)
 
     def test_invalid_content_type_header_on_plural_endpoints_returns_415(self):
         headers = {**self.headers, "Content-Type": "text/plain"}
-        resp = self.app.post(self.collection_url, "", headers=headers, status=415)
+        resp = self.app.post(self.plural_url, "", headers=headers, status=415)
         self.assertEqual(resp.json["code"], 415)
         message = "Content-Type header should be one of ['application/json']"
         self.assertEqual(resp.json["message"], message)
@@ -456,12 +452,12 @@ class IgnoredFieldsTest(BaseWebTest, unittest.TestCase):
     def setUp(self):
         super().setUp()
         body = {"data": MINIMALIST_OBJECT}
-        resp = self.app.post_json(self.collection_url, body, headers=self.headers)
+        resp = self.app.post_json(self.plural_url, body, headers=self.headers)
         self.object = resp.json["data"]
 
     def test_last_modified_is_not_validated_and_overwritten(self):
         obj = {**MINIMALIST_OBJECT, "last_modified": "abc"}
-        resp = self.app.post_json(self.collection_url, {"data": obj}, headers=self.headers)
+        resp = self.app.post_json(self.plural_url, {"data": obj}, headers=self.headers)
         self.assertNotEqual(resp.json["data"]["last_modified"], "abc")
 
     def test_modify_works_with_invalid_last_modified(self):
@@ -482,14 +478,12 @@ class InvalidBodyTest(BaseWebTest, unittest.TestCase):
     def setUp(self):
         super().setUp()
         body = {"data": MINIMALIST_OBJECT}
-        resp = self.app.post_json(self.collection_url, body, headers=self.headers)
+        resp = self.app.post_json(self.plural_url, body, headers=self.headers)
         self.object = resp.json["data"]
 
     def test_invalid_body_returns_json_formatted_error(self):
         self.maxDiff = None
-        resp = self.app.post(
-            self.collection_url, self.invalid_body, headers=self.headers, status=400
-        )
+        resp = self.app.post(self.plural_url, self.invalid_body, headers=self.headers, status=400)
         error_msg = (
             "Invalid JSON: Expecting property name enclosed in "
             "double quotes: line 1 column 2 (char 1)"
@@ -509,7 +503,7 @@ class InvalidBodyTest(BaseWebTest, unittest.TestCase):
         )
 
     def test_create_invalid_body_returns_400(self):
-        self.app.post(self.collection_url, self.invalid_body, headers=self.headers, status=400)
+        self.app.post(self.plural_url, self.invalid_body, headers=self.headers, status=400)
 
     def test_modify_with_invalid_body_returns_400(self):
         self.app.patch(self.get_item_url(), self.invalid_body, headers=self.headers, status=400)
@@ -519,7 +513,7 @@ class InvalidBodyTest(BaseWebTest, unittest.TestCase):
 
     def test_invalid_uft8_returns_400(self):
         body = '{"foo": "\\u0d1"}'
-        resp = self.app.post(self.collection_url, body, headers=self.headers, status=400)
+        resp = self.app.post(self.plural_url, body, headers=self.headers, status=400)
         self.assertIn("Invalid \\uXXXX escape: line 1", resp.json["message"])
 
     def test_modify_with_invalid_uft8_returns_400(self):
@@ -539,12 +533,12 @@ class InvalidBodyTest(BaseWebTest, unittest.TestCase):
 
 
 class InvalidPermissionsTest(BaseWebTest, unittest.TestCase):
-    collection_url = "/toadstools"
+    plural_url = "/toadstools"
 
     def setUp(self):
         super().setUp()
         body = {"data": MINIMALIST_OBJECT}
-        resp = self.app.post_json(self.collection_url, body, headers=self.headers)
+        resp = self.app.post_json(self.plural_url, body, headers=self.headers)
         self.object = resp.json["data"]
         self.invalid_body = {
             "data": MINIMALIST_OBJECT,
@@ -558,9 +552,7 @@ class InvalidPermissionsTest(BaseWebTest, unittest.TestCase):
         self.assertIn("permissions", resp.json["message"])
 
     def test_create_invalid_body_returns_400(self):
-        self.app.post_json(
-            self.collection_url, self.invalid_body, headers=self.headers, status=400
-        )
+        self.app.post_json(self.plural_url, self.invalid_body, headers=self.headers, status=400)
 
     def test_modify_with_invalid_permissions_returns_400(self):
         self.app.patch_json(
@@ -569,7 +561,7 @@ class InvalidPermissionsTest(BaseWebTest, unittest.TestCase):
 
     def test_invalid_body_returns_json_formatted_error(self):
         resp = self.app.post_json(
-            self.collection_url, self.invalid_body, headers=self.headers, status=400
+            self.plural_url, self.invalid_body, headers=self.headers, status=400
         )
         self.assertDictEqual(
             resp.json,
@@ -590,7 +582,7 @@ class InvalidPermissionsTest(BaseWebTest, unittest.TestCase):
 
 
 class CacheControlTest(BaseWebTest, unittest.TestCase):
-    collection_url = "/toadstools"
+    plural_url = "/toadstools"
 
     @classmethod
     def get_app_settings(cls, extras=None):
@@ -602,12 +594,12 @@ class CacheControlTest(BaseWebTest, unittest.TestCase):
         return settings
 
     def test_cache_control_headers_are_set_if_anonymous(self):
-        resp = self.app.get(self.collection_url)
+        resp = self.app.get(self.plural_url)
         self.assertIn("Expires", resp.headers)
         self.assertIn("Cache-Control", resp.headers)
 
     def test_cache_control_headers_are_not_set_if_authenticated(self):
-        resp = self.app.get(self.collection_url, headers=self.headers)
+        resp = self.app.get(self.plural_url, headers=self.headers)
         self.assertIn("no-cache", resp.headers["Cache-Control"])
         self.assertIn("no-store", resp.headers["Cache-Control"])
         self.assertNotIn("Expires", resp.headers)
@@ -635,13 +627,13 @@ class StorageErrorTest(BaseWebTest, unittest.TestCase):
     def test_backend_errors_are_served_as_503(self):
         body = {"data": MINIMALIST_OBJECT}
         with self.storage_error_patcher:
-            self.app.post_json(self.collection_url, body, headers=self.headers, status=503)
+            self.app.post_json(self.plural_url, body, headers=self.headers, status=503)
 
     def test_backend_errors_original_error_is_logged(self):
         body = {"data": MINIMALIST_OBJECT}
         with mock.patch("kinto.core.views.errors.logger.critical") as mocked:
             with self.storage_error_patcher:
-                self.app.post_json(self.collection_url, body, headers=self.headers, status=503)
+                self.app.post_json(self.plural_url, body, headers=self.headers, status=503)
                 self.assertTrue(mocked.called)
                 self.assertEqual(type(mocked.call_args[0][0]), ValueError)
 
@@ -653,12 +645,12 @@ class PaginationNextURLTest(BaseWebTest, unittest.TestCase):
     def setUp(self):
         super().setUp()
         body = {"data": MINIMALIST_OBJECT}
-        self.app.post_json(self.collection_url, body, headers=self.headers)
-        self.app.post_json(self.collection_url, body, headers=self.headers)
+        self.app.post_json(self.plural_url, body, headers=self.headers)
+        self.app.post_json(self.plural_url, body, headers=self.headers)
 
     def test_next_page_url_has_got_port_number_if_different_than_80(self):
         resp = self.app.get(
-            self.collection_url + "?_limit=1",
+            self.plural_url + "?_limit=1",
             extra_environ={"HTTP_HOST": "localhost:8000"},
             headers=self.headers,
         )
@@ -666,7 +658,7 @@ class PaginationNextURLTest(BaseWebTest, unittest.TestCase):
 
     def test_next_page_url_has_not_port_number_if_80(self):
         resp = self.app.get(
-            self.collection_url + "?_limit=1",
+            self.plural_url + "?_limit=1",
             extra_environ={"HTTP_HOST": "localhost:80"},
             headers=self.headers,
         )
@@ -674,7 +666,7 @@ class PaginationNextURLTest(BaseWebTest, unittest.TestCase):
 
     def test_next_page_url_relies_on_pyramid_url_system(self):
         resp = self.app.get(
-            self.collection_url + "?_limit=1",
+            self.plural_url + "?_limit=1",
             extra_environ={"wsgi.url_scheme": "https"},
             headers=self.headers,
         )
@@ -682,7 +674,7 @@ class PaginationNextURLTest(BaseWebTest, unittest.TestCase):
 
     def test_next_page_url_relies_on_headers_information(self):
         headers = {**self.headers, "Host": "https://server.name:443"}
-        resp = self.app.get(self.collection_url + "?_limit=1", headers=headers)
+        resp = self.app.get(self.plural_url + "?_limit=1", headers=headers)
         self.assertIn("https://server.name:443", resp.headers["Next-Page"])
 
 
@@ -690,37 +682,37 @@ class SchemaLessPartialResponseTest(BaseWebTest, unittest.TestCase):
     """Extra tests for :mod:`tests.core.resource.test_partial_response`
     """
 
-    collection_url = "/spores"
+    plural_url = "/spores"
 
     def setUp(self):
         super().setUp()
         body = {"data": {"size": 42, "category": "some-cat", "owner": "loco"}}
-        resp = self.app.post_json(self.collection_url, body, headers=self.headers)
+        resp = self.app.post_json(self.plural_url, body, headers=self.headers)
         self.object = resp.json
 
     def test_unspecified_fields_are_excluded(self):
-        resp = self.app.get(self.collection_url + "?_fields=size,category")
+        resp = self.app.get(self.plural_url + "?_fields=size,category")
         result = resp.json["data"][0]
         self.assertNotIn("owner", result)
 
     def test_specified_fields_are_included(self):
-        resp = self.app.get(self.collection_url + "?_fields=size,category")
+        resp = self.app.get(self.plural_url + "?_fields=size,category")
         result = resp.json["data"][0]
         self.assertIn("size", result)
         self.assertIn("category", result)
 
     def test_unknown_fields_are_ignored(self):
-        resp = self.app.get(self.collection_url + "?_fields=nationality")
+        resp = self.app.get(self.plural_url + "?_fields=nationality")
         result = resp.json["data"][0]
         self.assertNotIn("nationality", result)
 
 
 class UnicodeDecodeErrorTest(BaseWebTest, FormattedErrorMixin, unittest.TestCase):
-    collection_url = "/spores"
+    plural_url = "/spores"
 
     def test_wrong_filter_encoding_raise_a_400_bad_request(self):
         resp = self.app.get(
-            self.collection_url + "?foo\xe2\xfc\xa7bar", headers=self.headers, status=400
+            self.plural_url + "?foo\xe2\xfc\xa7bar", headers=self.headers, status=400
         )
         self.assertFormattedError(
             resp,

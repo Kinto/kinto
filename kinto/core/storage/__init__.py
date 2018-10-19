@@ -35,8 +35,8 @@ DEFAULT_MODIFIED_FIELD = "last_modified"
 DEFAULT_DELETED_FIELD = "deleted"
 
 _HEARTBEAT_DELETE_RATE = 0.6
-_HEARTBEAT_COLLECTION_ID = "__heartbeat__"
-_HEART_PARENT_ID = _HEARTBEAT_COLLECTION_ID
+_HEARTBEAT_RESOURCE_NAME = "__heartbeat__"
+_HEART_PARENT_ID = _HEARTBEAT_RESOURCE_NAME
 _HEARTBEAT_OBJECT = {"__heartbeat__": True}
 
 
@@ -78,7 +78,7 @@ class StorageBase:
         """
         raise NotImplementedError
 
-    def collection_timestamp(self, resource_name, parent_id, auth=None):
+    def resource_timestamp(self, resource_name, parent_id, auth=None):
         """Get the highest timestamp of every objects in this `resource_name` for
         this `parent_id`.
 
@@ -87,9 +87,9 @@ class StorageBase:
             This should take deleted objects into account.
 
         :param str resource_name: the resource name.
-        :param str parent_id: the collection parent.
+        :param str parent_id: the resource parent.
 
-        :returns: the latest timestamp of the collection.
+        :returns: the latest timestamp of the resource.
         :rtype: int
         """
         raise NotImplementedError
@@ -110,12 +110,12 @@ class StorageBase:
 
         .. note::
 
-            This will update the collection timestamp.
+            This will update the resource timestamp.
 
         :raises: :exc:`kinto.core.storage.exceptions.UnicityError`
 
         :param str resource_name: the resource name.
-        :param str parent_id: the collection parent.
+        :param str parent_id: the resource parent.
         :param dict object: the object to create.
 
         :returns: the newly created object.
@@ -138,7 +138,7 @@ class StorageBase:
         :raises: :exc:`kinto.core.storage.exceptions.ObjectNotFoundError`
 
         :param str resource_name: the resource name.
-        :param str parent_id: the collection parent.
+        :param str parent_id: the resource parent.
 
         :param str object_id: unique identifier of the object
 
@@ -164,10 +164,10 @@ class StorageBase:
 
         .. note::
 
-            This will update the collection timestamp.
+            This will update the resource timestamp.
 
         :param str resource_name: the resource name.
-        :param str parent_id: the collection parent.
+        :param str parent_id: the resource parent.
         :param str object_id: unique identifier of the object
         :param dict object: the object to update or create.
 
@@ -197,12 +197,12 @@ class StorageBase:
 
         .. note::
 
-            This will update the collection timestamp.
+            This will update the resource timestamp.
 
         :raises: :exc:`kinto.core.storage.exceptions.ObjectNotFoundError`
 
         :param str resource_name: the resource name.
-        :param str parent_id: the collection parent.
+        :param str parent_id: the resource parent.
 
         :param str object_id: unique identifier of the object
         :param bool with_deleted: track deleted object with a tombstone
@@ -229,7 +229,7 @@ class StorageBase:
         """Delete all objects in this `resource_name` for this `parent_id`.
 
         :param str resource_name: the resource name.
-        :param str parent_id: the collection parent.
+        :param str parent_id: the resource parent.
 
         :param filters: Optionnally filter the objects to delete.
         :type filters: list of :class:`kinto.core.storage.Filter`
@@ -269,7 +269,7 @@ class StorageBase:
         for this `parent_id`.
 
         :param str resource_name: the resource name.
-        :param str parent_id: the collection parent.
+        :param str parent_id: the resource parent.
 
         :param int before: Optionnal timestamp to limit deletion (exclusive)
 
@@ -297,7 +297,7 @@ class StorageBase:
 
         :param str resource_name: the resource name.
 
-        :param str parent_id: the collection parent, possibly
+        :param str parent_id: the resource parent, possibly
             containing a wildcard '*'. (This can happen when
             implementing "administrator" operations on a UserResource,
             for example.)
@@ -328,7 +328,7 @@ class StorageBase:
             that match the filters.
 
         :returns: the limited list of objects, and the total number of
-            matching objects in the collection (deleted ones excluded).
+            matching objects in the resource (deleted ones excluded).
         :rtype: tuple
         """
         raise NotImplementedError
@@ -346,7 +346,7 @@ def heartbeat(backend):
         try:
             auth = request.headers.get("Authorization")
             storage_kw = dict(
-                resource_name=_HEARTBEAT_COLLECTION_ID, parent_id=_HEART_PARENT_ID, auth=auth
+                resource_name=_HEARTBEAT_RESOURCE_NAME, parent_id=_HEART_PARENT_ID, auth=auth
             )
             if asbool(request.registry.settings.get("readonly")):
                 # Do not try to write in readonly mode.

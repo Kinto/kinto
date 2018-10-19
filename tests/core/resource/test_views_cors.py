@@ -19,13 +19,13 @@ class CORSOriginHeadersTest(BaseWebTest, unittest.TestCase):
     def setUp(self):
         super().setUp()
         body = {"data": MINIMALIST_OBJECT}
-        response = self.app.post_json(self.collection_url, body, headers=self.headers, status=201)
+        response = self.app.post_json(self.plural_url, body, headers=self.headers, status=201)
         self.object = response.json["data"]
 
     def test_can_be_configured_from_settings(self):
         app = self.make_app({"cors_origins": "*.daybed.io"})
         headers = {**self.headers, "Origin": "demo.daybed.io"}
-        resp = app.get(self.collection_url, headers=headers)
+        resp = app.get(self.plural_url, headers=headers)
         self.assertEqual(resp.headers["Access-Control-Allow-Origin"], "demo.daybed.io")
 
     def test_present_on_hello(self):
@@ -61,12 +61,12 @@ class CORSOriginHeadersTest(BaseWebTest, unittest.TestCase):
 
     def test_present_on_successful_creation(self):
         body = {"data": MINIMALIST_OBJECT}
-        response = self.app.post_json(self.collection_url, body, headers=self.headers, status=201)
+        response = self.app.post_json(self.plural_url, body, headers=self.headers, status=201)
         self.assertIn("Access-Control-Allow-Origin", response.headers)
 
     def test_present_on_invalid_object_creation(self):
         body = {"name": 42}
-        response = self.app.post_json(self.collection_url, body, headers=self.headers, status=400)
+        response = self.app.post_json(self.plural_url, body, headers=self.headers, status=400)
         self.assertIn("Access-Control-Allow-Origin", response.headers)
 
     def test_present_on_readonly_update(self):
@@ -82,7 +82,7 @@ class CORSOriginHeadersTest(BaseWebTest, unittest.TestCase):
         headers = {**self.headers}
         headers.pop("Authorization", None)
         body = {"data": MINIMALIST_OBJECT}
-        response = self.app.post_json(self.collection_url, body, headers=headers, status=401)
+        response = self.app.post_json(self.plural_url, body, headers=headers, status=401)
         self.assertIn("Access-Control-Allow-Origin", response.headers)
 
     def test_present_on_internal_error(self):
@@ -114,10 +114,10 @@ class CORSExposeHeadersTest(BaseWebTest, unittest.TestCase):
         self.assertEqual(sorted(allowed_headers), sorted(exposed_headers))
         return response
 
-    def test_collection_get_exposes_every_possible_header(self):
+    def test_plural_get_exposes_every_possible_header(self):
         self.assert_expose_headers(
             "GET",
-            self.collection_url,
+            self.plural_url,
             [
                 "Alert",
                 "Backoff",
@@ -140,7 +140,7 @@ class CORSExposeHeadersTest(BaseWebTest, unittest.TestCase):
 
     def test_object_get_exposes_only_used_headers(self):
         body = {"data": MINIMALIST_OBJECT}
-        resp = self.app.post_json(self.collection_url, body, headers=self.headers, status=201)
+        resp = self.app.post_json(self.plural_url, body, headers=self.headers, status=201)
         object_url = self.get_item_url(resp.json["data"]["id"])
         self.assert_expose_headers(
             "GET",

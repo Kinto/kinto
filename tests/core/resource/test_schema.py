@@ -269,9 +269,9 @@ class PayloadRequestSchemaTest(unittest.TestCase):
         self.assertEqual(deserialized["body"], {"foo": "beer"})
 
 
-class CollectionQuerySchemaTest(unittest.TestCase):
+class PluralQuerySchemaTest(unittest.TestCase):
     def setUp(self):
-        self.schema = schema.CollectionQuerySchema()
+        self.schema = schema.PluralQuerySchema()
         self.querystring = {
             "_limit": "2",
             "_sort": "toto,tata",
@@ -376,13 +376,13 @@ class ResourceReponsesTest(unittest.TestCase):
         self.resource = colander.MappingSchema(title="fake")
         self.object = schema.ObjectSchema().bind(data=self.resource)
 
-    def test_get_and_bind_assign_resource_schema_to_objects(self):
+    def test_get_and_bind_assign_resource_schema_to_object_endpoint(self):
         responses = self.handler.get_and_bind("object", "get", object=self.object)
         ok_response = responses["200"]
         self.assertEqual(self.object["data"], ok_response["body"]["data"])
 
-    def test_get_and_bind_assign_resource_schema_to_collections(self):
-        responses = self.handler.get_and_bind("collection", "get", object=self.object)
+    def test_get_and_bind_assign_resource_schema_to_plural_endpoint(self):
+        responses = self.handler.get_and_bind("plural", "get", object=self.object)
         ok_response = responses["200"]
         # XXX: Data is repeated because it's a colander sequence type index
         self.assertEqual(self.object["data"], ok_response["body"]["data"]["data"])

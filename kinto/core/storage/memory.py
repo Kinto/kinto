@@ -85,7 +85,7 @@ class MemoryBasedStorage(StorageBase):
             limit=limit,
         )
 
-    def bump_timestamp(self, collection_timestamp, object, modified_field, last_modified):
+    def bump_timestamp(self, resource_timestamp, object, modified_field, last_modified):
         """Timestamp are base on current millisecond.
 
         .. note ::
@@ -102,28 +102,28 @@ class MemoryBasedStorage(StorageBase):
             else:
                 current = object[modified_field]
 
-            # If it is equal to current collection timestamp, bump it.
-            if current == collection_timestamp:
-                collection_timestamp += 1
-                current = collection_timestamp
-            # If it is superior (future), use it as new collection timestamp.
-            elif current > collection_timestamp:
-                collection_timestamp = current
+            # If it is equal to current resource timestamp, bump it.
+            if current == resource_timestamp:
+                resource_timestamp += 1
+                current = resource_timestamp
+            # If it is superior (future), use it as new resource timestamp.
+            elif current > resource_timestamp:
+                resource_timestamp = current
             # Else (past), do nothing.
 
         else:
             # Not specified, use a new one.
             current = utils.msec_time()
             # If two ops in the same msec, bump it.
-            if current <= collection_timestamp:
-                current = collection_timestamp + 1
-            collection_timestamp = current
-        return current, collection_timestamp
+            if current <= resource_timestamp:
+                current = resource_timestamp + 1
+            resource_timestamp = current
+        return current, resource_timestamp
 
     def bump_and_store_timestamp(
         self, resource_name, parent_id, object=None, modified_field=None, last_modified=None
     ):
-        """Use the bump_timestamp to get its next value and store the collection_timestamp.
+        """Use the bump_timestamp to get its next value and store the resource_timestamp.
         """
         raise NotImplementedError
 
@@ -155,26 +155,26 @@ class Storage(MemoryBasedStorage):
         self._timestamps = defaultdict(dict)
 
     @synchronized
-    def collection_timestamp(self, resource_name, parent_id, auth=None):
+    def resource_timestamp(self, resource_name, parent_id, auth=None):
         ts = self._timestamps[parent_id].get(resource_name)
         if ts is not None:
             return ts
         if self.readonly:
-            error_msg = "Cannot initialize empty collection timestamp when running in readonly."
+            error_msg = "Cannot initialize empty resource timestamp when running in readonly."
             raise exceptions.BackendError(message=error_msg)
         return self.bump_and_store_timestamp(resource_name, parent_id)
 
     def bump_and_store_timestamp(
         self, resource_name, parent_id, object=None, modified_field=None, last_modified=None
     ):
-        """Use the bump_timestamp to get its next value and store the collection_timestamp.
+        """Use the bump_timestamp to get its next value and store the resource_timestamp.
         """
-        current_collection_timestamp = self._timestamps[parent_id].get(resource_name, 0)
+        current_resource_timestamp = self._timestamps[parent_id].get(resource_name, 0)
 
-        current, collection_timestamp = self.bump_timestamp(
-            current_collection_timestamp, object, modified_field, last_modified
+        current, resource_timestamp = self.bump_timestamp(
+            current_resource_timestamp, object, modified_field, last_modified
         )
-        self._timestamps[parent_id][resource_name] = collection_timestamp
+        self._timestamps[parent_id][resource_name] = resource_timestamp
 
         return current
 
@@ -218,10 +218,10 @@ class Storage(MemoryBasedStorage):
         modified_field=DEFAULT_MODIFIED_FIELD,
         auth=None,
     ):
-        collection = self._store[parent_id][resource_name]
-        if object_id not in collection:
+        objects = self._store[parent_id][resource_name]
+        if object_id not in objects:
             raise exceptions.ObjectNotFoundError(object_id)
-        return {**collection[object_id]}
+        return {**objects[object_id]}
 
     @synchronized
     def update(
@@ -288,15 +288,15 @@ class Storage(MemoryBasedStorage):
     ):
         parent_id_match = re.compile(parent_id.replace("*", ".*"))
         by_parent_id = {
-            pid: collections
-            for pid, collections in self._cemetery.items()
+            pid: resources
+            for pid, resources in self._cemetery.items()
             if parent_id_match.match(pid)
         }
         num_deleted = 0
-        for pid, collections in by_parent_id.items():
+        for pid, resources in by_parent_id.items():
             if resource_name is not None:
-                collections = {resource_name: collections[resource_name]}
-            for collection, colobjects in collections.items():
+                resources = {resource_name: resources[resource_name]}
+            for resource, colobjects in resources.items():
                 if before is None:
                     kept = {}
                 else:
@@ -305,7 +305,7 @@ class Storage(MemoryBasedStorage):
                         for key, value in colobjects.items()
                         if value[modified_field] >= before
                     }
-                self._cemetery[pid][collection] = kept
+                self._cemetery[pid][resource] = kept
                 num_deleted += len(colobjects) - len(kept)
         return num_deleted
 
@@ -554,19 +554,19 @@ def _get_objects_by_parent_id(store, parent_id, resource_name, with_meta=False):
     if parent_id is not None:
         parent_id_match = re.compile("^{}$".format(parent_id.replace("*", ".*")))
         by_parent_id = {
-            pid: collections for pid, collections in store.items() if parent_id_match.match(pid)
+            pid: resources for pid, resources in store.items() if parent_id_match.match(pid)
         }
     else:
         by_parent_id = store[parent_id]
 
     objects = []
-    for pid, collections in by_parent_id.items():
+    for pid, resources in by_parent_id.items():
         if resource_name is not None:
-            collections = {resource_name: collections[resource_name]}
-        for collection, colobjects in collections.items():
+            resources = {resource_name: resources[resource_name]}
+        for resource, colobjects in resources.items():
             for r in colobjects.values():
                 if with_meta:
-                    objects.append(dict(__resource_name__=collection, __parent_id__=pid, **r))
+                    objects.append(dict(__resource_name__=resource, __parent_id__=pid, **r))
                 else:
                     objects.append(r)
     return objects

@@ -81,7 +81,7 @@ class AuthorizationPolicy:
             bound_perms = self._get_bound_permissions(parent_uri, "read")
             allowed = context.check_permission(principals, bound_perms)
 
-        # If not allowed on this collection, but some objects are shared with
+        # If not allowed on this plural endpoint, but some objects are shared with
         # the current user, then authorize.
         # The ShareableResource class will take care of the filtering.
         is_list_operation = context.on_plural_endpoint and not permission.endswith("create")
@@ -149,7 +149,7 @@ class RouteFactory:
         )
         if is_on_resource:
             self.resource_name = request.current_resource_name
-            self.on_plural_endpoint = getattr(service, "type", None) == "collection"
+            self.on_plural_endpoint = getattr(service, "type", None) == "plural"
 
             # Try to fetch the target object. Its existence will affect permissions checking.
             if not self.on_plural_endpoint and request.method.lower() in (
@@ -168,7 +168,7 @@ class RouteFactory:
                 request, service
             )
 
-            # To obtain shared objects on a collection endpoint, use a match:
+            # To obtain shared objects on a plural endpoint, use a match:
             self._object_id_match = self.get_permission_object_id(request, "*")
 
         self._settings = request.registry.settings
@@ -213,7 +213,7 @@ class RouteFactory:
     def get_permission_object_id(self, request, object_id=None):
         """Returns the permission object id for the current request.
         In the nominal case, it is just the current URI without version prefix.
-        For collections, it is the related object URI using the specified
+        For plural endpoint, it is the related object URI using the specified
         `object_id`.
 
         See :meth:`kinto.core.resource.model.SharableModel` and
@@ -222,9 +222,9 @@ class RouteFactory:
         object_uri = utils.strip_uri_prefix(request.path)
 
         if self.on_plural_endpoint and object_id is not None:
-            # With the current request on a collection, the object URI must
-            # be found out by inspecting the collection service and its sibling
-            # object service.
+            # With the current request on a plural endpoint, the object URI must
+            # be found out by inspecting the "plural" service and its sibling
+            # "object" service. (see `register_resource()`)
             matchdict = {**request.matchdict, "id": object_id}
             try:
                 object_uri = utils.instance_uri(request, self.resource_name, **matchdict)
@@ -255,22 +255,22 @@ class RouteFactory:
         required_permission = self.method_permissions.get(method)
 
         # For create permission, the object id is the plural endpoint.
-        collection_path = str(service.collection_path)
-        collection_path = collection_path.format_map(request.matchdict)
+        plural_path = str(service.plural_path)
+        plural_path = plural_path.format_map(request.matchdict)
 
         # In the case of a "PUT", check if the targetted object already
         # exists, return "write" if it does, "create" otherwise.
         if request.method.lower() == "put":
             if self.current_object is None:
                 # The object does not exist, the permission to create on
-                # the related collection is required.
-                permission_object_id = collection_path
+                # the related plural endpoint is required.
+                permission_object_id = plural_path
                 required_permission = "create"
             else:
                 # For safe creations, the user needs a create permission.
                 # See Kinto/kinto#792
                 if request.headers.get("If-None-Match") == "*":
-                    permission_object_id = collection_path
+                    permission_object_id = plural_path
                     required_permission = "create"
                 else:
                     required_permission = "write"

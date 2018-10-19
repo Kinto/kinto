@@ -12,18 +12,18 @@ class NotModifiedTest(BaseTest):
 
         self.resource = self.resource_class(request=self.get_request(), context=self.get_context())
         self.resource.request.validated = {**self.validated}
-        self.resource.collection_get()
+        self.resource.plural_get()
         self.validated = self.resource.request.validated
         current = self.last_response.headers["ETag"][1:-1]
         self.validated["header"]["If-None-Match"] = int(current)
 
-    def test_collection_returns_200_if_change_meanwhile(self):
+    def test_plural_returns_200_if_change_meanwhile(self):
         self.validated["header"]["If-None-Match"] = 42
-        self.resource.collection_get()  # Not raising.
+        self.resource.plural_get()  # Not raising.
 
-    def test_collection_returns_304_if_no_change_meanwhile(self):
+    def test_plural_returns_304_if_no_change_meanwhile(self):
         try:
-            self.resource.collection_get()
+            self.resource.plural_get()
         except httpexceptions.HTTPNotModified as e:
             error = e
         self.assertEqual(error.code, 304)
@@ -69,7 +69,7 @@ class ModifiedMeanwhileTest(BaseTest):
 
     def test_preconditions_errors_are_json_formatted(self):
         try:
-            self.resource.collection_get()
+            self.resource.plural_get()
         except httpexceptions.HTTPPreconditionFailed as e:
             error = e
         self.assertEqual(
@@ -82,27 +82,27 @@ class ModifiedMeanwhileTest(BaseTest):
             },
         )
 
-    def test_collection_returns_412_if_changed_meanwhile(self):
-        self.assertRaises(httpexceptions.HTTPPreconditionFailed, self.resource.collection_get)
+    def test_plural_returns_412_if_changed_meanwhile(self):
+        self.assertRaises(httpexceptions.HTTPPreconditionFailed, self.resource.plural_get)
 
-    def test_collection_returns_412_if_if_match_is_superior(self):
+    def test_plural_returns_412_if_if_match_is_superior(self):
         self.validated["header"]["If-Match"] = self.current + 10
-        self.assertRaises(httpexceptions.HTTPPreconditionFailed, self.resource.collection_get)
+        self.assertRaises(httpexceptions.HTTPPreconditionFailed, self.resource.plural_get)
 
-    def test_collection_returns_200_if_if_match_is_equal(self):
+    def test_plural_returns_200_if_if_match_is_equal(self):
         self.validated["header"]["If-Match"] = self.current
-        self.resource.collection_get()
+        self.resource.plural_get()
 
     def test_412_errors_on_plural_endpoint_do_not_provide_existing_object(self):
         try:
-            self.resource.collection_get()
+            self.resource.plural_get()
         except httpexceptions.HTTPPreconditionFailed as e:
             error = e
         self.assertNotIn("existing", error.json.get("details", {}))
 
     def test_412_on_plural_endpoint_has_last_modified_timestamp(self):
         try:
-            self.resource.collection_get()
+            self.resource.plural_get()
         except httpexceptions.HTTPPreconditionFailed as e:
             error = e
         self.assertIsNotNone(error.headers.get("ETag"))
@@ -128,7 +128,7 @@ class ModifiedMeanwhileTest(BaseTest):
 
     def test_create_returns_412_if_changed_meanwhile(self):
         self.validated["body"] = {"data": {"field": "new"}}
-        self.assertRaises(httpexceptions.HTTPPreconditionFailed, self.resource.collection_post)
+        self.assertRaises(httpexceptions.HTTPPreconditionFailed, self.resource.plural_post)
 
     def test_put_returns_412_if_changed_meanwhile(self):
         self.model.delete_object(self.stored)
@@ -180,7 +180,7 @@ class ModifiedMeanwhileTest(BaseTest):
         self.validated["header"]["If-None-Match"] = "*"
         self.resource.request.json = {"data": {"id": self.stored["id"], "field": "new"}}
         self.validated["body"] = self.resource.request.json
-        self.assertRaises(httpexceptions.HTTPPreconditionFailed, self.resource.collection_post)
+        self.assertRaises(httpexceptions.HTTPPreconditionFailed, self.resource.plural_post)
 
     def test_post_if_none_match_star_succeeds_if_object_does_not_exist(self):
         self.validated["header"].pop("If-Match")
@@ -188,17 +188,17 @@ class ModifiedMeanwhileTest(BaseTest):
         self.validated["body"] = {
             "data": {"id": self.resource.model.id_generator(), "field": "new"}
         }
-        self.resource.collection_post()  # not raising.
+        self.resource.plural_post()  # not raising.
 
     def test_get_if_none_match_star_fails_on_plural_endpoints(self):
         self.validated["header"].pop("If-Match")
         self.validated["header"]["If-None-Match"] = "*"
-        self.assertRaises(httpexceptions.HTTPPreconditionFailed, self.resource.collection_get)
+        self.assertRaises(httpexceptions.HTTPPreconditionFailed, self.resource.plural_get)
 
     def test_delete_if_none_match_star_fails_on_plural_endpoints(self):
         self.validated["header"].pop("If-Match")
         self.validated["header"]["If-None-Match"] = "*"
-        self.assertRaises(httpexceptions.HTTPPreconditionFailed, self.resource.collection_delete)
+        self.assertRaises(httpexceptions.HTTPPreconditionFailed, self.resource.plural_delete)
 
     def test_get_if_match_star_succeeds_if_object_exists(self):
         self.validated["header"]["If-Match"] = "*"
@@ -209,7 +209,7 @@ class ModifiedMeanwhileTest(BaseTest):
         self.validated["header"]["If-Match"] = "*"
         self.resource.request.json = {"data": {"id": self.stored["id"], "field": "new"}}
         self.validated["body"] = self.resource.request.json
-        self.resource.collection_post()
+        self.resource.plural_post()
 
     def test_put_if_match_star_succeeds_if_object_exists(self):
         self.validated["header"]["If-Match"] = "*"
@@ -245,11 +245,11 @@ class ModifiedMeanwhileTest(BaseTest):
 
     def test_get_if_match_star_suceed_on_plural_endpoints(self):
         self.validated["header"]["If-Match"] = "*"
-        self.resource.collection_get()
+        self.resource.plural_get()
 
     def test_delete_if_match_star_suceed_on_plural_endpoints(self):
         self.validated["header"]["If-Match"] = "*"
-        self.resource.collection_delete()
+        self.resource.plural_delete()
 
     def test_patch_returns_412_if_changed_meanwhile(self):
         self.assertRaises(httpexceptions.HTTPPreconditionFailed, self.resource.patch)
@@ -266,4 +266,4 @@ class ModifiedMeanwhileTest(BaseTest):
         self.assertRaises(httpexceptions.HTTPPreconditionFailed, self.resource.delete)
 
     def test_delete_all_returns_412_if_changed_meanwhile(self):
-        self.assertRaises(httpexceptions.HTTPPreconditionFailed, self.resource.collection_delete)
+        self.assertRaises(httpexceptions.HTTPPreconditionFailed, self.resource.plural_delete)

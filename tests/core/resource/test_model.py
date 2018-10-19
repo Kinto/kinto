@@ -9,7 +9,7 @@ class ModelTest(BaseTest):
         self.object = self.model.create_object({"field": "value"})
 
     def test_list_returns_all_objects_in_data(self):
-        result = self.resource.collection_get()
+        result = self.resource.plural_get()
         objects = result["data"]
         self.assertEqual(len(objects), 1)
         self.assertDictEqual(objects[0], self.object)
@@ -21,12 +21,12 @@ class CreateTest(BaseTest):
         self.resource.request.validated["body"] = {"data": {"field": "new"}}
 
     def test_new_objects_are_linked_to_owner(self):
-        resp = self.resource.collection_post()["data"]
+        resp = self.resource.plural_post()["data"]
         object_id = resp["id"]
         self.model.get_object(object_id)  # not raising
 
     def test_create_object_returns_at_least_id_and_last_modified(self):
-        obj = self.resource.collection_post()["data"]
+        obj = self.resource.plural_post()["data"]
         self.assertIn(self.resource.model.id_field, obj)
         self.assertIn(self.resource.model.modified_field, obj)
         self.assertIn("field", obj)
@@ -40,21 +40,21 @@ class DeleteModelTest(BaseTest):
         self.model.create_object({"field": "b"})
 
     def test_delete_on_list_removes_all_objects(self):
-        self.resource.collection_delete()
-        result = self.resource.collection_get()
+        self.resource.plural_delete()
+        result = self.resource.plural_get()
         objects = result["data"]
         self.assertEqual(len(objects), 0)
 
     def test_delete_returns_deleted_version_of_objects(self):
-        result = self.resource.collection_delete()
+        result = self.resource.plural_delete()
         deleted = result["data"][0]
         self.assertIn("deleted", deleted)
 
-    def test_delete_supports_collection_filters(self):
+    def test_plural_delete_supports_filters(self):
         self.resource.request.validated["querystring"] = {"field": "a"}
-        self.resource.collection_delete()
+        self.resource.plural_delete()
         self.resource.request.validated["querystring"] = {}
-        result = self.resource.collection_get()
+        result = self.resource.plural_get()
         objects = result["data"]
         self.assertEqual(len(objects), 1)
 
@@ -77,7 +77,7 @@ class IsolatedModelsTest(BaseTest):
         return context
 
     def test_list_is_filtered_by_user(self):
-        resp = self.resource.collection_get()
+        resp = self.resource.plural_get()
         objects = resp["data"]
         self.assertEqual(len(objects), 0)
 

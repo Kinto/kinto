@@ -52,11 +52,11 @@ class RouteFactoryTest(unittest.TestCase):
             resource.object_id = 1
             resource.model.get_object.side_effect = storage_exceptions.ObjectNotFoundError
             current_service().resource.return_value = resource
-            current_service().collection_path = "/buckets/{bucket_id}"
+            current_service().plural_path = "/school/{school_id}"
             # Do the actual call.
             request = DummyRequest(method="put")
-            request.upath_info = "/buckets/abc/collections/1"
-            request.matchdict = {"bucket_id": "abc"}
+            request.upath_info = "/school/abc/students/1"
+            request.matchdict = {"school_id": "abc"}
             context = RouteFactory(request)
 
             self.assertEqual(context.required_permission, "create")
@@ -106,7 +106,7 @@ class RouteFactoryTest(unittest.TestCase):
         request = DummyRequest()
         request.route_path.return_value = "/v1/buckets/%2A"
         service = mock.MagicMock()
-        service.type = "collection"
+        service.type = "plural"
         with mock.patch("kinto.core.authorization.utils.current_service") as m:
             m.return_value = service
             context = RouteFactory(request)
@@ -122,7 +122,7 @@ class RouteFactoryTest(unittest.TestCase):
         request = DummyRequest()
         service = mock.MagicMock()
         request.route_path.return_value = "/v1/buckets/%2A"
-        service.type = "collection"
+        service.type = "plural"
         with mock.patch("kinto.core.authorization.utils.current_service") as m:
             m.return_value = service
             context = RouteFactory(request)
@@ -250,7 +250,7 @@ class GuestAuthorizationPolicyTest(unittest.TestCase):
         self.context.on_plural_endpoint = True
         self.context.check_permission = mock.Mock(return_value=False)
 
-    def test_permits_returns_true_if_collection_and_shared_objects(self):
+    def test_permits_returns_true_if_plural_endpoint_and_shared_objects(self):
         self.context.fetch_shared_objects = mock.MagicMock(return_value=["object1", "object2"])
         allowed = self.authz.permits(self.context, ["userid"], "dynamic")
         # Note: we use the list of principals from request.prefixed_principals
@@ -261,7 +261,7 @@ class GuestAuthorizationPolicyTest(unittest.TestCase):
         )
         self.assertTrue(allowed)
 
-    def test_permits_does_not_return_true_if_not_collection(self):
+    def test_permits_does_not_return_true_if_not_plural_endpoint(self):
         self.context.on_plural_endpoint = False
         allowed = self.authz.permits(self.context, ["userid"], "dynamic")
         self.assertFalse(allowed)
@@ -273,7 +273,7 @@ class GuestAuthorizationPolicyTest(unittest.TestCase):
         allowed = self.authz.permits(self.context, ["userid"], "create")
         self.assertFalse(allowed)
 
-    def test_permits_returns_false_if_collection_is_unknown(self):
+    def test_permits_returns_false_if_resource_is_unknown(self):
         self.context.fetch_shared_objects = mock.MagicMock(return_value=None)
         allowed = self.authz.permits(self.context, ["userid"], "dynamic")
         # Note: we use the list of principals from request.prefixed_principals

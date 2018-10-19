@@ -63,7 +63,7 @@ class BaseTestStorage:
     def test_backend_error_is_raised_anywhere(self):
         self.client_error_patcher.start()
         calls = [
-            (self.storage.collection_timestamp, {}),
+            (self.storage.resource_timestamp, {}),
             (self.storage.create, dict(object={})),
             (self.storage.get, dict(object_id={})),
             (self.storage.update, dict(object_id="", object={})),
@@ -760,25 +760,25 @@ class BaseTestStorage:
 class TimestampsTest:
     def test_timestamp_are_incremented_on_create(self):
         self.create_object()  # init
-        before = self.storage.collection_timestamp(**self.storage_kw)
+        before = self.storage.resource_timestamp(**self.storage_kw)
         self.create_object()
-        after = self.storage.collection_timestamp(**self.storage_kw)
+        after = self.storage.resource_timestamp(**self.storage_kw)
         self.assertTrue(before < after)
 
     def test_timestamp_are_incremented_on_update(self):
         stored = self.create_object()
         _id = stored["id"]
-        before = self.storage.collection_timestamp(**self.storage_kw)
+        before = self.storage.resource_timestamp(**self.storage_kw)
         self.storage.update(object_id=_id, object={"bar": "foo"}, **self.storage_kw)
-        after = self.storage.collection_timestamp(**self.storage_kw)
+        after = self.storage.resource_timestamp(**self.storage_kw)
         self.assertTrue(before < after)
 
     def test_timestamp_are_incremented_on_delete(self):
         stored = self.create_object()
         _id = stored["id"]
-        before = self.storage.collection_timestamp(**self.storage_kw)
+        before = self.storage.resource_timestamp(**self.storage_kw)
         self.storage.delete(object_id=_id, **self.storage_kw)
-        after = self.storage.collection_timestamp(**self.storage_kw)
+        after = self.storage.resource_timestamp(**self.storage_kw)
         self.assertTrue(before < after)
 
     @skip_if_travis
@@ -802,14 +802,14 @@ class TimestampsTest:
         # No duplicated timestamps
         self.assertEqual(len(set(obtained)), len(obtained))
 
-    def test_the_timestamp_is_not_updated_when_collection_remains_empty(self):
+    def test_the_timestamp_is_not_updated_when_resource_remains_empty(self):
         # Get timestamp once.
-        first = self.storage.collection_timestamp(**self.storage_kw)
+        first = self.storage.resource_timestamp(**self.storage_kw)
 
         time.sleep(0.002)  # wait some time.
 
         # Check that second time returns the same value.
-        second = self.storage.collection_timestamp(**self.storage_kw)
+        second = self.storage.resource_timestamp(**self.storage_kw)
         self.assertEqual(first, second)
 
     def test_the_timestamp_are_based_on_real_time_milliseconds(self):
@@ -836,23 +836,23 @@ class TimestampsTest:
         # Expect the last one to be based on the highest value
         self.assertTrue(0 < current < after, "0 < {} < {}".format(current, after))
 
-    def test_collection_timestamp_raises_error_when_empty_and_readonly(self):
+    def test_resource_timestamp_raises_error_when_empty_and_readonly(self):
         kw = {**self.storage_kw, "resource_name": "will-be-empty"}
         self.storage.readonly = True
         with self.assertRaises(exceptions.BackendError):
-            self.storage.collection_timestamp(**kw)
+            self.storage.resource_timestamp(**kw)
         self.storage.readonly = False
 
-    def test_collection_timestamp_returns_current_while_readonly(self):
+    def test_resource_timestamp_returns_current_while_readonly(self):
         kw = {**self.storage_kw, "resource_name": "will-be-empty"}
-        ts1 = self.storage.collection_timestamp(**kw)
+        ts1 = self.storage.resource_timestamp(**kw)
         self.storage.readonly = True
-        ts2 = self.storage.collection_timestamp(**kw)
+        ts2 = self.storage.resource_timestamp(**kw)
         self.assertEqual(ts1, ts2)
         self.storage.readonly = False
 
-    def test_create_uses_specified_last_modified_if_collection_empty(self):
-        # Collection is empty, create a new object with a specified timestamp.
+    def test_create_uses_specified_last_modified_if_resource_empty(self):
+        # Resource is empty, create a new object with a specified timestamp.
         last_modified = 1448881675541
         obj = {**self.object, self.id_field: OBJECT_ID, self.modified_field: last_modified}
         self.create_object(object=obj)
@@ -861,9 +861,9 @@ class TimestampsTest:
         retrieved = self.storage.get(object_id=OBJECT_ID, **self.storage_kw)
         self.assertEqual(retrieved[self.modified_field], last_modified)
 
-        # Collection timestamp is now the same as its only object.
-        collection_ts = self.storage.collection_timestamp(**self.storage_kw)
-        self.assertEqual(collection_ts, last_modified)
+        # Resource timestamp is now the same as its only object.
+        resource_ts = self.storage.resource_timestamp(**self.storage_kw)
+        self.assertEqual(resource_ts, last_modified)
 
     def test_create_ignores_specified_last_modified_if_in_the_past(self):
         # Create a first object, and get the timestamp.
@@ -879,9 +879,9 @@ class TimestampsTest:
         self.assertLess(retrieved[self.modified_field], timestamp_before)
         self.assertEqual(retrieved[self.modified_field], obj[self.modified_field])
 
-        # Check that collection timestamp was not changed. Someone importing
+        # Check that resource timestamp was not changed. Someone importing
         # objects in the past must assume the synchronization consequences.
-        timestamp = self.storage.collection_timestamp(**self.storage_kw)
+        timestamp = self.storage.resource_timestamp(**self.storage_kw)
         self.assertEqual(timestamp, timestamp_before)
 
     def test_create_ignores_specified_last_modified_if_equal(self):
@@ -898,8 +898,8 @@ class TimestampsTest:
         self.assertGreater(retrieved[self.modified_field], timestamp_before)
         self.assertGreater(retrieved[self.modified_field], obj[self.modified_field])
 
-        # Check that collection timestamp was bumped (change happened).
-        timestamp = self.storage.collection_timestamp(**self.storage_kw)
+        # Check that resource timestamp was bumped (change happened).
+        timestamp = self.storage.resource_timestamp(**self.storage_kw)
         self.assertGreater(timestamp, timestamp_before)
 
     def test_update_uses_specified_last_modified_if_in_future(self):
@@ -916,15 +916,15 @@ class TimestampsTest:
         self.assertGreater(retrieved[self.modified_field], timestamp_before)
         self.assertGreaterEqual(retrieved[self.modified_field], stored[self.modified_field])
 
-        # Check that collection timestamp took the one specified (in future).
-        timestamp = self.storage.collection_timestamp(**self.storage_kw)
+        # Check that resource timestamp took the one specified (in future).
+        timestamp = self.storage.resource_timestamp(**self.storage_kw)
         self.assertGreater(timestamp, timestamp_before)
         self.assertEqual(timestamp, retrieved[self.modified_field])
 
     def test_update_ignores_specified_last_modified_if_in_the_past(self):
         stored = self.create_object()
         object_id = stored[self.id_field]
-        timestamp_before = self.storage.collection_timestamp(**self.storage_kw)
+        timestamp_before = self.storage.resource_timestamp(**self.storage_kw)
 
         # Set timestamp manually in the past.
         stored[self.modified_field] = timestamp_before - 10
@@ -935,9 +935,9 @@ class TimestampsTest:
         self.assertLess(retrieved[self.modified_field], timestamp_before)
         self.assertEqual(retrieved[self.modified_field], stored[self.modified_field])
 
-        # Check that collection timestamp was not changed. Someone importing
+        # Check that resource timestamp was not changed. Someone importing
         # objects in the past must assume the synchronization consequences.
-        timestamp = self.storage.collection_timestamp(**self.storage_kw)
+        timestamp = self.storage.resource_timestamp(**self.storage_kw)
         self.assertEqual(timestamp, timestamp_before)
 
     def test_update_ignores_specified_last_modified_if_equal(self):
@@ -953,14 +953,14 @@ class TimestampsTest:
         self.assertGreater(retrieved[self.modified_field], timestamp_before)
         self.assertGreater(retrieved[self.modified_field], stored[self.modified_field])
 
-        # Check that collection timestamp was bumped (change happened).
-        timestamp = self.storage.collection_timestamp(**self.storage_kw)
+        # Check that resource timestamp was bumped (change happened).
+        timestamp = self.storage.resource_timestamp(**self.storage_kw)
         self.assertGreater(timestamp, timestamp_before)
 
 
 class DeletedObjectsTest:
     def _get_last_modified_filters(self):
-        start = self.storage.collection_timestamp(**self.storage_kw)
+        start = self.storage.resource_timestamp(**self.storage_kw)
         time.sleep(0.1)
         return [Filter(self.modified_field, start, utils.COMPARISON.GT)]
 
@@ -1018,9 +1018,9 @@ class DeletedObjectsTest:
         self.assertNotIn("challenge", obj)
 
     def test_last_modified_of_a_deleted_item_is_deletion_time(self):
-        before = self.storage.collection_timestamp(**self.storage_kw)
+        before = self.storage.resource_timestamp(**self.storage_kw)
         obj = self.create_and_delete_object()
-        now = self.storage.collection_timestamp(**self.storage_kw)
+        now = self.storage.resource_timestamp(**self.storage_kw)
         self.assertEqual(now, obj["last_modified"])
         self.assertTrue(before < obj["last_modified"])
 
@@ -1214,18 +1214,18 @@ class DeletedObjectsTest:
         self.create_object(parent_id="/abc/a", resource_name="c")
         self.create_object(parent_id="/efg", resource_name="c")
 
-        before1 = self.storage.collection_timestamp(parent_id="/abc/a", resource_name="c")
+        before1 = self.storage.resource_timestamp(parent_id="/abc/a", resource_name="c")
         # Different parent_id with object.
-        before2 = self.storage.collection_timestamp(parent_id="/efg", resource_name="c")
+        before2 = self.storage.resource_timestamp(parent_id="/efg", resource_name="c")
         # Different parent_id without object.
-        before3 = self.storage.collection_timestamp(parent_id="/ijk", resource_name="c")
+        before3 = self.storage.resource_timestamp(parent_id="/ijk", resource_name="c")
 
         self.storage.delete_all(parent_id="/abc/*", resource_name=None, with_deleted=False)
         self.storage.purge_deleted(parent_id="/abc/*", resource_name=None)
 
-        after1 = self.storage.collection_timestamp(parent_id="/abc/a", resource_name="c")
-        after2 = self.storage.collection_timestamp(parent_id="/efg", resource_name="c")
-        after3 = self.storage.collection_timestamp(parent_id="/ijk", resource_name="c")
+        after1 = self.storage.resource_timestamp(parent_id="/abc/a", resource_name="c")
+        after2 = self.storage.resource_timestamp(parent_id="/efg", resource_name="c")
+        after3 = self.storage.resource_timestamp(parent_id="/ijk", resource_name="c")
 
         self.assertNotEqual(before1, after1)
         self.assertEqual(before2, after2)

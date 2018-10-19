@@ -10,14 +10,14 @@ from .support import BaseWebTest
 
 class AuthenticationPoliciesTest(BaseWebTest, unittest.TestCase):
     def test_basic_auth_is_accepted_by_default(self):
-        self.app.get(self.collection_url, headers=self.headers, status=200)
+        self.app.get(self.plural_url, headers=self.headers, status=200)
         # Check that the capability is exposed on the homepage.
         resp = self.app.get("/")
         assert "basicauth" in resp.json["capabilities"]
 
     def test_basic_auth_is_accepted_if_enabled_in_settings(self):
         app = self.make_app({"multiauth.policies": "basicauth"})
-        app.get(self.collection_url, headers=self.headers, status=200)
+        app.get(self.plural_url, headers=self.headers, status=200)
         # Check that the capability is exposed on the homepage.
         resp = app.get("/")
         assert "basicauth" in resp.json["capabilities"]
@@ -31,7 +31,7 @@ class AuthenticationPoliciesTest(BaseWebTest, unittest.TestCase):
                 ),
             }
         )
-        app.get(self.collection_url, headers=self.headers, status=401)
+        app.get(self.plural_url, headers=self.headers, status=401)
         # Check that the capability is exposed on the homepage.
         resp = app.get("/")
         assert "basicauth" not in resp.json["capabilities"]
@@ -54,9 +54,9 @@ class AuthenticationPoliciesTest(BaseWebTest, unittest.TestCase):
     def test_views_are_forbidden_if_unknown_auth_method(self):
         app = self.make_app({"multiauth.policies": "basicauth"})
         self.headers["Authorization"] = "Carrier"
-        app.get(self.collection_url, headers=self.headers, status=401)
+        app.get(self.plural_url, headers=self.headers, status=401)
         self.headers["Authorization"] = "Carrier pigeon"
-        app.get(self.collection_url, headers=self.headers, status=401)
+        app.get(self.plural_url, headers=self.headers, status=401)
 
     def test_principals_are_fetched_from_permission_backend(self):
         patch = mock.patch(("tests.core.support." "AllowAuthorizationPolicy.permits"))
@@ -64,7 +64,7 @@ class AuthenticationPoliciesTest(BaseWebTest, unittest.TestCase):
         mocked = patch.start()
 
         self.permission.add_user_principal(self.principal, "group:admin")
-        self.app.get(self.collection_url, headers=self.headers)
+        self.app.get(self.plural_url, headers=self.headers)
 
         _, principals, _ = mocked.call_args[0]
         self.assertIn("group:admin", principals)

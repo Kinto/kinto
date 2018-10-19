@@ -66,7 +66,7 @@ class ResourceReadTest(BaseEventTest, unittest.TestCase):
     subscribed = (ResourceRead,)
 
     def test_get_sends_read_event(self):
-        resp = self.app.post_json(self.collection_url, self.body, headers=self.headers, status=201)
+        resp = self.app.post_json(self.plural_url, self.body, headers=self.headers, status=201)
         object_id = resp.json["data"]["id"]
         object_url = self.get_item_url(object_id)
         self.app.get(object_url, headers=self.headers)
@@ -74,20 +74,20 @@ class ResourceReadTest(BaseEventTest, unittest.TestCase):
         self.assertEqual(self.events[0].payload["action"], ACTIONS.READ.value)
         self.assertEqual(len(self.events[0].read_objects), 1)
 
-    def test_collection_get_sends_read_event(self):
-        self.app.get(self.collection_url, headers=self.headers)
+    def test_plural_get_sends_read_event(self):
+        self.app.get(self.plural_url, headers=self.headers)
         self.assertEqual(len(self.events), 1)
         self.assertEqual(self.events[0].payload["action"], ACTIONS.READ.value)
         self.assertEqual(len(self.events[0].read_objects), 0)
 
     def test_post_sends_read_if_id_already_exists(self):
-        resp = self.app.post_json(self.collection_url, self.body, headers=self.headers, status=201)
+        resp = self.app.post_json(self.plural_url, self.body, headers=self.headers, status=201)
         obj = resp.json["data"]
         body = {**self.body}
         body["data"]["id"] = obj["id"]
 
         # a second post with the same object id
-        self.app.post_json(self.collection_url, body, headers=self.headers, status=200)
+        self.app.post_json(self.plural_url, body, headers=self.headers, status=200)
         self.assertEqual(len(self.events), 1)
         self.assertEqual(self.events[0].payload["action"], ACTIONS.READ.value)
 
@@ -97,14 +97,14 @@ class ResourceChangedTest(BaseEventTest, unittest.TestCase):
     subscribed = (ResourceChanged,)
 
     def test_events_have_custom_representation(self):
-        self.app.post_json(self.collection_url, self.body, headers=self.headers, status=201)
+        self.app.post_json(self.plural_url, self.body, headers=self.headers, status=201)
         self.assertEqual(
             repr(self.events[0]),
-            "<ResourceChanged action=create " "uri={}>".format(self.collection_url),
+            "<ResourceChanged action=create " "uri={}>".format(self.plural_url),
         )
 
     def test_post_sends_create_action(self):
-        self.app.post_json(self.collection_url, self.body, headers=self.headers, status=201)
+        self.app.post_json(self.plural_url, self.body, headers=self.headers, status=201)
         self.assertEqual(len(self.events), 1)
         self.assertEqual(self.events[0].payload["action"], ACTIONS.CREATE.value)
 
@@ -136,7 +136,7 @@ class ResourceChangedTest(BaseEventTest, unittest.TestCase):
         self.assertEqual(self.events[0].payload["action"], ACTIONS.CREATE.value)
 
     def test_patch_sends_update_action(self):
-        resp = self.app.post_json(self.collection_url, self.body, headers=self.headers, status=201)
+        resp = self.app.post_json(self.plural_url, self.body, headers=self.headers, status=201)
         obj = resp.json["data"]
         object_url = self.get_item_url(obj["id"])
 
@@ -159,7 +159,7 @@ class ResourceChangedTest(BaseEventTest, unittest.TestCase):
         self.assertEqual(self.events[1].payload["action"], ACTIONS.UPDATE.value)
 
     def test_delete_sends_delete_action(self):
-        resp = self.app.post_json(self.collection_url, self.body, headers=self.headers, status=201)
+        resp = self.app.post_json(self.plural_url, self.body, headers=self.headers, status=201)
         obj = resp.json["data"]
         object_url = self.get_item_url(obj["id"])
 
@@ -168,11 +168,11 @@ class ResourceChangedTest(BaseEventTest, unittest.TestCase):
         self.assertEqual(self.events[0].payload["action"], ACTIONS.CREATE.value)
         self.assertEqual(self.events[1].payload["action"], ACTIONS.DELETE.value)
 
-    def test_collection_delete_sends_delete_action(self):
-        self.app.post_json(self.collection_url, self.body, headers=self.headers, status=201)
-        self.app.post_json(self.collection_url, self.body, headers=self.headers, status=201)
+    def test_plural_delete_sends_delete_action(self):
+        self.app.post_json(self.plural_url, self.body, headers=self.headers, status=201)
+        self.app.post_json(self.plural_url, self.body, headers=self.headers, status=201)
 
-        self.app.delete(self.collection_url, headers=self.headers, status=200)
+        self.app.delete(self.plural_url, headers=self.headers, status=200)
 
         self.assertEqual(len(self.events), 3)
         self.assertEqual(self.events[0].payload["action"], ACTIONS.CREATE.value)
@@ -181,7 +181,7 @@ class ResourceChangedTest(BaseEventTest, unittest.TestCase):
 
     def test_request_fails_if_notify_fails(self):
         with notif_broken(self.app.app, ResourceChanged):
-            self.app.post_json(self.collection_url, self.body, headers=self.headers, status=500)
+            self.app.post_json(self.plural_url, self.body, headers=self.headers, status=500)
         self.assertEqual(len(self.events), 0)
 
     def test_triggered_on_protected_resource(self):
@@ -207,7 +207,7 @@ class AfterResourceChangedTest(BaseEventTest, unittest.TestCase):
 
     def test_request_succeeds_if_notify_fails(self):
         with notif_broken(self.app.app, AfterResourceChanged):
-            self.app.post_json(self.collection_url, self.body, headers=self.headers)
+            self.app.post_json(self.plural_url, self.body, headers=self.headers)
 
         self.assertEqual(len(self.events), 0)
 
@@ -218,7 +218,7 @@ class AfterResourceReadTest(BaseEventTest, unittest.TestCase):
 
     def test_request_succeeds_if_notify_fails(self):
         with notif_broken(self.app.app, AfterResourceChanged):
-            self.app.post_json(self.collection_url, self.body, headers=self.headers)
+            self.app.post_json(self.plural_url, self.body, headers=self.headers)
 
         self.assertEqual(len(self.events), 0)
 
@@ -228,20 +228,20 @@ class ImpactedObjectsTest(BaseEventTest, unittest.TestCase):
     subscribed = (ResourceChanged,)
 
     def test_create_has_new_object_and_no_old_in_payload(self):
-        resp = self.app.post_json(self.collection_url, self.body, headers=self.headers)
+        resp = self.app.post_json(self.plural_url, self.body, headers=self.headers)
         obj = resp.json["data"]
         impacted_objects = self.events[-1].impacted_objects
         self.assertEqual(len(impacted_objects), 1)
         self.assertNotIn("old", impacted_objects[0])
         self.assertEqual(impacted_objects[0]["new"], obj)
 
-    def test_collection_delete_has_old_and_new_in_payload(self):
-        resp = self.app.post_json(self.collection_url, self.body, headers=self.headers)
+    def test_plural_delete_has_old_and_new_in_payload(self):
+        resp = self.app.post_json(self.plural_url, self.body, headers=self.headers)
         object1 = resp.json["data"]
-        resp = self.app.post_json(self.collection_url, self.body, headers=self.headers)
+        resp = self.app.post_json(self.plural_url, self.body, headers=self.headers)
         object2 = resp.json["data"]
 
-        self.app.delete(self.collection_url, headers=self.headers, status=200)
+        self.app.delete(self.plural_url, headers=self.headers, status=200)
 
         impacted_objects = self.events[-1].impacted_objects
         self.assertEqual(len(impacted_objects), 2)
@@ -256,7 +256,7 @@ class ImpactedObjectsTest(BaseEventTest, unittest.TestCase):
         self.assertEqual(deleted_ids, {object1["id"], object2["id"]})
 
     def test_update_has_old_and_new_object(self):
-        resp = self.app.post_json(self.collection_url, self.body, headers=self.headers, status=201)
+        resp = self.app.post_json(self.plural_url, self.body, headers=self.headers, status=201)
         obj = resp.json["data"]
         object_url = self.get_item_url(obj["id"])
         self.app.patch_json(object_url, {"data": {"name": "en boite"}}, headers=self.headers)
@@ -268,7 +268,7 @@ class ImpactedObjectsTest(BaseEventTest, unittest.TestCase):
         self.assertEqual(impacted_objects[0]["new"]["name"], "en boite")
 
     def test_delete_has_old_and_new_object_in_payload(self):
-        resp = self.app.post_json(self.collection_url, self.body, headers=self.headers, status=201)
+        resp = self.app.post_json(self.plural_url, self.body, headers=self.headers, status=201)
         obj = resp.json["data"]
         object_url = self.get_item_url(obj["id"])
         self.app.delete(object_url, headers=self.headers, status=200)
@@ -359,7 +359,7 @@ class BatchEventsTest(BaseEventTest, unittest.TestCase):
         request_create = {"method": "POST", "body": self.body}
         request_delete_all = {"method": "DELETE", "body": self.body}
         body = {
-            "defaults": {"path": self.collection_url},
+            "defaults": {"path": self.plural_url},
             "requests": [request_create, request_delete_all],
         }
         self.app.post_json("/batch", body, headers=self.headers, status=503)
@@ -389,7 +389,7 @@ class CascadingEventsTest(BaseEventTest, unittest.TestCase):
             )
 
     def test_event_can_trigger_other_event(self):
-        self.app.post_json(self.collection_url, self.body, headers=self.headers, status=201)
+        self.app.post_json(self.plural_url, self.body, headers=self.headers, status=201)
         resource_changed_events = [e for e in self.events if isinstance(e, ResourceChanged)]
         self.assertEqual(len(resource_changed_events), 2)
         self.assertEqual(resource_changed_events[0].payload["action"], ACTIONS.CREATE.value)
@@ -402,7 +402,7 @@ class CascadingEventsTest(BaseEventTest, unittest.TestCase):
         )
 
     def test_cascading_events_are_merged(self):
-        self.app.post_json(self.collection_url, self.body, headers=self.headers, status=201)
+        self.app.post_json(self.plural_url, self.body, headers=self.headers, status=201)
         relevant_events = [e for e in self.events if isinstance(e, AfterResourceChanged)]
         self.assertEqual(len(relevant_events), 1)
         merged_event = relevant_events[0]
@@ -437,8 +437,6 @@ class StatsDTest(BaseWebTest, unittest.TestCase):
     def test_statds_tracks_listeners_execution_duration(self):
         statsd_client = self.app.app.registry.statsd._client
         with mock.patch.object(statsd_client, "timing") as mocked:
-            self.app.post_json(
-                self.collection_url, {"data": {"name": "pouet"}}, headers=self.headers
-            )
+            self.app.post_json(self.plural_url, {"data": {"name": "pouet"}}, headers=self.headers)
             timers = set(c[0][0] for c in mocked.call_args_list)
             self.assertIn("listeners.test", timers)

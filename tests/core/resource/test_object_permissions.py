@@ -21,16 +21,16 @@ class PermissionTest(BaseTest):
         return request
 
 
-class CollectionPermissionTest(PermissionTest):
+class PluralEndpointPermissionTest(PermissionTest):
     def setUp(self):
         super().setUp()
-        self.result = self.resource.collection_get()
+        self.result = self.resource.plural_get()
 
-    def test_permissions_are_not_provided_in_collection_get(self):
+    def test_permissions_are_not_provided_in_plural_get(self):
         self.assertNotIn("permissions", self.result)
 
-    def test_permissions_are_not_provided_in_collection_delete(self):
-        result = self.resource.collection_delete()
+    def test_permissions_are_not_provided_in_plural_delete(self):
+        result = self.resource.plural_delete()
         self.assertNotIn("permissions", result)
 
 
@@ -90,7 +90,7 @@ class SpecifyObjectPermissionTest(PermissionTest):
     def test_write_permission_is_given_to_creator_on_post(self):
         self.resource.context.object_uri = "/articles"
         self.resource.request.method = "POST"
-        result = self.resource.collection_post()
+        result = self.resource.plural_post()
         self.assertEqual(sorted(result["permissions"]["write"]), ["basicauth:bob"])
 
     def test_write_permission_is_given_to_put(self):
@@ -110,12 +110,12 @@ class SpecifyObjectPermissionTest(PermissionTest):
         result = resource.put()
         self.assertIn("system.Everyone", result["permissions"]["write"])
 
-    def test_permissions_can_be_specified_in_collection_post(self):
+    def test_permissions_can_be_specified_in_plural_post(self):
         perms = {"write": ["jean-louis"]}
         self.resource.request.method = "POST"
         self.resource.context.object_uri = "/articles"
         self.resource.request.validated["body"] = {"data": {}, "permissions": perms}
-        result = self.resource.collection_post()
+        result = self.resource.plural_post()
         self.assertEqual(sorted(result["permissions"]["write"]), ["basicauth:bob", "jean-louis"])
 
     def test_permissions_are_replaced_with_put(self):
@@ -184,14 +184,14 @@ class DeletedObjectPermissionTest(PermissionTest):
         principals = self.permission.get_object_permission_principals(self.object_uri, "read")
         self.assertEqual(len(principals), 0)
 
-    def test_permissions_are_deleted_when_collection_is_deleted(self):
+    def test_permissions_are_deleted_when_plural_is_deleted(self):
         self.resource.context.on_plural_endpoint = True
-        self.resource.collection_delete()
+        self.resource.plural_delete()
         principals = self.permission.get_object_permission_principals(self.object_uri, "read")
         self.assertEqual(len(principals), 0)
 
 
-class GuestCollectionListTest(PermissionTest):
+class GuestPluralEndpointTest(PermissionTest):
     def setUp(self):
         super().setUp()
         object1 = self.resource.model.create_object({"letter": "a"})
@@ -208,32 +208,32 @@ class GuestCollectionListTest(PermissionTest):
 
         self.resource.context.shared_ids = [object1["id"], object2["id"]]
 
-    def test_collection_is_filtered_for_current_guest(self):
-        result = self.resource.collection_get()
+    def test_plural_is_filtered_for_current_guest(self):
+        result = self.resource.plural_get()
         self.assertEqual(len(result["data"]), 2)
 
-    def test_guest_collection_can_be_filtered(self):
+    def test_guest_plural_get_can_be_filtered(self):
         self.resource.request.validated["querystring"] = {"letter": "a"}
         with mock.patch.object(self.resource, "is_known_field"):
-            result = self.resource.collection_get()
+            result = self.resource.plural_get()
         self.assertEqual(len(result["data"]), 1)
 
-    def test_guest_collection_is_empty_if_no_object_is_shared(self):
+    def test_guest_plural_get_is_empty_if_no_object_is_shared(self):
         self.resource.context.shared_ids = ["tata lili"]
-        result = self.resource.collection_get()
+        result = self.resource.plural_get()
         self.assertEqual(len(result["data"]), 0)
 
     def test_permission_backend_is_not_queried_if_not_guest(self):
         self.resource.context.shared_ids = None
         self.resource.request.registry.permission = None  # would fail!
-        result = self.resource.collection_get()
+        result = self.resource.plural_get()
         self.assertEqual(len(result["data"]), 3)
 
-    def test_unauthorized_error_if_collection_does_not_exist(self):
+    def test_unauthorized_error_if_resource_does_not_exist(self):
         pass
 
 
-class GuestCollectionDeleteTest(PermissionTest):
+class GuestPluralDeleteTest(PermissionTest):
     def setUp(self):
         super().setUp()
         object1 = self.resource.model.create_object({"letter": "a"})
@@ -260,22 +260,22 @@ class GuestCollectionDeleteTest(PermissionTest):
         request.method = "DELETE"
         return request
 
-    def test_collection_is_filtered_for_current_guest(self):
+    def test_plural_is_filtered_for_current_guest(self):
         self.resource.request.path = "/articles"
-        result = self.resource.collection_delete()
+        result = self.resource.plural_delete()
         self.assertEqual(len(result["data"]), 2)
 
-    def test_guest_collection_can_be_filtered(self):
+    def test_guest_plural_delete_can_be_filtered(self):
         self.resource.request.validated["querystring"] = {"letter": "b"}
         with mock.patch.object(self.resource, "is_known_field"):
-            result = self.resource.collection_delete()
+            result = self.resource.plural_delete()
         self.assertEqual(len(result["data"]), 1)
         objects, _ = self.resource.model.get_objects()
         self.assertEqual(len(objects), 3)
 
     def test_guest_cannot_delete_objects_if_not_allowed(self):
         self.resource.context.shared_ids = ["tata lili"]
-        result = self.resource.collection_delete()
+        result = self.resource.plural_delete()
         self.assertEqual(len(result["data"]), 0)
         objects, _ = self.resource.model.get_objects()
         self.assertEqual(len(objects), 4)

@@ -26,7 +26,7 @@ class BaseWebTest(testing.BaseWebTest):
     principal = USER_PRINCIPAL
 
     authorization_policy = "tests.core.support.AllowAuthorizationPolicy"
-    collection_url = "/mushrooms"
+    plural_url = "/mushrooms"
 
     @classmethod
     def setUpClass(cls):
@@ -49,7 +49,7 @@ class BaseWebTest(testing.BaseWebTest):
         """Return the URL of the item using self.item_url."""
         if id is None:
             id = self.object["id"]
-        return "{}/{}".format(self.collection_url, id)
+        return "{}/{}".format(self.plural_url, id)
 
 
 @implementer(IAuthorizationPolicy)

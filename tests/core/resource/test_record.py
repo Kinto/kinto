@@ -28,7 +28,7 @@ class GetTest(BaseTest):
     def test_etag_contains_object_timestamp(self):
         obj = self.model.create_object({"field": "value"})
         self.resource.object_id = obj["id"]
-        # Create another one, bump collection timestamp.
+        # Create another one, bump resource timestamp.
         self.model.create_object({"field": "value"})
         self.resource.get()
         expected = '"{}"'.format(obj["last_modified"])
@@ -162,7 +162,7 @@ class DeleteTest(BaseTest):
         self.validated = self.validated
         self.assertEqual(result[self.model.modified_field], last_modified)
         self.validated["querystring"] = {"_since": 0, "deleted": True}
-        result = self.resource.collection_get()
+        result = self.resource.plural_get()
         self.assertEqual(len(result["data"]), 1)
         retrieved = result["data"][0]
         self.assertEqual(retrieved[self.model.modified_field], last_modified)
@@ -240,12 +240,12 @@ class PatchTest(BaseTest):
         result = self.resource.patch()["data"]
         self.assertEqual(self.result["last_modified"], result["last_modified"])
 
-    def test_collection_timestamp_is_not_updated_if_no_field_changed(self):
+    def test_resource_timestamp_is_not_updated_if_no_field_changed(self):
         self.validated["body"] = {"data": {"position": 10}}
         self.resource.patch()
         self.resource = self.resource_class(request=self.get_request(), context=self.get_context())
         self.resource.request.validated = self.validated
-        self.resource.collection_get()["data"]
+        self.resource.plural_get()["data"]
         last_modified = int(self.last_response.headers["ETag"][1:-1])
         self.assertEqual(self.result["last_modified"], last_modified)
 

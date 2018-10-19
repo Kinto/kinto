@@ -192,7 +192,7 @@ class Storage(StorageBase, MigratorMixin):
             conn.execute(query)
         logger.debug("Flushed PostgreSQL storage tables")
 
-    def collection_timestamp(self, resource_name, parent_id, auth=None):
+    def resource_timestamp(self, resource_name, parent_id, auth=None):
         query_existing = """
         WITH existing_timestamps AS (
           -- Timestamp of latest object.
@@ -204,7 +204,7 @@ class Storage(StorageBase, MigratorMixin):
             ORDER BY last_modified DESC
             LIMIT 1
           )
-          -- Timestamp of empty collection.
+          -- Timestamp of empty resource.
           UNION
           (
             SELECT last_modified, as_epoch(last_modified) AS last_epoch
@@ -235,7 +235,7 @@ class Storage(StorageBase, MigratorMixin):
             if self.readonly:
                 if existing_ts is None:
                     error_msg = (
-                        "Cannot initialize empty collection timestamp " "when running in readonly."
+                        "Cannot initialize empty resource timestamp " "when running in readonly."
                     )
                     raise exceptions.BackendError(message=error_msg)
                 obj = row
@@ -533,7 +533,7 @@ class Storage(StorageBase, MigratorMixin):
             placeholders["parent_id"] = parent_id.replace("*", "%")
         else:
             safeholders["parent_id_filter"] = "parent_id = :parent_id"
-        # If collection is None, remove it from query.
+        # If resource is None, remove it from query.
         if resource_name is None:
             safeholders["resource_name_filter"] = ""
         else:
@@ -599,7 +599,7 @@ class Storage(StorageBase, MigratorMixin):
             placeholders["parent_id"] = parent_id.replace("*", "%")
         else:
             safeholders["parent_id_filter"] = "parent_id = :parent_id"
-        # If collection is None, remove it from query.
+        # If resource is None, remove it from query.
         if resource_name is None:
             safeholders["resource_name_filter"] = ""
         else:
@@ -639,7 +639,7 @@ class Storage(StorageBase, MigratorMixin):
         auth=None,
     ):
         query = """
-        WITH collection_filtered AS (
+        WITH objects_filtered AS (
             SELECT id, last_modified, data, deleted
               FROM objects
              WHERE {parent_id_filter}
@@ -650,12 +650,12 @@ class Storage(StorageBase, MigratorMixin):
         ),
         total_filtered AS (
             SELECT COUNT(id) AS count_total
-              FROM collection_filtered
+              FROM objects_filtered
              WHERE NOT deleted
         )
          SELECT count_total,
                a.id, as_epoch(a.last_modified) AS last_modified, a.data
-          FROM collection_filtered AS a,
+          FROM objects_filtered AS a,
                total_filtered
           {pagination_rules}
          LIMIT :pagination_limit;

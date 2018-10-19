@@ -470,7 +470,7 @@ def view_lookup_registry(registry, uri):
     if route is None:
         raise ValueError("URI has no route")
 
-    resource_name = route.name.replace("-object", "").replace("-collection", "")
+    resource_name = route.name.replace("-object", "").replace("-plural", "")
     return resource_name, matchdict
 
 
