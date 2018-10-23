@@ -122,10 +122,12 @@ def read_env(key, value):
 
     :param key: the setting name
     :param value: default value if undefined in environment
-    :returns: the value from environment, coerced to python type
+    :returns: the value from environment, coerced to python type, or the (uncoerced) default value
     """
     envkey = key.replace(".", "_").replace("-", "_").upper()
-    return native_value(os.getenv(envkey, value))
+    if envkey in os.environ:
+        return native_value(os.environ[envkey])
+    return value
 
 
 def encode64(content, encoding="utf-8"):
