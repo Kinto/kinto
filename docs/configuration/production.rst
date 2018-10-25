@@ -35,7 +35,11 @@ On RedHat / Fedora / Mint based systems::
 
     $ yum install postgresql-devel
 
-On Mac OS X, `install a server or use port <http://superuser.com/questions/296873/install-libpq-dev-on-mac-os>`_.
+On MacOS::
+
+    $ brew install postgresql
+
+See also `install a server or use port <http://superuser.com/questions/296873/install-libpq-dev-on-mac-os>`_.
 
 Install PostgreSQL Python Dependencies
 --------------------------------------
