@@ -4,8 +4,9 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- Enable CSP to protect against XSS : only allow from local domain -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'">
-    <title>Kinto Web Administration</title>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src data: 'self'">
+    <link rel="shortcut icon" href="favicon.png" type="image/png" />
+    <title>Kinto Administration</title>
   </head>
   <body>
     <div id="root"></div>
