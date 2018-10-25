@@ -11,6 +11,10 @@ This document describes changes between each past release.
 - Add ability to configure the ``project_name`` in settings, shown in the `root URL <https://kinto.readthedocs.io/en/stable/api/1.x/utilities.html#get>`_ (fixes #1809)
 - Use ``.`` as bucket/collection separator in cache control settings (fixes #1815)
 
+**Bug fixes**
+
+- Fix missing favicon and inline images in kinto-admin plugin
+
 **Internal changes**
 
 - Use mock from the standard library.
