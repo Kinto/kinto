@@ -3,7 +3,7 @@ Changelog
 
 This document describes changes between each past release.
 
-11.1.0 (unreleased)
+11.1.0 (2018-10-25)
 -------------------
 
 **New features**
@@ -14,6 +14,7 @@ This document describes changes between each past release.
 **Internal changes**
 
 - Use mock from the standard library.
+- Blackify the whole code base (#1799, huge thanks to @Cnidarias for this!)
 
 
 11.0.0 (2018-10-09)
