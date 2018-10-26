@@ -33,7 +33,7 @@ def migrate(env, dry_run=False):
                 getattr(registry, backend).initialize_schema(dry_run=dry_run)
 
 
-def delete_collection(env, bucket_id, resource_name):
+def delete_collection(env, bucket_id, collection_id):
     registry = env["registry"]
     settings = registry.settings
     readonly_mode = asbool(settings.get("readonly", False))
@@ -44,7 +44,7 @@ def delete_collection(env, bucket_id, resource_name):
         return 31
 
     bucket = "/buckets/{}".format(bucket_id)
-    collection = "/buckets/{}/collections/{}".format(bucket_id, resource_name)
+    collection = "/buckets/{}/collections/{}".format(bucket_id, collection_id)
 
     try:
         registry.storage.get(resource_name="bucket", parent_id="", object_id=bucket_id)
@@ -53,7 +53,7 @@ def delete_collection(env, bucket_id, resource_name):
         return 32
 
     try:
-        registry.storage.get(resource_name="collection", parent_id=bucket, object_id=resource_name)
+        registry.storage.get(resource_name="collection", parent_id=bucket, object_id=collection_id)
     except storage_exceptions.ObjectNotFoundError:
         logger.error("Collection '{}' does not exist.".format(collection))
         return 33
@@ -67,16 +67,16 @@ def delete_collection(env, bucket_id, resource_name):
         logger.info("{} object(s) were deleted.".format(len(deleted)))
 
     registry.storage.delete(
-        resource_name="collection", parent_id=bucket, object_id=resource_name, with_deleted=False
+        resource_name="collection", parent_id=bucket, object_id=collection_id, with_deleted=False
     )
     logger.info("'{}' collection object was deleted.".format(collection))
 
-    obj = "/buckets/{bucket_id}" "/collections/{resource_name}" "/objects/{object_id}"
+    obj = "/buckets/{bucket_id}" "/collections/{collection_id}" "/objects/{object_id}"
 
     registry.permission.delete_object_permissions(
         collection,
         *[
-            obj.format(bucket_id=bucket_id, resource_name=resource_name, object_id=r["id"])
+            obj.format(bucket_id=bucket_id, resource_name=collection_id, object_id=r["id"])
             for r in deleted
         ]
     )
