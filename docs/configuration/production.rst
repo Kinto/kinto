@@ -35,7 +35,11 @@ On RedHat / Fedora / Mint based systems::
 
     $ yum install postgresql-devel
 
-On Mac OS X, `install a server or use port <http://superuser.com/questions/296873/install-libpq-dev-on-mac-os>`_.
+On MacOS::
+
+    $ brew install postgresql
+
+See also `install a server or use port <http://superuser.com/questions/296873/install-libpq-dev-on-mac-os>`_.
 
 Install PostgreSQL Python Dependencies
 --------------------------------------
@@ -177,7 +181,7 @@ adjustments:
 .. note::
 
     For an exhaustive list of available settings and their default values,
-    refer to the *Kinto* :github:`source code <Kinto/kinto/blob/11.0.0/kinto/core/__init__.py#L27-L98>`.
+    refer to the *Kinto* :github:`source code <Kinto/kinto/blob/11.1.0/kinto/core/__init__.py#L27-L98>`.
 
 
 By default, nobody can read buckets list. You can change that using:
