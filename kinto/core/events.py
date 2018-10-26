@@ -1,4 +1,5 @@
 import logging
+import warnings
 from collections import OrderedDict
 
 import transaction
@@ -32,6 +33,18 @@ class _ResourceEvent:
         return "<{klass} action={action} uri={uri}>".format(
             klass=self.__class__.__name__, **self.payload
         )
+
+    @property
+    def read_records(self):
+        message = "`read_records` is deprecated, use `read_objects` instead."
+        warnings.warn(message, DeprecationWarning)
+        return self.read_objects
+
+    @property
+    def impacted_records(self):
+        message = "`impacted_objects` is deprecated, use `read_objects` instead."
+        warnings.warn(message, DeprecationWarning)
+        return self.impacted_objects
 
 
 class ResourceRead(_ResourceEvent):

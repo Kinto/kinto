@@ -90,6 +90,7 @@ class ViewSet:
         "cors_headers": (
             "Next-Page",
             "Total-Objects",
+            "Total-Records",  # Deprecated.
             "Last-Modified",
             "ETag",
             "Cache-Control",

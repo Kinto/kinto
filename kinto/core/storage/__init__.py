@@ -1,6 +1,7 @@
 import json
 import logging
 import random
+import warnings
 from collections import namedtuple
 
 from pyramid.settings import asbool
@@ -332,6 +333,11 @@ class StorageBase:
         :rtype: tuple
         """
         raise NotImplementedError
+
+    def collection_timestamp(self, *args, **kwargs):
+        message = "`collection_timestamp()` is deprecated, use `resource_timestamp()` instead."
+        warnings.warn(message, DeprecationWarning)
+        return self.resource_timestamp(*args, **kwargs)
 
 
 def heartbeat(backend):

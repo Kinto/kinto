@@ -1,6 +1,7 @@
 import logging
 import re
 import functools
+import warnings
 from uuid import uuid4
 
 import colander
@@ -329,6 +330,8 @@ class UserResource:
             objects = [dict_subset(obj, partial_fields) for obj in objects]
 
         headers["Total-Objects"] = str(total_objects)
+        # Clients backward compatibility.
+        headers["Total-Records"] = headers["Total-Objects"]
 
         return self.postprocess(objects)
 
@@ -1142,6 +1145,32 @@ class UserResource:
                 token["last_object"][field] = last_value
 
         return encode64(json.dumps(token))
+
+    @property
+    def record_id(self):
+        message = "`record_id` is deprecated, use `object_id` instead."
+        warnings.warn(message, DeprecationWarning)
+        return self.object_id
+
+    def process_record(self, *args, **kwargs):
+        message = "`process_record()` is deprecated, use `process_object()` instead."
+        warnings.warn(message, DeprecationWarning)
+        return self.process_object(*args, **kwargs)
+
+    def collection_get(self, *args, **kwargs):
+        message = "`collection_get()` is deprecated, use `plural_get()` instead."
+        warnings.warn(message, DeprecationWarning)
+        return self.plural_get(*args, **kwargs)
+
+    def collection_post(self, *args, **kwargs):
+        message = "`collection_post()` is deprecated, use `plural_post()` instead."
+        warnings.warn(message, DeprecationWarning)
+        return self.plural_post(*args, **kwargs)
+
+    def collection_delete(self, *args, **kwargs):
+        message = "`collection_delete()` is deprecated, use `plural_delete()` instead."
+        warnings.warn(message, DeprecationWarning)
+        return self.plural_delete(*args, **kwargs)
 
 
 class ShareableResource(UserResource):

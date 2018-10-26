@@ -1,3 +1,6 @@
+import warnings
+
+
 class Model:
     """A resource stores and manipulate objects in its attached storage.
 
@@ -267,6 +270,42 @@ class Model:
             auth=self.auth,
             last_modified=last_modified,
         )
+
+    @property
+    def collection_id(self):
+        message = "`collection_id` is deprecated, use `resource_name` instead."
+        warnings.warn(message, DeprecationWarning)
+        return self.resource_name
+
+    def get_records(self, *args, **kwargs):
+        message = "`get_records()` is deprecated, use `get_objects()` instead."
+        warnings.warn(message, DeprecationWarning)
+        return self.get_objects(*args, **kwargs)
+
+    def delete_records(self, *args, **kwargs):
+        message = "`delete_records()` is deprecated, use `delete_objects()` instead."
+        warnings.warn(message, DeprecationWarning)
+        return self.delete_objects(*args, **kwargs)
+
+    def get_record(self, *args, **kwargs):
+        message = "`get_record()` is deprecated, use `get_object()` instead."
+        warnings.warn(message, DeprecationWarning)
+        return self.get_object(*args, **kwargs)
+
+    def create_record(self, *args, **kwargs):
+        message = "`create_record()` is deprecated, use `create_object()` instead."
+        warnings.warn(message, DeprecationWarning)
+        return self.create_object(*args, **kwargs)
+
+    def update_record(self, *args, **kwargs):
+        message = "`update_record()` is deprecated, use `update_object()` instead."
+        warnings.warn(message, DeprecationWarning)
+        return self.update_object(*args, **kwargs)
+
+    def delete_record(self, *args, **kwargs):
+        message = "`delete_record()` is deprecated, use `delete_object()` instead."
+        warnings.warn(message, DeprecationWarning)
+        return self.delete_object(*args, **kwargs)
 
 
 class ShareableModel(Model):

@@ -16,7 +16,15 @@ class BackendError(Exception):
         super().__init__(message, *args, **kwargs)
 
 
-class ObjectNotFoundError(Exception):
+class RecordNotFoundError(Exception):
+    """Deprecated exception name.
+
+    """
+
+    pass
+
+
+class ObjectNotFoundError(RecordNotFoundError):
     """An exception raised when a specific object could not be found.
 
     """
