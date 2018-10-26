@@ -201,7 +201,7 @@ def request_GET(request):
     """
     try:
         return request.GET
-    except UnicodeDecodeError as e:
+    except UnicodeDecodeError:
         querystring = request.environ.get("QUERY_STRING", "")
         logger = logging.getLogger(__name__)
         logger.warn("Error decoding QUERY_STRING: %s" % request.environ)

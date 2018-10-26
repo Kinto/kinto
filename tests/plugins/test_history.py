@@ -78,7 +78,7 @@ class HistoryViewTest(HistoryWebTest):
         resp = self.app.get(self.history_uri, headers=self.headers)
         entry = resp.json["data"][-1]
         assert entry["user_id"] == self.principal
-        assert re.match("^\d{4}\-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}", entry["date"])
+        assert re.match("^\\d{4}\\-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{6}", entry["date"])
 
     #
     # Bucket
