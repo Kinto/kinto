@@ -7,7 +7,7 @@ pytest-sugar==0.9.1
 pytest-watch==4.2.0
 SQLAlchemy==1.2.12
 python-memcached==1.59
-tox==3.5.2
+tox==3.5.3
 WebTest==2.0.32
 werkzeug==0.14.1
 wheel==0.32.2
