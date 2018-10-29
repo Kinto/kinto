@@ -82,6 +82,7 @@ Contributors
 * SwhGo_oN <@swhgoon>
 * Tarek Ziade <tarek@mozilla.com>
 * Taylor Zane Glaeser <tzglaeser@gmail.com>
+* Ted Jacobs <doldrone@bellsouth.net>
 * Thomas Dressler <Thomas.Dressler1@gmail.com>
 * Tiberiu Ichim <@tiberiuichim>
 * Vamsi Sangam <vamsisangam@live.com>
