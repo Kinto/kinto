@@ -63,6 +63,7 @@ Contributors
 * Pascal Roessner <roessner.pascal@gmail.com>
 * PeriGK <per.gkolias@gmail.com>
 * Peter Bengtsson <mail@peterbe.com>
+* Peter Rassias <ubcpeter@hotmail.com>
 * realsumit <sumitsarinofficial@gmail.com>
 * Rektide <rektide@voodoowarez.com>
 * Rémy Hubscher <rhubscher@mozilla.com>
@@ -90,4 +91,3 @@ Contributors
 * Wil Clouser <wclouser@mozilla.com>
 * Yann Klis <yann.klis@gmail.com>
 * Jeff Schobelock <jswhatnot15@gmail.com>
-
