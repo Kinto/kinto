@@ -18,7 +18,7 @@ before_script:
   - sudo /etc/init.d/postgresql restart
   - psql -c "CREATE DATABASE testdb ENCODING 'UTF8' TEMPLATE template0;" -U postgres
   - make version-file
-  - make build-kinto-admin
+  - [[ $TOX_ENV == "py37" ]] && make build-kinto-admin
 script:
   - tox -e $TOX_ENV
 after_success:
