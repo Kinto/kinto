@@ -6,4 +6,4 @@ kinto-redis==1.3.0
 mock==2.0.0
 webtest==2.0.32
 cornice==3.4.2
-pyramid==1.9.2
+pyramid==1.10
