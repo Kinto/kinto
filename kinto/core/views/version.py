@@ -46,4 +46,4 @@ def version_view(request):
                 version_view.__json__ = json.load(f)
                 return version_view.__json__  # First one wins.
 
-    raise httpexceptions.HTTPNotFound()
+    raise FileNotFoundError("Version file missing")
