@@ -229,6 +229,16 @@ class ApplicationWrapperTest(unittest.TestCase):
         self.assertNotIn("myapp.http_host", settings)
         self.assertEqual(settings["http_host"], "localhost:8888")
 
+    def test_load_default_settings_converts_to_native_correctly(self):
+        config = mock.MagicMock()
+
+        settings = {"settings_prefix": "myapp"}
+
+        config.get_settings.return_value = settings
+        initialization.load_default_settings(config, {"myapp.my_cool_setting": '"1.2"'})
+
+        self.assertEqual(settings["my_cool_setting"], "1.2")
+
 
 class StatsDConfigurationTest(unittest.TestCase):
     def setUp(self):
