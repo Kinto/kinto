@@ -45,4 +45,4 @@ def version_view(request):
                 version_view.__json__ = json.load(f)
                 return version_view.__json__  # First one wins.
 
-    raise FileNotFoundError("Version file missing")
+    raise FileNotFoundError("Version file missing from {}".format(files.join(",")))
