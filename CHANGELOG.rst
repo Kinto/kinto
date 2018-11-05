@@ -6,7 +6,9 @@ This document describes changes between each past release.
 11.2.0 (unreleased)
 -------------------
 
-- Nothing changed yet.
+**New features**
+
+- Kinto now returns 500 FileNotFoundError instead of 404 if the version file cannot be found (fixes #1841)
 
 
 11.1.0 (2018-10-25)
