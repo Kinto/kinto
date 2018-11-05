@@ -10,6 +10,11 @@ This document describes changes between each past release.
 
 - Kinto now returns 500 FileNotFoundError instead of 404 if the version file cannot be found (fixes #1841)
 
+**Bug fixes**
+
+- Fix the ``http_api_version`` exposed in the ``/v1/`` endpoint. The
+  version ``1.20`` was getting parsed as a number ``1.2``.
+
 
 11.1.0 (2018-10-25)
 -------------------
@@ -28,6 +33,7 @@ This document describes changes between each past release.
 - Use mock from the standard library.
 - Blackify the whole code base (#1799, huge thanks to @Cnidarias for this!)
 - Upgrade kinto-admin to v1.22
+
 
 11.0.0 (2018-10-09)
 -------------------

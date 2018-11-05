@@ -2,6 +2,7 @@ import pkg_resources
 import logging
 
 import kinto.core
+from kinto.core import utils
 from pyramid.config import Configurator
 from pyramid.settings import asbool
 from pyramid.security import Authenticated, Everyone
@@ -30,7 +31,7 @@ DEFAULT_SETTINGS = {
     "multiauth.authorization_policy": ("kinto.authorization.AuthorizationPolicy"),
     "experimental_collection_schema_validation": False,
     "experimental_permissions_endpoint": False,
-    "http_api_version": HTTP_API_VERSION,
+    "http_api_version": utils.json_serializer(HTTP_API_VERSION),
     "bucket_id_generator": "kinto.views.NameGenerator",
     "collection_id_generator": "kinto.views.NameGenerator",
     "group_id_generator": "kinto.views.NameGenerator",
