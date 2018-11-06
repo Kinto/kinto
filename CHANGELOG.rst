@@ -6,7 +6,7 @@ This document describes changes between each past release.
 11.2.0 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- Build the admin on the CI. (#1857)
 
 
 11.1.0 (2018-10-25)
