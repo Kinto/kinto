@@ -15,6 +15,10 @@ This document describes changes between each past release.
 - Fix the ``http_api_version`` exposed in the ``/v1/`` endpoint. The
   version ``1.20`` was getting parsed as a number ``1.2``.
 
+**Internal changes**
+
+- Build the admin on the CI. (#1857)
+
 
 11.1.0 (2018-10-25)
 -------------------
