@@ -7,6 +7,7 @@ import unittest
 import uuid
 
 import requests
+from kinto import HTTP_API_VERSION
 
 
 # abspath here because __file__ may be relative if it is in __main__
@@ -58,6 +59,11 @@ class FunctionalTest(unittest.TestCase):
         flush_url = urljoin(self.server_url, "/__flush__")
         resp = requests.post(flush_url)
         resp.raise_for_status()
+
+    def test_http_api_version(self):
+        resp = self.session.get(urljoin(self.server_url, "/v1"))
+        resp.raise_for_status()
+        self.assertEqual(resp.json()["http_api_version"], HTTP_API_VERSION)
 
     def test_user_default_bucket_tutorial(self):
         collection_id = "tasks-%s" % uuid.uuid4()

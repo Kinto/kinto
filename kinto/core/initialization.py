@@ -496,6 +496,7 @@ def load_default_settings(config, default_settings):
             settings[unprefixed] = default_value
 
     for key, value in sorted(settings.items()):
+        value = utils.native_value(value)
         unprefixed, project_prefix = keys = _prefixed_keys(key)
 
         # Fail if not only one is defined.
