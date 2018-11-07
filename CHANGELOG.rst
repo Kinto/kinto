@@ -14,6 +14,7 @@ This document describes changes between each past release.
 
 - Fix the ``http_api_version`` exposed in the ``/v1/`` endpoint. The
   version ``1.20`` was getting parsed as a number ``1.2``.
+- Fix `record:create` not taken into account from settings. (Fixes #1813)
 
 **Internal changes**
 
