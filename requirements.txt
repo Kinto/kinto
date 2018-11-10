@@ -30,7 +30,7 @@ repoze.lru==0.7
 requests==2.20.1
 simplejson==3.16.0
 six==1.11.0
-SQLAlchemy==1.2.13
+SQLAlchemy==1.2.14
 statsd==3.3.0
 transaction==2.4.0
 translationstring==1.3
