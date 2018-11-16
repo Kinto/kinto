@@ -13,10 +13,8 @@ Kinto
 .. |slack| image:: https://img.shields.io/badge/slack-kinto-e01865.svg
     :target: https://slack.kinto-storage.org/
 
-# Change travis back to original build when making pull request
-
-.. |travis| image:: https://travis-ci.org/DrFaustie/kinto.svg?branch=master
-    :target: https://travis-ci.org/DrFaustie/kinto
+.. |travis| image:: https://travis-ci.org/Kinto/kinto.svg?branch=master
+    :target: https://travis-ci.org/Kinto/kinto
 
 .. |readthedocs| image:: https://readthedocs.org/projects/kinto/badge/?version=latest
     :target: https://kinto.readthedocs.io/en/latest/
