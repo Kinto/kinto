@@ -86,7 +86,7 @@ class MigratorMixin:
             if not dry_run:
                 self._execute_sql_file(filepath)
         logger.info(
-            f"PostgreSQL {name} schema migration {'simulated' if dry_run else 'done'}"
+            f"PostgreSQL {self.name} schema migration {'simulated' if dry_run else 'done'}"
         )
 
     def _execute_sql_file(self, filepath):
