@@ -115,5 +115,5 @@ def on_resource_changed(event):
         entry_principals.update(perms.get("write", []))
         entry_perms = {"read": list(entry_principals)}
         # /buckets/{id}/history is the URI for the list of history entries.
-        entry_perm_id = f"/buckets/{bucket_id}/history/{entry['id']}")
+        entry_perm_id = f"/buckets/{bucket_id}/history/{entry['id']}"
         permission.replace_object_permissions(entry_perm_id, entry_perms)
