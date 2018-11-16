@@ -59,7 +59,7 @@ class MigratorMixin:
         You can override this if you want to add additional sanity checks.
         """
         logger.info(
-            f"Create PostgreSQL {self.name} schema at version {self.schema_version} from {self.schema_file}".
+            f"Create PostgreSQL {self.name} schema at version {self.schema_version} from {self.schema_file}."
         )
         if not dry_run:
             self._execute_sql_file(self.schema_file)
