@@ -12,7 +12,7 @@ class BackendError(Exception):
     def __init__(self, original=None, message=None, *args, **kwargs):
         self.original = original
         if message is None:
-            message = "{}: {}".format(original.__class__.__name__, original)
+            message = f"{original.__class__.__name__}: {original}"
         super().__init__(message, *args, **kwargs)
 
 
@@ -39,5 +39,5 @@ class UnicityError(IntegrityError):
     def __init__(self, field, record, *args, **kwargs):
         self.field = field
         self.record = record
-        self.msg = "{} is not unique: {}".format(field, record)
+        self.msg = f"{field} is not unique: {record}"
         super().__init__(*args, **kwargs)

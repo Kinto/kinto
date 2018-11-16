@@ -85,7 +85,7 @@ class Cache(CacheBase):
         sql_file = os.path.join(here, "schema.sql")
 
         if dry_run:
-            logger.info("Create cache schema from '{}'".format(sql_file))
+            logger.info(f"Create cache schema from '{sql_file}'")
             return
 
         # Since called outside request, force commit.

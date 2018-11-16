@@ -88,7 +88,7 @@ def validate_from_bucket_schema_or_400(data, resource_name, request, ignore_fiel
         buckets[bucket_uri] = bucket
 
     # Let's see if the bucket defines a schema for this resource.
-    metadata_field = "{}:schema".format(resource_name)
+    metadata_field = f"{resource_name}:schema"
     bucket = buckets[bucket_uri]
     if metadata_field not in bucket:
         return

@@ -25,9 +25,7 @@ def migrate(env, dry_run=False):
     for backend in ("cache", "storage", "permission"):
         if hasattr(registry, backend):
             if readonly_mode and backend in readonly_backends:
-                message = "Cannot migrate the {} backend while " "in readonly mode.".format(
-                    backend
-                )
+                message = f"Cannot migrate the {backend} backend while in readonly mode."
                 logger.error(message)
             else:
                 getattr(registry, backend).initialize_schema(dry_run=dry_run)
@@ -43,33 +41,33 @@ def delete_collection(env, bucket_id, collection_id):
         logger.error(message)
         return 31
 
-    bucket = "/buckets/{}".format(bucket_id)
-    collection = "/buckets/{}/collections/{}".format(bucket_id, collection_id)
+    bucket = f"/buckets/{bucket_id}"
+    collection = f"/buckets/{bucket_id}/collections/{collection_id}"
 
     try:
         registry.storage.get(collection_id="bucket", parent_id="", object_id=bucket_id)
     except storage_exceptions.RecordNotFoundError:
-        logger.error("Bucket '{}' does not exist.".format(bucket))
+        logger.error(f"Bucket '{bucket}' does not exist.")
         return 32
 
     try:
         registry.storage.get(collection_id="collection", parent_id=bucket, object_id=collection_id)
     except storage_exceptions.RecordNotFoundError:
-        logger.error("Collection '{}' does not exist.".format(collection))
+        logger.error(f"Collection '{collection}' does not exist.")
         return 33
 
     deleted = registry.storage.delete_all(
         collection_id="record", parent_id=collection, with_deleted=False
     )
     if len(deleted) == 0:
-        logger.info("No records found for '{}'.".format(collection))
+        logger.info(f"No records found for '{collection}'.")
     else:
-        logger.info("{} record(s) were deleted.".format(len(deleted)))
+        logger.info(f"{len(deleted)} record(s) were deleted.")
 
     registry.storage.delete(
         collection_id="collection", parent_id=bucket, object_id=collection_id, with_deleted=False
     )
-    logger.info("'{}' collection object was deleted.".format(collection))
+    logger.info("'{collection}' collection object was deleted.")
 
     record = "/buckets/{bucket_id}" "/collections/{collection_id}" "/records/{record_id}"
 

@@ -311,7 +311,7 @@ def prefixed_userid(request):
     # (see :func:`kinto.core.initialization.setup_authentication`)
     authn_type = getattr(request, "authn_type", None)
     if authn_type is not None:
-        return "{}:{}".format(authn_type, request.selected_userid)
+        return f"{authn_type}:{request.selected_userid}"
 
 
 def prefixed_principals(request):
@@ -343,7 +343,7 @@ def build_request(original, dict_obj):
     :param original: the original request.
     :param dict_obj: a dict object with the sub-request specifications.
     """
-    api_prefix = "/{}".format(original.upath_info.split("/")[1])
+    api_prefix = f"/{original.upath_info.split("/")[1]}"
     path = dict_obj["path"]
     if not path.startswith(api_prefix):
         path = api_prefix + path
@@ -460,7 +460,7 @@ def view_lookup_registry(registry, uri):
     :rtype: tuple
     :returns: the resource name and the associated matchdict.
     """
-    api_prefix = "/{}".format(registry.route_prefix)
+    api_prefix = f"/{registry.route_prefix}"
     path = api_prefix + uri
 
     q = registry.queryUtility
@@ -478,7 +478,7 @@ def view_lookup_registry(registry, uri):
 
 def instance_uri(request, resource_name, **params):
     """Return the URI for the given resource."""
-    return strip_uri_prefix(request.route_path("{}-record".format(resource_name), **params))
+    return strip_uri_prefix(request.route_path(f"{resource_name}-record", **params))
 
 
 def instance_uri_registry(registry, resource_name, **params):

@@ -20,7 +20,7 @@ def render_template(template, destination, **kwargs):
     if folder and not os.path.exists(folder):
         os.makedirs(folder)
 
-    logger.info("Created config {}".format(os.path.abspath(destination)))
+    logger.info(f"Created config {os.path.abspath(destination)}")
 
     with codecs.open(template, "r", encoding="utf-8") as f:
         raw_template = f.read()
@@ -50,9 +50,9 @@ def init(config_file, backend, cache_backend, host="127.0.0.1"):
     values["kinto_version"] = __version__
     values["config_file_timestamp"] = str(strftime("%a, %d %b %Y %H:%M:%S %z"))
 
-    values["storage_backend"] = "kinto.core.storage.{}".format(backend)
-    values["cache_backend"] = "kinto.core.cache.{}".format(cache_backend)
-    values["permission_backend"] = "kinto.core.permission.{}".format(backend)
+    values["storage_backend"] = f"kinto.core.storage.{backend}"
+    values["cache_backend"] = f"kinto.core.cache.{cache_backend}"
+    values["permission_backend"] = f"kinto.core.permission.{backend}"
     cache_backend_url = get_cache_backend_url(values["cache_backend"])
 
     if backend == "postgresql":
