@@ -343,7 +343,7 @@ def build_request(original, dict_obj):
     :param original: the original request.
     :param dict_obj: a dict object with the sub-request specifications.
     """
-    api_prefix = f"/{original.upath_info.split('/')[1]}"
+    api_prefix = "/{}".format(original.upath_info.split("/")[1])
     path = dict_obj["path"]
     if not path.startswith(api_prefix):
         path = api_prefix + path
