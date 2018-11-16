@@ -8,7 +8,7 @@ from kinto.schema_validation import validate_from_bucket_schema_or_400
 
 def validate_member(node, member):
     if member.startswith("/buckets/") or member == "system.Everyone":
-        raise colander.Invalid(node, "'{}' is not a valid user ID.".format(member))
+        raise colander.Invalid(node, f"'{member}' is not a valid user ID.")
 
 
 class GroupSchema(resource.ResourceSchema):

@@ -358,9 +358,7 @@ class BaseTestStorage:
                 records,
                 other_records,
                 "Filtering is not consistent with sorting when filtering "
-                "using value {}: {} (LT) + {} (MIN) != {}".format(
-                    value, smaller_records, greater_records, records
-                ),
+                f"using value {value}: {smaller_records} (LT) + {greater_records} (MIN) != {records}",
             )
 
         # Same test but with MAX and GT
@@ -379,9 +377,7 @@ class BaseTestStorage:
                 records,
                 other_records,
                 "Filtering is not consistent with sorting when filtering "
-                "using value {}: {} (MAX) + {} (GT) != {}".format(
-                    value, smaller_records, greater_records, records
-                ),
+                f"using value {value}: {smaller_records} (MAX) + {greater_records} (GT) != {records}",
             )
 
     def test_get_all_can_filter_with_list_of_values(self):
@@ -819,7 +815,7 @@ class TimestampsTest:
         now = record["last_modified"]
         time.sleep(0.002)  # 2 msec
         after = utils.msec_time()
-        self.assertTrue(before < now < after, "{} < {} < {}".format(before, now, after))
+        self.assertTrue(before < now < after, f"{before} < {now} < {after}")
 
     def test_timestamp_are_always_incremented_above_existing_value(self):
         # Create a record with normal clock
@@ -834,7 +830,7 @@ class TimestampsTest:
             after = record["last_modified"]
 
         # Expect the last one to be based on the highest value
-        self.assertTrue(0 < current < after, "0 < {} < {}".format(current, after))
+        self.assertTrue(0 < current < after, f"0 < {current} < {after}")
 
     def test_collection_timestamp_raises_error_when_empty_and_readonly(self):
         kw = {**self.storage_kw, "collection_id": "will-be-empty"}
@@ -1482,7 +1478,7 @@ class DeletedRecordsTest:
         # Create records with different parent IDs, but the same
         # record ID.
         for parent in range(10):
-            parent_id = "abc{}".format(parent)
+            parent_id = f"abc{parent}"
             self.storage.create(
                 parent_id=parent_id,
                 collection_id="c",

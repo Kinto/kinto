@@ -40,8 +40,7 @@ def includeme(config):
 
     if not policy:
         error_msg = (
-            "Account policy missing the 'multiauth.policy.*.use' " "setting. See {} in docs {}."
-        ).format(accountClass, DOCS_URL)
+            "Account policy missing the 'multiauth.policy.*.use' " f"setting. See {accountClass} in docs {DOCS_URL}."
         raise ConfigurationError(error_msg)
 
     # Add some safety to avoid weird behaviour with basicauth default policy.

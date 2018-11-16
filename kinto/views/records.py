@@ -115,14 +115,10 @@ class Record(resource.ShareableResource):
 
         cache_expires = self._collection.get("cache_expires")
         if cache_expires is None:
-            by_collection = "{}.{}.record_cache_expires_seconds".format(
-                self.bucket_id, self.collection_id
-            )
-            by_bucket = "{}.record_cache_expires_seconds".format(self.bucket_id)
-            by_collection_legacy = "{}_{}_record_cache_expires_seconds".format(
-                self.bucket_id, self.collection_id
-            )
-            by_bucket_legacy = "{}_record_cache_expires_seconds".format(self.bucket_id)
+            by_collection = f"{self.bucket_id}.{self.collection_id}.record_cache_expires_seconds"
+            by_bucket = f"{self.bucket_id}.record_cache_expires_seconds"
+            by_collection_legacy = f"{self.bucket_id}_{self.collection_id}_record_cache_expires_seconds"
+            by_bucket_legacy = f"{self.bucket_id}_record_cache_expires_seconds"
             settings = self.request.registry.settings
             for s in (by_collection, by_bucket, by_collection_legacy, by_bucket_legacy):
                 cache_expires = settings.get(s)

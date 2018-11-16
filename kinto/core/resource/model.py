@@ -214,7 +214,7 @@ class Model:
 
             def update_record(self, record, parent_id=None):
                 record = super().update_record(record, parent_id)
-                subject = 'Record {} was changed'.format(record[self.id_field])
+                subject = f'Record {record[self.id_field]} was changed'
                 send_email(subject)
                 return record
 

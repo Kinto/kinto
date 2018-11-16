@@ -46,9 +46,9 @@ class MigratorMixin:
             self.create_schema(dry_run)
             return
 
-        logger.info("Detected PostgreSQL {} schema version {}.".format(self.name, version))
+        logger.info(f"Detected PostgreSQL {self.name} schema version {version}.")
         if version == self.schema_version:
-            logger.info("PostgreSQL {} schema is up-to-date.".format(self.name))
+            logger.info(f"PostgreSQL {self.name} schema is up-to-date.")
             return
 
         self.migrate_schema(version, dry_run)
@@ -59,14 +59,12 @@ class MigratorMixin:
         You can override this if you want to add additional sanity checks.
         """
         logger.info(
-            "Create PostgreSQL {} schema at version {} from {}".format(
-                self.name, self.schema_version, self.schema_file
-            )
+            f"Create PostgreSQL {self.name} schema at version {self.schema_version} from {self.schema_file}".
         )
         if not dry_run:
             self._execute_sql_file(self.schema_file)
             logger.info(
-                "Created PostgreSQL {} schema (version {}).".format(self.name, self.schema_version)
+                f"Created PostgreSQL {self.name} schema (version {self.schema_version})."
             )
 
     def migrate_schema(self, start_version, dry_run):
@@ -74,22 +72,21 @@ class MigratorMixin:
         for migration in migrations:
             expected = migration[0]
             current = self.get_installed_version()
-            error_msg = "PostgreSQL {} schema: Expected version {}. Found version {}."
+            error_msg = f"PostgreSQL {self.name} schema: Expected version {expected}. Found version {current}."
             if not dry_run and expected != current:
-                raise AssertionError(error_msg.format(self.name, expected, current))
+                raise AssertionError(error_msg)
 
+            # Not sure how to use *args in with fstring
             logger.info(
                 "Migrate PostgreSQL {} schema from version {} to {}.".format(self.name, *migration)
             )
             filename = "migration_{0:03d}_{1:03d}.sql".format(*migration)
             filepath = os.path.join(self.migrations_directory, filename)
-            logger.info("Execute PostgreSQL {} migration from {}".format(self.name, filepath))
+            logger.info(f"Execute PostgreSQL {self.name} migration from {filepath}")
             if not dry_run:
                 self._execute_sql_file(filepath)
         logger.info(
-            "PostgreSQL {} schema migration {}.".format(
-                self.name, "simulated" if dry_run else "done"
-            )
+            f"PostgreSQL {name} schema migration {'simulated' if dry_run else 'done'}"
         )
 
     def _execute_sql_file(self, filepath):

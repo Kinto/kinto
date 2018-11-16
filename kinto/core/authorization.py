@@ -61,7 +61,7 @@ class AuthorizationPolicy:
         if permission == DYNAMIC:
             permission = context.required_permission
 
-        create_permission = "{}:create".format(context.resource_name)
+        create_permission = f"{context.resource_name}:create"
         if permission == "create":
             permission = create_permission
 
@@ -178,9 +178,9 @@ class RouteFactory:
         for (_, permission) in bound_perms:
             # With Kinto inheritance tree, we can have: `permission = "record:create"`
             if self.resource_name and permission.startswith(self.resource_name):
-                setting = "{}_principals".format(permission.replace(":", "_"))
+                setting = f"{permission.replace(':', '_')}_principals"
             else:
-                setting = "{}_{}_principals".format(self.resource_name, permission)
+                setting = f"{self.resource_name}_{permission}_principals"
             allowed_principals = aslist(self._settings.get(setting, ""))
             if allowed_principals:
                 if bool(set(allowed_principals) & set(principals)):
@@ -233,7 +233,7 @@ class RouteFactory:
                 # Maybe the resource has no single record endpoint.
                 # We consider that object URIs in permissions backend will
                 # be stored naively:
-                object_uri = "{}/{}".format(object_uri, object_id)
+                object_uri = f"{object_uri}/{object_id}"
 
         return object_uri
 

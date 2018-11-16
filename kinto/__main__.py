@@ -154,7 +154,7 @@ def main(args=None):
 
     if which_command == "init":
         if os.path.exists(config_file):
-            print("{} already exists.".format(config_file), file=sys.stderr)
+            print(f"{config_file} already exists.", file=sys.stderr)
             return 1
 
         backend = parsed_args["backend"]
@@ -246,7 +246,7 @@ def main(args=None):
             pserve_argv.append("-q")
 
         pserve_argv.append(config_file)
-        pserve_argv.append("http_port={}".format(parsed_args["port"]))
+        pserve_argv.append(f"http_port={parsed_args['port']}")
         pserve.main(argv=pserve_argv)
 
     else:
