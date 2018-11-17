@@ -67,7 +67,7 @@ def delete_collection(env, bucket_id, collection_id):
     registry.storage.delete(
         collection_id="collection", parent_id=bucket, object_id=collection_id, with_deleted=False
     )
-    logger.info("'{collection}' collection object was deleted.")
+    logger.info(f"'{collection}' collection object was deleted.")
 
     record = "/buckets/{bucket_id}" "/collections/{collection_id}" "/records/{record_id}"
 
