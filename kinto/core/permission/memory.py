@@ -126,15 +126,9 @@ class Permission(PermissionBase):
         result = []
         for object_id in objects_ids:
             if permissions is None:
-                aces = [
-                    k
-                    for k in self._store.keys()
-                    if k.startswith(f"permission:{object_id}:")
-                ]
+                aces = [k for k in self._store.keys() if k.startswith(f"permission:{object_id}:")]
             else:
-                aces = [
-                    f"permission:{object_id}:{permission}" for permission in permissions
-                ]
+                aces = [f"permission:{object_id}:{permission}" for permission in permissions]
             perms = {}
             for ace in aces:
                 # Should work with 'permission:/url/id:record:create'.

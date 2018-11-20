@@ -174,22 +174,34 @@ def on_resource_changed(event):
 
     if bucket_max_bytes is not None:
         if bucket_info["storage_size"] > bucket_max_bytes:
-            message = "Bucket maximum total size exceeded " f"({bucket_info['storage_size']} > {bucket_max_bytes} Bytes). "
+            message = (
+                "Bucket maximum total size exceeded "
+                f"({bucket_info['storage_size']} > {bucket_max_bytes} Bytes). "
+            )
             raise_insufficient_storage(message)
 
     if bucket_max_items is not None:
         if bucket_info["record_count"] > bucket_max_items:
-            message = "Bucket maximum number of objects exceeded " f"({bucket_info['record_count']} > {bucket_max_items} objects)."
+            message = (
+                "Bucket maximum number of objects exceeded "
+                f"({bucket_info['record_count']} > {bucket_max_items} objects)."
+            )
             raise_insufficient_storage(message)
 
     if collection_max_bytes is not None:
         if collection_info["storage_size"] > collection_max_bytes:
-            message = "Collection maximum size exceeded " f"({collection_info['storage_size']} > {collection_max_bytes} Bytes)."
+            message = (
+                "Collection maximum size exceeded "
+                f"({collection_info['storage_size']} > {collection_max_bytes} Bytes)."
+            )
             raise_insufficient_storage(message)
 
     if collection_max_items is not None:
         if collection_info["record_count"] > collection_max_items:
-            message = "Collection maximum number of objects exceeded " f"({collection_info['record_count']} > {collection_max_items} objects)."
+            message = (
+                "Collection maximum number of objects exceeded "
+                f"({collection_info['record_count']} > {collection_max_items} objects)."
+            )
             raise_insufficient_storage(message)
 
     storage.update(

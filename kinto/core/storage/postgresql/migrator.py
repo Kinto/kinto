@@ -63,9 +63,7 @@ class MigratorMixin:
         )
         if not dry_run:
             self._execute_sql_file(self.schema_file)
-            logger.info(
-                f"Created PostgreSQL {self.name} schema (version {self.schema_version})."
-            )
+            logger.info(f"Created PostgreSQL {self.name} schema (version {self.schema_version}).")
 
     def migrate_schema(self, start_version, dry_run):
         migrations = [(v, v + 1) for v in range(start_version, self.schema_version)]

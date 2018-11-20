@@ -31,6 +31,7 @@ class _ResourceEvent:
     def __repr__(self):
         return f"<{self.__class__.__name__} action={self.payload['action']} uri={self.payload['uri']}>"
 
+
 class ResourceRead(_ResourceEvent):
     """Triggered when a resource is being read.
     """

@@ -76,7 +76,7 @@ def delete_collection(env, bucket_id, collection_id):
         *[
             record.format(bucket_id=bucket_id, collection_id=collection_id, record_id=r["id"])
             for r in deleted
-        ]
+        ],
     )
     logger.info("Related permissions were deleted.")
 

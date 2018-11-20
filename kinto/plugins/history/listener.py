@@ -100,7 +100,7 @@ def on_resource_changed(event):
         attrs = dict(
             date=datetime.now().isoformat(),
             target={"data": target, "permissions": perms},
-            **eventattrs
+            **eventattrs,
         )
 
         # Create a record for the 'history' resource, whose parent_id is

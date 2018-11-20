@@ -145,7 +145,7 @@ class PermissionsModel:
                 uri=object_uri,
                 resource_name=resource_name,
                 permissions=list(permissions),
-                **matchdict
+                **matchdict,
             )
             entries.append(entry)
 
