@@ -32,7 +32,7 @@ def create_user(env, username=None, password=None):
             username = input("Username: ")
         while not validator.match(username):
             print("{} is not a valid username.")
-            print("Username should match {0!r}, please try again.".format(validator.regexp))
+            print(f"Username should match {validator.regexp}, please try again.")
             username = input("Username: ")
 
         if password is None:

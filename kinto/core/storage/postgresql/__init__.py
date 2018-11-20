@@ -918,7 +918,7 @@ class Storage(StorageBase, MigratorMixin):
             placeholders.update(**holders)
 
         # Unsure how to convert to fstrings
-        safe_sql = " OR ".join(["({})".format(r) for r in rules])
+        safe_sql = " OR ".join([f"({r})" for r in rules])
         return safe_sql, placeholders
 
     def _format_sorting(self, sorting, id_field, modified_field):

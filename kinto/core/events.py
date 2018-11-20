@@ -29,11 +29,7 @@ class _ResourceEvent:
         self.request = request
 
     def __repr__(self):
-        # Not sure what proper conversion to fstring is
-        return "<{klass} action={action} uri={uri}>".format(
-            klass=self.__class__.__name__, **self.payload
-        )
-
+        return f"<{self.__class__.__name__} {payload['action']} {payload['uri']}>"
 
 class ResourceRead(_ResourceEvent):
     """Triggered when a resource is being read.

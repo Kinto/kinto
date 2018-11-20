@@ -34,8 +34,7 @@ class BasicAuthAuthenticationPolicy(base_auth.BasicAuthAuthenticationPolicy):
                 return
 
             hmac_secret = settings["userid_hmac_secret"]
-            # Unsure how to use fstring with *args
-            credentials = "{}:{}".format(*credentials)
+            credentials = f"{credentials[0]}:{credentials[1]}"
             userid = utils.hmac_digest(hmac_secret, credentials)
             return userid
 

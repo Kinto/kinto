@@ -76,9 +76,8 @@ class MigratorMixin:
             if not dry_run and expected != current:
                 raise AssertionError(error_msg)
 
-            # Not sure how to use *args in with fstring
             logger.info(
-                "Migrate PostgreSQL {} schema from version {} to {}.".format(self.name, *migration)
+                f"Migrate PostgreSQL {self.name} schema from version {migration[0]} to {migration[1]}."
             )
             filename = "migration_{0:03d}_{1:03d}.sql".format(*migration)
             filepath = os.path.join(self.migrations_directory, filename)

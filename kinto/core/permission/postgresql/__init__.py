@@ -240,7 +240,7 @@ class Permission(PermissionBase, MigratorMixin):
         for i, (obj, perm) in enumerate(bound_permissions):
             placeholders[f"obj_{i}"] = obj
             placeholders[f"perm_{i}"] = perm
-            perm_values.append("(:obj_{0}, :perm_{0})".format(i))
+            perm_values.append(f"(:obj_{i}, :perm_{i})")
 
         query = f"""
         WITH required_perms AS (

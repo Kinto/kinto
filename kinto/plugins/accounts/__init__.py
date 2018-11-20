@@ -70,7 +70,7 @@ def includeme(config):
             "able to create their own accounts. This may not be what you want.\n"
             "If you want these users to be able to create accounts for other users, "
             "add them to account_write_principals.\n"
-            "Affected users: {}".format(list(cant_create_anything))
+            f"Affected users: {list(cant_create_anything)}"
         )
 
         raise ConfigurationError(message)
