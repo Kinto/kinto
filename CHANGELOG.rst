@@ -3,8 +3,12 @@ Changelog
 
 This document describes changes between each past release.
 
-11.2.0 (unreleased)
+12.0.0 (unreleased)
 -------------------
+
+**Breaking changes**
+
+- Remove Python 3.5 support and upgrade to Python 3.6. (#1886)
 
 **New features**
 
@@ -19,6 +23,7 @@ This document describes changes between each past release.
 **Internal changes**
 
 - Build the admin on the CI. (#1857)
+- Use f-string instead of % or format operators. (#1886)
 
 
 11.1.0 (2018-10-25)
