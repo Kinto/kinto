@@ -78,7 +78,7 @@ def on_groups_changed(event):
             existing_record_members = set()
 
         group = change["new"]
-        group_uri = f"/buckets/{payload['bucket_id']}/groups/{group['id']}"
+        group_uri = f"/buckets/{event.payload['bucket_id']}/groups/{group['id']}"
         new_record_members = set(group.get("members", []))
         new_members = new_record_members - existing_record_members
         removed_members = existing_record_members - new_record_members
