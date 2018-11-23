@@ -30,6 +30,7 @@ Contributors
 * Étienne <@Étienne>
 * Fil <fil@rezo.net>
 * FooBarQuaxx
+* Francisco J. Piedrahita <@fpiedrah>
 * Greeshma <greeshmabalabadra@gmail.com>
 * Gabriela Surita <gabsurita@gmail.com>
 * George Smith <h3rmit@protonmail.com>
