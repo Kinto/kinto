@@ -3,7 +3,7 @@ certifi==2018.10.15
 cffi==1.11.5
 chardet==3.0.4
 colander==1.5.1
-colorama==0.4.0
+colorama==0.4.1
 cornice==3.4.2
 cornice-swagger==0.7.0
 dockerflow==2018.4.0
