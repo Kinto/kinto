@@ -22,7 +22,7 @@ This document describes changes between each past release.
 
 **Documentation**
 
-- Added documentation for troubleshooting Auth0 multiauth issue
+- Add documentation on troubleshooting Auth0 multiauth issue. (#1889)
 
 11.1.0 (2018-10-25)
 -------------------

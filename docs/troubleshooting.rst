@@ -171,9 +171,9 @@ This error can be seen through the kinto-admin, but it arises from a limitation
 present in the multiauth.policy configuration.
 
 You must make sure that two authorization policies won't match a given token,
-this will cause the incoherent userID behaviors.
+as this will cause the incoherent userID behaviors.
 
-This was specifically detected while using auth0 and google as multiauth policies.
+This was specifically noticed while using Auth0 and Google as multiauth policies.
 Here is an example of one such conflicting configuration::
 
    multiauth.policies = auth0 google
@@ -190,6 +190,6 @@ Here is an example of one such conflicting configuration::
    multiauth.policy.auth0.client_secret = <auth0 client secret>
    multiauth.policy.auth0.userid_field = email
 
-One simple solution is not to use Auth0 in conjunction with other auth policies,
-this is because Auth0 allows to fetch profile information from other providers
+One simple solution is not to use Auth0 in conjunction with other auth policies.
+This is because Auth0 allows to fetch profile information from other providers
 creating a conflict while choosing what policy should handle the access token.
