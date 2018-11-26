@@ -190,6 +190,7 @@ Here is an example of one such conflicting configuration::
    multiauth.policy.auth0.client_secret = <auth0 client secret>
    multiauth.policy.auth0.userid_field = email
 
-One simple solution is not to use Auth0 in conjunction with other auth policies.
-This is because Auth0 allows to fetch profile information from other providers
-creating a conflict while choosing what policy should handle the access token.
+One simple solution is not to use Auth0 in conjunction with other auth policies
+that overlaps with the ones it suppoprts (https://auth0.com/docs/identityproviders).
+This is because Auth0 allows to fetch profile information from other providers creating
+a conflict while choosing what policy should handle the access token.
