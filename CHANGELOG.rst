@@ -20,6 +20,9 @@ This document describes changes between each past release.
 
 - Build the admin on the CI. (#1857)
 
+**Documentation**
+
+- Add documentation on troubleshooting Auth0 multiauth issue. (#1889)
 
 11.1.0 (2018-10-25)
 -------------------
