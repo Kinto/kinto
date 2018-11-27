@@ -28,6 +28,7 @@ This document describes changes between each past release.
 - Upgrade kinto-admin to v1.22
 - Migrate JSON Hyper-Schema to Draft-07
 - Upgrade jsonschema to v3.0.0a3
+- Update bravado_core to 5.10.0
 
 11.0.0 (2018-10-09)
 -------------------
