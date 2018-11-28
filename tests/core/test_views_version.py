@@ -25,8 +25,8 @@ class VersionViewTest(BaseWebTest, unittest.TestCase):
                 response = self.app.get("/__version__")
                 assert response.json == content
 
-    def test_return_a_404_if_version_file_if_not_present(self):
-        self.app.get("/__version__", status=404)
+    def test_return_a_500_if_version_file_if_not_present(self):
+        self.app.get("/__version__", status=500)
 
     def test_return_the_version_file_specified_in_setting_if_present(self):
         custom_path = tempfile.mktemp()

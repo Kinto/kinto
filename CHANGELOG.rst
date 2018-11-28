@@ -6,8 +6,23 @@ This document describes changes between each past release.
 11.2.0 (unreleased)
 -------------------
 
-- Nothing changed yet.
+**New features**
 
+- Kinto now returns 500 FileNotFoundError instead of 404 if the version file cannot be found (fixes #1841)
+
+**Bug fixes**
+
+- Fix the ``http_api_version`` exposed in the ``/v1/`` endpoint. The
+  version ``1.20`` was getting parsed as a number ``1.2``.
+- Fix `record:create` not taken into account from settings. (Fixes #1813)
+
+**Internal changes**
+
+- Build the admin on the CI. (#1857)
+
+**Documentation**
+
+- Add documentation on troubleshooting Auth0 multiauth issue. (#1889)
 
 11.1.0 (2018-10-25)
 -------------------
@@ -28,6 +43,7 @@ This document describes changes between each past release.
 - Upgrade kinto-admin to v1.22
 - Migrate JSON Hyper-Schema to Draft-07
 - Upgrade jsonschema to v3.0.0
+
 
 11.0.0 (2018-10-09)
 -------------------
