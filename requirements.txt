@@ -15,7 +15,7 @@ jsonpointer==2.0
 jsonschema==3.0.0a3
 logging-color-formatter==1.0.2
 newrelic==4.6.0.106
-PasteDeploy==1.5.2
+PasteDeploy==2.0.0
 plaster==1.0
 plaster-pastedeploy==0.6
 psycopg2==2.7.6.1
