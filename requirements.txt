@@ -12,7 +12,7 @@ idna==2.7
 iso8601==0.1.12
 jsonpatch==1.23
 jsonpointer==2.0
-jsonschema==2.6.0
+jsonschema==3.0.0a3
 logging-color-formatter==1.0.2
 newrelic==4.6.0.106
 PasteDeploy==1.5.2
