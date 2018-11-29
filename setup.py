@@ -61,15 +61,15 @@ ENTRY_POINTS = {
 
 setup(
     name="kinto",
-    version="11.2.0.dev0",
+    version="11.3.0.dev0",
     description="Kinto Web Service - Store, Sync, Share, and Self-Host.",
     long_description="{}\n\n{}\n\n{}".format(README, CHANGELOG, CONTRIBUTORS),
     license="Apache License (2.0)",
     classifiers=[
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: Implementation :: CPython",
         "Topic :: Internet :: WWW/HTTP",
         "Topic :: Internet :: WWW/HTTP :: WSGI :: Application",

@@ -34,9 +34,7 @@ def allowed_from_settings(settings, principals):
             continue
         # ``collection_create_principals`` means ``collection:create`` in bucket.
         if permission == "create":
-            permission = "{resource_name}:{permission}".format(
-                resource_name=resource_name, permission=permission
-            )
+            permission = f"{resource_name}:{permission}"
             resource_name = {  # resource parents.
                 "collection": "bucket",
                 "group": "bucket",
@@ -113,7 +111,7 @@ class PermissionsModel:
                     # XXX: wrong approach: query in a loop!
                     every_subobjects, _ = storage.get_all(parent_id=bucket_uri, resource_name=res)
                     for subobject in every_subobjects:
-                        subobj_uri = bucket_uri + "/{0}s/{1}".format(res, subobject["id"])
+                        subobj_uri = bucket_uri + f"/{res}s/{subobject['id']}"
                         perms_by_object_uri.setdefault(subobj_uri, set()).update(resource_perms)
 
         entries = []
@@ -147,7 +145,7 @@ class PermissionsModel:
                 uri=object_uri,
                 resource_name=resource_name,
                 permissions=list(permissions),
-                **matchdict
+                **matchdict,
             )
             entries.append(entry)
 

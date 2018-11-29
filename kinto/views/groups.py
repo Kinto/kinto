@@ -8,7 +8,7 @@ from kinto.schema_validation import validate_from_bucket_schema_or_400
 
 def validate_member(node, member):
     if member.startswith("/buckets/") or member == "system.Everyone":
-        raise colander.Invalid(node, "'{}' is not a valid user ID.".format(member))
+        raise colander.Invalid(node, f"'{member}' is not a valid user ID.")
 
 
 class GroupSchema(resource.ResourceSchema):
@@ -78,7 +78,7 @@ def on_groups_changed(event):
             existing_record_members = set()
 
         group = change["new"]
-        group_uri = "/buckets/{bucket_id}/groups/{id}".format(id=group["id"], **event.payload)
+        group_uri = f"/buckets/{event.payload['bucket_id']}/groups/{group['id']}"
         new_record_members = set(group.get("members", []))
         new_members = new_record_members - existing_record_members
         removed_members = existing_record_members - new_record_members

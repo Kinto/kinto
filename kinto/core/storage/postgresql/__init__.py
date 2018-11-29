@@ -105,7 +105,7 @@ class Storage(StorageBase, MigratorMixin):
             obj = result.fetchone()
         timezone = obj["timezone"].upper()
         if timezone != "UTC":  # pragma: no cover
-            msg = "Database timezone is not UTC ({})".format(timezone)
+            msg = f"Database timezone is not UTC ({timezone})"
             warnings.warn(msg)
             logger.warning(msg)
 
@@ -121,7 +121,7 @@ class Storage(StorageBase, MigratorMixin):
             obj = result.fetchone()
         encoding = obj["encoding"].lower()
         if encoding != "utf8":  # pragma: no cover
-            raise AssertionError("Unexpected database encoding {}".format(encoding))
+            raise AssertionError(f"Unexpected database encoding {encoding}")
 
     def get_installed_version(self):
         """Return current version of schema or None if not any found.
@@ -541,7 +541,7 @@ class Storage(StorageBase, MigratorMixin):
 
         if filters:
             safe_sql, holders = self._format_conditions(filters, id_field, modified_field)
-            safeholders["conditions_filter"] = "AND {}".format(safe_sql)
+            safeholders["conditions_filter"] = f"AND {safe_sql}"
             placeholders.update(**holders)
 
         if sorting:
@@ -551,7 +551,7 @@ class Storage(StorageBase, MigratorMixin):
 
         if pagination_rules:
             sql, holders = self._format_pagination(pagination_rules, id_field, modified_field)
-            safeholders["pagination_rules"] = "AND {}".format(sql)
+            safeholders["pagination_rules"] = f"AND {sql}"
             placeholders.update(**holders)
 
         # Limit the number of results (pagination).
@@ -676,7 +676,7 @@ class Storage(StorageBase, MigratorMixin):
 
         if filters:
             safe_sql, holders = self._format_conditions(filters, id_field, modified_field)
-            safeholders["conditions_filter"] = "AND {}".format(safe_sql)
+            safeholders["conditions_filter"] = f"AND {safe_sql}"
             placeholders.update(**holders)
 
         if not include_deleted:
@@ -689,7 +689,7 @@ class Storage(StorageBase, MigratorMixin):
 
         if pagination_rules:
             sql, holders = self._format_pagination(pagination_rules, id_field, modified_field)
-            safeholders["pagination_rules"] = "WHERE {}".format(sql)
+            safeholders["pagination_rules"] = f"WHERE {sql}"
             placeholders.update(**holders)
 
         # Limit the number of results (pagination).
@@ -755,12 +755,12 @@ class Storage(StorageBase, MigratorMixin):
                 subfields = filtr.field.split(".")
                 for j, subfield in enumerate(subfields):
                     # Safely escape field name
-                    field_holder = "{}_field_{}_{}".format(prefix, i, j)
+                    field_holder = f"{prefix}_field_{i}_{j}"
                     holders[field_holder] = subfield
                     # Use ->> to convert the last level to text if
                     # needed for LIKE query. (Other queries do JSONB comparison.)
                     column_name += "->>" if j == len(subfields) - 1 and is_like_query else "->"
-                    column_name += ":{}".format(field_holder)
+                    column_name += f":{field_holder}"
                 sql_field = column_name
 
             string_field = filtr.field in (id_field, modified_field) or is_like_query
@@ -785,38 +785,34 @@ class Storage(StorageBase, MigratorMixin):
                 # Operand should be a string.
                 # Add implicit start/end wildcards if none is specified.
                 if "*" not in value:
-                    value = "*{}*".format(value)
+                    value = f"*{value}*"
                 value = value.replace("*", "%")
 
             if filtr.operator == COMPARISON.HAS:
                 operator = "IS NOT NULL" if filtr.value else "IS NULL"
-                cond = "{} {}".format(sql_field, operator)
+                cond = f"{sql_field} {operator}"
 
             elif filtr.operator == COMPARISON.CONTAINS_ANY:
-                value_holder = "{}_value_{}".format(prefix, i)
+                value_holder = f"{prefix}_value_{i}"
                 holders[value_holder] = value
                 # In case the field is not a sequence, we ignore the object.
-                is_json_sequence = "jsonb_typeof({}) = 'array'".format(sql_field)
+                is_json_sequence = f"jsonb_typeof({sql_field}) = 'array'"
                 # Postgres's && operator doesn't support jsonbs.
                 # However, it does support Postgres arrays of any
                 # type. Assume that the referenced field is a JSON
                 # array and convert it to a Postgres array.
-                data_as_array = """
-                (SELECT array_agg(elems) FROM jsonb_array_elements({}) elems)
-                """.format(
-                    sql_field
-                )
-                cond = "{} AND {} && (:{})::jsonb[]".format(
-                    is_json_sequence, data_as_array, value_holder
-                )
+                data_as_array = f"""
+                (SELECT array_agg(elems) FROM jsonb_array_elements({sql_field}) elems)
+                """
+                cond = f"{is_json_sequence} AND {data_as_array} && (:{value_holder})::jsonb[]"
 
             elif value != MISSING:
                 # Safely escape value. MISSINGs get handled below.
-                value_holder = "{}_value_{}".format(prefix, i)
+                value_holder = f"{prefix}_value_{i}"
                 holders[value_holder] = value
 
                 sql_operator = operators.setdefault(filtr.operator, filtr.operator.value)
-                cond = "{} {} :{}".format(sql_field, sql_operator, value_holder)
+                cond = f"{sql_field} {sql_operator} :{value_holder}"
 
             # If the field is missing, column_name will produce
             # NULL. NULL has strange properties with comparisons
@@ -866,11 +862,11 @@ class Storage(StorageBase, MigratorMixin):
                         # (for the purposes of pagination).
                         # >= NULL should only match rows that are
                         # NULL, since there's nothing higher.
-                        cond = "{} IS NULL".format(sql_field)
+                        cond = f"{sql_field} IS NULL"
                     elif filtr.operator == COMPARISON.LT:
                         # If we're looking for < NULL, match only
                         # non-nulls.
-                        cond = "{} IS NOT NULL".format(sql_field)
+                        cond = f"{sql_field} IS NOT NULL"
                     elif filtr.operator == COMPARISON.MAX:
                         # <= NULL should include everything -- NULL
                         # because it's equal, and non-nulls because
@@ -883,9 +879,9 @@ class Storage(StorageBase, MigratorMixin):
                     else:
                         raise ValueError("Somehow we got a filter with MISSING value")
                 elif filtr.operator in null_false_operators:
-                    cond = "({} IS NOT NULL AND {})".format(sql_field, cond)
+                    cond = f"({sql_field} IS NOT NULL AND {cond})"
                 elif filtr.operator in null_true_operators:
-                    cond = "({} IS NULL OR {})".format(sql_field, cond)
+                    cond = f"({sql_field} IS NULL OR {cond})"
                 else:
                     # No need to check for LT and MAX because NULL < foo
                     # is NULL, which is falsy in SQL.
@@ -916,14 +912,15 @@ class Storage(StorageBase, MigratorMixin):
         placeholders = {}
 
         for i, rule in enumerate(pagination_rules):
-            prefix = "rules_{}".format(i)
+            prefix = f"rules_{i}"
             safe_sql, holders = self._format_conditions(
                 rule, id_field, modified_field, prefix=prefix
             )
             rules.append(safe_sql)
             placeholders.update(**holders)
 
-        safe_sql = " OR ".join(["({})".format(r) for r in rules])
+        # Unsure how to convert to fstrings
+        safe_sql = " OR ".join([f"({r})" for r in rules])
         return safe_sql, placeholders
 
     def _format_sorting(self, sorting, id_field, modified_field):
@@ -951,15 +948,15 @@ class Storage(StorageBase, MigratorMixin):
                 sql_field = "data"
                 for j, subfield in enumerate(subfields):
                     # Safely escape field name
-                    field_holder = "sort_field_{}_{}".format(i, j)
+                    field_holder = f"sort_field_{i}_{j}"
                     holders[field_holder] = subfield
-                    sql_field += "->(:{})".format(field_holder)
+                    sql_field += f"->(:{field_holder})"
 
             sql_direction = "ASC" if sort.direction > 0 else "DESC"
-            sql_sort = "{} {}".format(sql_field, sql_direction)
+            sql_sort = f"{sql_field} {sql_direction}"
             sorts.append(sql_sort)
 
-        safe_sql = "ORDER BY {}".format(", ".join(sorts))
+        safe_sql = f"ORDER BY {', '.join(sorts)}"
         return safe_sql, holders
 
 

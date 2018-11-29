@@ -56,9 +56,7 @@ class Account(resource.ShareableResource):
         # Overwrite the current principal set by ShareableResource.
         if self.model.current_principal == Everyone or context.is_administrator:
             # Creation is anonymous, but author with write perm is this:
-            self.model.current_principal = "{}:{}".format(
-                ACCOUNT_POLICY_NAME, self.model.parent_id
-            )
+            self.model.current_principal = f"{ACCOUNT_POLICY_NAME}:{self.model.parent_id}"
 
     @reify
     def id_generator(self):

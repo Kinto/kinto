@@ -480,8 +480,8 @@ def apply_filters(objects, filters):
             elif f.operator == COMPARISON.LIKE:
                 # Add implicit start/end wildchars if none is specified.
                 if "*" not in right:
-                    right = "*{}*".format(right)
-                right = "^{}$".format(right.replace("*", ".*"))
+                    right = f"*{right}*"
+                right = f"^{right.replace('*', '.*')}$"
             elif f.operator in (
                 COMPARISON.LT,
                 COMPARISON.MAX,
@@ -530,7 +530,7 @@ def schwartzian_transform(value):
         return (5, value)
     if value is MISSING:
         return (6, value)
-    raise ValueError("Unknown value: {}".format(value))  # pragma: no cover
+    raise ValueError(f"Unknown value: {value}")  # pragma: no cover
 
 
 def apply_sorting(objects, sorting):
@@ -552,7 +552,7 @@ def apply_sorting(objects, sorting):
 
 def _get_objects_by_parent_id(store, parent_id, resource_name, with_meta=False):
     if parent_id is not None:
-        parent_id_match = re.compile("^{}$".format(parent_id.replace("*", ".*")))
+        parent_id_match = re.compile(f"^{parent_id.replace('*', '.*')}$")
         by_parent_id = {
             pid: resources for pid, resources in store.items() if parent_id_match.match(pid)
         }

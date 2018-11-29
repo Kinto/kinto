@@ -25,9 +25,7 @@ def migrate(env, dry_run=False):
     for backend in ("cache", "storage", "permission"):
         if hasattr(registry, backend):
             if readonly_mode and backend in readonly_backends:
-                message = "Cannot migrate the {} backend while " "in readonly mode.".format(
-                    backend
-                )
+                message = f"Cannot migrate the {backend} backend while in readonly mode."
                 logger.error(message)
             else:
                 getattr(registry, backend).initialize_schema(dry_run=dry_run)
@@ -43,33 +41,33 @@ def delete_collection(env, bucket_id, collection_id):
         logger.error(message)
         return 31
 
-    bucket = "/buckets/{}".format(bucket_id)
-    collection = "/buckets/{}/collections/{}".format(bucket_id, collection_id)
+    bucket = f"/buckets/{bucket_id}"
+    collection = f"/buckets/{bucket_id}/collections/{collection_id}"
 
     try:
         registry.storage.get(resource_name="bucket", parent_id="", object_id=bucket_id)
     except storage_exceptions.ObjectNotFoundError:
-        logger.error("Bucket '{}' does not exist.".format(bucket))
+        logger.error(f"Bucket '{bucket}' does not exist.")
         return 32
 
     try:
         registry.storage.get(resource_name="collection", parent_id=bucket, object_id=collection_id)
     except storage_exceptions.ObjectNotFoundError:
-        logger.error("Collection '{}' does not exist.".format(collection))
+        logger.error(f"Collection '{collection}' does not exist.")
         return 33
 
     deleted = registry.storage.delete_all(
         resource_name="object", parent_id=collection, with_deleted=False
     )
     if len(deleted) == 0:
-        logger.info("No objects found for '{}'.".format(collection))
+        logger.info(f"No objects found for '{collection}'.")
     else:
-        logger.info("{} object(s) were deleted.".format(len(deleted)))
+        logger.info(f"{len(deleted)} object(s) were deleted.")
 
     registry.storage.delete(
         resource_name="collection", parent_id=bucket, object_id=collection_id, with_deleted=False
     )
-    logger.info("'{}' collection object was deleted.".format(collection))
+    logger.info(f"'{collection}' collection object was deleted.")
 
     obj = "/buckets/{bucket_id}" "/collections/{collection_id}" "/objects/{object_id}"
 
@@ -78,7 +76,7 @@ def delete_collection(env, bucket_id, collection_id):
         *[
             obj.format(bucket_id=bucket_id, resource_name=collection_id, object_id=r["id"])
             for r in deleted
-        ]
+        ],
     )
     logger.info("Related permissions were deleted.")
 

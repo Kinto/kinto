@@ -122,10 +122,12 @@ def read_env(key, value):
 
     :param key: the setting name
     :param value: default value if undefined in environment
-    :returns: the value from environment, coerced to python type
+    :returns: the value from environment, coerced to python type, or the (uncoerced) default value
     """
     envkey = key.replace(".", "_").replace("-", "_").upper()
-    return native_value(os.getenv(envkey, value))
+    if envkey in os.environ:
+        return native_value(os.environ[envkey])
+    return value
 
 
 def encode64(content, encoding="utf-8"):
@@ -309,7 +311,7 @@ def prefixed_userid(request):
     # (see :func:`kinto.core.initialization.setup_authentication`)
     authn_type = getattr(request, "authn_type", None)
     if authn_type is not None:
-        return "{}:{}".format(authn_type, request.selected_userid)
+        return f"{authn_type}:{request.selected_userid}"
 
 
 def prefixed_principals(request):
@@ -458,7 +460,7 @@ def view_lookup_registry(registry, uri):
     :rtype: tuple
     :returns: the resource name and the associated matchdict.
     """
-    api_prefix = "/{}".format(registry.route_prefix)
+    api_prefix = f"/{registry.route_prefix}"
     path = api_prefix + uri
 
     q = registry.queryUtility
@@ -476,7 +478,7 @@ def view_lookup_registry(registry, uri):
 
 def instance_uri(request, resource_name, **params):
     """Return the URI for the given resource."""
-    return strip_uri_prefix(request.route_path("{}-object".format(resource_name), **params))
+    return strip_uri_prefix(request.route_path(f"{resource_name}-object", **params))
 
 
 def instance_uri_registry(registry, resource_name, **params):

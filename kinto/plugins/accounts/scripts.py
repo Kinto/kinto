@@ -32,12 +32,12 @@ def create_user(env, username=None, password=None):
             username = input("Username: ")
         while not validator.match(username):
             print("{} is not a valid username.")
-            print("Username should match {0!r}, please try again.".format(validator.regexp))
+            print(f"Username should match {validator.regexp}, please try again.")
             username = input("Username: ")
 
         if password is None:
             while True:  # The user didn't entered twice the same password
-                password = getpass.getpass("Please enter a password for {}: ".format(username))
+                password = getpass.getpass(f"Please enter a password for {username}: ")
                 confirm = getpass.getpass("Please confirm the password: ".format(username))
 
                 if password != confirm:
@@ -48,13 +48,13 @@ def create_user(env, username=None, password=None):
         print("User creation aborted")
         return 53
 
-    print("Creating user '{}'".format(username))
+    print(f"Creating user '{username}'")
     entry = {"id": username, "password": hash_password(password)}
     registry.storage.update(
         resource_name="account", parent_id=username, object_id=username, object=entry
     )
     registry.permission.add_principal_to_ace(
-        "/accounts/{}".format(username), "write", "account:{}".format(username)
+        f"/accounts/{username}", "write", f"account:{username}"
     )
 
     current_transaction.commit()

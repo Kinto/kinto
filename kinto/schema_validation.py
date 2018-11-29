@@ -1,5 +1,5 @@
 import colander
-from jsonschema import Draft4Validator, ValidationError, SchemaError, RefResolutionError, validate
+from jsonschema import Draft7Validator, ValidationError, SchemaError, RefResolutionError, validate
 from pyramid.settings import asbool
 
 from kinto.core import utils
@@ -27,7 +27,7 @@ class JSONSchemaMapping(colander.SchemaNode):
 
 def check_schema(data):
     try:
-        Draft4Validator.check_schema(data)
+        Draft7Validator.check_schema(data)
     except SchemaError as e:
         message = e.path.pop() + e.message
         raise ValidationError(message)
@@ -88,7 +88,7 @@ def validate_from_bucket_schema_or_400(data, resource_name, request, ignore_fiel
         buckets[bucket_uri] = bucket
 
     # Let's see if the bucket defines a schema for this resource.
-    metadata_field = "{}:schema".format(resource_name)
+    metadata_field = f"{resource_name}:schema"
     bucket = buckets[bucket_uri]
     if metadata_field not in bucket:
         return

@@ -157,6 +157,15 @@ class RouteFactoryTest(unittest.TestCase):
 
         self.assertEqual(context.shared_ids, [])
 
+    def test_permits_takes_route_factory_allowed_principals_into_account_for_object_creation(self):
+        request = DummyRequest()
+        context = RouteFactory(request)
+        context._check_permission.return_value = False
+        context.resource_name = "book"
+        context.required_permission = "book:create"
+        context._settings = {"book_create_principals": "fxa:user"}
+        self.assertTrue(context.check_permission(["fxa:user"], None))
+
 
 class AuthorizationPolicyTest(unittest.TestCase):
     def setUp(self):

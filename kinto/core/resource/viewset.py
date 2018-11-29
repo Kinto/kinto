@@ -123,14 +123,14 @@ class ViewSet:
         :param str method: the HTTP method.
         """
         args = {**self.default_arguments}
-        default_arguments = getattr(self, "default_{}_arguments".format(endpoint_type))
+        default_arguments = getattr(self, f"default_{endpoint_type}_arguments")
         args.update(**default_arguments)
 
-        by_http_verb = "default_{}_arguments".format(method.lower())
+        by_http_verb = f"default_{method.lower()}_arguments"
         method_args = getattr(self, by_http_verb, {})
         args.update(**method_args)
 
-        by_method = "{}_{}_arguments".format(endpoint_type, method.lower())
+        by_method = f"{endpoint_type}_{method.lower()}_arguments"
         endpoint_args = getattr(self, by_method, {})
         args.update(**endpoint_args)
 
@@ -173,7 +173,7 @@ class ViewSet:
         """
         if endpoint_type == "object":
             return method.lower()
-        return "{}_{}".format(endpoint_type, method.lower())
+        return f"{endpoint_type}_{method.lower()}"
 
     def get_name(self, resource_cls):
         """Returns the name of the resource.
@@ -211,7 +211,7 @@ class ViewSet:
         if readonly_enabled and not readonly_method:
             return False
 
-        setting_enabled = "{}_{}_{}_enabled".format(endpoint_type, resource_name, method.lower())
+        setting_enabled = f"{endpoint_type}_{resource_name}_{method.lower()}_enabled"
         return asbool(settings.get(setting_enabled, True))
 
 

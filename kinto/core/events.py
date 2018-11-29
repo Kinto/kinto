@@ -30,9 +30,7 @@ class _ResourceEvent:
         self.request = request
 
     def __repr__(self):
-        return "<{klass} action={action} uri={uri}>".format(
-            klass=self.__class__.__name__, **self.payload
-        )
+        return f"<{self.__class__.__name__} action={self.payload['action']} uri={self.payload['uri']}>"
 
     @property
     def read_records(self):

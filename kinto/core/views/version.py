@@ -2,7 +2,6 @@ import json
 import os
 
 import colander
-from pyramid import httpexceptions
 from pyramid.security import NO_PERMISSION_REQUIRED
 from kinto.core import Service
 
@@ -46,4 +45,4 @@ def version_view(request):
                 version_view.__json__ = json.load(f)
                 return version_view.__json__  # First one wins.
 
-    raise httpexceptions.HTTPNotFound()
+    raise FileNotFoundError("Version file missing from {}".format(files.join(",")))

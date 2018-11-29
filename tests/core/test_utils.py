@@ -143,6 +143,9 @@ class ReadEnvironmentTest(unittest.TestCase):
         os.environ.setdefault("KINTO_CONF_NAME", "3.14")
         self.assertEqual(read_env("kinto-conf.name", 12), 3.14)
 
+    def test_default_value_is_not_coerced_to_python(self):
+        self.assertEqual(read_env("kinto-conf.name", "12"), "12")
+
 
 class CurrentServiceTest(unittest.TestCase):
     def test_current_service_returns_the_service_for_existing_patterns(self):

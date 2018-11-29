@@ -188,7 +188,7 @@ class BaseTestStorage:
             exceptions.ObjectNotFoundError,
             self.storage.get,
             object_id=OBJECT_ID,
-            **self.storage_kw
+            **self.storage_kw,
         )
 
     def test_update_creates_a_new_object_when_needed(self):
@@ -196,7 +196,7 @@ class BaseTestStorage:
             exceptions.ObjectNotFoundError,
             self.storage.get,
             object_id=OBJECT_ID,
-            **self.storage_kw
+            **self.storage_kw,
         )
         obj = self.storage.update(object_id=OBJECT_ID, object=self.object, **self.storage_kw)
         retrieved = self.storage.get(object_id=OBJECT_ID, **self.storage_kw)
@@ -226,7 +226,7 @@ class BaseTestStorage:
             exceptions.ObjectNotFoundError,
             self.storage.get,
             object_id=stored["id"],
-            **self.storage_kw
+            **self.storage_kw,
         )
 
     def test_delete_works_even_on_second_time(self):
@@ -252,7 +252,7 @@ class BaseTestStorage:
             exceptions.ObjectNotFoundError,
             self.storage.delete,
             object_id=OBJECT_ID,
-            **self.storage_kw
+            **self.storage_kw,
         )
 
     def test_get_all_handles_parent_id_pattern_matching(self):
@@ -819,7 +819,7 @@ class TimestampsTest:
         now = obj["last_modified"]
         time.sleep(0.002)  # 2 msec
         after = utils.msec_time()
-        self.assertTrue(before < now < after, "{} < {} < {}".format(before, now, after))
+        self.assertTrue(before < now < after, f"{before} < {now} < {after}")
 
     def test_timestamp_are_always_incremented_above_existing_value(self):
         # Create a object with normal clock
@@ -834,7 +834,7 @@ class TimestampsTest:
             after = obj["last_modified"]
 
         # Expect the last one to be based on the highest value
-        self.assertTrue(0 < current < after, "0 < {} < {}".format(current, after))
+        self.assertTrue(0 < current < after, f"0 < {current} < {after}")
 
     def test_resource_timestamp_raises_error_when_empty_and_readonly(self):
         kw = {**self.storage_kw, "resource_name": "will-be-empty"}
@@ -853,7 +853,7 @@ class TimestampsTest:
 
     def test_create_uses_specified_last_modified_if_resource_empty(self):
         # Resource is empty, create a new object with a specified timestamp.
-        last_modified = 1448881675541
+        last_modified = 1_448_881_675_541
         obj = {**self.object, self.id_field: OBJECT_ID, self.modified_field: last_modified}
         self.create_object(object=obj)
 
@@ -979,7 +979,7 @@ class DeletedObjectsTest:
             exceptions.ObjectNotFoundError,
             self.storage.get,
             object_id=obj["id"],
-            **self.storage_kw
+            **self.storage_kw,
         )
 
     def test_deleting_a_deleted_item_should_raise_not_found(self):
@@ -988,7 +988,7 @@ class DeletedObjectsTest:
             exceptions.ObjectNotFoundError,
             self.storage.delete,
             object_id=obj["id"],
-            **self.storage_kw
+            **self.storage_kw,
         )
 
     def test_recreating_a_deleted_object_should_delete_its_tombstone(self):
@@ -1095,7 +1095,7 @@ class DeletedObjectsTest:
             self.storage.delete,
             object_id=obj["id"],
             with_deleted=False,
-            **self.storage_kw
+            **self.storage_kw,
         )
 
     def test_delete_all_deletes_objects(self):
@@ -1424,7 +1424,7 @@ class DeletedObjectsTest:
             limit=5,
             filters=filters,
             include_deleted=True,
-            **self.storage_kw
+            **self.storage_kw,
         )
         self.assertEqual(len(objects), 5)
         self.assertEqual(count, 7)
@@ -1450,7 +1450,7 @@ class DeletedObjectsTest:
         objects, total_objects = self.storage.get_all(
             limit=5,
             pagination_rules=[[Filter("number", 1, utils.COMPARISON.GT)]],
-            **self.storage_kw
+            **self.storage_kw,
         )
         self.assertEqual(total_objects, 10)
         self.assertEqual(len(objects), 3)
@@ -1467,7 +1467,7 @@ class DeletedObjectsTest:
                 [Filter("number", 1, utils.COMPARISON.GT)],
                 [Filter("id", last_object["id"], utils.COMPARISON.EQ)],
             ],
-            **self.storage_kw
+            **self.storage_kw,
         )
         self.assertEqual(total_objects, 10)
         self.assertEqual(len(objects), 4)
@@ -1478,7 +1478,7 @@ class DeletedObjectsTest:
         # Create objects with different parent IDs, but the same
         # object ID.
         for parent in range(10):
-            parent_id = "abc{}".format(parent)
+            parent_id = f"abc{parent}"
             self.storage.create(
                 parent_id=parent_id,
                 resource_name="c",
@@ -1598,7 +1598,7 @@ class SerializationTest:
             self.storage.update,
             object_id=obj["id"],
             object=new_object,
-            **self.storage_kw
+            **self.storage_kw,
         )
 
 
