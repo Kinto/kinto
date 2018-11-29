@@ -83,7 +83,7 @@ def register_resource(resource_cls, settings=None, viewset=None, depth=1, **kwar
     def register_service(endpoint_type, settings):
         """Registers a service in cornice, for the given type.
         """
-        path_pattern = getattr(viewset, "{}_path".format(endpoint_type))
+        path_pattern = getattr(viewset, f"{endpoint_type}_path")
         path_values = {"resource_name": resource_name}
         path = path_pattern.format_map(path_values)
 
@@ -103,14 +103,14 @@ def register_resource(resource_cls, settings=None, viewset=None, depth=1, **kwar
             else None
         )
 
-        methods = getattr(viewset, "{}_methods".format(endpoint_type))
+        methods = getattr(viewset, f"{endpoint_type}_methods")
         for method in methods:
             if not viewset.is_endpoint_enabled(
                 endpoint_type, resource_name, method.lower(), settings
             ):
                 continue
 
-            argument_getter = getattr(viewset, "{}_arguments".format(endpoint_type))
+            argument_getter = getattr(viewset, f"{endpoint_type}_arguments")
             view_args = argument_getter(resource_cls, method)
 
             view = viewset.get_view(endpoint_type, method.lower())
@@ -709,7 +709,7 @@ class UserResource:
             except ValueError as e:
                 error_details = {
                     "location": "body",
-                    "description": "JSON Patch operation failed: {}".format(e),
+                    "description": f"JSON Patch operation failed: {e}",
                 }
                 raise_invalid(self.request, **error_details)
 
@@ -726,7 +726,7 @@ class UserResource:
         for field, value in applied_changes.items():
             has_changed = record.get(field, value) != value
             if self.schema.is_readonly(field) and has_changed:
-                error_details = {"name": field, "description": "Cannot modify {}".format(field)}
+                error_details = {"name": field, "description": f"Cannot modify {field}"}
                 raise_invalid(self.request, **error_details)
 
         try:
@@ -787,7 +787,7 @@ class UserResource:
         # Pyramid takes care of converting.
         response.last_modified = timestamp / 1000.0
         # Return timestamp as ETag.
-        response.headers["ETag"] = '"{}"'.format(timestamp)
+        response.headers["ETag"] = f'"{timestamp}"'
 
     def _add_cache_header(self, response):
         """Add Cache-Control and Expire headers, based a on a setting for the
@@ -804,7 +804,7 @@ class UserResource:
             ``304 Not modified`` is returned before serving content from cache.
         """
         resource_name = self.context.resource_name if self.context else ""
-        setting_key = "{}_cache_expires_seconds".format(resource_name)
+        setting_key = f"{resource_name}_cache_expires_seconds"
         collection_expires = self.request.registry.settings.get(setting_key)
         is_anonymous = self.request.prefixed_userid is None
         if collection_expires and is_anonymous:
@@ -922,7 +922,7 @@ class UserResource:
             invalid_fields = set(root_fields) - set(known_fields)
             preserve_unknown = self.schema.get_option("preserve_unknown")
             if not preserve_unknown and invalid_fields:
-                error_msg = "Fields {} do not exist".format(",".join(invalid_fields))
+                error_msg = f"Fields {','.join(invalid_fields)} do not exist"
                 error_details = {"name": "Invalid _fields parameter", "description": error_msg}
                 raise_invalid(self.request, **error_details)
 
@@ -959,7 +959,7 @@ class UserResource:
             error_details = {
                 "name": param,
                 "location": "querystring",
-                "description": "Invalid value for {}".format(param),
+                "description": f"Invalid value for {param}",
             }
 
             # Ignore specific fields
@@ -997,7 +997,7 @@ class UserResource:
                 operator, field = COMPARISON.EQ, param
 
             if not self.is_known_field(field):
-                error_msg = "Unknown filter field '{}'".format(param)
+                error_msg = f"Unknown filter field '{param}'"
                 error_details["description"] = error_msg
                 raise_invalid(self.request, **error_details)
 
@@ -1035,7 +1035,7 @@ class UserResource:
                 if not self.is_known_field(field):
                     error_details = {
                         "location": "querystring",
-                        "description": "Unknown sort field '{}'".format(field),
+                        "description": f"Unknown sort field '{field}'",
                     }
                     raise_invalid(self.request, **error_details)
 
@@ -1128,7 +1128,7 @@ class UserResource:
         the last_record.
 
         """
-        nonce = "pagination-token-{}".format(uuid4())
+        nonce = f"pagination-token-{uuid4()}"
         if self.request.method.lower() == "delete":
             registry = self.request.registry
             validity = registry.settings["pagination_token_validity_seconds"]

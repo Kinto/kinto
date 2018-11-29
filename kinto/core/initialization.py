@@ -82,7 +82,7 @@ def setup_version_redirection(config):
             return utils.reapply_cors(request, Response())
 
         querystring = request.url[(request.url.rindex(request.path) + len(request.path)) :]
-        redirect = "/{}{}{}".format(route_prefix, request.path, querystring)
+        redirect = f"/{route_prefix}{request.path}{querystring}"
         raise HTTPTemporaryRedirect(redirect)
 
     # Disable the route prefix passed by the app.
@@ -213,7 +213,7 @@ def setup_storage(config):
     storage_mod = config.maybe_dotted(storage_mod)
     backend = storage_mod.load_from_config(config)
     if not isinstance(backend, storage.StorageBase):
-        raise ConfigurationError("Invalid storage backend: {}".format(backend))
+        raise ConfigurationError(f"Invalid storage backend: {backend}")
     config.registry.storage = backend
 
     heartbeat = storage.heartbeat(backend)
@@ -229,7 +229,7 @@ def setup_permission(config):
     permission_mod = config.maybe_dotted(permission_mod)
     backend = permission_mod.load_from_config(config)
     if not isinstance(backend, permission.PermissionBase):
-        raise ConfigurationError("Invalid permission backend: {}".format(backend))
+        raise ConfigurationError(f"Invalid permission backend: {backend}")
     config.registry.permission = backend
 
     heartbeat = permission.heartbeat(backend)
@@ -245,7 +245,7 @@ def setup_cache(config):
     cache_mod = config.maybe_dotted(cache_mod)
     backend = cache_mod.load_from_config(config)
     if not isinstance(backend, cache.CacheBase):
-        raise ConfigurationError("Invalid cache backend: {}".format(backend))
+        raise ConfigurationError(f"Invalid cache backend: {backend}")
     config.registry.cache = backend
 
     heartbeat = cache.heartbeat(backend)
@@ -288,12 +288,12 @@ def setup_statsd(config):
 
             # Count authentication verifications.
             if hasattr(request, "authn_type"):
-                client.count("authn_type.{}".format(request.authn_type))
+                client.count(f"authn_type.{request.authn_type}")
 
             # Count view calls.
             service = request.current_service
             if service:
-                client.count("view.{}.{}".format(service.name, request.method))
+                client.count(f"view.{service.name}.{request.method}")
 
         config.add_subscriber(on_new_response, NewResponse)
 
@@ -390,7 +390,7 @@ class EventActionFilter:
         self.actions = [action.value for action in actions]
 
     def phash(self):
-        return "for_actions = {}".format(",".join(self.actions))
+        return f"for_actions = {','.join(self.actions)}"
 
     def __call__(self, event):
         action = event.payload.get("action")
@@ -402,7 +402,7 @@ class EventResourceFilter:
         self.resources = resources
 
     def phash(self):
-        return "for_resources = {}".format(",".join(self.resources))
+        return f"for_resources = {','.join(self.resources)}"
 
     def __call__(self, event):
         resource = event.payload.get("resource_name")
@@ -420,18 +420,18 @@ def setup_listeners(config):
     listeners = aslist(settings["event_listeners"])
 
     for name in listeners:
-        logger.info("Setting up '{}' listener".format(name))
-        prefix = "event_listeners.{}.".format(name)
+        logger.info(f"Setting up '{name}' listener")
+        prefix = f"event_listeners.{name}."
 
         try:
             listener_mod = config.maybe_dotted(name)
-            prefix = "event_listeners.{}.".format(name.split(".")[-1])
+            prefix = f"event_listeners.{name.split('.')[-1]}."
             listener = listener_mod.load_from_config(config, prefix)
         except (ImportError, AttributeError):
             module_setting = prefix + "use"
             # Read from ENV or settings.
             module_value = utils.read_env(
-                "{}.{}".format(settings_prefix, module_setting), settings.get(module_setting)
+                f"{settings_prefix}.{module_setting}", settings.get(module_setting)
             )
             listener_mod = config.maybe_dotted(module_value)
             listener = listener_mod.load_from_config(config, prefix)
@@ -439,14 +439,14 @@ def setup_listeners(config):
         # If StatsD is enabled, monitor execution time of listeners.
         if getattr(config.registry, "statsd", None):
             statsd_client = config.registry.statsd
-            key = "listeners.{}".format(name)
+            key = f"listeners.{name}"
             listener = statsd_client.timer(key)(listener.__call__)
 
         # Optional filter by event action.
         actions_setting = prefix + "actions"
         # Read from ENV or settings.
         actions_value = utils.read_env(
-            "{}.{}".format(settings_prefix, actions_setting), settings.get(actions_setting, "")
+            f"{settings_prefix}.{actions_setting}", settings.get(actions_setting, "")
         )
         actions = aslist(actions_value)
         if len(actions) > 0:
@@ -458,7 +458,7 @@ def setup_listeners(config):
         resource_setting = prefix + "resources"
         # Read from ENV or settings.
         resource_value = utils.read_env(
-            "{}.{}".format(settings_prefix, resource_setting), settings.get(resource_setting, "")
+            f"{settings_prefix}.{resource_setting}", settings.get(resource_setting, "")
         )
         resource_names = aslist(resource_value)
 
@@ -485,7 +485,7 @@ def load_default_settings(config, default_settings):
         unprefixed = key
         if key.startswith(settings_prefix + "."):
             unprefixed = key.split(".", 1)[1]
-        project_prefix = "{}.{}".format(settings_prefix, unprefixed)
+        project_prefix = f"{settings_prefix}.{unprefixed}"
         return unprefixed, project_prefix
 
     # Fill settings with default values if not defined.
@@ -505,7 +505,7 @@ def load_default_settings(config, default_settings):
 
         if len(defined) > 1 and len(distinct_values) > 1:
             names = "', '".join(defined)
-            raise ValueError("Settings '{}' are in conflict.".format(names))
+            raise ValueError(f"Settings '{names}' are in conflict.")
 
         # Override settings from OS env values.
         # e.g. HTTP_PORT, READINGLIST_HTTP_PORT, KINTO_HTTP_PORT
@@ -557,7 +557,7 @@ def initialize(config, version=None, settings_prefix="", default_settings=None):
     # Override project version from settings.
     project_version = settings.get("project_version") or version
     if not project_version:
-        error_msg = "Invalid project version: {}".format(project_version)
+        error_msg = f"Invalid project version: {project_version}"
         raise ConfigurationError(error_msg)
     settings["project_version"] = project_version = str(project_version)
 
@@ -567,7 +567,7 @@ def initialize(config, version=None, settings_prefix="", default_settings=None):
         # The API version is derivated from the module version if not provided.
         http_api_version = ".".join(project_version.split(".")[0:2])
     settings["http_api_version"] = http_api_version = str(http_api_version)
-    api_version = "v{}".format(http_api_version.split(".")[0])
+    api_version = f"v{http_api_version.split('.')[0]}"
 
     # Include kinto.core views with the correct api version prefix.
     config.include("kinto.core", route_prefix=api_version)

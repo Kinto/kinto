@@ -88,8 +88,8 @@ def _relative_object_uri(resource_name, object_uri):
         if resource_name == parent_resource_name:
             return parent_uri
 
-    error_msg = "Cannot get URL of resource '{}' from parent '{}'."
-    raise ValueError(error_msg.format(resource_name, object_uri))
+    error_msg = f"Cannot get URL of resource '{resource_name}' from parent '{object_uri}'."
+    raise ValueError(error_msg)
 
 
 def _inherited_permissions(object_uri, permission):
@@ -111,7 +111,7 @@ def _inherited_permissions(object_uri, permission):
 
     # When requesting permissions for a single object, we check if they are any
     # specific inherited permissions for the attributes.
-    attributes_permission = "{}:attributes".format(permission) if not plural else permission
+    attributes_permission = f"{permission}:attributes" if not plural else permission
     inherited_perms = object_perms_tree.get(attributes_permission, object_perms_tree[permission])
 
     granters = set()

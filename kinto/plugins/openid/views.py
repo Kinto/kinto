@@ -122,7 +122,7 @@ def get_login(request):
     if prompt:
         # The 'prompt' parameter is optional.
         params["prompt"] = prompt
-    redirect = "{}?{}".format(auth_endpoint, urllib.parse.urlencode(params))
+    redirect = f"{auth_endpoint}?{urllib.parse.urlencode(params)}"
     raise httpexceptions.HTTPTemporaryRedirect(redirect)
 
 

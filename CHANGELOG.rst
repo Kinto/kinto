@@ -3,10 +3,16 @@ Changelog
 
 This document describes changes between each past release.
 
-11.3.0 (unreleased)
+12.0.0 (unreleased)
 -------------------
 
-- Nothing changed yet.
+**Breaking changes**
+
+- Remove Python 3.5 support and upgrade to Python 3.6. (#1886)
+
+**Internal changes**
+
+- Use f-string instead of % or format operators. (#1886)
 
 
 11.2.0 (2018-11-29)

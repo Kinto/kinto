@@ -50,7 +50,7 @@ def page_not_found(response, request):
     errno = ERRORS.MISSING_RESOURCE
     error_msg = "The resource you are looking for could not be found."
 
-    if not request.path.startswith("/{}".format(request.registry.route_prefix)):
+    if not request.path.startswith(f"/{request.registry.route_prefix}"):
         errno = ERRORS.VERSION_NOT_AVAILABLE
         error_msg = "The requested API version is not available " "on this server."
     elif trailing_slash_redirection_enabled:
@@ -58,10 +58,10 @@ def page_not_found(response, request):
 
         if request.path.endswith("/"):
             path = request.path.rstrip("/")
-            redirect = "{}{}".format(path, querystring)
-        elif request.path == "/{}".format(request.registry.route_prefix):
+            redirect = f"{path}{querystring}"
+        elif request.path == f"/{request.registry.route_prefix}":
             # Case for /v0 -> /v0/
-            redirect = "/{}/{}".format(request.registry.route_prefix, querystring)
+            redirect = f"/{request.registry.route_prefix}/{querystring}"
 
         if redirect:
             return reapply_cors(request, HTTPTemporaryRedirect(redirect))

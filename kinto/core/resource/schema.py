@@ -479,14 +479,14 @@ class ResourceReponses:
         of status codes mapping cloned and binded responses."""
 
         responses = self.default_schemas.copy()
-        type_responses = getattr(self, "default_{}_schemas".format(endpoint_type))
+        type_responses = getattr(self, f"default_{endpoint_type}_schemas")
         responses.update(**type_responses)
 
-        verb_responses = "default_{}_schemas".format(method.lower())
+        verb_responses = f"default_{method.lower()}_schemas"
         method_args = getattr(self, verb_responses, {})
         responses.update(**method_args)
 
-        method_responses = "{}_{}_schemas".format(endpoint_type, method.lower())
+        method_responses = f"{endpoint_type}_{method.lower()}_schemas"
         endpoint_args = getattr(self, method_responses, {})
         responses.update(**endpoint_args)
 

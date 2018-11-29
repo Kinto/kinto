@@ -47,7 +47,7 @@ class OpenIDConnectPolicy(base_auth.CallbackAuthenticationPolicy):
 
         # Check cache if these tokens were already verified.
         hmac_tokens = core_utils.hmac_digest(hmac_secret, access_token)
-        cache_key = "openid:verify:{}".format(hmac_tokens)
+        cache_key = f"openid:verify:{hmac_tokens}"
         payload = request.registry.cache.get(cache_key)
         if payload is None:
             # This can take some time.

@@ -1,14 +1,15 @@
 dist: trusty
 language: python
-python: 3.5
+python: 3.6
 cache: pip
 services:
   - memcached
 addons:
   postgresql: "9.5"
 env:
-  - TOX_ENV=py35
-  - TOX_ENV=py35-raw
+  - TOX_ENV=py36
+  - TOX_ENV=py36-raw
+  - TOX_ENV=lint
   - TOX_ENV=docs
 install:
   - pip install tox
@@ -27,18 +28,15 @@ after_success:
 
 matrix:
   include:
-    - python: 3.6
-      env:
-        - TOX_ENV=py36
-    - python: 3.6
-      env:
-        - TOX_ENV=lint
     - python: 3.7
       dist: xenial
       sudo: true
       env:
         - TOX_ENV=py37
-    - env: ENV=functional
+    - python: 3.7
+      dist: xenial
+      sudo: true
+      env: ENV=functional
       before_install:
         - make install-dev
         - make install-postgres
