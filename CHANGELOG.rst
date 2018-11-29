@@ -19,6 +19,7 @@ This document describes changes between each past release.
 **Internal changes**
 
 - Build the admin on the CI. (#1857)
+- Migrate JSON Hyper-Schema to Draft-07 (#1808)
 
 **Documentation**
 
@@ -37,7 +38,6 @@ This document describes changes between each past release.
 - Fix missing favicon and inline images in kinto-admin plugin
 
 **Internal changes**
-- Migrate JSON Hyper-Schema to Draft-07 (#1808)
 - Use mock from the standard library.
 - Blackify the whole code base (#1799, huge thanks to @Cnidarias for this!)
 - Upgrade kinto-admin to v1.22
