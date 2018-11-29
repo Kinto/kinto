@@ -10,20 +10,33 @@ This document describes changes between each past release.
 
 - Remove Python 3.5 support and upgrade to Python 3.6. (#1886)
 
+**Internal changes**
+
+- Use f-string instead of % or format operators. (#1886)
+
+
+11.2.0 (2018-11-29)
+-------------------
+
 **New features**
 
-- Kinto now returns 500 FileNotFoundError instead of 404 if the version file cannot be found (fixes #1841)
+- Return a ``500 Internal Error`` on ``__version__`` instead of 404 if the version file
+  cannot be found (fixes #1841)
 
 **Bug fixes**
 
 - Fix the ``http_api_version`` exposed in the ``/v1/`` endpoint. The
   version ``1.20`` was getting parsed as a number ``1.2``.
-- Fix `record:create` not taken into account from settings. (Fixes #1813)
+- Fix ``record:create`` not taken into account from settings. (fixes #1813)
 
 **Internal changes**
 
 - Build the admin on the CI. (#1857)
-- Use f-string instead of % or format operators. (#1886)
+- Migrate JSON Hyper-Schema to Draft-07 (#1808)
+
+**Documentation**
+
+- Add documentation on troubleshooting Auth0 multiauth issue. (#1889)
 
 
 11.1.0 (2018-10-25)

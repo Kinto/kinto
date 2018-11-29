@@ -30,6 +30,7 @@ Contributors
 * Étienne <@Étienne>
 * Fil <fil@rezo.net>
 * FooBarQuaxx
+* Francisco J. Piedrahita <@fpiedrah>
 * Greeshma <greeshmabalabadra@gmail.com>
 * Gabriela Surita <gabsurita@gmail.com>
 * George Smith <h3rmit@protonmail.com>
@@ -64,6 +65,7 @@ Contributors
 * Pascal Roessner <roessner.pascal@gmail.com>
 * PeriGK <per.gkolias@gmail.com>
 * Peter Bengtsson <mail@peterbe.com>
+* Peter Rassias <ubcpeter@hotmail.com>
 * realsumit <sumitsarinofficial@gmail.com>
 * Rektide <rektide@voodoowarez.com>
 * Rémy Hubscher <rhubscher@mozilla.com>

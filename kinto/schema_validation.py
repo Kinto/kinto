@@ -1,5 +1,5 @@
 import colander
-from jsonschema import Draft4Validator, ValidationError, SchemaError, RefResolutionError, validate
+from jsonschema import Draft7Validator, ValidationError, SchemaError, RefResolutionError, validate
 from pyramid.settings import asbool
 
 from kinto.core import utils
@@ -27,7 +27,7 @@ class JSONSchemaMapping(colander.SchemaNode):
 
 def check_schema(data):
     try:
-        Draft4Validator.check_schema(data)
+        Draft7Validator.check_schema(data)
     except SchemaError as e:
         message = e.path.pop() + e.message
         raise ValidationError(message)
