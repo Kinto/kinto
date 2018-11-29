@@ -40,7 +40,7 @@ class _ResourceEvent:
 
     @property
     def impacted_records(self):
-        message = "`impacted_objects` is deprecated, use `read_objects` instead."
+        message = "`impacted_objects` is deprecated, use `impacted_objects` instead."
         warnings.warn(message, DeprecationWarning)
         return self.impacted_objects
 
@@ -81,7 +81,7 @@ class AfterResourceChanged(_ResourceEvent):
         self.impacted_objects = impacted_objects
 
 
-class EventCollector:
+class EventCollector(object):
     """A collection to gather events emitted over the course of a request.
 
     Events are gathered by parent id, resource type, and event
@@ -98,7 +98,7 @@ class EventCollector:
         payload). If the same (resource_name, parent_id, action) is
         encountered, we just extend the existing impacted with the new
         impacted. N.B. this means all values in the payload must not
-        be specific to a single impacted_object. See
+        be specific to a single impacted_record. See
         https://github.com/Kinto/kinto/issues/945 and
         https://github.com/Kinto/kinto/issues/1731.
         """
@@ -127,7 +127,7 @@ class EventCollector:
         return EventCollectorDrain(self)
 
 
-class EventCollectorDrain:
+class EventCollectorDrain(object):
     """An iterator that drains an EventCollector.
 
     Get one using EventCollector.drain()."""
@@ -244,15 +244,15 @@ def notify_resource_event(
     """Request helper to stack a resource event.
 
     If a similar event (same resource, same action) already occured during the
-    current transaction (e.g. batch) then just extend the impacted objects of
+    current transaction (e.g. batch) then just extend the impacted records of
     the previous one.
 
     :param resource_name: The name of the resource on which the event
         happened (taken from the request if not provided).
     :param resource_data: Information about the resource on which the
         event is being emitted. Usually contains information about how
-        to find this object in the hierarchy (for instance,
-        ``bucket_id`` and ``resource_name`` for a object). Taken from
+        to find this record in the hierarchy (for instance,
+        ``bucket_id`` and ``collection_id`` for a record). Taken from
         the request matchdict if absent.
     :type resource_data: dict
 

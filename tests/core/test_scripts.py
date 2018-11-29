@@ -77,8 +77,8 @@ class DeleteCollectionTest(unittest.TestCase):
         )
         self.registry.permission.delete_object_permissions.assert_called_with(
             "/buckets/test_bucket/collections/test_collection",
-            "/buckets/test_bucket/collections/test_collection/objects/1234",
-            "/buckets/test_bucket/collections/test_collection/objects/5678",
+            "/buckets/test_bucket/collections/test_collection/records/1234",
+            "/buckets/test_bucket/collections/test_collection/records/5678",
         )
 
         mocked.info.assert_any_call("2 object(s) were deleted.")

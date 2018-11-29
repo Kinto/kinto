@@ -1597,7 +1597,7 @@ class SerializationTest:
             TypeError,
             self.storage.update,
             object_id=obj["id"],
-            object=new_object,
+            record=new_object,
             **self.storage_kw,
         )
 

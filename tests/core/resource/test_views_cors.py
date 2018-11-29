@@ -126,6 +126,7 @@ class CORSExposeHeadersTest(BaseWebTest, unittest.TestCase):
                 "Next-Page",
                 "Retry-After",
                 "Total-Objects",
+                "Total-Records",
                 "Content-Length",
                 "Cache-Control",
                 "Expires",
