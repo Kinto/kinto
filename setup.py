@@ -24,7 +24,7 @@ REQUIREMENTS = [
     "cornice",
     "cornice_swagger >= 0.5.1",
     "dockerflow",
-    "jsonschema",
+    "jsonschema >= 3.0.0a1",
     "jsonpatch",
     "logging-color-formatter >= 1.0.1",  # Message interpolations.
     "python-dateutil",
