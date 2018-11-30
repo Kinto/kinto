@@ -13,6 +13,7 @@ This document describes changes between each past release.
 **Internal changes**
 
 - Use f-string instead of % or format operators. (#1886)
+- Ignore admin plugin node_modules folder while running black (#1902)
 
 
 11.2.0 (2018-11-29)
