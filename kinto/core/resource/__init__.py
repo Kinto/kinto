@@ -988,7 +988,7 @@ class UserResource:
                 filters.append(Filter(self.model.modified_field, value, operator))
                 continue
 
-            all_keywords = "|".join([i.name.lower() for i in COMPARISON])
+            all_keywords = r"|".join([i.name.lower() for i in COMPARISON])
             m = re.match(r"^(" + all_keywords + r")_([\w\.]+)$", param)
             if m:
                 keyword, field = m.groups()
