@@ -88,7 +88,7 @@ flake8: install-dev
 	$(VENV)/bin/flake8 kinto tests
 
 black: install-dev
-	$(VENV)/bin/black kinto tests
+	$(VENV)/bin/black --exclude "/node_modules/" kinto tests
 
 tests: version-file
 	$(VENV)/bin/tox
