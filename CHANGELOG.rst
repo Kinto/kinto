@@ -14,6 +14,7 @@ This document describes changes between each past release.
 
 - Use f-string instead of % or format operators. (#1886)
 - Ignore admin plugin node_modules folder while running black (#1902)
+- Remove regexp py36 warnings. (#1907)
 
 
 11.2.0 (2018-11-29)
