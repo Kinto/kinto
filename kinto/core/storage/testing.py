@@ -24,7 +24,7 @@ class BaseTestStorage:
         self.modified_field = "last_modified"
         self.client_error_patcher = None
 
-        self.object = {"foo": "bar"}
+        self.obj = {"foo": "bar"}
         self.storage_kw = {"resource_name": "test", "parent_id": "1234", "auth": "Basic bWF0OjI="}
         self.other_parent_id = "5678"
         self.other_auth = "Basic bWF0OjE="
@@ -43,8 +43,8 @@ class BaseTestStorage:
         super().tearDown()
         self.storage.flush()
 
-    def create_object(self, object=None, id_generator=None, **kwargs):
-        obj = object or self.object
+    def create_object(self, obj=None, id_generator=None, **kwargs):
+        obj = obj or self.obj
         kw = {**self.storage_kw, **kwargs}
         return self.storage.create(object=obj, id_generator=id_generator, **kw)
 
@@ -156,7 +156,7 @@ class BaseTestStorage:
 
     def test_create_copies_the_object_before_modifying_it(self):
         self.create_object()
-        self.assertEqual(self.object.get("id"), None)
+        self.assertEqual(self.obj.get("id"), None)
 
     def test_create_uses_the_resource_id_generator(self):
         obj = self.create_object(id_generator=lambda: OBJECT_ID)
@@ -167,20 +167,20 @@ class BaseTestStorage:
         self.create_object(parent_id=unicode_id, resource_name=unicode_id)
 
     def test_create_does_not_overwrite_the_provided_id(self):
-        obj = {**self.object, self.id_field: OBJECT_ID}
-        stored = self.create_object(object=obj)
+        obj = {**self.obj, self.id_field: OBJECT_ID}
+        stored = self.create_object(obj=obj)
         self.assertEqual(stored[self.id_field], OBJECT_ID)
 
     def test_create_raise_unicity_error_if_provided_id_exists(self):
-        obj = {**self.object, self.id_field: OBJECT_ID}
-        self.create_object(object=obj)
-        obj = {**self.object, self.id_field: OBJECT_ID}
+        obj = {**self.obj, self.id_field: OBJECT_ID}
+        self.create_object(obj=obj)
+        obj = {**self.obj, self.id_field: OBJECT_ID}
         self.assertRaises(exceptions.UnicityError, self.create_object, object=obj)
 
     def test_create_does_generate_a_new_last_modified_field(self):
-        obj = {**self.object}
+        obj = {**self.obj}
         self.assertNotIn(self.modified_field, obj)
-        created = self.create_object(object=obj)
+        created = self.create_object(obj=obj)
         self.assertIn(self.modified_field, created)
 
     def test_get_raise_on_object_not_found(self):
@@ -198,23 +198,23 @@ class BaseTestStorage:
             object_id=OBJECT_ID,
             **self.storage_kw,
         )
-        obj = self.storage.update(object_id=OBJECT_ID, object=self.object, **self.storage_kw)
+        obj = self.storage.update(object_id=OBJECT_ID, object=self.obj, **self.storage_kw)
         retrieved = self.storage.get(object_id=OBJECT_ID, **self.storage_kw)
         self.assertEqual(retrieved, obj)
 
     def test_update_overwrites_object_id(self):
         stored = self.create_object()
         object_id = stored[self.id_field]
-        self.object[self.id_field] = "this-will-be-ignored"
-        self.storage.update(object_id=object_id, object=self.object, **self.storage_kw)
+        self.obj[self.id_field] = "this-will-be-ignored"
+        self.storage.update(object_id=object_id, object=self.obj, **self.storage_kw)
         retrieved = self.storage.get(object_id=object_id, **self.storage_kw)
         self.assertEqual(retrieved[self.id_field], object_id)
 
     def test_update_generates_a_new_last_modified_field_if_not_present(self):
         stored = self.create_object()
         object_id = stored[self.id_field]
-        self.assertNotIn(self.modified_field, self.object)
-        self.storage.update(object_id=object_id, object=self.object, **self.storage_kw)
+        self.assertNotIn(self.modified_field, self.obj)
+        self.storage.update(object_id=object_id, object=self.obj, **self.storage_kw)
         retrieved = self.storage.get(object_id=object_id, **self.storage_kw)
         self.assertIn(self.modified_field, retrieved)
         self.assertGreater(retrieved[self.modified_field], stored[self.modified_field])
@@ -230,11 +230,11 @@ class BaseTestStorage:
         )
 
     def test_delete_works_even_on_second_time(self):
-        # Create a object
+        # Create an object
         self.storage.create("test", "1234", {"id": "demo"})
         # Delete the object
         self.storage.delete("test", "1234", "demo", with_deleted=True)
-        # Update a object (it recreates it.)
+        # Update an object (it recreates it.)
         self.storage.update("test", "1234", "demo", {"id": "demo"})
         # Delete the object without errors
         self.storage.delete("test", "1234", "demo", with_deleted=True)
@@ -296,7 +296,7 @@ class BaseTestStorage:
 
     def test_get_all_return_all_values(self):
         for x in range(10):
-            obj = dict(self.object)
+            obj = dict(self.obj)
             obj["number"] = x
             self.create_object(obj)
 
@@ -306,7 +306,7 @@ class BaseTestStorage:
 
     def test_get_all_handle_limit(self):
         for x in range(10):
-            obj = dict(self.object)
+            obj = dict(self.obj)
             obj["number"] = x
             self.create_object(obj)
 
@@ -325,7 +325,7 @@ class BaseTestStorage:
 
     def test_get_all_handle_sorting_on_subobject(self):
         for x in range(10):
-            obj = dict(**self.object)
+            obj = dict(**self.obj)
             obj["person"] = dict(age=x)
             self.create_object(obj)
         sorting = [Sort("person.age", 1)]
@@ -822,7 +822,7 @@ class TimestampsTest:
         self.assertTrue(before < now < after, f"{before} < {now} < {after}")
 
     def test_timestamp_are_always_incremented_above_existing_value(self):
-        # Create a object with normal clock
+        # Create an object with normal clock
         obj = self.create_object()
         current = obj["last_modified"]
 
@@ -852,10 +852,10 @@ class TimestampsTest:
         self.storage.readonly = False
 
     def test_create_uses_specified_last_modified_if_resource_empty(self):
-        # Resource is empty, create a new object with a specified timestamp.
+        # Resource is empty, create a new object that contains a timestamp.
         last_modified = 1_448_881_675_541
-        obj = {**self.object, self.id_field: OBJECT_ID, self.modified_field: last_modified}
-        self.create_object(object=obj)
+        obj = {**self.obj, self.id_field: OBJECT_ID, self.modified_field: last_modified}
+        self.create_object(obj=obj)
 
         # Check that the object was assigned the specified timestamp.
         retrieved = self.storage.get(object_id=OBJECT_ID, **self.storage_kw)
@@ -871,8 +871,8 @@ class TimestampsTest:
         timestamp_before = first_object[self.modified_field]
 
         # Create a new object with its timestamp in the past.
-        obj = {**self.object, self.id_field: OBJECT_ID, self.modified_field: timestamp_before - 10}
-        self.create_object(object=obj)
+        obj = {**self.obj, self.id_field: OBJECT_ID, self.modified_field: timestamp_before - 10}
+        self.create_object(obj=obj)
 
         # Check that object timestamp is the one specified.
         retrieved = self.storage.get(object_id=OBJECT_ID, **self.storage_kw)
@@ -890,8 +890,8 @@ class TimestampsTest:
         timestamp_before = first_object[self.modified_field]
 
         # Create a new object with its timestamp in the past.
-        obj = {**self.object, self.id_field: OBJECT_ID, self.modified_field: timestamp_before}
-        self.create_object(object=obj)
+        obj = {**self.obj, self.id_field: OBJECT_ID, self.modified_field: timestamp_before}
+        self.create_object(obj=obj)
 
         # Check that object timestamp is the one specified.
         retrieved = self.storage.get(object_id=OBJECT_ID, **self.storage_kw)
@@ -965,7 +965,7 @@ class DeletedObjectsTest:
         return [Filter(self.modified_field, start, utils.COMPARISON.GT)]
 
     def create_and_delete_object(self, object=None):
-        """Helper to create and delete a object."""
+        """Helper to create and delete an object."""
         obj = object or {"challenge": "accepted"}
         obj = self.create_object(obj)
         time.sleep(0.001)  # 1 msec
@@ -1443,7 +1443,7 @@ class DeletedObjectsTest:
 
     def test_get_all_handle_a_pagination_rules(self):
         for x in range(10):
-            obj = dict(self.object)
+            obj = dict(self.obj)
             obj["number"] = x % 3
             self.create_object(obj)
 
@@ -1457,7 +1457,7 @@ class DeletedObjectsTest:
 
     def test_get_all_handle_all_pagination_rules(self):
         for x in range(10):
-            obj = dict(self.object)
+            obj = dict(self.obj)
             obj["number"] = x % 3
             last_object = self.create_object(obj)
 
@@ -1597,7 +1597,7 @@ class SerializationTest:
             TypeError,
             self.storage.update,
             object_id=obj["id"],
-            record=new_object,
+            object=new_object,
             **self.storage_kw,
         )
 

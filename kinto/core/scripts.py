@@ -57,12 +57,12 @@ def delete_collection(env, bucket_id, collection_id):
         return 33
 
     deleted = registry.storage.delete_all(
-        resource_name="object", parent_id=collection, with_deleted=False
+        resource_name="record", parent_id=collection, with_deleted=False
     )
     if len(deleted) == 0:
-        logger.info(f"No objects found for '{collection}'.")
+        logger.info(f"No records found for '{collection}'.")
     else:
-        logger.info(f"{len(deleted)} object(s) were deleted.")
+        logger.info(f"{len(deleted)} record(s) were deleted.")
 
     registry.storage.delete(
         resource_name="collection", parent_id=bucket, object_id=collection_id, with_deleted=False

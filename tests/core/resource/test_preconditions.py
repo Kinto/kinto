@@ -54,7 +54,7 @@ class ModifiedMeanwhileTest(BaseTest):
     def setUp(self):
         super().setUp()
 
-        # Create a object using model (will have an incremented last_modified)
+        # Create an object using model (will have an incremented last_modified)
         self.stored = self.model.create_object({})
         # Update the object we just created (will set last_modified with the server ETag)
         self.resource.object_id = self.stored["id"]

@@ -11,7 +11,7 @@ from . import generators
 
 
 class Missing:
-    """Dummy value to represent a value that is completely absent from a object.
+    """Dummy value to represent a value that is completely absent from an object.
 
     Handling these correctly is important for pagination.
     """

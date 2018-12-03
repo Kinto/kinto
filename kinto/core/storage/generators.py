@@ -22,7 +22,7 @@ class Generator:
 
     def match(self, object_id):
         """Validate that object ids match the generator. This is used mainly
-        when a object id is picked arbitrarily (e.g with ``PUT`` requests).
+        when an object id is picked arbitrarily (e.g with ``PUT`` requests).
 
         :returns: `True` if the specified object id matches expected format.
         :rtype: bool

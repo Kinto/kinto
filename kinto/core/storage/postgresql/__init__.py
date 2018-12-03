@@ -279,7 +279,7 @@ class Storage(StorageBase, MigratorMixin):
         query_object.pop(id_field, None)
         query_object.pop(modified_field, None)
 
-        # If there is a object in the table and it is deleted = TRUE,
+        # If there is an object in the table and it is deleted = TRUE,
         # we want to replace it. Otherwise, we want to do nothing and
         # throw a UnicityError. Per
         # https://stackoverflow.com/questions/15939902/is-select-or-insert-in-a-function-prone-to-race-conditions/15950324#15950324

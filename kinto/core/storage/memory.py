@@ -131,7 +131,7 @@ class MemoryBasedStorage(StorageBase):
 class Storage(MemoryBasedStorage):
     """Storage backend implementation in memory.
 
-    Useful for development or testing purposes, but objects are lost after
+    Useful for development or testing purposes, but stored data is lost after
     each server restart.
 
     Enable in configuration::
@@ -296,17 +296,17 @@ class Storage(MemoryBasedStorage):
         for pid, resources in by_parent_id.items():
             if resource_name is not None:
                 resources = {resource_name: resources[resource_name]}
-            for resource, colobjects in resources.items():
+            for resource, resource_objects in resources.items():
                 if before is None:
                     kept = {}
                 else:
                     kept = {
                         key: value
-                        for key, value in colobjects.items()
+                        for key, value in resource_objects.items()
                         if value[modified_field] >= before
                     }
                 self._cemetery[pid][resource] = kept
-                num_deleted += len(colobjects) - len(kept)
+                num_deleted += len(resource_objects) - len(kept)
         return num_deleted
 
     @synchronized

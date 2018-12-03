@@ -177,7 +177,7 @@ class Model:
         )
 
     def create_object(self, obj, parent_id=None):
-        """Create a object in the resource.
+        """Create an object in the resource.
 
         Override to perform actions or post-process objects after their
         creation in storage.
@@ -190,7 +190,7 @@ class Model:
                 object['index'] = idx
                 return object
 
-        :param dict object: object to store
+        :param dict obj: object to store
         :param str parent_id: optional filter for parent id
 
         :returns: the newly created object.
@@ -208,7 +208,7 @@ class Model:
         )
 
     def update_object(self, obj, parent_id=None):
-        """Update a object in the resource.
+        """Update an object in the resource.
 
         Override to perform actions or post-process objects after their
         modification in storage.
@@ -221,7 +221,7 @@ class Model:
                 send_email(subject)
                 return object
 
-        :param dict object: object to store
+        :param dict obj: object to store
         :param str parent_id: optional filter for parent id
         :returns: the updated object.
         :rtype: dict
@@ -239,7 +239,7 @@ class Model:
         )
 
     def delete_object(self, obj, parent_id=None, last_modified=None):
-        """Delete a object in the resource.
+        """Delete an object in the resource.
 
         Override to perform actions or post-process objects after deletion
         from storage for example:
@@ -252,8 +252,7 @@ class Model:
                 deleted['media'] = 0
                 return deleted
 
-        :param dict object: the object to delete
-        :param dict object: object to store
+        :param dict obj: the object to delete
         :param str parent_id: optional filter for parent id
         :returns: the deleted object.
         :rtype: dict
@@ -362,13 +361,13 @@ class ShareableModel(Model):
 
         return self._annotate(obj, perm_object_id)
 
-    def create_object(self, object, parent_id=None):
+    def create_object(self, obj, parent_id=None):
         """Create object and set specified permissions.
 
         The current principal is added to the owner (``write`` permission).
         """
-        permissions = object.pop(self.permissions_field, {})
-        obj = super().create_object(object, parent_id)
+        permissions = obj.pop(self.permissions_field, {})
+        obj = super().create_object(obj, parent_id)
         object_id = obj[self.id_field]
         perm_object_id = self.get_permission_object_id(object_id)
         self.permission.replace_object_permissions(perm_object_id, permissions)
@@ -376,7 +375,7 @@ class ShareableModel(Model):
 
         return self._annotate(obj, perm_object_id)
 
-    def update_object(self, object, parent_id=None):
+    def update_object(self, obj, parent_id=None):
         """Update object and the specified permissions.
 
         If no permissions is specified, the current permissions are not
@@ -384,8 +383,8 @@ class ShareableModel(Model):
 
         The current principal is added to the owner (``write`` permission).
         """
-        permissions = object.pop(self.permissions_field, {})
-        obj = super().update_object(object, parent_id)
+        permissions = obj.pop(self.permissions_field, {})
+        obj = super().update_object(obj, parent_id)
         object_id = obj[self.id_field]
         perm_object_id = self.get_permission_object_id(object_id)
         self.permission.replace_object_permissions(perm_object_id, permissions)

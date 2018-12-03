@@ -233,7 +233,7 @@ class UserResource:
             logger.exception(e)
             error_msg = (
                 "Resource timestamp cannot be written. "
-                "Objects endpoint must be hit at least once from a "
+                "Plural endpoint must be hit at least once from a "
                 "writable instance."
             )
             raise http_error(HTTPServiceUnavailable(), errno=ERRORS.BACKEND, message=error_msg)
@@ -284,12 +284,12 @@ class UserResource:
         """Model ``GET`` endpoint: retrieve multiple objects.
 
         :raises: :exc:`~pyramid:pyramid.httpexceptions.HTTPNotModified` if
-            ``If-None-Match`` header is provided and the resource not
+            ``If-None-Match`` header is provided and the objects not
             modified in the interim.
 
         :raises:
             :exc:`~pyramid:pyramid.httpexceptions.HTTPPreconditionFailed` if
-            ``If-Match`` header is provided and the resource modified
+            ``If-Match`` header is provided and the objects modified
             in the iterim.
         :raises: :exc:`~pyramid:pyramid.httpexceptions.HTTPBadRequest`
             if filters or sorting are invalid.
@@ -336,7 +336,7 @@ class UserResource:
         return self.postprocess(objects)
 
     def plural_post(self):
-        """Model ``POST`` endpoint: create a object.
+        """Model ``POST`` endpoint: create an object.
 
         If the new object id conflicts against an existing one, the
         posted object is ignored, and the existing object is returned, with
@@ -344,7 +344,7 @@ class UserResource:
 
         :raises:
             :exc:`~pyramid:pyramid.httpexceptions.HTTPPreconditionFailed` if
-            ``If-Match`` header is provided and resource modified
+            ``If-Match`` header is provided and the objects modified
             in the iterim.
 
         .. seealso::
@@ -384,7 +384,7 @@ class UserResource:
 
         :raises:
             :exc:`~pyramid:pyramid.httpexceptions.HTTPPreconditionFailed` if
-            ``If-Match`` header is provided and resource modified
+            ``If-Match`` header is provided and the objects modified
             in the iterim.
 
         :raises: :exc:`~pyramid:pyramid.httpexceptions.HTTPBadRequest`
@@ -424,7 +424,7 @@ class UserResource:
         return self.postprocess(deleted, action=action, old=objects)
 
     def get(self):
-        """Object ``GET`` endpoint: retrieve a object.
+        """Object ``GET`` endpoint: retrieve an object.
 
         :raises: :exc:`~pyramid:pyramid.httpexceptions.HTTPNotFound` if
             the object is not found.
@@ -500,7 +500,7 @@ class UserResource:
         return self.postprocess(obj, action=action, old=existing)
 
     def patch(self):
-        """Object ``PATCH`` endpoint: modify a object and return its
+        """Object ``PATCH`` endpoint: modify an object and return its
         new version.
 
         If a request header ``Response-Behavior`` is set to ``light``,
@@ -586,7 +586,7 @@ class UserResource:
         return self.postprocess(data, action=ACTIONS.UPDATE, old=existing)
 
     def delete(self):
-        """Object ``DELETE`` endpoint: delete a object and return it.
+        """Object ``DELETE`` endpoint: delete an object and return it.
 
         :raises: :exc:`~pyramid:pyramid.httpexceptions.HTTPNotFound` if
             the object is not found.
@@ -871,11 +871,11 @@ class UserResource:
         if not if_match and not if_none_match:
             return
 
-        # If-None-Match: * should always raise if a object exists
+        # If-None-Match: * should always raise if an object exists
         if if_none_match == "*" and object_exists:
             modified_since = -1  # Always raise.
 
-        # If-Match should always raise if a object doesn't exist
+        # If-Match should always raise if an object doesn't exist
         elif if_match and not object_exists:
             modified_since = -1
 
