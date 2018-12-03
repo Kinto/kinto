@@ -58,8 +58,6 @@ This document describes changes between each past release.
 - Use mock from the standard library.
 - Blackify the whole code base (#1799, huge thanks to @Cnidarias for this!)
 - Upgrade kinto-admin to v1.22
-- Migrate JSON Hyper-Schema to Draft-07
-- Upgrade jsonschema to v3.0.0
 
 
 11.0.0 (2018-10-09)
