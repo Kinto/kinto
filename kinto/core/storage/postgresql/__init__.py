@@ -11,6 +11,7 @@ from kinto.core.storage import (
     DEFAULT_DELETED_FIELD,
     MISSING,
 )
+from kinto.core.storage import utils as storage_utils
 from kinto.core.storage.postgresql.client import create_from_config
 from kinto.core.storage.postgresql.migrator import MigratorMixin
 from kinto.core.utils import COMPARISON
@@ -247,6 +248,7 @@ class Storage(StorageBase, MigratorMixin):
 
         return obj["last_epoch"]
 
+    @storage_utils.backport_kwargs({"collection_id": "resource_name", "record": "object"})
     def create(
         self,
         resource_name,
@@ -330,6 +332,7 @@ class Storage(StorageBase, MigratorMixin):
         obj[modified_field] = inserted["last_modified"]
         return obj
 
+    @storage_utils.backport_kwargs({"collection_id": "resource_name"})
     def get(
         self,
         resource_name,
@@ -360,6 +363,7 @@ class Storage(StorageBase, MigratorMixin):
         obj[modified_field] = existing["last_modified"]
         return obj
 
+    @storage_utils.backport_kwargs({"collection_id": "resource_name", "record": "object"})
     def update(
         self,
         resource_name,
@@ -405,6 +409,7 @@ class Storage(StorageBase, MigratorMixin):
         obj[modified_field] = updated["last_modified"]
         return obj
 
+    @storage_utils.backport_kwargs({"collection_id": "resource_name"})
     def delete(
         self,
         resource_name,
@@ -460,6 +465,7 @@ class Storage(StorageBase, MigratorMixin):
         obj[deleted_field] = True
         return obj
 
+    @storage_utils.backport_kwargs({"collection_id": "resource_name"})
     def delete_all(
         self,
         resource_name,
@@ -572,6 +578,7 @@ class Storage(StorageBase, MigratorMixin):
 
         return objects
 
+    @storage_utils.backport_kwargs({"collection_id": "resource_name"})
     def purge_deleted(
         self,
         resource_name,
@@ -624,6 +631,7 @@ class Storage(StorageBase, MigratorMixin):
 
         return deleted
 
+    @storage_utils.backport_kwargs({"collection_id": "resource_name"})
     def get_all(
         self,
         resource_name,
