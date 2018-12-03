@@ -58,7 +58,7 @@ def get_request_class(prefix):
         @classmethod
         def blank(cls, path, *args, **kwargs):
             if prefix:
-                path = "/{prefix}{path}".format(prefix=prefix, path=path)
+                path = f"/{prefix}{path}"
             return webtest.app.TestRequest.blank(path, *args, **kwargs)
 
     return PrefixedRequestClass
@@ -90,8 +90,8 @@ def get_user_headers(user, password="secret"):
 
     :rtype: dict
     """
-    credentials = "{}:{}".format(user, password)
-    authorization = "Basic {}".format(encode64(credentials))
+    credentials = f"{user}:{password}"
+    authorization = f"Basic {encode64(credentials)}"
     return {"Authorization": authorization}
 
 

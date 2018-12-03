@@ -188,7 +188,7 @@ class BaseTestStorage:
             exceptions.RecordNotFoundError,
             self.storage.get,
             object_id=RECORD_ID,
-            **self.storage_kw
+            **self.storage_kw,
         )
 
     def test_update_creates_a_new_record_when_needed(self):
@@ -196,7 +196,7 @@ class BaseTestStorage:
             exceptions.RecordNotFoundError,
             self.storage.get,
             object_id=RECORD_ID,
-            **self.storage_kw
+            **self.storage_kw,
         )
         record = self.storage.update(object_id=RECORD_ID, record=self.record, **self.storage_kw)
         retrieved = self.storage.get(object_id=RECORD_ID, **self.storage_kw)
@@ -226,7 +226,7 @@ class BaseTestStorage:
             exceptions.RecordNotFoundError,
             self.storage.get,
             object_id=stored["id"],
-            **self.storage_kw
+            **self.storage_kw,
         )
 
     def test_delete_works_even_on_second_time(self):
@@ -252,7 +252,7 @@ class BaseTestStorage:
             exceptions.RecordNotFoundError,
             self.storage.delete,
             object_id=RECORD_ID,
-            **self.storage_kw
+            **self.storage_kw,
         )
 
     def test_get_all_handles_parent_id_pattern_matching(self):
@@ -358,9 +358,7 @@ class BaseTestStorage:
                 records,
                 other_records,
                 "Filtering is not consistent with sorting when filtering "
-                "using value {}: {} (LT) + {} (MIN) != {}".format(
-                    value, smaller_records, greater_records, records
-                ),
+                f"using value {value}: {smaller_records} (LT) + {greater_records} (MIN) != {records}",
             )
 
         # Same test but with MAX and GT
@@ -379,9 +377,7 @@ class BaseTestStorage:
                 records,
                 other_records,
                 "Filtering is not consistent with sorting when filtering "
-                "using value {}: {} (MAX) + {} (GT) != {}".format(
-                    value, smaller_records, greater_records, records
-                ),
+                f"using value {value}: {smaller_records} (MAX) + {greater_records} (GT) != {records}",
             )
 
     def test_get_all_can_filter_with_list_of_values(self):
@@ -819,7 +815,7 @@ class TimestampsTest:
         now = record["last_modified"]
         time.sleep(0.002)  # 2 msec
         after = utils.msec_time()
-        self.assertTrue(before < now < after, "{} < {} < {}".format(before, now, after))
+        self.assertTrue(before < now < after, f"{before} < {now} < {after}")
 
     def test_timestamp_are_always_incremented_above_existing_value(self):
         # Create a record with normal clock
@@ -834,7 +830,7 @@ class TimestampsTest:
             after = record["last_modified"]
 
         # Expect the last one to be based on the highest value
-        self.assertTrue(0 < current < after, "0 < {} < {}".format(current, after))
+        self.assertTrue(0 < current < after, f"0 < {current} < {after}")
 
     def test_collection_timestamp_raises_error_when_empty_and_readonly(self):
         kw = {**self.storage_kw, "collection_id": "will-be-empty"}
@@ -853,7 +849,7 @@ class TimestampsTest:
 
     def test_create_uses_specified_last_modified_if_collection_empty(self):
         # Collection is empty, create a new record with a specified timestamp.
-        last_modified = 1448881675541
+        last_modified = 1_448_881_675_541
         record = {**self.record, self.id_field: RECORD_ID, self.modified_field: last_modified}
         self.create_record(record=record)
 
@@ -983,7 +979,7 @@ class DeletedRecordsTest:
             exceptions.RecordNotFoundError,
             self.storage.get,
             object_id=record["id"],
-            **self.storage_kw
+            **self.storage_kw,
         )
 
     def test_deleting_a_deleted_item_should_raise_not_found(self):
@@ -992,7 +988,7 @@ class DeletedRecordsTest:
             exceptions.RecordNotFoundError,
             self.storage.delete,
             object_id=record["id"],
-            **self.storage_kw
+            **self.storage_kw,
         )
 
     def test_recreating_a_deleted_record_should_delete_its_tombstone(self):
@@ -1099,7 +1095,7 @@ class DeletedRecordsTest:
             self.storage.delete,
             object_id=record["id"],
             with_deleted=False,
-            **self.storage_kw
+            **self.storage_kw,
         )
 
     def test_delete_all_deletes_records(self):
@@ -1428,7 +1424,7 @@ class DeletedRecordsTest:
             limit=5,
             filters=filters,
             include_deleted=True,
-            **self.storage_kw
+            **self.storage_kw,
         )
         self.assertEqual(len(records), 5)
         self.assertEqual(count, 7)
@@ -1454,7 +1450,7 @@ class DeletedRecordsTest:
         records, total_records = self.storage.get_all(
             limit=5,
             pagination_rules=[[Filter("number", 1, utils.COMPARISON.GT)]],
-            **self.storage_kw
+            **self.storage_kw,
         )
         self.assertEqual(total_records, 10)
         self.assertEqual(len(records), 3)
@@ -1471,7 +1467,7 @@ class DeletedRecordsTest:
                 [Filter("number", 1, utils.COMPARISON.GT)],
                 [Filter("id", last_record["id"], utils.COMPARISON.EQ)],
             ],
-            **self.storage_kw
+            **self.storage_kw,
         )
         self.assertEqual(total_records, 10)
         self.assertEqual(len(records), 4)
@@ -1482,7 +1478,7 @@ class DeletedRecordsTest:
         # Create records with different parent IDs, but the same
         # record ID.
         for parent in range(10):
-            parent_id = "abc{}".format(parent)
+            parent_id = f"abc{parent}"
             self.storage.create(
                 parent_id=parent_id,
                 collection_id="c",
@@ -1602,7 +1598,7 @@ class SerializationTest:
             self.storage.update,
             object_id=record["id"],
             record=new_record,
-            **self.storage_kw
+            **self.storage_kw,
         )
 
 

@@ -181,7 +181,7 @@ adjustments:
 .. note::
 
     For an exhaustive list of available settings and their default values,
-    refer to the *Kinto* :github:`source code <Kinto/kinto/blob/11.1.0/kinto/core/__init__.py#L27-L98>`.
+    refer to the *Kinto* :github:`source code <Kinto/kinto/blob/11.2.0/kinto/core/__init__.py#L27-L98>`.
 
 
 By default, nobody can read buckets list. You can change that using:

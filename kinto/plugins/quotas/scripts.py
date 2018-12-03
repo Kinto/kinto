@@ -16,7 +16,7 @@ OLDEST_FIRST = Sort("last_modified", 1)
 def rebuild_quotas(storage, dry_run=False):
     for bucket in paginated(storage, collection_id="bucket", parent_id="", sorting=[OLDEST_FIRST]):
         bucket_id = bucket["id"]
-        bucket_path = "/buckets/{}".format(bucket["id"])
+        bucket_path = f"/buckets/{bucket['id']}"
         bucket_collection_count = 0
         bucket_record_count = 0
         bucket_storage_size = record_size(bucket)
@@ -44,9 +44,7 @@ def rebuild_quotas(storage, dry_run=False):
             )
 
         logger.info(
-            "Bucket {}. Final size: {} collections, {} records, {} bytes.".format(
-                bucket_id, bucket_collection_count, bucket_record_count, bucket_storage_size
-            )
+            f"Bucket {bucket_id}. Final size: {bucket_collection_count} collections, {bucket_record_count} records, {bucket_storage_size} bytes."
         )
 
 
@@ -55,7 +53,7 @@ def rebuild_quotas_collection(storage, bucket_id, collection, dry_run=False):
     collection_id = collection["id"]
     collection_record_count = 0
     collection_storage_size = record_size(collection)
-    collection_path = "/buckets/{}/collections/{}".format(bucket_id, collection_id)
+    collection_path = f"/buckets/{bucket_id}/collections/{collection_id}"
     for record in paginated(
         storage, collection_id="record", parent_id=collection_path, sorting=[OLDEST_FIRST]
     ):
@@ -63,9 +61,7 @@ def rebuild_quotas_collection(storage, bucket_id, collection, dry_run=False):
         collection_storage_size += record_size(record)
 
     logger.info(
-        "Bucket {}, collection {}. Final size: {} records, {} bytes.".format(
-            bucket_id, collection_id, collection_record_count, collection_storage_size
-        )
+        f"Bucket {bucket_id}, collection {collection_id}. Final size: {collection_record_count} records, {collection_storage_size} bytes."
     )
     new_quota_info = {
         "record_count": collection_record_count,

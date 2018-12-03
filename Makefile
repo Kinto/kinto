@@ -16,6 +16,7 @@ OBJECTS = .venv .coverage
 
 help:
 	@echo "Please use 'make <target>' where <target> is one of"
+	@echo "  black	                     reformat code"
 	@echo "  install                     install dependencies and prepare environment"
 	@echo "  install-monitoring          enable monitoring features like StatsD and Newrelic"
 	@echo "  install-postgres            install postgresql support"
@@ -85,6 +86,9 @@ tests-once: install-dev version-file install-postgres install-monitoring
 
 flake8: install-dev
 	$(VENV)/bin/flake8 kinto tests
+
+black: install-dev
+	$(VENV)/bin/black --exclude "/node_modules/" kinto tests
 
 tests: version-file
 	$(VENV)/bin/tox

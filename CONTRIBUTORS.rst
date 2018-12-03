@@ -30,6 +30,7 @@ Contributors
 * Étienne <@Étienne>
 * Fil <fil@rezo.net>
 * FooBarQuaxx
+* Francisco J. Piedrahita <@fpiedrah>
 * Greeshma <greeshmabalabadra@gmail.com>
 * Gabriela Surita <gabsurita@gmail.com>
 * George Smith <h3rmit@protonmail.com>
@@ -37,6 +38,7 @@ Contributors
 * Heron Rossi <heron.rossi@hotmail.com>
 * Hiromipaw <silvia@nopressure.co.uk>
 * Indranil Dutta <duttaindranil497@gmail.com>
+* Itai Steinherz <itaisteinherz@gmail.com>
 * Jelmer van der Ploeg <jelmer@woovar.com>
 * Joël Marty <@joelmarty>
 * John Giannelos <johngiannelos@gmail.com>
@@ -91,3 +93,4 @@ Contributors
 * Wil Clouser <wclouser@mozilla.com>
 * Yann Klis <yann.klis@gmail.com>
 * Jeff Schobelock <jswhatnot15@gmail.com>
+* Victor Zhuang <coal143@hotmail.com>

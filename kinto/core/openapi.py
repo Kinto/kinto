@@ -61,7 +61,7 @@ class OpenAPI(CorniceSwagger):
         self.ignore_ctypes = ["application/json-patch+json"]
 
         # Matches the base routing address - See kinto.core.initialization
-        self.base_path = "/v{}".format(self.api_version.split(".")[0])
+        self.base_path = f"/v{self.api_version.split('.')[0]}"
 
     def generate(self):
         base_spec = {
@@ -95,7 +95,7 @@ class OpenAPI(CorniceSwagger):
 
         resource = resource.replace("-collection", "s")
         resource = resource.replace("-record", "")
-        op_id = "{}_{}".format(method, resource)
+        op_id = f"{method}_{resource}"
 
         return op_id
 

@@ -40,8 +40,9 @@ def includeme(config):
 
     if not policy:
         error_msg = (
-            "Account policy missing the 'multiauth.policy.*.use' " "setting. See {} in docs {}."
-        ).format(accountClass, DOCS_URL)
+            "Account policy missing the 'multiauth.policy.*.use' "
+            f"setting. See {accountClass} in docs {DOCS_URL}."
+        )
         raise ConfigurationError(error_msg)
 
     # Add some safety to avoid weird behaviour with basicauth default policy.
@@ -72,7 +73,7 @@ def includeme(config):
             "able to create their own accounts. This may not be what you want.\n"
             "If you want these users to be able to create accounts for other users, "
             "add them to account_write_principals.\n"
-            "Affected users: {}".format(list(cant_create_anything))
+            f"Affected users: {list(cant_create_anything)}"
         )
 
         raise ConfigurationError(message)
