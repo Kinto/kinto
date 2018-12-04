@@ -12,6 +12,7 @@ This document describes changes between each past release.
 
 **Internal changes**
 
+- Fix depreciated warn method (#1903)
 - Use f-string instead of % or format operators. (#1886)
 - Ignore admin plugin node_modules folder while running black (#1902)
 - Remove regexp py36 warnings. (#1907)

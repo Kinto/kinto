@@ -200,7 +200,7 @@ We will simply make a call to the GitHub user API and try to obtain the ``login`
                 user_id = userinfo['login']
                 return user_id
             except Exception as e:
-                logger.warn(e)
+                logger.warning(e)
                 return None
 
 
