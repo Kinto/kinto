@@ -33,16 +33,3 @@ def paginated(storage, *args, sorting, batch_size=BATCH_SIZE, **kwargs):
             # FIXME: support more than one-length sorting
             [Filter(sorting[0].field, object[sorting[0].field], pagination_direction)]
         ]
-
-
-def backport_kwargs(func, deprecated):
-    def decorated(*args, **kwargs):
-        new_kwargs = {**kwargs}
-        for old_param, new_param in deprecated.items():
-            if old_param in kwargs:
-                msg = f"{func!r} parameter {old_param!r} is deprecated, use {new_param!r} instead"
-                raise DeprecationWarning(msg)
-                new_kwargs[new_param] = new_kwargs.pop(old_param)
-        return func(**new_kwargs)
-
-    return decorated

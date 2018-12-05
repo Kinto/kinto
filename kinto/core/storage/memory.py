@@ -14,8 +14,7 @@ from kinto.core.storage import (
     DEFAULT_DELETED_FIELD,
     MISSING,
 )
-from kinto.core.storage import utils as storage_utils
-from kinto.core.utils import COMPARISON, find_nested_value
+from kinto.core.utils import COMPARISON, find_nested_value, deprecate_kwargs
 
 import json
 import ujson
@@ -179,7 +178,7 @@ class Storage(MemoryBasedStorage):
 
         return current
 
-    @storage_utils.backport_kwargs({"collection_id": "resource_name", "record": "object"})
+    @deprecate_kwargs({"collection_id": "resource_name", "record": "object"})
     @synchronized
     def create(
         self,
@@ -210,7 +209,7 @@ class Storage(MemoryBasedStorage):
         self._cemetery[parent_id][resource_name].pop(_id, None)
         return obj
 
-    @storage_utils.backport_kwargs({"collection_id": "resource_name"})
+    @deprecate_kwargs({"collection_id": "resource_name"})
     @synchronized
     def get(
         self,
@@ -226,7 +225,7 @@ class Storage(MemoryBasedStorage):
             raise exceptions.ObjectNotFoundError(object_id)
         return {**objects[object_id]}
 
-    @storage_utils.backport_kwargs({"collection_id": "resource_name", "record": "object"})
+    @deprecate_kwargs({"collection_id": "resource_name", "record": "object"})
     @synchronized
     def update(
         self,
@@ -247,7 +246,7 @@ class Storage(MemoryBasedStorage):
         self._cemetery[parent_id][resource_name].pop(object_id, None)
         return obj
 
-    @storage_utils.backport_kwargs({"collection_id": "resource_name", "record": "object"})
+    @deprecate_kwargs({"collection_id": "resource_name", "record": "object"})
     @synchronized
     def delete(
         self,
@@ -281,7 +280,7 @@ class Storage(MemoryBasedStorage):
         self._store[parent_id][resource_name].pop(object_id)
         return existing
 
-    @storage_utils.backport_kwargs({"collection_id": "resource_name"})
+    @deprecate_kwargs({"collection_id": "resource_name"})
     @synchronized
     def purge_deleted(
         self,
@@ -315,7 +314,7 @@ class Storage(MemoryBasedStorage):
                 num_deleted += len(resource_objects) - len(kept)
         return num_deleted
 
-    @storage_utils.backport_kwargs({"collection_id": "resource_name"})
+    @deprecate_kwargs({"collection_id": "resource_name"})
     @synchronized
     def get_all(
         self,
@@ -356,7 +355,7 @@ class Storage(MemoryBasedStorage):
         )
         return objects, count
 
-    @storage_utils.backport_kwargs({"collection_id": "resource_name"})
+    @deprecate_kwargs({"collection_id": "resource_name"})
     @synchronized
     def delete_all(
         self,

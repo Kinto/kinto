@@ -65,7 +65,7 @@ class DeleteCollectionTest(unittest.TestCase):
             )
 
         self.registry.storage.delete_all.assert_called_with(
-            resource_name="object",
+            resource_name="record",
             parent_id="/buckets/test_bucket/collections/test_collection",
             with_deleted=False,
         )
@@ -81,7 +81,7 @@ class DeleteCollectionTest(unittest.TestCase):
             "/buckets/test_bucket/collections/test_collection/records/5678",
         )
 
-        mocked.info.assert_any_call("2 object(s) were deleted.")
+        mocked.info.assert_any_call("2 record(s) were deleted.")
         mocked.info.assert_any_call(
             "'/buckets/test_bucket/collections/test_collection' " "collection object was deleted."
         )
@@ -95,7 +95,7 @@ class DeleteCollectionTest(unittest.TestCase):
             )
 
         mocked.info.assert_any_call(
-            "No objects found for " "'/buckets/test_bucket/collections/test_collection'."
+            "No records found for " "'/buckets/test_bucket/collections/test_collection'."
         )
         mocked.info.assert_any_call(
             "'/buckets/test_bucket/collections/test_collection' " "collection object was deleted."

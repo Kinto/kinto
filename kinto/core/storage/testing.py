@@ -175,7 +175,7 @@ class BaseTestStorage:
         obj = {**self.obj, self.id_field: OBJECT_ID}
         self.create_object(obj=obj)
         obj = {**self.obj, self.id_field: OBJECT_ID}
-        self.assertRaises(exceptions.UnicityError, self.create_object, object=obj)
+        self.assertRaises(exceptions.UnicityError, self.create_object, obj=obj)
 
     def test_create_does_generate_a_new_last_modified_field(self):
         obj = {**self.obj}
@@ -280,10 +280,10 @@ class BaseTestStorage:
 
     def test_get_all_parent_id_handles_collisions(self):
         abc1 = self.create_object(
-            parent_id="abc1", resource_name="c", object={"id": "abc", "secret_data": "abc1"}
+            parent_id="abc1", resource_name="c", obj={"id": "abc", "secret_data": "abc1"}
         )
         abc2 = self.create_object(
-            parent_id="abc2", resource_name="c", object={"id": "abc", "secret_data": "abc2"}
+            parent_id="abc2", resource_name="c", obj={"id": "abc", "secret_data": "abc2"}
         )
         objects, total_objects = self.storage.get_all(
             parent_id="ab*", resource_name="c", include_deleted=True
@@ -1138,8 +1138,8 @@ class DeletedObjectsTest:
         self.assertEqual(len(objects), 1)
 
     def test_delete_all_does_proper_matching(self):
-        self.create_object(parent_id="abc", resource_name="c", object={"id": "id1"})
-        self.create_object(parent_id="def", resource_name="g", object={"id": "id1"})
+        self.create_object(parent_id="abc", resource_name="c", obj={"id": "id1"})
+        self.create_object(parent_id="def", resource_name="g", obj={"id": "id1"})
         self.storage.delete_all(parent_id="ab*", resource_name=None, with_deleted=False)
         objects, count = self.storage.get_all(
             parent_id="def", resource_name="g", include_deleted=True
