@@ -40,7 +40,7 @@ class _ResourceEvent:
 
     @property
     def impacted_records(self):
-        message = "`impacted_objects` is deprecated, use `impacted_objects` instead."
+        message = "`impacted_records` is deprecated, use `impacted_objects` instead."
         warnings.warn(message, DeprecationWarning)
         return self.impacted_objects
 

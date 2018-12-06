@@ -412,6 +412,27 @@ class CascadingEventsTest(BaseEventTest, unittest.TestCase):
         self.assertEqual(merged_event.impacted_objects[1]["new"]["name"], "de New York")
 
 
+class DeprecatedAttributes(unittest.TestCase):
+    def setUp(self):
+        patch = mock.patch("warnings.warn")
+        self.mocked_warnings = patch.start()
+        self.addCleanup(patch.stop)
+
+    def test_read_records_is_deprecated(self):
+        event = ResourceRead(None, [], None)
+        event.read_records
+
+        message = "`read_records` is deprecated, use `read_objects` instead."
+        self.mocked_warnings.assert_called_with(message, DeprecationWarning)
+
+    def test_impacted_records_is_deprecated(self):
+        event = ResourceChanged(None, [], None)
+        event.impacted_records
+
+        message = "`impacted_records` is deprecated, use `impacted_objects` instead."
+        self.mocked_warnings.assert_called_with(message, DeprecationWarning)
+
+
 def load_from_config(config, prefix):
     class ClassListener:
         def __call__(self, event):
