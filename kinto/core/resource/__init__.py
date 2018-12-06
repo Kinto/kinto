@@ -963,7 +963,7 @@ class UserResource:
             }
 
             # Return 400 if _limit is not a string
-            if param == "like_target.version":
+            if "like" in param:
                 if not isinstance(value, str):
                     raise_invalid(self.request, **error_details)
 
