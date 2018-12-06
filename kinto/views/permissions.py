@@ -66,6 +66,7 @@ class PermissionsModel:
         limit=None,
         include_deleted=False,
         parent_id=None,
+        count_only=False,
     ):
         # Invert the permissions inheritance tree.
         perms_descending_tree = {}
@@ -149,7 +150,7 @@ class PermissionsModel:
             )
             entries.append(entry)
 
-        return extract_record_set(
+        records, count = extract_record_set(
             entries,
             filters=filters,
             sorting=sorting,
@@ -157,6 +158,10 @@ class PermissionsModel:
             pagination_rules=pagination_rules,
             limit=limit,
         )
+        if count_only:
+            return count
+        else:
+            return records
 
 
 class PermissionsSchema(resource.ResourceSchema):
@@ -177,7 +182,7 @@ class PermissionsSchema(resource.ResourceSchema):
     description="List of user permissions",
     collection_path="/permissions",
     record_path=None,
-    collection_methods=("GET",),
+    collection_methods=("HEAD", "GET"),
 )
 class Permissions(resource.ShareableResource):
 

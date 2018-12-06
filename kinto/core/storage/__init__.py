@@ -1,6 +1,7 @@
 import json
 import logging
 import random
+import warnings
 from collections import namedtuple
 
 from pyramid.settings import asbool
@@ -279,7 +280,24 @@ class StorageBase:
         """
         raise NotImplementedError
 
-    def get_all(
+    def get_all(self, *args, **kwargs):
+        """Legacy method to support code that relied on the old API where the storage's
+        get_all() would return a tuple of (<list of records paginated>, <count of all>).
+        Since then, we're being more explicit and expecting the client to deliberately
+        decide if they need a paginated list or a count.
+
+        This method exists solely to make the transition easier.
+        """
+        warnings.warn("Use either self.list_all() or self.count_all()", DeprecationWarning)
+        list_ = self.list_all(*args, **kwargs)
+        kwargs.pop("pagination_rules", None)
+        kwargs.pop("limit", None)
+        kwargs.pop("sorting", None)
+        kwargs.pop("include_deleted", None)
+        count = self.count_all(*args, **kwargs)
+        return (list_, count)
+
+    def list_all(
         self,
         collection_id,
         parent_id,
@@ -326,6 +344,37 @@ class StorageBase:
 
         :param bool include_deleted: Optionnally include the deleted objects
             that match the filters.
+
+        :returns: the limited list of objects, and the total number of
+            matching objects in the collection (deleted ones excluded).
+        :rtype: tuple
+        """
+        raise NotImplementedError
+
+    def count_all(
+        self,
+        collection_id,
+        parent_id,
+        filters=None,
+        id_field=DEFAULT_ID_FIELD,
+        modified_field=DEFAULT_MODIFIED_FIELD,
+        deleted_field=DEFAULT_DELETED_FIELD,
+        auth=None,
+    ):
+        """Return a count of all objects in this `collection_id` for this `parent_id`.
+
+        :param str collection_id: the collection id.
+
+        :param str parent_id: the collection parent, possibly
+            containing a wildcard '*'. (This can happen when
+            implementing "administrator" operations on a UserResource,
+            for example.)
+
+        :param filters: Optionally filter the objects by their attribute.
+            Each filter in this list is a tuple of a field, a value and a
+            comparison (see `kinto.core.utils.COMPARISON`). All filters
+            are combined using *AND*.
+        :type filters: list of :class:`kinto.core.storage.Filter`
 
         :returns: the limited list of objects, and the total number of
             matching objects in the collection (deleted ones excluded).

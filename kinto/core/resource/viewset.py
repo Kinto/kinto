@@ -57,7 +57,7 @@ class ViewSet:
     collection_path = "/{resource_name}s"
     record_path = "/{resource_name}s/{{id}}"
 
-    collection_methods = ("GET", "POST", "DELETE")
+    collection_methods = ("HEAD", "GET", "POST", "DELETE")
     record_methods = ("GET", "PUT", "PATCH", "DELETE")
 
     readonly_methods = ("GET", "OPTIONS", "HEAD")

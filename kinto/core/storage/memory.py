@@ -310,7 +310,7 @@ class Storage(MemoryBasedStorage):
         return num_deleted
 
     @synchronized
-    def get_all(
+    def list_all(
         self,
         collection_id,
         parent_id,
@@ -324,10 +324,8 @@ class Storage(MemoryBasedStorage):
         deleted_field=DEFAULT_DELETED_FIELD,
         auth=None,
     ):
-
         records = _get_objects_by_parent_id(self._store, parent_id, collection_id)
-
-        records, count = self.extract_record_set(
+        records, _ = self.extract_record_set(
             records=records,
             filters=filters,
             sorting=None,
@@ -338,7 +336,7 @@ class Storage(MemoryBasedStorage):
         if include_deleted:
             deleted = _get_objects_by_parent_id(self._cemetery, parent_id, collection_id)
 
-        records, count = self.extract_record_set(
+        records, _ = self.extract_record_set(
             records=records + deleted,
             filters=filters,
             sorting=sorting,
@@ -347,7 +345,28 @@ class Storage(MemoryBasedStorage):
             pagination_rules=pagination_rules,
             limit=limit,
         )
-        return records, count
+        return records
+
+    @synchronized
+    def count_all(
+        self,
+        collection_id,
+        parent_id,
+        filters=None,
+        id_field=DEFAULT_ID_FIELD,
+        modified_field=DEFAULT_MODIFIED_FIELD,
+        deleted_field=DEFAULT_DELETED_FIELD,
+        auth=None,
+    ):
+        records = _get_objects_by_parent_id(self._store, parent_id, collection_id)
+        _, count = self.extract_record_set(
+            records=records,
+            filters=filters,
+            sorting=None,
+            id_field=id_field,
+            deleted_field=deleted_field,
+        )
+        return count
 
     @synchronized
     def delete_all(

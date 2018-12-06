@@ -55,6 +55,7 @@ class Model:
         limit=None,
         include_deleted=False,
         parent_id=None,
+        count_only=False,
     ):
         """Fetch the collection records.
 
@@ -66,46 +67,59 @@ class Model:
             are combined using *AND*.
         :type filters: list of :class:`kinto.core.storage.Filter`
 
-        :param sorting: Optionnally sort the records by attribute.
+        :param sorting: Optionally sort the records by attribute.
             Each sort instruction in this list refers to a field and a
             direction (negative means descending). All sort instructions are
             cumulative.
         :type sorting: list of :class:`kinto.core.storage.Sort`
 
-        :param pagination_rules: Optionnally paginate the list of records.
+        :param pagination_rules: Optionally paginate the list of records.
             This list of rules aims to reduce the set of records to the current
             page. A rule is a list of filters (see `filters` parameter),
             and all rules are combined using *OR*.
         :type pagination_rules: list of list of
             :class:`kinto.core.storage.Filter`
 
-        :param int limit: Optionnally limit the number of records to be
+        :param int limit: Optionally limit the number of records to be
             retrieved.
 
-        :param bool include_deleted: Optionnally include the deleted records
+        :param bool include_deleted: Optionally include the deleted records
             that match the filters.
 
         :param str parent_id: optional filter for parent id
+
+        :param bool count_only: Hints to the storage that we only need to the
+            total count rather than all records.
 
         :returns: A tuple with the list of records in the current page,
             the total number of records in the result set.
         :rtype: tuple
         """
         parent_id = parent_id or self.parent_id
-        records, total_records = self.storage.get_all(
-            collection_id=self.collection_id,
-            parent_id=parent_id,
-            filters=filters,
-            sorting=sorting,
-            pagination_rules=pagination_rules,
-            limit=limit,
-            include_deleted=include_deleted,
-            id_field=self.id_field,
-            modified_field=self.modified_field,
-            deleted_field=self.deleted_field,
-            auth=self.auth,
-        )
-        return records, total_records
+        if count_only:
+            return self.storage.count_all(
+                collection_id=self.collection_id,
+                parent_id=parent_id,
+                filters=filters,
+                id_field=self.id_field,
+                modified_field=self.modified_field,
+                deleted_field=self.deleted_field,
+                auth=self.auth,
+            )
+        else:
+            return self.storage.list_all(
+                collection_id=self.collection_id,
+                parent_id=parent_id,
+                filters=filters,
+                sorting=sorting,
+                pagination_rules=pagination_rules,
+                limit=limit,
+                include_deleted=include_deleted,
+                id_field=self.id_field,
+                modified_field=self.modified_field,
+                deleted_field=self.deleted_field,
+                auth=self.auth,
+            )
 
     def delete_records(
         self, filters=None, sorting=None, pagination_rules=None, limit=None, parent_id=None

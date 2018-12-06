@@ -182,8 +182,11 @@ class EntriesTest(PermissionsViewTest):
         self.assertNotIn("resource_name", resp.json["data"][0])
 
     def test_permissions_list_can_be_paginated(self):
-        resp = self.app.get("/permissions?_limit=2", headers=self.headers)
+        resp = self.app.head("/permissions", headers=self.headers)
         self.assertEqual(resp.headers["Total-Records"], "5")
+
+        resp = self.app.get("/permissions?_limit=2", headers=self.headers)
+        self.assertTrue(not resp.headers.get("Total-Records"))
         self.assertIn("Next-Page", resp.headers)
         self.assertEqual(len(resp.json["data"]), 2)
 

@@ -58,7 +58,7 @@ class PaginationTest(BasePaginationTest):
 
     def test_return_total_records_in_headers(self):
         self.validated["querystring"] = {"_limit": 5}
-        self.resource.collection_get()
+        self.resource.collection_head()
         headers = self.last_response.headers
         count = headers["Total-Records"]
         self.assertEqual(int(count), 20)
@@ -224,15 +224,8 @@ class PaginatedDeleteTest(BasePaginationTest):
         results2_ids = [r["id"] for r in results2["data"]]
         self.assertEqual(expected_ids, results1_ids + results2_ids)
 
-    def test_return_total_records_in_headers_matching_deletable(self):
-        self.validated["querystring"] = {"_limit": 5}
-        self.resource.collection_delete()
-        headers = self.last_response.headers
-        count = headers["Total-Records"]
-        self.assertEqual(int(count), 20)
-
     def test_paginated_delete_second_to_last_gets_next_header(self):
-        self.resource.collection_get()
+        self.resource.collection_head()
         get_all_headers = self.last_response.headers
         count = int(get_all_headers["Total-Records"]) - 1
 

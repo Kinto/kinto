@@ -270,12 +270,12 @@ class GuestCollectionDeleteTest(PermissionTest):
         with mock.patch.object(self.resource, "is_known_field"):
             result = self.resource.collection_delete()
         self.assertEqual(len(result["data"]), 1)
-        records, _ = self.resource.model.get_records()
+        records = self.resource.model.get_records()
         self.assertEqual(len(records), 3)
 
     def test_guest_cannot_delete_records_if_not_allowed(self):
         self.resource.context.shared_ids = ["tata lili"]
         result = self.resource.collection_delete()
         self.assertEqual(len(result["data"]), 0)
-        records, _ = self.resource.model.get_records()
+        records = self.resource.model.get_records()
         self.assertEqual(len(records), 4)

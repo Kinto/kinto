@@ -59,7 +59,7 @@ class FilteringTest(BaseTest):
 
     def test_number_of_records_matches_filter(self):
         self.validated["querystring"] = {"status": 1}
-        self.resource.collection_get()
+        self.resource.collection_head()
         headers = self.last_response.headers
         self.assertEqual(int(headers["Total-Records"]), 2)
 
