@@ -334,10 +334,10 @@ class StorageBase:
         """
         raise NotImplementedError
 
-    def collection_timestamp(self, *args, **kwargs):
+    def collection_timestamp(self, collection_id, parent_id, auth=None):
         message = "`collection_timestamp()` is deprecated, use `resource_timestamp()` instead."
         warnings.warn(message, DeprecationWarning)
-        return self.resource_timestamp(*args, **kwargs)
+        return self.resource_timestamp(resource_name=collection_id, parent_id=parent_id, auth=auth)
 
 
 def heartbeat(backend):

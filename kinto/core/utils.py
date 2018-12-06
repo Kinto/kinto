@@ -557,26 +557,3 @@ def apply_json_patch(obj, ops):
         raise ValueError(e)
 
     return result
-
-
-def deprecate_kwargs(deprecated):
-    """
-    A decorator to deprecate keyword arguments.
-
-    :param dict deprecated: The keywords mapping (old: new)
-    """
-
-    def decorated(func):
-        def wrapper(*args, **kwargs):
-            new_kwargs = {**kwargs}
-            for old_param, new_param in deprecated.items():
-                if old_param in kwargs:
-                    msg = f"{func!r} parameter {old_param!r} is deprecated, use {new_param!r} instead"
-                    raise DeprecationWarning(msg)
-                    new_kwargs[new_param] = new_kwargs.pop(old_param)
-
-            return func(*args, **new_kwargs)
-
-        return wrapper
-
-    return decorated

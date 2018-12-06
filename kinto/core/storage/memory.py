@@ -14,7 +14,8 @@ from kinto.core.storage import (
     DEFAULT_DELETED_FIELD,
     MISSING,
 )
-from kinto.core.utils import COMPARISON, find_nested_value, deprecate_kwargs
+from kinto.core.utils import COMPARISON, find_nested_value
+from kinto.core.decorators import deprecate_kwargs
 
 import json
 import ujson

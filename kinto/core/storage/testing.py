@@ -1602,12 +1602,71 @@ class SerializationTest:
         )
 
 
+class DeprecatedCoreNotionsTest:
+    def setUp(self):
+        super().setUp()
+        patch = mock.patch("warnings.warn")
+        self.mocked_warnings = patch.start()
+
+    def test_deprecated_collection_timestamp(self):
+        self.storage.collection_timestamp(collection_id="test", parent_id="")
+        message = "`collection_timestamp()` is deprecated, use `resource_timestamp()` instead."
+        self.mocked_warnings.assert_called_with(message, DeprecationWarning)
+
+    def test_create_deprecated_kwargs(self):
+        self.storage.create(record={}, collection_id="test", parent_id="")
+
+        message = "Storage.create parameter 'record' is deprecated, use 'object' instead"
+        self.mocked_warnings.assert_called_with(message, DeprecationWarning)
+
+    def test_get_deprecated_kwargs(self):
+        self.storage.create(object={"id": "abc"}, resource_name="test", parent_id="")
+
+        self.storage.get(object_id="abc", collection_id="test", parent_id="")
+
+        message = (
+            "Storage.get parameter 'collection_id' is deprecated, use 'resource_name' instead"
+        )
+        self.mocked_warnings.assert_called_with(message, DeprecationWarning)
+
+    def test_update_deprecated_kwargs(self):
+        self.storage.update(object_id="abc", record={}, collection_id="test", parent_id="")
+
+        message = "Storage.update parameter 'record' is deprecated, use 'object' instead"
+        self.mocked_warnings.assert_called_with(message, DeprecationWarning)
+
+    def test_delete_deprecated_kwargs(self):
+        self.storage.create(object={"id": "abc"}, resource_name="test", parent_id="")
+
+        self.storage.delete(object_id="abc", collection_id="test", parent_id="")
+
+        message = (
+            "Storage.delete parameter 'collection_id' is deprecated, use 'resource_name' instead"
+        )
+        self.mocked_warnings.assert_called_with(message, DeprecationWarning)
+
+    def test_delete_all_deprecated_kwargs(self):
+        self.storage.delete_all(collection_id="test", parent_id="")
+
+        message = "Storage.delete_all parameter 'collection_id' is deprecated, use 'resource_name' instead"
+        self.mocked_warnings.assert_called_with(message, DeprecationWarning)
+
+    def test_get_all_deprecated_kwargs(self):
+        self.storage.get_all(collection_id="test", parent_id="")
+
+        message = (
+            "Storage.get_all parameter 'collection_id' is deprecated, use 'resource_name' instead"
+        )
+        self.mocked_warnings.assert_called_with(message, DeprecationWarning)
+
+
 class StorageTest(
     ThreadMixin,
     TimestampsTest,
     DeletedObjectsTest,
     ParentObjectAccessTest,
     SerializationTest,
+    DeprecatedCoreNotionsTest,
     BaseTestStorage,
 ):
     """Compound of all storage tests."""

@@ -11,9 +11,10 @@ from kinto.core.storage import (
     DEFAULT_DELETED_FIELD,
     MISSING,
 )
+from kinto.core.decorators import deprecate_kwargs
 from kinto.core.storage.postgresql.client import create_from_config
 from kinto.core.storage.postgresql.migrator import MigratorMixin
-from kinto.core.utils import COMPARISON, deprecate_kwargs
+from kinto.core.utils import COMPARISON
 
 
 logger = logging.getLogger(__name__)
