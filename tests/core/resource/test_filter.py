@@ -137,12 +137,12 @@ class FilteringTest(BaseTest):
                     {
                         "description": "Invalid value for like_tittle",
                         "location": "querystring",
-                        "name": "like_tittle"
+                        "name": "like_tittle",
                     }
                 ],
                 "errno": 107,
                 "error": "Invalid parameters",
-                "message": "Invalid value for like_tittle"
+                "message": "Invalid value for like_tittle",
             },
         )
 
