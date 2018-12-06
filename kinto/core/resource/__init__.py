@@ -962,6 +962,11 @@ class UserResource:
                 "description": f"Invalid value for {param}",
             }
 
+            # Return 400 if _limit is not a string
+            if param == "like_target.version":
+                if not isinstance(value, str):
+                    raise_invalid(self.request, **error_details)
+
             # Ignore specific fields
             if param.startswith("_") and param not in ("_since", "_to", "_before"):
                 continue
