@@ -9,6 +9,7 @@ This document describes changes between each past release.
 **Breaking changes**
 
 - Remove Python 3.5 support and upgrade to Python 3.6. (#1886)
+- Remove `record` from UnicityError class (#1919). This enabled us to fix #1545.
 
 **Internal changes**
 
