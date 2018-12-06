@@ -18,6 +18,9 @@ This document describes changes between each past release.
 - Remove regexp py36 warnings. (#1907)
 - Changed psycopg2 dependency for psycopg2-binary. (#1905)
 
+**Bug Fixes**
+- Like query now returns 400 when a non string value is used. (#1899)
+
 11.2.0 (2018-11-29)
 -------------------
 
