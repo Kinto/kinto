@@ -1001,6 +1001,11 @@ class UserResource:
                 error_details["description"] = error_msg
                 raise_invalid(self.request, **error_details)
 
+            # Return 400 if _limit is not a string
+            if operator == COMPARISON.LIKE:
+                if not isinstance(value, str):
+                    raise_invalid(self.request, **error_details)
+
             if operator in (COMPARISON.IN, COMPARISON.EXCLUDE):
                 all_integers = all([isinstance(v, int) for v in value])
                 all_strings = all([isinstance(v, str) for v in value])
