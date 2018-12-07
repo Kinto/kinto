@@ -3,6 +3,12 @@ Changelog
 
 This document describes changes between each past release.
 
+11.2.1 (unreleased)
+-------------------
+
+- Still supports jsonschema 2.6 before 3.0 is released as a production release. (#1923)
+
+
 11.2.0 (2018-11-29)
 -------------------
 
