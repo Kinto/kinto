@@ -991,7 +991,7 @@ class UserResource:
                 filters.append(Filter(self.model.modified_field, value, operator))
                 continue
 
-            all_keywords = "|".join([i.name.lower() for i in COMPARISON])
+            all_keywords = r"|".join([i.name.lower() for i in COMPARISON])
             m = re.match(r"^(" + all_keywords + r")_([\w\.]+)$", param)
             if m:
                 keyword, field = m.groups()
@@ -1003,6 +1003,11 @@ class UserResource:
                 error_msg = f"Unknown filter field '{param}'"
                 error_details["description"] = error_msg
                 raise_invalid(self.request, **error_details)
+
+            # Return 400 if _limit is not a string
+            if operator == COMPARISON.LIKE:
+                if not isinstance(value, str):
+                    raise_invalid(self.request, **error_details)
 
             if operator in (COMPARISON.IN, COMPARISON.EXCLUDE):
                 all_integers = all([isinstance(v, int) for v in value])
