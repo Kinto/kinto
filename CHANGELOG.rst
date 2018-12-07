@@ -17,6 +17,8 @@ This document describes changes between each past release.
 - Ignore admin plugin node_modules folder while running black (#1902)
 - Remove regexp py36 warnings. (#1907)
 - Changed psycopg2 dependency for psycopg2-binary. (#1905)
+- Still supports jsonschema 2.6 before 3.0 is released as a production release. (#1923)
+
 
 11.2.0 (2018-11-29)
 -------------------

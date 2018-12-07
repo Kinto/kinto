@@ -1,6 +1,6 @@
 import colander
 from jsonschema import ValidationError, SchemaError, RefResolutionError, validate
-try:
+try:  # pragma: no cover
     from jsonschema import Draft7Validator as DraftValidator
 except ImportError:
     from jsonschema import Draft4Validator as DraftValidator
