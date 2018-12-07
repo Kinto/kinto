@@ -124,7 +124,7 @@ class FilteringTest(BaseTest):
         self.assertEqual(len(result["data"]), 6)
 
     def test_not_string_filter(self):
-        self.validated["querystring"] = {"like_tittle": 10}
+        self.validated["querystring"] = {"like_title": 10}
         try:
             self.resource.collection_get()
         except httpexceptions.HTTPBadRequest as e:
@@ -135,14 +135,14 @@ class FilteringTest(BaseTest):
                 "code": 400,
                 "details": [
                     {
-                        "description": "Invalid value for like_tittle",
+                        "description": "Invalid value for like_title",
                         "location": "querystring",
-                        "name": "like_tittle",
+                        "name": "like_title",
                     }
                 ],
                 "errno": 107,
                 "error": "Invalid parameters",
-                "message": "Invalid value for like_tittle",
+                "message": "Invalid value for like_title",
             },
         )
 
