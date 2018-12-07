@@ -11,6 +11,11 @@ API
 Changelog
 ---------
 
+1.21 (unreleased)
+'''''''''''''''''
+
+- The ``Total-Records`` header was deprecated and renamed to ``Total-Objects``.
+
 1.20 (2018-06-07)
 '''''''''''''''''
 

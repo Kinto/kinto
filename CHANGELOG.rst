@@ -10,6 +10,10 @@ This document describes changes between each past release.
 
 - Remove Python 3.5 support and upgrade to Python 3.6. (#1886)
 
+**Bug Fixes**
+
+- Like query now returns 400 when a non string value is used. (#1899)
+
 **Internal changes**
 
 - Fix depreciated warn method (#1903)
@@ -18,10 +22,8 @@ This document describes changes between each past release.
 - Remove regexp py36 warnings. (#1907)
 - Changed psycopg2 dependency for psycopg2-binary. (#1905)
 - Still supports jsonschema 2.6 before 3.0 is released as a production release. (#1923)
+- Renamed core notions (ie. record and collection) (#710)
 
-
-**Bug Fixes**
-- Like query now returns 400 when a non string value is used. (#1899)
 
 11.2.0 (2018-11-29)
 -------------------
