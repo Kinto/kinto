@@ -962,11 +962,6 @@ class UserResource:
                 "description": f"Invalid value for {param}",
             }
 
-            # Return 400 if _limit is not a string
-            if "like" in param:
-                if not isinstance(value, str):
-                    raise_invalid(self.request, **error_details)
-
             # Ignore specific fields
             if param.startswith("_") and param not in ("_since", "_to", "_before"):
                 continue
@@ -1005,6 +1000,11 @@ class UserResource:
                 error_msg = f"Unknown filter field '{param}'"
                 error_details["description"] = error_msg
                 raise_invalid(self.request, **error_details)
+
+            # Return 400 if _limit is not a string
+            if operator == COMPARISON.LIKE:
+                if not isinstance(value, str):
+                    raise_invalid(self.request, **error_details)
 
             if operator in (COMPARISON.IN, COMPARISON.EXCLUDE):
                 all_integers = all([isinstance(v, int) for v in value])
