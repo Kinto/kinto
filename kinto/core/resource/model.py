@@ -286,25 +286,25 @@ class Model:
         warnings.warn(message, DeprecationWarning)
         return self.delete_objects(*args, **kwargs)
 
-    def get_record(self, *args, **kwargs):
+    def get_record(self, record_id, parent_id=None):
         message = "`get_record()` is deprecated, use `get_object()` instead."
         warnings.warn(message, DeprecationWarning)
-        return self.get_object(*args, **kwargs)
+        return self.get_object(object_id=record_id, parent_id=parent_id)
 
-    def create_record(self, *args, **kwargs):
+    def create_record(self, record, parent_id=None):
         message = "`create_record()` is deprecated, use `create_object()` instead."
         warnings.warn(message, DeprecationWarning)
-        return self.create_object(*args, **kwargs)
+        return self.create_object(obj=record, parent_id=parent_id)
 
-    def update_record(self, *args, **kwargs):
+    def update_record(self, record, parent_id=None):
         message = "`update_record()` is deprecated, use `update_object()` instead."
         warnings.warn(message, DeprecationWarning)
-        return self.update_object(*args, **kwargs)
+        return self.update_object(obj=record, parent_id=parent_id)
 
-    def delete_record(self, *args, **kwargs):
+    def delete_record(self, record, parent_id=None, last_modified=None):
         message = "`delete_record()` is deprecated, use `delete_object()` instead."
         warnings.warn(message, DeprecationWarning)
-        return self.delete_object(*args, **kwargs)
+        return self.delete_object(obj=record, parent_id=parent_id, last_modified=last_modified)
 
 
 class ShareableModel(Model):

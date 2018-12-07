@@ -1,3 +1,5 @@
+import mock
+
 from pyramid import httpexceptions
 
 from . import BaseTest
@@ -93,3 +95,57 @@ class IsolatedModelsTest(BaseTest):
 
     def test_cannot_delete_object_of_other_user(self):
         self.assertRaises(httpexceptions.HTTPNotFound, self.resource.delete)
+
+
+class DeprecatedMethodsTest(BaseTest):
+    def setUp(self):
+        super().setUp()
+        patch = mock.patch("warnings.warn")
+        self.mocked_warnings = patch.start()
+        self.addCleanup(patch.stop)
+
+    def test_collection_id(self):
+        self.resource.model.collection_id
+
+        message = "`collection_id` is deprecated, use `resource_name` instead."
+        self.mocked_warnings.assert_called_with(message, DeprecationWarning)
+
+    def test_get_records(self, *args, **kwargs):
+        self.resource.model.get_records()
+
+        message = "`get_records()` is deprecated, use `get_objects()` instead."
+        self.mocked_warnings.assert_called_with(message, DeprecationWarning)
+
+    def test_delete_records(self, *args, **kwargs):
+        self.resource.model.delete_records()
+
+        message = "`delete_records()` is deprecated, use `delete_objects()` instead."
+        self.mocked_warnings.assert_called_with(message, DeprecationWarning)
+
+    def test_get_record(self, *args, **kwargs):
+        self.resource.model.create_object({"id": "abc"})
+
+        self.resource.model.get_record(record_id="abc")
+
+        message = "`get_record()` is deprecated, use `get_object()` instead."
+        self.mocked_warnings.assert_called_with(message, DeprecationWarning)
+
+    def test_create_record(self, *args, **kwargs):
+        self.resource.model.create_record({"id": "abc"})
+
+        message = "`create_record()` is deprecated, use `create_object()` instead."
+        self.mocked_warnings.assert_called_with(message, DeprecationWarning)
+
+    def test_update_record(self, *args, **kwargs):
+        self.resource.model.update_record({"id": "abc"})
+
+        message = "`update_record()` is deprecated, use `update_object()` instead."
+        self.mocked_warnings.assert_called_with(message, DeprecationWarning)
+
+    def test_delete_record(self, *args, **kwargs):
+        self.resource.model.create_object({"id": "abc"})
+
+        self.resource.model.delete_record(record={"id": "abc"})
+
+        message = "`delete_record()` is deprecated, use `delete_object()` instead."
+        self.mocked_warnings.assert_called_with(message, DeprecationWarning)
