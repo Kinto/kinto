@@ -3,6 +3,9 @@ db:
   environment:
     POSTGRES_USER: postgres
     POSTGRES_PASSWORD: postgres
+    POSTGRES_DB: testdb
+  ports:
+    - "5432:5432"
 cache:
   image: library/memcached
 web:
