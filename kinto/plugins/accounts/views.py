@@ -38,7 +38,7 @@ class AccountSchema(resource.ResourceSchema):
 
 
 @resource.register()
-class Account(resource.ShareableResource):
+class Account(resource.Resource):
 
     schema = AccountSchema
 

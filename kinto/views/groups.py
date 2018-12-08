@@ -24,7 +24,7 @@ class GroupSchema(resource.ResourceSchema):
     plural_path="/buckets/{{bucket_id}}/groups",
     object_path="/buckets/{{bucket_id}}/groups/{{id}}",
 )
-class Group(resource.ShareableResource):
+class Group(resource.Resource):
     schema = GroupSchema
 
     def get_parent_id(self, request):

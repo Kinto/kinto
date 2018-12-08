@@ -16,7 +16,7 @@ class CollectionSchema(resource.ResourceSchema):
     plural_path="/buckets/{{bucket_id}}/collections",
     object_path="/buckets/{{bucket_id}}/collections/{{id}}",
 )
-class Collection(resource.ShareableResource):
+class Collection(resource.Resource):
     schema = CollectionSchema
     permissions = ("read", "write", "record:create")
 

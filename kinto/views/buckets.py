@@ -16,7 +16,7 @@ class BucketSchema(resource.ResourceSchema):
 
 
 @resource.register(name="bucket", plural_path="/buckets", object_path="/buckets/{{id}}")
-class Bucket(resource.ShareableResource):
+class Bucket(resource.Resource):
     schema = BucketSchema
     permissions = ("read", "write", "collection:create", "group:create")
 

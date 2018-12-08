@@ -47,7 +47,7 @@ delete_history_arguments = {
     plural_get_arguments=get_history_arguments,
     plural_delete_arguments=delete_history_arguments,
 )
-class History(resource.ShareableResource):
+class History(resource.Resource):
 
     schema = HistorySchema
 
