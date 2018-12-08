@@ -1,4 +1,3 @@
-import functools
 from unittest import mock
 
 from pyramid.security import IAuthorizationPolicy
@@ -59,24 +58,6 @@ class AllowAuthorizationPolicy:
 
     def principals_allowed_by_permission(self, context, permission):
         raise NotImplementedError()  # PRAGMA NOCOVER
-
-
-def authorize(permits=True, authz_class=None):
-    """Patch the default authorization policy to return what is specified
-    in :param:permits.
-    """
-    if authz_class is None:
-        authz_class = "tests.core.support.AllowAuthorizationPolicy"
-
-    def wrapper(f):
-        @functools.wraps(f)
-        def wrapped(*args, **kwargs):
-            with mock.patch("{}.permits".format(authz_class), return_value=permits):
-                return f(*args, **kwargs)
-
-        return wrapped
-
-    return wrapper
 
 
 class PostgreSQLTest(BaseWebTest):
