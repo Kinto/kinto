@@ -203,10 +203,14 @@ class AuthorizationPolicyTest(unittest.TestCase):
         allowed = self.authz.permits(self.context, self.principals, "dynamic")
         self.assertTrue(allowed)
 
-    def test_permits_reads_the_context_when_permission_is_dynamic(self):
+    def test_permits_reads_the_context(self):
         self.authz.permits(self.context, self.principals, "dynamic")
         self.context.check_permission.assert_called_with(
-            self.principals, [(self.context.permission_object_id, "read")]
+            self.principals,
+            [
+                (self.context.permission_object_id, "read"),
+                (self.context.permission_object_id, "write"),
+            ],
         )
 
     def test_permits_uses_get_bound_permissions_if_defined(self):

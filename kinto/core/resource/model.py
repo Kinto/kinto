@@ -24,7 +24,7 @@ class Model:
     """Name of `deleted` field in deleted objects"""
 
     permissions_field = "__permissions__"
-    # Permission backend.
+    # Permissions field used to annotate data with permissions.
 
     def __init__(
         self,

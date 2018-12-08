@@ -1,6 +1,6 @@
 from unittest import mock
 
-from pyramid.security import IAuthorizationPolicy
+from pyramid.security import IAuthorizationPolicy, Authenticated
 from zope.interface import implementer
 
 from kinto.core import testing
@@ -53,8 +53,7 @@ class BaseWebTest(testing.BaseWebTest):
 @implementer(IAuthorizationPolicy)
 class AllowAuthorizationPolicy:
     def permits(self, context, principals, permission):
-        prefixed = context.get_prefixed_principals()
-        return USER_PRINCIPAL in (principals + prefixed)
+        return Authenticated in principals
 
     def principals_allowed_by_permission(self, context, permission):
         raise NotImplementedError()  # PRAGMA NOCOVER

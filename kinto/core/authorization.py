@@ -105,7 +105,11 @@ class AuthorizationPolicy:
 
     def _get_bound_permissions(self, object_id, permission):
         if self.get_bound_permissions is None:
-            return [(object_id, permission)]
+            # Permission to 'write' gives permission to 'read'.
+            bound = [(object_id, permission)]
+            if permission == "read":
+                bound += [(object_id, "write")]
+            return bound
         return self.get_bound_permissions(object_id, permission)
 
     def principals_allowed_by_permission(self, context, permission):
