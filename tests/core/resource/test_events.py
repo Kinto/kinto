@@ -326,8 +326,8 @@ class BatchEventsTest(BaseEventTest, unittest.TestCase):
         self.assertEqual(len(self.events), 2)
 
     def test_one_event_is_sent_per_parent_id(self):
-        # /mushrooms is a UserResource (see testapp.views), which means
-        # that parent_id depends on the authenticated user.
+        # /mushrooms is a Resource (see testapp.views) whose parent id depends
+        # on the authenticated user.
         body = {
             "defaults": {"path": "/mushrooms", "method": "POST", "body": self.body},
             "requests": [
@@ -381,8 +381,7 @@ class CascadingEventsTest(BaseEventTest, unittest.TestCase):
         assert len(event.impacted_objects) == 1
         if event.impacted_objects[0]["new"]["name"] == "de Paris":
             new_object = {"name": "de New York"}
-            # Trying to match the Mushroom (i.e. UserResource) parent
-            # ID to test event grouping
+            # Trying to match the Mushroom parent ID to test event grouping
             parent_id = event.request.prefixed_userid
             notify_resource_event(
                 event.request, parent_id, event.payload["timestamp"], new_object, ACTIONS.CREATE

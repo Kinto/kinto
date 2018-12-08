@@ -2,14 +2,14 @@ from unittest import mock
 
 from pyramid import httpexceptions
 
-from kinto.core.resource import ShareableResource
+from kinto.core.resource import Resource
 from kinto.core.permission.memory import Permission
 
 from . import BaseTest
 
 
 class PermissionTest(BaseTest):
-    resource_class = ShareableResource
+    resource_class = Resource
 
     def setUp(self):
         self.permission = Permission()

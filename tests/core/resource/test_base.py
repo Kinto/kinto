@@ -3,7 +3,7 @@ from unittest import mock
 
 from pyramid import httpexceptions
 
-from kinto.core.resource import UserResource, ShareableResource
+from kinto.core.resource import Resource
 from kinto.core.storage import exceptions as storage_exceptions
 from kinto.core.testing import DummyRequest
 
@@ -11,11 +11,6 @@ from . import BaseTest
 
 
 class ResourceTest(BaseTest):
-    def test_get_parent_id_default_to_prefixed_userid(self):
-        request = self.get_request()
-        parent_id = self.resource.get_parent_id(request)
-        self.assertEqual(parent_id, "basicauth:bob")
-
     def test_raise_if_backend_fails_to_obtain_timestamp(self):
         request = self.get_request()
 
@@ -42,6 +37,17 @@ class ResourceTest(BaseTest):
                 self.resource_class(request)
                 self.assertIn("writable", cm.exception.message)
 
+    def test_resource_can_be_created_without_context(self):
+        try:
+            self.resource_class(self.get_request())
+        except Exception as e:
+            self.fail(e)
+
+    def test_default_parent_id_is_empty(self):
+        request = self.get_request()
+        parent_id = self.resource.get_parent_id(request)
+        self.assertEqual(parent_id, "")
+
 
 class DeprecatedMethodsTest(unittest.TestCase):
     def setUp(self):
@@ -53,8 +59,9 @@ class DeprecatedMethodsTest(unittest.TestCase):
         req = DummyRequest()
         req.validated = {"body": {}, "header": {}, "querystring": {}}
         req.registry.storage.get_all.return_value = ([], 0)
+        req.registry.storage.create.return_value = {"id": "abc", "last_modified": 123}
 
-        self.resource = UserResource(request=req)
+        self.resource = Resource(context=mock.MagicMock(), request=req)
 
     def test_record_id(self):
         self.resource.record_id
@@ -87,22 +94,7 @@ class DeprecatedMethodsTest(unittest.TestCase):
         self.mocked_warnings.assert_called_with(message, DeprecationWarning)
 
 
-class ShareableResourceTest(BaseTest):
-    resource_class = ShareableResource
-
-    def test_resource_can_be_created_without_context(self):
-        try:
-            self.resource_class(self.get_request())
-        except Exception as e:
-            self.fail(e)
-
-    def test_get_parent_id_is_empty(self):
-        request = self.get_request()
-        parent_id = self.resource.get_parent_id(request)
-        self.assertEqual(parent_id, "")
-
-
-class NewResource(UserResource):
+class NewResource(Resource):
     def get_parent_id(self, request):
         return "overrided"
 
@@ -118,7 +110,7 @@ class ParentIdOverrideResourceTest(BaseTest):
         self.assertEqual(self.resource.model.parent_id, "overrided")
 
 
-class CustomModelResource(UserResource):
+class CustomModelResource(Resource):
     def __init__(self, *args, **kwargs):
         self.model = mock.MagicMock()
         self.model.name = mock.sentinel.model

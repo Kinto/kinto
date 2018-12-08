@@ -251,7 +251,7 @@ class RouteFactory:
 
         .. note::
             This method saves an attribute ``self.current_object`` used
-            in :class:`kinto.core.resource.UserResource`.
+            in :class:`kinto.core.resource.Resource`.
         """
         # By default, it's a URI a and permission associated to the method.
         permission_object_id = self.get_permission_object_id(request)

@@ -300,8 +300,8 @@ class StorageBase:
 
         :param str parent_id: the resource parent, possibly
             containing a wildcard '*'. (This can happen when
-            implementing "administrator" operations on a UserResource,
-            for example.)
+            implementing "administrator" operations on a Resource,
+            for example, like ``kinto.plugins.accounts``.)
 
         :param filters: Optionally filter the objects by their attribute.
             Each filter in this list is a tuple of a field, a value and a

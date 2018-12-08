@@ -14,7 +14,7 @@ class StrictSchema(resource.ResourceSchema):
 
 
 class BaseTest(unittest.TestCase):
-    resource_class = resource.UserResource
+    resource_class = resource.Resource
 
     def setUp(self):
         self.storage = storage_memory.Storage()

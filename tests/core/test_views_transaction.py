@@ -104,7 +104,7 @@ class IntegrityConstraintTest(PostgreSQLTest, unittest.TestCase):
 
         # Make requests slow.
         patch = mock.patch(
-            "kinto.core.resource.UserResource.postprocess",
+            "kinto.core.resource.Resource.postprocess",
             lambda s, r, a="read", old=None: time.sleep(0.2) or {},
         )
         patch.start()

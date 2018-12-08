@@ -304,7 +304,7 @@ class ViewSetTest(unittest.TestCase):
         self.assertTrue(is_enabled)
 
 
-class TestViewsetBindedSchemas(unittest.TestCase):
+class TestViewsetBoundSchemas(unittest.TestCase):
     def setUp(self):
         self.viewset = ViewSet()
         self.viewset.responses = mock.MagicMock()

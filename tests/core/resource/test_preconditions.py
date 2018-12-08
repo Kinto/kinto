@@ -56,6 +56,8 @@ class ModifiedMeanwhileTest(BaseTest):
 
         # Create an object using model (will have an incremented last_modified)
         self.stored = self.model.create_object({})
+        self.stored.pop(self.model.permissions_field)
+
         # Update the object we just created (will set last_modified with the server ETag)
         self.resource.object_id = self.stored["id"]
         self.resource.put()

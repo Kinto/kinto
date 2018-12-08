@@ -68,7 +68,7 @@ class ResourceSchema(colander.MappingSchema):
         """Fields that cannot be updated. Values for fields will have to be
         provided either during object creation, through default values using
         ``missing`` attribute or implementing a custom logic in
-        :meth:`kinto.core.resource.UserResource.process_object`.
+        :meth:`kinto.core.resource.Resource.process_object`.
         """
 
         preserve_unknown = True
