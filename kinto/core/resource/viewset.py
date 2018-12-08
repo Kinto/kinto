@@ -1,5 +1,4 @@
 import functools
-import warnings
 
 import colander
 from cornice.validators import colander_validator
