@@ -379,6 +379,7 @@ class ShareableViewSetTest(unittest.TestCase):
         args = viewset.get_service_arguments()
         self.assertEqual(args["factory"], authorization.RouteFactory)
 
+
 class RegisterTest(unittest.TestCase):
     def setUp(self):
         self.resource = FakeResource
