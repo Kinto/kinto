@@ -157,8 +157,6 @@ class ViewSet:
         else:
             resource_schema = resource_cls.schema
             if hasattr(resource_cls, "mapping"):
-                message = "Resource `mapping` is deprecated, use `schema`"
-                warnings.warn(message, DeprecationWarning)
                 resource_schema = resource_cls.mapping.__class__
 
         record_schema = RecordSchema().bind(data=resource_schema())
