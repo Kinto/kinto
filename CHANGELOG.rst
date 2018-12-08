@@ -12,6 +12,7 @@ This document describes changes between each past release.
 
 **Internal changes**
 
+- Remove depreciation warning for `mapping` (#1904)
 - Fix depreciated warn method (#1903)
 - Use f-string instead of % or format operators. (#1886)
 - Ignore admin plugin node_modules folder while running black (#1902)
