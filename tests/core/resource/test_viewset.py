@@ -379,17 +379,6 @@ class ShareableViewSetTest(unittest.TestCase):
         args = viewset.get_service_arguments()
         self.assertEqual(args["factory"], authorization.RouteFactory)
 
-    def test_mapping_is_deprecated(self):
-        viewset = ShareableViewSet()
-        viewset.responses = mock.MagicMock()
-        resource = mock.MagicMock()
-        resource.mapping = mock.MagicMock()
-        with mock.patch("kinto.core.resource.viewset.warnings") as mocked:
-            viewset.collection_arguments(resource, "GET")
-            msg = "Resource `mapping` is deprecated, use `schema`"
-            mocked.warn.assert_called_with(msg, DeprecationWarning)
-
-
 class RegisterTest(unittest.TestCase):
     def setUp(self):
         self.resource = FakeResource
