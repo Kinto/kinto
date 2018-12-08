@@ -80,7 +80,7 @@ class ErrorViewTest(FormattedErrorMixin, BaseWebTest, unittest.TestCase):
         )
 
     def test_401_is_valid_formatted_error(self):
-        response = self.app.get(self.sample_url, status=401)
+        response = self.app.get(self.sample_url, status=401)  # no headers
         self.assertFormattedError(
             response,
             401,

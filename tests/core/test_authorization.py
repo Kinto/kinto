@@ -177,12 +177,6 @@ class AuthorizationPolicyTest(unittest.TestCase):
         self.context.get_prefixed_principals.return_value = self.principals
         self.permission = "dynamic"
 
-    def test_permits_does_not_refer_to_context_if_permission_is_private(self):
-        self.assertFalse(self.authz.permits(None, [], "private"))
-
-    def test_permits_return_if_authenticated_when_permission_is_private(self):
-        self.assertTrue(self.authz.permits(None, ["system.Authenticated"], "private"))
-
     def test_permits_logs_authz_failures(self):
         self.context.on_plural_endpoint = False
         self.context.check_permission.return_value = False
@@ -225,12 +219,6 @@ class AuthorizationPolicyTest(unittest.TestCase):
         self.authz.permits(self.context, self.principals, "dynamic")
         self.authz.get_bound_permissions.assert_called_with(
             self.context.permission_object_id, "read"
-        )
-
-    def test_permits_consider_permission_when_not_dynamic(self):
-        self.authz.permits(self.context, self.principals, "foobar")
-        self.context.check_permission.assert_called_with(
-            self.principals, [(self.context.permission_object_id, "foobar")]
         )
 
     def test_permits_prepend_obj_type_to_permission_on_create(self):

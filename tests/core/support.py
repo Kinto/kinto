@@ -1,10 +1,9 @@
 import functools
 from unittest import mock
 
-from pyramid.security import IAuthorizationPolicy, Authenticated, Everyone
+from pyramid.security import IAuthorizationPolicy
 from zope.interface import implementer
 
-from kinto.core.authorization import PRIVATE
 from kinto.core import testing
 from kinto.core.storage.exceptions import BackendError
 from kinto.core.utils import sqlalchemy
@@ -55,12 +54,7 @@ class BaseWebTest(testing.BaseWebTest):
 @implementer(IAuthorizationPolicy)
 class AllowAuthorizationPolicy:
     def permits(self, context, principals, permission):
-        if permission == PRIVATE:
-            return Authenticated in principals
-        if Everyone in principals:
-            return True
-        # Kinto-Core default authz policy uses prefixed_userid.
-        prefixed = [context.prefixed_userid]
+        prefixed = context.get_prefixed_principals()
         return USER_PRINCIPAL in (principals + prefixed)
 
     def principals_allowed_by_permission(self, context, permission):
