@@ -1,7 +1,5 @@
 from unittest import mock
 
-from pyramid import httpexceptions
-
 from . import BaseTest
 
 
@@ -61,42 +59,6 @@ class DeleteModelTest(BaseTest):
         result = self.resource.plural_get()
         objects = result["data"]
         self.assertEqual(len(objects), 1)
-
-
-class IsolatedModelsTest(BaseTest):
-    def setUp(self):
-        super().setUp()
-        self.resource.request.validated = {"header": {}, "querystring": {}}
-        self.stored = self.model.create_object({}, parent_id="bob")
-        self.resource.object_id = self.stored["id"]
-
-    def get_request(self):
-        request = super().get_request()
-        request.prefixed_userid = "basicauth:alice"
-        return request
-
-    def get_context(self):
-        context = super().get_context()
-        context.prefixed_userid = "basicauth:alice"
-        return context
-
-    def test_list_is_filtered_by_user(self):
-        resp = self.resource.plural_get()
-        objects = resp["data"]
-        self.assertEqual(len(objects), 0)
-
-    def test_update_object_of_another_user_will_create_it(self):
-        self.resource.request.validated["body"] = {"data": {"some": "object"}}
-        self.resource.put()
-        self.model.get_object(
-            object_id=self.stored["id"], parent_id="basicauth:alice"
-        )  # not raising
-
-    def test_cannot_modify_object_of_other_user(self):
-        self.assertRaises(httpexceptions.HTTPNotFound, self.resource.patch)
-
-    def test_cannot_delete_object_of_other_user(self):
-        self.assertRaises(httpexceptions.HTTPNotFound, self.resource.delete)
 
 
 class DeprecatedMethodsTest(BaseTest):

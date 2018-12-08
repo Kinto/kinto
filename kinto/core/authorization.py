@@ -83,7 +83,7 @@ class AuthorizationPolicy:
 
         # If not allowed on this plural endpoint, but some objects are shared with
         # the current user, then authorize.
-        # The ShareableResource class will take care of the filtering.
+        # The :class:`kinto.core.resource.Resource` class will take care of the filtering.
         is_list_operation = context.on_plural_endpoint and not permission.endswith("create")
         if not allowed and is_list_operation:
             allowed = bool(
@@ -202,7 +202,7 @@ class RouteFactory:
         .. warning::
             This sets the ``shared_ids`` attribute to the context with the
             return value. The attribute is then read by
-            :class:`kinto.core.resource.ShareableResource`
+            :class:`kinto.core.resource.Resource`
         """
         if get_bound_permissions:
             bound_perms = get_bound_permissions(self._object_id_match, perm)
@@ -210,7 +210,7 @@ class RouteFactory:
             bound_perms = [(self._object_id_match, perm)]
         by_obj_id = self._get_accessible_objects(principals, bound_perms, with_children=False)
         ids = by_obj_id.keys()
-        # Store for later use in ``ShareableResource``.
+        # Store for later use in ``Resource``.
         self.shared_ids = [self._extract_object_id(id_) for id_ in ids]
         return self.shared_ids
 

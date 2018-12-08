@@ -378,3 +378,10 @@ class Model:
         message = "`delete_record()` is deprecated, use `delete_object()` instead."
         warnings.warn(message, DeprecationWarning)
         return self.delete_object(obj=record, parent_id=parent_id, last_modified=last_modified)
+
+
+class ShareableModel(Model):
+    def __init__(self, *args, **kwargs):
+        message = "`ShareableModel` is deprecated, use `Model` instead."
+        warnings.warn(message, DeprecationWarning)
+        super().__init__(*args, **kwargs)

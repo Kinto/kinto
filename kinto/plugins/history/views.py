@@ -43,7 +43,7 @@ delete_history_arguments = {
     plural_path="/buckets/{{bucket_id}}/history",
     object_path=None,
     plural_methods=("GET", "DELETE"),
-    default_arguments={"tags": ["History"]},
+    default_arguments={"tags": ["History"], **ViewSet.default_arguments},
     plural_get_arguments=get_history_arguments,
     plural_delete_arguments=delete_history_arguments,
 )

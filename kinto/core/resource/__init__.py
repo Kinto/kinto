@@ -534,7 +534,7 @@ class Resource:
             body = self.request.validated["body"]
             if not body:
                 # If no `data` nor `permissions` is provided in patch, reject!
-                # XXX: This should happen in schema instead (c.f. ShareableViewSet)
+                # XXX: This should happen in schema instead (c.f. ViewSet)
                 error_details = {
                     "name": "data",
                     "description": "Provide at least one of data or permissions",

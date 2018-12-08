@@ -16,7 +16,6 @@ from .schema import (
     ObjectGetQuerySchema,
     ObjectSchema,
     ResourceReponses,
-    ShareableResourseResponses,
 )
 
 
@@ -69,7 +68,7 @@ class ViewSet:
     service_arguments = {"description": "Set of {resource_name}"}
 
     default_arguments = {
-        "permission": authorization.PRIVATE,
+        "permission": authorization.DYNAMIC,
         "accept": CONTENT_TYPES,
         "schema": RequestSchema(),
     }
@@ -155,7 +154,11 @@ class ViewSet:
         else:
             resource_schema = resource_cls.schema
 
-        object_schema = ObjectSchema().bind(data=resource_schema())
+        permissions = PermissionsSchema(
+            name="permissions", missing=colander.drop, permissions=resource_cls.permissions
+        )
+
+        object_schema = ObjectSchema().bind(data=resource_schema(), permissions=permissions)
 
         return object_schema
 
@@ -194,7 +197,7 @@ class ViewSet:
         )
 
     def get_service_arguments(self):
-        return {**self.service_arguments}
+        return {**self.service_arguments, "factory": self.factory}
 
     def is_endpoint_enabled(self, endpoint_type, resource_name, method, settings):
         """Returns if the given endpoint is enabled or not.
@@ -211,32 +214,7 @@ class ViewSet:
 
 
 class ShareableViewSet(ViewSet):
-    """A ShareableViewSet will register the given resource with a schema
-    that supports permissions.
-
-    The views will rely on dynamic permissions (e.g. create with PUT if
-    object does not exist), and solicit the cliquet RouteFactory.
-    """
-
-    responses = ShareableResourseResponses()
-
-    def get_object_schema(self, resource_cls, method):
-        """Return the Cornice schema for the given method.
-        """
-        object_schema = super(ShareableViewSet, self).get_object_schema(resource_cls, method)
-        allowed_permissions = resource_cls.permissions
-        permissions = PermissionsSchema(
-            name="permissions", missing=colander.drop, permissions=allowed_permissions
-        )
-        object_schema = object_schema.bind(permissions=permissions)
-        return object_schema
-
-    def get_view_arguments(self, endpoint_type, resource_cls, method):
-        args = super().get_view_arguments(endpoint_type, resource_cls, method)
-        args["permission"] = authorization.DYNAMIC
-        return args
-
-    def get_service_arguments(self):
-        args = super().get_service_arguments()
-        args["factory"] = self.factory
-        return args
+    def __init__(self, *args, **kwargs):
+        message = "`ShareableModel` is deprecated, use `Model` instead."
+        warnings.warn(message, DeprecationWarning)
+        super().__init__(*args, **kwargs)
