@@ -155,8 +155,6 @@ class ViewSet:
             resource_schema = SimpleSchema
         else:
             resource_schema = resource_cls.schema
-            if hasattr(resource_cls, "mapping"):
-                resource_schema = resource_cls.mapping.__class__
 
         record_schema = RecordSchema().bind(data=resource_schema())
 
