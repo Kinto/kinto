@@ -102,7 +102,7 @@ class DeprecatedMethodsTest(BaseTest):
         super().setUp()
         patch = mock.patch("warnings.warn")
         self.mocked_warnings = patch.start()
-        self.addCleanup(patch.stop)
+        # BaseTest will stops all patches in tearDown().
 
     def test_collection_id(self):
         self.resource.model.collection_id
