@@ -172,7 +172,7 @@ class ObjectAuthzGrantedTest(AuthzAuthnTest):
         resp = self.app.post_json(
             self.plural_url, {"data": MINIMALIST_OBJECT}, headers=self.headers
         )
-        self.object = resp.json["data"]
+        self.obj = resp.json["data"]
         self.object_url = self.get_item_url()
         self.unknown_object_url = self.get_item_url(uuid.uuid4())
 
@@ -211,7 +211,7 @@ class ObjectAuthzDeniedTest(AuthzAuthnTest):
         resp = self.app.post_json(
             self.plural_url, {"data": MINIMALIST_OBJECT}, headers=self.headers
         )
-        self.object = resp.json["data"]
+        self.obj = resp.json["data"]
         self.object_url = self.get_item_url()
         self.unknown_object_url = self.get_item_url(uuid.uuid4())
         # Remove every permissions.
@@ -266,7 +266,7 @@ class ObjectAuthzGrantedOnPluralEndpointTest(AuthzAuthnTest):
             "permissions": {"write": [self.guest_id], "read": [self.guest_id]},
         }
         resp = self.app.post_json(self.plural_url, body, headers=self.headers)
-        self.object = resp.json["data"]
+        self.obj = resp.json["data"]
         self.object_url = self.get_item_url()
 
         # Add another private object
@@ -335,7 +335,7 @@ class InvalidObjectTest(BaseWebTest, unittest.TestCase):
         super().setUp()
         body = {"data": MINIMALIST_OBJECT}
         resp = self.app.post_json(self.plural_url, body, headers=self.headers)
-        self.object = resp.json["data"]
+        self.obj = resp.json["data"]
 
         self.invalid_object = {"data": {"name": 42}}
 
@@ -406,7 +406,7 @@ class InvalidObjectTest(BaseWebTest, unittest.TestCase):
         self.assertEqual(resp.json["data"]["id"], obj["id"])
 
     def test_200_is_returned_if_id_matches_existing_object(self):
-        obj = {**MINIMALIST_OBJECT, "id": self.object["id"]}
+        obj = {**MINIMALIST_OBJECT, "id": self.obj["id"]}
         self.app.post_json(self.plural_url, {"data": obj}, headers=self.headers, status=200)
 
     def test_invalid_accept_header_on_plural_endpoints_returns_406(self):
@@ -453,7 +453,7 @@ class IgnoredFieldsTest(BaseWebTest, unittest.TestCase):
         super().setUp()
         body = {"data": MINIMALIST_OBJECT}
         resp = self.app.post_json(self.plural_url, body, headers=self.headers)
-        self.object = resp.json["data"]
+        self.obj = resp.json["data"]
 
     def test_last_modified_is_not_validated_and_overwritten(self):
         obj = {**MINIMALIST_OBJECT, "last_modified": "abc"}
@@ -479,7 +479,7 @@ class InvalidBodyTest(BaseWebTest, unittest.TestCase):
         super().setUp()
         body = {"data": MINIMALIST_OBJECT}
         resp = self.app.post_json(self.plural_url, body, headers=self.headers)
-        self.object = resp.json["data"]
+        self.obj = resp.json["data"]
 
     def test_invalid_body_returns_json_formatted_error(self):
         self.maxDiff = None
@@ -539,7 +539,7 @@ class InvalidPermissionsTest(BaseWebTest, unittest.TestCase):
         super().setUp()
         body = {"data": MINIMALIST_OBJECT}
         resp = self.app.post_json(self.plural_url, body, headers=self.headers)
-        self.object = resp.json["data"]
+        self.obj = resp.json["data"]
         self.invalid_body = {
             "data": MINIMALIST_OBJECT,
             "permissions": {"read": "book"},
@@ -688,7 +688,7 @@ class SchemaLessPartialResponseTest(BaseWebTest, unittest.TestCase):
         super().setUp()
         body = {"data": {"size": 42, "category": "some-cat", "owner": "loco"}}
         resp = self.app.post_json(self.plural_url, body, headers=self.headers)
-        self.object = resp.json
+        self.obj = resp.json
 
     def test_unspecified_fields_are_excluded(self):
         resp = self.app.get(self.plural_url + "?_fields=size,category")

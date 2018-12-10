@@ -20,7 +20,7 @@ class CORSOriginHeadersTest(BaseWebTest, unittest.TestCase):
         super().setUp()
         body = {"data": MINIMALIST_OBJECT}
         response = self.app.post_json(self.plural_url, body, headers=self.headers, status=201)
-        self.object = response.json["data"]
+        self.obj = response.json["data"]
 
     def test_can_be_configured_from_settings(self):
         app = self.make_app({"cors_origins": "*.daybed.io"})

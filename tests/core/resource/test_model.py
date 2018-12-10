@@ -8,13 +8,13 @@ from . import BaseTest
 class ModelTest(BaseTest):
     def setUp(self):
         super().setUp()
-        self.object = self.model.create_object({"field": "value"})
+        self.obj = self.model.create_object({"field": "value"})
 
     def test_list_returns_all_objects_in_data(self):
         result = self.resource.plural_get()
         objects = result["data"]
         self.assertEqual(len(objects), 1)
-        self.assertDictEqual(objects[0], self.object)
+        self.assertDictEqual(objects[0], self.obj)
 
 
 class CreateTest(BaseTest):

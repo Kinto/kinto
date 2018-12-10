@@ -38,8 +38,8 @@ class GetTest(BaseTest):
 class PutTest(BaseTest):
     def setUp(self):
         super().setUp()
-        self.object = self.model.create_object({"field": "old"})
-        self.resource.object_id = self.object["id"]
+        self.obj = self.model.create_object({"field": "old"})
+        self.resource.object_id = self.obj["id"]
 
     def test_etag_is_provided(self):
         self.validated["body"] = {"data": {"field": "new"}}
@@ -78,28 +78,28 @@ class PutTest(BaseTest):
     def test_replace_object_returns_updated_fields(self):
         self.validated["body"] = {"data": {"field": "new"}}
         result = self.resource.put()["data"]
-        self.assertEqual(self.object["id"], result["id"])
-        self.assertNotEqual(self.object["last_modified"], result["last_modified"])
-        self.assertNotEqual(self.object["field"], "new")
+        self.assertEqual(self.obj["id"], result["id"])
+        self.assertNotEqual(self.obj["last_modified"], result["last_modified"])
+        self.assertNotEqual(self.obj["field"], "new")
 
     def test_last_modified_is_kept_if_present(self):
-        new_last_modified = self.object["last_modified"] + 20
+        new_last_modified = self.obj["last_modified"] + 20
         self.validated["body"] = {"data": {"field": "new", "last_modified": new_last_modified}}
         result = self.resource.put()["data"]
         self.assertEqual(result["last_modified"], new_last_modified)
 
     def test_last_modified_is_dropped_if_same_as_previous(self):
         self.validated["body"] = {
-            "data": {"field": "new", "last_modified": self.object["last_modified"]}
+            "data": {"field": "new", "last_modified": self.obj["last_modified"]}
         }
         result = self.resource.put()["data"]
-        self.assertGreater(result["last_modified"], self.object["last_modified"])
+        self.assertGreater(result["last_modified"], self.obj["last_modified"])
 
     def test_last_modified_is_dropped_if_lesser_than_existing(self):
-        new_last_modified = self.object["last_modified"] - 20
+        new_last_modified = self.obj["last_modified"] - 20
         self.validated["body"] = {"data": {"field": "new", "last_modified": new_last_modified}}
         result = self.resource.put()["data"]
-        self.assertNotEqual(result["last_modified"], self.object["last_modified"])
+        self.assertNotEqual(result["last_modified"], self.obj["last_modified"])
 
     def test_cannot_replace_with_different_id(self):
         self.validated["body"] = {"data": {"id": "abc"}}

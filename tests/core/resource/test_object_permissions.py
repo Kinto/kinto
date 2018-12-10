@@ -79,8 +79,8 @@ class ObtainObjectPermissionTest(PermissionTest):
 class SpecifyObjectPermissionTest(PermissionTest):
     def setUp(self):
         super().setUp()
-        self.object = self.resource.model.create_object({})
-        object_id = self.object["id"]
+        self.obj = self.resource.model.create_object({})
+        object_id = self.obj["id"]
         self.object_uri = "/articles/{}".format(object_id)
         self.permission.add_principal_to_ace(self.object_uri, "read", "account:readonly")
         self.resource.object_id = object_id
@@ -103,9 +103,9 @@ class SpecifyObjectPermissionTest(PermissionTest):
         request = self.get_request()
         # Simulate an anonymous PUT
         request.method = "PUT"
-        request.validated = {**self.resource.request.validated, "body": {"data": {**self.object}}}
+        request.validated = {**self.resource.request.validated, "body": {"data": {**self.obj}}}
         request.prefixed_userid = None
-        request.matchdict = {"id": self.object["id"]}
+        request.matchdict = {"id": self.obj["id"]}
         resource = self.resource_class(request=request, context=self.get_context())
         result = resource.put()
         self.assertIn("system.Everyone", result["permissions"]["write"])
@@ -165,7 +165,7 @@ class SpecifyObjectPermissionTest(PermissionTest):
             error = e
         self.assertEqual(
             error.json["details"]["existing"],
-            {"id": self.object["id"], "last_modified": self.object["last_modified"]},
+            {"id": self.obj["id"], "last_modified": self.obj["last_modified"]},
         )
 
 

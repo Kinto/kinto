@@ -46,6 +46,6 @@ class UnicityError(IntegrityError):
 
     def __init__(self, field, obj, *args, **kwargs):
         self.field = field
-        self.object = object
+        self.obj = object
         self.msg = f"{field} is not unique: {obj}"
         super().__init__(*args, **kwargs)

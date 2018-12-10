@@ -263,7 +263,7 @@ class BuildPaginationTokenTest(BaseTest):
     def setUp(self):
         super().setUp()
         self.patch_known_field.start()
-        self.object = {
+        self.obj = {
             "id": 1,
             "status": 2,
             "unread": True,
@@ -274,32 +274,32 @@ class BuildPaginationTokenTest(BaseTest):
         }
 
     def test_token_contains_current_offset(self):
-        token = self.resource._build_pagination_token([("last_modified", -1)], self.object, 42)
+        token = self.resource._build_pagination_token([("last_modified", -1)], self.obj, 42)
         tokeninfo = json.loads(b64decode(token).decode("ascii"))
         self.assertEqual(tokeninfo["offset"], 42)
 
     def test_no_sorting_default_to_modified_field(self):
-        token = self.resource._build_pagination_token([("last_modified", -1)], self.object, 42)
+        token = self.resource._build_pagination_token([("last_modified", -1)], self.obj, 42)
         tokeninfo = json.loads(b64decode(token).decode("ascii"))
         self.assertDictEqual(tokeninfo["last_object"], {"last_modified": 1234})
 
     def test_sorting_handle_both_rules(self):
         token = self.resource._build_pagination_token(
-            [("status", -1), ("last_modified", -1)], self.object, 34
+            [("status", -1), ("last_modified", -1)], self.obj, 34
         )
         tokeninfo = json.loads(b64decode(token).decode("ascii"))
         self.assertDictEqual(tokeninfo["last_object"], {"last_modified": 1234, "status": 2})
 
     def test_sorting_handle_ordering_direction(self):
         token = self.resource._build_pagination_token(
-            [("status", 1), ("last_modified", 1)], self.object, 32
+            [("status", 1), ("last_modified", 1)], self.obj, 32
         )
         tokeninfo = json.loads(b64decode(token).decode("ascii"))
         self.assertEqual(tokeninfo["last_object"], {"last_modified": 1234, "status": 2})
 
     def test_multiple_sorting_keep_all(self):
         token = self.resource._build_pagination_token(
-            [("status", 1), ("title", -1), ("last_modified", -1)], self.object, 31
+            [("status", 1), ("title", -1), ("last_modified", -1)], self.obj, 31
         )
         tokeninfo = json.loads(b64decode(token).decode("ascii"))
         self.assertEqual(
@@ -308,28 +308,28 @@ class BuildPaginationTokenTest(BaseTest):
 
     def test_sorting_on_nested_field(self):
         token = self.resource._build_pagination_token(
-            [("nested.subvalue", -1), ("title", 1)], self.object, 88
+            [("nested.subvalue", -1), ("title", 1)], self.obj, 88
         )
         tokeninfo = json.loads(b64decode(token).decode("ascii"))
         self.assertEqual(tokeninfo["last_object"], {"title": "Title", "nested.subvalue": 42})
 
     def test_disambiguate_fieldname_containing_dots(self):
         token = self.resource._build_pagination_token(
-            [("nested.other.subvalue", -1), ("title", 1)], self.object, 88
+            [("nested.other.subvalue", -1), ("title", 1)], self.obj, 88
         )
         tokeninfo = json.loads(b64decode(token).decode("ascii"))
         self.assertEqual(tokeninfo["last_object"], {"title": "Title", "nested.other.subvalue": 43})
 
     def test_strip_malformed_sort_field(self):
         token = self.resource._build_pagination_token(
-            [("non.existent", -1), ("title", 1)], self.object, 88
+            [("non.existent", -1), ("title", 1)], self.obj, 88
         )
         tokeninfo = json.loads(b64decode(token).decode("ascii"))
         self.assertEqual(tokeninfo["last_object"], {"title": "Title"})
 
     def test_can_build_while_sorting_on_missing_field(self):
         token = self.resource._build_pagination_token(
-            [("unknown", 1), ("title", -1), ("last_modified", -1)], self.object, 31
+            [("unknown", 1), ("title", -1), ("last_modified", -1)], self.obj, 31
         )
         tokeninfo = json.loads(b64decode(token).decode("ascii"))
         self.assertEqual(tokeninfo["last_object"], {"last_modified": 1234, "title": "Title"})

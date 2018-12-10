@@ -374,21 +374,21 @@ class ResourceReponsesTest(unittest.TestCase):
     def setUp(self):
         self.handler = schema.ResourceReponses()
         self.resource = colander.MappingSchema(title="fake")
-        self.object = schema.ObjectSchema().bind(data=self.resource)
+        self.obj = schema.ObjectSchema().bind(data=self.resource)
 
     def test_get_and_bind_assign_resource_schema_to_object_endpoint(self):
-        responses = self.handler.get_and_bind("object", "get", object=self.object)
+        responses = self.handler.get_and_bind("object", "get", object=self.obj)
         ok_response = responses["200"]
-        self.assertEqual(self.object["data"], ok_response["body"]["data"])
+        self.assertEqual(self.obj["data"], ok_response["body"]["data"])
 
     def test_get_and_bind_assign_resource_schema_to_plural_endpoint(self):
-        responses = self.handler.get_and_bind("plural", "get", object=self.object)
+        responses = self.handler.get_and_bind("plural", "get", object=self.obj)
         ok_response = responses["200"]
         # XXX: Data is repeated because it's a colander sequence type index
-        self.assertEqual(self.object["data"], ok_response["body"]["data"]["data"])
+        self.assertEqual(self.obj["data"], ok_response["body"]["data"]["data"])
 
     def test_responses_doesnt_have_permissions_if_not_bound(self):
-        responses = self.handler.get_and_bind("object", "get", object=self.object)
+        responses = self.handler.get_and_bind("object", "get", object=self.obj)
         ok_response = responses["200"]
         self.assertNotIn("permissions", ok_response["body"])
 
@@ -398,7 +398,7 @@ class ShareableResourceReponsesTest(unittest.TestCase):
         self.handler = schema.ShareableResourseResponses()
         self.resource = colander.MappingSchema(title="fake")
         self.permissions = colander.MappingSchema(title="bla")
-        self.object = schema.ObjectSchema().bind(data=self.resource, permissions=self.permissions)
+        self.obj = schema.ObjectSchema().bind(data=self.resource, permissions=self.permissions)
 
     def test_shareable_responses_doesnt_update_resource_responses(self):
         resource_handler = schema.ResourceReponses()
@@ -408,6 +408,6 @@ class ShareableResourceReponsesTest(unittest.TestCase):
         self.assertNotIn("401", resource_responses)
 
     def test_get_and_bind_assign_permission_schema_to_objects(self):
-        responses = self.handler.get_and_bind("object", "get", object=self.object)
+        responses = self.handler.get_and_bind("object", "get", object=self.obj)
         ok_response = responses["200"]
-        self.assertEqual(self.object["permissions"], ok_response["body"]["permissions"])
+        self.assertEqual(self.obj["permissions"], ok_response["body"]["permissions"])

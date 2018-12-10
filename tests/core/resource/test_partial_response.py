@@ -9,7 +9,7 @@ class PartialResponseBase(BaseTest):
     def setUp(self):
         super().setUp()
         self.resource._get_known_fields = lambda: ["field", "other", "orig"]
-        self.object = self.model.create_object(
+        self.obj = self.model.create_object(
             {
                 "field": "value",
                 "other": "val",
@@ -20,7 +20,7 @@ class PartialResponseBase(BaseTest):
                 },
             }
         )
-        self.resource.object_id = self.object["id"]
+        self.resource.object_id = self.obj["id"]
         self.resource.request = self.get_request()
         self.resource.request.validated = self.validated
         self.validated["querystring"] = {}
