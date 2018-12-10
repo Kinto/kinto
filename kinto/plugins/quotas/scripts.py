@@ -53,9 +53,9 @@ def rebuild_quotas_collection(storage, bucket_id, collection, dry_run=False):
     collection_id = collection["id"]
     collection_record_count = 0
     collection_storage_size = record_size(collection)
-    plural_path = f"/buckets/{bucket_id}/collections/{collection_id}"
+    collection_uri = f"/buckets/{bucket_id}/collections/{collection_id}"
     for record in paginated(
-        storage, resource_name="record", parent_id=plural_path, sorting=[OLDEST_FIRST]
+        storage, resource_name="record", parent_id=collection_uri, sorting=[OLDEST_FIRST]
     ):
         collection_record_count += 1
         collection_storage_size += record_size(record)
@@ -70,7 +70,7 @@ def rebuild_quotas_collection(storage, bucket_id, collection, dry_run=False):
     if not dry_run:
         storage.update(
             resource_name="quota",
-            parent_id=plural_path,
+            parent_id=collection_uri,
             object_id=COLLECTION_QUOTA_OBJECT_ID,
             obj=new_quota_info,
         )
