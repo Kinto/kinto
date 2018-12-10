@@ -10,6 +10,8 @@ This document describes changes between each past release.
 
 - Remove Python 3.5 support and upgrade to Python 3.6. (#1886)
 - Remove `record` from UnicityError class (#1919). This enabled us to fix #1545.
+- GET requests no longer include the ``Total-Records`` header. To get a count in a collection
+  you need to do a HEAD request. (#1624)
 
 **Bug Fixes**
 
