@@ -13,6 +13,8 @@ This document describes changes between each past release.
 - Storage backend API has changed, notions of collection and records were replaced
   by the generic terms *resource* and *object*. Plugins that subclass the internal
   ``ShareableResource`` class may also break.
+- Remove the ``UserResource`` class. And ``ShareableResource`` is now deprecated in
+  favor of ``Resource``.
 
 **Bug Fixes**
 
