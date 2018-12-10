@@ -41,7 +41,7 @@ class MemoryBasedStorage(StorageBase):
         self,
         resource_name,
         parent_id,
-        object,
+        obj,
         id_field=DEFAULT_ID_FIELD,
         modified_field=DEFAULT_MODIFIED_FIELD,
         deleted_field=DEFAULT_DELETED_FIELD,
@@ -50,8 +50,8 @@ class MemoryBasedStorage(StorageBase):
         and set the deletion field value (e.g deleted=True)
         """
         deleted = {}
-        deleted[id_field] = object[id_field]
-        deleted[modified_field] = object[modified_field]
+        deleted[id_field] = obj[id_field]
+        deleted[modified_field] = obj[modified_field]
         deleted[deleted_field] = True
         return deleted
 
@@ -59,15 +59,15 @@ class MemoryBasedStorage(StorageBase):
         self,
         resource_name,
         parent_id,
-        object,
+        obj,
         modified_field=DEFAULT_MODIFIED_FIELD,
         last_modified=None,
     ):
         timestamp = self.bump_and_store_timestamp(
-            resource_name, parent_id, object, modified_field, last_modified=last_modified
+            resource_name, parent_id, obj, modified_field, last_modified=last_modified
         )
-        object[modified_field] = timestamp
-        return object
+        obj[modified_field] = timestamp
+        return obj
 
     def extract_object_set(
         self, objects, filters, sorting, id_field, deleted_field, pagination_rules=None, limit=None
@@ -86,7 +86,7 @@ class MemoryBasedStorage(StorageBase):
             limit=limit,
         )
 
-    def bump_timestamp(self, resource_timestamp, object, modified_field, last_modified):
+    def bump_timestamp(self, resource_timestamp, obj, modified_field, last_modified):
         """Timestamp are base on current millisecond.
 
         .. note ::
@@ -95,13 +95,13 @@ class MemoryBasedStorage(StorageBase):
             the time will slide into the future. It is not problematic since
             the timestamp notion is opaque, and behaves like a revision number.
         """
-        is_specified = object is not None and modified_field in object or last_modified is not None
+        is_specified = obj is not None and modified_field in obj or last_modified is not None
         if is_specified:
             # If there is a timestamp in the new object, try to use it.
             if last_modified is not None:
                 current = last_modified
             else:
-                current = object[modified_field]
+                current = obj[modified_field]
 
             # If it is equal to current resource timestamp, bump it.
             if current == resource_timestamp:
@@ -122,7 +122,7 @@ class MemoryBasedStorage(StorageBase):
         return current, resource_timestamp
 
     def bump_and_store_timestamp(
-        self, resource_name, parent_id, object=None, modified_field=None, last_modified=None
+        self, resource_name, parent_id, obj=None, modified_field=None, last_modified=None
     ):
         """Use the bump_timestamp to get its next value and store the resource_timestamp.
         """
@@ -166,33 +166,33 @@ class Storage(MemoryBasedStorage):
         return self.bump_and_store_timestamp(resource_name, parent_id)
 
     def bump_and_store_timestamp(
-        self, resource_name, parent_id, object=None, modified_field=None, last_modified=None
+        self, resource_name, parent_id, obj=None, modified_field=None, last_modified=None
     ):
         """Use the bump_timestamp to get its next value and store the resource_timestamp.
         """
         current_resource_timestamp = self._timestamps[parent_id].get(resource_name, 0)
 
         current, resource_timestamp = self.bump_timestamp(
-            current_resource_timestamp, object, modified_field, last_modified
+            current_resource_timestamp, obj, modified_field, last_modified
         )
         self._timestamps[parent_id][resource_name] = resource_timestamp
 
         return current
 
-    @deprecate_kwargs({"collection_id": "resource_name", "record": "object"})
+    @deprecate_kwargs({"collection_id": "resource_name", "record": "obj"})
     @synchronized
     def create(
         self,
         resource_name,
         parent_id,
-        object,
+        obj,
         id_generator=None,
         id_field=DEFAULT_ID_FIELD,
         modified_field=DEFAULT_MODIFIED_FIELD,
         auth=None,
     ):
         id_generator = id_generator or self.id_generator
-        obj = {**object}
+        obj = {**obj}
         if id_field in obj:
             # Raise unicity error if object with same id already exists.
             try:
@@ -226,19 +226,19 @@ class Storage(MemoryBasedStorage):
             raise exceptions.ObjectNotFoundError(object_id)
         return {**objects[object_id]}
 
-    @deprecate_kwargs({"collection_id": "resource_name", "record": "object"})
+    @deprecate_kwargs({"collection_id": "resource_name", "record": "obj"})
     @synchronized
     def update(
         self,
         resource_name,
         parent_id,
         object_id,
-        object,
+        obj,
         id_field=DEFAULT_ID_FIELD,
         modified_field=DEFAULT_MODIFIED_FIELD,
         auth=None,
     ):
-        obj = {**object}
+        obj = {**obj}
         obj[id_field] = object_id
         obj = ujson.loads(self.json.dumps(obj))
 
@@ -247,7 +247,7 @@ class Storage(MemoryBasedStorage):
         self._cemetery[parent_id][resource_name].pop(object_id, None)
         return obj
 
-    @deprecate_kwargs({"collection_id": "resource_name", "record": "object"})
+    @deprecate_kwargs({"collection_id": "resource_name"})
     @synchronized
     def delete(
         self,

@@ -52,6 +52,6 @@ Storage can be used to store arbitrary data.
     user_id = request.authenticated_userid
 
     storage = request.registry.storage
-    storage.create(resource_name='__custom', parent_id='', object=data)
+    storage.create(resource_name='__custom', parent_id='', obj=data)
 
 See the :ref:`resource-model` class to manipulate collections of records.

@@ -241,11 +241,11 @@ an action is performed on records.
             if action == 'delete':
                 indexer.unindex_record(bucket_id,
                                        collection_id,
-                                       object=change['old'])
+                                       record=change['old'])
             else:
                 indexer.index_record(bucket_id,
                                      collection_id,
-                                     object=change['new'])
+                                     record=change['new'])
 
 And then we bind this function with the *Kinto-Core* events:
 

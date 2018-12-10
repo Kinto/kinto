@@ -99,13 +99,13 @@ class StorageBase:
         self,
         resource_name,
         parent_id,
-        object,
+        obj,
         id_generator=None,
         id_field=DEFAULT_ID_FIELD,
         modified_field=DEFAULT_MODIFIED_FIELD,
         auth=None,
     ):
-        """Create the specified `object` in this `resource_name` for this `parent_id`.
+        """Create the specified `obj` in this `resource_name` for this `parent_id`.
         Assign the id to the object, using the attribute
         :attr:`kinto.core.resource.model.Model.id_field`.
 
@@ -117,7 +117,7 @@ class StorageBase:
 
         :param str resource_name: the resource name.
         :param str parent_id: the resource parent.
-        :param dict object: the object to create.
+        :param dict obj: the object to create.
 
         :returns: the newly created object.
         :rtype: dict
@@ -143,7 +143,7 @@ class StorageBase:
 
         :param str object_id: unique identifier of the object
 
-        :returns: the object object.
+        :returns: the stored object.
         :rtype: dict
         """
         raise NotImplementedError
@@ -153,12 +153,12 @@ class StorageBase:
         resource_name,
         parent_id,
         object_id,
-        object,
+        obj,
         id_field=DEFAULT_ID_FIELD,
         modified_field=DEFAULT_MODIFIED_FIELD,
         auth=None,
     ):
-        """Overwrite the `object` with the specified `object_id`.
+        """Overwrite the `obj` with the specified `object_id`.
 
         If the specified id is not found, the object is created with the
         specified id.
@@ -170,7 +170,7 @@ class StorageBase:
         :param str resource_name: the resource name.
         :param str parent_id: the resource parent.
         :param str object_id: unique identifier of the object
-        :param dict object: the object to update or create.
+        :param dict obj: the object to update or create.
 
         :returns: the updated object.
         :rtype: dict
@@ -362,7 +362,7 @@ def heartbeat(backend):
                     backend.delete_all(**storage_kw)
                     backend.purge_deleted(**storage_kw)  # Kinto/kinto#985
                 else:
-                    backend.create(object=_HEARTBEAT_OBJECT, **storage_kw)
+                    backend.create(obj=_HEARTBEAT_OBJECT, **storage_kw)
             return True
         except Exception:
             logger.exception("Heartbeat Error")

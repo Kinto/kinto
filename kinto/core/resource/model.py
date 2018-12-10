@@ -200,7 +200,7 @@ class Model:
         return self.storage.create(
             resource_name=self.resource_name,
             parent_id=parent_id,
-            object=obj,
+            obj=obj,
             id_generator=self.id_generator,
             id_field=self.id_field,
             modified_field=self.modified_field,
@@ -232,7 +232,7 @@ class Model:
             resource_name=self.resource_name,
             parent_id=parent_id,
             object_id=object_id,
-            object=obj,
+            obj=obj,
             id_field=self.id_field,
             modified_field=self.modified_field,
             auth=self.auth,

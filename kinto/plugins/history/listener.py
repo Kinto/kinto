@@ -106,7 +106,7 @@ def on_resource_changed(event):
         # Create an entry for the 'history' resource, whose parent_id is
         # the bucket URI (c.f. views.py).
         # Note: this will be rolledback if the transaction is rolledback.
-        entry = storage.create(parent_id=bucket_uri, resource_name="history", object=attrs)
+        entry = storage.create(parent_id=bucket_uri, resource_name="history", obj=attrs)
 
         # The read permission on the newly created history entry is the union
         # of the object permissions with the one from bucket and collection.

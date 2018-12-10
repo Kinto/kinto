@@ -208,7 +208,7 @@ def on_resource_changed(event):
         parent_id=bucket_uri,
         resource_name=QUOTA_RESOURCE_NAME,
         object_id=BUCKET_QUOTA_OBJECT_ID,
-        object=bucket_info,
+        obj=bucket_info,
     )
 
     if collection_id:
@@ -221,5 +221,5 @@ def on_resource_changed(event):
                 parent_id=collection_uri,
                 resource_name=QUOTA_RESOURCE_NAME,
                 object_id=COLLECTION_QUOTA_OBJECT_ID,
-                object=collection_info,
+                obj=collection_info,
             )

@@ -40,7 +40,7 @@ def rebuild_quotas(storage, dry_run=False):
                 resource_name="quota",
                 parent_id=bucket_path,
                 object_id=BUCKET_QUOTA_OBJECT_ID,
-                object=bucket_record,
+                obj=bucket_record,
             )
 
         logger.info(
@@ -72,6 +72,6 @@ def rebuild_quotas_collection(storage, bucket_id, collection, dry_run=False):
             resource_name="quota",
             parent_id=plural_path,
             object_id=COLLECTION_QUOTA_OBJECT_ID,
-            object=new_quota_info,
+            obj=new_quota_info,
         )
     return (collection_record_count, collection_storage_size)

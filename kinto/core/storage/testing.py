@@ -46,7 +46,7 @@ class BaseTestStorage:
     def create_object(self, obj=None, id_generator=None, **kwargs):
         obj = obj or self.obj
         kw = {**self.storage_kw, **kwargs}
-        return self.storage.create(object=obj, id_generator=id_generator, **kw)
+        return self.storage.create(obj=obj, id_generator=id_generator, **kw)
 
     def test_raises_backend_error_if_error_occurs_on_client(self):
         self.client_error_patcher.start()
@@ -64,9 +64,9 @@ class BaseTestStorage:
         self.client_error_patcher.start()
         calls = [
             (self.storage.resource_timestamp, {}),
-            (self.storage.create, dict(object={})),
+            (self.storage.create, dict(obj={})),
             (self.storage.get, dict(object_id={})),
-            (self.storage.update, dict(object_id="", object={})),
+            (self.storage.update, dict(object_id="", obj={})),
             (self.storage.delete, dict(object_id="")),
             (self.storage.delete_all, {}),
             (self.storage.purge_deleted, {}),
@@ -198,7 +198,7 @@ class BaseTestStorage:
             object_id=OBJECT_ID,
             **self.storage_kw,
         )
-        obj = self.storage.update(object_id=OBJECT_ID, object=self.obj, **self.storage_kw)
+        obj = self.storage.update(object_id=OBJECT_ID, obj=self.obj, **self.storage_kw)
         retrieved = self.storage.get(object_id=OBJECT_ID, **self.storage_kw)
         self.assertEqual(retrieved, obj)
 
@@ -206,7 +206,7 @@ class BaseTestStorage:
         stored = self.create_object()
         object_id = stored[self.id_field]
         self.obj[self.id_field] = "this-will-be-ignored"
-        self.storage.update(object_id=object_id, object=self.obj, **self.storage_kw)
+        self.storage.update(object_id=object_id, obj=self.obj, **self.storage_kw)
         retrieved = self.storage.get(object_id=object_id, **self.storage_kw)
         self.assertEqual(retrieved[self.id_field], object_id)
 
@@ -214,7 +214,7 @@ class BaseTestStorage:
         stored = self.create_object()
         object_id = stored[self.id_field]
         self.assertNotIn(self.modified_field, self.obj)
-        self.storage.update(object_id=object_id, object=self.obj, **self.storage_kw)
+        self.storage.update(object_id=object_id, obj=self.obj, **self.storage_kw)
         retrieved = self.storage.get(object_id=object_id, **self.storage_kw)
         self.assertIn(self.modified_field, retrieved)
         self.assertGreater(retrieved[self.modified_field], stored[self.modified_field])
@@ -231,13 +231,19 @@ class BaseTestStorage:
 
     def test_delete_works_even_on_second_time(self):
         # Create an object
-        self.storage.create("test", "1234", {"id": "demo"})
+        self.storage.create(resource_name="test", parent_id="1234", obj={"id": "demo"})
         # Delete the object
-        self.storage.delete("test", "1234", "demo", with_deleted=True)
+        self.storage.delete(
+            resource_name="test", parent_id="1234", object_id="demo", with_deleted=True
+        )
         # Update an object (it recreates it.)
-        self.storage.update("test", "1234", "demo", {"id": "demo"})
+        self.storage.update(
+            resource_name="test", parent_id="1234", object_id="demo", obj={"id": "demo"}
+        )
         # Delete the object without errors
-        self.storage.delete("test", "1234", "demo", with_deleted=True)
+        self.storage.delete(
+            resource_name="test", parent_id="1234", object_id="demo", with_deleted=True
+        )
 
     def test_delete_can_specify_the_last_modified(self):
         stored = self.create_object()
@@ -769,7 +775,7 @@ class TimestampsTest:
         stored = self.create_object()
         _id = stored["id"]
         before = self.storage.resource_timestamp(**self.storage_kw)
-        self.storage.update(object_id=_id, object={"bar": "foo"}, **self.storage_kw)
+        self.storage.update(object_id=_id, obj={"bar": "foo"}, **self.storage_kw)
         after = self.storage.resource_timestamp(**self.storage_kw)
         self.assertTrue(before < after)
 
@@ -909,7 +915,7 @@ class TimestampsTest:
 
         # Set timestamp manually in the future.
         stored[self.modified_field] = timestamp_before + 10
-        self.storage.update(object_id=object_id, object=stored, **self.storage_kw)
+        self.storage.update(object_id=object_id, obj=stored, **self.storage_kw)
 
         # Check that object timestamp is the one specified.
         retrieved = self.storage.get(object_id=object_id, **self.storage_kw)
@@ -928,7 +934,7 @@ class TimestampsTest:
 
         # Set timestamp manually in the past.
         stored[self.modified_field] = timestamp_before - 10
-        self.storage.update(object_id=object_id, object=stored, **self.storage_kw)
+        self.storage.update(object_id=object_id, obj=stored, **self.storage_kw)
 
         # Check that object timestamp is the one specified.
         retrieved = self.storage.get(object_id=object_id, **self.storage_kw)
@@ -946,7 +952,7 @@ class TimestampsTest:
         timestamp_before = stored[self.modified_field]
 
         # Do not change the timestamp.
-        self.storage.update(object_id=object_id, object=stored, **self.storage_kw)
+        self.storage.update(object_id=object_id, obj=stored, **self.storage_kw)
 
         # Check that object timestamp was bumped.
         retrieved = self.storage.get(object_id=object_id, **self.storage_kw)
@@ -964,9 +970,9 @@ class DeletedObjectsTest:
         time.sleep(0.1)
         return [Filter(self.modified_field, start, utils.COMPARISON.GT)]
 
-    def create_and_delete_object(self, object=None):
+    def create_and_delete_object(self, obj=None):
         """Helper to create and delete an object."""
-        obj = object or {"challenge": "accepted"}
+        obj = obj or {"challenge": "accepted"}
         obj = self.create_object(obj)
         time.sleep(0.001)  # 1 msec
         deleted = self.storage.delete(object_id=obj["id"], **self.storage_kw)
@@ -1482,7 +1488,7 @@ class DeletedObjectsTest:
             self.storage.create(
                 parent_id=parent_id,
                 resource_name="c",
-                object={"id": "some_id", "secret_data": parent_id},
+                obj={"id": "some_id", "secret_data": parent_id},
             )
 
         real_objects, _ = self.storage.get_all(parent_id="abc*", resource_name="c")
@@ -1575,7 +1581,7 @@ class ParentObjectAccessTest:
 
         new_object = {"another": "object"}
         kw = {**self.storage_kw, "parent_id": self.other_parent_id, "auth": self.other_auth}
-        self.storage.update(object_id=obj["id"], object=new_object, **kw)
+        self.storage.update(object_id=obj["id"], obj=new_object, **kw)
 
         not_updated = self.storage.get(object_id=obj["id"], **self.storage_kw)
         self.assertNotIn("another", not_updated)
@@ -1594,11 +1600,7 @@ class SerializationTest:
         self.assertIsInstance(new_object["steak"], bytes)
 
         self.assertRaises(
-            TypeError,
-            self.storage.update,
-            object_id=obj["id"],
-            object=new_object,
-            **self.storage_kw,
+            TypeError, self.storage.update, object_id=obj["id"], obj=new_object, **self.storage_kw
         )
 
 
@@ -1616,11 +1618,11 @@ class DeprecatedCoreNotionsTest:
     def test_create_deprecated_kwargs(self):
         self.storage.create(record={}, collection_id="test", parent_id="")
 
-        message = "Storage.create parameter 'record' is deprecated, use 'object' instead"
+        message = "Storage.create parameter 'record' is deprecated, use 'obj' instead"
         self.mocked_warnings.assert_called_with(message, DeprecationWarning)
 
     def test_get_deprecated_kwargs(self):
-        self.storage.create(object={"id": "abc"}, resource_name="test", parent_id="")
+        self.storage.create(obj={"id": "abc"}, resource_name="test", parent_id="")
 
         self.storage.get(object_id="abc", collection_id="test", parent_id="")
 
@@ -1632,11 +1634,11 @@ class DeprecatedCoreNotionsTest:
     def test_update_deprecated_kwargs(self):
         self.storage.update(object_id="abc", record={}, collection_id="test", parent_id="")
 
-        message = "Storage.update parameter 'record' is deprecated, use 'object' instead"
+        message = "Storage.update parameter 'record' is deprecated, use 'obj' instead"
         self.mocked_warnings.assert_called_with(message, DeprecationWarning)
 
     def test_delete_deprecated_kwargs(self):
-        self.storage.create(object={"id": "abc"}, resource_name="test", parent_id="")
+        self.storage.create(obj={"id": "abc"}, resource_name="test", parent_id="")
 
         self.storage.delete(object_id="abc", collection_id="test", parent_id="")
 

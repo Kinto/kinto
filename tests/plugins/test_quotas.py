@@ -666,7 +666,7 @@ class QuotaBucketUpdateMixin:
             resource_name=QUOTA_RESOURCE_NAME,
             parent_id=self.bucket_uri,
             object_id=BUCKET_QUOTA_OBJECT_ID,
-            object=data,
+            obj=data,
         )
         transaction.commit()
         self.app.delete(self.collection_uri, headers=self.headers)
@@ -698,7 +698,7 @@ class QuotaBucketUpdateMixin:
             resource_name=QUOTA_RESOURCE_NAME,
             parent_id=self.bucket_uri,
             object_id=BUCKET_QUOTA_OBJECT_ID,
-            object=data,
+            obj=data,
         )
         transaction.commit()
 
@@ -1105,19 +1105,19 @@ class QuotasScriptsTest(unittest.TestCase):
             resource_name="quota",
             parent_id="/buckets/bucket-1",
             object_id="bucket_info",
-            object={"record_count": 2, "storage_size": 193, "collection_count": 2},
+            obj={"record_count": 2, "storage_size": 193, "collection_count": 2},
         )
         self.storage.update.assert_any_call(
             resource_name="quota",
             parent_id="/buckets/bucket-1/collections/collection-1",
             object_id="collection_info",
-            object={"record_count": 1, "storage_size": 78},
+            obj={"record_count": 1, "storage_size": 78},
         )
         self.storage.update.assert_any_call(
             resource_name="quota",
             parent_id="/buckets/bucket-1/collections/collection-2",
             object_id="collection_info",
-            object={"record_count": 1, "storage_size": 79},
+            obj={"record_count": 1, "storage_size": 79},
         )
 
         mocked_logger.info.assert_any_call(

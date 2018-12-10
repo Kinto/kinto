@@ -248,19 +248,19 @@ class Storage(StorageBase, MigratorMixin):
 
         return obj["last_epoch"]
 
-    @deprecate_kwargs({"collection_id": "resource_name", "record": "object"})
+    @deprecate_kwargs({"collection_id": "resource_name", "record": "obj"})
     def create(
         self,
         resource_name,
         parent_id,
-        object,
+        obj,
         id_generator=None,
         id_field=DEFAULT_ID_FIELD,
         modified_field=DEFAULT_MODIFIED_FIELD,
         auth=None,
     ):
         id_generator = id_generator or self.id_generator
-        obj = {**object}
+        obj = {**obj}
         if id_field in obj:
             # Optimistically raise unicity error if object with same
             # id already exists.
@@ -363,20 +363,20 @@ class Storage(StorageBase, MigratorMixin):
         obj[modified_field] = existing["last_modified"]
         return obj
 
-    @deprecate_kwargs({"collection_id": "resource_name", "record": "object"})
+    @deprecate_kwargs({"collection_id": "resource_name", "record": "obj"})
     def update(
         self,
         resource_name,
         parent_id,
         object_id,
-        object,
+        obj,
         id_field=DEFAULT_ID_FIELD,
         modified_field=DEFAULT_MODIFIED_FIELD,
         auth=None,
     ):
 
         # Remove redundancy in data field
-        query_object = {**object}
+        query_object = {**obj}
         query_object.pop(id_field, None)
         query_object.pop(modified_field, None)
 
@@ -397,7 +397,7 @@ class Storage(StorageBase, MigratorMixin):
             object_id=object_id,
             parent_id=parent_id,
             resource_name=resource_name,
-            last_modified=object.get(modified_field),
+            last_modified=obj.get(modified_field),
             data=self.json.dumps(query_object),
         )
 
@@ -405,7 +405,7 @@ class Storage(StorageBase, MigratorMixin):
             result = conn.execute(query, placeholders)
             updated = result.fetchone()
 
-        obj = {**object, id_field: object_id}
+        obj = {**obj, id_field: object_id}
         obj[modified_field] = updated["last_modified"]
         return obj
 

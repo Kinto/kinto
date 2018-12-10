@@ -11,7 +11,7 @@ a |status-412| error is returned.
 
     If the posted object has an ``id`` field, it will be taken into account.
 
-    However, if am object already exists with the same ``id``, a |status-200| response
+    However, if an object already exists with the same ``id``, a |status-200| response
     is returned with the existing object in body (instead of |status-201|).
     See https://github.com/Kinto/kinto/issues/140
 

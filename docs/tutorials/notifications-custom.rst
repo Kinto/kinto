@@ -57,7 +57,7 @@ Now, every time a new event occurs, we create a record in a tracker collection.
         def __call__(self, event):
             backend = event.request.registry.storage
             userid = event.request.prefixed_userid
-            backend.create(object={'userid': userid}, resource_name='tracker')
+            backend.create(obj={'userid': userid}, resource_name='tracker')
 
     def load_from_config(config, prefix=''):
         return Listener()
@@ -78,7 +78,7 @@ response:
         def __call__(self, event):
             backend = event.request.registry.storage
             userid = event.request.prefixed_userid
-            backend.create(object={'userid': userid}, resource_name='tracker')
+            backend.create(obj={'userid': userid}, resource_name='tracker')
 
     def count_created_buckets(event):
         userid = event.request.prefixed_userid
