@@ -3,6 +3,12 @@ Changelog
 
 This document describes changes between each past release.
 
+11.2.2 (unreleased)
+-------------------
+
+- Nothing changed yet.
+
+
 11.2.1 (2018-12-09)
 -------------------
 
