@@ -350,7 +350,7 @@ class UserResource:
             limit=limit + 1,  # See bigger explanation above.
             pagination_rules=pagination_rules,
             include_deleted=include_deleted,
-            count_only=head_request
+            count_only=head_request,
         )
 
         if head_request:
