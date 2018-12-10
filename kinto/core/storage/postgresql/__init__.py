@@ -693,9 +693,6 @@ class Storage(StorageBase, MigratorMixin):
             deleted_field=deleted_field,
             auth=auth,
         )
-
-        if len(rows) == 0:
-            return 0
         return rows[0]["total_count"]
 
     def _get_rows(
