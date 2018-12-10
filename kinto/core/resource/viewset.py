@@ -1,5 +1,4 @@
 import functools
-import warnings
 
 import colander
 from cornice.validators import colander_validator
@@ -155,10 +154,6 @@ class ViewSet:
             resource_schema = SimpleSchema
         else:
             resource_schema = resource_cls.schema
-            if hasattr(resource_cls, "mapping"):
-                message = "Resource `mapping` is deprecated, use `schema`"
-                warnings.warn(message, DeprecationWarning)
-                resource_schema = resource_cls.mapping.__class__
 
         object_schema = ObjectSchema().bind(data=resource_schema())
 

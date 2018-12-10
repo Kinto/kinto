@@ -290,25 +290,17 @@ class Storage(StorageBase, MigratorMixin):
         # safe. We add a constant "inserted" field to know whether we
         # need to throw or not.
         query = """
-        WITH create_object AS (
-            INSERT INTO objects (id, parent_id, resource_name, data, last_modified, deleted)
-            VALUES (:object_id, :parent_id,
-                    :resource_name, (:data)::JSONB,
-                    from_epoch(:last_modified),
-                    FALSE)
-            ON CONFLICT (id, parent_id, resource_name) DO UPDATE
-            SET last_modified = from_epoch(:last_modified),
-                data = (:data)::JSONB,
-                deleted = FALSE
-            WHERE objects.deleted = TRUE
-            RETURNING id, data, last_modified
-        )
-        SELECT id, data, as_epoch(last_modified) AS last_modified, TRUE AS inserted
-            FROM create_object
-        UNION ALL
-        SELECT id, data, as_epoch(last_modified) AS last_modified, FALSE AS inserted FROM objects
-        WHERE id = :object_id AND parent_id = :parent_id AND resource_name = :resource_name
-        LIMIT 1;
+        INSERT INTO objects (id, parent_id, resource_name, data, last_modified, deleted)
+        VALUES (:object_id, :parent_id,
+                :resource_name, (:data)::JSONB,
+                from_epoch(:last_modified),
+                FALSE)
+        ON CONFLICT (id, parent_id, resource_name) DO UPDATE
+        SET last_modified = from_epoch(:last_modified),
+            data = (:data)::JSONB,
+            deleted = FALSE
+        WHERE objects.deleted = TRUE
+        RETURNING id, data, as_epoch(last_modified) AS last_modified;
         """
 
         safe_holders = {}
@@ -323,11 +315,8 @@ class Storage(StorageBase, MigratorMixin):
             result = conn.execute(query % safe_holders, placeholders)
             inserted = result.fetchone()
 
-        if not inserted["inserted"]:
-            obj = inserted["data"]
-            obj[id_field] = inserted["id"]
-            obj[modified_field] = inserted["last_modified"]
-            raise exceptions.UnicityError(id_field, obj)
+        if not inserted:
+            raise exceptions.UnicityError(id_field)
 
         obj[modified_field] = inserted["last_modified"]
         return obj
