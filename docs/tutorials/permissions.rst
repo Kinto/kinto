@@ -388,7 +388,7 @@ One can fetch the list of articles.
 .. code-block:: http
 
     HTTP/1.1 200 OK
-    Access-Control-Expose-Headers: Backoff, Retry-After, Alert, Content-Length, Next-Page, Total-Records, Last-Modified, ETag
+    Access-Control-Expose-Headers: Backoff, Retry-After, Alert, Content-Length, Next-Page, Last-Modified, ETag
     Connection: keep-alive
     Content-Length: 351
     Content-Type: application/json; charset=UTF-8
@@ -396,7 +396,6 @@ One can fetch the list of articles.
     ETag: "1437058727907"
     Last-Modified: Thu, 16 Jul 2015 14:58:47 GMT
     Server: nginx/1.4.6 (Ubuntu)
-    Total-Records: 2
 
     {
         "data": [
@@ -426,7 +425,7 @@ Or the list of comments.
 .. code-block:: http
 
     HTTP/1.1 200 OK
-    Access-Control-Expose-Headers: Backoff, Retry-After, Alert, Content-Length, Next-Page, Total-Records, Last-Modified, ETag
+    Access-Control-Expose-Headers: Backoff, Retry-After, Alert, Content-Length, Next-Page, Last-Modified, ETag
     Connection: keep-alive
     Content-Length: 147
     Content-Type: application/json; charset=UTF-8
@@ -434,7 +433,6 @@ Or the list of comments.
     ETag: "1437058244384"
     Last-Modified: Thu, 16 Jul 2015 14:50:44 GMT
     Server: nginx/1.4.6 (Ubuntu)
-    Total-Records: 1
 
     {
         "data": [

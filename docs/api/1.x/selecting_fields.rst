@@ -31,13 +31,12 @@ Nested objects fields are specified using dots (e.g. ``address.street``).
 
     HTTP/1.1 200 OK
     Access-Control-Allow-Origin: *
-    Access-Control-Expose-Headers: Backoff, Retry-After, Alert, Content-Length, ETag, Next-Page, Total-Records, Last-Modified
+    Access-Control-Expose-Headers: Backoff, Retry-After, Alert, Content-Length, ETag, Next-Page, Last-Modified
     Content-Length: 436
     Content-Type: application/json; charset=UTF-8
     Date: Tue, 28 Apr 2015 12:08:11 GMT
     Last-Modified: Mon, 12 Apr 2015 11:12:07 GMT
     ETag: "1430222877724"
-    Total-Records: 2
 
     {
         "data": [

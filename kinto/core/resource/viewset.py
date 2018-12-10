@@ -86,11 +86,21 @@ class ViewSet:
     default_collection_arguments = {
         "schema": RequestSchema().bind(querystring=CollectionQuerySchema())
     }
+    collection_head_arguments = {
+        "schema": RequestSchema().bind(querystring=CollectionGetQuerySchema()),
+        "cors_headers": (
+            "Total-Records",
+            "Last-Modified",
+            "ETag",
+            "Cache-Control",
+            "Expires",
+            "Pragma",
+        ),
+    }
     collection_get_arguments = {
         "schema": RequestSchema().bind(querystring=CollectionGetQuerySchema()),
         "cors_headers": (
             "Next-Page",
-            "Total-Records",
             "Last-Modified",
             "ETag",
             "Cache-Control",
