@@ -23,12 +23,12 @@ class RelaxedUUID(generators.UUID4):
     regexp = generators.Generator.regexp
 
 
-def object_exists_or_404(request, collection_id, object_id, parent_id=""):
+def object_exists_or_404(request, resource_name, object_id, parent_id=""):
     storage = request.registry.storage
     try:
-        return storage.get(collection_id=collection_id, parent_id=parent_id, object_id=object_id)
-    except exceptions.RecordNotFoundError:
+        return storage.get(resource_name=resource_name, parent_id=parent_id, object_id=object_id)
+    except exceptions.ObjectNotFoundError:
         # XXX: We gave up putting details about parent id here (See #53).
-        details = {"id": object_id, "resource_name": collection_id}
+        details = {"id": object_id, "resource_name": resource_name}
         response = http_error(HTTPNotFound(), errno=ERRORS.MISSING_RESOURCE, details=details)
         raise response

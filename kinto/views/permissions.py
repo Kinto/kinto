@@ -4,7 +4,7 @@ from pyramid.settings import aslist
 from kinto.authorization import PERMISSIONS_INHERITANCE_TREE
 from kinto.core import utils as core_utils, resource
 from kinto.core.storage import Sort
-from kinto.core.storage.memory import extract_record_set
+from kinto.core.storage.memory import extract_object_set
 
 
 def allowed_from_settings(settings, principals):
@@ -58,7 +58,7 @@ class PermissionsModel:
     def timestamp(self, parent_id=None):
         return 0
 
-    def get_records(
+    def get_objects(
         self,
         filters=None,
         sorting=None,
@@ -98,7 +98,7 @@ class PermissionsModel:
         allowed_resources = {"bucket", "collection", "group"} & set(from_settings.keys())
         if allowed_resources:
             storage = self.request.registry.storage
-            every_bucket, _ = storage.get_all(parent_id="", collection_id="bucket")
+            every_bucket, _ = storage.get_all(parent_id="", resource_name="bucket")
             for bucket in every_bucket:
                 bucket_uri = "/buckets/{id}".format_map(bucket)
                 for res in allowed_resources:
@@ -109,7 +109,7 @@ class PermissionsModel:
                         continue
                     # Fetch bucket collections and groups.
                     # XXX: wrong approach: query in a loop!
-                    every_subobjects, _ = storage.get_all(parent_id=bucket_uri, collection_id=res)
+                    every_subobjects, _ = storage.get_all(parent_id=bucket_uri, resource_name=res)
                     for subobject in every_subobjects:
                         subobj_uri = bucket_uri + f"/{res}s/{subobject['id']}"
                         perms_by_object_uri.setdefault(subobj_uri, set()).update(resource_perms)
@@ -149,7 +149,7 @@ class PermissionsModel:
             )
             entries.append(entry)
 
-        return extract_record_set(
+        return extract_object_set(
             entries,
             filters=filters,
             sorting=sorting,
@@ -175,8 +175,8 @@ class PermissionsSchema(resource.ResourceSchema):
 @resource.register(
     name="permissions",
     description="List of user permissions",
-    collection_path="/permissions",
-    record_path=None,
+    plural_path="/permissions",
+    object_path=None,
     collection_methods=("GET",),
 )
 class Permissions(resource.ShareableResource):

@@ -65,7 +65,7 @@ List bucket collections
    .. sourcecode:: http
 
       HTTP/1.1 200 OK
-      Access-Control-Expose-Headers: Content-Length, Expires, Alert, Retry-After, Last-Modified, Total-Records, ETag, Pragma, Cache-Control, Backoff, Next-Page
+      Access-Control-Expose-Headers: Content-Length, Expires, Alert, Retry-After, Last-Modified, Total-Objects, ETag, Pragma, Cache-Control, Backoff, Next-Page
       Cache-Control: no-cache
       Content-Length: 144
       Content-Type: application/json; charset=UTF-8
@@ -73,7 +73,7 @@ List bucket collections
       Etag: "1456496072475"
       Last-Modified: Fri, 26 Feb 2016 14:14:32 GMT
       Server: waitress
-      Total-Records: 3
+      Total-Objects: 3
 
       {
           "data": [
@@ -777,7 +777,7 @@ From now on, the cache control headers are set for the `GET` requests:
     :emphasize-lines: 3,8
 
     HTTP/1.1 200 OK
-    Access-Control-Expose-Headers: Backoff, Retry-After, Alert, Content-Length, Next-Page, Total-Records, Last-Modified, ETag, Cache-Control, Expires, Pragma
+    Access-Control-Expose-Headers: Backoff, Retry-After, Alert, Content-Length, Next-Page, Total-Objects, Last-Modified, ETag, Cache-Control, Expires, Pragma
     Cache-Control: max-age=3600
     Content-Length: 11
     Content-Type: application/json; charset=UTF-8
@@ -786,7 +786,7 @@ From now on, the cache control headers are set for the `GET` requests:
     Expires: Mon, 14 Sep 2015 14:51:47 GMT
     Last-Modified: Mon, 14 Sep 2015 13:47:30 GMT
     Server: waitress
-    Total-Records: 0
+    Total-Objects: 0
 
     {
         "data": [{}]
@@ -803,7 +803,7 @@ If set to ``0``, the collection records become explicitly uncacheable (``no-cach
     :emphasize-lines: 3,8,10
 
     HTTP/1.1 200 OK
-    Access-Control-Expose-Headers: Backoff, Retry-After, Alert, Content-Length, Next-Page, Total-Records, Last-Modified, ETag, Cache-Control, Expires, Pragma
+    Access-Control-Expose-Headers: Backoff, Retry-After, Alert, Content-Length, Next-Page, Total-Objects, Last-Modified, ETag, Cache-Control, Expires, Pragma
     Cache-Control: max-age=0, must-revalidate, no-cache, no-store
     Content-Length: 11
     Content-Type: application/json; charset=UTF-8
@@ -813,7 +813,7 @@ If set to ``0``, the collection records become explicitly uncacheable (``no-cach
     Last-Modified: Mon, 14 Sep 2015 13:47:30 GMT
     Pragma: no-cache
     Server: waitress
-    Total-Records: 0
+    Total-Objects: 0
 
     {
         "data": []

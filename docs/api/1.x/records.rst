@@ -245,14 +245,14 @@ Retrieving stored records
     .. sourcecode:: http
 
         HTTP/1.1 200 OK
-        Access-Control-Expose-Headers: Backoff, Retry-After, Alert, Next-Page, Total-Records, Last-Modified, ETag
+        Access-Control-Expose-Headers: Backoff, Retry-After, Alert, Next-Page, Total-Objects, Last-Modified, ETag
         Content-Length: 110
         Content-Type: application/json; charset=UTF-8
         Date: Thu, 18 Jun 2015 17:24:38 GMT
         Etag: "1434648278603"
         Last-Modified: Thu, 18 Jun 2015 17:24:38 GMT
         Server: waitress
-        Total-Records: 1
+        Total-Objects: 1
 
         {
             "data": [

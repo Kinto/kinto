@@ -4,7 +4,7 @@ from kinto.core.authorization import RouteFactory
 
 attachment = Service(
     name="attachment",
-    description="Attach file to record",
+    description="Attach file to object",
     path="/attachment",
     factory=RouteFactory,
 )

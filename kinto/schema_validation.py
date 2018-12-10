@@ -89,7 +89,7 @@ def validate_from_bucket_schema_or_400(data, resource_name, request, ignore_fiel
     if bucket_uri not in buckets:
         # Unknown yet, fetch from storage.
         bucket = object_exists_or_404(
-            request, collection_id="bucket", parent_id="", object_id=bucket_id
+            request, resource_name="bucket", parent_id="", object_id=bucket_id
         )
         buckets[bucket_uri] = bucket
 

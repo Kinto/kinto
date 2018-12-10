@@ -1,5 +1,7 @@
 import threading
-from functools import update_wrapper
+import warnings
+from functools import wraps, update_wrapper
+
 from pyramid.response import Response
 
 
@@ -27,6 +29,7 @@ def synchronized(method):
     The decorator installs a mutex on the class instance.
     """
 
+    @wraps(method)
     def decorated(self, *args, **kwargs):
         try:
             lock = getattr(self, "__lock__")
@@ -40,5 +43,29 @@ def synchronized(method):
         finally:
             lock.release()
         return result
+
+    return decorated
+
+
+def deprecate_kwargs(deprecated):
+    """
+    A decorator to deprecate keyword arguments.
+
+    :param dict deprecated: The keywords mapping (old: new)
+    """
+
+    def decorated(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            new_kwargs = {**kwargs}
+            for old_param, new_param in deprecated.items():
+                if old_param in kwargs:
+                    message = f"{func.__qualname__} parameter {old_param!r} is deprecated, use {new_param!r} instead"
+                    warnings.warn(message, DeprecationWarning)
+                    new_kwargs[new_param] = new_kwargs.pop(old_param)
+
+            return func(*args, **new_kwargs)
+
+        return wrapper
 
     return decorated

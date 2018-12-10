@@ -17,7 +17,15 @@ class BackendError(Exception):
 
 
 class RecordNotFoundError(Exception):
-    """An exception raised when a specific record could not be found.
+    """Deprecated exception name.
+
+    """
+
+    pass
+
+
+class ObjectNotFoundError(RecordNotFoundError):
+    """An exception raised when a specific object could not be found.
 
     """
 
@@ -32,7 +40,7 @@ class UnicityError(IntegrityError):
     """An exception raised on unicity constraint violation.
 
     Raised by storage backend when the creation or the modification of a
-    record violates the unicity constraints defined by the resource.
+    object violates the unicity constraints defined by the resource.
 
     """
 

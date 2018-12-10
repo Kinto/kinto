@@ -44,7 +44,7 @@ class OpenAPIRequestsValidationTest(OpenAPITest):
             self.resources["Collections"].get_collections,
         )
 
-    def test_validate_collection_path(self):
+    def test_validate_plural_path(self):
         paths = [{}, {"bucket_id": "b1"}, {"id": "c1"}]
         for path in paths:
             self.request.path = path
@@ -66,7 +66,7 @@ class OpenAPIRequestsValidationTest(OpenAPITest):
                 self.resources["Records"].get_records,
             )
 
-    def test_validate_record_path(self):
+    def test_validate_object_path(self):
         paths = [{}, {"bucket_id": "b1", "collection_id": "c1"}, {"id": "r1"}]
         for path in paths:
             self.request.path = path

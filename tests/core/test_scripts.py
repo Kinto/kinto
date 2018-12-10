@@ -1,7 +1,7 @@
 from unittest import mock
 
 from kinto.core import scripts
-from kinto.core.storage.exceptions import RecordNotFoundError
+from kinto.core.storage.exceptions import ObjectNotFoundError
 from kinto.core.testing import unittest
 
 
@@ -56,7 +56,7 @@ class DeleteCollectionTest(unittest.TestCase):
             assert code == 31
             mocked.error.assert_any_call("Cannot delete the collection while " "in readonly mode.")
 
-    def test_delete_collection_remove_collection_records(self):
+    def test_delete_collection_remove_collection_objects(self):
         self.registry.storage.delete_all.return_value = [{"id": "1234"}, {"id": "5678"}]
 
         with mock.patch("kinto.core.scripts.logger") as mocked:
@@ -65,12 +65,12 @@ class DeleteCollectionTest(unittest.TestCase):
             )
 
         self.registry.storage.delete_all.assert_called_with(
-            collection_id="record",
+            resource_name="record",
             parent_id="/buckets/test_bucket/collections/test_collection",
             with_deleted=False,
         )
         self.registry.storage.delete.assert_called_with(
-            collection_id="collection",
+            resource_name="collection",
             parent_id="/buckets/test_bucket",
             object_id="test_collection",
             with_deleted=False,
@@ -86,7 +86,7 @@ class DeleteCollectionTest(unittest.TestCase):
             "'/buckets/test_bucket/collections/test_collection' " "collection object was deleted."
         )
 
-    def test_delete_collection_tell_when_no_records_where_found(self):
+    def test_delete_collection_tell_when_no_objects_where_found(self):
         self.registry.storage.delete_all.return_value = []
 
         with mock.patch("kinto.core.scripts.logger") as mocked:
@@ -103,7 +103,7 @@ class DeleteCollectionTest(unittest.TestCase):
         mocked.info.assert_any_call("Related permissions were deleted.")
 
     def test_delete_collection_raise_if_the_bucket_does_not_exist(self):
-        self.registry.storage.get.side_effect = RecordNotFoundError
+        self.registry.storage.get.side_effect = ObjectNotFoundError
         with mock.patch("kinto.core.scripts.logger") as mocked:
             resp = scripts.delete_collection(
                 {"registry": self.registry}, "test_bucket", "test_collection"
@@ -112,7 +112,7 @@ class DeleteCollectionTest(unittest.TestCase):
         mocked.error.assert_called_with("Bucket '/buckets/test_bucket' does not exist.")
 
     def test_delete_collection_raise_if_the_collection_does_not_exist(self):
-        self.registry.storage.get.side_effect = ["", RecordNotFoundError]
+        self.registry.storage.get.side_effect = ["", ObjectNotFoundError]
         with mock.patch("kinto.core.scripts.logger") as mocked:
             resp = scripts.delete_collection(
                 {"registry": self.registry}, "test_bucket", "test_collection"

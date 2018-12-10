@@ -45,19 +45,19 @@ def delete_collection(env, bucket_id, collection_id):
     collection = f"/buckets/{bucket_id}/collections/{collection_id}"
 
     try:
-        registry.storage.get(collection_id="bucket", parent_id="", object_id=bucket_id)
-    except storage_exceptions.RecordNotFoundError:
+        registry.storage.get(resource_name="bucket", parent_id="", object_id=bucket_id)
+    except storage_exceptions.ObjectNotFoundError:
         logger.error(f"Bucket '{bucket}' does not exist.")
         return 32
 
     try:
-        registry.storage.get(collection_id="collection", parent_id=bucket, object_id=collection_id)
-    except storage_exceptions.RecordNotFoundError:
+        registry.storage.get(resource_name="collection", parent_id=bucket, object_id=collection_id)
+    except storage_exceptions.ObjectNotFoundError:
         logger.error(f"Collection '{collection}' does not exist.")
         return 33
 
     deleted = registry.storage.delete_all(
-        collection_id="record", parent_id=collection, with_deleted=False
+        resource_name="record", parent_id=collection, with_deleted=False
     )
     if len(deleted) == 0:
         logger.info(f"No records found for '{collection}'.")
@@ -65,16 +65,15 @@ def delete_collection(env, bucket_id, collection_id):
         logger.info(f"{len(deleted)} record(s) were deleted.")
 
     registry.storage.delete(
-        collection_id="collection", parent_id=bucket, object_id=collection_id, with_deleted=False
+        resource_name="collection", parent_id=bucket, object_id=collection_id, with_deleted=False
     )
     logger.info(f"'{collection}' collection object was deleted.")
 
-    record = "/buckets/{bucket_id}" "/collections/{collection_id}" "/records/{record_id}"
-
+    obj = "/buckets/{bucket_id}/collections/{collection_id}/records/{object_id}"
     registry.permission.delete_object_permissions(
         collection,
         *[
-            record.format(bucket_id=bucket_id, collection_id=collection_id, record_id=r["id"])
+            obj.format(bucket_id=bucket_id, collection_id=collection_id, object_id=r["id"])
             for r in deleted
         ],
     )
@@ -89,7 +88,7 @@ def rebuild_quotas(env, dry_run=False):
     """Administrative command to rebuild quota usage information.
 
     This command recomputes the amount of space used by all
-    collections and all buckets and updates the quota records in the
+    collections and all buckets and updates the quota objects in the
     storage backend to their correct values. This can be useful when
     cleaning up after a bug like e.g.
     https://github.com/Kinto/kinto/issues/1226.

@@ -1,4 +1,4 @@
-A ``Total-Records`` response header indicates the total number of objects
+A ``Total-Objects`` response header indicates the total number of objects
 of the list (not the response, since it can be paginated).
 
 A ``Last-Modified`` response header provides a human-readable (rounded to second)

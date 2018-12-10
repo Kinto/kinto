@@ -115,10 +115,10 @@ class BatchViewTest(BaseWebTest, unittest.TestCase):
         request = {"path": "/mushrooms/"}  # trailing slash
         body = {"requests": [request]}
         resp = self.app.post_json("/batch", body, headers=self.headers)
-        collection = resp.json["responses"][0]
-        self.assertEqual(collection["status"], 200)
-        self.assertEqual(collection["path"], "/v0/mushrooms")
-        self.assertEqual(collection["body"], {"data": []})
+        resource = resp.json["responses"][0]
+        self.assertEqual(resource["status"], 200)
+        self.assertEqual(resource["path"], "/v0/mushrooms")
+        self.assertEqual(resource["body"], {"data": []})
 
     def test_body_is_transmitted_during_redirect(self):
         request = {
@@ -130,8 +130,8 @@ class BatchViewTest(BaseWebTest, unittest.TestCase):
         resp = self.app.post_json("/batch", body, headers=self.headers)
         response = resp.json["responses"][0]
         self.assertEqual(response["status"], 201)
-        record = response["body"]["data"]
-        self.assertEqual(record["name"], "Trompette de la mort")
+        obj = response["body"]["data"]
+        self.assertEqual(obj["name"], "Trompette de la mort")
 
     def test_400_error_message_is_forwarded(self):
         headers = {**self.headers, "If-Match": '"*"'}

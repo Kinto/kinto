@@ -70,7 +70,7 @@ class Account(resource.ShareableResource):
         # Plus when anonymous create accounts, we have to set their parent id
         # to the same value they would obtain when authenticated.
         if self.context.is_administrator:
-            if self.context.on_collection:
+            if self.context.on_plural_endpoint:
                 # Accounts created by admin should have userid as parent.
                 if request.method.lower() == "post":
                     return _extract_posted_body_id(request)
@@ -91,15 +91,15 @@ class Account(resource.ShareableResource):
 
         return _extract_posted_body_id(request)
 
-    def collection_post(self):
-        result = super(Account, self).collection_post()
+    def plural_post(self):
+        result = super(Account, self).plural_post()
         if self.context.is_anonymous and self.request.response.status_code == 200:
             error_details = {"message": "Account ID %r already exists" % result["data"]["id"]}
             raise http_error(httpexceptions.HTTPForbidden(), **error_details)
         return result
 
-    def process_record(self, new, old=None):
-        new = super(Account, self).process_record(new, old)
+    def process_object(self, new, old=None):
+        new = super(Account, self).process_object(new, old)
 
         new["password"] = hash_password(new["password"])
 

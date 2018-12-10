@@ -66,16 +66,16 @@ class ResourceSchema(colander.MappingSchema):
 
         readonly_fields = tuple()
         """Fields that cannot be updated. Values for fields will have to be
-        provided either during record creation, through default values using
+        provided either during object creation, through default values using
         ``missing`` attribute or implementing a custom logic in
-        :meth:`kinto.core.resource.UserResource.process_record`.
+        :meth:`kinto.core.resource.UserResource.process_object`.
         """
 
         preserve_unknown = True
         """Define if unknown fields should be preserved or not.
 
         The resource is schema-less by default. In other words, any field name
-        will be accepted on records. Set this to ``False`` in order to limit
+        will be accepted on objects. Set this to ``False`` in order to limit
         the accepted fields to the ones defined in the schema.
         """
 
@@ -250,8 +250,8 @@ class QuerySchema(colander.MappingSchema):
         return values
 
 
-class CollectionQuerySchema(QuerySchema):
-    """Querystring schema used with collections."""
+class PluralQuerySchema(QuerySchema):
+    """Querystring schema used with plural endpoints."""
 
     _limit = QueryField(colander.Integer(), validator=positive_big_integer)
     _sort = FieldList()
@@ -263,14 +263,14 @@ class CollectionQuerySchema(QuerySchema):
     last_modified = QueryField(colander.Integer(), validator=positive_big_integer)
 
 
-class RecordGetQuerySchema(QuerySchema):
-    """Querystring schema for GET record requests."""
+class ObjectGetQuerySchema(QuerySchema):
+    """Querystring schema for GET object requests."""
 
     _fields = FieldList()
 
 
-class CollectionGetQuerySchema(CollectionQuerySchema):
-    """Querystring schema for GET collection requests."""
+class PluralGetQuerySchema(PluralQuerySchema):
+    """Querystring schema for GET plural endpoints requests."""
 
     _fields = FieldList()
 
@@ -278,12 +278,12 @@ class CollectionGetQuerySchema(CollectionQuerySchema):
 # Body Schemas
 
 
-class RecordSchema(colander.MappingSchema):
+class ObjectSchema(colander.MappingSchema):
     @colander.deferred
     def data(node, kwargs):
         data = kwargs.get("data")
         if data:
-            # Check if empty record is allowed.
+            # Check if empty object is allowed.
             # (e.g every schema fields have defaults)
             try:
                 data.deserialize({})
@@ -400,27 +400,27 @@ class NotModifiedResponseSchema(colander.MappingSchema):
     header = ResponseHeaderSchema()
 
 
-class RecordResponseSchema(colander.MappingSchema):
+class ObjectResponseSchema(colander.MappingSchema):
     """Response schema used with sigle resource endpoints."""
 
     header = ResponseHeaderSchema()
 
     @colander.deferred
     def body(node, kwargs):
-        return kwargs.get("record")
+        return kwargs.get("object")
 
 
-class CollectionResponseSchema(colander.MappingSchema):
+class PluralResponseSchema(colander.MappingSchema):
     """Response schema used with plural endpoints."""
 
     header = ResponseHeaderSchema()
 
     @colander.deferred
     def body(node, kwargs):
-        resource = kwargs.get("record")["data"]
-        collection = colander.MappingSchema()
-        collection["data"] = colander.SequenceSchema(resource, missing=[])
-        return collection
+        resource = kwargs.get("object")["data"]
+        datalist = colander.MappingSchema()
+        datalist["data"] = colander.SequenceSchema(resource, missing=[])
+        return datalist
 
 
 class ResourceReponses:
@@ -432,13 +432,13 @@ class ResourceReponses:
             description="The client doesn't accept supported responses Content-Type."
         ),
         "412": ErrorResponseSchema(
-            description="Record was changed or deleted since value in `If-Match` header."
+            description="Object was changed or deleted since value in `If-Match` header."
         ),
         "default": ErrorResponseSchema(description="Unexpected error."),
     }
-    default_record_schemas = {"200": RecordResponseSchema(description="Return the target object.")}
-    default_collection_schemas = {
-        "200": CollectionResponseSchema(description="Return a list of matching objects.")
+    default_object_schemas = {"200": ObjectResponseSchema(description="Return the target object.")}
+    default_plural_schemas = {
+        "200": PluralResponseSchema(description="Return a list of matching objects.")
     }
     default_get_schemas = {
         "304": NotModifiedResponseSchema(
@@ -446,14 +446,14 @@ class ResourceReponses:
         )
     }
     default_post_schemas = {
-        "200": RecordResponseSchema(description="Return an existing object."),
-        "201": RecordResponseSchema(description="Return a created object."),
+        "200": ObjectResponseSchema(description="Return an existing object."),
+        "201": ObjectResponseSchema(description="Return a created object."),
         "415": ErrorResponseSchema(
             description="The client request was not sent with a correct Content-Type."
         ),
     }
     default_put_schemas = {
-        "201": RecordResponseSchema(description="Return created object."),
+        "201": ObjectResponseSchema(description="Return created object."),
         "415": ErrorResponseSchema(
             description="The client request was not sent with a correct Content-Type."
         ),
@@ -464,13 +464,13 @@ class ResourceReponses:
         )
     }
     default_delete_schemas = {}
-    record_get_schemas = {
+    object_get_schemas = {
         "404": ErrorResponseSchema(description="The object does not exist or was deleted.")
     }
-    record_patch_schemas = {
+    object_patch_schemas = {
         "404": ErrorResponseSchema(description="The object does not exist or was deleted.")
     }
-    record_delete_schemas = {
+    object_delete_schemas = {
         "404": ErrorResponseSchema(description="The object does not exist or was already deleted.")
     }
 

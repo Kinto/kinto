@@ -250,58 +250,58 @@ class DictMergeTest(unittest.TestCase):
 
 class FindNestedValueTest(unittest.TestCase):
     def test_find_flat_value(self):
-        record = {"a": 42}
-        obtained = find_nested_value(record, "a")
+        obj = {"a": 42}
+        obtained = find_nested_value(obj, "a")
         self.assertEqual(obtained, 42)
 
     def test_find_nested_value(self):
-        record = {"a": {"b": 42}}
-        obtained = find_nested_value(record, "a.b")
+        obj = {"a": {"b": 42}}
+        obtained = find_nested_value(obj, "a.b")
         self.assertEqual(obtained, 42)
 
     def test_find_deeply_nested_value(self):
-        record = {"a": {"b": {"c": 42}}}
-        obtained = find_nested_value(record, "a.b.c")
+        obj = {"a": {"b": {"c": 42}}}
+        obtained = find_nested_value(obj, "a.b.c")
         self.assertEqual(obtained, 42)
 
     def test_find_dotted_path_value(self):
-        record = {"a.b": 42}
-        obtained = find_nested_value(record, "a.b")
+        obj = {"a.b": 42}
+        obtained = find_nested_value(obj, "a.b")
         self.assertEqual(obtained, 42)
 
     def test_find_nested_dotted_path_value(self):
-        record = {"a": {"b.c": 42}}
-        obtained = find_nested_value(record, "a.b.c")
+        obj = {"a": {"b.c": 42}}
+        obtained = find_nested_value(obj, "a.b.c")
         self.assertEqual(obtained, 42)
 
-        record = {"a.b": {"c.d": 42}}
-        obtained = find_nested_value(record, "a.b.c.d")
+        obj = {"a.b": {"c.d": 42}}
+        obtained = find_nested_value(obj, "a.b.c.d")
         self.assertEqual(obtained, 42)
 
-        record = {"a": {"b": {"a": {"b": 42}}}}
-        obtained = find_nested_value(record, "a.b.a.b")
+        obj = {"a": {"b": {"a": {"b": 42}}}}
+        obtained = find_nested_value(obj, "a.b.a.b")
         self.assertEqual(obtained, 42)
 
     def test_find_disambiguated_dotted_path_values(self):
         # XXX: To be honest, this is a really scary use case. Probably a
         # limitation of the dotted path notation we may want to document.
         # At least this test acts as documentation for now.
-        record = {"a": {"b": 0}, "a.b": 42}
-        obtained = find_nested_value(record, "a.b")
+        obj = {"a": {"b": 0}, "a.b": 42}
+        obtained = find_nested_value(obj, "a.b")
         self.assertEqual(obtained, 42)
 
     def test_unmatched_path_returns_none(self):
-        record = {"a": 42}
-        self.assertIsNone(find_nested_value(record, "x"))
-        self.assertIsNone(find_nested_value(record, "a.b"))
-        self.assertIsNone(find_nested_value(record, "x.a"))
+        obj = {"a": 42}
+        self.assertIsNone(find_nested_value(obj, "x"))
+        self.assertIsNone(find_nested_value(obj, "a.b"))
+        self.assertIsNone(find_nested_value(obj, "x.a"))
 
     def test_fallback_default_value(self):
-        record = {"a": {"c": 42}}
-        self.assertEqual(find_nested_value(record, "x", 1337), 1337)
-        self.assertEqual(find_nested_value(record, "a.b", 1337), 1337)
-        self.assertEqual(find_nested_value(record, "x.a", 1337), 1337)
-        self.assertEqual(find_nested_value(record, "a.c.d", 1337), 1337)
+        obj = {"a": {"c": 42}}
+        self.assertEqual(find_nested_value(obj, "x", 1337), 1337)
+        self.assertEqual(find_nested_value(obj, "a.b", 1337), 1337)
+        self.assertEqual(find_nested_value(obj, "x.a", 1337), 1337)
+        self.assertEqual(find_nested_value(obj, "a.c.d", 1337), 1337)
 
 
 class RecursiveUpdateDictTest(unittest.TestCase):
@@ -355,12 +355,12 @@ class InstanceURIRegistryTest(unittest.TestCase):
     @mock.patch("kinto.core.utils.instance_uri")
     def test_instance_uri_registry_calls_instance_uri(self, instance_uri):
         registry = mock.Mock()
-        instance_uri_registry(registry, "record", a=1)
+        instance_uri_registry(registry, "object", a=1)
         self.assertEqual(len(instance_uri.call_args_list), 1)
         (args, kwargs) = instance_uri.call_args_list[0]
         self.assertEqual(len(args), 2)
 
         self.assertEqual(args[0].registry, registry)
-        self.assertEqual(args[1], "record")
+        self.assertEqual(args[1], "object")
 
         self.assertEqual(kwargs, {"a": 1})

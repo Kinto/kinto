@@ -8,7 +8,7 @@ from pyramid import testing
 from kinto import main as kinto_main
 from kinto.core.errors import ERRORS
 from kinto.core.storage import Sort
-from kinto.core.storage.exceptions import RecordNotFoundError
+from kinto.core.storage.exceptions import ObjectNotFoundError
 from kinto.core.testing import FormattedErrorMixin, sqlalchemy, skip_if_no_statsd
 from kinto.plugins.quotas import scripts
 from kinto.plugins.quotas.listener import (
@@ -106,7 +106,7 @@ class QuotaListenerTest(QuotaWebTest):
         storage_size += record_size(self.collection)
         storage_size += record_size(self.record)
         data = self.storage.get(
-            collection_id=QUOTA_RESOURCE_NAME,
+            resource_name=QUOTA_RESOURCE_NAME,
             parent_id=self.bucket_uri,
             object_id=BUCKET_QUOTA_OBJECT_ID,
         )
@@ -124,7 +124,7 @@ class QuotaListenerTest(QuotaWebTest):
         storage_size += record_size(self.collection)
         storage_size += record_size(self.record)
         data = self.storage.get(
-            collection_id=QUOTA_RESOURCE_NAME,
+            resource_name=QUOTA_RESOURCE_NAME,
             parent_id=self.bucket_uri,
             object_id=BUCKET_QUOTA_OBJECT_ID,
         )
@@ -139,7 +139,7 @@ class QuotaListenerTest(QuotaWebTest):
         self.app.delete("/buckets", headers=self.headers)
 
         stored_in_backend, _ = self.storage.get_all(
-            parent_id="/buckets/*", collection_id=QUOTA_RESOURCE_NAME
+            parent_id="/buckets/*", resource_name=QUOTA_RESOURCE_NAME
         )
         assert len(stored_in_backend) == 0
 
@@ -147,7 +147,7 @@ class QuotaListenerTest(QuotaWebTest):
         self.create_bucket()
         self.app.delete(self.bucket_uri, headers=self.headers)
         stored_in_backend, _ = self.storage.get_all(
-            parent_id="/buckets/test", collection_id=QUOTA_RESOURCE_NAME
+            parent_id="/buckets/test", resource_name=QUOTA_RESOURCE_NAME
         )
         assert len(stored_in_backend) == 0
 
@@ -155,7 +155,7 @@ class QuotaListenerTest(QuotaWebTest):
         self.create_bucket()
         self.storage.delete(
             parent_id="/buckets/test",
-            collection_id=QUOTA_RESOURCE_NAME,
+            resource_name=QUOTA_RESOURCE_NAME,
             object_id=BUCKET_QUOTA_OBJECT_ID,
         )
         transaction.commit()
@@ -175,7 +175,7 @@ class QuotaListenerTest(QuotaWebTest):
         # Bucket stats
         storage_size = record_size(self.bucket) + record_size(self.collection)
         data = self.storage.get(
-            collection_id=QUOTA_RESOURCE_NAME,
+            resource_name=QUOTA_RESOURCE_NAME,
             parent_id=self.bucket_uri,
             object_id=BUCKET_QUOTA_OBJECT_ID,
         )
@@ -200,7 +200,7 @@ class QuotaListenerTest(QuotaWebTest):
         storage_size += record_size(resp.json["data"])
 
         data = self.storage.get(
-            collection_id=QUOTA_RESOURCE_NAME,
+            resource_name=QUOTA_RESOURCE_NAME,
             parent_id=self.bucket_uri,
             object_id=BUCKET_QUOTA_OBJECT_ID,
         )
@@ -211,7 +211,7 @@ class QuotaListenerTest(QuotaWebTest):
         # Collection stats
         storage_size -= record_size(self.bucket)
         data = self.storage.get(
-            collection_id=QUOTA_RESOURCE_NAME,
+            resource_name=QUOTA_RESOURCE_NAME,
             parent_id=self.collection_uri,
             object_id=COLLECTION_QUOTA_OBJECT_ID,
         )
@@ -224,7 +224,7 @@ class QuotaListenerTest(QuotaWebTest):
         self.app.patch_json(self.collection_uri, body, headers=self.headers)
         self.app.delete(self.collection_uri, headers=self.headers)
         data = self.storage.get(
-            collection_id=QUOTA_RESOURCE_NAME,
+            resource_name=QUOTA_RESOURCE_NAME,
             parent_id=self.bucket_uri,
             object_id=BUCKET_QUOTA_OBJECT_ID,
         )
@@ -238,7 +238,7 @@ class QuotaListenerTest(QuotaWebTest):
         self.create_collection()
         self.app.delete(self.collection_uri, headers=self.headers)
         stored_in_backend, _ = self.storage.get_all(
-            parent_id=self.collection_uri, collection_id=QUOTA_RESOURCE_NAME
+            parent_id=self.collection_uri, resource_name=QUOTA_RESOURCE_NAME
         )
         assert len(stored_in_backend) == 0
 
@@ -247,7 +247,7 @@ class QuotaListenerTest(QuotaWebTest):
         self.create_collection()
         self.storage.delete(
             parent_id=self.collection_uri,
-            collection_id=QUOTA_RESOURCE_NAME,
+            resource_name=QUOTA_RESOURCE_NAME,
             object_id=COLLECTION_QUOTA_OBJECT_ID,
         )
         transaction.commit()
@@ -263,7 +263,7 @@ class QuotaListenerTest(QuotaWebTest):
         self.app.post_json("{}/records".format(self.collection_uri), body, headers=self.headers)
         self.app.delete(self.collection_uri, headers=self.headers)
         data = self.storage.get(
-            collection_id=QUOTA_RESOURCE_NAME,
+            resource_name=QUOTA_RESOURCE_NAME,
             parent_id=self.bucket_uri,
             object_id=BUCKET_QUOTA_OBJECT_ID,
         )
@@ -281,7 +281,7 @@ class QuotaListenerTest(QuotaWebTest):
         self.create_group()
         storage_size = record_size(self.bucket) + record_size(self.group)
         data = self.storage.get(
-            collection_id=QUOTA_RESOURCE_NAME,
+            resource_name=QUOTA_RESOURCE_NAME,
             parent_id=self.bucket_uri,
             object_id=BUCKET_QUOTA_OBJECT_ID,
         )
@@ -297,7 +297,7 @@ class QuotaListenerTest(QuotaWebTest):
         storage_size = record_size(self.bucket)
         storage_size += record_size(resp.json["data"])
         data = self.storage.get(
-            collection_id=QUOTA_RESOURCE_NAME,
+            resource_name=QUOTA_RESOURCE_NAME,
             parent_id=self.bucket_uri,
             object_id=BUCKET_QUOTA_OBJECT_ID,
         )
@@ -310,7 +310,7 @@ class QuotaListenerTest(QuotaWebTest):
         self.create_group()
         self.app.delete(self.group_uri, headers=self.headers)
         data = self.storage.get(
-            collection_id=QUOTA_RESOURCE_NAME,
+            resource_name=QUOTA_RESOURCE_NAME,
             parent_id=self.bucket_uri,
             object_id=BUCKET_QUOTA_OBJECT_ID,
         )
@@ -331,7 +331,7 @@ class QuotaListenerTest(QuotaWebTest):
         storage_size += record_size(self.collection)
         storage_size += record_size(self.record)
         data = self.storage.get(
-            collection_id=QUOTA_RESOURCE_NAME,
+            resource_name=QUOTA_RESOURCE_NAME,
             parent_id=self.bucket_uri,
             object_id=BUCKET_QUOTA_OBJECT_ID,
         )
@@ -348,7 +348,7 @@ class QuotaListenerTest(QuotaWebTest):
         storage_size += record_size(self.collection)
         storage_size += record_size(resp.json["data"])
         data = self.storage.get(
-            collection_id=QUOTA_RESOURCE_NAME,
+            resource_name=QUOTA_RESOURCE_NAME,
             parent_id=self.bucket_uri,
             object_id=BUCKET_QUOTA_OBJECT_ID,
         )
@@ -364,7 +364,7 @@ class QuotaListenerTest(QuotaWebTest):
         storage_size = record_size(self.bucket)
         storage_size += record_size(self.collection)
         data = self.storage.get(
-            collection_id=QUOTA_RESOURCE_NAME,
+            resource_name=QUOTA_RESOURCE_NAME,
             parent_id=self.bucket_uri,
             object_id=BUCKET_QUOTA_OBJECT_ID,
         )
@@ -383,7 +383,7 @@ class QuotaListenerTest(QuotaWebTest):
         self.app.delete("{}/records".format(self.collection_uri), headers=self.headers)
         storage_size = record_size(self.bucket) + record_size(self.collection)
         data = self.storage.get(
-            collection_id=QUOTA_RESOURCE_NAME,
+            resource_name=QUOTA_RESOURCE_NAME,
             parent_id=self.bucket_uri,
             object_id=BUCKET_QUOTA_OBJECT_ID,
         )
@@ -404,7 +404,7 @@ class QuotaListenerTest(QuotaWebTest):
         }
         self.app.post_json("/batch", body, headers=self.headers)
         data = self.storage.get(
-            collection_id=QUOTA_RESOURCE_NAME,
+            resource_name=QUOTA_RESOURCE_NAME,
             parent_id=self.bucket_uri,
             object_id=BUCKET_QUOTA_OBJECT_ID,
         )
@@ -424,7 +424,7 @@ class QuotaListenerTest(QuotaWebTest):
         }
         self.app.post_json("/batch", body, headers=self.headers)
         data = self.storage.get(
-            collection_id=QUOTA_RESOURCE_NAME,
+            resource_name=QUOTA_RESOURCE_NAME,
             parent_id=self.bucket_uri,
             object_id=BUCKET_QUOTA_OBJECT_ID,
         )
@@ -450,7 +450,7 @@ class QuotaListenerTest(QuotaWebTest):
         }
         self.app.post_json("/batch", body, headers=self.headers)
         data = self.storage.get(
-            collection_id=QUOTA_RESOURCE_NAME,
+            resource_name=QUOTA_RESOURCE_NAME,
             parent_id=self.bucket_uri,
             object_id=BUCKET_QUOTA_OBJECT_ID,
         )
@@ -485,7 +485,7 @@ class QuotaListenerTest(QuotaWebTest):
         self.app.post_json("/batch", body, headers=self.headers)
 
         data = self.storage.get(
-            collection_id=QUOTA_RESOURCE_NAME,
+            resource_name=QUOTA_RESOURCE_NAME,
             parent_id=self.bucket_uri,
             object_id=BUCKET_QUOTA_OBJECT_ID,
         )
@@ -494,30 +494,30 @@ class QuotaListenerTest(QuotaWebTest):
             {"collection_count": 0, "record_count": 0, "storage_size": record_size(self.bucket)},
         )
 
-        with pytest.raises(RecordNotFoundError):
+        with pytest.raises(ObjectNotFoundError):
             self.storage.get(
-                collection_id=QUOTA_RESOURCE_NAME,
+                resource_name=QUOTA_RESOURCE_NAME,
                 parent_id="{}/collections/a".format(self.bucket_uri),
                 object_id=COLLECTION_QUOTA_OBJECT_ID,
             )
 
-        with pytest.raises(RecordNotFoundError):
+        with pytest.raises(ObjectNotFoundError):
             self.storage.get(
-                collection_id=QUOTA_RESOURCE_NAME,
+                resource_name=QUOTA_RESOURCE_NAME,
                 parent_id="{}/collections/b".format(self.bucket_uri),
                 object_id=COLLECTION_QUOTA_OBJECT_ID,
             )
 
-        with pytest.raises(RecordNotFoundError):
+        with pytest.raises(ObjectNotFoundError):
             self.storage.get(
-                collection_id=QUOTA_RESOURCE_NAME,
+                resource_name=QUOTA_RESOURCE_NAME,
                 parent_id="{}/collections/c".format(self.bucket_uri),
                 object_id=COLLECTION_QUOTA_OBJECT_ID,
             )
 
-        with pytest.raises(RecordNotFoundError):
+        with pytest.raises(ObjectNotFoundError):
             self.storage.get(
-                collection_id=QUOTA_RESOURCE_NAME,
+                resource_name=QUOTA_RESOURCE_NAME,
                 parent_id=self.collection_uri,
                 object_id=COLLECTION_QUOTA_OBJECT_ID,
             )
@@ -543,7 +543,7 @@ class QuotaBucketRecordMixin:
         )
 
         data = self.storage.get(
-            collection_id=QUOTA_RESOURCE_NAME,
+            resource_name=QUOTA_RESOURCE_NAME,
             parent_id=self.bucket_uri,
             object_id=BUCKET_QUOTA_OBJECT_ID,
         )
@@ -574,7 +574,7 @@ class QuotaBucketUpdateMixin:
         )
 
         data = self.storage.get(
-            collection_id=QUOTA_RESOURCE_NAME,
+            resource_name=QUOTA_RESOURCE_NAME,
             parent_id=self.bucket_uri,
             object_id=BUCKET_QUOTA_OBJECT_ID,
         )
@@ -598,7 +598,7 @@ class QuotaBucketUpdateMixin:
         )
 
         data = self.storage.get(
-            collection_id=QUOTA_RESOURCE_NAME,
+            resource_name=QUOTA_RESOURCE_NAME,
             parent_id=self.bucket_uri,
             object_id=BUCKET_QUOTA_OBJECT_ID,
         )
@@ -626,7 +626,7 @@ class QuotaBucketUpdateMixin:
         )
 
         data = self.storage.get(
-            collection_id=QUOTA_RESOURCE_NAME,
+            resource_name=QUOTA_RESOURCE_NAME,
             parent_id=self.bucket_uri,
             object_id=BUCKET_QUOTA_OBJECT_ID,
         )
@@ -644,7 +644,7 @@ class QuotaBucketUpdateMixin:
         storage_size = record_size(self.bucket)
         storage_size += record_size(self.collection)
         data = self.storage.get(
-            collection_id=QUOTA_RESOURCE_NAME,
+            resource_name=QUOTA_RESOURCE_NAME,
             parent_id=self.bucket_uri,
             object_id=BUCKET_QUOTA_OBJECT_ID,
         )
@@ -657,16 +657,16 @@ class QuotaBucketUpdateMixin:
         self.create_collection()
         # fake the quota to the Max
         data = self.storage.get(
-            collection_id=QUOTA_RESOURCE_NAME,
+            resource_name=QUOTA_RESOURCE_NAME,
             parent_id=self.bucket_uri,
             object_id=BUCKET_QUOTA_OBJECT_ID,
         )
         data["storage_size"] = 140
         self.storage.update(
-            collection_id=QUOTA_RESOURCE_NAME,
+            resource_name=QUOTA_RESOURCE_NAME,
             parent_id=self.bucket_uri,
             object_id=BUCKET_QUOTA_OBJECT_ID,
-            record=data,
+            obj=data,
         )
         transaction.commit()
         self.app.delete(self.collection_uri, headers=self.headers)
@@ -674,7 +674,7 @@ class QuotaBucketUpdateMixin:
         storage_size = 140
         storage_size -= record_size(self.collection)
         data = self.storage.get(
-            collection_id=QUOTA_RESOURCE_NAME,
+            resource_name=QUOTA_RESOURCE_NAME,
             parent_id=self.bucket_uri,
             object_id=BUCKET_QUOTA_OBJECT_ID,
         )
@@ -689,16 +689,16 @@ class QuotaBucketUpdateMixin:
         group = resp.json["data"]
         # fake the quota to the Max
         data = self.storage.get(
-            collection_id=QUOTA_RESOURCE_NAME,
+            resource_name=QUOTA_RESOURCE_NAME,
             parent_id=self.bucket_uri,
             object_id=BUCKET_QUOTA_OBJECT_ID,
         )
         data["storage_size"] = 140
         self.storage.update(
-            collection_id=QUOTA_RESOURCE_NAME,
+            resource_name=QUOTA_RESOURCE_NAME,
             parent_id=self.bucket_uri,
             object_id=BUCKET_QUOTA_OBJECT_ID,
-            record=data,
+            obj=data,
         )
         transaction.commit()
 
@@ -707,7 +707,7 @@ class QuotaBucketUpdateMixin:
         storage_size = 140
         storage_size -= record_size(group)
         data = self.storage.get(
-            collection_id=QUOTA_RESOURCE_NAME,
+            resource_name=QUOTA_RESOURCE_NAME,
             parent_id=self.bucket_uri,
             object_id=BUCKET_QUOTA_OBJECT_ID,
         )
@@ -735,7 +735,7 @@ class QuotaBucketMixin:
         )
 
         data = self.storage.get(
-            collection_id=QUOTA_RESOURCE_NAME,
+            resource_name=QUOTA_RESOURCE_NAME,
             parent_id=self.bucket_uri,
             object_id=BUCKET_QUOTA_OBJECT_ID,
         )
@@ -763,7 +763,7 @@ class QuotaBucketMixin:
         )
 
         data = self.storage.get(
-            collection_id=QUOTA_RESOURCE_NAME,
+            resource_name=QUOTA_RESOURCE_NAME,
             parent_id=self.bucket_uri,
             object_id=BUCKET_QUOTA_OBJECT_ID,
         )
@@ -1080,44 +1080,44 @@ class QuotasScriptsTest(unittest.TestCase):
                 scripts.rebuild_quotas(self.storage)
 
         mocked_paginated.assert_any_call(
-            self.storage, collection_id="bucket", parent_id="", sorting=[self.OLDEST_FIRST]
+            self.storage, resource_name="bucket", parent_id="", sorting=[self.OLDEST_FIRST]
         )
         mocked_paginated.assert_any_call(
             self.storage,
-            collection_id="collection",
+            resource_name="collection",
             parent_id="/buckets/bucket-1",
             sorting=[self.OLDEST_FIRST],
         )
         mocked_paginated.assert_any_call(
             self.storage,
-            collection_id="record",
+            resource_name="record",
             parent_id="/buckets/bucket-1/collections/collection-1",
             sorting=[self.OLDEST_FIRST],
         )
         mocked_paginated.assert_any_call(
             self.storage,
-            collection_id="record",
+            resource_name="record",
             parent_id="/buckets/bucket-1/collections/collection-2",
             sorting=[self.OLDEST_FIRST],
         )
 
         self.storage.update.assert_any_call(
-            collection_id="quota",
+            resource_name="quota",
             parent_id="/buckets/bucket-1",
             object_id="bucket_info",
-            record={"record_count": 2, "storage_size": 193, "collection_count": 2},
+            obj={"record_count": 2, "storage_size": 193, "collection_count": 2},
         )
         self.storage.update.assert_any_call(
-            collection_id="quota",
+            resource_name="quota",
             parent_id="/buckets/bucket-1/collections/collection-1",
             object_id="collection_info",
-            record={"record_count": 1, "storage_size": 78},
+            obj={"record_count": 1, "storage_size": 78},
         )
         self.storage.update.assert_any_call(
-            collection_id="quota",
+            resource_name="quota",
             parent_id="/buckets/bucket-1/collections/collection-2",
             object_id="collection_info",
-            record={"record_count": 1, "storage_size": 79},
+            obj={"record_count": 1, "storage_size": 79},
         )
 
         mocked_logger.info.assert_any_call(

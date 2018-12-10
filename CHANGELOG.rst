@@ -10,6 +10,9 @@ This document describes changes between each past release.
 
 - Remove Python 3.5 support and upgrade to Python 3.6. (#1886)
 - Remove `record` from UnicityError class (#1919). This enabled us to fix #1545.
+- Storage backend API has changed, notions of collection and records were replaced
+  by the generic terms *resource* and *object*. Plugins that subclass the internal
+  ``ShareableResource`` class may also break.
 
 **Bug Fixes**
 
@@ -29,6 +32,7 @@ This document describes changes between each past release.
 -------------------
 
 - Still supports jsonschema 2.6 before 3.0 is released as a production release. (#1923)
+- Renamed core notions (ie. record and collection) (#710)
 
 
 11.2.0 (2018-11-29)

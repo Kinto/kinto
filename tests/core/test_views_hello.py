@@ -92,15 +92,15 @@ class APICapabilitiesTest(BaseWebTest, unittest.TestCase):
         app = self.make_app(config=config)
 
         capability = dict(
-            description="Track record change",
+            description="Track object change",
             url="https://github.com/Kinto/kinto-changes",
             status="beta",
         )
-        config.add_api_capability("record-changes", **capability)
+        config.add_api_capability("object-changes", **capability)
 
         response = app.get("/")
         capabilities = response.json["capabilities"]
-        self.assertEqual(capabilities["record-changes"], capability)
+        self.assertEqual(capabilities["object-changes"], capability)
 
     def test_capability_fails_if_already_registered(self):
         config = testing.setUp(settings=self.get_app_settings())
