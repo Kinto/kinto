@@ -115,10 +115,10 @@ class BatchViewTest(BaseWebTest, unittest.TestCase):
         request = {"path": "/mushrooms/"}  # trailing slash
         body = {"requests": [request]}
         resp = self.app.post_json("/batch", body, headers=self.headers)
-        objects = resp.json["responses"][0]
-        self.assertEqual(objects["status"], 200)
-        self.assertEqual(objects["path"], "/v0/mushrooms")
-        self.assertEqual(objects["body"], {"data": []})
+        resource = resp.json["responses"][0]
+        self.assertEqual(resource["status"], 200)
+        self.assertEqual(resource["path"], "/v0/mushrooms")
+        self.assertEqual(resource["body"], {"data": []})
 
     def test_body_is_transmitted_during_redirect(self):
         request = {
