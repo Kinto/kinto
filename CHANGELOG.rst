@@ -9,6 +9,8 @@ This document describes changes between each past release.
 **Breaking changes**
 
 - Remove Python 3.5 support and upgrade to Python 3.6. (#1886)
+- Storage backend API has changed, notions of collection and records were replaced
+  by the generic terms *resource* and *object*.
 
 **Bug Fixes**
 
