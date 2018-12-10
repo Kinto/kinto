@@ -542,7 +542,7 @@ class UserResource:
             requested_changes = body.get("data", {})
 
         updated, applied_changes = self.apply_changes(
-            existing, requested_changes=requested_changes
+            obj=existing, requested_changes=requested_changes
         )
 
         object_id = updated.setdefault(self.model.id_field, self.object_id)
@@ -682,7 +682,7 @@ class UserResource:
 
         return new
 
-    def apply_changes(self, object, requested_changes):
+    def apply_changes(self, obj, requested_changes):
         """Merge `changes` into `object` fields.
 
         .. note::
@@ -693,11 +693,11 @@ class UserResource:
 
         .. code-block:: python
 
-            def apply_changes(self, object, requested_changes):
+            def apply_changes(self, obj, requested_changes):
                 # Ignore value change if inferior
                 if object['position'] > changes.get('position', -1):
                     changes.pop('position', None)
-                return super().apply_changes(object, requested_changes)
+                return super().apply_changes(obj, requested_changes)
 
         :raises: :exc:`~pyramid:pyramid.httpexceptions.HTTPBadRequest`
             if result does not comply with resource schema.
@@ -707,7 +707,7 @@ class UserResource:
         """
         if self._is_json_patch:
             try:
-                applied_changes = apply_json_patch(object, requested_changes)["data"]
+                applied_changes = apply_json_patch(obj, requested_changes)["data"]
                 updated = {**applied_changes}
             except ValueError as e:
                 error_details = {
@@ -718,7 +718,7 @@ class UserResource:
 
         else:
             applied_changes = {**requested_changes}
-            updated = {**object}
+            updated = {**obj}
 
             # recursive patch and remove field if null attribute is passed (RFC 7396)
             if self._is_merge_patch:
@@ -727,7 +727,7 @@ class UserResource:
                 updated.update(**applied_changes)
 
         for field, value in applied_changes.items():
-            has_changed = object.get(field, value) != value
+            has_changed = obj.get(field, value) != value
             if self.schema.is_readonly(field) and has_changed:
                 error_details = {"name": field, "description": f"Cannot modify {field}"}
                 raise_invalid(self.request, **error_details)
