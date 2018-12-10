@@ -1,6 +1,3 @@
-A ``Total-Records`` response header indicates the total number of objects
-of the list (not the response, since it can be paginated).
-
 A ``Last-Modified`` response header provides a human-readable (rounded to second)
 of the current collection timestamp.
 
