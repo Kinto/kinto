@@ -11,7 +11,7 @@ API
 Changelog
 ---------
 
-1.21 (2018-12-10)
+1.21 (unreleased)
 '''''''''''''''''
 
 - The ``Total-Records`` header is no longer included in any GET request. Only available

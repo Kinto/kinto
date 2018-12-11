@@ -17,8 +17,8 @@ _parent_path = "/buckets/{{bucket_id}}/collections/{{collection_id}}"
 
 @resource.register(
     name="record",
-    collection_path=_parent_path + "/records",
-    record_path=_parent_path + "/records/{{id}}",
+    plural_path=_parent_path + "/records",
+    object_path=_parent_path + "/records/{{id}}",
 )
 class Record(resource.ShareableResource):
 
@@ -34,7 +34,7 @@ class Record(resource.ShareableResource):
             bucket_uri = utils.instance_uri(request, "bucket", id=self.bucket_id)
             collection = object_exists_or_404(
                 request,
-                collection_id="collection",
+                resource_name="collection",
                 parent_id=bucket_uri,
                 object_id=self.collection_id,
             )
@@ -50,9 +50,9 @@ class Record(resource.ShareableResource):
             request, "collection", bucket_id=self.bucket_id, id=self.collection_id
         )
 
-    def process_record(self, new, old=None):
+    def process_object(self, new, old=None):
         """Validate records against collection or bucket schema, if any."""
-        new = super().process_record(new, old)
+        new = super().process_object(new, old)
 
         # Is schema validation enabled?
         settings = self.request.registry.settings
@@ -90,8 +90,8 @@ class Record(resource.ShareableResource):
 
         return new
 
-    def collection_get(self):
-        result = super().collection_get()
+    def plural_get(self):
+        result = super().plural_get()
         self._handle_cache_expires(self.request.response)
         return result
 

@@ -2,7 +2,7 @@ import copy
 
 from pyramid.httpexceptions import HTTPInsufficientStorage
 from kinto.core.errors import http_error, ERRORS
-from kinto.core.storage.exceptions import RecordNotFoundError
+from kinto.core.storage.exceptions import ObjectNotFoundError
 from kinto.core.utils import instance_uri
 
 from .utils import record_size
@@ -82,7 +82,7 @@ def on_resource_changed(event):
     storage = event.request.registry.storage
 
     targets = []
-    for impacted in event.impacted_records:
+    for impacted in event.impacted_objects:
         target = impacted["new" if action != "delete" else "old"]
         # On POST .../records, the URI does not contain the newly created
         # record id.
@@ -104,11 +104,11 @@ def on_resource_changed(event):
         bucket_info = copy.deepcopy(
             storage.get(
                 parent_id=bucket_uri,
-                collection_id=QUOTA_RESOURCE_NAME,
+                resource_name=QUOTA_RESOURCE_NAME,
                 object_id=BUCKET_QUOTA_OBJECT_ID,
             )
         )
-    except RecordNotFoundError:
+    except ObjectNotFoundError:
         bucket_info = {"collection_count": 0, "record_count": 0, "storage_size": 0}
 
     collection_info = {"record_count": 0, "storage_size": 0}
@@ -117,11 +117,11 @@ def on_resource_changed(event):
             collection_info = copy.deepcopy(
                 storage.get(
                     parent_id=collection_uri,
-                    collection_id=QUOTA_RESOURCE_NAME,
+                    resource_name=QUOTA_RESOURCE_NAME,
                     object_id=COLLECTION_QUOTA_OBJECT_ID,
                 )
             )
-        except RecordNotFoundError:
+        except ObjectNotFoundError:
             pass
 
     # Update the bucket quotas values for each impacted record.
@@ -157,7 +157,7 @@ def on_resource_changed(event):
                 # When we delete the collection all the records in it
                 # are deleted without notification.
                 collection_records, _ = storage.get_all(
-                    collection_id="record", parent_id=collection_uri
+                    resource_name="record", parent_id=collection_uri
                 )
                 for r in collection_records:
                     old_record_size = record_size(r)
@@ -206,9 +206,9 @@ def on_resource_changed(event):
 
     storage.update(
         parent_id=bucket_uri,
-        collection_id=QUOTA_RESOURCE_NAME,
+        resource_name=QUOTA_RESOURCE_NAME,
         object_id=BUCKET_QUOTA_OBJECT_ID,
-        record=bucket_info,
+        obj=bucket_info,
     )
 
     if collection_id:
@@ -219,7 +219,7 @@ def on_resource_changed(event):
         else:
             storage.update(
                 parent_id=collection_uri,
-                collection_id=QUOTA_RESOURCE_NAME,
+                resource_name=QUOTA_RESOURCE_NAME,
                 object_id=COLLECTION_QUOTA_OBJECT_ID,
-                record=collection_info,
+                obj=collection_info,
             )

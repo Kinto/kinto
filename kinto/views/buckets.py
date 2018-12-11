@@ -15,7 +15,7 @@ class BucketSchema(resource.ResourceSchema):
         self["record:schema"] = JSONSchemaMapping(missing=colander.drop)
 
 
-@resource.register(name="bucket", collection_path="/buckets", record_path="/buckets/{{id}}")
+@resource.register(name="bucket", plural_path="/buckets", object_path="/buckets/{{id}}")
 class Bucket(resource.ShareableResource):
     schema = BucketSchema
     permissions = ("read", "write", "collection:create", "group:create")
@@ -32,15 +32,15 @@ def on_buckets_deleted(event):
     storage = event.request.registry.storage
     permission = event.request.registry.permission
 
-    for change in event.impacted_records:
+    for change in event.impacted_objects:
         bucket = change["old"]
         bucket_uri = instance_uri(event.request, "bucket", id=bucket["id"])
 
         # Delete everything with current parent id (eg. collections, groups)
         # and descending children objects (eg. records).
         for pattern in (bucket_uri, bucket_uri + "/*"):
-            storage.delete_all(parent_id=pattern, collection_id=None, with_deleted=False)
+            storage.delete_all(parent_id=pattern, resource_name=None, with_deleted=False)
             # Remove remaining tombstones too.
-            storage.purge_deleted(parent_id=pattern, collection_id=None)
+            storage.purge_deleted(parent_id=pattern, resource_name=None)
             # Remove related permissions
             permission.delete_object_permissions(pattern)

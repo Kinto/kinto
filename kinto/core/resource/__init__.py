@@ -1,6 +1,7 @@
 import logging
 import re
 import functools
+import warnings
 from uuid import uuid4
 
 import colander
@@ -95,11 +96,11 @@ def register_resource(resource_cls, settings=None, viewset=None, depth=1, **kwar
         service.viewset = viewset
         service.resource = resource_cls
         service.type = endpoint_type
-        # Attach collection and record paths.
-        service.collection_path = viewset.collection_path.format_map(path_values)
-        service.record_path = (
-            viewset.record_path.format_map(path_values)
-            if viewset.record_path is not None
+        # Attach plural and object paths.
+        service.plural_path = viewset.plural_path.format_map(path_values)
+        service.object_path = (
+            viewset.object_path.format_map(path_values)
+            if viewset.object_path is not None
             else None
         )
 
@@ -140,11 +141,11 @@ def register_resource(resource_cls, settings=None, viewset=None, depth=1, **kwar
             raise pyramid_exceptions.ConfigurationError(msg)
 
         # A service for the list.
-        service = register_service("collection", config.registry.settings)
+        service = register_service("plural", config.registry.settings)
         config.add_cornice_service(service)
-        # An optional one for record endpoint.
-        if getattr(viewset, "record_path") is not None:
-            service = register_service("record", config.registry.settings)
+        # An optional one for object endpoint.
+        if getattr(viewset, "object_path") is not None:
+            service = register_service("object", config.registry.settings)
             config.add_cornice_service(service)
 
     info = venusian.attach(resource_cls, callback, category="pyramid", depth=depth)
@@ -176,12 +177,12 @@ class UserResource:
     backends."""
 
     schema = ResourceSchema
-    """Schema to validate records."""
+    """Schema to validate objects."""
 
     def __init__(self, request, context=None):
         self.request = request
         self.context = context
-        self.record_id = self.request.matchdict.get("id")
+        self.object_id = self.request.matchdict.get("id")
         self.force_patch_update = False
 
         content_type = str(self.request.headers.get("Content-Type")).lower()
@@ -198,7 +199,7 @@ class UserResource:
             self.model = self.default_model(
                 storage=request.registry.storage,
                 id_generator=self.id_generator,
-                collection_id=classname(self),
+                resource_name=classname(self),
                 parent_id=parent_id,
                 auth=auth,
             )
@@ -216,7 +217,7 @@ class UserResource:
 
     @reify
     def timestamp(self):
-        """Return the current collection timestamp.
+        """Return the current resource timestamp.
 
         :rtype: int
         """
@@ -227,12 +228,12 @@ class UserResource:
             if not is_readonly:
                 raise e
             # If the instance is configured to be readonly, and if the
-            # collection is empty, the backend will try to bump the timestamp.
+            # resource is empty, the backend will try to bump the timestamp.
             # It fails if the configured db user has not write privileges.
             logger.exception(e)
             error_msg = (
-                "Collection timestamp cannot be written. "
-                "Records endpoint must be hit at least once from a "
+                "Resource timestamp cannot be written. "
+                "Plural endpoint must be hit at least once from a "
                 "writable instance."
             )
             raise http_error(HTTPServiceUnavailable(), errno=ERRORS.BACKEND, message=error_msg)
@@ -279,8 +280,8 @@ class UserResource:
     # End-points
     #
 
-    def collection_head(self):
-        """Model ``HEAD`` endpoint: empty reponse with a ``Total-Records`` header.
+    def plural_head(self):
+        """Model ``HEAD`` endpoint: empty reponse with a ``Total-Objects`` header.
 
         :raises: :exc:`~pyramid:pyramid.httpexceptions.HTTPNotModified` if
             ``If-None-Match`` header is provided and collection not
@@ -293,30 +294,30 @@ class UserResource:
         :raises: :exc:`~pyramid:pyramid.httpexceptions.HTTPBadRequest`
             if filters or sorting are invalid.
         """
-        return self._collection_get(True)
+        return self._plural_get(True)
 
-    def collection_get(self):
-        """Model ``GET`` endpoint: retrieve multiple records.
+    def plural_get(self):
+        """Model ``GET`` endpoint: retrieve multiple objects.
 
         :raises: :exc:`~pyramid:pyramid.httpexceptions.HTTPNotModified` if
-            ``If-None-Match`` header is provided and collection not
+            ``If-None-Match`` header is provided and the objects not
             modified in the interim.
 
         :raises:
             :exc:`~pyramid:pyramid.httpexceptions.HTTPPreconditionFailed` if
-            ``If-Match`` header is provided and collection modified
+            ``If-Match`` header is provided and the objects modified
             in the iterim.
         :raises: :exc:`~pyramid:pyramid.httpexceptions.HTTPBadRequest`
             if filters or sorting are invalid.
         """
-        return self._collection_get(False)
+        return self._plural_get(False)
 
-    def _collection_get(self, head_request):
+    def _plural_get(self, head_request):
         self._add_timestamp_header(self.request.response)
         self._add_cache_header(self.request.response)
         self._raise_304_if_not_modified()
-        # Collections are considered resources that always exist
-        self._raise_412_if_modified(record={})
+        # Plural endpoints are considered resources that always exist
+        self._raise_412_if_modified(obj={})
 
         headers = self.request.response.headers
 
@@ -330,21 +331,21 @@ class UserResource:
 
         pagination_rules, offset = self._extract_pagination_rules_from_token(limit, sorting)
 
-        # The reason why we call self.model.get_records() with `limit=limit + 1` is to avoid
-        # having to count the total number of records in the database just to be able
+        # The reason why we call self.model.get_objects() with `limit=limit + 1` is to avoid
+        # having to count the total number of objects in the database just to be able
         # to *decide* whether or not to have a `Next-Page` header.
-        # This way, we can quickly depend on the number of records returned and compare that
+        # This way, we can quickly depend on the number of objects returned and compare that
         # with what the client requested.
-        # For example, if there are 100 records in the database and the client used limit=100,
-        # it would, internally, ask for 101 records. So if you retrieved 100 records
+        # For example, if there are 100 objects in the database and the client used limit=100,
+        # it would, internally, ask for 101 objects. So if you retrieved 100 objects
         # it means we got less than we asked for and thus there is not another page.
-        # Equally, if there are 200 records in the database and the client used
-        # limit=100 it would, internally, ask for 101 records and actually get that. Then,
+        # Equally, if there are 200 objects in the database and the client used
+        # limit=100 it would, internally, ask for 101 objects and actually get that. Then,
         # you know there is another page.
 
-        # get_records returns an integer if you pass `count_only=True`
+        # get_objects() returns an integer if you pass `count_only=True`
         # and a list if you pass `count_only=False`
-        records = self.model.get_records(
+        objects = self.model.get_objects(
             filters=filters,
             sorting=sorting,
             limit=limit + 1,  # See bigger explanation above.
@@ -354,187 +355,187 @@ class UserResource:
         )
 
         if head_request:
-            headers["Total-Records"] = str(records)
+            headers["Total-Objects"] = headers["Total-Records"] = str(objects)
             return self.postprocess([])
 
-        offset = offset + len(records)
+        offset = offset + len(objects)
 
-        if limit and len(records) == limit + 1:
-            lastrecord = records[-2]
-            next_page = self._next_page_url(sorting, limit, lastrecord, offset)
+        if limit and len(objects) == limit + 1:
+            lastobject = objects[-2]
+            next_page = self._next_page_url(sorting, limit, lastobject, offset)
             headers["Next-Page"] = next_page
 
         if partial_fields:
-            records = [dict_subset(record, partial_fields) for record in records]
+            objects = [dict_subset(obj, partial_fields) for obj in objects]
 
         # See bigger explanation above about the use of limits. The need for slicing
-        # here is because we might have asked for 1 more record just to see if there's
+        # here is because we might have asked for 1 more object just to see if there's
         # a next page. But we have to honor the limit in our returned response.
-        return self.postprocess(records[:limit])
+        return self.postprocess(objects[:limit])
 
-    def collection_post(self):
-        """Model ``POST`` endpoint: create a record.
+    def plural_post(self):
+        """Model ``POST`` endpoint: create an object.
 
-        If the new record id conflicts against an existing one, the
-        posted record is ignored, and the existing record is returned, with
+        If the new object id conflicts against an existing one, the
+        posted object is ignored, and the existing object is returned, with
         a ``200`` status.
 
         :raises:
             :exc:`~pyramid:pyramid.httpexceptions.HTTPPreconditionFailed` if
-            ``If-Match`` header is provided and collection modified
+            ``If-Match`` header is provided and the objects modified
             in the iterim.
 
         .. seealso::
 
             Add custom behaviour by overriding
-            :meth:`kinto.core.resource.UserResource.process_record`
+            :meth:`kinto.core.resource.UserResource.process_object`
         """
-        new_record = self.request.validated["body"].get("data", {})
+        new_object = self.request.validated["body"].get("data", {})
         try:
             # Since ``id`` does not belong to schema, it is not in validated
             # data. Must look up in body.
             id_field = self.model.id_field
-            new_record[id_field] = _id = self.request.json["data"][id_field]
+            new_object[id_field] = _id = self.request.json["data"][id_field]
             self._raise_400_if_invalid_id(_id)
-            existing = self._get_record_or_404(_id)
+            existing = self._get_object_or_404(_id)
         except (HTTPNotFound, KeyError, ValueError):
             existing = None
 
-        self._raise_412_if_modified(record=existing)
+        self._raise_412_if_modified(obj=existing)
 
         if existing:
-            record = existing
+            obj = existing
             action = ACTIONS.READ
         else:
-            new_record = self.process_record(new_record)
-            record = self.model.create_record(new_record)
+            new_object = self.process_object(new_object)
+            obj = self.model.create_object(new_object)
             self.request.response.status_code = 201
             action = ACTIONS.CREATE
 
-        timestamp = record[self.model.modified_field]
+        timestamp = obj[self.model.modified_field]
         self._add_timestamp_header(self.request.response, timestamp=timestamp)
 
-        return self.postprocess(record, action=action)
+        return self.postprocess(obj, action=action)
 
-    def collection_delete(self):
-        """Model ``DELETE`` endpoint: delete multiple records.
+    def plural_delete(self):
+        """Model ``DELETE`` endpoint: delete multiple objects.
 
         :raises:
             :exc:`~pyramid:pyramid.httpexceptions.HTTPPreconditionFailed` if
-            ``If-Match`` header is provided and collection modified
+            ``If-Match`` header is provided and the objects modified
             in the iterim.
 
         :raises: :exc:`~pyramid:pyramid.httpexceptions.HTTPBadRequest`
             if filters are invalid.
         """
-        # Collections are considered resources that always exist
-        self._raise_412_if_modified(record={})
+        # Plural endpoint are considered resources that always exist
+        self._raise_412_if_modified(obj={})
 
         filters = self._extract_filters()
         limit = self._extract_limit()
         sorting = self._extract_sorting(limit)
         pagination_rules, offset = self._extract_pagination_rules_from_token(limit, sorting)
 
-        records = self.model.get_records(
+        objects = self.model.get_objects(
             filters=filters, sorting=sorting, limit=limit + 1, pagination_rules=pagination_rules
         )
-        deleted = self.model.delete_records(
+        deleted = self.model.delete_objects(
             filters=filters, sorting=sorting, limit=limit, pagination_rules=pagination_rules
         )
         if deleted:
-            lastrecord = deleted[-1]
+            lastobject = deleted[-1]
             # Get timestamp of the last deleted field
-            timestamp = lastrecord[self.model.modified_field]
+            timestamp = lastobject[self.model.modified_field]
             self._add_timestamp_header(self.request.response, timestamp=timestamp)
 
-            # Add pagination header, but only if there are more records beyond the limit.
-            if limit and len(records) == limit + 1:
-                next_page = self._next_page_url(sorting, limit, lastrecord, offset)
+            # Add pagination header, but only if there are more objects beyond the limit.
+            if limit and len(objects) == limit + 1:
+                next_page = self._next_page_url(sorting, limit, lastobject, offset)
                 self.request.response.headers["Next-Page"] = next_page
         else:
             self._add_timestamp_header(self.request.response)
 
         action = len(deleted) > 0 and ACTIONS.DELETE or ACTIONS.READ
-        return self.postprocess(deleted, action=action, old=records[:limit])
+        return self.postprocess(deleted, action=action, old=objects[:limit])
 
     def get(self):
-        """Record ``GET`` endpoint: retrieve a record.
+        """Object ``GET`` endpoint: retrieve an object.
 
         :raises: :exc:`~pyramid:pyramid.httpexceptions.HTTPNotFound` if
-            the record is not found.
+            the object is not found.
 
         :raises: :exc:`~pyramid:pyramid.httpexceptions.HTTPNotModified` if
-            ``If-None-Match`` header is provided and record not
+            ``If-None-Match`` header is provided and object not
             modified in the interim.
 
         :raises:
             :exc:`~pyramid:pyramid.httpexceptions.HTTPPreconditionFailed` if
-            ``If-Match`` header is provided and record modified
+            ``If-Match`` header is provided and object modified
             in the iterim.
         """
-        self._raise_400_if_invalid_id(self.record_id)
-        record = self._get_record_or_404(self.record_id)
-        timestamp = record[self.model.modified_field]
+        self._raise_400_if_invalid_id(self.object_id)
+        obj = self._get_object_or_404(self.object_id)
+        timestamp = obj[self.model.modified_field]
         self._add_timestamp_header(self.request.response, timestamp=timestamp)
         self._add_cache_header(self.request.response)
-        self._raise_304_if_not_modified(record)
-        self._raise_412_if_modified(record)
+        self._raise_304_if_not_modified(obj)
+        self._raise_412_if_modified(obj)
 
         partial_fields = self._extract_partial_fields()
         if partial_fields:
-            record = dict_subset(record, partial_fields)
+            obj = dict_subset(obj, partial_fields)
 
-        return self.postprocess(record)
+        return self.postprocess(obj)
 
     def put(self):
-        """Record ``PUT`` endpoint: create or replace the provided record and
+        """Object ``PUT`` endpoint: create or replace the provided object and
         return it.
 
         :raises:
             :exc:`~pyramid:pyramid.httpexceptions.HTTPPreconditionFailed` if
-            ``If-Match`` header is provided and record modified
+            ``If-Match`` header is provided and object modified
             in the iterim.
 
         .. note::
 
             If ``If-None-Match: *`` request header is provided, the
-            ``PUT`` will succeed only if no record exists with this id.
+            ``PUT`` will succeed only if no object exists with this id.
 
         .. seealso::
 
             Add custom behaviour by overriding
-            :meth:`kinto.core.resource.UserResource.process_record`.
+            :meth:`kinto.core.resource.UserResource.process_object`.
         """
-        self._raise_400_if_invalid_id(self.record_id)
+        self._raise_400_if_invalid_id(self.object_id)
         try:
-            existing = self._get_record_or_404(self.record_id)
+            existing = self._get_object_or_404(self.object_id)
         except HTTPNotFound:
             existing = None
 
-        self._raise_412_if_modified(record=existing)
+        self._raise_412_if_modified(obj=existing)
 
-        # If `data` is not provided, use existing record (or empty if creation)
-        post_record = self.request.validated["body"].get("data", existing) or {}
+        # If `data` is not provided, use existing object (or empty if creation)
+        post_object = self.request.validated["body"].get("data", existing) or {}
 
-        record_id = post_record.setdefault(self.model.id_field, self.record_id)
-        self._raise_400_if_id_mismatch(record_id, self.record_id)
+        object_id = post_object.setdefault(self.model.id_field, self.object_id)
+        self._raise_400_if_id_mismatch(object_id, self.object_id)
 
-        new_record = self.process_record(post_record, old=existing)
+        new_object = self.process_object(post_object, old=existing)
 
         if existing:
-            record = self.model.update_record(new_record)
+            obj = self.model.update_object(new_object)
         else:
-            record = self.model.create_record(new_record)
+            obj = self.model.create_object(new_object)
             self.request.response.status_code = 201
 
-        timestamp = record[self.model.modified_field]
+        timestamp = obj[self.model.modified_field]
         self._add_timestamp_header(self.request.response, timestamp=timestamp)
 
         action = existing and ACTIONS.UPDATE or ACTIONS.CREATE
-        return self.postprocess(record, action=action, old=existing)
+        return self.postprocess(obj, action=action, old=existing)
 
     def patch(self):
-        """Record ``PATCH`` endpoint: modify a record and return its
+        """Object ``PATCH`` endpoint: modify an object and return its
         new version.
 
         If a request header ``Response-Behavior`` is set to ``light``,
@@ -543,20 +544,20 @@ class UserResource:
         the one provided are returned.
 
         :raises: :exc:`~pyramid:pyramid.httpexceptions.HTTPNotFound` if
-            the record is not found.
+            the object is not found.
 
         :raises:
             :exc:`~pyramid:pyramid.httpexceptions.HTTPPreconditionFailed` if
-            ``If-Match`` header is provided and record modified
+            ``If-Match`` header is provided and object modified
             in the iterim.
 
         .. seealso::
             Add custom behaviour by overriding
             :meth:`kinto.core.resource.UserResource.apply_changes` or
-            :meth:`kinto.core.resource.UserResource.process_record`.
+            :meth:`kinto.core.resource.UserResource.process_object`.
         """
-        self._raise_400_if_invalid_id(self.record_id)
-        existing = self._get_record_or_404(self.record_id)
+        self._raise_400_if_invalid_id(self.object_id)
+        existing = self._get_object_or_404(self.object_id)
         self._raise_412_if_modified(existing)
 
         # patch is specified as a list of of operations (RFC 6902)
@@ -576,78 +577,78 @@ class UserResource:
             requested_changes = body.get("data", {})
 
         updated, applied_changes = self.apply_changes(
-            existing, requested_changes=requested_changes
+            obj=existing, requested_changes=requested_changes
         )
 
-        record_id = updated.setdefault(self.model.id_field, self.record_id)
-        self._raise_400_if_id_mismatch(record_id, self.record_id)
+        object_id = updated.setdefault(self.model.id_field, self.object_id)
+        self._raise_400_if_id_mismatch(object_id, self.object_id)
 
-        new_record = self.process_record(updated, old=existing)
+        new_object = self.process_object(updated, old=existing)
 
         changed_fields = [
-            k for k in applied_changes.keys() if existing.get(k) != new_record.get(k)
+            k for k in applied_changes.keys() if existing.get(k) != new_object.get(k)
         ]
 
         # Save in storage if necessary.
         if changed_fields or self.force_patch_update:
-            new_record = self.model.update_record(new_record)
+            new_object = self.model.update_object(new_object)
 
         else:
             # Behave as if storage would have added `id` and `last_modified`.
             for extra_field in [self.model.modified_field, self.model.id_field]:
-                new_record[extra_field] = existing[extra_field]
+                new_object[extra_field] = existing[extra_field]
 
         # Adjust response according to ``Response-Behavior`` header
         body_behavior = self.request.validated["header"].get("Response-Behavior", "full")
 
         if body_behavior.lower() == "light":
             # Only fields that were changed.
-            data = {k: new_record[k] for k in changed_fields}
+            data = {k: new_object[k] for k in changed_fields}
 
         elif body_behavior.lower() == "diff":
             # Only fields that are different from those provided.
             data = {
-                k: new_record[k]
+                k: new_object[k]
                 for k in changed_fields
-                if applied_changes.get(k) != new_record.get(k)
+                if applied_changes.get(k) != new_object.get(k)
             }
         else:
-            data = new_record
+            data = new_object
 
-        timestamp = new_record.get(self.model.modified_field, existing[self.model.modified_field])
+        timestamp = new_object.get(self.model.modified_field, existing[self.model.modified_field])
         self._add_timestamp_header(self.request.response, timestamp=timestamp)
 
         return self.postprocess(data, action=ACTIONS.UPDATE, old=existing)
 
     def delete(self):
-        """Record ``DELETE`` endpoint: delete a record and return it.
+        """Object ``DELETE`` endpoint: delete an object and return it.
 
         :raises: :exc:`~pyramid:pyramid.httpexceptions.HTTPNotFound` if
-            the record is not found.
+            the object is not found.
 
         :raises:
             :exc:`~pyramid:pyramid.httpexceptions.HTTPPreconditionFailed` if
-            ``If-Match`` header is provided and record modified
+            ``If-Match`` header is provided and object modified
             in the iterim.
         """
-        self._raise_400_if_invalid_id(self.record_id)
-        record = self._get_record_or_404(self.record_id)
-        self._raise_412_if_modified(record)
+        self._raise_400_if_invalid_id(self.object_id)
+        obj = self._get_object_or_404(self.object_id)
+        self._raise_412_if_modified(obj)
 
         # Retreive the last_modified information from a querystring if present.
         last_modified = self.request.validated["querystring"].get("last_modified")
 
-        # If less or equal than current record. Ignore it.
-        if last_modified and last_modified <= record[self.model.modified_field]:
+        # If less or equal than current object. Ignore it.
+        if last_modified and last_modified <= obj[self.model.modified_field]:
             last_modified = None
 
         try:
-            deleted = self.model.delete_record(record, last_modified=last_modified)
-        except storage_exceptions.RecordNotFoundError:
+            deleted = self.model.delete_object(obj, last_modified=last_modified)
+        except storage_exceptions.ObjectNotFoundError:
             # Delete might fail if the object was deleted since we
             # fetched it from the storage (ref Kinto/kinto#1407). This
             # is one of a larger class of issues where another request
-            # could modify the record between our fetch and our
+            # could modify the object between our fetch and our
             # delete, which could e.g. invalidate our precondition
             # checking. Fixing this correctly is a larger
             # problem. However, let's punt on fixing it correctly and
@@ -657,26 +658,26 @@ class UserResource:
             # would have done if the other thread's delete had
             # happened a little earlier. (The client doesn't need to
             # know that we did a bunch of work fetching the existing
-            # record for nothing.)
-            raise self._404_for_record(self.record_id)
+            # object for nothing.)
+            raise self._404_for_object(self.object_id)
 
         timestamp = deleted[self.model.modified_field]
         self._add_timestamp_header(self.request.response, timestamp=timestamp)
 
-        return self.postprocess(deleted, action=ACTIONS.DELETE, old=record)
+        return self.postprocess(deleted, action=ACTIONS.DELETE, old=obj)
 
     #
     # Data processing
     #
 
-    def process_record(self, new, old=None):
-        """Hook for processing records before they reach storage, to introduce
+    def process_object(self, new, old=None):
+        """Hook for processing objects before they reach storage, to introduce
         specific logics on fields for example.
 
         .. code-block:: python
 
-            def process_record(self, new, old=None):
-                new = super().process_record(new, old)
+            def process_object(self, new, old=None):
+                new = super().process_object(new, old)
                 version = old['version'] if old else 0
                 new['version'] = version + 1
                 return new
@@ -687,17 +688,17 @@ class UserResource:
 
             from kinto.core.errors import raise_invalid
 
-            def process_record(self, new, old=None):
-                new = super().process_record(new, old)
+            def process_object(self, new, old=None):
+                new = super().process_object(new, old)
                 if new['browser'] not in request.headers['User-Agent']:
                     raise_invalid(self.request, name='browser', error='Wrong')
                 return new
 
-        :param dict new: the validated record to be created or updated.
-        :param dict old: the old record to be updated,
+        :param dict new: the validated object to be created or updated.
+        :param dict old: the old object to be updated,
             ``None`` for creation endpoints.
 
-        :returns: the processed record.
+        :returns: the processed object.
         :rtype: dict
         """
         modified_field = self.model.modified_field
@@ -716,32 +717,32 @@ class UserResource:
 
         return new
 
-    def apply_changes(self, record, requested_changes):
-        """Merge `changes` into `record` fields.
+    def apply_changes(self, obj, requested_changes):
+        """Merge `changes` into `object` fields.
 
         .. note::
 
             This is used in the context of PATCH only.
 
-        Override this to control field changes at record level, for example:
+        Override this to control field changes at object level, for example:
 
         .. code-block:: python
 
-            def apply_changes(self, record, requested_changes):
+            def apply_changes(self, obj, requested_changes):
                 # Ignore value change if inferior
-                if record['position'] > changes.get('position', -1):
+                if object['position'] > changes.get('position', -1):
                     changes.pop('position', None)
-                return super().apply_changes(record, requested_changes)
+                return super().apply_changes(obj, requested_changes)
 
         :raises: :exc:`~pyramid:pyramid.httpexceptions.HTTPBadRequest`
             if result does not comply with resource schema.
 
-        :returns: the new record with `changes` applied.
+        :returns: the new object with `changes` applied.
         :rtype: tuple
         """
         if self._is_json_patch:
             try:
-                applied_changes = apply_json_patch(record, requested_changes)["data"]
+                applied_changes = apply_json_patch(obj, requested_changes)["data"]
                 updated = {**applied_changes}
             except ValueError as e:
                 error_details = {
@@ -752,7 +753,7 @@ class UserResource:
 
         else:
             applied_changes = {**requested_changes}
-            updated = {**record}
+            updated = {**obj}
 
             # recursive patch and remove field if null attribute is passed (RFC 7396)
             if self._is_merge_patch:
@@ -761,7 +762,7 @@ class UserResource:
                 updated.update(**applied_changes)
 
         for field, value in applied_changes.items():
-            has_changed = record.get(field, value) != value
+            has_changed = obj.get(field, value) != value
             if self.schema.is_readonly(field) and has_changed:
                 error_details = {"name": field, "description": f"Cannot modify {field}"}
                 raise_invalid(self.request, **error_details)
@@ -770,7 +771,7 @@ class UserResource:
             validated = self.schema().deserialize(updated)
         except colander.Invalid as e:
             # Transform the errors we got from colander into Cornice errors.
-            # We could not rely on Service schema because the record should be
+            # We could not rely on Service schema because the object should be
             # validated only once the changes are applied
             for field, error in e.asdict().items():  # pragma: no branch
                 raise_invalid(self.request, name=field, description=error)
@@ -796,24 +797,24 @@ class UserResource:
     # Internals
     #
 
-    def _404_for_record(self, record_id):
-        details = {"id": record_id, "resource_name": self.request.current_resource_name}
+    def _404_for_object(self, object_id):
+        details = {"id": object_id, "resource_name": self.request.current_resource_name}
         return http_error(HTTPNotFound(), errno=ERRORS.INVALID_RESOURCE_ID, details=details)
 
-    def _get_record_or_404(self, record_id):
-        """Retrieve record from storage and raise ``404 Not found`` if missing.
+    def _get_object_or_404(self, object_id):
+        """Retrieve object from storage and raise ``404 Not found`` if missing.
 
         :raises: :exc:`~pyramid:pyramid.httpexceptions.HTTPNotFound` if
-            the record is not found.
+            the object is not found.
         """
-        if self.context and self.context.current_record:
+        if self.context and self.context.current_object:
             # Set during authorization. Save a storage hit.
-            return self.context.current_record
+            return self.context.current_object
 
         try:
-            return self.model.get_record(record_id)
-        except storage_exceptions.RecordNotFoundError:
-            raise self._404_for_record(record_id)
+            return self.model.get_object(object_id)
+        except storage_exceptions.ObjectNotFoundError:
+            raise self._404_for_object(object_id)
 
     def _add_timestamp_header(self, response, timestamp=None):
         """Add current timestamp in response headers, when request comes in.
@@ -842,10 +843,10 @@ class UserResource:
         """
         resource_name = self.context.resource_name if self.context else ""
         setting_key = f"{resource_name}_cache_expires_seconds"
-        collection_expires = self.request.registry.settings.get(setting_key)
+        cache_expires = self.request.registry.settings.get(setting_key)
         is_anonymous = self.request.prefixed_userid is None
-        if collection_expires and is_anonymous:
-            response.cache_expires(seconds=int(collection_expires))
+        if cache_expires and is_anonymous:
+            response.cache_expires(seconds=int(cache_expires))
         else:
             # Since `Expires` response header provides an HTTP data with a
             # resolution in seconds, do not use Pyramid `cache_expires()` in
@@ -853,18 +854,18 @@ class UserResource:
             response.cache_control.no_cache = True
             response.cache_control.no_store = True
 
-    def _raise_400_if_invalid_id(self, record_id):
-        """Raise 400 if specified record id does not match the format excepted
+    def _raise_400_if_invalid_id(self, object_id):
+        """Raise 400 if specified object id does not match the format excepted
         by storage backends.
 
         :raises: :class:`pyramid.httpexceptions.HTTPBadRequest`
         """
-        is_string = isinstance(record_id, str)
-        if not is_string or not self.model.id_generator.match(record_id):
-            error_details = {"location": "path", "description": "Invalid record id"}
+        is_string = isinstance(object_id, str)
+        if not is_string or not self.model.id_generator.match(object_id):
+            error_details = {"location": "path", "description": "Invalid object id"}
             raise_invalid(self.request, **error_details)
 
-    def _raise_304_if_not_modified(self, record=None):
+    def _raise_304_if_not_modified(self, obj=None):
         """Raise 304 if current timestamp is inferior to the one specified
         in headers.
 
@@ -878,8 +879,8 @@ class UserResource:
         if if_none_match == "*":
             return
 
-        if record:
-            current_timestamp = record[self.model.modified_field]
+        if obj:
+            current_timestamp = obj[self.model.modified_field]
         else:
             current_timestamp = self.model.timestamp()
 
@@ -888,7 +889,7 @@ class UserResource:
             self._add_timestamp_header(response, timestamp=current_timestamp)
             raise response
 
-    def _raise_412_if_modified(self, record=None):
+    def _raise_412_if_modified(self, obj=None):
         """Raise 412 if current timestamp is superior to the one
         specified in headers.
 
@@ -898,22 +899,22 @@ class UserResource:
         if_match = self.request.validated["header"].get("If-Match")
         if_none_match = self.request.validated["header"].get("If-None-Match")
 
-        # Check if record exists
-        record_exists = record is not None
+        # Check if object exists
+        object_exists = obj is not None
 
         # If no precondition headers, just ignore
         if not if_match and not if_none_match:
             return
 
-        # If-None-Match: * should always raise if a record exists
-        if if_none_match == "*" and record_exists:
+        # If-None-Match: * should always raise if an object exists
+        if if_none_match == "*" and object_exists:
             modified_since = -1  # Always raise.
 
-        # If-Match should always raise if a record doesn't exist
-        elif if_match and not record_exists:
+        # If-Match should always raise if an object doesn't exist
+        elif if_match and not object_exists:
             modified_since = -1
 
-        # If-Match with ETag value on existing records should compare ETag
+        # If-Match with ETag value on existing objects should compare ETag
         elif if_match and if_match != "*":
             modified_since = if_match
 
@@ -921,14 +922,14 @@ class UserResource:
         else:
             return
 
-        if record:
-            current_timestamp = record[self.model.modified_field]
+        if obj:
+            current_timestamp = obj[self.model.modified_field]
         else:
             current_timestamp = self.model.timestamp()
 
         if current_timestamp != modified_since:
             error_msg = "Resource was modified meanwhile"
-            details = {"existing": record} if record else {}
+            details = {"existing": obj} if obj else {}
             response = http_error(
                 HTTPPreconditionFailed(),
                 errno=ERRORS.MODIFIED_MEANWHILE,
@@ -938,14 +939,14 @@ class UserResource:
             self._add_timestamp_header(response, timestamp=current_timestamp)
             raise response
 
-    def _raise_400_if_id_mismatch(self, new_id, record_id):
+    def _raise_400_if_id_mismatch(self, new_id, object_id):
         """Raise 400 if the `new_id`, within the request body, does not match
-        the `record_id`, obtained from request path.
+        the `object_id`, obtained from request path.
 
         :raises: :class:`pyramid.httpexceptions.HTTPBadRequest`
         """
-        if new_id != record_id:
-            error_msg = "Record id does not match existing record"
+        if new_id != object_id:
+            error_msg = "Object id does not match existing object"
             error_details = {"name": self.model.id_field, "description": error_msg}
             raise_invalid(self.request, **error_details)
 
@@ -1090,9 +1091,9 @@ class UserResource:
             sorting.append(Sort(self.model.modified_field, -1))
         return sorting
 
-    def _build_pagination_rules(self, sorting, last_record, rules=None):
+    def _build_pagination_rules(self, sorting, last_object, rules=None):
         """Return the list of rules for a given sorting attribute and
-        last_record.
+        last_object.
 
         """
         if rules is None:
@@ -1102,21 +1103,21 @@ class UserResource:
         next_sorting = sorting[:-1]
 
         for field, _ in next_sorting:
-            rule.append(Filter(field, last_record.get(field, MISSING), COMPARISON.EQ))
+            rule.append(Filter(field, last_object.get(field, MISSING), COMPARISON.EQ))
 
         field, direction = sorting[-1]
 
         if direction == -1:
-            rule.append(Filter(field, last_record.get(field, MISSING), COMPARISON.LT))
+            rule.append(Filter(field, last_object.get(field, MISSING), COMPARISON.LT))
         else:
-            rule.append(Filter(field, last_record.get(field, MISSING), COMPARISON.GT))
+            rule.append(Filter(field, last_object.get(field, MISSING), COMPARISON.GT))
 
         rules.append(rule)
 
         if len(next_sorting) == 0:
             return rules
 
-        return self._build_pagination_rules(next_sorting, last_record, rules)
+        return self._build_pagination_rules(next_sorting, last_object, rules)
 
     def _extract_pagination_rules_from_token(self, limit, sorting):
         """Get pagination params."""
@@ -1129,7 +1130,7 @@ class UserResource:
                 tokeninfo = json.loads(decode64(token))
                 if not isinstance(tokeninfo, dict):
                     raise ValueError()
-                last_record = tokeninfo["last_record"]
+                last_object = tokeninfo["last_object"]
                 offset = tokeninfo["offset"]
                 nonce = tokeninfo["nonce"]
             except (ValueError, KeyError, TypeError):
@@ -1147,13 +1148,13 @@ class UserResource:
                 error_details = {"location": "querystring", "description": error_msg}
                 raise_invalid(self.request, **error_details)
 
-            filters = self._build_pagination_rules(sorting, last_record)
+            filters = self._build_pagination_rules(sorting, last_object)
 
         return filters, offset
 
-    def _next_page_url(self, sorting, limit, last_record, offset):
+    def _next_page_url(self, sorting, limit, last_object, offset):
         """Build the Next-Page header from where we stopped."""
-        token = self._build_pagination_token(sorting, last_record, offset)
+        token = self._build_pagination_token(sorting, last_object, offset)
 
         params = {**request_GET(self.request), "_limit": limit, "_token": token}
 
@@ -1163,11 +1164,11 @@ class UserResource:
         )
         return next_page_url
 
-    def _build_pagination_token(self, sorting, last_record, offset):
+    def _build_pagination_token(self, sorting, last_object, offset):
         """Build a pagination token.
 
         It is a base64 JSON object with the sorting fields values of
-        the last_record.
+        the last_object.
 
         """
         nonce = f"pagination-token-{uuid4()}"
@@ -1176,18 +1177,44 @@ class UserResource:
             validity = registry.settings["pagination_token_validity_seconds"]
             registry.cache.set(nonce, "", validity)
 
-        token = {"last_record": {}, "offset": offset, "nonce": nonce}
+        token = {"last_object": {}, "offset": offset, "nonce": nonce}
 
         for field, _ in sorting:
-            last_value = find_nested_value(last_record, field, MISSING)
+            last_value = find_nested_value(last_object, field, MISSING)
             if last_value is not MISSING:
-                token["last_record"][field] = last_value
+                token["last_object"][field] = last_value
 
         return encode64(json.dumps(token))
 
+    @property
+    def record_id(self):
+        message = "`record_id` is deprecated, use `object_id` instead."
+        warnings.warn(message, DeprecationWarning)
+        return self.object_id
+
+    def process_record(self, *args, **kwargs):
+        message = "`process_record()` is deprecated, use `process_object()` instead."
+        warnings.warn(message, DeprecationWarning)
+        return self.process_object(*args, **kwargs)
+
+    def collection_get(self, *args, **kwargs):
+        message = "`collection_get()` is deprecated, use `plural_get()` instead."
+        warnings.warn(message, DeprecationWarning)
+        return self.plural_get(*args, **kwargs)
+
+    def collection_post(self, *args, **kwargs):
+        message = "`collection_post()` is deprecated, use `plural_post()` instead."
+        warnings.warn(message, DeprecationWarning)
+        return self.plural_post(*args, **kwargs)
+
+    def collection_delete(self, *args, **kwargs):
+        message = "`collection_delete()` is deprecated, use `plural_delete()` instead."
+        warnings.warn(message, DeprecationWarning)
+        return self.plural_delete(*args, **kwargs)
+
 
 class ShareableResource(UserResource):
-    """Shareable resources allow to set permissions on records, in order to
+    """Shareable resources allow to set permissions on objects, in order to
     share their access or protect their modification.
     """
 
@@ -1218,7 +1245,7 @@ class ShareableResource(UserResource):
             )
 
     def get_parent_id(self, request):
-        """Unlike :class:`kinto.core.resource.UserResource`, records are not
+        """Unlike :class:`kinto.core.resource.UserResource`, objects are not
         isolated by user.
 
         See https://github.com/mozilla-services/cliquet/issues/549
@@ -1229,7 +1256,7 @@ class ShareableResource(UserResource):
 
     def _extract_filters(self):
         """Override default filters extraction from QueryString to allow
-        partial collection of records.
+        partial sets of objects.
 
         XXX: find more elegant approach to add custom filters.
         """
@@ -1242,20 +1269,20 @@ class ShareableResource(UserResource):
 
         return filters
 
-    def _raise_412_if_modified(self, record=None):
-        """Do not provide the permissions among the record fields.
+    def _raise_412_if_modified(self, obj=None):
+        """Do not provide the permissions among the object fields.
         Ref: https://github.com/Kinto/kinto/issues/224
         """
-        if record:
-            record = {**record}
-            record.pop(self.model.permissions_field, None)
-        return super()._raise_412_if_modified(record)
+        if obj:
+            obj = {**obj}
+            obj.pop(self.model.permissions_field, None)
+        return super()._raise_412_if_modified(obj)
 
-    def process_record(self, new, old=None):
+    def process_object(self, new, old=None):
         """Read permissions from request body, and in the case of ``PUT`` every
         existing ACE is removed (using empty list).
         """
-        new = super().process_record(new, old)
+        new = super().process_object(new, old)
 
         # patch is specified as a list of of operations (RFC 6902)
 
@@ -1295,7 +1322,7 @@ class ShareableResource(UserResource):
         body = {}
 
         if not isinstance(result, list):
-            # record endpoint.
+            # object endpoint.
             perms = result.pop(self.model.permissions_field, None)
             if perms is not None:
                 body["permissions"] = {k: list(p) for k, p in perms.items()}

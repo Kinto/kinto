@@ -3,44 +3,44 @@ from uuid import uuid4
 
 
 class Generator:
-    """Base generator for records ids.
+    """Base generator for objects ids.
 
-    Id generators are used by storage backend during record creation, and at
-    resource level to validate record id in requests paths.
+    Id generators are used by storage backend during object creation, and at
+    resource level to validate object id in requests paths.
     """
 
     regexp = r"^[a-zA-Z0-9][a-zA-Z0-9_-]*$"
-    """Default record id pattern. Can be changed to comply with custom ids."""
+    """Default object id pattern. Can be changed to comply with custom ids."""
 
     def __init__(self, config=None):
         self.config = config
         self._regexp = None
 
         if not self.match(self()):
-            error_msg = "Generated record id does comply with regexp."
+            error_msg = "Generated object id does comply with regexp."
             raise ValueError(error_msg)
 
-    def match(self, record_id):
-        """Validate that record ids match the generator. This is used mainly
-        when a record id is picked arbitrarily (e.g with ``PUT`` requests).
+    def match(self, object_id):
+        """Validate that object ids match the generator. This is used mainly
+        when an object id is picked arbitrarily (e.g with ``PUT`` requests).
 
-        :returns: `True` if the specified record id matches expected format.
+        :returns: `True` if the specified object id matches expected format.
         :rtype: bool
         """
         if self._regexp is None:
             self._regexp = re.compile(self.regexp)
-        return self._regexp.match(record_id)
+        return self._regexp.match(object_id)
 
     def __call__(self):
         """
-        :returns: A record id, most likely unique.
+        :returns: A object id, most likely unique.
         :rtype: str
         """
         raise NotImplementedError
 
 
 class UUID4(Generator):
-    """UUID4 record id generator.
+    """UUID4 object id generator.
 
     UUID block are separated with ``-``.
     (example: ``'472be9ec-26fe-461b-8282-9c4e4b207ab3'``)

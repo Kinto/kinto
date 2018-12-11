@@ -5,6 +5,7 @@ from pyramid import httpexceptions
 
 from kinto.core.resource import UserResource, ShareableResource
 from kinto.core.storage import exceptions as storage_exceptions
+from kinto.core.testing import DummyRequest
 
 from . import BaseTest
 
@@ -20,7 +21,7 @@ class ResourceTest(BaseTest):
 
         with mock.patch.object(
             request.registry.storage,
-            "collection_timestamp",
+            "resource_timestamp",
             side_effect=storage_exceptions.BackendError,
         ):
             with self.assertRaises(storage_exceptions.BackendError):
@@ -34,12 +35,56 @@ class ResourceTest(BaseTest):
         request.registry.settings = {"readonly": "true"}
         with mock.patch.object(
             request.registry.storage,
-            "collection_timestamp",
+            "resource_timestamp",
             side_effect=storage_exceptions.BackendError,
         ):
             with self.assertRaises(excepted_exc) as cm:
                 self.resource_class(request)
                 self.assertIn("writable", cm.exception.message)
+
+
+class DeprecatedMethodsTest(unittest.TestCase):
+    def setUp(self):
+        super().setUp()
+        patch = mock.patch("warnings.warn")
+        self.mocked_warnings = patch.start()
+        self.addCleanup(patch.stop)
+
+        req = DummyRequest()
+        req.validated = {"body": {}, "header": {}, "querystring": {}}
+        req.registry.storage.get_all.return_value = ([], 0)
+
+        self.resource = UserResource(request=req)
+
+    def test_record_id(self):
+        self.resource.record_id
+
+        message = "`record_id` is deprecated, use `object_id` instead."
+        self.mocked_warnings.assert_called_with(message, DeprecationWarning)
+
+    def test_process_record(self, *args, **kwargs):
+        self.resource.process_record(new={}, old=None)
+
+        message = "`process_record()` is deprecated, use `process_object()` instead."
+        self.mocked_warnings.assert_called_with(message, DeprecationWarning)
+
+    def test_collection_get(self, *args, **kwargs):
+        self.resource.collection_get()
+
+        message = "`collection_get()` is deprecated, use `plural_get()` instead."
+        self.mocked_warnings.assert_called_with(message, DeprecationWarning)
+
+    def test_collection_post(self, *args, **kwargs):
+        self.resource.collection_post()
+
+        message = "`collection_post()` is deprecated, use `plural_post()` instead."
+        self.mocked_warnings.assert_called_with(message, DeprecationWarning)
+
+    def test_collection_delete(self, *args, **kwargs):
+        self.resource.collection_delete()
+
+        message = "`collection_delete()` is deprecated, use `plural_delete()` instead."
+        self.mocked_warnings.assert_called_with(message, DeprecationWarning)
 
 
 class ShareableResourceTest(BaseTest):

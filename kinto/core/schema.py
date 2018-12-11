@@ -32,7 +32,7 @@ class TimeStamp(colander.SchemaNode):
     """Set to current server timestamp (*milliseconds*) if not provided."""
 
     missing = None
-    """Default field value if not provided in record."""
+    """Default field value if not provided in object."""
 
     def deserialize(self, cstruct=colander.null):
         if cstruct is colander.null and self.auto_now:

@@ -33,8 +33,8 @@ Full example
     class Bookmark(resource.UserResource):
         schema = BookmarkSchema
 
-        def process_record(self, new, old=None):
-            new = super().process_record(new, old)
+        def process_object(self, new, old=None):
+            new = super().process_object(new, old)
             if new['device'] != old['device']:
                 new['device'] = self.request.headers.get('User-Agent')
 
@@ -174,7 +174,7 @@ configured in the application:
         registry = request.registry
 
         flowers = resource.Model(storage=registry.storage,
-                                 collection_id='app:flowers')
+                                 resource_name='app:flowers')
 
         flowers.create_record({'name': 'Jonquille', 'size': 30})
         flowers.create_record({'name': 'Amapola', 'size': 18})
@@ -207,11 +207,11 @@ As an example, let's build a code that will copy a collection into another:
 
     local = resource.Model(storage=config.registry.storage,
                            parent_id='browsing',
-                           collection_id='history')
+                           resource_name='history')
 
     remote = resource.Model(storage=config_remote.registry.storage,
                             parent_id='',
-                            collection_id='history')
+                            resource_name='history')
 
     records, total = in remote.get_records():
     for record in records:

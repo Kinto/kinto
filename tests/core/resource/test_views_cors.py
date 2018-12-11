@@ -7,7 +7,7 @@ from kinto.core.testing import unittest
 from ..support import BaseWebTest
 
 
-MINIMALIST_RECORD = {"name": "Champignon"}
+MINIMALIST_OBJECT = {"name": "Champignon"}
 
 
 class CORSOriginHeadersTest(BaseWebTest, unittest.TestCase):
@@ -18,21 +18,21 @@ class CORSOriginHeadersTest(BaseWebTest, unittest.TestCase):
 
     def setUp(self):
         super().setUp()
-        body = {"data": MINIMALIST_RECORD}
-        response = self.app.post_json(self.collection_url, body, headers=self.headers, status=201)
-        self.record = response.json["data"]
+        body = {"data": MINIMALIST_OBJECT}
+        response = self.app.post_json(self.plural_url, body, headers=self.headers, status=201)
+        self.obj = response.json["data"]
 
     def test_can_be_configured_from_settings(self):
         app = self.make_app({"cors_origins": "*.daybed.io"})
         headers = {**self.headers, "Origin": "demo.daybed.io"}
-        resp = app.get(self.collection_url, headers=headers)
+        resp = app.get(self.plural_url, headers=headers)
         self.assertEqual(resp.headers["Access-Control-Allow-Origin"], "demo.daybed.io")
 
     def test_present_on_hello(self):
         response = self.app.get("/", headers=self.headers, status=200)
         self.assertIn("Access-Control-Allow-Origin", response.headers)
 
-    def test_present_on_single_record(self):
+    def test_present_on_single_object(self):
         response = self.app.get(self.get_item_url(), headers=self.headers)
         self.assertIn("Access-Control-Allow-Origin", response.headers)
 
@@ -49,24 +49,24 @@ class CORSOriginHeadersTest(BaseWebTest, unittest.TestCase):
             response = self.app.get("/unknown", headers=self.headers, status=404)
             self.assertNotIn("Access-Control-Allow-Origin", response.headers)
 
-    def test_present_on_unknown_record(self):
+    def test_present_on_unknown_object(self):
         url = self.get_item_url("1cea99eb-5e3d-44ad-a53a-2fb68473b538")
         response = self.app.get(url, headers=self.headers, status=404)
         self.assertIn("Access-Control-Allow-Origin", response.headers)
 
-    def test_present_on_invalid_record_update(self):
+    def test_present_on_invalid_object_update(self):
         body = {"data": {"name": 42}}
         response = self.app.patch_json(self.get_item_url(), body, headers=self.headers, status=400)
         self.assertIn("Access-Control-Allow-Origin", response.headers)
 
     def test_present_on_successful_creation(self):
-        body = {"data": MINIMALIST_RECORD}
-        response = self.app.post_json(self.collection_url, body, headers=self.headers, status=201)
+        body = {"data": MINIMALIST_OBJECT}
+        response = self.app.post_json(self.plural_url, body, headers=self.headers, status=201)
         self.assertIn("Access-Control-Allow-Origin", response.headers)
 
-    def test_present_on_invalid_record_creation(self):
+    def test_present_on_invalid_object_creation(self):
         body = {"name": 42}
-        response = self.app.post_json(self.collection_url, body, headers=self.headers, status=400)
+        response = self.app.post_json(self.plural_url, body, headers=self.headers, status=400)
         self.assertIn("Access-Control-Allow-Origin", response.headers)
 
     def test_present_on_readonly_update(self):
@@ -81,8 +81,8 @@ class CORSOriginHeadersTest(BaseWebTest, unittest.TestCase):
     def test_present_on_unauthorized(self):
         headers = {**self.headers}
         headers.pop("Authorization", None)
-        body = {"data": MINIMALIST_RECORD}
-        response = self.app.post_json(self.collection_url, body, headers=headers, status=401)
+        body = {"data": MINIMALIST_OBJECT}
+        response = self.app.post_json(self.plural_url, body, headers=headers, status=401)
         self.assertIn("Access-Control-Allow-Origin", response.headers)
 
     def test_present_on_internal_error(self):
@@ -119,10 +119,10 @@ class CORSExposeHeadersTest(BaseWebTest, unittest.TestCase):
         self.assertEqual(sorted(allowed_headers), sorted(exposed_headers))
         return response
 
-    def test_collection_get_exposes_every_possible_header(self):
+    def test_plural_get_exposes_every_possible_header(self):
         self.assert_expose_headers(
             "GET",
-            self.collection_url,
+            self.plural_url,
             [
                 "Alert",
                 "Backoff",
@@ -140,13 +140,14 @@ class CORSExposeHeadersTest(BaseWebTest, unittest.TestCase):
     def test_collection_head_exposes_every_possible_header(self):
         self.assert_expose_headers(
             "HEAD",
-            self.collection_url,
+            self.plural_url,
             [
                 "Alert",
                 "Backoff",
                 "ETag",
                 "Last-Modified",
                 "Retry-After",
+                "Total-Objects",
                 "Total-Records",
                 "Content-Length",
                 "Cache-Control",
@@ -160,13 +161,13 @@ class CORSExposeHeadersTest(BaseWebTest, unittest.TestCase):
             "GET", "/", ["Alert", "Backoff", "Retry-After", "Content-Length"]
         )
 
-    def test_record_get_exposes_only_used_headers(self):
-        body = {"data": MINIMALIST_RECORD}
-        resp = self.app.post_json(self.collection_url, body, headers=self.headers, status=201)
-        record_url = self.get_item_url(resp.json["data"]["id"])
+    def test_object_get_exposes_only_used_headers(self):
+        body = {"data": MINIMALIST_OBJECT}
+        resp = self.app.post_json(self.plural_url, body, headers=self.headers, status=201)
+        object_url = self.get_item_url(resp.json["data"]["id"])
         self.assert_expose_headers(
             "GET",
-            record_url,
+            object_url,
             [
                 "Alert",
                 "Backoff",
@@ -180,8 +181,8 @@ class CORSExposeHeadersTest(BaseWebTest, unittest.TestCase):
             ],
         )
 
-    def test_record_post_exposes_only_minimal_set_of_headers(self):
-        body = {"data": MINIMALIST_RECORD}
+    def test_object_post_exposes_only_minimal_set_of_headers(self):
+        body = {"data": MINIMALIST_OBJECT}
         self.assert_expose_headers(
             "POST_JSON",
             "/mushrooms",

@@ -25,7 +25,7 @@ def on_resource_changed(event):
     excluded_resources = aslist(settings.get("history.exclude_resources", ""))
 
     targets = []
-    for impacted in event.impacted_records:
+    for impacted in event.impacted_objects:
         target = impacted["new"]
         obj_id = target["id"]
 
@@ -87,7 +87,7 @@ def on_resource_changed(event):
     read_principals.update(collection_perms.get("read", []))
     read_principals.update(collection_perms.get("write", []))
 
-    # Create a history entry for each impacted record.
+    # Create a history entry for each impacted object.
     for (uri, target) in targets:
         obj_id = target["id"]
         # Prepare the history entry attributes.
@@ -103,13 +103,13 @@ def on_resource_changed(event):
             **eventattrs,
         )
 
-        # Create a record for the 'history' resource, whose parent_id is
+        # Create an entry for the 'history' resource, whose parent_id is
         # the bucket URI (c.f. views.py).
         # Note: this will be rolledback if the transaction is rolledback.
-        entry = storage.create(parent_id=bucket_uri, collection_id="history", record=attrs)
+        entry = storage.create(parent_id=bucket_uri, resource_name="history", obj=attrs)
 
         # The read permission on the newly created history entry is the union
-        # of the record permissions with the one from bucket and collection.
+        # of the object permissions with the one from bucket and collection.
         entry_principals = set(read_principals)
         entry_principals.update(perms.get("read", []))
         entry_principals.update(perms.get("write", []))

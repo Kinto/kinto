@@ -563,3 +563,4 @@ Just modify the ``group:schema`` attribute of the parent bucket object:
             ]
         }
     }
+

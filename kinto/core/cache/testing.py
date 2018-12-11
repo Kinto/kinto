@@ -85,7 +85,7 @@ class CacheTest:
 
         self.assertTrue(exc_handler.called)
 
-    def test_set_adds_the_record(self):
+    def test_set_adds_the_object(self):
         stored = "toto"
         self.cache.set("foobar", stored, 42)
         retrieved = self.cache.get("foobar")
@@ -105,14 +105,14 @@ class CacheTest:
         with pytest.raises(TypeError):
             self.cache.set("test", b"foo", 42)
 
-    def test_delete_removes_the_record(self):
+    def test_delete_removes_the_object(self):
         self.cache.set("foobar", "toto", 42)
         returned = self.cache.delete("foobar")
         self.assertEqual(returned, "toto")
         missing = self.cache.get("foobar")
         self.assertIsNone(missing)
 
-    def test_delete_does_not_fail_if_record_is_unknown(self):
+    def test_delete_does_not_fail_if_object_is_unknown(self):
         returned = self.cache.delete("foobar")
         self.assertIsNone(returned)
 
@@ -204,6 +204,6 @@ class CacheTest:
         ttl = self.cache.ttl("prefix_foobar")
         self.assertLessEqual(ttl, 0)
 
-        # The record should have expired
+        # The object should have expired
         retrieved = self.cache.get("prefix_foobar")
         self.assertIsNone(retrieved)

@@ -96,7 +96,7 @@ def http_error(
     :param error: string description of error type (e.g. "Bad request")
     :param message: context information (e.g. "Invalid request parameters")
     :param info: information about error (e.g. URL to troubleshooting)
-    :param details: additional structured details (conflicting record)
+    :param details: additional structured details (conflicting object)
     :returns: the formatted response object
     :rtype: pyramid.httpexceptions.HTTPException
     """

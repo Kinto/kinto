@@ -11,6 +11,7 @@ from kinto.core.storage import (
     DEFAULT_DELETED_FIELD,
     MISSING,
 )
+from kinto.core.decorators import deprecate_kwargs
 from kinto.core.storage.postgresql.client import create_from_config
 from kinto.core.storage.postgresql.migrator import MigratorMixin
 from kinto.core.utils import COMPARISON
@@ -77,7 +78,7 @@ class Storage(StorageBase, MigratorMixin):
 
     # MigratorMixin attributes.
     name = "storage"
-    schema_version = 20
+    schema_version = 21
     schema_file = os.path.join(HERE, "schema.sql")
     migrations_directory = os.path.join(HERE, "migrations")
 
@@ -102,8 +103,8 @@ class Storage(StorageBase, MigratorMixin):
         query = "SELECT current_setting('TIMEZONE') AS timezone;"
         with self.client.connect() as conn:
             result = conn.execute(query)
-            record = result.fetchone()
-        timezone = record["timezone"].upper()
+            obj = result.fetchone()
+        timezone = obj["timezone"].upper()
         if timezone != "UTC":  # pragma: no cover
             msg = f"Database timezone is not UTC ({timezone})"
             warnings.warn(msg)
@@ -118,20 +119,20 @@ class Storage(StorageBase, MigratorMixin):
         """
         with self.client.connect() as conn:
             result = conn.execute(query)
-            record = result.fetchone()
-        encoding = record["encoding"].lower()
+            obj = result.fetchone()
+        encoding = obj["encoding"].lower()
         if encoding != "utf8":  # pragma: no cover
             raise AssertionError(f"Unexpected database encoding {encoding}")
 
     def get_installed_version(self):
         """Return current version of schema or None if not any found.
         """
-        # Check for records table, which definitely indicates a new
+        # Check for objects table, which definitely indicates a new
         # DB. (metadata can exist if the permission schema ran first.)
-        records_table_query = """
+        table_exists_query = """
         SELECT table_name
           FROM information_schema.tables
-         WHERE table_name = 'records';
+         WHERE table_name = '{}';
         """
         schema_version_metadata_query = """
         SELECT value AS version
@@ -140,10 +141,12 @@ class Storage(StorageBase, MigratorMixin):
          ORDER BY LPAD(value, 3, '0') DESC;
         """
         with self.client.connect() as conn:
-            result = conn.execute(records_table_query)
+            result = conn.execute(table_exists_query.format("objects"))
+            objects_table_exists = result.rowcount > 0
+            result = conn.execute(table_exists_query.format("records"))
             records_table_exists = result.rowcount > 0
 
-            if not records_table_exists:
+            if not objects_table_exists and not records_table_exists:
                 return
 
             result = conn.execute(schema_version_metadata_query)
@@ -178,37 +181,37 @@ class Storage(StorageBase, MigratorMixin):
             return MAX_FLUSHABLE_SCHEMA_VERSION
 
     def flush(self, auth=None):
-        """Delete records from tables without destroying schema.
+        """Delete objects from tables without destroying schema.
 
         This is used in test suites as well as in the flush plugin.
         """
         query = """
-        DELETE FROM records;
+        DELETE FROM objects;
         DELETE FROM timestamps;
         """
         with self.client.connect(force_commit=True) as conn:
             conn.execute(query)
         logger.debug("Flushed PostgreSQL storage tables")
 
-    def collection_timestamp(self, collection_id, parent_id, auth=None):
+    def resource_timestamp(self, resource_name, parent_id, auth=None):
         query_existing = """
         WITH existing_timestamps AS (
-          -- Timestamp of latest record.
+          -- Timestamp of latest object.
           (
             SELECT last_modified, as_epoch(last_modified) AS last_epoch
-            FROM records
+            FROM objects
             WHERE parent_id = :parent_id
-              AND collection_id = :collection_id
+              AND resource_name = :resource_name
             ORDER BY last_modified DESC
             LIMIT 1
           )
-          -- Timestamp of empty collection.
+          -- Timestamp of empty resource.
           UNION
           (
             SELECT last_modified, as_epoch(last_modified) AS last_epoch
             FROM timestamps
             WHERE parent_id = :parent_id
-              AND collection_id = :collection_id
+              AND resource_name = :resource_name
           )
         )
         SELECT MAX(last_modified) AS last_modified, MAX(last_epoch) AS last_epoch
@@ -216,13 +219,13 @@ class Storage(StorageBase, MigratorMixin):
         """
 
         create_if_missing = """
-        INSERT INTO timestamps (parent_id, collection_id, last_modified)
-        VALUES (:parent_id, :collection_id, COALESCE(:last_modified, clock_timestamp()::timestamp))
-        ON CONFLICT (parent_id, collection_id) DO NOTHING
+        INSERT INTO timestamps (parent_id, resource_name, last_modified)
+        VALUES (:parent_id, :resource_name, COALESCE(:last_modified, clock_timestamp()::timestamp))
+        ON CONFLICT (parent_id, resource_name) DO NOTHING
         RETURNING as_epoch(last_modified) AS last_epoch
         """
 
-        placeholders = dict(parent_id=parent_id, collection_id=collection_id)
+        placeholders = dict(parent_id=parent_id, resource_name=resource_name)
         with self.client.connect(readonly=False) as conn:
             existing_ts = None
             ts_result = conn.execute(query_existing, placeholders)
@@ -233,51 +236,52 @@ class Storage(StorageBase, MigratorMixin):
             if self.readonly:
                 if existing_ts is None:
                     error_msg = (
-                        "Cannot initialize empty collection timestamp " "when running in readonly."
+                        "Cannot initialize empty resource timestamp " "when running in readonly."
                     )
                     raise exceptions.BackendError(message=error_msg)
-                record = row
+                obj = row
             else:
                 create_result = conn.execute(
                     create_if_missing, dict(last_modified=existing_ts, **placeholders)
                 )
-                record = create_result.fetchone() or row
+                obj = create_result.fetchone() or row
 
-        return record["last_epoch"]
+        return obj["last_epoch"]
 
+    @deprecate_kwargs({"collection_id": "resource_name", "record": "obj"})
     def create(
         self,
-        collection_id,
+        resource_name,
         parent_id,
-        record,
+        obj,
         id_generator=None,
         id_field=DEFAULT_ID_FIELD,
         modified_field=DEFAULT_MODIFIED_FIELD,
         auth=None,
     ):
         id_generator = id_generator or self.id_generator
-        record = {**record}
-        if id_field in record:
-            # Optimistically raise unicity error if record with same
+        obj = {**obj}
+        if id_field in obj:
+            # Optimistically raise unicity error if object with same
             # id already exists.
             # Even if this check doesn't find one, be robust against
             # conflicts because we could race with another thread.
             # Still, this reduces write load because SELECTs are
             # cheaper than INSERTs.
             try:
-                existing = self.get(collection_id, parent_id, record[id_field])
+                existing = self.get(resource_name, parent_id, obj[id_field])
                 raise exceptions.UnicityError(id_field, existing)
-            except exceptions.RecordNotFoundError:
+            except exceptions.ObjectNotFoundError:
                 pass
         else:
-            record[id_field] = id_generator()
+            obj[id_field] = id_generator()
 
         # Remove redundancy in data field
-        query_record = {**record}
-        query_record.pop(id_field, None)
-        query_record.pop(modified_field, None)
+        query_object = {**obj}
+        query_object.pop(id_field, None)
+        query_object.pop(modified_field, None)
 
-        # If there is a record in the table and it is deleted = TRUE,
+        # If there is an object in the table and it is deleted = TRUE,
         # we want to replace it. Otherwise, we want to do nothing and
         # throw a UnicityError. Per
         # https://stackoverflow.com/questions/15939902/is-select-or-insert-in-a-function-prone-to-race-conditions/15950324#15950324
@@ -286,26 +290,26 @@ class Storage(StorageBase, MigratorMixin):
         # safe. We add a constant "inserted" field to know whether we
         # need to throw or not.
         query = """
-        INSERT INTO records (id, parent_id, collection_id, data, last_modified, deleted)
+        INSERT INTO objects (id, parent_id, resource_name, data, last_modified, deleted)
         VALUES (:object_id, :parent_id,
-                :collection_id, (:data)::JSONB,
+                :resource_name, (:data)::JSONB,
                 from_epoch(:last_modified),
                 FALSE)
-        ON CONFLICT (id, parent_id, collection_id) DO UPDATE
+        ON CONFLICT (id, parent_id, resource_name) DO UPDATE
         SET last_modified = from_epoch(:last_modified),
             data = (:data)::JSONB,
             deleted = FALSE
-        WHERE records.deleted = TRUE
+        WHERE objects.deleted = TRUE
         RETURNING id, data, as_epoch(last_modified) AS last_modified;
         """
 
         safe_holders = {}
         placeholders = dict(
-            object_id=record[id_field],
+            object_id=obj[id_field],
             parent_id=parent_id,
-            collection_id=collection_id,
-            last_modified=record.get(modified_field),
-            data=self.json.dumps(query_record),
+            resource_name=resource_name,
+            last_modified=obj.get(modified_field),
+            data=self.json.dumps(query_object),
         )
         with self.client.connect() as conn:
             result = conn.execute(query % safe_holders, placeholders)
@@ -314,12 +318,13 @@ class Storage(StorageBase, MigratorMixin):
         if not inserted:
             raise exceptions.UnicityError(id_field)
 
-        record[modified_field] = inserted["last_modified"]
-        return record
+        obj[modified_field] = inserted["last_modified"]
+        return obj
 
+    @deprecate_kwargs({"collection_id": "resource_name"})
     def get(
         self,
-        collection_id,
+        resource_name,
         parent_id,
         object_id,
         id_field=DEFAULT_ID_FIELD,
@@ -328,48 +333,49 @@ class Storage(StorageBase, MigratorMixin):
     ):
         query = """
         SELECT as_epoch(last_modified) AS last_modified, data
-          FROM records
+          FROM objects
          WHERE id = :object_id
            AND parent_id = :parent_id
-           AND collection_id = :collection_id
+           AND resource_name = :resource_name
            AND NOT deleted;
         """
-        placeholders = dict(object_id=object_id, parent_id=parent_id, collection_id=collection_id)
+        placeholders = dict(object_id=object_id, parent_id=parent_id, resource_name=resource_name)
         with self.client.connect(readonly=True) as conn:
             result = conn.execute(query, placeholders)
             if result.rowcount == 0:
-                raise exceptions.RecordNotFoundError(object_id)
+                raise exceptions.ObjectNotFoundError(object_id)
             else:
                 existing = result.fetchone()
 
-        record = existing["data"]
-        record[id_field] = object_id
-        record[modified_field] = existing["last_modified"]
-        return record
+        obj = existing["data"]
+        obj[id_field] = object_id
+        obj[modified_field] = existing["last_modified"]
+        return obj
 
+    @deprecate_kwargs({"collection_id": "resource_name", "record": "obj"})
     def update(
         self,
-        collection_id,
+        resource_name,
         parent_id,
         object_id,
-        record,
+        obj,
         id_field=DEFAULT_ID_FIELD,
         modified_field=DEFAULT_MODIFIED_FIELD,
         auth=None,
     ):
 
         # Remove redundancy in data field
-        query_record = {**record}
-        query_record.pop(id_field, None)
-        query_record.pop(modified_field, None)
+        query_object = {**obj}
+        query_object.pop(id_field, None)
+        query_object.pop(modified_field, None)
 
         query = """
-        INSERT INTO records (id, parent_id, collection_id, data, last_modified, deleted)
+        INSERT INTO objects (id, parent_id, resource_name, data, last_modified, deleted)
         VALUES (:object_id, :parent_id,
-                :collection_id, (:data)::JSONB,
+                :resource_name, (:data)::JSONB,
                 from_epoch(:last_modified),
                 FALSE)
-        ON CONFLICT (id, parent_id, collection_id) DO UPDATE
+        ON CONFLICT (id, parent_id, resource_name) DO UPDATE
         SET data = (:data)::JSONB,
             deleted = FALSE,
             last_modified = GREATEST(from_epoch(:last_modified),
@@ -379,22 +385,23 @@ class Storage(StorageBase, MigratorMixin):
         placeholders = dict(
             object_id=object_id,
             parent_id=parent_id,
-            collection_id=collection_id,
-            last_modified=record.get(modified_field),
-            data=self.json.dumps(query_record),
+            resource_name=resource_name,
+            last_modified=obj.get(modified_field),
+            data=self.json.dumps(query_object),
         )
 
         with self.client.connect() as conn:
             result = conn.execute(query, placeholders)
             updated = result.fetchone()
 
-        record = {**record, id_field: object_id}
-        record[modified_field] = updated["last_modified"]
-        return record
+        obj = {**obj, id_field: object_id}
+        obj[modified_field] = updated["last_modified"]
+        return obj
 
+    @deprecate_kwargs({"collection_id": "resource_name"})
     def delete(
         self,
-        collection_id,
+        resource_name,
         parent_id,
         object_id,
         id_field=DEFAULT_ID_FIELD,
@@ -406,22 +413,22 @@ class Storage(StorageBase, MigratorMixin):
     ):
         if with_deleted:
             query = """
-            UPDATE records
+            UPDATE objects
                SET deleted=TRUE,
                    data=(:deleted_data)::JSONB,
                    last_modified=from_epoch(:last_modified)
              WHERE id = :object_id
                AND parent_id = :parent_id
-               AND collection_id = :collection_id
+               AND resource_name = :resource_name
                AND deleted = FALSE
             RETURNING as_epoch(last_modified) AS last_modified;
             """
         else:
             query = """
-            DELETE FROM records
+            DELETE FROM objects
             WHERE id = :object_id
                AND parent_id = :parent_id
-               AND collection_id = :collection_id
+               AND resource_name = :resource_name
                AND deleted = FALSE
             RETURNING as_epoch(last_modified) AS last_modified;
             """
@@ -429,7 +436,7 @@ class Storage(StorageBase, MigratorMixin):
         placeholders = dict(
             object_id=object_id,
             parent_id=parent_id,
-            collection_id=collection_id,
+            resource_name=resource_name,
             last_modified=last_modified,
             deleted_data=deleted_data,
         )
@@ -437,19 +444,20 @@ class Storage(StorageBase, MigratorMixin):
         with self.client.connect() as conn:
             result = conn.execute(query, placeholders)
             if result.rowcount == 0:
-                raise exceptions.RecordNotFoundError(object_id)
+                raise exceptions.ObjectNotFoundError(object_id)
             inserted = result.fetchone()
 
-        record = {}
-        record[modified_field] = inserted["last_modified"]
-        record[id_field] = object_id
+        obj = {}
+        obj[modified_field] = inserted["last_modified"]
+        obj[id_field] = object_id
 
-        record[deleted_field] = True
-        return record
+        obj[deleted_field] = True
+        return obj
 
+    @deprecate_kwargs({"collection_id": "resource_name"})
     def delete_all(
         self,
-        collection_id,
+        resource_name,
         parent_id,
         filters=None,
         sorting=None,
@@ -463,11 +471,11 @@ class Storage(StorageBase, MigratorMixin):
     ):
         if with_deleted:
             query = """
-            WITH matching_records AS (
-                SELECT id, parent_id, collection_id
-                    FROM records
+            WITH matching_objects AS (
+                SELECT id, parent_id, resource_name
+                    FROM objects
                     WHERE {parent_id_filter}
-                          {collection_id_filter}
+                          {resource_name_filter}
                           AND deleted = FALSE
                           {conditions_filter}
                           {pagination_rules}
@@ -475,21 +483,21 @@ class Storage(StorageBase, MigratorMixin):
                     LIMIT :pagination_limit
                     FOR UPDATE
             )
-            UPDATE records
+            UPDATE objects
                SET deleted=TRUE, data=(:deleted_data)::JSONB
-              FROM matching_records
-             WHERE records.id = matching_records.id
-               AND records.parent_id = matching_records.parent_id
-               AND records.collection_id = matching_records.collection_id
-            RETURNING records.id, as_epoch(last_modified) AS last_modified;
+              FROM matching_objects
+             WHERE objects.id = matching_objects.id
+               AND objects.parent_id = matching_objects.parent_id
+               AND objects.resource_name = matching_objects.resource_name
+            RETURNING objects.id, as_epoch(last_modified) AS last_modified;
             """
         else:
             query = """
-            WITH matching_records AS (
-                SELECT id, parent_id, collection_id
-                    FROM records
+            WITH matching_objects AS (
+                SELECT id, parent_id, resource_name
+                    FROM objects
                     WHERE {parent_id_filter}
-                          {collection_id_filter}
+                          {resource_name_filter}
                           AND deleted = FALSE
                           {conditions_filter}
                           {pagination_rules}
@@ -498,19 +506,19 @@ class Storage(StorageBase, MigratorMixin):
                     FOR UPDATE
             )
             DELETE
-            FROM records
-            USING matching_records
-            WHERE records.id = matching_records.id
-              AND records.parent_id = matching_records.parent_id
-              AND records.collection_id = matching_records.collection_id
-            RETURNING records.id, as_epoch(last_modified) AS last_modified;
+            FROM objects
+            USING matching_objects
+            WHERE objects.id = matching_objects.id
+              AND objects.parent_id = matching_objects.parent_id
+              AND objects.resource_name = matching_objects.resource_name
+            RETURNING objects.id, as_epoch(last_modified) AS last_modified;
             """
 
         id_field = id_field or self.id_field
         modified_field = modified_field or self.modified_field
         deleted_data = self.json.dumps(dict([(deleted_field, True)]))
         placeholders = dict(
-            parent_id=parent_id, collection_id=collection_id, deleted_data=deleted_data
+            parent_id=parent_id, resource_name=resource_name, deleted_data=deleted_data
         )
         # Safe strings
         safeholders = defaultdict(str)
@@ -520,11 +528,11 @@ class Storage(StorageBase, MigratorMixin):
             placeholders["parent_id"] = parent_id.replace("*", "%")
         else:
             safeholders["parent_id_filter"] = "parent_id = :parent_id"
-        # If collection is None, remove it from query.
-        if collection_id is None:
-            safeholders["collection_id_filter"] = ""
+        # If resource is None, remove it from query.
+        if resource_name is None:
+            safeholders["resource_name_filter"] = ""
         else:
-            safeholders["collection_id_filter"] = "AND collection_id = :collection_id"  # NOQA
+            safeholders["resource_name_filter"] = "AND resource_name = :resource_name"  # NOQA
 
         if filters:
             safe_sql, holders = self._format_conditions(filters, id_field, modified_field)
@@ -549,19 +557,20 @@ class Storage(StorageBase, MigratorMixin):
             result = conn.execute(query.format_map(safeholders), placeholders)
             deleted = result.fetchmany(self._max_fetch_size)
 
-        records = []
+        objects = []
         for result in deleted:
-            record = {}
-            record[id_field] = result["id"]
-            record[modified_field] = result["last_modified"]
-            record[deleted_field] = True
-            records.append(record)
+            obj = {}
+            obj[id_field] = result["id"]
+            obj[modified_field] = result["last_modified"]
+            obj[deleted_field] = True
+            objects.append(obj)
 
-        return records
+        return objects
 
+    @deprecate_kwargs({"collection_id": "resource_name"})
     def purge_deleted(
         self,
-        collection_id,
+        resource_name,
         parent_id,
         before=None,
         id_field=DEFAULT_ID_FIELD,
@@ -570,14 +579,14 @@ class Storage(StorageBase, MigratorMixin):
     ):
         delete_tombstones = """
         DELETE
-        FROM records
+        FROM objects
         WHERE {parent_id_filter}
-              {collection_id_filter}
+              {resource_name_filter}
               {conditions_filter}
         """
         id_field = id_field or self.id_field
         modified_field = modified_field or self.modified_field
-        placeholders = dict(parent_id=parent_id, collection_id=collection_id)
+        placeholders = dict(parent_id=parent_id, resource_name=resource_name)
         # Safe strings
         safeholders = defaultdict(str)
         # Handle parent_id as a regex only if it contains *
@@ -586,11 +595,11 @@ class Storage(StorageBase, MigratorMixin):
             placeholders["parent_id"] = parent_id.replace("*", "%")
         else:
             safeholders["parent_id_filter"] = "parent_id = :parent_id"
-        # If collection is None, remove it from query.
-        if collection_id is None:
-            safeholders["collection_id_filter"] = ""
+        # If resource is None, remove it from query.
+        if resource_name is None:
+            safeholders["resource_name_filter"] = ""
         else:
-            safeholders["collection_id_filter"] = "AND collection_id = :collection_id"  # NOQA
+            safeholders["resource_name_filter"] = "AND resource_name = :resource_name"  # NOQA
 
         if before is not None:
             safeholders["conditions_filter"] = "AND as_epoch(last_modified) < :before"
@@ -601,7 +610,7 @@ class Storage(StorageBase, MigratorMixin):
             deleted = result.rowcount
 
             # If purging everything from a parent_id, then clear timestamps.
-            if collection_id is None and before is None:
+            if resource_name is None and before is None:
                 delete_timestamps = """
                 DELETE
                 FROM timestamps
@@ -613,7 +622,7 @@ class Storage(StorageBase, MigratorMixin):
 
     def list_all(
         self,
-        collection_id,
+        resource_name,
         parent_id,
         filters=None,
         sorting=None,
@@ -628,9 +637,9 @@ class Storage(StorageBase, MigratorMixin):
 
         query = """
             SELECT id, as_epoch(last_modified) AS last_modified, data
-            FROM records
+            FROM objects
             WHERE {parent_id_filter}
-            AND collection_id = :collection_id
+            AND resource_name = :resource_name
             {conditions_deleted}
             {conditions_filter}
             {pagination_rules}
@@ -640,7 +649,7 @@ class Storage(StorageBase, MigratorMixin):
 
         rows = self._get_rows(
             query,
-            collection_id,
+            resource_name,
             parent_id,
             filters=filters,
             sorting=sorting,
@@ -666,7 +675,7 @@ class Storage(StorageBase, MigratorMixin):
 
     def count_all(
         self,
-        collection_id,
+        resource_name,
         parent_id,
         filters=None,
         id_field=DEFAULT_ID_FIELD,
@@ -677,15 +686,15 @@ class Storage(StorageBase, MigratorMixin):
 
         query = """
             SELECT COUNT(*) AS total_count
-            FROM records
+            FROM objects
             WHERE {parent_id_filter}
-            AND collection_id = :collection_id
+            AND resource_name = :resource_name
             AND NOT deleted
             {conditions_filter}
         """
         rows = self._get_rows(
             query,
-            collection_id,
+            resource_name,
             parent_id,
             filters=filters,
             id_field=id_field,
@@ -698,7 +707,7 @@ class Storage(StorageBase, MigratorMixin):
     def _get_rows(
         self,
         query,
-        collection_id,
+        resource_name,
         parent_id,
         filters=None,
         sorting=None,
@@ -712,7 +721,7 @@ class Storage(StorageBase, MigratorMixin):
     ):
 
         # Unsafe strings escaped by PostgreSQL
-        placeholders = dict(parent_id=parent_id, collection_id=collection_id)
+        placeholders = dict(parent_id=parent_id, resource_name=resource_name)
 
         # Safe strings
         safeholders = defaultdict(str)
@@ -831,7 +840,7 @@ class Storage(StorageBase, MigratorMixin):
             elif filtr.operator == COMPARISON.CONTAINS_ANY:
                 value_holder = f"{prefix}_value_{i}"
                 holders[value_holder] = value
-                # In case the field is not a sequence, we ignore the record.
+                # In case the field is not a sequence, we ignore the object.
                 is_json_sequence = f"jsonb_typeof({sql_field}) = 'array'"
                 # Postgres's && operator doesn't support jsonbs.
                 # However, it does support Postgres arrays of any
