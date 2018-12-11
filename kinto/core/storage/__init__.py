@@ -353,6 +353,38 @@ class StorageBase:
         """
         raise NotImplementedError
 
+    def count_all(
+        self,
+        resource_name,
+        parent_id,
+        filters=None,
+        id_field=DEFAULT_ID_FIELD,
+        modified_field=DEFAULT_MODIFIED_FIELD,
+        deleted_field=DEFAULT_DELETED_FIELD,
+        auth=None,
+    ):
+        """Return a count of all objects in this `collection_id` for this `parent_id`.
+        :param str collection_id: the collection id.
+        :param str parent_id: the collection parent, possibly
+            containing a wildcard '*'. (This can happen when
+            implementing "administrator" operations on a UserResource,
+            for example.)
+        :param filters: Optionally filter the objects by their attribute.
+            Each filter in this list is a tuple of a field, a value and a
+            comparison (see `kinto.core.utils.COMPARISON`). All filters
+            are combined using *AND*.
+        :type filters: list of :class:`kinto.core.storage.Filter`
+        :returns: the limited list of objects, and the total number of
+            matching objects in the collection (deleted ones excluded).
+        :rtype: tuple
+        """
+        raise NotImplementedError
+
+    def collection_timestamp(self, collection_id, parent_id, auth=None):
+        message = "`collection_timestamp()` is deprecated, use `resource_timestamp()` instead."
+        warnings.warn(message, DeprecationWarning)
+        return self.resource_timestamp(resource_name=collection_id, parent_id=parent_id, auth=auth)
+
 
 def heartbeat(backend):
     def ping(request):

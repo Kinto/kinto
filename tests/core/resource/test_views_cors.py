@@ -137,7 +137,7 @@ class CORSExposeHeadersTest(BaseWebTest, unittest.TestCase):
             ],
         )
 
-    def test_collection_head_exposes_every_possible_header(self):
+    def test_plural_head_exposes_every_possible_header(self):
         self.assert_expose_headers(
             "HEAD",
             self.plural_url,

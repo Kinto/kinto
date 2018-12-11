@@ -270,12 +270,12 @@ class GuestPluralDeleteTest(PermissionTest):
         with mock.patch.object(self.resource, "is_known_field"):
             result = self.resource.plural_delete()
         self.assertEqual(len(result["data"]), 1)
-        records = self.resource.model.get_objects()
-        self.assertEqual(len(records), 3)
+        objects = self.resource.model.get_objects()
+        self.assertEqual(len(objects), 3)
 
     def test_guest_cannot_delete_objects_if_not_allowed(self):
         self.resource.context.shared_ids = ["tata lili"]
         result = self.resource.plural_delete()
         self.assertEqual(len(result["data"]), 0)
-        records = self.resource.model.get_objects()
-        self.assertEqual(len(records), 4)
+        objects = self.resource.model.get_objects()
+        self.assertEqual(len(objects), 4)
