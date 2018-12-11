@@ -2,7 +2,7 @@ import functools
 import logging
 
 from pyramid.settings import aslist
-from pyramid.security import IAuthorizationPolicy
+from pyramid.security import IAuthorizationPolicy, Authenticated
 from zope.interface import implementer
 
 from kinto.core import utils
@@ -11,8 +11,10 @@ from kinto.core.storage import exceptions as storage_exceptions
 
 logger = logging.getLogger(__name__)
 
+# When permission is set to "private", only the current user is allowed.
+PRIVATE = "private"
+
 # A permission is called "dynamic" when it's computed at request time.
-# XXX: this is the only one we have, is that necessary?
 DYNAMIC = "dynamic"
 
 
@@ -51,6 +53,11 @@ class AuthorizationPolicy:
     permission depend on others."""
 
     def permits(self, context, principals, permission):
+        if permission == PRIVATE:
+            # When using the private permission, we bypass the permissions
+            # backend, and simply authorize if authenticated.
+            return Authenticated in principals
+
         principals = context.get_prefixed_principals()
 
         create_permission = f"{context.resource_name}:create"

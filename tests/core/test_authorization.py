@@ -213,6 +213,14 @@ class AuthorizationPolicyTest(unittest.TestCase):
             ],
         )
 
+    def test_permits_bypasses_the_permissions_backend_if_private(self):
+        self.authz.permits(self.context, self.principals, "private")
+        self.context.check_permission.assert_not_called()
+
+    def test_permits_returns_true_if_authenticated(self):
+        assert self.authz.permits(self.context, ["system.Authenticated"], "private")
+        assert not self.authz.permits(self.context, [], "private")
+
     def test_permits_uses_get_bound_permissions_if_defined(self):
         self.authz.get_bound_permissions = lambda o, p: mock.sentinel.callback
         self.authz.permits(self.context, self.principals, "dynamic")
