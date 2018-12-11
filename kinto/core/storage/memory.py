@@ -315,6 +315,7 @@ class Storage(MemoryBasedStorage):
                 num_deleted += len(resource_objects) - len(kept)
         return num_deleted
 
+    @deprecate_kwargs({"collection_id": "resource_name"})
     @synchronized
     def list_all(
         self,

@@ -150,7 +150,7 @@ class PermissionsModel:
             )
             entries.append(entry)
 
-        records, count = extract_object_set(
+        objects, count = extract_object_set(
             entries,
             filters=filters,
             sorting=sorting,
@@ -161,7 +161,7 @@ class PermissionsModel:
         if count_only:
             return count
         else:
-            return records
+            return objects
 
 
 class PermissionsSchema(resource.ResourceSchema):
@@ -182,7 +182,7 @@ class PermissionsSchema(resource.ResourceSchema):
     description="List of user permissions",
     plural_path="/permissions",
     object_path=None,
-    collection_methods=("HEAD", "GET"),
+    plural_methods=("HEAD", "GET"),
 )
 class Permissions(resource.ShareableResource):
 

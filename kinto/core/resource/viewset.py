@@ -57,7 +57,7 @@ class ViewSet:
     plural_path = "/{resource_name}s"
     object_path = "/{resource_name}s/{{id}}"
 
-    plural_methods = ("HEAD", "GET", "POST", "DELETE")
+    plural_methods = ("GET", "POST", "DELETE")
     object_methods = ("GET", "PUT", "PATCH", "DELETE")
 
     readonly_methods = ("GET", "OPTIONS", "HEAD")
