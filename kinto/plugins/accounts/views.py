@@ -53,7 +53,7 @@ class Account(resource.Resource):
 
         super().__init__(request, context)
 
-        # Overwrite the current principal set by ShareableResource.
+        # Overwrite the current principal set by Resource.
         if self.model.current_principal == Everyone or context.is_administrator:
             # Creation is anonymous, but author with write perm is this:
             self.model.current_principal = f"{ACCOUNT_POLICY_NAME}:{self.model.parent_id}"

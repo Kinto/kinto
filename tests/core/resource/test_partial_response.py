@@ -1,6 +1,6 @@
 from pyramid import httpexceptions
 
-from kinto.core.resource import ShareableResource
+from kinto.core.resource import Resource
 
 from . import BaseTest
 
@@ -82,7 +82,7 @@ class PartialFieldsTest(PartialResponseBase):
 
 
 class PermissionTest(PartialResponseBase):
-    resource_class = ShareableResource
+    resource_class = Resource
 
     def test_permissions_are_not_displayed(self):
         self.validated["querystring"]["_fields"] = ["field"]

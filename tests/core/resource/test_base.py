@@ -3,7 +3,7 @@ from unittest import mock
 
 from pyramid import httpexceptions
 
-from kinto.core.resource import Resource
+from kinto.core.resource import Resource, ShareableResource
 from kinto.core.storage import exceptions as storage_exceptions
 from kinto.core.testing import DummyRequest
 
@@ -47,6 +47,15 @@ class ResourceTest(BaseTest):
         request = self.get_request()
         parent_id = self.resource.get_parent_id(request)
         self.assertEqual(parent_id, "")
+
+
+class DeprecatedShareableResource(unittest.TestCase):
+    def test_deprecated_warning(self):
+        with mock.patch("warnings.warn") as mocked_warnings:
+            ShareableResource(context=mock.MagicMock(), request=mock.MagicMock())
+
+        message = "`ShareableResource` is deprecated, use `Resource` instead."
+        mocked_warnings.assert_called_with(message, DeprecationWarning)
 
 
 class DeprecatedMethodsTest(unittest.TestCase):

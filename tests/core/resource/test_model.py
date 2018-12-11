@@ -1,4 +1,6 @@
-from unittest import mock
+from unittest import mock, TestCase
+
+from kinto.core.resource.model import ShareableModel
 
 from . import BaseTest
 
@@ -113,3 +115,12 @@ class DeprecatedMethodsTest(BaseTest):
 
         message = "`delete_record()` is deprecated, use `delete_object()` instead."
         self.mocked_warnings.assert_called_with(message, DeprecationWarning)
+
+
+class DeprecatedShareableModel(TestCase):
+    def test_deprecated_warning(self):
+        with mock.patch("warnings.warn") as mocked_warnings:
+            ShareableModel(storage=mock.MagicMock(), permission=mock.MagicMock())
+
+        message = "`ShareableModel` is deprecated, use `Model` instead."
+        mocked_warnings.assert_called_with(message, DeprecationWarning)

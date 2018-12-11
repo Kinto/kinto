@@ -1,4 +1,5 @@
 import functools
+import warnings
 
 import colander
 from cornice.validators import colander_validator
@@ -215,6 +216,6 @@ class ViewSet:
 
 class ShareableViewSet(ViewSet):
     def __init__(self, *args, **kwargs):
-        message = "`ShareableModel` is deprecated, use `Model` instead."
+        message = "`ShareableViewSet` is deprecated, use `ViewSet` instead."
         warnings.warn(message, DeprecationWarning)
         super().__init__(*args, **kwargs)

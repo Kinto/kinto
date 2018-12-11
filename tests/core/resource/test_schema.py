@@ -374,7 +374,7 @@ class ResourceReponsesTest(unittest.TestCase):
     def setUp(self):
         self.handler = schema.ResourceReponses()
         self.resource = colander.MappingSchema(title="fake")
-        self.object = schema.ObjectSchema().bind(data=self.resource)
+        self.obj = schema.ObjectSchema().bind(data=self.resource)
 
     def test_get_and_bind_assign_resource_schema_to_object_endpoint(self):
         responses = self.handler.get_and_bind("object", "get", object=self.obj)
@@ -388,7 +388,6 @@ class ResourceReponsesTest(unittest.TestCase):
         self.assertEqual(self.obj["data"], ok_response["body"]["data"]["data"])
 
     def test_responses_doesnt_have_permissions_if_not_bound(self):
-        responses = self.handler.get_and_bind("object", "get", object=self.object)
+        responses = self.handler.get_and_bind("object", "get", object=self.obj)
         ok_response = responses["200"]
         self.assertNotIn("permissions", ok_response["body"])
-
