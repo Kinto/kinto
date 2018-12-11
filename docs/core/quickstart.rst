@@ -104,7 +104,7 @@ Using `HTTPie <http://httpie.org>`_, it is as easy as:
 Define resources
 ================
 
-In order to define a resource, inherit from :class:`kinto.core.resource.UserResource`,
+In order to define a resource, inherit from :class:`kinto.core.resource.Resource`,
 in a subclass, in :file:`myproject/views.py` for example:
 
 .. code-block:: python
@@ -112,7 +112,7 @@ in a subclass, in :file:`myproject/views.py` for example:
     from kinto.core import resource
 
     @resource.register()
-    class Mushroom(resource.UserResource):
+    class Mushroom(resource.Resource):
         # No schema yet.
         pass
 
@@ -172,7 +172,7 @@ Currently, only :rtd:`Colander <colander>` is supported, and it looks like this:
 
 
     @resource.register()
-    class Mushroom(resource.UserResource):
+    class Mushroom(resource.Resource):
         schema = MushroomSchema
 
 
