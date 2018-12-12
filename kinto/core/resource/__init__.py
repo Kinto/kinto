@@ -153,7 +153,18 @@ def register_resource(resource_cls, settings=None, viewset=None, depth=1, **kwar
 
 
 class Resource:
-    """Base resource class providing every HTTP endpoint.
+    """Resource class providing every HTTP endpoint.
+
+    A resource provides all the necessary mechanism for:
+    - storage and retrieval of objects according to HTTP verbs
+    - permission checking and tracking
+    - concurrency control
+    - synchronization
+    - OpenAPI metadata
+
+    Permissions are verified in :class:`kinto.core.authorization.AuthorizationPolicy` based on the
+    verb and context (eg. a put can create or update). The resulting context
+    is passed in the `context` constructor parameter.
     """
 
     default_viewset = ViewSet
@@ -172,6 +183,12 @@ class Resource:
     """List of allowed permissions names."""
 
     def __init__(self, request, context=None):
+        """
+        :param request:
+            The current request object.
+        :param context:
+            The resulting context obtained from :class:`kinto.core.authorization.AuthorizationPolicy`.
+        """
         self.request = request
         self.context = context
         self.object_id = self.request.matchdict.get("id")
@@ -243,6 +260,17 @@ class Resource:
     def get_parent_id(self, request):
         """Return the parent_id of the resource with regards to the current
         request.
+
+        The resource will isolate the objects from one parent id to another.
+        For example, in Kinto, the ``group``s and ``collection``s are isolated by ``bucket``.
+
+        In order to obtain a resource where users can only see their own objects, just
+        return the user id as the parent id:
+
+        .. code-block:: python
+
+            def get_parent_id(self, request):
+                return request.prefixed_userid
 
         :param request:
             The request used to access the resource.
