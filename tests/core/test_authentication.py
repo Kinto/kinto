@@ -1,4 +1,3 @@
-import uuid
 from unittest import mock
 
 from kinto.core import authentication
@@ -87,16 +86,6 @@ class AuthenticationPoliciesTest(BaseWebTest, unittest.TestCase):
         }
         self.app.post_json("/batch", batch)
         self.assertEqual(mocked.call_count, 3)
-
-    def test_basicauth_hash_is_computed_only_once(self):
-        # hmac_digest() is used in Basic Authentication only.
-        patch = mock.patch("kinto.core.utils.hmac_digest", return_value="abcdef")
-        self.addCleanup(patch.stop)
-        mocked = patch.start()
-        body = {"data": {"name": "haha"}}
-        object_url = self.get_item_url(uuid.uuid4())
-        self.app.put_json(object_url, body, headers=self.headers)
-        self.assertEqual(mocked.call_count, 1)
 
 
 class BasicAuthenticationPolicyTest(unittest.TestCase):

@@ -1,10 +1,8 @@
-import functools
 from unittest import mock
 
-from pyramid.security import IAuthorizationPolicy, Authenticated, Everyone
+from pyramid.security import IAuthorizationPolicy, Authenticated
 from zope.interface import implementer
 
-from kinto.core.authorization import PRIVATE
 from kinto.core import testing
 from kinto.core.storage.exceptions import BackendError
 from kinto.core.utils import sqlalchemy
@@ -55,34 +53,10 @@ class BaseWebTest(testing.BaseWebTest):
 @implementer(IAuthorizationPolicy)
 class AllowAuthorizationPolicy:
     def permits(self, context, principals, permission):
-        if permission == PRIVATE:
-            return Authenticated in principals
-        if Everyone in principals:
-            return True
-        # Kinto-Core default authz policy uses prefixed_userid.
-        prefixed = [context.prefixed_userid]
-        return USER_PRINCIPAL in (principals + prefixed)
+        return Authenticated in principals
 
     def principals_allowed_by_permission(self, context, permission):
         raise NotImplementedError()  # PRAGMA NOCOVER
-
-
-def authorize(permits=True, authz_class=None):
-    """Patch the default authorization policy to return what is specified
-    in :param:permits.
-    """
-    if authz_class is None:
-        authz_class = "tests.core.support.AllowAuthorizationPolicy"
-
-    def wrapper(f):
-        @functools.wraps(f)
-        def wrapped(*args, **kwargs):
-            with mock.patch("{}.permits".format(authz_class), return_value=permits):
-                return f(*args, **kwargs)
-
-        return wrapped
-
-    return wrapper
 
 
 class PostgreSQLTest(BaseWebTest):

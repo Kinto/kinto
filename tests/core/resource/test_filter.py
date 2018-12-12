@@ -40,6 +40,7 @@ class FilteringTest(BaseTest):
     def test_filter_on_id_is_supported(self):
         self.patch_known_field.stop()
         r = self.model.create_object({})
+        r.pop(self.model.permissions_field)
         self.validated["querystring"] = {"id": "{}".format(r["id"])}
         result = self.resource.plural_get()
         self.assertEqual(result["data"][0], r)

@@ -33,9 +33,9 @@ from kinto.core.utils import (
     apply_json_patch,
 )
 
-from .model import Model, ShareableModel
+from .model import Model
 from .schema import ResourceSchema, JsonPatchRequestSchema
-from .viewset import ViewSet, ShareableViewSet
+from .viewset import ViewSet
 
 
 logger = logging.getLogger(__name__)
@@ -152,19 +152,19 @@ def register_resource(resource_cls, settings=None, viewset=None, depth=1, **kwar
     return callback
 
 
-class UserResource:
-    """Base resource class providing every endpoint.
+class Resource:
+    """Resource class providing every HTTP endpoint.
 
-    Resources inheriting from UserResource are automatically "scoped"
-    by user (see get_parent_id()), with the effect that one user
-    cannot look at another user's data. This is good for implementing
-    sensitive or private information such as accounts.
+    A resource provides all the necessary mechanism for:
+    - storage and retrieval of objects according to HTTP verbs
+    - permission checking and tracking
+    - concurrency control
+    - synchronization
+    - OpenAPI metadata
 
-    However, most resources in Kinto can be shared by different users,
-    with different levels of access determined by their
-    permissions. Those resources should inherit from
-    ShareableResource, below.
-
+    Permissions are verified in :class:`kinto.core.authorization.AuthorizationPolicy` based on the
+    verb and context (eg. a put can create or update). The resulting context
+    is passed in the `context` constructor parameter.
     """
 
     default_viewset = ViewSet
@@ -179,11 +179,19 @@ class UserResource:
     schema = ResourceSchema
     """Schema to validate objects."""
 
+    permissions = ("read", "write")
+    """List of allowed permissions names."""
+
     def __init__(self, request, context=None):
+        """
+        :param request:
+            The current request object.
+        :param context:
+            The resulting context obtained from :class:`kinto.core.authorization.AuthorizationPolicy`.
+        """
         self.request = request
         self.context = context
         self.object_id = self.request.matchdict.get("id")
-        self.force_patch_update = False
 
         content_type = str(self.request.headers.get("Content-Type")).lower()
         self._is_json_patch = content_type == "application/json-patch+json"
@@ -195,17 +203,28 @@ class UserResource:
         # Authentication to storage is transmitted as is (cf. cloud_storage).
         auth = request.headers.get("Authorization")
 
+        # The principal of an anonymous is system.Everyone
+        current_principal = self.request.prefixed_userid or Everyone
+
         if not hasattr(self, "model"):
             self.model = self.default_model(
                 storage=request.registry.storage,
+                permission=request.registry.permission,
                 id_generator=self.id_generator,
                 resource_name=classname(self),
                 parent_id=parent_id,
+                current_principal=current_principal,
+                prefixed_principals=request.prefixed_principals,
                 auth=auth,
             )
 
         # Initialize timestamp as soon as possible.
         self.timestamp
+
+        if self.context:
+            self.model.get_permission_object_id = functools.partial(
+                self.context.get_permission_object_id, self.request
+            )
 
     @reify
     def id_generator(self):
@@ -242,13 +261,23 @@ class UserResource:
         """Return the parent_id of the resource with regards to the current
         request.
 
+        The resource will isolate the objects from one parent id to another.
+        For example, in Kinto, the ``group``s and ``collection``s are isolated by ``bucket``.
+
+        In order to obtain a resource where users can only see their own objects, just
+        return the user id as the parent id:
+
+        .. code-block:: python
+
+            def get_parent_id(self, request):
+                return request.prefixed_userid
+
         :param request:
-            The request used to create the resource.
+            The request used to access the resource.
 
         :rtype: str
-
         """
-        return request.prefixed_userid
+        return ""
 
     def _get_known_fields(self):
         """Return all the `field` defined in the ressource schema."""
@@ -350,7 +379,7 @@ class UserResource:
         .. seealso::
 
             Add custom behaviour by overriding
-            :meth:`kinto.core.resource.UserResource.process_object`
+            :meth:`kinto.core.resource.Resource.process_object`
         """
         new_object = self.request.validated["body"].get("data", {})
         try:
@@ -469,7 +498,7 @@ class UserResource:
         .. seealso::
 
             Add custom behaviour by overriding
-            :meth:`kinto.core.resource.UserResource.process_object`.
+            :meth:`kinto.core.resource.Resource.process_object`.
         """
         self._raise_400_if_invalid_id(self.object_id)
         try:
@@ -518,8 +547,8 @@ class UserResource:
 
         .. seealso::
             Add custom behaviour by overriding
-            :meth:`kinto.core.resource.UserResource.apply_changes` or
-            :meth:`kinto.core.resource.UserResource.process_object`.
+            :meth:`kinto.core.resource.Resource.apply_changes` or
+            :meth:`kinto.core.resource.Resource.process_object`.
         """
         self._raise_400_if_invalid_id(self.object_id)
         existing = self._get_object_or_404(self.object_id)
@@ -533,7 +562,7 @@ class UserResource:
             body = self.request.validated["body"]
             if not body:
                 # If no `data` nor `permissions` is provided in patch, reject!
-                # XXX: This should happen in schema instead (c.f. ShareableViewSet)
+                # XXX: This should happen in schema instead (c.f. ViewSet)
                 error_details = {
                     "name": "data",
                     "description": "Provide at least one of data or permissions",
@@ -554,14 +583,7 @@ class UserResource:
             k for k in applied_changes.keys() if existing.get(k) != new_object.get(k)
         ]
 
-        # Save in storage if necessary.
-        if changed_fields or self.force_patch_update:
-            new_object = self.model.update_object(new_object)
-
-        else:
-            # Behave as if storage would have added `id` and `last_modified`.
-            for extra_field in [self.model.modified_field, self.model.id_field]:
-                new_object[extra_field] = existing[extra_field]
+        new_object = self.model.update_object(new_object)
 
         # Adjust response according to ``Response-Behavior`` header
         body_behavior = self.request.validated["header"].get("Response-Behavior", "full")
@@ -673,14 +695,43 @@ class UserResource:
         is_integer = isinstance(new_last_modified, int)
         if not is_integer:
             new.pop(modified_field, None)
-            return new
+            new_last_modified = None
 
         # Drop the new last_modified if lesser or equal to the old one.
-        is_less_or_equal = old is not None and new_last_modified <= old[modified_field]
+        is_less_or_equal = (
+            new_last_modified and old is not None and new_last_modified <= old[modified_field]
+        )
         if is_less_or_equal:
             new.pop(modified_field, None)
 
-        return new
+        # patch is specified as a list of of operations (RFC 6902)
+
+        payload = self.request.validated["body"]
+
+        if self._is_json_patch:
+            permissions = apply_json_patch(old, payload)["permissions"]
+
+        elif self._is_merge_patch:
+            existing = old or {}
+            permissions = existing.get("__permissions__", {})
+            recursive_update_dict(permissions, payload.get("permissions", {}), ignores=(None,))
+
+        else:
+            permissions = {
+                k: v for k, v in payload.get("permissions", {}).items() if v is not None
+            }
+
+        annotated = {**new}
+
+        if permissions:
+            is_put = self.request.method.lower() == "put"
+            if is_put or self._is_merge_patch:
+                # Remove every existing ACEs using empty lists.
+                for perm in self.permissions:
+                    permissions.setdefault(perm, [])
+            annotated[self.model.permissions_field] = permissions
+
+        return annotated
 
     def apply_changes(self, obj, requested_changes):
         """Merge `changes` into `object` fields.
@@ -744,7 +795,17 @@ class UserResource:
         return validated, applied_changes
 
     def postprocess(self, result, action=ACTIONS.READ, old=None):
-        body = {"data": result}
+        body = {}
+
+        if not isinstance(result, list):
+            perms = result.pop(self.model.permissions_field, None)
+            if perms is not None:
+                body["permissions"] = {k: list(p) for k, p in perms.items()}
+            if old:
+                # Remove permissions from event payload.
+                old.pop(self.model.permissions_field, None)
+
+        body["data"] = result
 
         parent_id = self.get_parent_id(self.request)
         # Use self.model.timestamp() instead of self.timestamp because
@@ -894,7 +955,12 @@ class UserResource:
 
         if current_timestamp != modified_since:
             error_msg = "Resource was modified meanwhile"
-            details = {"existing": obj} if obj else {}
+            # Do not provide the permissions among the object fields.
+            # Ref: https://github.com/Kinto/kinto/issues/224
+            existing = {**obj} if obj else {}
+            existing.pop(self.model.permissions_field, None)
+
+            details = {"existing": existing} if obj else {}
             response = http_error(
                 HTTPPreconditionFailed(),
                 errno=ERRORS.MODIFIED_MEANWHILE,
@@ -1026,6 +1092,14 @@ class UserResource:
                 raise_invalid(self.request, **error_details)
 
             filters.append(Filter(field, value, operator))
+
+        # If a plural endpoint is reached, and if the user does not have the
+        # permission to read/write the whole list, the set is filtered by ids,
+        # based on the list of ids returned by the authorization policy.
+        ids = self.context.shared_ids
+        if ids is not None:
+            filter_by_id = Filter(self.model.id_field, ids, COMPARISON.IN)
+            filters.insert(0, filter_by_id)
 
         return filters
 
@@ -1178,124 +1252,8 @@ class UserResource:
         return self.plural_delete(*args, **kwargs)
 
 
-class ShareableResource(UserResource):
-    """Shareable resources allow to set permissions on objects, in order to
-    share their access or protect their modification.
-    """
-
-    default_model = ShareableModel
-    default_viewset = ShareableViewSet
-    permissions = ("read", "write")
-    """List of allowed permissions names."""
-
+class ShareableResource(Resource):
     def __init__(self, *args, **kwargs):
+        message = "`ShareableResource` is deprecated, use `Resource` instead."
+        warnings.warn(message, DeprecationWarning)
         super().__init__(*args, **kwargs)
-        # In base resource, PATCH only hit storage if no data has changed.
-        # Here, we force update because we add the current principal to
-        # the ``write`` ACE.
-        self.force_patch_update = True
-
-        # Required by the ShareableModel class.
-        self.model.permission = self.request.registry.permission
-        if self.request.prefixed_userid is None:
-            # The principal of an anonymous is system.Everyone
-            self.model.current_principal = Everyone
-        else:
-            self.model.current_principal = self.request.prefixed_userid
-        self.model.prefixed_principals = self.request.prefixed_principals
-
-        if self.context:
-            self.model.get_permission_object_id = functools.partial(
-                self.context.get_permission_object_id, self.request
-            )
-
-    def get_parent_id(self, request):
-        """Unlike :class:`kinto.core.resource.UserResource`, objects are not
-        isolated by user.
-
-        See https://github.com/mozilla-services/cliquet/issues/549
-
-        :returns: A constant empty value.
-        """
-        return ""
-
-    def _extract_filters(self):
-        """Override default filters extraction from QueryString to allow
-        partial sets of objects.
-
-        XXX: find more elegant approach to add custom filters.
-        """
-        filters = super()._extract_filters()
-
-        ids = self.context.shared_ids
-        if ids is not None:
-            filter_by_id = Filter(self.model.id_field, ids, COMPARISON.IN)
-            filters.insert(0, filter_by_id)
-
-        return filters
-
-    def _raise_412_if_modified(self, obj=None):
-        """Do not provide the permissions among the object fields.
-        Ref: https://github.com/Kinto/kinto/issues/224
-        """
-        if obj:
-            obj = {**obj}
-            obj.pop(self.model.permissions_field, None)
-        return super()._raise_412_if_modified(obj)
-
-    def process_object(self, new, old=None):
-        """Read permissions from request body, and in the case of ``PUT`` every
-        existing ACE is removed (using empty list).
-        """
-        new = super().process_object(new, old)
-
-        # patch is specified as a list of of operations (RFC 6902)
-
-        payload = self.request.validated["body"]
-
-        if self._is_json_patch:
-            permissions = apply_json_patch(old, payload)["permissions"]
-
-        elif self._is_merge_patch:
-            existing = old or {}
-            permissions = existing.get("__permissions__", {})
-            recursive_update_dict(permissions, payload.get("permissions", {}), ignores=(None,))
-
-        else:
-            permissions = {
-                k: v for k, v in payload.get("permissions", {}).items() if v is not None
-            }
-
-        annotated = {**new}
-
-        if permissions:
-            is_put = self.request.method.lower() == "put"
-            if is_put or self._is_merge_patch:
-                # Remove every existing ACEs using empty lists.
-                for perm in self.permissions:
-                    permissions.setdefault(perm, [])
-            annotated[self.model.permissions_field] = permissions
-
-        return annotated
-
-    def postprocess(self, result, action=ACTIONS.READ, old=None):
-        """Add ``permissions`` attribute in response body.
-
-        In the HTTP API, it was decided that ``permissions`` would reside
-        outside the ``data`` attribute.
-        """
-        body = {}
-
-        if not isinstance(result, list):
-            # object endpoint.
-            perms = result.pop(self.model.permissions_field, None)
-            if perms is not None:
-                body["permissions"] = {k: list(p) for k, p in perms.items()}
-
-            if old:
-                # Remove permissions from event payload.
-                old.pop(self.model.permissions_field, None)
-
-        data = super().postprocess(result, action, old)
-        body.update(data)
-        return body
