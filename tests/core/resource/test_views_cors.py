@@ -152,6 +152,7 @@ class CORSExposeHeadersTest(BaseWebTest, unittest.TestCase):
                 "Content-Length",
                 "Cache-Control",
                 "Expires",
+                "Next-Page",
                 "Pragma",
             ],
         )

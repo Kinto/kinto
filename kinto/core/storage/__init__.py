@@ -347,9 +347,9 @@ class StorageBase:
         :param bool include_deleted: Optionnally include the deleted objects
             that match the filters.
 
-        :returns: the limited list of objects, and the total number of
+        :returns: the limited list of objects of
             matching objects in the resource (deleted ones excluded).
-        :rtype: tuple
+        :rtype: list
         """
         raise NotImplementedError
 
@@ -363,9 +363,10 @@ class StorageBase:
         deleted_field=DEFAULT_DELETED_FIELD,
         auth=None,
     ):
-        """Return a count of all objects in this `collection_id` for this `parent_id`.
-        :param str collection_id: the collection id.
-        :param str parent_id: the collection parent, possibly
+        """Return a count of all objects in this `resource_name` for this `parent_id`.
+
+        :param str resource_name: the resource name.
+        :param str parent_id: the parent resource, possibly
             containing a wildcard '*'. (This can happen when
             implementing "administrator" operations on a UserResource,
             for example.)
@@ -374,9 +375,8 @@ class StorageBase:
             comparison (see `kinto.core.utils.COMPARISON`). All filters
             are combined using *AND*.
         :type filters: list of :class:`kinto.core.storage.Filter`
-        :returns: the limited list of objects, and the total number of
-            matching objects in the collection (deleted ones excluded).
-        :rtype: tuple
+        :returns: the total number of matching objects in the resource (deleted ones excluded).
+        :rtype: int
         """
         raise NotImplementedError
 
