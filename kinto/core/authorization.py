@@ -11,11 +11,11 @@ from kinto.core.storage import exceptions as storage_exceptions
 
 logger = logging.getLogger(__name__)
 
-# A permission is called "dynamic" when it's computed at request time.
-DYNAMIC = "dynamic"
-
 # When permission is set to "private", only the current user is allowed.
 PRIVATE = "private"
+
+# A permission is called "dynamic" when it's computed at request time.
+DYNAMIC = "dynamic"
 
 
 def groupfinder(userid, request):
@@ -54,14 +54,15 @@ class AuthorizationPolicy:
 
     def permits(self, context, principals, permission):
         if permission == PRIVATE:
+            # When using the private permission, we bypass the permissions
+            # backend, and simply authorize if authenticated.
             return Authenticated in principals
 
         principals = context.get_prefixed_principals()
 
-        if permission == DYNAMIC:
-            permission = context.required_permission
-
         create_permission = f"{context.resource_name}:create"
+
+        permission = context.required_permission
         if permission == "create":
             permission = create_permission
 
@@ -83,7 +84,7 @@ class AuthorizationPolicy:
 
         # If not allowed on this plural endpoint, but some objects are shared with
         # the current user, then authorize.
-        # The ShareableResource class will take care of the filtering.
+        # The :class:`kinto.core.resource.Resource` class will take care of the filtering.
         is_list_operation = context.on_plural_endpoint and not permission.endswith("create")
         if not allowed and is_list_operation:
             allowed = bool(
@@ -111,7 +112,11 @@ class AuthorizationPolicy:
 
     def _get_bound_permissions(self, object_id, permission):
         if self.get_bound_permissions is None:
-            return [(object_id, permission)]
+            # Permission to 'write' gives permission to 'read'.
+            bound = [(object_id, permission)]
+            if permission == "read":
+                bound += [(object_id, "write")]
+            return bound
         return self.get_bound_permissions(object_id, permission)
 
     def principals_allowed_by_permission(self, context, permission):
@@ -202,7 +207,7 @@ class RouteFactory:
         .. warning::
             This sets the ``shared_ids`` attribute to the context with the
             return value. The attribute is then read by
-            :class:`kinto.core.resource.ShareableResource`
+            :class:`kinto.core.resource.Resource`
         """
         if get_bound_permissions:
             bound_perms = get_bound_permissions(self._object_id_match, perm)
@@ -210,7 +215,7 @@ class RouteFactory:
             bound_perms = [(self._object_id_match, perm)]
         by_obj_id = self._get_accessible_objects(principals, bound_perms, with_children=False)
         ids = by_obj_id.keys()
-        # Store for later use in ``ShareableResource``.
+        # Store for later use in ``Resource``.
         self.shared_ids = [self._extract_object_id(id_) for id_ in ids]
         return self.shared_ids
 
@@ -251,7 +256,7 @@ class RouteFactory:
 
         .. note::
             This method saves an attribute ``self.current_object`` used
-            in :class:`kinto.core.resource.UserResource`.
+            in :class:`kinto.core.resource.Resource`.
         """
         # By default, it's a URI a and permission associated to the method.
         permission_object_id = self.get_permission_object_id(request)

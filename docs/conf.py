@@ -117,8 +117,6 @@ nitpick_ignore = [
     # kinto.core.resource
     ("py:class", "Model"),
     ("py:class", "ResourceSchema"),
-    ("py:class", "ShareableModel"),
-    ("py:class", "ShareableViewSet"),
     ("py:class", "ViewSet"),
     ("py:class", "Sequence"),
     # kinto.core.resource.schema

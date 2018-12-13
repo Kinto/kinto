@@ -5,76 +5,23 @@ Permissions
 
 *Kinto-Core* provides a mechanism to handle authorization on the stored :term:`objects`.
 
-This section gives details about the behaviour of resources in regards to
-:term:`permissions`.
-
-
-.. _permission-user-resource:
-
-User resource
-=============
-
-This is the simplest one, as presented in the :ref:`resource section <resource>`.
-
-When using a :class:`kinto.core.resource.UserResource`, every authenticated user
-can manipulate and read their own records. There is no way to restrict this or
-allow sharing of records.
-
-+------------+--------------------+--------------------+
-| Method     | URL                | :term:`permission` |
-+============+====================+====================+
-| GET / HEAD | /{collection}      | *Authenticated*    |
-+------------+--------------------+--------------------+
-| POST       | /{collection}      | *Authenticated*    |
-+------------+--------------------+--------------------+
-| DELETE     | /{collection}      | *Authenticated*    |
-+------------+--------------------+--------------------+
-| GET / HEAD | /{collection}/{id} | *Authenticated*    |
-+------------+--------------------+--------------------+
-| PUT        | /{collection}/{id} | *Authenticated*    |
-+------------+--------------------+--------------------+
-| PATCH      | /{collection}/{id} | *Authenticated*    |
-+------------+--------------------+--------------------+
-| DELETE     | /{collection}/{id} | *Authenticated*    |
-+------------+--------------------+--------------------+
-
-.. note::
-
-    When using only these resources, the permission backend remains unused.
-    Its configuration is not necessary.
-
-
-Public BasicAuth
-----------------
-
-If *Basic Auth* authentication is enabled, private user resources can become semi-private or public
-if the ``user:pass`` is publicly known and shared (for example ``public:`` is a valid user:pass combination).
-That's how most simple demos of *Kinto* are built by the way!
-
+This section gives details about the behaviour of resources in regards to :term:`permissions`.
 
 .. _permission-shareable-resource:
 
-Shareable resource
-==================
-
-.. warning::
-
-    When using this kind of resource, the ``permission_backend`` setting must be
-    set, :ref:`as described in the configuration section <configuration-backends>`.
-
-To introduce more flexibility, the :class:`kinto.core.resource.ShareableResource`
-can be used instead.
+Resource
+========
 
 .. code-block:: python
 
     from kinto.core import resource
 
     @resource.register()
-    class Toadstool(resource.ShareableResource):
+    class Toadstool(resource.Resource):
         schema = MushroomSchema
 
 
-With this alternative resource class, *Kinto-Core* will register the :term:`endpoints`
+With this resource class, *Kinto-Core* will register the :term:`endpoints`
 with a specific `route factory
 <http://docs.pylonsproject.org/projects/pyramid/en/latest/narr/urldispatch.html#route-factories>`_,
 that will take care of checking the appropriate permission for each action.
@@ -82,39 +29,39 @@ that will take care of checking the appropriate permission for each action.
 +------------+--------------------+----------------------+-----------------------------------------------+
 | Method     | URL                | :term:`permission`   | Comments                                      |
 +============+====================+======================+===============================================+
-| GET / HEAD | /{collection}      | ``read``             | If not allowed by setting                     |
-|            |                    |                      | ``kinto.{collection}_read_principals``,       |
+| GET / HEAD | /{resource}        | ``read``             | If not allowed by setting                     |
+|            |                    |                      | ``kinto.{resource}_read_principals``,         |
 |            |                    |                      | will return list of records where user        |
 |            |                    |                      | has ``read`` permission.                      |
 +------------+--------------------+----------------------+-----------------------------------------------+
-| POST       | /{collection}      | ``create``           | Allowed by setting                            |
-|            |                    |                      | ``kinto.{collection}_create_principals``      |
+| POST       | /{resource}        | ``create``           | Allowed by setting                            |
+|            |                    |                      | ``kinto.{resource}_create_principals``        |
 +------------+--------------------+----------------------+-----------------------------------------------+
-| DELETE     | /{collection}      | ``write``            | If not allowed by setting                     |
-|            |                    |                      | ``kinto.{collection}_write_principals``,      |
+| DELETE     | /{resource}        | ``write``            | If not allowed by setting                     |
+|            |                    |                      | ``kinto.{resource}_write_principals``,        |
 |            |                    |                      | will delete the list of records where         |
 |            |                    |                      | user has ``write`` permission.                |
 +------------+--------------------+----------------------+-----------------------------------------------+
-| GET / HEAD | /{collection}/{id} | ``read``             | If not allowed by setting                     |
-|            |                    |                      | ``kinto.{collection}_read_principals``,       |
+| GET / HEAD | /{resource}/{id}   | ``read``             | If not allowed by setting                     |
+|            |                    |                      | ``kinto.{resource}_read_principals``,         |
 |            |                    |                      | will check record permissions                 |
 +------------+--------------------+----------------------+-----------------------------------------------+
-| PUT        | /{collection}/{id} | ``create`` if record | Allowed by setting                            |
-|            |                    | doesn't exist,       | ``kinto.{collection}_create_principals``,     |
-|            |                    | ``write`` otherwise  | or ``kinto.{collection}_create_principals``   |
+| PUT        | /{resource}/{id}   | ``create`` if record | Allowed by setting                            |
+|            |                    | doesn't exist,       | ``kinto.{resource}_create_principals``,       |
+|            |                    | ``write`` otherwise  | or ``kinto.{resource}_create_principals``     |
 |            |                    |                      | or existing record permissions                |
 +------------+--------------------+----------------------+-----------------------------------------------+
-| PATCH      | /{collection}/{id} | ``write``            | If not allowed by setting                     |
-|            |                    |                      | ``kinto.{collection}_write_principals``,      |
+| PATCH      | /{resource}/{id}   | ``write``            | If not allowed by setting                     |
+|            |                    |                      | ``kinto.{resource}_write_principals``,        |
 |            |                    |                      | will check record permissions                 |
 |            |                    |                      |                                               |
 +------------+--------------------+----------------------+-----------------------------------------------+
-| DELETE     | /{collection}/{id} | ``write``            | If not allowed by setting                     |
-|            |                    |                      | ``kinto.{collection}_write_principals``,      |
+| DELETE     | /{resource}/{id}   | ``write``            | If not allowed by setting                     |
+|            |                    |                      | ``kinto.{resource}_write_principals``,        |
 |            |                    |                      | will check record permissions                 |
 +------------+--------------------+----------------------+-----------------------------------------------+
 
-The record permissions can be manipulated via the ``permissions`` attribute in the
+The objects permissions can be manipulated via the ``permissions`` attribute in the
 JSON payload, aside the ``data`` attribute.
 It allows to specify the list of :ref:`principals <api-principals>` allowed for each ``permission``,
 as detailed in the `API section <resource-permissions-attribute>`_.
@@ -128,28 +75,21 @@ as detailed in the `API section <resource-permissions-attribute>`_.
 
 
 The ``write`` permission is required to be able to modify the permissions
-of an existing record.
+of an existing object.
 
-When a record is created or modified, the **current user is added to
+When an object is created or modified, the **current user is added to
 list of principals** for the ``write`` permission on this object.
 That means that a user is always able to replace or delete the records she created.
-
-.. note::
-
-    Don't hesitate to submit a contribution to introduce a way to control the
-    current behaviour instead of always granting ``write`` on current user!
-
 
 Related/Inherited permissions
 -----------------------------
 
-In the above section, the list of allowed principals for actions on the collection
+In the above section, the list of allowed principals for actions on the resource
 (especially ``create``) is specified via settings.
 
 It is possible to extend the previously described behavior with related permissions.
 
-For example, in order to imply that having permission to ``write`` implies
-permission to ``read``. Or having permission to ``create`` blog articles also means
+For example, having permission to ``create`` blog articles also means
 permission to ``write`` categories.
 
 To do so, specify the ``get_bound_permissions`` of the *Kinto-Core* authorization policy.
@@ -279,8 +219,8 @@ on the resource during registration.
 
         def get_view_arguments(self, endpoint_type, resource_cls, method):
             args = super().get_view_arguments(endpoint_type,
-                                                             resource_cls,
-                                                             method)
+                                              resource_cls,
+                                              method)
             if method.lower() not in ('get', 'head'):
                 args['permission'] = 'publish'
             return args
@@ -292,7 +232,7 @@ on the resource during registration.
 
 
     @resource.register(viewset=MyViewSet())
-    class Resource(resource.UserResource):
+    class Resource(resource.Resource):
         schema = BookmarkSchema
 
 
@@ -320,7 +260,7 @@ For example, a simplistic example with the previous resource viewset:
         def permits(self, context, principals, permission):
             if context.current_resource == BlogArticle:
                 if permission == 'publish':
-                    return ('group:publishers' in principals)
+                    return 'group:publishers' in principals
             return False
 
 .. autoclass:: kinto.core.authorization.AuthorizationPolicy

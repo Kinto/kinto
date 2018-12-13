@@ -20,7 +20,7 @@ _parent_path = "/buckets/{{bucket_id}}/collections/{{collection_id}}"
     plural_path=_parent_path + "/records",
     object_path=_parent_path + "/records/{{id}}",
 )
-class Record(resource.ShareableResource):
+class Record(resource.Resource):
 
     schema_field = "schema"
 

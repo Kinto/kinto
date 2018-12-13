@@ -12,8 +12,18 @@ from ..support import BaseWebTest
 MINIMALIST_OBJECT = {"name": "Champignon"}
 
 
-class UserResourcePermissionTest(BaseWebTest, unittest.TestCase):
+class AuthzAuthnTest(BaseWebTest, unittest.TestCase):
     authorization_policy = "kinto.core.authorization.AuthorizationPolicy"
+    plural_url = "/toadstools"
+
+    def add_permission(self, object_id, permission):
+        self.permission.add_principal_to_ace(object_id, permission, self.principal)
+
+
+class ResourcePermissionTest(AuthzAuthnTest):
+    def setUp(self):
+        self.add_permission("", "toadstool:create")
+        self.add_permission(self.plural_url, "toadstool:create")
 
     def test_views_require_authentication(self):
         self.app.get(self.plural_url, status=401)
@@ -27,8 +37,9 @@ class UserResourcePermissionTest(BaseWebTest, unittest.TestCase):
 
     def test_plural_operations_are_authorized_if_authenticated(self):
         body = {"data": MINIMALIST_OBJECT}
-        self.app.get(self.plural_url, headers=self.headers, status=200)
         self.app.post_json(self.plural_url, body, headers=self.headers, status=201)
+
+        self.app.get(self.plural_url, headers=self.headers, status=200)
         self.app.delete(self.plural_url, headers=self.headers, status=200)
 
     def test_object_operations_are_authorized_if_authenticated(self):
@@ -43,22 +54,6 @@ class UserResourcePermissionTest(BaseWebTest, unittest.TestCase):
         self.app.delete(object_url, headers=self.headers, status=200)
         self.app.put_json(object_url, body, headers=self.headers, status=201)
         self.app.put_json(unknown_url, body, headers=self.headers, status=201)
-
-
-class AuthzAuthnTest(BaseWebTest, unittest.TestCase):
-    authorization_policy = "kinto.core.authorization.AuthorizationPolicy"
-    # Shareable resource.
-    plural_url = "/toadstools"
-
-    def add_permission(self, object_id, permission, principal=None):
-        if not principal:
-            principal = self.principal
-        self.permission.add_principal_to_ace(object_id, permission, principal)
-
-
-class ShareableResourcePermissionTest(AuthzAuthnTest):
-    def setUp(self):
-        self.add_permission(self.plural_url, "toadstool:create")
 
     def test_permissions_are_associated_to_object_uri_without_prefix(self):
         body = {"data": MINIMALIST_OBJECT, "permissions": {"read": ["group:readers"]}}
@@ -286,6 +281,7 @@ class ObjectAuthzGrantedOnPluralEndpointTest(AuthzAuthnTest):
     def test_guest_can_remove_its_objects_from_the_list_of_objects(self):
         resp = self.app.delete(self.plural_url, headers=self.guest_headers, status=200)
         self.assertEqual(len(resp.json["data"]), 1)
+
         resp = self.app.get(self.plural_url, headers=self.headers, status=200)
         self.assertEqual(len(resp.json["data"]), 1)
 
@@ -545,12 +541,6 @@ class InvalidPermissionsTest(BaseWebTest, unittest.TestCase):
             "permissions": {"read": "book"},
         }  # book not list
 
-    def test_permissions_are_not_accepted_on_normal_resources(self):
-        body = {"data": MINIMALIST_OBJECT, "permissions": {"read": ["book"]}}
-        resp = self.app.post_json("/mushrooms", body, headers=self.headers, status=400)
-        self.assertIn("Unrecognized keys in mapping", resp.json["message"])
-        self.assertIn("permissions", resp.json["message"])
-
     def test_create_invalid_body_returns_400(self):
         self.app.post_json(self.plural_url, self.invalid_body, headers=self.headers, status=400)
 
@@ -582,14 +572,16 @@ class InvalidPermissionsTest(BaseWebTest, unittest.TestCase):
 
 
 class CacheControlTest(BaseWebTest, unittest.TestCase):
+    authorization_policy = "kinto.core.authorization.AuthorizationPolicy"
     plural_url = "/toadstools"
 
     @classmethod
     def get_app_settings(cls, extras=None):
         settings = super().get_app_settings(extras)
         settings["toadstool_cache_expires_seconds"] = 3600
-        settings["toadstool_read_principals"] = "system.Everyone"
         settings["psilo_cache_expires_seconds"] = 0
+        settings["toadstool_read_principals"] = "system.Everyone"
+        settings["psilo_read_principals"] = "system.Everyone"
         settings["moisture_read_principals"] = "system.Everyone"
         return settings
 
@@ -691,18 +683,18 @@ class SchemaLessPartialResponseTest(BaseWebTest, unittest.TestCase):
         self.obj = resp.json
 
     def test_unspecified_fields_are_excluded(self):
-        resp = self.app.get(self.plural_url + "?_fields=size,category")
+        resp = self.app.get(self.plural_url + "?_fields=size,category", headers=self.headers)
         result = resp.json["data"][0]
         self.assertNotIn("owner", result)
 
     def test_specified_fields_are_included(self):
-        resp = self.app.get(self.plural_url + "?_fields=size,category")
+        resp = self.app.get(self.plural_url + "?_fields=size,category", headers=self.headers)
         result = resp.json["data"][0]
         self.assertIn("size", result)
         self.assertIn("category", result)
 
     def test_unknown_fields_are_ignored(self):
-        resp = self.app.get(self.plural_url + "?_fields=nationality")
+        resp = self.app.get(self.plural_url + "?_fields=nationality", headers=self.headers)
         result = resp.json["data"][0]
         self.assertNotIn("nationality", result)
 

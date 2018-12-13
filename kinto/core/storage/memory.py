@@ -580,14 +580,10 @@ def apply_sorting(objects, sorting):
 
 
 def _get_objects_by_parent_id(store, parent_id, resource_name, with_meta=False):
-    if parent_id is not None:
-        parent_id_match = re.compile(f"^{parent_id.replace('*', '.*')}$")
-        by_parent_id = {
-            pid: resources for pid, resources in store.items() if parent_id_match.match(pid)
-        }
-    else:
-        by_parent_id = store[parent_id]
-
+    parent_id_match = re.compile(f"^{parent_id.replace('*', '.*')}$")
+    by_parent_id = {
+        pid: resources for pid, resources in store.items() if parent_id_match.match(pid)
+    }
     objects = []
     for pid, resources in by_parent_id.items():
         if resource_name is not None:

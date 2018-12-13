@@ -68,7 +68,7 @@ class ResourceSchema(colander.MappingSchema):
         """Fields that cannot be updated. Values for fields will have to be
         provided either during object creation, through default values using
         ``missing`` attribute or implementing a custom logic in
-        :meth:`kinto.core.resource.UserResource.process_object`.
+        :meth:`kinto.core.resource.Resource.process_object`.
         """
 
         preserve_unknown = True
@@ -300,7 +300,8 @@ class ObjectSchema(colander.MappingSchema):
             return kwargs.get("permissions")
 
         # Set if node is provided, else keep deferred. This allows binding the body
-        # on Resource first and bind permissions later if using SharableResource.
+        # on Resource first and bind permissions later.
+        # XXX: probably not necessary now that UserResource is gone.
         return get_perms(node, kwargs) or colander.deferred(get_perms)
 
     @staticmethod
@@ -428,6 +429,13 @@ class ResourceReponses:
 
     default_schemas = {
         "400": ErrorResponseSchema(description="The request is invalid."),
+        "401": ErrorResponseSchema(description="The request is missing authentication headers."),
+        "403": ErrorResponseSchema(
+            description=(
+                "The user is not allowed to perform the operation, "
+                "or the resource is not accessible."
+            )
+        ),
         "406": ErrorResponseSchema(
             description="The client doesn't accept supported responses Content-Type."
         ),
@@ -494,23 +502,3 @@ class ResourceReponses:
         bound = {code: resp.bind(**kwargs) for code, resp in responses.items()}
 
         return bound
-
-
-class ShareableResourseResponses(ResourceReponses):
-    """Class that wraps and handles SharableResource responses."""
-
-    def __init__(self, **kwargs):
-
-        # Add permission related responses to defaults
-        self.default_schemas = {
-            "401": ErrorResponseSchema(
-                description="The request is missing authentication headers."
-            ),
-            "403": ErrorResponseSchema(
-                description=(
-                    "The user is not allowed to perform the operation, "
-                    "or the resource is not accessible."
-                )
-            ),
-            **self.default_schemas,
-        }

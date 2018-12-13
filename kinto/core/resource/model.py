@@ -23,7 +23,20 @@ class Model:
     deleted_field = "deleted"
     """Name of `deleted` field in deleted objects"""
 
-    def __init__(self, storage, id_generator=None, resource_name="", parent_id="", auth=None):
+    permissions_field = "__permissions__"
+    # Permissions field used to annotate data with permissions.
+
+    def __init__(
+        self,
+        storage,
+        permission,
+        id_generator=None,
+        resource_name="",
+        parent_id="",
+        auth=None,
+        current_principal=None,
+        prefixed_principals=None,
+    ):
         """
         :param storage: an instance of storage
         :type storage: :class:`kinto.core.storage.Storage`
@@ -34,10 +47,16 @@ class Model:
         :param str parent_id: the default parent id
         """
         self.storage = storage
+        self.permission = permission
         self.id_generator = id_generator
         self.parent_id = parent_id
         self.resource_name = resource_name
         self.auth = auth
+        self.current_principal = current_principal
+        self.prefixed_principals = prefixed_principals
+
+        # Object permission id.
+        self.get_permission_object_id = None
 
     def timestamp(self, parent_id=None):
         """Fetch the resource current timestamp.
@@ -49,6 +68,22 @@ class Model:
         return self.storage.resource_timestamp(
             resource_name=self.resource_name, parent_id=parent_id, auth=self.auth
         )
+
+    def _annotate(self, obj, perm_object_id):
+        permissions = self.permission.get_object_permissions(perm_object_id)
+        # Permissions are not returned if user only has read permission.
+        writers = permissions.get("write", [])
+        principals = self.prefixed_principals + [self.current_principal]
+        if len(set(writers) & set(principals)) == 0:
+            permissions = {}
+        # Insert the permissions values in the response.
+        annotated = {**obj, self.permissions_field: permissions}
+        return annotated
+
+    def _allow_write(self, perm_object_id):
+        """Helper to give the ``write`` permission to the current user.
+        """
+        self.permission.add_principal_to_ace(perm_object_id, "write", self.current_principal)
 
     def get_objects(
         self,
@@ -158,7 +193,7 @@ class Model:
         :returns: The list of deleted objects from storage.
         """
         parent_id = parent_id or self.parent_id
-        return self.storage.delete_all(
+        deleted = self.storage.delete_all(
             resource_name=self.resource_name,
             parent_id=parent_id,
             filters=filters,
@@ -170,6 +205,13 @@ class Model:
             deleted_field=self.deleted_field,
             auth=self.auth,
         )
+        # Take a huge shortcut in case we want to delete everything.
+        if not filters:
+            perm_ids = [self.get_permission_object_id(object_id="*")]
+        else:
+            perm_ids = [self.get_permission_object_id(object_id=r[self.id_field]) for r in deleted]
+        self.permission.delete_object_permissions(*perm_ids)
+        return deleted
 
     def get_object(self, object_id, parent_id=None):
         """Fetch current view related object, and raise 404 if missing.
@@ -181,7 +223,7 @@ class Model:
         :rtype: dict
         """
         parent_id = parent_id or self.parent_id
-        return self.storage.get(
+        obj = self.storage.get(
             resource_name=self.resource_name,
             parent_id=parent_id,
             object_id=object_id,
@@ -189,9 +231,13 @@ class Model:
             modified_field=self.modified_field,
             auth=self.auth,
         )
+        perm_object_id = self.get_permission_object_id(object_id)
+        return self._annotate(obj, perm_object_id)
 
     def create_object(self, obj, parent_id=None):
         """Create an object in the resource.
+
+        The current principal is added to the owner (``write`` permission).
 
         Override to perform actions or post-process objects after their
         creation in storage.
@@ -211,7 +257,10 @@ class Model:
         :rtype: dict
         """
         parent_id = parent_id or self.parent_id
-        return self.storage.create(
+
+        permissions = obj.pop(self.permissions_field, {})
+
+        created = self.storage.create(
             resource_name=self.resource_name,
             parent_id=parent_id,
             obj=obj,
@@ -221,8 +270,20 @@ class Model:
             auth=self.auth,
         )
 
+        object_id = created[self.id_field]
+        perm_object_id = self.get_permission_object_id(object_id)
+        self.permission.replace_object_permissions(perm_object_id, permissions)
+        self._allow_write(perm_object_id)
+
+        return self._annotate(created, perm_object_id)
+
     def update_object(self, obj, parent_id=None):
-        """Update an object in the resource.
+        """Update object and the specified permissions.
+
+        If no permissions is specified, the current permissions are not
+        modified.
+
+        The current principal is added to the owner (``write`` permission).
 
         Override to perform actions or post-process objects after their
         modification in storage.
@@ -242,7 +303,9 @@ class Model:
         """
         parent_id = parent_id or self.parent_id
         object_id = obj[self.id_field]
-        return self.storage.update(
+        permissions = obj.pop(self.permissions_field, {})
+
+        updated = self.storage.update(
             resource_name=self.resource_name,
             parent_id=parent_id,
             object_id=object_id,
@@ -252,8 +315,14 @@ class Model:
             auth=self.auth,
         )
 
+        perm_object_id = self.get_permission_object_id(object_id)
+        self.permission.replace_object_permissions(perm_object_id, permissions)
+        self._allow_write(perm_object_id)
+
+        return self._annotate(updated, perm_object_id)
+
     def delete_object(self, obj, parent_id=None, last_modified=None):
-        """Delete an object in the resource.
+        """Delete an object and its associated permissions.
 
         Override to perform actions or post-process objects after deletion
         from storage for example:
@@ -273,6 +342,10 @@ class Model:
         """
         parent_id = parent_id or self.parent_id
         object_id = obj[self.id_field]
+        perm_object_id = self.get_permission_object_id(object_id)
+
+        self.permission.delete_object_permissions(perm_object_id)
+
         return self.storage.delete(
             resource_name=self.resource_name,
             parent_id=parent_id,
@@ -322,95 +395,7 @@ class Model:
 
 
 class ShareableModel(Model):
-    """A protected resource interacts with the permission backend.
-    """
-
-    permissions_field = "__permissions__"
-
     def __init__(self, *args, **kwargs):
+        message = "`ShareableModel` is deprecated, use `Model` instead."
+        warnings.warn(message, DeprecationWarning)
         super().__init__(*args, **kwargs)
-        # Permission backend.
-        self.permission = None
-        # Object permission id.
-        self.get_permission_object_id = None
-        # Current user main principal.
-        self.current_principal = None
-        self.prefixed_principals = None
-
-    def _allow_write(self, perm_object_id):
-        """Helper to give the ``write`` permission to the current user.
-        """
-        self.permission.add_principal_to_ace(perm_object_id, "write", self.current_principal)
-
-    def _annotate(self, obj, perm_object_id):
-        permissions = self.permission.get_object_permissions(perm_object_id)
-        # Permissions are not returned if user only has read permission.
-        writers = permissions.get("write", [])
-        principals = self.prefixed_principals + [self.current_principal]
-        if len(set(writers) & set(principals)) == 0:
-            permissions = {}
-        # Insert the permissions values in the response.
-        annotated = {**obj, self.permissions_field: permissions}
-        return annotated
-
-    def delete_objects(
-        self, filters=None, sorting=None, pagination_rules=None, limit=None, parent_id=None
-    ):
-        """Delete permissions when resource objects are deleted in bulk.
-        """
-        deleted = super().delete_objects(filters, sorting, pagination_rules, limit, parent_id)
-        # Take a huge shortcut in case we want to delete everything.
-        if not filters:
-            perm_ids = [self.get_permission_object_id(object_id="*")]
-        else:
-            perm_ids = [self.get_permission_object_id(object_id=r[self.id_field]) for r in deleted]
-        self.permission.delete_object_permissions(*perm_ids)
-        return deleted
-
-    def get_object(self, object_id, parent_id=None):
-        """Fetch current permissions and add them to returned object.
-        """
-        obj = super().get_object(object_id, parent_id)
-        perm_object_id = self.get_permission_object_id(object_id)
-
-        return self._annotate(obj, perm_object_id)
-
-    def create_object(self, obj, parent_id=None):
-        """Create object and set specified permissions.
-
-        The current principal is added to the owner (``write`` permission).
-        """
-        permissions = obj.pop(self.permissions_field, {})
-        obj = super().create_object(obj, parent_id)
-        object_id = obj[self.id_field]
-        perm_object_id = self.get_permission_object_id(object_id)
-        self.permission.replace_object_permissions(perm_object_id, permissions)
-        self._allow_write(perm_object_id)
-
-        return self._annotate(obj, perm_object_id)
-
-    def update_object(self, obj, parent_id=None):
-        """Update object and the specified permissions.
-
-        If no permissions is specified, the current permissions are not
-        modified.
-
-        The current principal is added to the owner (``write`` permission).
-        """
-        permissions = obj.pop(self.permissions_field, {})
-        obj = super().update_object(obj, parent_id)
-        object_id = obj[self.id_field]
-        perm_object_id = self.get_permission_object_id(object_id)
-        self.permission.replace_object_permissions(perm_object_id, permissions)
-        self._allow_write(perm_object_id)
-
-        return self._annotate(obj, perm_object_id)
-
-    def delete_object(self, object_id, parent_id=None, last_modified=None):
-        """Delete object and its associated permissions.
-        """
-        obj = super().delete_object(object_id, parent_id, last_modified=last_modified)
-        perm_object_id = self.get_permission_object_id(object_id)
-        self.permission.delete_object_permissions(perm_object_id)
-
-        return obj

@@ -15,6 +15,8 @@ This document describes changes between each past release.
   ``ShareableResource`` class may also break.
 - GET requests no longer include the ``Total-Records`` header. To get a count in a collection
   you need to do a HEAD request. And the new header name is ``Total-Objects``. (#1624)
+- Remove the ``UserResource`` class. And ``ShareableResource`` is now deprecated in
+  favor of ``Resource``.
 
 **Bug Fixes**
 

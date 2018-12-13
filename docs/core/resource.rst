@@ -30,7 +30,7 @@ Full example
 
 
     @resource.register()
-    class Bookmark(resource.UserResource):
+    class Bookmark(resource.Resource):
         schema = BookmarkSchema
 
         def process_object(self, new, old=None):
@@ -59,9 +59,9 @@ URLs can be specified during registration:
 
 .. code-block:: python
 
-    @resource.register(collection_path='/user/bookmarks',
-                       record_path='/user/bookmarks/{{id}}')
-    class Bookmark(resource.UserResource):
+    @resource.register(plural_path='/user/bookmarks',
+                       object_path='/user/bookmarks/{{id}}')
+    class Bookmark(resource.Resource):
         schema = BookmarkSchema
 
 .. note::
@@ -86,22 +86,6 @@ Override the base schema to add extra fields using the `Colander API <http://doc
 
 See the :ref:`resource schema options <resource-schema>` to define *schema-less*
 resources or specify rules like readonly fields.
-
-
-.. _resource-permissions:
-
-Permissions
-===========
-
-Using the :class:`kinto.core.resource.UserResource`, the resource is accessible by
-any authenticated request, but the records are isolated by :term:`user id`.
-
-In order to define resources whose records are not isolated, open publicly or
-controlled with individual fined-permissions, a :class:`kinto.core.resource.ShareableResource`
-could be used.
-
-But there are other strategies, please refer to :ref:`dedicated section about permissions
-<permissions>`.
 
 
 HTTP methods and options
@@ -142,7 +126,7 @@ a custom model can be plugged-in:
             return record
 
 
-    class Payment(resource.UserResource):
+    class Payment(resource.Resource):
         default_model = TrackedModel
 
 
@@ -176,13 +160,13 @@ configured in the application:
         flowers = resource.Model(storage=registry.storage,
                                  resource_name='app:flowers')
 
-        flowers.create_record({'name': 'Jonquille', 'size': 30})
-        flowers.create_record({'name': 'Amapola', 'size': 18})
+        flowers.create_object({'name': 'Jonquille', 'size': 30})
+        flowers.create_object({'name': 'Amapola', 'size': 18})
 
         min_size = resource.Filter('size', 20, resource.COMPARISON.MIN)
-        records, total = flowers.get_records(filters=[min_size])
+        objects = flowers.get_objects(filters=[min_size])
 
-        flowers.delete_record(records[0])
+        flowers.delete_object(records[0])
 
 
 Outside views
@@ -239,7 +223,7 @@ or at the resource level:
 
 
     @resource.register()
-    class Mushroom(resource.UserResource):
+    class Mushroom(resource.Resource):
         def __init__(request):
             super().__init__(request)
             self.model.id_generator = MsecId()
@@ -255,13 +239,8 @@ Python API
 Resource
 --------
 
-.. autoclass:: kinto.core.resource.UserResource
+.. autoclass:: kinto.core.resource.Resource
     :members:
-
-
-.. autoclass:: kinto.core.resource.ShareableResource
-    :members:
-
 
 .. _resource-schema:
 

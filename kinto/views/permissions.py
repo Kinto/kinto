@@ -184,7 +184,7 @@ class PermissionsSchema(resource.ResourceSchema):
     object_path=None,
     plural_methods=("HEAD", "GET"),
 )
-class Permissions(resource.ShareableResource):
+class Permissions(resource.Resource):
 
     schema = PermissionsSchema
 

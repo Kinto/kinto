@@ -12,12 +12,15 @@ class MushroomSchema(resource.ResourceSchema):
 
 
 @resource.register()
-class Mushroom(resource.UserResource):
+class Mushroom(resource.Resource):
     schema = MushroomSchema
+
+    def get_parent_id(self, request):
+        return request.prefixed_userid
 
 
 @resource.register()
-class Toadstool(resource.ShareableResource):
+class Toadstool(resource.Resource):
     schema = MushroomSchema
 
 
@@ -27,7 +30,7 @@ class StrictSchema(resource.ResourceSchema):
 
 
 @resource.register()
-class Moisture(resource.ShareableResource):
+class Moisture(resource.Resource):
     schema = StrictSchema
 
 
@@ -39,12 +42,12 @@ class PsilocybinSchema(resource.ResourceSchema):
 
 
 @resource.register()
-class Psilo(resource.ShareableResource):
+class Psilo(resource.Resource):
     schema = PsilocybinSchema
 
 
 @resource.register()
-class Spore(resource.ShareableResource):
+class Spore(resource.Resource):
     # Default schema.
     pass
 

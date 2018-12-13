@@ -26,7 +26,7 @@ Viewsets defaults can be overriden by passing arguments to the
 
 
     @resource.register(collection_methods=('GET',))
-    class Resource(resource.UserResource):
+    class Bookmark(resource.Resource):
         schema = BookmarkSchema
 
 
@@ -51,7 +51,7 @@ can be subclassed and specified during registration:
 
 
     @resource.register(viewset=NoSchemaViewSet())
-    class Resource(resource.UserResource):
+    class Resource(resource.Resource):
         schema = BookmarkSchema
 
 
@@ -59,7 +59,4 @@ ViewSet class
 =============
 
 .. autoclass:: kinto.core.resource.viewset.ViewSet
-    :members:
-
-.. autoclass:: kinto.core.resource.viewset.ShareableViewSet
     :members:

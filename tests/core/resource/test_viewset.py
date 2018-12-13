@@ -1,4 +1,4 @@
-from unittest import mock
+from unittest import mock, TestCase
 
 import colander
 from cornice.validators import colander_validator
@@ -6,8 +6,8 @@ from pyramid import exceptions
 from pyramid import testing
 
 from kinto.core import authorization, DEFAULT_SETTINGS
-from kinto.core.resource import ViewSet, ShareableViewSet, register_resource
-from kinto.core.resource.viewset import PartialSchema, StrictSchema
+from kinto.core.resource import ViewSet, register_resource
+from kinto.core.resource.viewset import PartialSchema, StrictSchema, ShareableViewSet
 from kinto.core.testing import unittest
 
 
@@ -60,12 +60,6 @@ class ViewSetTest(unittest.TestCase):
         arguments = viewset.plural_arguments(mock.MagicMock(), "GET")
         self.assertEqual(original_arguments, {})
         self.assertNotEquals(original_arguments, arguments)
-
-    def test_permission_private_is_set_by_default(self):
-        viewset = ViewSet()
-        viewset.responses = mock.MagicMock()
-        args = viewset.plural_arguments(mock.MagicMock(), "GET")
-        self.assertEqual(args["permission"], "private")
 
     def test_schema_is_added_when_method_matches(self):
         viewset = ViewSet()
@@ -238,11 +232,6 @@ class ViewSetTest(unittest.TestCase):
         resource.__name__ = "FakeName"
         self.assertEqual(viewset.get_service_name("object", resource), "fakename-object")
 
-    def test_get_service_arguments_has_no_factory_by_default(self):
-        viewset = ViewSet()
-        service_arguments = viewset.get_service_arguments()
-        self.assertNotIn("factory", service_arguments)
-
     def test_is_endpoint_enabled_returns_true_if_unknown(self):
         viewset = ViewSet()
         config = {}
@@ -303,8 +292,20 @@ class ViewSetTest(unittest.TestCase):
         is_enabled = viewset.is_endpoint_enabled("object", "fake", "head", config)
         self.assertTrue(is_enabled)
 
+    def test_permission_dynamic_is_set_by_default(self):
+        viewset = ViewSet()
+        viewset.responses = mock.MagicMock()
+        resource = mock.MagicMock()
+        args = viewset.plural_arguments(resource, "GET")
+        self.assertEqual(args["permission"], "dynamic")
 
-class TestViewsetBindedSchemas(unittest.TestCase):
+    def test_get_service_arguments_has_default_factory(self):
+        viewset = ViewSet()
+        args = viewset.get_service_arguments()
+        self.assertEqual(args["factory"], authorization.RouteFactory)
+
+
+class TestViewsetBoundSchemas(unittest.TestCase):
     def setUp(self):
         self.viewset = ViewSet()
         self.viewset.responses = mock.MagicMock()
@@ -364,20 +365,6 @@ class TestViewsetSchemasTest(unittest.TestCase):
     def test_strict_schema_raise_on_unknown(self):
         schema = StrictSchema()
         self.assertRaises(colander.Invalid, schema.deserialize, {"foo": "bar"})
-
-
-class ShareableViewSetTest(unittest.TestCase):
-    def test_permission_dynamic_is_set_by_default(self):
-        viewset = ShareableViewSet()
-        viewset.responses = mock.MagicMock()
-        resource = mock.MagicMock()
-        args = viewset.plural_arguments(resource, "GET")
-        self.assertEqual(args["permission"], "dynamic")
-
-    def test_get_service_arguments_has_default_factory(self):
-        viewset = ShareableViewSet()
-        args = viewset.get_service_arguments()
-        self.assertEqual(args["factory"], authorization.RouteFactory)
 
 
 class RegisterTest(unittest.TestCase):
@@ -492,3 +479,12 @@ class RegisterTest(unittest.TestCase):
         paths = [call[1][1] for call in service_cls.mock_calls]
         self.assertIn("/fake", paths)
         self.assertNotIn("/fake/{id}", paths)
+
+
+class DeprecatedShareableViewset(TestCase):
+    def test_deprecated_warning(self):
+        with mock.patch("warnings.warn") as mocked_warnings:
+            ShareableViewSet()
+
+        message = "`ShareableViewSet` is deprecated, use `ViewSet` instead."
+        mocked_warnings.assert_called_with(message, DeprecationWarning)

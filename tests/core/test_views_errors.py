@@ -7,7 +7,7 @@ from kinto.core.errors import ERRORS, http_error
 from kinto.core.testing import FormattedErrorMixin
 from kinto.core.storage import exceptions as storage_exceptions
 
-from .support import BaseWebTest, authorize
+from .support import BaseWebTest
 
 
 class ErrorViewTest(FormattedErrorMixin, BaseWebTest, unittest.TestCase):
@@ -80,7 +80,7 @@ class ErrorViewTest(FormattedErrorMixin, BaseWebTest, unittest.TestCase):
         )
 
     def test_401_is_valid_formatted_error(self):
-        response = self.app.get(self.sample_url, status=401)
+        response = self.app.get(self.sample_url, status=401)  # no headers
         self.assertFormattedError(
             response,
             401,
@@ -89,9 +89,9 @@ class ErrorViewTest(FormattedErrorMixin, BaseWebTest, unittest.TestCase):
             "Please authenticate yourself to use this endpoint.",
         )
 
-    @authorize(False)
     def test_403_is_valid_formatted_error(self):
-        response = self.app.get(self.sample_url, headers=self.headers, status=403)
+        with mock.patch("tests.core.support.AllowAuthorizationPolicy.permits", return_value=False):
+            response = self.app.get(self.sample_url, headers=self.headers, status=403)
         self.assertFormattedError(
             response, 403, ERRORS.FORBIDDEN, "Forbidden", "This user cannot access this resource."
         )
