@@ -355,6 +355,7 @@ class Storage(MemoryBasedStorage):
         )
         return objects
 
+    @deprecate_kwargs({"collection_id": "resource_name"})
     @synchronized
     def count_all(
         self,

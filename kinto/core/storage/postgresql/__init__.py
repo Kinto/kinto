@@ -620,6 +620,7 @@ class Storage(StorageBase, MigratorMixin):
 
         return deleted
 
+    @deprecate_kwargs({"collection_id": "resource_name"})
     def list_all(
         self,
         resource_name,
@@ -673,6 +674,7 @@ class Storage(StorageBase, MigratorMixin):
             records.append(record)
         return records
 
+    @deprecate_kwargs({"collection_id": "resource_name"})
     def count_all(
         self,
         resource_name,
