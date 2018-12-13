@@ -269,13 +269,9 @@ class BaseTestStorage:
         self.storage.delete(object_id=obj["id"], parent_id="abc", resource_name="c")
         self.create_object(parent_id="efg", resource_name="c")
 
-        objects = self.storage.list_all(
-            parent_id="ab*", resource_name="c", include_deleted=True
-        )
+        objects = self.storage.list_all(parent_id="ab*", resource_name="c", include_deleted=True)
         self.assertEqual(len(objects), 2)
-        total_objects = self.storage.count_all(
-            parent_id="ab*", resource_name="c",
-        )
+        total_objects = self.storage.count_all(parent_id="ab*", resource_name="c")
         self.assertEqual(total_objects, 1)
 
     def test_list_all_does_proper_parent_id_pattern_matching(self):
@@ -283,13 +279,9 @@ class BaseTestStorage:
         self.create_object(parent_id="xabcx", resource_name="c")
         self.create_object(parent_id="efg", resource_name="c")
 
-        objects = self.storage.list_all(
-            parent_id="ab*", resource_name="c", include_deleted=True
-        )
+        objects = self.storage.list_all(parent_id="ab*", resource_name="c", include_deleted=True)
         self.assertEqual(len(objects), 1)
-        total_objects = self.storage.count_all(
-            parent_id="ab*", resource_name="c",
-        )
+        total_objects = self.storage.count_all(parent_id="ab*", resource_name="c")
         self.assertEqual(len(objects), total_objects)
 
     def test_list_all_parent_id_handles_collisions(self):
@@ -299,13 +291,9 @@ class BaseTestStorage:
         abc2 = self.create_object(
             parent_id="abc2", resource_name="c", obj={"id": "abc", "secret_data": "abc2"}
         )
-        objects = self.storage.list_all(
-            parent_id="ab*", resource_name="c", include_deleted=True
-        )
+        objects = self.storage.list_all(parent_id="ab*", resource_name="c", include_deleted=True)
         self.assertEqual(len(objects), 2)
-        total_objects = self.storage.count_all(
-            parent_id="ab*", resource_name="c",
-        )
+        total_objects = self.storage.count_all(parent_id="ab*", resource_name="c")
         self.assertEqual(len(objects), total_objects)
         objects.sort(key=lambda obj: obj["secret_data"])
         self.assertEqual(objects[0], abc1)
@@ -328,9 +316,7 @@ class BaseTestStorage:
             obj["number"] = x
             self.create_object(obj)
 
-        objects = self.storage.list_all(
-            include_deleted=True, limit=2, **self.storage_kw
-        )
+        objects = self.storage.list_all(include_deleted=True, limit=2, **self.storage_kw)
         self.assertEqual(len(objects), 2)
 
     def test_list_all_handle_sorting_on_id(self):
@@ -983,7 +969,9 @@ class TimestampsTest:
         pagination = [[Filter("last_modified", 314, utils.COMPARISON.GT)]]
         sorting = [Sort("last_modified", 1)]
         objects, count = self.storage.get_all(
-            parent_id="ab*", resource_name="c", include_deleted=True,
+            parent_id="ab*",
+            resource_name="c",
+            include_deleted=True,
             # sorting, limits, and pagination doesn't make sense for counting but it should
             # not complain when you use the legacy get_all.
             sorting=sorting,
@@ -1072,13 +1060,9 @@ class DeletedObjectsTest:
     def test_list_all_count_does_not_include_deleted_items(self):
         filters = self._get_last_modified_filters()
         self.create_and_delete_object()
-        objects = self.storage.list_all(
-            filters=filters, include_deleted=True, **self.storage_kw
-        )
+        objects = self.storage.list_all(filters=filters, include_deleted=True, **self.storage_kw)
         self.assertEqual(len(objects), 1)
-        count = self.storage.count_all(
-            filters=filters, **self.storage_kw
-        )
+        count = self.storage.count_all(filters=filters, **self.storage_kw)
         self.assertEqual(count, 0)
 
     def test_list_all_can_return_deleted_items(self):
@@ -1096,13 +1080,9 @@ class DeletedObjectsTest:
         obj = {"challenge": "accepted"}
         obj = self.create_object(obj)
         self.storage.delete_all(**self.storage_kw)
-        objects = self.storage.list_all(
-            filters=filters, include_deleted=True, **self.storage_kw
-        )
+        objects = self.storage.list_all(filters=filters, include_deleted=True, **self.storage_kw)
         self.assertEqual(len(objects), 1)
-        count = self.storage.count_all(
-            filters=filters, **self.storage_kw
-        )
+        count = self.storage.count_all(filters=filters, **self.storage_kw)
         self.assertEqual(count, 0)
 
     def test_delete_all_can_delete_without_tombstones(self):
@@ -1115,15 +1095,11 @@ class DeletedObjectsTest:
         old = self.storage.delete_all(filters=filters, with_deleted=False, **self.storage_kw)
         self.assertEqual(len(old), 1)  # Not 2, because one is tombstone.
 
-        objects = self.storage.list_all(
-            filters=filters, include_deleted=True, **self.storage_kw
-        )
+        objects = self.storage.list_all(filters=filters, include_deleted=True, **self.storage_kw)
         self.assertEqual(len(objects), 1)
         self.assertTrue(objects[0]["deleted"])
         self.assertTrue(objects[0]["id"], r["id"])
-        count = self.storage.count_all(
-            filters=filters, **self.storage_kw
-        )
+        count = self.storage.count_all(filters=filters, **self.storage_kw)
         self.assertEqual(count, 0)
 
     def test_delete_can_delete_without_tombstones(self):
@@ -1131,13 +1107,9 @@ class DeletedObjectsTest:
         obj = {"challenge": "accepted"}
         obj = self.create_object(obj)
         self.storage.delete(object_id=obj["id"], with_deleted=False, **self.storage_kw)
-        objects = self.storage.list_all(
-            filters=filters, include_deleted=True, **self.storage_kw
-        )
+        objects = self.storage.list_all(filters=filters, include_deleted=True, **self.storage_kw)
         self.assertEqual(len(objects), 0)
-        count = self.storage.count_all(
-            filters=filters, **self.storage_kw
-        )
+        count = self.storage.count_all(filters=filters, **self.storage_kw)
         self.assertEqual(count, 0)
 
     def test_deleting_without_tombstone_should_raise_not_found(self):
@@ -1162,21 +1134,13 @@ class DeletedObjectsTest:
         self.create_object(parent_id="abc", resource_name="c")
         self.create_object(parent_id="efg", resource_name="c")
         self.storage.delete_all(parent_id="ab*", resource_name=None, with_deleted=False)
-        objects = self.storage.list_all(
-            parent_id="abc", resource_name="c", include_deleted=True
-        )
+        objects = self.storage.list_all(parent_id="abc", resource_name="c", include_deleted=True)
         self.assertEqual(len(objects), 0)
-        count = self.storage.count_all(
-            parent_id="abc", resource_name="c",
-        )
+        count = self.storage.count_all(parent_id="abc", resource_name="c")
         self.assertEqual(count, 0)
-        objects = self.storage.list_all(
-            parent_id="efg", resource_name="c", include_deleted=True
-        )
+        objects = self.storage.list_all(parent_id="efg", resource_name="c", include_deleted=True)
         self.assertEqual(len(objects), 1)
-        count = self.storage.count_all(
-            parent_id="efg", resource_name="c",
-        )
+        count = self.storage.count_all(parent_id="efg", resource_name="c")
         self.assertEqual(count, 1)
 
     def test_delete_all_does_proper_parent_id_matching(self):
@@ -1184,34 +1148,22 @@ class DeletedObjectsTest:
         self.create_object(parent_id="xabcx", resource_name="c")
         self.create_object(parent_id="efg", resource_name="c")
         self.storage.delete_all(parent_id="ab*", resource_name=None, with_deleted=False)
-        objects = self.storage.list_all(
-            parent_id="xabcx", resource_name="c", include_deleted=True
-        )
+        objects = self.storage.list_all(parent_id="xabcx", resource_name="c", include_deleted=True)
         self.assertEqual(len(objects), 1)
-        count = self.storage.count_all(
-            parent_id="xabcx", resource_name="c",
-        )
+        count = self.storage.count_all(parent_id="xabcx", resource_name="c")
         self.assertEqual(count, 1)
-        objects = self.storage.list_all(
-            parent_id="efg", resource_name="c", include_deleted=True
-        )
+        objects = self.storage.list_all(parent_id="efg", resource_name="c", include_deleted=True)
         self.assertEqual(len(objects), 1)
-        count = self.storage.count_all(
-            parent_id="efg", resource_name="c",
-        )
+        count = self.storage.count_all(parent_id="efg", resource_name="c")
         self.assertEqual(count, 1)
 
     def test_delete_all_does_proper_matching(self):
         self.create_object(parent_id="abc", resource_name="c", obj={"id": "id1"})
         self.create_object(parent_id="def", resource_name="g", obj={"id": "id1"})
         self.storage.delete_all(parent_id="ab*", resource_name=None, with_deleted=False)
-        objects = self.storage.list_all(
-            parent_id="def", resource_name="g", include_deleted=True
-        )
+        objects = self.storage.list_all(parent_id="def", resource_name="g", include_deleted=True)
         self.assertEqual(len(objects), 1)
-        count = self.storage.count_all(
-            parent_id="def", resource_name="g",
-        )
+        count = self.storage.count_all(parent_id="def", resource_name="g")
         self.assertEqual(count, 1)
 
     def test_delete_all_can_delete_by_parent_id_with_tombstones(self):
@@ -1219,24 +1171,16 @@ class DeletedObjectsTest:
         self.create_object(parent_id="abc", resource_name="c")
         self.create_object(parent_id="efg", resource_name="c")
         self.storage.delete_all(parent_id="ab*", resource_name=None, with_deleted=True)
-        objects = self.storage.list_all(
-            parent_id="efg", resource_name="c", include_deleted=True
-        )
+        objects = self.storage.list_all(parent_id="efg", resource_name="c", include_deleted=True)
         self.assertEqual(len(objects), 1)
-        count = self.storage.count_all(
-            parent_id="efg", resource_name="c",
-        )
+        count = self.storage.count_all(parent_id="efg", resource_name="c")
         self.assertEqual(count, 1)
 
-        objects = self.storage.list_all(
-            parent_id="abc", resource_name="c", include_deleted=True
-        )
+        objects = self.storage.list_all(parent_id="abc", resource_name="c", include_deleted=True)
         self.assertEqual(len(objects), 2)
         self.assertTrue(objects[0]["deleted"])
         self.assertTrue(objects[1]["deleted"])
-        count = self.storage.count_all(
-            parent_id="abc", resource_name="c",
-        )
+        count = self.storage.count_all(parent_id="abc", resource_name="c")
         self.assertEqual(count, 0)
 
     def test_delete_all_can_delete_partially(self):
@@ -1414,13 +1358,9 @@ class DeletedObjectsTest:
         self.create_object()
         self.create_and_delete_object()
 
-        objects = self.storage.list_all(
-            filters=filters, include_deleted=True, **self.storage_kw
-        )
+        objects = self.storage.list_all(filters=filters, include_deleted=True, **self.storage_kw)
         self.assertEqual(len(objects), 2)
-        count = self.storage.count_all(
-            filters=filters, **self.storage_kw
-        )
+        count = self.storage.count_all(filters=filters, **self.storage_kw)
         self.assertEqual(count, 1)
 
     def test_filtering_on_arbitrary_field_excludes_deleted_objects(self):
@@ -1429,13 +1369,9 @@ class DeletedObjectsTest:
         self.create_and_delete_object({"status": 0})
 
         filters += [Filter("status", 0, utils.COMPARISON.EQ)]
-        objects = self.storage.list_all(
-            filters=filters, **self.storage_kw
-        )
+        objects = self.storage.list_all(filters=filters, **self.storage_kw)
         self.assertEqual(len(objects), 1)
-        count = self.storage.count_all(
-            filters=filters, **self.storage_kw
-        )
+        count = self.storage.count_all(filters=filters, **self.storage_kw)
         self.assertEqual(count, 1)
 
     def test_support_filtering_on_deleted_field(self):
@@ -1444,14 +1380,10 @@ class DeletedObjectsTest:
         self.create_and_delete_object()
 
         filters += [Filter("deleted", True, utils.COMPARISON.EQ)]
-        objects = self.storage.list_all(
-            filters=filters, include_deleted=True, **self.storage_kw
-        )
+        objects = self.storage.list_all(filters=filters, include_deleted=True, **self.storage_kw)
         self.assertIn("deleted", objects[0])
         self.assertEqual(len(objects), 1)
-        count = self.storage.count_all(
-            filters=filters, **self.storage_kw
-        )
+        count = self.storage.count_all(filters=filters, **self.storage_kw)
         self.assertEqual(count, 0)
 
     def test_support_filtering_out_on_deleted_field(self):
@@ -1460,14 +1392,10 @@ class DeletedObjectsTest:
         self.create_and_delete_object()
 
         filters += [Filter("deleted", True, utils.COMPARISON.NOT)]
-        objects = self.storage.list_all(
-            filters=filters, include_deleted=True, **self.storage_kw
-        )
+        objects = self.storage.list_all(filters=filters, include_deleted=True, **self.storage_kw)
         self.assertNotIn("deleted", objects[0])
         self.assertEqual(len(objects), 1)
-        count = self.storage.count_all(
-            filters=filters, **self.storage_kw
-        )
+        count = self.storage.count_all(filters=filters, **self.storage_kw)
         self.assertEqual(count, 1)
 
     def test_return_empty_set_if_filtering_on_deleted_false(self):
@@ -1476,13 +1404,9 @@ class DeletedObjectsTest:
         self.create_and_delete_object()
 
         filters += [Filter("deleted", False, utils.COMPARISON.EQ)]
-        objects = self.storage.list_all(
-            filters=filters, include_deleted=True, **self.storage_kw
-        )
+        objects = self.storage.list_all(filters=filters, include_deleted=True, **self.storage_kw)
         self.assertEqual(len(objects), 0)
-        count = self.storage.count_all(
-            filters=filters, **self.storage_kw
-        )
+        count = self.storage.count_all(filters=filters, **self.storage_kw)
         self.assertEqual(count, 0)
 
     def test_return_empty_set_if_filtering_on_deleted_without_include(self):
@@ -1595,10 +1519,7 @@ class DeletedObjectsTest:
                             limit=limit,
                             pagination_rules=pagination,
                         )
-                        total_objects = self.storage.count_all(
-                            parent_id="abc*",
-                            resource_name="c",
-                        )
+                        total_objects = self.storage.count_all(parent_id="abc*", resource_name="c")
                         self.assertEqual(total_objects, len(real_objects))
                         objects.extend(page)
                         if len(objects) == total_objects:
@@ -1741,7 +1662,9 @@ class DeprecatedCoreNotionsTest:
     def test_list_all_deprecated_kwargs(self):
         self.storage.list_all(collection_id="test", parent_id="")
 
-        message = "Storage.list_all parameter 'collection_id' is deprecated, use 'resource_name' instead"
+        message = (
+            "Storage.list_all parameter 'collection_id' is deprecated, use 'resource_name' instead"
+        )
         self.mocked_warnings.assert_any_call(message, DeprecationWarning)
 
     def test_count_all_deprecated_kwargs(self):
