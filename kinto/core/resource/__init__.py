@@ -372,20 +372,18 @@ class Resource:
         # limit=100 it would, internally, ask for 101 objects and actually get that. Then,
         # you know there is another page.
 
-        # get_objects() returns an integer if you pass `count_only=True`
-        # and a list if you pass `count_only=False`
+        if head_request:
+            count = self.model.count_objects(filters=filters)
+            headers["Total-Objects"] = headers["Total-Records"] = str(count)
+            return self.postprocess([])
+
         objects = self.model.get_objects(
             filters=filters,
             sorting=sorting,
             limit=limit + 1,  # See bigger explanation above.
             pagination_rules=pagination_rules,
             include_deleted=include_deleted,
-            count_only=head_request,
         )
-
-        if head_request:
-            headers["Total-Objects"] = headers["Total-Records"] = str(objects)
-            return self.postprocess([])
 
         offset = offset + len(objects)
 

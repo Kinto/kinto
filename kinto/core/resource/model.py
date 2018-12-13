@@ -93,7 +93,6 @@ class Model:
         limit=None,
         include_deleted=False,
         parent_id=None,
-        count_only=False,
     ):
         """Fetch the resource objects.
 
@@ -126,38 +125,50 @@ class Model:
 
         :param str parent_id: optional filter for parent id
 
-        :param bool count_only: Hints to the storage that we only need to the
-            total count rather than all records.
-
-        :returns: A tuple with the list of objects in the current page,
-            the total number of objects in the result set.
-        :rtype: tuple
+        :returns: A list of objects in the current page.
+        :rtype: list
         """
         parent_id = parent_id or self.parent_id
-        if count_only:
-            return self.storage.count_all(
-                resource_name=self.resource_name,
-                parent_id=parent_id,
-                filters=filters,
-                id_field=self.id_field,
-                modified_field=self.modified_field,
-                deleted_field=self.deleted_field,
-                auth=self.auth,
-            )
-        else:
-            return self.storage.list_all(
-                resource_name=self.resource_name,
-                parent_id=parent_id,
-                filters=filters,
-                sorting=sorting,
-                pagination_rules=pagination_rules,
-                limit=limit,
-                include_deleted=include_deleted,
-                id_field=self.id_field,
-                modified_field=self.modified_field,
-                deleted_field=self.deleted_field,
-                auth=self.auth,
-            )
+        return self.storage.list_all(
+            resource_name=self.resource_name,
+            parent_id=parent_id,
+            filters=filters,
+            sorting=sorting,
+            pagination_rules=pagination_rules,
+            limit=limit,
+            include_deleted=include_deleted,
+            id_field=self.id_field,
+            modified_field=self.modified_field,
+            deleted_field=self.deleted_field,
+            auth=self.auth,
+        )
+
+    def count_objects(self, filters=None, parent_id=None):
+        """Fetch the total count of resource objects
+
+        Override to post-process objects after feching them from storage.
+
+        :param filters: Optionally filter the objects by their attribute.
+            Each filter in this list is a tuple of a field, a value and a
+            comparison (see `kinto.core.utils.COMPARISON`). All filters
+            are combined using *AND*.
+        :type filters: list of :class:`kinto.core.storage.Filter`
+
+        :param str parent_id: optional filter for parent id
+
+        :returns: An integer of the total number of objects in the result set.
+        :rtype: int
+        """
+        parent_id = parent_id or self.parent_id
+        return self.storage.count_all(
+            resource_name=self.resource_name,
+            parent_id=parent_id,
+            filters=filters,
+            id_field=self.id_field,
+            modified_field=self.modified_field,
+            deleted_field=self.deleted_field,
+            auth=self.auth,
+        )
 
     def delete_objects(
         self, filters=None, sorting=None, pagination_rules=None, limit=None, parent_id=None
