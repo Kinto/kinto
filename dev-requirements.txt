@@ -9,7 +9,7 @@ pytest-watch==4.2.0
 SQLAlchemy==1.2.15
 python-memcached==1.59
 swagger-spec-validator==2.4.1
-tox==3.5.3
+tox==3.6.0
 WebTest==2.0.32
 werkzeug==0.14.1
 wheel==0.32.3
