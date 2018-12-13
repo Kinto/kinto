@@ -14,7 +14,7 @@ This document describes changes between each past release.
   by the generic terms *resource* and *object*. Plugins that subclass the internal
   ``ShareableResource`` class may also break.
 - GET requests no longer include the ``Total-Records`` header. To get a count in a collection
-  you need to do a HEAD request. (#1624)
+  you need to do a HEAD request. And the new header name is ``Total-Objects``. (#1624)
 
 **Bug Fixes**
 
