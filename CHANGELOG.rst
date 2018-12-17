@@ -30,6 +30,7 @@ This document describes changes between each past release.
 - Ignore admin plugin node_modules folder while running black (#1902)
 - Remove regexp py36 warnings. (#1907)
 - Changed psycopg2 dependency for psycopg2-binary. (#1905)
+- Renamed core notions (ie. record and collection) (#710)
 
 
 11.2.1 (2018-12-09)

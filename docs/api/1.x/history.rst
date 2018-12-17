@@ -53,7 +53,7 @@ Retrieve history
   .. sourcecode:: http
 
         HTTP/1.1 200 OK
-        Access-Control-Expose-Headers: Content-Length, Expires, Alert, Retry-After, Last-Modified, Total-Records, ETag, Pragma, Cache-Control, Backoff, Next-Page
+        Access-Control-Expose-Headers: Content-Length, Expires, Alert, Retry-After, Last-Modified, Total-Objects, ETag, Pragma, Cache-Control, Backoff, Next-Page
         Cache-Control: no-cache, no-store
         Content-Length: 1906
         Content-Type: application/json; charset=UTF-8
