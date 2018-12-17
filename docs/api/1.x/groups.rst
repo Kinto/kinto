@@ -342,6 +342,8 @@ Retrieving all groups
 
 .. include:: _details-get-list.rst
 
+.. include:: _details-head-list.rst
+
 .. include:: _status-get-list.rst
 
 
@@ -563,4 +565,3 @@ Just modify the ``group:schema`` attribute of the parent bucket object:
             ]
         }
     }
-

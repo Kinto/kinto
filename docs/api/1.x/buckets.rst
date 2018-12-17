@@ -317,6 +317,8 @@ Retrieving all buckets
 
 .. include:: _details-get-list.rst
 
+.. include:: _details-head-list.rst
+
 .. include:: _status-get-list.rst
 
 
