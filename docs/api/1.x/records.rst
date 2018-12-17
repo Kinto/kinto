@@ -230,7 +230,7 @@ Retrieving stored records
 
     .. sourcecode:: bash
 
-        $ http get http://localhost:8888/v1/buckets/blog/collections/articles/records --auth="bob:p4ssw0rd" --verbose
+        $ http GET http://localhost:8888/v1/buckets/blog/collections/articles/records --auth="bob:p4ssw0rd" --verbose
 
     .. sourcecode:: http
 
@@ -279,7 +279,7 @@ Count of stored records
 
     .. sourcecode:: bash
 
-        $ http head http://localhost:8888/v1/buckets/blog/collections/articles/records --auth="bob:p4ssw0rd" --verbose
+        $ http HEAD http://localhost:8888/v1/buckets/blog/collections/articles/records --auth="bob:p4ssw0rd" --verbose
 
     .. sourcecode:: http
 
@@ -323,7 +323,7 @@ Retrieving a specific record
 
     .. sourcecode:: bash
 
-        $ http get http://localhost:8888/v1/buckets/blog/collections/articles/records/89881454-e4e9-4ef0-99a9-404d95900352 --auth="bob:p4ssw0rd" --verbose
+        $ http GET http://localhost:8888/v1/buckets/blog/collections/articles/records/89881454-e4e9-4ef0-99a9-404d95900352 --auth="bob:p4ssw0rd" --verbose
 
     .. sourcecode:: http
 
