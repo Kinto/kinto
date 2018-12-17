@@ -1659,19 +1659,16 @@ class DeprecatedCoreNotionsTest:
         message = "Storage.delete_all parameter 'collection_id' is deprecated, use 'resource_name' instead"
         self.mocked_warnings.assert_called_with(message, DeprecationWarning)
 
-    def test_list_all_deprecated_kwargs(self):
-        self.storage.list_all(collection_id="test", parent_id="")
+    def test_get_all_deprecated_kwargs(self):
+        r = self.storage.create(obj={"id": "abc"}, resource_name="test", parent_id="")
 
-        message = (
-            "Storage.list_all parameter 'collection_id' is deprecated, use 'resource_name' instead"
-        )
+        records, count = self.storage.get_all(collection_id="test", parent_id="")
+
+        message = "Use either self.list_all() or self.count_all()"
         self.mocked_warnings.assert_any_call(message, DeprecationWarning)
-
-    def test_count_all_deprecated_kwargs(self):
-        self.storage.count_all(collection_id="test", parent_id="")
-
-        message = "Storage.count_all parameter 'collection_id' is deprecated, use 'resource_name' instead"
-        self.mocked_warnings.assert_any_call(message, DeprecationWarning)
+        # Check that proper `resource_name` was used (instead of `collection_id`)
+        assert records == [r]
+        assert count == 1
 
 
 class StorageTest(
