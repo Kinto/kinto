@@ -230,7 +230,7 @@ Retrieving stored records
 
     .. sourcecode:: bash
 
-        $ http get http://localhost:8888/v1/buckets/blog/collections/articles/records --auth="bob:p4ssw0rd" --verbose
+        $ http GET http://localhost:8888/v1/buckets/blog/collections/articles/records --auth="bob:p4ssw0rd" --verbose
 
     .. sourcecode:: http
 
@@ -245,14 +245,13 @@ Retrieving stored records
     .. sourcecode:: http
 
         HTTP/1.1 200 OK
-        Access-Control-Expose-Headers: Backoff, Retry-After, Alert, Next-Page, Total-Objects, Last-Modified, ETag
+        Access-Control-Expose-Headers: Backoff, Retry-After, Alert, Next-Page, Last-Modified, ETag
         Content-Length: 110
         Content-Type: application/json; charset=UTF-8
         Date: Thu, 18 Jun 2015 17:24:38 GMT
         Etag: "1434648278603"
         Last-Modified: Thu, 18 Jun 2015 17:24:38 GMT
         Server: waitress
-        Total-Objects: 1
 
         {
             "data": [
@@ -265,6 +264,49 @@ Retrieving stored records
             ]
         }
 
+.. _records-head:
+
+Count of stored records
+=======================
+
+.. http:head:: /buckets/(bucket_id)/collections/(collection_id)/records
+
+    :synopsis: Includes a response header to tell how many records exist in the collection.
+
+    **Requires authentication**
+
+    **Example Request**
+
+    .. sourcecode:: bash
+
+        $ http HEAD http://localhost:8888/v1/buckets/blog/collections/articles/records --auth="bob:p4ssw0rd" --verbose
+
+    .. sourcecode:: http
+
+        HEAD /v1/buckets/blog/collections/articles/records HTTP/1.1
+        Accept: */*
+        Accept-Encoding: gzip, deflate
+        Authorization: Basic Ym9iOg==
+        Connection: keep-alive
+        Host: localhost:8888
+        User-Agent: HTTPie/0.9.2
+
+    .. sourcecode:: http
+
+        HTTP/1.1 200 OK
+        Access-Control-Expose-Headers: Backoff, Retry-After, Total-Records, Total-Objects, Alert, Next-Page, Last-Modified, ETag
+        Content-Length: 110
+        Content-Type: application/json; charset=UTF-8
+        Date: Thu, 18 Jun 2015 17:24:38 GMT
+        Etag: "1434648278603"
+        Total-Objects: 33
+        Total-Records: 33
+        Last-Modified: Thu, 18 Jun 2015 17:24:38 GMT
+        Server: waitress
+
+.. note::
+    The header ``Total-Records`` header is deprecated in favor of ``Total-Objects`` but kept for
+    backwards compatibility.
 
 .. _record-get:
 
@@ -281,7 +323,7 @@ Retrieving a specific record
 
     .. sourcecode:: bash
 
-        $ http get http://localhost:8888/v1/buckets/blog/collections/articles/records/89881454-e4e9-4ef0-99a9-404d95900352 --auth="bob:p4ssw0rd" --verbose
+        $ http GET http://localhost:8888/v1/buckets/blog/collections/articles/records/89881454-e4e9-4ef0-99a9-404d95900352 --auth="bob:p4ssw0rd" --verbose
 
     .. sourcecode:: http
 

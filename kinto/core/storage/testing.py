@@ -50,12 +50,13 @@ class BaseTestStorage:
 
     def test_raises_backend_error_if_error_occurs_on_client(self):
         self.client_error_patcher.start()
-        self.assertRaises(exceptions.BackendError, self.storage.get_all, **self.storage_kw)
+        self.assertRaises(exceptions.BackendError, self.storage.list_all, **self.storage_kw)
+        self.assertRaises(exceptions.BackendError, self.storage.count_all, **self.storage_kw)
 
     def test_backend_error_provides_original_exception(self):
         self.client_error_patcher.start()
         try:
-            self.storage.get_all(**self.storage_kw)
+            self.storage.list_all(**self.storage_kw)
         except exceptions.BackendError as e:
             error = e
         self.assertTrue(isinstance(error.original, Exception))
@@ -70,7 +71,8 @@ class BaseTestStorage:
             (self.storage.delete, dict(object_id="")),
             (self.storage.delete_all, {}),
             (self.storage.purge_deleted, {}),
-            (self.storage.get_all, {}),
+            (self.storage.list_all, {}),
+            (self.storage.count_all, {}),
         ]
         for call, kwargs in calls:
             kwargs.update(**self.storage_kw)
@@ -118,7 +120,7 @@ class BaseTestStorage:
         request.registry.settings = {"readonly": "true"}
         ping = heartbeat(self.storage)
         with mock.patch.object(
-            self.storage, "get_all", side_effect=exceptions.BackendError("Boom!")
+            self.storage, "list_all", side_effect=exceptions.BackendError("Boom!")
         ):
             self.assertFalse(ping(request))
 
@@ -140,7 +142,7 @@ class BaseTestStorage:
             ping(request)
         with mock.patch("kinto.core.storage.random.SystemRandom.random", return_value=0.5):
             ping(request)
-        objects, count = self.storage.get_all(
+        objects = self.storage.list_all(
             parent_id="__heartbeat__", resource_name="__heartbeat__", include_deleted=True
         )
         self.assertEqual(len(objects), 0)
@@ -250,7 +252,7 @@ class BaseTestStorage:
         last_modified = stored[self.modified_field] + 10
         self.storage.delete(object_id=stored["id"], last_modified=last_modified, **self.storage_kw)
 
-        objects, count = self.storage.get_all(include_deleted=True, **self.storage_kw)
+        objects = self.storage.list_all(include_deleted=True, **self.storage_kw)
         self.assertEqual(objects[0][self.modified_field], last_modified)
 
     def test_delete_raise_when_unknown(self):
@@ -261,91 +263,86 @@ class BaseTestStorage:
             **self.storage_kw,
         )
 
-    def test_get_all_handles_parent_id_pattern_matching(self):
+    def test_list_all_handles_parent_id_pattern_matching(self):
         self.create_object(parent_id="abc", resource_name="c")
         obj = self.create_object(parent_id="abc", resource_name="c")
         self.storage.delete(object_id=obj["id"], parent_id="abc", resource_name="c")
         self.create_object(parent_id="efg", resource_name="c")
 
-        objects, total_objects = self.storage.get_all(
-            parent_id="ab*", resource_name="c", include_deleted=True
-        )
+        objects = self.storage.list_all(parent_id="ab*", resource_name="c", include_deleted=True)
         self.assertEqual(len(objects), 2)
+        total_objects = self.storage.count_all(parent_id="ab*", resource_name="c")
         self.assertEqual(total_objects, 1)
 
-    def test_get_all_does_proper_parent_id_pattern_matching(self):
+    def test_list_all_does_proper_parent_id_pattern_matching(self):
         self.create_object(parent_id="abc", resource_name="c")
         self.create_object(parent_id="xabcx", resource_name="c")
         self.create_object(parent_id="efg", resource_name="c")
 
-        objects, total_objects = self.storage.get_all(
-            parent_id="ab*", resource_name="c", include_deleted=True
-        )
+        objects = self.storage.list_all(parent_id="ab*", resource_name="c", include_deleted=True)
         self.assertEqual(len(objects), 1)
+        total_objects = self.storage.count_all(parent_id="ab*", resource_name="c")
         self.assertEqual(len(objects), total_objects)
 
-    def test_get_all_parent_id_handles_collisions(self):
+    def test_list_all_parent_id_handles_collisions(self):
         abc1 = self.create_object(
             parent_id="abc1", resource_name="c", obj={"id": "abc", "secret_data": "abc1"}
         )
         abc2 = self.create_object(
             parent_id="abc2", resource_name="c", obj={"id": "abc", "secret_data": "abc2"}
         )
-        objects, total_objects = self.storage.get_all(
-            parent_id="ab*", resource_name="c", include_deleted=True
-        )
+        objects = self.storage.list_all(parent_id="ab*", resource_name="c", include_deleted=True)
         self.assertEqual(len(objects), 2)
+        total_objects = self.storage.count_all(parent_id="ab*", resource_name="c")
         self.assertEqual(len(objects), total_objects)
         objects.sort(key=lambda obj: obj["secret_data"])
         self.assertEqual(objects[0], abc1)
         self.assertEqual(objects[1], abc2)
 
-    def test_get_all_return_all_values(self):
+    def test_return_all_values(self):
         for x in range(10):
             obj = dict(self.obj)
             obj["number"] = x
             self.create_object(obj)
 
-        objects, total_objects = self.storage.get_all(**self.storage_kw)
+        objects = self.storage.list_all(**self.storage_kw)
         self.assertEqual(len(objects), 10)
+        total_objects = self.storage.count_all(**self.storage_kw)
         self.assertEqual(len(objects), total_objects)
 
-    def test_get_all_handle_limit(self):
+    def test_list_all_handle_limit(self):
         for x in range(10):
             obj = dict(self.obj)
             obj["number"] = x
             self.create_object(obj)
 
-        objects, total_objects = self.storage.get_all(
-            include_deleted=True, limit=2, **self.storage_kw
-        )
-        self.assertEqual(total_objects, 10)
+        objects = self.storage.list_all(include_deleted=True, limit=2, **self.storage_kw)
         self.assertEqual(len(objects), 2)
 
-    def test_get_all_handle_sorting_on_id(self):
+    def test_list_all_handle_sorting_on_id(self):
         for x in range(3):
             self.create_object()
         sorting = [Sort("id", 1)]
-        objects, _ = self.storage.get_all(sorting=sorting, **self.storage_kw)
+        objects = self.storage.list_all(sorting=sorting, **self.storage_kw)
         self.assertTrue(objects[0]["id"] < objects[-1]["id"])
 
-    def test_get_all_handle_sorting_on_subobject(self):
+    def test_list_all_handle_sorting_on_subobject(self):
         for x in range(10):
             obj = dict(**self.obj)
             obj["person"] = dict(age=x)
             self.create_object(obj)
         sorting = [Sort("person.age", 1)]
-        objects, _ = self.storage.get_all(sorting=sorting, **self.storage_kw)
+        objects = self.storage.list_all(sorting=sorting, **self.storage_kw)
         self.assertLess(objects[0]["person"]["age"], objects[-1]["person"]["age"])
 
-    def test_get_all_sorting_is_consistent_with_filtering(self):
+    def test_list_all_sorting_is_consistent_with_filtering(self):
         self.create_object({"flavor": "strawberry"})
         self.create_object({"flavor": "blueberry", "author": None})
         self.create_object({"flavor": "raspberry", "author": 1})
         self.create_object({"flavor": "orange", "author": True})
         self.create_object({"flavor": "watermelon", "author": "Ethan"})
         sorting = [Sort("author", 1)]
-        objects, _ = self.storage.get_all(sorting=sorting, **self.storage_kw)
+        objects = self.storage.list_all(sorting=sorting, **self.storage_kw)
         # Some interesting values to compare against
         values = ["A", "Z", "", 0, 4, MISSING]
 
@@ -353,10 +350,10 @@ class BaseTestStorage:
             # Together, these filters should provide the entire list
             filter_less = Filter("author", value, utils.COMPARISON.LT)
             filter_min = Filter("author", value, utils.COMPARISON.MIN)
-            smaller_objects, _ = self.storage.get_all(
+            smaller_objects = self.storage.list_all(
                 filters=[filter_less], sorting=sorting, **self.storage_kw
             )
-            greater_objects, _ = self.storage.get_all(
+            greater_objects = self.storage.list_all(
                 filters=[filter_min], sorting=sorting, **self.storage_kw
             )
             other_objects = smaller_objects + greater_objects
@@ -374,10 +371,10 @@ class BaseTestStorage:
             # Together, these filters should provide the entire list
             filter_less = Filter("author", value, utils.COMPARISON.MAX)
             filter_min = Filter("author", value, utils.COMPARISON.GT)
-            smaller_objects, _ = self.storage.get_all(
+            smaller_objects = self.storage.list_all(
                 filters=[filter_less], sorting=sorting, **self.storage_kw
             )
-            greater_objects, _ = self.storage.get_all(
+            greater_objects = self.storage.list_all(
                 filters=[filter_min], sorting=sorting, **self.storage_kw
             )
             other_objects = smaller_objects + greater_objects
@@ -390,207 +387,207 @@ class BaseTestStorage:
                 ),
             )
 
-    def test_get_all_can_filter_with_list_of_values(self):
+    def test_list_all_can_filter_with_list_of_values(self):
         for l in ["a", "b", "c"]:
             self.create_object({"code": l})
         filters = [Filter("code", ["a", "b"], utils.COMPARISON.IN)]
-        objects, _ = self.storage.get_all(filters=filters, **self.storage_kw)
+        objects = self.storage.list_all(filters=filters, **self.storage_kw)
         self.assertEqual(len(objects), 2)
 
-    def test_get_all_can_filter_on_array_that_contains_values(self):
+    def test_list_all_can_filter_on_array_that_contains_values(self):
         self.create_object({"colors": ["red", "green", "blue"]})
         self.create_object({"colors": ["gray", "blue"]})
         self.create_object({"colors": ["red", "gray", "blue"]})
         self.create_object({"colors": ["purple", "green", "blue"]})
 
         filters = [Filter("colors", ["red"], utils.COMPARISON.CONTAINS)]
-        objects, _ = self.storage.get_all(filters=filters, **self.storage_kw)
+        objects = self.storage.list_all(filters=filters, **self.storage_kw)
         self.assertEqual(len(objects), 2)
 
         filters = [Filter("colors", ["red", "gray"], utils.COMPARISON.CONTAINS)]
-        objects, _ = self.storage.get_all(filters=filters, **self.storage_kw)
+        objects = self.storage.list_all(filters=filters, **self.storage_kw)
         self.assertEqual(len(objects), 1)
 
-    def test_get_all_can_filter_on_field_that_do_not_contains_an_array_with_contains_any(self):
+    def test_list_all_can_filter_on_field_that_do_not_contains_an_array_with_contains_any(self):
         self.create_object({"colors": ["red", "green", "blue"]})
         self.create_object({"colors": {"html": "#00FF00"}})
 
         filters = [Filter("colors", ["red"], utils.COMPARISON.CONTAINS_ANY)]
-        objects, _ = self.storage.get_all(filters=filters, **self.storage_kw)
+        objects = self.storage.list_all(filters=filters, **self.storage_kw)
         self.assertEqual(len(objects), 1)
 
         filters = [Filter("colors", [{"html": "#00FF00"}], utils.COMPARISON.CONTAINS_ANY)]
-        objects, _ = self.storage.get_all(filters=filters, **self.storage_kw)
+        objects = self.storage.list_all(filters=filters, **self.storage_kw)
         self.assertEqual(len(objects), 0)
 
-    def test_get_all_can_filter_on_array_that_contains_any_value(self):
+    def test_list_all_can_filter_on_array_that_contains_any_value(self):
         self.create_object({"colors": ["red", "green", "blue"]})
         self.create_object({"colors": ["gray", "blue"]})
         self.create_object({"colors": ["red", "gray", "blue"]})
         self.create_object({"colors": ["purple", "green", "blue"]})
 
         filters = [Filter("colors", ["red"], utils.COMPARISON.CONTAINS_ANY)]
-        objects, _ = self.storage.get_all(filters=filters, **self.storage_kw)
+        objects = self.storage.list_all(filters=filters, **self.storage_kw)
         self.assertEqual(len(objects), 2)
 
         filters = [Filter("colors", ["red", "gray"], utils.COMPARISON.CONTAINS_ANY)]
-        objects, _ = self.storage.get_all(filters=filters, **self.storage_kw)
+        objects = self.storage.list_all(filters=filters, **self.storage_kw)
         self.assertEqual(len(objects), 3)
 
-    def test_get_all_can_filter_on_array_that_contains_numeric_values(self):
+    def test_list_all_can_filter_on_array_that_contains_numeric_values(self):
         self.create_object({"fib": [1, 2, 3]})
         self.create_object({"fib": [2, 3, 5]})
         self.create_object({"fib": [3, 5, 8]})
         self.create_object({"fib": [5, 8, 13]})
 
         filters = [Filter("fib", [2], utils.COMPARISON.CONTAINS)]
-        objects, _ = self.storage.get_all(filters=filters, **self.storage_kw)
+        objects = self.storage.list_all(filters=filters, **self.storage_kw)
         self.assertEqual(len(objects), 2)
 
         filters = [Filter("fib", [2, 3], utils.COMPARISON.CONTAINS)]
-        objects, _ = self.storage.get_all(filters=filters, **self.storage_kw)
+        objects = self.storage.list_all(filters=filters, **self.storage_kw)
         self.assertEqual(len(objects), 2)
 
-    def test_get_all_can_filter_on_array_that_contains_any_numeric_value(self):
+    def test_list_all_can_filter_on_array_that_contains_any_numeric_value(self):
         self.create_object({"fib": [1, 2, 3]})
         self.create_object({"fib": [2, 3, 5]})
         self.create_object({"fib": [3, 5, 8]})
         self.create_object({"fib": [5, 8, 13]})
 
         filters = [Filter("fib", [2], utils.COMPARISON.CONTAINS_ANY)]
-        objects, _ = self.storage.get_all(filters=filters, **self.storage_kw)
+        objects = self.storage.list_all(filters=filters, **self.storage_kw)
         self.assertEqual(len(objects), 2)
 
         filters = [Filter("fib", [2, 3], utils.COMPARISON.CONTAINS_ANY)]
-        objects, _ = self.storage.get_all(filters=filters, **self.storage_kw)
+        objects = self.storage.list_all(filters=filters, **self.storage_kw)
         self.assertEqual(len(objects), 3)
 
-    def test_get_all_can_filter_on_array_with_contains_and_missing_field(self):
+    def test_list_all_can_filter_on_array_with_contains_and_missing_field(self):
         self.create_object({"code": "black"})
         self.create_object({"fib": [2, 3, 5]})
         self.create_object({"fib": [3, 5, 8]})
         self.create_object({"fib": [5, 8, 13]})
 
         filters = [Filter("fib", [2], utils.COMPARISON.CONTAINS)]
-        objects, _ = self.storage.get_all(filters=filters, **self.storage_kw)
+        objects = self.storage.list_all(filters=filters, **self.storage_kw)
         self.assertEqual(len(objects), 1)
 
-    def test_get_all_can_filter_on_array_with_contains_any_and_missing_field(self):
+    def test_list_all_can_filter_on_array_with_contains_any_and_missing_field(self):
         self.create_object({"code": "black"})
         self.create_object({"fib": [2, 3, 5]})
         self.create_object({"fib": [3, 5, 8]})
         self.create_object({"fib": [5, 8, 13]})
 
         filters = [Filter("fib", [2], utils.COMPARISON.CONTAINS_ANY)]
-        objects, _ = self.storage.get_all(filters=filters, **self.storage_kw)
+        objects = self.storage.list_all(filters=filters, **self.storage_kw)
         self.assertEqual(len(objects), 1)
 
-    def test_get_all_can_filter_on_array_with_contains_and_unsupported_type(self):
+    def test_list_all_can_filter_on_array_with_contains_and_unsupported_type(self):
         self.create_object({"code": "black"})
         self.create_object({"fib": [2, 3, 5]})
         self.create_object({"fib": [3, 5, 8]})
         self.create_object({"fib": [5, 8, 13]})
 
         filters = [Filter("fib", [{"demo": "foobar"}], utils.COMPARISON.CONTAINS)]
-        objects, _ = self.storage.get_all(filters=filters, **self.storage_kw)
+        objects = self.storage.list_all(filters=filters, **self.storage_kw)
         self.assertEqual(len(objects), 0)
 
-    def test_get_all_can_filter_on_array_with_contains_any_and_unsupported_type(self):
+    def test_list_all_can_filter_on_array_with_contains_any_and_unsupported_type(self):
         self.create_object({"code": "black"})
         self.create_object({"fib": [2, 3, 5]})
         self.create_object({"fib": [3, 5, 8]})
         self.create_object({"fib": [5, 8, 13]})
 
         filters = [Filter("fib", [{"demo": "foobar"}], utils.COMPARISON.CONTAINS_ANY)]
-        objects, _ = self.storage.get_all(filters=filters, **self.storage_kw)
+        objects = self.storage.list_all(filters=filters, **self.storage_kw)
         self.assertEqual(len(objects), 0)
 
-    def test_get_all_can_filter_with_numeric_values(self):
+    def test_list_all_can_filter_with_numeric_values(self):
         self.create_object({"missing": "code"})
         for l in [1, 10, 6, 46]:
             self.create_object({"code": l})
 
         sorting = [Sort("code", 1)]
         filters = [Filter("code", 10, utils.COMPARISON.MAX)]
-        objects, _ = self.storage.get_all(sorting=sorting, filters=filters, **self.storage_kw)
+        objects = self.storage.list_all(sorting=sorting, filters=filters, **self.storage_kw)
         self.assertEqual(objects[0]["code"], 1)
         self.assertEqual(objects[1]["code"], 6)
         self.assertEqual(objects[2]["code"], 10)
         self.assertEqual(len(objects), 3)
 
         filters = [Filter("code", 10, utils.COMPARISON.LT)]
-        objects, _ = self.storage.get_all(sorting=sorting, filters=filters, **self.storage_kw)
+        objects = self.storage.list_all(sorting=sorting, filters=filters, **self.storage_kw)
         self.assertEqual(objects[0]["code"], 1)
         self.assertEqual(objects[1]["code"], 6)
         self.assertEqual(len(objects), 2)
 
-    def test_get_all_can_filter_with_numeric_id(self):
+    def test_list_all_can_filter_with_numeric_id(self):
         for l in [0, 42]:
             self.create_object({"id": str(l)})
 
         filters = [Filter("id", 0, utils.COMPARISON.EQ)]
-        objects, _ = self.storage.get_all(filters=filters, **self.storage_kw)
+        objects = self.storage.list_all(filters=filters, **self.storage_kw)
         self.assertEqual(len(objects), 1)
 
         filters = [Filter("id", 42, utils.COMPARISON.EQ)]
-        objects, _ = self.storage.get_all(filters=filters, **self.storage_kw)
+        objects = self.storage.list_all(filters=filters, **self.storage_kw)
         self.assertEqual(len(objects), 1)
 
-    def test_get_all_can_filter_with_numeric_strings(self):
+    def test_list_all_can_filter_with_numeric_strings(self):
         for l in ["0566199093", "0781566199"]:
             self.create_object({"phone": l})
         filters = [Filter("phone", "0566199093", utils.COMPARISON.EQ)]
-        objects, _ = self.storage.get_all(filters=filters, **self.storage_kw)
+        objects = self.storage.list_all(filters=filters, **self.storage_kw)
         self.assertEqual(len(objects), 1)
 
-    def test_get_all_can_filter_with_empty_numeric_strings(self):
+    def test_list_all_can_filter_with_empty_numeric_strings(self):
         for l in ["0566199093", "0781566199"]:
             self.create_object({"phone": l})
         filters = [Filter("phone", "", utils.COMPARISON.EQ)]
-        objects, _ = self.storage.get_all(filters=filters, **self.storage_kw)
+        objects = self.storage.list_all(filters=filters, **self.storage_kw)
         self.assertEqual(len(objects), 0)
 
-    def test_get_all_can_filter_with_float_values(self):
+    def test_list_all_can_filter_with_float_values(self):
         for l in [10, 11.5, 8.5, 6, 7.5]:
             self.create_object({"note": l})
         filters = [Filter("note", 9.5, utils.COMPARISON.LT)]
-        objects, _ = self.storage.get_all(filters=filters, **self.storage_kw)
+        objects = self.storage.list_all(filters=filters, **self.storage_kw)
         self.assertEqual(len(objects), 3)
 
-    def test_get_all_can_filter_with_strings(self):
+    def test_list_all_can_filter_with_strings(self):
         for l in ["Rémy", "Alexis", "Marie"]:
             self.create_object({"name": l})
         sorting = [Sort("name", 1)]
         filters = [Filter("name", "Mathieu", utils.COMPARISON.LT)]
-        objects, _ = self.storage.get_all(sorting=sorting, filters=filters, **self.storage_kw)
+        objects = self.storage.list_all(sorting=sorting, filters=filters, **self.storage_kw)
         self.assertEqual(objects[0]["name"], "Alexis")
         self.assertEqual(objects[1]["name"], "Marie")
         self.assertEqual(len(objects), 2)
 
-    def test_get_all_can_filter_minimum_value_with_strings(self):
+    def test_list_all_can_filter_minimum_value_with_strings(self):
         for v in ["49.0", "6.0", "53.0b4"]:
             self.create_object({"product": {"version": v}})
         sorting = [Sort("product.version", 1)]
         filters = [Filter("product.version", "50.0", utils.COMPARISON.MIN)]
-        objects, _ = self.storage.get_all(sorting=sorting, filters=filters, **self.storage_kw)
+        objects = self.storage.list_all(sorting=sorting, filters=filters, **self.storage_kw)
         self.assertEqual(objects[0]["product"]["version"], "53.0b4")
         self.assertEqual(objects[1]["product"]["version"], "6.0")
         self.assertEqual(len(objects), 2)
 
-    def test_get_all_does_not_implicitly_cast(self):
+    def test_list_all_does_not_implicitly_cast(self):
         for v in ["49.0", "6.0", "53.0b4"]:
             self.create_object({"product": {"version": v}})
         sorting = [Sort("product.version", 1)]
         filters = [Filter("product.version", 50.0, utils.COMPARISON.MIN)]
-        objects, _ = self.storage.get_all(sorting=sorting, filters=filters, **self.storage_kw)
+        objects = self.storage.list_all(sorting=sorting, filters=filters, **self.storage_kw)
         self.assertEqual(len(objects), 0)  # 50 (number) > strings
 
-    def test_get_all_can_deal_with_none_values(self):
+    def test_list_all_can_deal_with_none_values(self):
         self.create_object({"name": "Alexis"})
         self.create_object({"title": "haha"})
         self.create_object({"name": "Mathieu"})
         filters = [Filter("name", "Fanny", utils.COMPARISON.GT)]
-        objects, _ = self.storage.get_all(filters=filters, **self.storage_kw)
+        objects = self.storage.list_all(filters=filters, **self.storage_kw)
         # NULLs compare as greater than everything
         self.assertEqual(len(objects), 2)
         # But we aren't clear on what the order will be
@@ -600,17 +597,17 @@ class BaseTestStorage:
         self.assertEqual(haha_object["title"], "haha")
 
         filters = [Filter("name", "Fanny", utils.COMPARISON.LT)]
-        objects, _ = self.storage.get_all(filters=filters, **self.storage_kw)
+        objects = self.storage.list_all(filters=filters, **self.storage_kw)
         self.assertEqual(len(objects), 1)
         self.assertEqual(objects[0]["name"], "Alexis")
 
-    def test_get_all_can_filter_with_none_values(self):
+    def test_list_all_can_filter_with_none_values(self):
         self.create_object({"name": "Alexis", "salary": None})
         self.create_object({"name": "Mathieu", "salary": "null"})
         self.create_object({"name": "Niko", "salary": ""})
         self.create_object({"name": "Ethan"})  # missing salary
         filters = [Filter("salary", None, utils.COMPARISON.EQ)]
-        objects, _ = self.storage.get_all(filters=filters, **self.storage_kw)
+        objects = self.storage.list_all(filters=filters, **self.storage_kw)
         self.assertEqual(len(objects), 1)
         self.assertEqual(objects[0]["name"], "Alexis")
 
@@ -623,68 +620,68 @@ class BaseTestStorage:
             Filter("salary", 0, utils.COMPARISON.GT),
             Filter("salary", True, utils.COMPARISON.HAS),
         ]
-        objects, _ = self.storage.get_all(filters=filters, **self.storage_kw)
+        objects = self.storage.list_all(filters=filters, **self.storage_kw)
         self.assertEqual(len([r for r in objects if "salary" not in r]), 0)
 
-    def test_get_all_can_filter_with_list_of_values_on_id(self):
+    def test_list_all_can_filter_with_list_of_values_on_id(self):
         object1 = self.create_object({"code": "a"})
         object2 = self.create_object({"code": "b"})
         filters = [Filter("id", [object1["id"], object2["id"]], utils.COMPARISON.IN)]
-        objects, _ = self.storage.get_all(filters=filters, **self.storage_kw)
+        objects = self.storage.list_all(filters=filters, **self.storage_kw)
         self.assertEqual(len(objects), 2)
 
-    def test_get_all_returns_empty_when_including_list_of_empty_values(self):
+    def test_list_all_returns_empty_when_including_list_of_empty_values(self):
         self.create_object({"code": "a"})
         self.create_object({"code": "b"})
         filters = [Filter("id", [], utils.COMPARISON.IN)]
-        objects, _ = self.storage.get_all(filters=filters, **self.storage_kw)
+        objects = self.storage.list_all(filters=filters, **self.storage_kw)
         self.assertEqual(len(objects), 0)
 
-    def test_get_all_can_filter_with_list_of_excluded_values(self):
+    def test_list_all_can_filter_with_list_of_excluded_values(self):
         for l in ["a", "b", "c"]:
             self.create_object({"code": l})
         filters = [Filter("code", ("a", "b"), utils.COMPARISON.EXCLUDE)]
-        objects, _ = self.storage.get_all(filters=filters, **self.storage_kw)
+        objects = self.storage.list_all(filters=filters, **self.storage_kw)
         self.assertEqual(len(objects), 1)
 
-    def test_get_all_can_filter_a_list_of_integer_values(self):
+    def test_list_all_can_filter_a_list_of_integer_values(self):
         for l in [1, 2, 3]:
             self.create_object({"code": l})
         filters = [Filter("code", (1, 2), utils.COMPARISON.EXCLUDE)]
-        objects, _ = self.storage.get_all(filters=filters, **self.storage_kw)
+        objects = self.storage.list_all(filters=filters, **self.storage_kw)
         self.assertEqual(len(objects), 1)
 
-    def test_get_all_can_filter_a_list_of_mixed_typed_values(self):
+    def test_list_all_can_filter_a_list_of_mixed_typed_values(self):
         for l in [1, 2, 3]:
             self.create_object({"code": l})
         filters = [Filter("code", (1, "b"), utils.COMPARISON.EXCLUDE)]
-        objects, _ = self.storage.get_all(filters=filters, **self.storage_kw)
+        objects = self.storage.list_all(filters=filters, **self.storage_kw)
         self.assertEqual(len(objects), 2)
 
-    def test_get_all_can_filter_a_list_of_integer_values_on_subobjects(self):
+    def test_list_all_can_filter_a_list_of_integer_values_on_subobjects(self):
         for l in [1, 2, 3]:
             self.create_object({"code": {"city": l}})
         filters = [Filter("code.city", (1, 2), utils.COMPARISON.EXCLUDE)]
-        objects, _ = self.storage.get_all(filters=filters, **self.storage_kw)
+        objects = self.storage.list_all(filters=filters, **self.storage_kw)
         self.assertEqual(len(objects), 1)
 
-    def test_get_all_can_filter_matching_a_list(self):
+    def test_list_all_can_filter_matching_a_list(self):
         self.create_object({"flavor": "strawberry", "orders": []})
         self.create_object({"flavor": "blueberry", "orders": [1]})
         self.create_object({"flavor": "pineapple", "orders": [1, 2]})
         self.create_object({"flavor": "watermelon", "orders": ""})
         self.create_object({"flavor": "raspberry", "orders": {}})
         filters = [Filter("orders", [], utils.COMPARISON.EQ)]
-        objects, _ = self.storage.get_all(filters=filters, **self.storage_kw)
+        objects = self.storage.list_all(filters=filters, **self.storage_kw)
         self.assertEqual(len(objects), 1)
         self.assertEqual(objects[0]["flavor"], "strawberry")
 
         filters = [Filter("orders", [1], utils.COMPARISON.EQ)]
-        objects, _ = self.storage.get_all(filters=filters, **self.storage_kw)
+        objects = self.storage.list_all(filters=filters, **self.storage_kw)
         self.assertEqual(len(objects), 1)
         self.assertEqual(objects[0]["flavor"], "blueberry")
 
-    def test_get_all_can_filter_matching_an_object(self):
+    def test_list_all_can_filter_matching_an_object(self):
         self.create_object({"flavor": "strawberry", "attributes": {}})
         self.create_object(
             {"flavor": "blueberry", "attributes": {"ibu": 25, "seen_on": "2017-06-01"}}
@@ -697,23 +694,23 @@ class BaseTestStorage:
         )
         self.create_object({"flavor": "raspberry", "attributes": []})
         filters = [Filter("attributes", {}, utils.COMPARISON.EQ)]
-        objects, _ = self.storage.get_all(filters=filters, **self.storage_kw)
+        objects = self.storage.list_all(filters=filters, **self.storage_kw)
         self.assertEqual(len(objects), 1)
         self.assertEqual(objects[0]["flavor"], "strawberry")
 
         filters = [Filter("attributes", {"ibu": 25, "seen_on": "2017-06-01"}, utils.COMPARISON.EQ)]
-        objects, _ = self.storage.get_all(filters=filters, **self.storage_kw)
+        objects = self.storage.list_all(filters=filters, **self.storage_kw)
         self.assertEqual(len(objects), 1)
         self.assertEqual(objects[0]["flavor"], "blueberry")
 
-    def test_get_all_supports_has(self):
+    def test_list_all_supports_has(self):
         self.create_object({"flavor": "strawberry"})
         self.create_object({"flavor": "blueberry", "author": None})
         self.create_object({"flavor": "raspberry", "author": ""})
         self.create_object({"flavor": "watermelon", "author": "hello"})
         self.create_object({"flavor": "pineapple", "author": "null"})
         filters = [Filter("author", True, utils.COMPARISON.HAS)]
-        objects, _ = self.storage.get_all(filters=filters, **self.storage_kw)
+        objects = self.storage.list_all(filters=filters, **self.storage_kw)
         self.assertEqual(len(objects), 4)
         self.assertEqual(
             sorted([r["flavor"] for r in objects]),
@@ -721,28 +718,28 @@ class BaseTestStorage:
         )
 
         filters = [Filter("author", False, utils.COMPARISON.HAS)]
-        objects, _ = self.storage.get_all(filters=filters, **self.storage_kw)
+        objects = self.storage.list_all(filters=filters, **self.storage_kw)
         self.assertEqual(len(objects), 1)
         self.assertEqual(objects[0]["flavor"], "strawberry")
 
-    def test_get_all_can_filter_by_subobjects_values(self):
+    def test_list_all_can_filter_by_subobjects_values(self):
         for l in ["a", "b", "c"]:
             self.create_object({"code": {"sub": l}})
         filters = [Filter("code.sub", "a", utils.COMPARISON.EQ)]
-        objects, _ = self.storage.get_all(filters=filters, **self.storage_kw)
+        objects = self.storage.list_all(filters=filters, **self.storage_kw)
         self.assertEqual(len(objects), 1)
 
-    def test_get_all_can_filter_with_like_and_implicit_wildchars(self):
+    def test_list_all_can_filter_with_like_and_implicit_wildchars(self):
         self.create_object({"name": "foo"})
         self.create_object({"name": "aafooll"})
         self.create_object({"name": "bar"})
         self.create_object({"name": "FOOBAR"})
 
         filters = [Filter("name", "FoO", utils.COMPARISON.LIKE)]
-        results, count = self.storage.get_all(filters=filters, **self.storage_kw)
-        self.assertEqual(len(results), 3)
+        objects = self.storage.list_all(filters=filters, **self.storage_kw)
+        self.assertEqual(len(objects), 3)
 
-    def test_get_all_can_filter_with_wildchars(self):
+    def test_list_all_can_filter_with_wildchars(self):
         self.create_object({"name": "eabcg"})
         self.create_object({"name": "aabcc"})
         self.create_object({"name": "abc"})
@@ -750,8 +747,8 @@ class BaseTestStorage:
         self.create_object({"name": "efg"})
 
         filters = [Filter("name", "a*b*c", utils.COMPARISON.LIKE)]
-        results, count = self.storage.get_all(filters=filters, **self.storage_kw)
-        self.assertEqual(len(results), 2)
+        objects = self.storage.list_all(filters=filters, **self.storage_kw)
+        self.assertEqual(len(objects), 2)
 
     def test_objects_filtered_when_searched_by_string_field(self):
         self.create_object({"name": "foo"})
@@ -759,7 +756,7 @@ class BaseTestStorage:
         self.create_object({"name": "FOOBAR"})
 
         filters = [Filter("name", "FoO", utils.COMPARISON.LIKE)]
-        results, count = self.storage.get_all(filters=filters, **self.storage_kw)
+        results = self.storage.list_all(filters=filters, **self.storage_kw)
         self.assertEqual(len(results), 2)
 
 
@@ -963,6 +960,30 @@ class TimestampsTest:
         timestamp = self.storage.resource_timestamp(**self.storage_kw)
         self.assertGreater(timestamp, timestamp_before)
 
+    def test_legacy_get_all_works_with_deprecation_warning(self):
+        self.create_object(parent_id="abc", resource_name="c")
+        obj = self.create_object(parent_id="abc", resource_name="c")
+        self.storage.delete(object_id=obj["id"], parent_id="abc", resource_name="c")
+        self.create_object(parent_id="abe", resource_name="c")
+
+        pagination = [[Filter("last_modified", 314, utils.COMPARISON.GT)]]
+        sorting = [Sort("last_modified", 1)]
+        objects, count = self.storage.get_all(
+            parent_id="ab*",
+            resource_name="c",
+            include_deleted=True,
+            # sorting, limits, and pagination doesn't make sense for counting but it should
+            # not complain when you use the legacy get_all.
+            sorting=sorting,
+            pagination_rules=pagination,
+            limit=99,
+        )
+        self.assertEqual(len(objects), 3)
+        self.assertEqual(count, 2)
+        print(self.mocked_warnings.mock_calls)
+        message = "Use either self.list_all() or self.count_all()"
+        self.mocked_warnings.assert_called_with(message, DeprecationWarning)
+
 
 class DeletedObjectsTest:
     def _get_last_modified_filters(self):
@@ -1001,9 +1022,10 @@ class DeletedObjectsTest:
         obj = {"id": "jesus", "rebirth": True}
         self.create_and_delete_object(obj)
         self.create_object(obj)
-        objects, count = self.storage.get_all(include_deleted=True, **self.storage_kw)
-        self.assertEqual(count, 1)  # One existing.
+        objects = self.storage.list_all(include_deleted=True, **self.storage_kw)
         self.assertEqual(len(objects), 1)  # No tombstone.
+        count = self.storage.count_all(**self.storage_kw)
+        self.assertEqual(count, 1)  # One existing.
 
     def test_deleting_a_object_twice_should_update_its_tombstone(self):
         obj = {"id": "jesus", "rebirth": True}
@@ -1030,24 +1052,23 @@ class DeletedObjectsTest:
         self.assertEqual(now, obj["last_modified"])
         self.assertTrue(before < obj["last_modified"])
 
-    def test_get_all_does_not_include_deleted_items_by_default(self):
+    def test_list_all_does_not_include_deleted_items_by_default(self):
         self.create_and_delete_object()
-        objects, _ = self.storage.get_all(**self.storage_kw)
+        objects = self.storage.list_all(**self.storage_kw)
         self.assertEqual(len(objects), 0)
 
-    def test_get_all_count_does_not_include_deleted_items(self):
+    def test_list_all_count_does_not_include_deleted_items(self):
         filters = self._get_last_modified_filters()
         self.create_and_delete_object()
-        objects, count = self.storage.get_all(
-            filters=filters, include_deleted=True, **self.storage_kw
-        )
+        objects = self.storage.list_all(filters=filters, include_deleted=True, **self.storage_kw)
         self.assertEqual(len(objects), 1)
+        count = self.storage.count_all(filters=filters, **self.storage_kw)
         self.assertEqual(count, 0)
 
-    def test_get_all_can_return_deleted_items(self):
+    def test_list_all_can_return_deleted_items(self):
         filters = self._get_last_modified_filters()
         obj = self.create_and_delete_object()
-        objects, _ = self.storage.get_all(filters=filters, include_deleted=True, **self.storage_kw)
+        objects = self.storage.list_all(filters=filters, include_deleted=True, **self.storage_kw)
         deleted = objects[0]
         self.assertEqual(deleted["id"], obj["id"])
         self.assertEqual(deleted["last_modified"], obj["last_modified"])
@@ -1059,10 +1080,9 @@ class DeletedObjectsTest:
         obj = {"challenge": "accepted"}
         obj = self.create_object(obj)
         self.storage.delete_all(**self.storage_kw)
-        objects, count = self.storage.get_all(
-            filters=filters, include_deleted=True, **self.storage_kw
-        )
+        objects = self.storage.list_all(filters=filters, include_deleted=True, **self.storage_kw)
         self.assertEqual(len(objects), 1)
+        count = self.storage.count_all(filters=filters, **self.storage_kw)
         self.assertEqual(count, 0)
 
     def test_delete_all_can_delete_without_tombstones(self):
@@ -1075,12 +1095,11 @@ class DeletedObjectsTest:
         old = self.storage.delete_all(filters=filters, with_deleted=False, **self.storage_kw)
         self.assertEqual(len(old), 1)  # Not 2, because one is tombstone.
 
-        objects, count = self.storage.get_all(
-            filters=filters, include_deleted=True, **self.storage_kw
-        )
+        objects = self.storage.list_all(filters=filters, include_deleted=True, **self.storage_kw)
         self.assertEqual(len(objects), 1)
         self.assertTrue(objects[0]["deleted"])
         self.assertTrue(objects[0]["id"], r["id"])
+        count = self.storage.count_all(filters=filters, **self.storage_kw)
         self.assertEqual(count, 0)
 
     def test_delete_can_delete_without_tombstones(self):
@@ -1088,10 +1107,9 @@ class DeletedObjectsTest:
         obj = {"challenge": "accepted"}
         obj = self.create_object(obj)
         self.storage.delete(object_id=obj["id"], with_deleted=False, **self.storage_kw)
-        objects, count = self.storage.get_all(
-            filters=filters, include_deleted=True, **self.storage_kw
-        )
+        objects = self.storage.list_all(filters=filters, include_deleted=True, **self.storage_kw)
         self.assertEqual(len(objects), 0)
+        count = self.storage.count_all(filters=filters, **self.storage_kw)
         self.assertEqual(count, 0)
 
     def test_deleting_without_tombstone_should_raise_not_found(self):
@@ -1108,7 +1126,7 @@ class DeletedObjectsTest:
         self.create_object()
         self.create_object()
         self.storage.delete_all(**self.storage_kw)
-        _, count = self.storage.get_all(**self.storage_kw)
+        count = self.storage.count_all(**self.storage_kw)
         self.assertEqual(count, 0)
 
     def test_delete_all_can_delete_by_parent_id(self):
@@ -1116,75 +1134,68 @@ class DeletedObjectsTest:
         self.create_object(parent_id="abc", resource_name="c")
         self.create_object(parent_id="efg", resource_name="c")
         self.storage.delete_all(parent_id="ab*", resource_name=None, with_deleted=False)
-        objects, count = self.storage.get_all(
-            parent_id="abc", resource_name="c", include_deleted=True
-        )
-        self.assertEqual(count, 0)
+        objects = self.storage.list_all(parent_id="abc", resource_name="c", include_deleted=True)
         self.assertEqual(len(objects), 0)
-        objects, count = self.storage.get_all(
-            parent_id="efg", resource_name="c", include_deleted=True
-        )
-        self.assertEqual(count, 1)
+        count = self.storage.count_all(parent_id="abc", resource_name="c")
+        self.assertEqual(count, 0)
+        objects = self.storage.list_all(parent_id="efg", resource_name="c", include_deleted=True)
         self.assertEqual(len(objects), 1)
+        count = self.storage.count_all(parent_id="efg", resource_name="c")
+        self.assertEqual(count, 1)
 
     def test_delete_all_does_proper_parent_id_matching(self):
         self.create_object(parent_id="abc", resource_name="c")
         self.create_object(parent_id="xabcx", resource_name="c")
         self.create_object(parent_id="efg", resource_name="c")
         self.storage.delete_all(parent_id="ab*", resource_name=None, with_deleted=False)
-        objects, count = self.storage.get_all(
-            parent_id="xabcx", resource_name="c", include_deleted=True
-        )
-        self.assertEqual(count, 1)
+        objects = self.storage.list_all(parent_id="xabcx", resource_name="c", include_deleted=True)
         self.assertEqual(len(objects), 1)
-        objects, count = self.storage.get_all(
-            parent_id="efg", resource_name="c", include_deleted=True
-        )
+        count = self.storage.count_all(parent_id="xabcx", resource_name="c")
         self.assertEqual(count, 1)
+        objects = self.storage.list_all(parent_id="efg", resource_name="c", include_deleted=True)
         self.assertEqual(len(objects), 1)
+        count = self.storage.count_all(parent_id="efg", resource_name="c")
+        self.assertEqual(count, 1)
 
     def test_delete_all_does_proper_matching(self):
         self.create_object(parent_id="abc", resource_name="c", obj={"id": "id1"})
         self.create_object(parent_id="def", resource_name="g", obj={"id": "id1"})
         self.storage.delete_all(parent_id="ab*", resource_name=None, with_deleted=False)
-        objects, count = self.storage.get_all(
-            parent_id="def", resource_name="g", include_deleted=True
-        )
-        self.assertEqual(count, 1)
+        objects = self.storage.list_all(parent_id="def", resource_name="g", include_deleted=True)
         self.assertEqual(len(objects), 1)
+        count = self.storage.count_all(parent_id="def", resource_name="g")
+        self.assertEqual(count, 1)
 
     def test_delete_all_can_delete_by_parent_id_with_tombstones(self):
         self.create_object(parent_id="abc", resource_name="c")
         self.create_object(parent_id="abc", resource_name="c")
         self.create_object(parent_id="efg", resource_name="c")
         self.storage.delete_all(parent_id="ab*", resource_name=None, with_deleted=True)
-        objects, count = self.storage.get_all(
-            parent_id="efg", resource_name="c", include_deleted=True
-        )
-        self.assertEqual(count, 1)
+        objects = self.storage.list_all(parent_id="efg", resource_name="c", include_deleted=True)
         self.assertEqual(len(objects), 1)
+        count = self.storage.count_all(parent_id="efg", resource_name="c")
+        self.assertEqual(count, 1)
 
-        objects, count = self.storage.get_all(
-            parent_id="abc", resource_name="c", include_deleted=True
-        )
-        self.assertEqual(count, 0)
+        objects = self.storage.list_all(parent_id="abc", resource_name="c", include_deleted=True)
         self.assertEqual(len(objects), 2)
         self.assertTrue(objects[0]["deleted"])
         self.assertTrue(objects[1]["deleted"])
+        count = self.storage.count_all(parent_id="abc", resource_name="c")
+        self.assertEqual(count, 0)
 
     def test_delete_all_can_delete_partially(self):
         self.create_object({"foo": "po"})
         self.create_object()
         filters = [Filter("foo", "bar", utils.COMPARISON.EQ)]
         self.storage.delete_all(filters=filters, **self.storage_kw)
-        _, count = self.storage.get_all(**self.storage_kw)
+        count = self.storage.count_all(**self.storage_kw)
         self.assertEqual(count, 1)
 
     def test_delete_all_supports_limit(self):
         self.create_object()
         self.create_object()
         self.storage.delete_all(limit=1, **self.storage_kw)
-        _, count = self.storage.get_all(**self.storage_kw)
+        count = self.storage.count_all(**self.storage_kw)
         self.assertEqual(count, 1)
 
     def test_delete_all_supports_sorting(self):
@@ -1192,8 +1203,7 @@ class DeletedObjectsTest:
             self.create_object({"foo": i})
         sorting = [Sort("foo", -1)]
         self.storage.delete_all(limit=2, sorting=sorting, **self.storage_kw)
-        objects, count = self.storage.get_all(sorting=sorting, **self.storage_kw)
-        self.assertEqual(count, 3)
+        objects = self.storage.list_all(sorting=sorting, **self.storage_kw)
         self.assertEqual(objects[0]["foo"], 2)
 
     def test_purge_deleted_remove_all_tombstones(self):
@@ -1202,9 +1212,10 @@ class DeletedObjectsTest:
         self.storage.delete_all(**self.storage_kw)
         num_removed = self.storage.purge_deleted(**self.storage_kw)
         self.assertEqual(num_removed, 2)
-        objects, count = self.storage.get_all(include_deleted=True, **self.storage_kw)
-        self.assertEqual(count, 0)
+        objects = self.storage.list_all(include_deleted=True, **self.storage_kw)
         self.assertEqual(len(objects), 0)
+        count = self.storage.count_all(**self.storage_kw)
+        self.assertEqual(count, 0)
 
     def test_purge_deleted_remove_all_tombstones_by_parent_id(self):
         self.create_object(parent_id="abc", resource_name="c")
@@ -1246,16 +1257,18 @@ class DeletedObjectsTest:
         newer = self.create_object()
         self.storage.delete(object_id=older["id"], **self.storage_kw)
         self.storage.delete(object_id=newer["id"], **self.storage_kw)
-        objects, count = self.storage.get_all(include_deleted=True, **self.storage_kw)
-        self.assertEqual(count, 0)
+        objects = self.storage.list_all(include_deleted=True, **self.storage_kw)
         self.assertEqual(len(objects), 2)
+        count = self.storage.count_all(**self.storage_kw)
+        self.assertEqual(count, 0)
         num_removed = self.storage.purge_deleted(
             before=max([r["last_modified"] for r in objects]), **self.storage_kw
         )
         self.assertEqual(num_removed, 1)
-        objects, count = self.storage.get_all(include_deleted=True, **self.storage_kw)
-        self.assertEqual(count, 0)
+        objects = self.storage.list_all(include_deleted=True, **self.storage_kw)
         self.assertEqual(len(objects), 1)
+        count = self.storage.count_all(**self.storage_kw)
+        self.assertEqual(count, 0)
 
     #
     # Sorting
@@ -1270,7 +1283,7 @@ class DeletedObjectsTest:
             last = obj if i == 20 else last
 
         sorting = [Sort("last_modified", -1)]
-        objects, _ = self.storage.get_all(
+        objects = self.storage.list_all(
             sorting=sorting, filters=filters, include_deleted=True, **self.storage_kw
         )
 
@@ -1284,7 +1297,7 @@ class DeletedObjectsTest:
         self.create_and_delete_object()
 
         sorting = [Sort("last_modified", 1)]
-        objects, _ = self.storage.get_all(
+        objects = self.storage.list_all(
             sorting=sorting, filters=filters, include_deleted=True, **self.storage_kw
         )
 
@@ -1299,7 +1312,7 @@ class DeletedObjectsTest:
         self.create_and_delete_object({"status": 2})
 
         sorting = [Sort("status", 1)]
-        objects, _ = self.storage.get_all(
+        objects = self.storage.list_all(
             sorting=sorting, filters=filters, include_deleted=True, **self.storage_kw
         )
         self.assertNotIn("deleted", objects[0])
@@ -1314,7 +1327,7 @@ class DeletedObjectsTest:
         self.create_and_delete_object()
 
         sorting = [Sort("deleted", 1)]
-        objects, _ = self.storage.get_all(
+        objects = self.storage.list_all(
             sorting=sorting, filters=filters, include_deleted=True, **self.storage_kw
         )
         self.assertIn("deleted", objects[0])
@@ -1327,7 +1340,7 @@ class DeletedObjectsTest:
             self.create_object({"status": l})
 
         sorting = [Sort("status", -1)]
-        objects, _ = self.storage.get_all(
+        objects = self.storage.list_all(
             sorting=sorting, filters=filters, include_deleted=True, **self.storage_kw
         )
         self.assertEqual(objects[0]["status"], 46)
@@ -1345,10 +1358,9 @@ class DeletedObjectsTest:
         self.create_object()
         self.create_and_delete_object()
 
-        objects, count = self.storage.get_all(
-            filters=filters, include_deleted=True, **self.storage_kw
-        )
+        objects = self.storage.list_all(filters=filters, include_deleted=True, **self.storage_kw)
         self.assertEqual(len(objects), 2)
+        count = self.storage.count_all(filters=filters, **self.storage_kw)
         self.assertEqual(count, 1)
 
     def test_filtering_on_arbitrary_field_excludes_deleted_objects(self):
@@ -1357,10 +1369,9 @@ class DeletedObjectsTest:
         self.create_and_delete_object({"status": 0})
 
         filters += [Filter("status", 0, utils.COMPARISON.EQ)]
-        objects, count = self.storage.get_all(
-            filters=filters, include_deleted=True, **self.storage_kw
-        )
+        objects = self.storage.list_all(filters=filters, **self.storage_kw)
         self.assertEqual(len(objects), 1)
+        count = self.storage.count_all(filters=filters, **self.storage_kw)
         self.assertEqual(count, 1)
 
     def test_support_filtering_on_deleted_field(self):
@@ -1369,11 +1380,10 @@ class DeletedObjectsTest:
         self.create_and_delete_object()
 
         filters += [Filter("deleted", True, utils.COMPARISON.EQ)]
-        objects, count = self.storage.get_all(
-            filters=filters, include_deleted=True, **self.storage_kw
-        )
+        objects = self.storage.list_all(filters=filters, include_deleted=True, **self.storage_kw)
         self.assertIn("deleted", objects[0])
         self.assertEqual(len(objects), 1)
+        count = self.storage.count_all(filters=filters, **self.storage_kw)
         self.assertEqual(count, 0)
 
     def test_support_filtering_out_on_deleted_field(self):
@@ -1382,12 +1392,11 @@ class DeletedObjectsTest:
         self.create_and_delete_object()
 
         filters += [Filter("deleted", True, utils.COMPARISON.NOT)]
-        objects, count = self.storage.get_all(
-            filters=filters, include_deleted=True, **self.storage_kw
-        )
-        self.assertEqual(count, 1)
+        objects = self.storage.list_all(filters=filters, include_deleted=True, **self.storage_kw)
         self.assertNotIn("deleted", objects[0])
         self.assertEqual(len(objects), 1)
+        count = self.storage.count_all(filters=filters, **self.storage_kw)
+        self.assertEqual(count, 1)
 
     def test_return_empty_set_if_filtering_on_deleted_false(self):
         filters = self._get_last_modified_filters()
@@ -1395,10 +1404,9 @@ class DeletedObjectsTest:
         self.create_and_delete_object()
 
         filters += [Filter("deleted", False, utils.COMPARISON.EQ)]
-        objects, count = self.storage.get_all(
-            filters=filters, include_deleted=True, **self.storage_kw
-        )
+        objects = self.storage.list_all(filters=filters, include_deleted=True, **self.storage_kw)
         self.assertEqual(len(objects), 0)
+        count = self.storage.count_all(filters=filters, **self.storage_kw)
         self.assertEqual(count, 0)
 
     def test_return_empty_set_if_filtering_on_deleted_without_include(self):
@@ -1406,8 +1414,9 @@ class DeletedObjectsTest:
         self.create_and_delete_object()
 
         filters = [Filter("deleted", True, utils.COMPARISON.EQ)]
-        objects, count = self.storage.get_all(filters=filters, **self.storage_kw)
+        objects = self.storage.list_all(filters=filters, **self.storage_kw)
         self.assertEqual(len(objects), 0)
+        count = self.storage.count_all(filters=filters, **self.storage_kw)
         self.assertEqual(count, 0)
 
     #
@@ -1424,7 +1433,7 @@ class DeletedObjectsTest:
 
         pagination = [[Filter("last_modified", 314, utils.COMPARISON.GT)]]
         sorting = [Sort("last_modified", 1)]
-        objects, count = self.storage.get_all(
+        objects = self.storage.list_all(
             sorting=sorting,
             pagination_rules=pagination,
             limit=5,
@@ -1433,7 +1442,6 @@ class DeletedObjectsTest:
             **self.storage_kw,
         )
         self.assertEqual(len(objects), 5)
-        self.assertEqual(count, 7)
         self.assertIn("deleted", objects[0])
         self.assertNotIn("deleted", objects[1])
 
@@ -1442,32 +1450,31 @@ class DeletedObjectsTest:
             self.create_object({"i": i})
 
         pagination = [[Filter("i", 7, utils.COMPARISON.GT)]]
-        objects, count = self.storage.get_all(
+        objects = self.storage.list_all(
             pagination_rules=pagination, limit=5, include_deleted=True, **self.storage_kw
         )
         self.assertEqual(len(objects), 0)
 
-    def test_get_all_handle_a_pagination_rules(self):
+    def test_list_all_handle_a_pagination_rules(self):
         for x in range(10):
             obj = dict(self.obj)
             obj["number"] = x % 3
             self.create_object(obj)
 
-        objects, total_objects = self.storage.get_all(
+        objects = self.storage.list_all(
             limit=5,
             pagination_rules=[[Filter("number", 1, utils.COMPARISON.GT)]],
             **self.storage_kw,
         )
-        self.assertEqual(total_objects, 10)
         self.assertEqual(len(objects), 3)
 
-    def test_get_all_handle_all_pagination_rules(self):
+    def test_list_all_handle_all_pagination_rules(self):
         for x in range(10):
             obj = dict(self.obj)
             obj["number"] = x % 3
             last_object = self.create_object(obj)
 
-        objects, total_objects = self.storage.get_all(
+        objects = self.storage.list_all(
             limit=5,
             pagination_rules=[
                 [Filter("number", 1, utils.COMPARISON.GT)],
@@ -1475,10 +1482,9 @@ class DeletedObjectsTest:
             ],
             **self.storage_kw,
         )
-        self.assertEqual(total_objects, 10)
         self.assertEqual(len(objects), 4)
 
-    def test_get_all_parent_id_paginates_correctly(self):
+    def test_list_all_parent_id_paginates_correctly(self):
         """Verify that pagination doesn't squash or duplicate some objects"""
 
         # Create objects with different parent IDs, but the same
@@ -1491,7 +1497,7 @@ class DeletedObjectsTest:
                 obj={"id": "some_id", "secret_data": parent_id},
             )
 
-        real_objects, _ = self.storage.get_all(parent_id="abc*", resource_name="c")
+        real_objects = self.storage.list_all(parent_id="abc*", resource_name="c")
         self.assertEqual(len(real_objects), 10)
 
         def sort_by_secret_data(l):
@@ -1506,14 +1512,14 @@ class DeletedObjectsTest:
                     objects = []
                     pagination = None
                     while True:
-                        page, total_objects = self.storage.get_all(
+                        page = self.storage.list_all(
                             parent_id="abc*",
                             resource_name="c",
                             sorting=sort,
                             limit=limit,
                             pagination_rules=pagination,
                         )
-
+                        total_objects = self.storage.count_all(parent_id="abc*", resource_name="c")
                         self.assertEqual(total_objects, len(real_objects))
                         objects.extend(page)
                         if len(objects) == total_objects:
@@ -1654,12 +1660,15 @@ class DeprecatedCoreNotionsTest:
         self.mocked_warnings.assert_called_with(message, DeprecationWarning)
 
     def test_get_all_deprecated_kwargs(self):
-        self.storage.get_all(collection_id="test", parent_id="")
+        r = self.storage.create(obj={"id": "abc"}, resource_name="test", parent_id="")
 
-        message = (
-            "Storage.get_all parameter 'collection_id' is deprecated, use 'resource_name' instead"
-        )
-        self.mocked_warnings.assert_called_with(message, DeprecationWarning)
+        records, count = self.storage.get_all(collection_id="test", parent_id="")
+
+        message = "Use either self.list_all() or self.count_all()"
+        self.mocked_warnings.assert_any_call(message, DeprecationWarning)
+        # Check that proper `resource_name` was used (instead of `collection_id`)
+        assert records == [r]
+        assert count == 1
 
 
 class StorageTest(

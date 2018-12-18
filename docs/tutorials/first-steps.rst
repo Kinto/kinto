@@ -165,7 +165,7 @@ Let us fetch our new collection of tasks:
 .. code-block:: http
 
     HTTP/1.1 200 OK
-    Access-Control-Expose-Headers: Backoff, Retry-After, Alert, Next-Page, Total-Objects, Last-Modified, ETag
+    Access-Control-Expose-Headers: Backoff, Retry-After, Alert, Next-Page, Last-Modified, ETag
     Backoff: 10
     Connection: keep-alive
     Content-Length: 152
@@ -174,7 +174,6 @@ Let us fetch our new collection of tasks:
     ETag: "1436171996916"
     Last-Modified: Mon, 06 Jul 2015 08:39:56 GMT
     Server: nginx/1.4.6 (Ubuntu)
-    Total-Objects: 1
 
     {
         "data": [
@@ -397,7 +396,7 @@ Just add the ``_since`` querystring filter, using the value of any ``ETag`` (or
 .. code-block:: http
 
     HTTP/1.1 200 OK
-    Access-Control-Expose-Headers: Backoff, Retry-After, Alert, Next-Page, Total-Objects, Last-Modified, ETag
+    Access-Control-Expose-Headers: Backoff, Retry-After, Alert, Next-Page, Last-Modified, ETag
     Backoff: 10
     Connection: keep-alive
     Content-Length: 101
@@ -406,7 +405,6 @@ Just add the ``_since`` querystring filter, using the value of any ``ETag`` (or
     ETag: "1434641474977"
     Last-Modified: Thu, 18 Jun 2015 15:31:14 GMT
     Server: nginx/1.4.6 (Ubuntu)
-    Total-Objects: 0
 
     {
         "data": [
@@ -621,11 +619,10 @@ If Bob wants to get the record list, he will get his records as well as Alice's 
 .. code-block:: http
 
     HTTP/1.1 200 OK
-    Access-Control-Expose-Headers: Backoff, Retry-After, Alert, Content-Length, Next-Page, Total-Objects, Last-Modified, ETag
+    Access-Control-Expose-Headers: Backoff, Retry-After, Alert, Content-Length, Next-Page, Last-Modified, ETag
     Content-Length: 371
     Content-Type: application/json; charset=UTF-8
     Etag: "1434646257547"
-    Total-Objects: 3
 
     {
         "data": [

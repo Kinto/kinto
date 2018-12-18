@@ -14,7 +14,9 @@ Changelog
 1.21 (unreleased)
 '''''''''''''''''
 
-- The ``Total-Records`` header was deprecated and renamed to ``Total-Objects``.
+- The ``Total-Records`` header is no longer included in any GET request. Only available
+  in HEAD requests. Also, the name of that header is deprecated, but kept, in favor of
+  ``Total-Objects`` (#1624, #710)
 
 1.20 (2018-06-07)
 '''''''''''''''''

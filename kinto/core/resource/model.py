@@ -104,33 +104,32 @@ class Model:
             are combined using *AND*.
         :type filters: list of :class:`kinto.core.storage.Filter`
 
-        :param sorting: Optionnally sort the objects by attribute.
+        :param sorting: Optionally sort the objects by attribute.
             Each sort instruction in this list refers to a field and a
             direction (negative means descending). All sort instructions are
             cumulative.
         :type sorting: list of :class:`kinto.core.storage.Sort`
 
-        :param pagination_rules: Optionnally paginate the list of objects.
+        :param pagination_rules: Optionally paginate the list of objects.
             This list of rules aims to reduce the set of objects to the current
             page. A rule is a list of filters (see `filters` parameter),
             and all rules are combined using *OR*.
         :type pagination_rules: list of list of
             :class:`kinto.core.storage.Filter`
 
-        :param int limit: Optionnally limit the number of objects to be
+        :param int limit: Optionally limit the number of objects to be
             retrieved.
 
-        :param bool include_deleted: Optionnally include the deleted objects
+        :param bool include_deleted: Optionally include the deleted objects
             that match the filters.
 
         :param str parent_id: optional filter for parent id
 
-        :returns: A tuple with the list of objects in the current page,
-            the total number of objects in the result set.
-        :rtype: tuple
+        :returns: A list of objects in the current page.
+        :rtype: list
         """
         parent_id = parent_id or self.parent_id
-        objects, total_objects = self.storage.get_all(
+        return self.storage.list_all(
             resource_name=self.resource_name,
             parent_id=parent_id,
             filters=filters,
@@ -143,7 +142,33 @@ class Model:
             deleted_field=self.deleted_field,
             auth=self.auth,
         )
-        return objects, total_objects
+
+    def count_objects(self, filters=None, parent_id=None):
+        """Fetch the total count of resource objects
+
+        Override to post-process objects after feching them from storage.
+
+        :param filters: Optionally filter the objects by their attribute.
+            Each filter in this list is a tuple of a field, a value and a
+            comparison (see `kinto.core.utils.COMPARISON`). All filters
+            are combined using *AND*.
+        :type filters: list of :class:`kinto.core.storage.Filter`
+
+        :param str parent_id: optional filter for parent id
+
+        :returns: An integer of the total number of objects in the result set.
+        :rtype: int
+        """
+        parent_id = parent_id or self.parent_id
+        return self.storage.count_all(
+            resource_name=self.resource_name,
+            parent_id=parent_id,
+            filters=filters,
+            id_field=self.id_field,
+            modified_field=self.modified_field,
+            deleted_field=self.deleted_field,
+            auth=self.auth,
+        )
 
     def delete_objects(
         self, filters=None, sorting=None, pagination_rules=None, limit=None, parent_id=None

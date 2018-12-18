@@ -7,6 +7,7 @@ from collections import namedtuple
 from pyramid.settings import asbool
 import ujson
 
+from kinto.core.decorators import deprecate_kwargs
 from . import generators
 
 
@@ -280,7 +281,25 @@ class StorageBase:
         """
         raise NotImplementedError
 
-    def get_all(
+    @deprecate_kwargs({"collection_id": "resource_name"})
+    def get_all(self, *args, **kwargs):
+        """Legacy method to support code that relied on the old API where the storage's
+        get_all() would return a tuple of (<list of objects paginated>, <count of all>).
+        Since then, we're being more explicit and expecting the client to deliberately
+        decide if they need a paginated list or a count.
+
+        This method exists solely to make the transition easier.
+        """
+        warnings.warn("Use either self.list_all() or self.count_all()", DeprecationWarning)
+        list_ = self.list_all(*args, **kwargs)
+        kwargs.pop("pagination_rules", None)
+        kwargs.pop("limit", None)
+        kwargs.pop("sorting", None)
+        kwargs.pop("include_deleted", None)
+        count = self.count_all(*args, **kwargs)
+        return (list_, count)
+
+    def list_all(
         self,
         resource_name,
         parent_id,
@@ -328,9 +347,36 @@ class StorageBase:
         :param bool include_deleted: Optionnally include the deleted objects
             that match the filters.
 
-        :returns: the limited list of objects, and the total number of
+        :returns: the limited list of objects of
             matching objects in the resource (deleted ones excluded).
-        :rtype: tuple
+        :rtype: list
+        """
+        raise NotImplementedError
+
+    def count_all(
+        self,
+        resource_name,
+        parent_id,
+        filters=None,
+        id_field=DEFAULT_ID_FIELD,
+        modified_field=DEFAULT_MODIFIED_FIELD,
+        deleted_field=DEFAULT_DELETED_FIELD,
+        auth=None,
+    ):
+        """Return a count of all objects in this `resource_name` for this `parent_id`.
+
+        :param str resource_name: the resource name.
+        :param str parent_id: the parent resource, possibly
+            containing a wildcard '*'. (This can happen when
+            implementing "administrator" operations on a UserResource,
+            for example.)
+        :param filters: Optionally filter the objects by their attribute.
+            Each filter in this list is a tuple of a field, a value and a
+            comparison (see `kinto.core.utils.COMPARISON`). All filters
+            are combined using *AND*.
+        :type filters: list of :class:`kinto.core.storage.Filter`
+        :returns: the total number of matching objects in the resource (deleted ones excluded).
+        :rtype: int
         """
         raise NotImplementedError
 

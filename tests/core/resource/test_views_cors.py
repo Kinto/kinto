@@ -106,7 +106,12 @@ class CORSExposeHeadersTest(BaseWebTest, unittest.TestCase):
         kwargs = dict(headers=headers)
         if status:
             kwargs["status"] = status
-        response = http_method(path, body, **kwargs)
+        if method == "HEAD":
+            # TestApp.head can't take a 'params' and its first and only positional argument.
+            # So we need an ad-hoc signature for TestApp.head.
+            response = http_method(path, **kwargs)
+        else:
+            response = http_method(path, body, **kwargs)
         exposed_headers = response.headers["Access-Control-Expose-Headers"]
         exposed_headers = [x.strip() for x in exposed_headers.split(",")]
         self.assertEqual(sorted(allowed_headers), sorted(exposed_headers))
@@ -123,11 +128,29 @@ class CORSExposeHeadersTest(BaseWebTest, unittest.TestCase):
                 "Last-Modified",
                 "Next-Page",
                 "Retry-After",
+                "Content-Length",
+                "Cache-Control",
+                "Expires",
+                "Pragma",
+            ],
+        )
+
+    def test_plural_head_exposes_every_possible_header(self):
+        self.assert_expose_headers(
+            "HEAD",
+            self.plural_url,
+            [
+                "Alert",
+                "Backoff",
+                "ETag",
+                "Last-Modified",
+                "Retry-After",
                 "Total-Objects",
                 "Total-Records",
                 "Content-Length",
                 "Cache-Control",
                 "Expires",
+                "Next-Page",
                 "Pragma",
             ],
         )

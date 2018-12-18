@@ -62,7 +62,8 @@ class StorageBaseTest(unittest.TestCase):
             (self.storage.delete, "", "", ""),
             (self.storage.delete_all, "", ""),
             (self.storage.purge_deleted, "", ""),
-            (self.storage.get_all, "", ""),
+            (self.storage.list_all, "", ""),
+            (self.storage.count_all, "", ""),
         ]
         for call in calls:
             self.assertRaises(NotImplementedError, *call)

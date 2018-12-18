@@ -67,6 +67,29 @@ class PermissionsModel:
         include_deleted=False,
         parent_id=None,
     ):
+        objects, _ = self._get_objects(
+            filters=filters,
+            sorting=sorting,
+            pagination_rules=pagination_rules,
+            limit=limit,
+            include_deleted=include_deleted,
+            parent_id=parent_id,
+        )
+        return objects
+
+    def count_objects(self, filters=None, parent_id=None):
+        _, count = self._get_objects(filters=filters, parent_id=parent_id)
+        return count
+
+    def _get_objects(
+        self,
+        filters=None,
+        sorting=None,
+        pagination_rules=None,
+        limit=None,
+        include_deleted=False,
+        parent_id=None,
+    ):
         # Invert the permissions inheritance tree.
         perms_descending_tree = {}
         for on_resource, tree in PERMISSIONS_INHERITANCE_TREE.items():
@@ -177,7 +200,7 @@ class PermissionsSchema(resource.ResourceSchema):
     description="List of user permissions",
     plural_path="/permissions",
     object_path=None,
-    collection_methods=("GET",),
+    plural_methods=("HEAD", "GET"),
 )
 class Permissions(resource.Resource):
 

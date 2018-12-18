@@ -309,6 +309,22 @@ class Resource:
     # End-points
     #
 
+    def plural_head(self):
+        """Model ``HEAD`` endpoint: empty reponse with a ``Total-Objects`` header.
+
+        :raises: :exc:`~pyramid:pyramid.httpexceptions.HTTPNotModified` if
+            ``If-None-Match`` header is provided and collection not
+            modified in the interim.
+
+        :raises:
+            :exc:`~pyramid:pyramid.httpexceptions.HTTPPreconditionFailed` if
+            ``If-Match`` header is provided and collection modified
+            in the iterim.
+        :raises: :exc:`~pyramid:pyramid.httpexceptions.HTTPBadRequest`
+            if filters or sorting are invalid.
+        """
+        return self._plural_get(True)
+
     def plural_get(self):
         """Model ``GET`` endpoint: retrieve multiple objects.
 
@@ -323,6 +339,9 @@ class Resource:
         :raises: :exc:`~pyramid:pyramid.httpexceptions.HTTPBadRequest`
             if filters or sorting are invalid.
         """
+        return self._plural_get(False)
+
+    def _plural_get(self, head_request):
         self._add_timestamp_header(self.request.response)
         self._add_cache_header(self.request.response)
         self._raise_304_if_not_modified()
@@ -341,28 +360,45 @@ class Resource:
 
         pagination_rules, offset = self._extract_pagination_rules_from_token(limit, sorting)
 
-        objects, total_objects = self.model.get_objects(
+        # The reason why we call self.model.get_objects() with `limit=limit + 1` is to avoid
+        # having to count the total number of objects in the database just to be able
+        # to *decide* whether or not to have a `Next-Page` header.
+        # This way, we can quickly depend on the number of objects returned and compare that
+        # with what the client requested.
+        # For example, if there are 100 objects in the database and the client used limit=100,
+        # it would, internally, ask for 101 objects. So if you retrieved 100 objects
+        # it means we got less than we asked for and thus there is not another page.
+        # Equally, if there are 200 objects in the database and the client used
+        # limit=100 it would, internally, ask for 101 objects and actually get that. Then,
+        # you know there is another page.
+
+        if head_request:
+            count = self.model.count_objects(filters=filters)
+            headers["Total-Objects"] = headers["Total-Records"] = str(count)
+            return self.postprocess([])
+
+        objects = self.model.get_objects(
             filters=filters,
             sorting=sorting,
-            limit=limit,
+            limit=limit + 1,  # See bigger explanation above.
             pagination_rules=pagination_rules,
             include_deleted=include_deleted,
         )
 
         offset = offset + len(objects)
-        if limit and len(objects) == limit and offset < total_objects:
-            lastobject = objects[-1]
+
+        if limit and len(objects) == limit + 1:
+            lastobject = objects[-2]
             next_page = self._next_page_url(sorting, limit, lastobject, offset)
             headers["Next-Page"] = next_page
 
         if partial_fields:
             objects = [dict_subset(obj, partial_fields) for obj in objects]
 
-        headers["Total-Objects"] = str(total_objects)
-        # Clients backward compatibility.
-        headers["Total-Records"] = headers["Total-Objects"]
-
-        return self.postprocess(objects)
+        # See bigger explanation above about the use of limits. The need for slicing
+        # here is because we might have asked for 1 more object just to see if there's
+        # a next page. But we have to honor the limit in our returned response.
+        return self.postprocess(objects[:limit])
 
     def plural_post(self):
         """Model ``POST`` endpoint: create an object.
@@ -427,8 +463,8 @@ class Resource:
         sorting = self._extract_sorting(limit)
         pagination_rules, offset = self._extract_pagination_rules_from_token(limit, sorting)
 
-        objects, total_objects = self.model.get_objects(
-            filters=filters, sorting=sorting, limit=limit, pagination_rules=pagination_rules
+        objects = self.model.get_objects(
+            filters=filters, sorting=sorting, limit=limit + 1, pagination_rules=pagination_rules
         )
         deleted = self.model.delete_objects(
             filters=filters, sorting=sorting, limit=limit, pagination_rules=pagination_rules
@@ -439,18 +475,15 @@ class Resource:
             timestamp = lastobject[self.model.modified_field]
             self._add_timestamp_header(self.request.response, timestamp=timestamp)
 
-            # Add pagination header
-            if limit and len(deleted) == limit and total_objects > 1:
+            # Add pagination header, but only if there are more objects beyond the limit.
+            if limit and len(objects) == limit + 1:
                 next_page = self._next_page_url(sorting, limit, lastobject, offset)
                 self.request.response.headers["Next-Page"] = next_page
         else:
             self._add_timestamp_header(self.request.response)
 
-        headers = self.request.response.headers
-        headers["Total-Objects"] = str(total_objects)
-
         action = len(deleted) > 0 and ACTIONS.DELETE or ACTIONS.READ
-        return self.postprocess(deleted, action=action, old=objects)
+        return self.postprocess(deleted, action=action, old=objects[:limit])
 
     def get(self):
         """Object ``GET`` endpoint: retrieve an object.

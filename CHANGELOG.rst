@@ -13,6 +13,8 @@ This document describes changes between each past release.
 - Storage backend API has changed, notions of collection and records were replaced
   by the generic terms *resource* and *object*. Plugins that subclass the internal
   ``ShareableResource`` class may also break.
+- GET requests no longer include the ``Total-Records`` header. To get a count in a collection
+  you need to do a HEAD request. And the new header name is ``Total-Objects``. (#1624)
 - Remove the ``UserResource`` class. And ``ShareableResource`` is now deprecated in
   favor of ``Resource``.
 
@@ -28,13 +30,13 @@ This document describes changes between each past release.
 - Ignore admin plugin node_modules folder while running black (#1902)
 - Remove regexp py36 warnings. (#1907)
 - Changed psycopg2 dependency for psycopg2-binary. (#1905)
+- Renamed core notions (ie. record and collection) (#710)
 
 
 11.2.1 (2018-12-09)
 -------------------
 
 - Still supports jsonschema 2.6 before 3.0 is released as a production release. (#1923)
-- Renamed core notions (ie. record and collection) (#710)
 
 
 11.2.0 (2018-11-29)

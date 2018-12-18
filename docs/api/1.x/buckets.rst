@@ -298,14 +298,13 @@ Retrieving all buckets
     .. sourcecode:: http
 
         HTTP/1.1 200 OK
-        Access-Control-Expose-Headers: Backoff, Retry-After, Alert, Content-Length, Next-Page, Total-Objects, Last-Modified, ETag
+        Access-Control-Expose-Headers: Backoff, Retry-After, Alert, Content-Length, Next-Page, Last-Modified, ETag
         Content-Length: 54
         Content-Type: application/json; charset=UTF-8
         Date: Thu, 10 Sep 2015 08:37:32 GMT
         Etag: "1441874072429"
         Last-Modified: Thu, 10 Sep 2015 08:34:32 GMT
         Server: waitress
-        Total-Objects: 1
 
         {
             "data": [
@@ -317,6 +316,8 @@ Retrieving all buckets
         }
 
 .. include:: _details-get-list.rst
+
+.. include:: _details-head-list.rst
 
 .. include:: _status-get-list.rst
 
