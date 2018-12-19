@@ -104,9 +104,22 @@ def main(args=None):
             )
         elif command == "delete-collection":
             subparser.add_argument(
-                "--bucket", help="The bucket where the collection " "belongs to.", required=True
+                "--bucket", 
+                help="The bucket where the collection " "belongs to.", 
+                required=True
             )
-            subparser.add_argument("--collection", help="The collection to remove.", required=True)
+            subparser.add_argument(
+                "--collection", 
+                help="The collection to remove.", 
+                required=True
+            )
+            subparser.add_argument(
+                "--flush-cache",
+                action="flush",
+                help="Clears the Cache from the Memory Backend",
+                require=False,
+                default=False,
+            )
 
         elif command == "rebuild-quotas":
             subparser.add_argument(
