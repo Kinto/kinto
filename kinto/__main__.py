@@ -29,6 +29,7 @@ def main(args=None):
         "start",
         "migrate",
         "delete-collection",
+        "flush",
         "version",
         "rebuild-quotas",
         "create-user",
@@ -113,14 +114,16 @@ def main(args=None):
                 help="The collection to remove.", 
                 required=True
             )
+
+        elif command == "flush":
             subparser.add_argument(
                 "--flush-cache",
-                action="flush",
+                #action=".flush",
                 help="Clears the Cache from the Memory Backend",
-                require=False,
+                required=False,
                 default=False,
             )
-
+            
         elif command == "rebuild-quotas":
             subparser.add_argument(
                 "--dry-run",
@@ -235,6 +238,11 @@ def main(args=None):
         env = bootstrap(config_file, options={"command": "delete-collection"})
         return scripts.delete_collection(env, parsed_args["bucket"], parsed_args["collection"])
 
+    elif which_command == "flush":
+        #env = bootstrap(config_file, option={"command": "flush-cache"})
+        if parsed_args["flush-cache"]:
+            return registry.cache.flush()
+    
     elif which_command == "rebuild-quotas":
         dry_run = parsed_args["dry_run"]
         env = bootstrap(config_file, options={"command": "rebuild-quotas"})
