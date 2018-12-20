@@ -241,7 +241,7 @@ def main(args=None):
     elif which_command == "flush":
         #env = bootstrap(config_file, option={"command": "flush-cache"})
         if parsed_args["flush-cache"]:
-            return registry.cache.flush()
+            return cache.flush()
     
     elif which_command == "rebuild-quotas":
         dry_run = parsed_args["dry_run"]
