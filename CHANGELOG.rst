@@ -31,6 +31,7 @@ This document describes changes between each past release.
 - Remove regexp py36 warnings. (#1907)
 - Changed psycopg2 dependency for psycopg2-binary. (#1905)
 - Renamed core notions (ie. record and collection) (#710)
+- JSON Schema validation is optimized by keeping instances of validator cached. (#1807)
 
 
 11.2.1 (2018-12-09)
