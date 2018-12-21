@@ -1,5 +1,6 @@
 import colander
-from jsonschema import ValidationError, SchemaError, RefResolutionError, validate
+from jsonschema import ValidationError, SchemaError, RefResolutionError
+from jsonschema.validators import validator_for
 
 try:  # pragma: no cover
     from jsonschema import Draft7Validator as DraftValidator
@@ -37,6 +38,34 @@ def check_schema(data):
     except SchemaError as e:
         message = e.path.pop() + e.message
         raise ValidationError(message)
+
+
+# Module level global that stores a version of every possible schema (as a <class 'dict'>)
+# turned into a jsonschema instance (as <class 'jsonschema.validators.Validator'>).
+_schema_cache = {}
+
+
+def validate(data, schema):
+    """Raise a ValidationError or a RefResolutionError if the data doesn't validate
+    with the given schema.
+
+    Note that this function is just a "wrapper" on `jsonschema.validate()` but with
+    some memoization based on the schema for better repeat performance.
+    """
+    # Because the schema is a dict, it can't be used as a hash key so it needs to be
+    # "transformed" to something that is hashable. The quickest solution is to convert
+    # it to a string.
+    # Note that the order of the dict will determine the string it becomes. The solution
+    # to that would a canonical serializer like `json.dumps(..., sort_keys=True)` but it's
+    # overkill since the assumption is that the schema is very unlikely to be exactly
+    # the same but different order.
+    cache_key = str(schema)
+    if cache_key not in _schema_cache:
+        # This is essentially what the `jsonschema.validate()` shortcut function does.
+        cls = validator_for(schema)
+        cls.check_schema(schema)
+        _schema_cache[cache_key] = cls(schema)
+    return _schema_cache[cache_key].validate(data)
 
 
 def validate_schema(data, schema, ignore_fields=[]):
