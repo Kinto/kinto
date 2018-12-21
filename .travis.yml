@@ -30,12 +30,10 @@ matrix:
   include:
     - python: 3.7
       dist: xenial
-      sudo: true
       env:
         - TOX_ENV=py37
     - python: 3.7
       dist: xenial
-      sudo: true
       env: ENV=functional
       before_install:
         - make install-dev
@@ -45,7 +43,6 @@ matrix:
         - make functional
     - python: 3.7
       dist: xenial
-      sudo: true
       env:
         - ENV=build-kinto-admin
       script: make build-kinto-admin
