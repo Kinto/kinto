@@ -43,7 +43,3 @@ Requirements
 
 * **Python**: 3.6+
 * **Backends**: In-memory (development), PostgreSQL 9.5+ (production)
-
-Docker
-------
- docker pull kinto/kinto-server
