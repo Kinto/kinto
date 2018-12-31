@@ -11,6 +11,8 @@ from pyramid.scripts import pserve
 from pyramid.paster import bootstrap
 from kinto import __version__
 from kinto.config import init
+from kinto.core import cache
+
 
 DEFAULT_CONFIG_FILE = os.getenv("KINTO_INI", "config/kinto.ini")
 DEFAULT_PORT = 8888
@@ -29,7 +31,7 @@ def main(args=None):
         "start",
         "migrate",
         "delete-collection",
-        "flush",
+        "flush-cache",
         "version",
         "rebuild-quotas",
         "create-user",
@@ -105,25 +107,16 @@ def main(args=None):
             )
         elif command == "delete-collection":
             subparser.add_argument(
-                "--bucket", 
-                help="The bucket where the collection " "belongs to.", 
+                "--bucket",
+                help="The bucket where the collection " "belongs to.",
                 required=True
             )
             subparser.add_argument(
-                "--collection", 
-                help="The collection to remove.", 
+                "--collection",
+                help="The collection to remove.",
                 required=True
             )
 
-        elif command == "flush":
-            subparser.add_argument(
-                "--flush-cache",
-                #action=".flush",
-                help="Clears the Cache from the Memory Backend",
-                required=False,
-                default=False,
-            )
-            
         elif command == "rebuild-quotas":
             subparser.add_argument(
                 "--dry-run",
@@ -238,11 +231,9 @@ def main(args=None):
         env = bootstrap(config_file, options={"command": "delete-collection"})
         return scripts.delete_collection(env, parsed_args["bucket"], parsed_args["collection"])
 
-    elif which_command == "flush":
-        #env = bootstrap(config_file, option={"command": "flush-cache"})
-        if parsed_args["flush-cache"]:
-            return cache.flush()
-    
+    elif which_command == "flush-cache":
+        return cache.flush()
+
     elif which_command == "rebuild-quotas":
         dry_run = parsed_args["dry_run"]
         env = bootstrap(config_file, options={"command": "rebuild-quotas"})
