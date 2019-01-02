@@ -121,6 +121,10 @@ class UserData(resource.ShareableResource):
 
         # Group by (parent_uri, resource of child) to make fewer
         # requests to storage backend.
+        # Store the parsed object IDs, since those are what we
+        # actually give to the storage backend.
+        object_ids_by_parent_uri = collections.defaultdict(list)
+        # Store also the object URIs, which we give to the permission backend.
         objects_by_parent_uri = collections.defaultdict(list)
         # We have to get the matchdict of the child here anyhow, so
         # keep that to generate events later.
@@ -128,13 +132,14 @@ class UserData(resource.ShareableResource):
         for object_uri in to_delete:
             parent_uri = get_parent_uri(object_uri)
             resource_name, matchdict = core_utils.view_lookup(self.request, object_uri)
-            objects_by_parent_uri[(parent_uri, resource_name)].append(matchdict["id"])
+            objects_by_parent_uri[(parent_uri, resource_name)].append(object_uri)
+            object_ids_by_parent_uri[(parent_uri, resource_name)].append(matchdict["id"])
             # This overwrites previous matchdicts for the parent, but
             # we'll only use the fields that are relevant to the
             # parent, which will be the same for each child.
             matchdicts_by_parent_uri[parent_uri] = matchdict
 
-        for (parent_uri, resource_name), object_ids in objects_by_parent_uri.items():
+        for (parent_uri, resource_name), object_ids in object_ids_by_parent_uri.items():
             # Generate the parent matchdict from an arbitrary child's matchdict.
             matchdict = {**matchdicts_by_parent_uri[parent_uri]}
             matchdict.pop("id", None)
@@ -161,8 +166,15 @@ class UserData(resource.ShareableResource):
                     resource_name=resource_name,
                     resource_data=matchdict,
                 )
-                # FIXME: no way to purge just some tombstones for just this principal
-                permission.delete_object_permissions(*batch)
+                # FIXME: need to purge the above tombstones, but no
+                # way to purge just some tombstones for just this
+                # principal
+
+                # Clear permissions from the deleted objects, for
+                # example those of other users.
+                permission.delete_object_permissions(
+                    *objects_by_parent_uri[(parent_uri, resource_name)]
+                )
 
         permission.remove_principal(principal)
 
