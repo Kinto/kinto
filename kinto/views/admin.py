@@ -33,8 +33,7 @@ class Deleted(resource.ResourceSchema):
 
 
 class UserDataFactory(RouteFactory):
-    def _find_required_permission(self, request, service):
-        return ("user_data", "delete")
+    method_permissions = {"delete": "delete"}
 
 
 class UserDataViewSet(viewset.ShareableViewSet):
