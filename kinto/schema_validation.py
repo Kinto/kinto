@@ -100,7 +100,7 @@ def validate_schema(data, schema, ignore_fields=[]):
         raise e
 
 
-def validate_from_bucket_schema_or_400(data, resource_name, request, ignore_fields=[]):
+def validate_from_bucket_schema_or_400(data, resource_name, request, id_field, ignore_fields=[]):
     """Lookup in the parent objects if a schema was defined for this resource.
 
     If the schema validation feature is enabled, if a schema is/are defined, and if the
@@ -130,6 +130,8 @@ def validate_from_bucket_schema_or_400(data, resource_name, request, ignore_fiel
 
     # Validate or fail with 400.
     schema = bucket[metadata_field]
+    if id_field not in schema.get("properties", {}):
+        ignore_fields += (id_field,)
     try:
         validate_schema(data, schema, ignore_fields=ignore_fields)
     except ValidationError as e:

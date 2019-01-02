@@ -4,7 +4,8 @@ from .support import BaseWebTest
 
 
 BUCKET_URL = "/buckets/blog"
-GROUP_URL = "/buckets/blog/groups/tarnac-nine"
+GROUPS_URL = "/buckets/blog/groups"
+GROUP_URL = GROUPS_URL + "/tarnac-nine"
 
 
 SCHEMA = {
@@ -42,7 +43,7 @@ class BaseWebTestWithSchema(BaseWebTest):
         return settings
 
 
-class CollectionValidationTest(BaseWebTestWithSchema, unittest.TestCase):
+class GroupValidationTest(BaseWebTestWithSchema, unittest.TestCase):
     def setUp(self):
         super().setUp()
         resp = self.app.put_json(
@@ -59,6 +60,19 @@ class CollectionValidationTest(BaseWebTestWithSchema, unittest.TestCase):
 
     def test_groups_are_invalid_if_do_not_match_schema(self):
         self.app.put_json(GROUP_URL, {"data": {"phone": 42}}, headers=self.headers, status=400)
+
+
+class ValidateIDField(BaseWebTestWithSchema, unittest.TestCase):
+    def setUp(self):
+        super().setUp()
+        schema = {"type": "object", "properties": {"id": {"type": "string", "pattern": "^[0-7]$"}}}
+        self.app.put_json(BUCKET_URL, {"data": {"group:schema": schema}}, headers=self.headers)
+
+    def test_group_id_is_accepted_if_valid(self):
+        self.app.post_json(GROUPS_URL, {"data": {"id": "1"}}, headers=self.headers)
+
+    def test_group_id_is_rejected_if_does_not_match(self):
+        self.app.post_json(GROUPS_URL, {"data": {"id": "a"}}, headers=self.headers, status=400)
 
 
 SCHEMA_UNRESOLVABLE = {"properties": {"phone": {"$ref": "#/definitions/phone"}}}
