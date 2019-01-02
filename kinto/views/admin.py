@@ -124,9 +124,7 @@ class UserData(resource.ShareableResource):
             for perm in permissions:
                 permission.remove_principal_from_ace(object_uri, perm, principal)
 
-        print("Going to delete", to_delete)
         to_delete = condense_under_parents(self.request, to_delete)
-        print("Condensed into", to_delete)
 
         # Group by (parent_uri, resource of child) to make fewer
         # requests to storage backend.
