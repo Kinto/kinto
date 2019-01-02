@@ -70,13 +70,10 @@ class Record(resource.Resource):
         # The schema defined on the collection will be validated first.
         if "schema" in self._collection:
             schema = self._collection["schema"]
-
-            # Only ignore the `id` field if the schema does not explicitly mention it.
-            if self.model.id_field not in schema.get("properties", {}):
-                ignored_fields += (self.model.id_field,)
-
             try:
-                validate_schema(new, schema, ignore_fields=ignored_fields)
+                validate_schema(
+                    new, schema, ignore_fields=ignored_fields, id_field=self.model.id_field
+                )
             except ValidationError as e:
                 raise_invalid(self.request, name=e.field, description=e.message)
             except RefResolutionError as e:
