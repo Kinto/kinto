@@ -144,14 +144,13 @@ class UserData(resource.ShareableResource):
             for batch in slice_into_batches(object_ids, batch_size):
                 batch = list(batch)
                 filters = [Filter("id", batch, core_utils.COMPARISON.IN)]
+                timestamp = storage.resource_timestamp(resource_name, parent_uri)
                 records, _ = storage.get_all(
                     collection_id=resource_name, parent_id=parent_uri, filters=filters
                 )
                 tombstones = storage.delete_all(
                     collection_id=resource_name, parent_id=parent_uri, filters=filters
                 )
-                # FIXME: where do I get this from?
-                timestamp = None
                 notify_resource_event(
                     self.request,
                     parent_uri,
