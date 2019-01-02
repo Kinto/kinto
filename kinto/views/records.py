@@ -70,7 +70,7 @@ class Record(resource.Resource):
                 self.schema_field,
                 self.model.permissions_field,
             )
-            # If the schema explicitly mentions a rule about `id`, do not ignore it.
+            # Only ignore the `id` field if the schema does not explicitly mention it.
             if self.model.id_field not in schema.get("properties", {}):
                 ignored_fields = ignored_fields + (self.model.id_field,)
 
