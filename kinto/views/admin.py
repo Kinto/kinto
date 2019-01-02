@@ -139,8 +139,8 @@ class UserData(resource.ShareableResource):
             matchdict = {**matchdicts_by_parent_uri[parent_uri]}
             matchdict.pop("id", None)
 
-            # FIXME: Deletes are paginated too.. ugh
-            batch_size = 100
+            # Deletes are paginated too, so take the page size from settings.
+            batch_size = self.request.registry.settings["storage_max_fetch_size"]
             for batch in slice_into_batches(object_ids, batch_size):
                 batch = list(batch)
                 filters = [Filter("id", batch, core_utils.COMPARISON.IN)]
