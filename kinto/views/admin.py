@@ -66,6 +66,7 @@ def condense_under_parents(request, object_uris):
 
     """
     # Sort object_uris so we see ancestors before descendants.
+    object_uris = list(object_uris)
     object_uris.sort()
 
     ancestor_object_uris = set()
@@ -104,7 +105,7 @@ class UserData(resource.ShareableResource):
         object_uris_and_permissions = permission.get_accessible_objects([principal])
         object_uris = list(object_uris_and_permissions.keys())
         write_perm_principals = permission.get_objects_permissions(object_uris, ["write"])
-        to_delete = []
+        to_delete = set()
         for object_uri, principals in zip(object_uris, write_perm_principals):
             if "write" not in principals:
                 continue
@@ -113,7 +114,16 @@ class UserData(resource.ShareableResource):
             # define ownership as meaning "this user is the only one
             # who can write to this object".
             if principals == set([principal]):
-                to_delete.append(object_uri)
+                to_delete.add(object_uri)
+
+        # Any accessible objects that won't be deleted, need to have
+        # the user's permission removed.
+        for object_uri, permissions in object_uris_and_permissions.items():
+            if object_uri in to_delete:
+                continue
+
+            for perm in permissions:
+                permission.remove_principal_from_ace(object_uri, perm, principal)
 
         print("Going to delete", to_delete)
         to_delete = condense_under_parents(self.request, to_delete)
