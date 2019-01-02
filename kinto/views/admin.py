@@ -176,6 +176,7 @@ class UserData(resource.ShareableResource):
                     *objects_by_parent_uri[(parent_uri, resource_name)]
                 )
 
+        # Remove this principal from existing users.
         permission.remove_principal(principal)
 
         return {"data": {"principal": principal}}
