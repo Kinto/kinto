@@ -21,6 +21,7 @@ This document describes changes between each past release.
 **Bug Fixes**
 
 - Like query now returns 400 when a non string value is used. (#1899)
+- Record ID is validated if explicitly mentioned in the collection schema (#1942)
 
 **Internal changes**
 

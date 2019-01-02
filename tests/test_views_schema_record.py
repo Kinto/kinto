@@ -272,6 +272,20 @@ class InternalRequiredProperties(BaseWebTestWithSchema, unittest.TestCase):
         )
 
 
+class ValidateIDField(BaseWebTestWithSchema, unittest.TestCase):
+    def setUp(self):
+        super().setUp()
+        # See bug Kinto/kinto#1942
+        schema = {"type": "object", "properties": {"id": {"type": "string", "pattern": "^[0-7]$"}}}
+        self.app.put_json(COLLECTION_URL, {"data": {"schema": schema}}, headers=self.headers)
+
+    def test_record_id_is_accepted_if_valid(self):
+        self.app.post_json(RECORDS_URL, {"data": {"id": "1"}}, headers=self.headers)
+
+    def test_record_id_is_rejected_if_does_not_match(self):
+        self.app.post_json(RECORDS_URL, {"data": {"id": "a"}}, headers=self.headers, status=400)
+
+
 class BucketRecordSchema(BaseWebTestWithSchema, unittest.TestCase):
     def setUp(self):
         super().setUp()
