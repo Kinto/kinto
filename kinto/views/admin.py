@@ -158,10 +158,10 @@ class UserData(resource.ShareableResource):
                 filters = [Filter("id", batch, core_utils.COMPARISON.IN)]
                 timestamp = storage.resource_timestamp(resource_name, parent_uri)
                 records, _ = storage.get_all(
-                    collection_id=resource_name, parent_id=parent_uri, filters=filters
+                    resource_name=resource_name, parent_id=parent_uri, filters=filters
                 )
                 tombstones = storage.delete_all(
-                    collection_id=resource_name, parent_id=parent_uri, filters=filters
+                    resource_name=resource_name, parent_id=parent_uri, filters=filters
                 )
                 notify_resource_event(
                     self.request,
