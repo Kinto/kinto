@@ -4,12 +4,7 @@ from kinto.core.storage import exceptions
 from kinto.core.testing import get_user_headers
 from kinto.core import utils
 
-from .support import (
-    BaseWebTest,
-    MINIMALIST_BUCKET,
-    MINIMALIST_COLLECTION,
-    MINIMALIST_RECORD,
-)
+from .support import BaseWebTest, MINIMALIST_BUCKET, MINIMALIST_COLLECTION, MINIMALIST_RECORD
 
 
 class DeleteUserDataTest(BaseWebTest, unittest.TestCase):

@@ -10,8 +10,7 @@ from kinto.authorization import RouteFactory
 from kinto.core import utils as core_utils, resource
 from kinto.core.events import notify_resource_event, ACTIONS
 from kinto.core.resource import viewset
-from kinto.core.storage import Filter, Sort
-from kinto.core.storage.utils import paginated
+from kinto.core.storage import Filter
 
 
 def slice_into_batches(iterable, batch_size):
