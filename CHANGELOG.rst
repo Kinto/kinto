@@ -9,7 +9,7 @@ This document describes changes between each past release.
 **Breaking changes**
 
 - Remove Python 3.5 support and upgrade to Python 3.6. (#1886)
-- Remove `record` from UnicityError class (#1919). This enabled us to fix #1545.
+- Remove ``record`` from UnicityError class (#1919). This enabled us to fix #1545.
 - Storage backend API has changed, notions of collection and records were replaced
   by the generic terms *resource* and *object*. Plugins that subclass the internal
   ``ShareableResource`` class may also break.
@@ -25,7 +25,7 @@ This document describes changes between each past release.
 
 **Internal changes**
 
-- Remove depreciation warning for `mapping` (#1904)
+- Remove depreciation warning for ``mapping`` (#1904)
 - Fix depreciated warn method (#1903)
 - Use f-string instead of % or format operators. (#1886)
 - Ignore admin plugin node_modules folder while running black (#1902)
