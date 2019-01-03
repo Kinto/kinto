@@ -141,6 +141,17 @@ class PermissionTest:
         retrieved = self.permission.get_user_principals(user_id2)
         self.assertEqual(retrieved, {principal2})
 
+    def test_cannot_remove_principal_from_objects(self):
+        object_id = "/buckets/some-bucket"
+        user_id = "user"
+        principal = "readers-group"
+        self.permission.add_principal_to_ace(object_id, "read", principal)
+        self.permission.add_user_principal(user_id, principal)
+        self.permission.remove_principal(principal)
+
+        retrieved = self.permission.get_object_permissions(object_id)
+        self.assertEqual(retrieved, {"read": set([principal])})
+
     def test_authenticated_is_returned_for_everybody(self):
         user_id = "foo"
         principal = "bar"
