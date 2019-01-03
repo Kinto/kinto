@@ -61,8 +61,7 @@ class Record(resource.Resource):
             return new
 
         # Remove internal and auto-assigned fields from schemas and record.
-        internal_fields = (
-            self.model.id_field,
+        ignored_fields = (
             self.model.modified_field,
             self.schema_field,
             self.model.permissions_field,
@@ -71,9 +70,10 @@ class Record(resource.Resource):
         # The schema defined on the collection will be validated first.
         if "schema" in self._collection:
             schema = self._collection["schema"]
-
             try:
-                validate_schema(new, schema, ignore_fields=internal_fields)
+                validate_schema(
+                    new, schema, ignore_fields=ignored_fields, id_field=self.model.id_field
+                )
             except ValidationError as e:
                 raise_invalid(self.request, name=e.field, description=e.message)
             except RefResolutionError as e:
@@ -85,7 +85,11 @@ class Record(resource.Resource):
 
         # Validate also from the record:schema field defined on the bucket.
         validate_from_bucket_schema_or_400(
-            new, resource_name="record", request=self.request, ignore_fields=internal_fields
+            new,
+            resource_name="record",
+            request=self.request,
+            ignore_fields=ignored_fields,
+            id_field=self.model.id_field,
         )
 
         return new

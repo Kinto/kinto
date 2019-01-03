@@ -68,7 +68,11 @@ def validate(data, schema):
     return _schema_cache[cache_key].validate(data)
 
 
-def validate_schema(data, schema, ignore_fields=[]):
+def validate_schema(data, schema, id_field, ignore_fields=[]):
+    # Only ignore the `id` field if the schema does not explicitly mention it.
+    if id_field not in schema.get("properties", {}):
+        ignore_fields += (id_field,)
+
     required_fields = [f for f in schema.get("required", []) if f not in ignore_fields]
     # jsonschema doesn't accept 'required': [] yet.
     # See https://github.com/Julian/jsonschema/issues/337.
@@ -100,7 +104,7 @@ def validate_schema(data, schema, ignore_fields=[]):
         raise e
 
 
-def validate_from_bucket_schema_or_400(data, resource_name, request, ignore_fields=[]):
+def validate_from_bucket_schema_or_400(data, resource_name, request, id_field, ignore_fields=[]):
     """Lookup in the parent objects if a schema was defined for this resource.
 
     If the schema validation feature is enabled, if a schema is/are defined, and if the
@@ -131,7 +135,7 @@ def validate_from_bucket_schema_or_400(data, resource_name, request, ignore_fiel
     # Validate or fail with 400.
     schema = bucket[metadata_field]
     try:
-        validate_schema(data, schema, ignore_fields=ignore_fields)
+        validate_schema(data, schema, ignore_fields=ignore_fields, id_field=id_field)
     except ValidationError as e:
         raise_invalid(request, name=e.field, description=e.message)
     except RefResolutionError as e:

@@ -37,13 +37,13 @@ class Group(resource.Resource):
         new = super().process_object(new, old)
 
         # Remove internal and auto-assigned fields.
-        internal_fields = (
-            self.model.id_field,
-            self.model.modified_field,
-            self.model.permissions_field,
-        )
+        internal_fields = (self.model.modified_field, self.model.permissions_field)
         validate_from_bucket_schema_or_400(
-            new, resource_name="group", request=self.request, ignore_fields=internal_fields
+            new,
+            resource_name="group",
+            request=self.request,
+            ignore_fields=internal_fields,
+            id_field=self.model.id_field,
         )
 
         return new
