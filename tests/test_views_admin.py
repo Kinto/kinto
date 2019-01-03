@@ -3,6 +3,7 @@ import unittest
 from kinto.core.storage import exceptions
 from kinto.core.testing import get_user_headers
 from kinto.core import utils
+from kinto.views.admin import get_parent_uri
 
 from .support import BaseWebTest, MINIMALIST_BUCKET, MINIMALIST_COLLECTION, MINIMALIST_RECORD
 
@@ -166,3 +167,15 @@ class DeleteUserDataTest(BaseWebTest, unittest.TestCase):
     def test_cannot_delete_user_without_permission(self):
         # Only the user with self.headers can access this URL.
         self.app.delete(self.delete_user_url, headers=self.doomed_user, status=403)
+
+
+class GetParentUriTest(unittest.TestCase):
+    def test_parent_uri_behaves_sensibly_for_unknown_resources(self):
+        unknown_url = "/cities/prague/monuments/castle/foods/mushrooms"
+        self.assertEqual(get_parent_uri(unknown_url), "/cities/prague/monuments/castle")
+
+    def test_parent_uri_accepts_pathological_urls(self):
+        # This shouldn't ever actually happen, and if it does happen
+        # it's probably a sign of a larger incompatibility of this
+        # method with the URL scheme
+        self.assertEqual(get_parent_uri("/prague"), "")

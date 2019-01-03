@@ -48,7 +48,9 @@ def get_parent_uri(object_uri):
 
     """
     path = object_uri.rsplit("/", 2)
-    if len(path) < 2:
+    # len(path) == 1: no '/', probably a broken URL?
+    # len(path) == 2: one '/', doesn't conform to our URL scheme
+    if len(path) < 3:
         return ""
 
     return path[0]
@@ -105,8 +107,6 @@ class UserData(resource.ShareableResource):
         write_perm_principals = permission.get_objects_permissions(object_uris, ["write"])
         to_delete = set()
         for object_uri, principals in zip(object_uris, write_perm_principals):
-            if "write" not in principals:
-                continue
             principals = principals["write"]
             # "Ownership" isn't a real concept in Kinto, so instead we
             # define ownership as meaning "this user is the only one
