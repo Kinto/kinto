@@ -186,4 +186,9 @@ class UserData(resource.ShareableResource):
         # Remove this principal from existing users.
         permission.remove_principal(principal)
 
+        # Remove this principal from all groups that contain it.
+        associated_principals = permission.get_user_principals(principal)
+        for associated_principal in associated_principals:
+            permission.remove_user_principal(principal, associated_principal)
+
         return {"data": {"principal": principal}}
