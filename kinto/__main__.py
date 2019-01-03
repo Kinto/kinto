@@ -5,8 +5,9 @@ import sys
 import logging
 import logging.config
 
-from kinto.core import scripts
-from kinto.plugins.accounts.scripts import create_user
+from kinto.core import scripts as core_scripts
+from kinto import scripts as kinto_scripts
+from kinto.plugins.accounts import scripts as accounts_scripts
 from pyramid.scripts import pserve
 from pyramid.paster import bootstrap
 from kinto import __version__
@@ -216,22 +217,24 @@ def main(args=None):
     elif which_command == "migrate":
         dry_run = parsed_args["dry_run"]
         env = bootstrap(config_file, options={"command": "migrate"})
-        scripts.migrate(env, dry_run=dry_run)
+        core_scripts.migrate(env, dry_run=dry_run)
 
     elif which_command == "delete-collection":
         env = bootstrap(config_file, options={"command": "delete-collection"})
-        return scripts.delete_collection(env, parsed_args["bucket"], parsed_args["collection"])
+        return kinto_scripts.delete_collection(
+            env, parsed_args["bucket"], parsed_args["collection"]
+        )
 
     elif which_command == "rebuild-quotas":
         dry_run = parsed_args["dry_run"]
         env = bootstrap(config_file, options={"command": "rebuild-quotas"})
-        return scripts.rebuild_quotas(env, dry_run=dry_run)
+        return kinto_scripts.rebuild_quotas(env, dry_run=dry_run)
 
     elif which_command == "create-user":
         username = parsed_args["username"]
         password = parsed_args["password"]
         env = bootstrap(config_file, options={"command": "create-user"})
-        return create_user(env, username=username, password=password)
+        return accounts_scripts.create_user(env, username=username, password=password)
 
     elif which_command == "start":
         pserve_argv = ["pserve"]
