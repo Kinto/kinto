@@ -14,6 +14,12 @@ This document describes changes between each past release.
   by the generic terms *resource* and *object*. Plugins that subclass the internal
   ``ShareableResource`` class may also break.
 
+**New features**
+
+- Add a `user-data` endpoint which can be used to delete all data
+  associated with a principal. This might be helpful for pursuing GDPR
+  compliance, for instance. (Fixes #442.)
+
 **Bug Fixes**
 
 - Like query now returns 400 when a non string value is used. (#1899)

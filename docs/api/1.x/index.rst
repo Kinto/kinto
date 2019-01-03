@@ -26,6 +26,7 @@ Full detailed API documentation:
    history
    quotas
    utilities
+   admin
    batch
    openapi
    flush
