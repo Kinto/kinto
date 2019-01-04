@@ -138,7 +138,7 @@ class PostgreSQLStorageTest(StorageTest, unittest.TestCase):
         "storage_max_fetch_size": 10000,
         "storage_backend": "kinto.core.storage.postgresql",
         "storage_poolclass": "sqlalchemy.pool.StaticPool",
-        "storage_url": "postgres://postgres:postgres@localhost:5432/testdb",
+        "storage_url": "postgresql://postgres:postgres@localhost:5432/testdb",
         "storage_strict_json": True,
     }
 

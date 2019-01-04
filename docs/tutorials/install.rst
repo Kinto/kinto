@@ -92,7 +92,7 @@ For example, using an environment file:
     KINTO_USERID_HMAC_SECRET = tr0ub4d@ur
     KINTO_BATCH_MAX_REQUESTS = 200
     # KINTO_STORAGE_BACKEND = kinto.core.storage.postgresql
-    # KINTO_STORAGE_URL = postgres://user:pass@localhost/kintodb
+    # KINTO_STORAGE_URL = postgresql://user:pass@localhost/kintodb
 
 And running the container with:
 
@@ -167,11 +167,11 @@ Note that with the above example,``config/kinto.ini`` must define the following 
 ::
 
     kinto.cache_backend = kinto.core.cache.postgresql
-    kinto.cache_url = postgres://postgres:postgres@db/postgres
+    kinto.cache_url = postgresql://postgres:postgres@db/postgres
     kinto.storage_backend = kinto.core.storage.postgresql
-    kinto.storage_url = postgres://postgres:postgres@db/postgres
+    kinto.storage_url = postgresql://postgres:postgres@db/postgres
     kinto.permission_backend = kinto.core.permission.postgresql
-    kinto.permission_url = postgres://postgres:postgres@db/postgres
+    kinto.permission_url = postgresql://postgres:postgres@db/postgres
 
 .. _run-kinto-python:
 

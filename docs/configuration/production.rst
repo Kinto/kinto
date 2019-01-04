@@ -130,11 +130,11 @@ Select your database server address, name and user by editing the configuration 
 .. code-block:: python
 
     kinto.storage_backend = kinto.core.storage.postgresql
-    kinto.storage_url = postgres://dbuser:dbpassword@localhost/dbname
+    kinto.storage_url = postgresql://dbuser:dbpassword@localhost/dbname
     kinto.cache_backend = kinto.core.cache.postgresql
-    kinto.cache_url = postgres://dbuser:dbpassword@localhost/dbname
+    kinto.cache_url = postgresql://dbuser:dbpassword@localhost/dbname
     kinto.permission_backend = kinto.core.permission.postgresql
-    kinto.permission_url = postgres://dbuser:dbpassword@localhost/dbname
+    kinto.permission_url = postgresql://dbuser:dbpassword@localhost/dbname
 
 
 Creating tables and indices
