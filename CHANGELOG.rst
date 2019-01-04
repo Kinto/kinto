@@ -17,6 +17,7 @@ This document describes changes between each past release.
   you need to do a HEAD request. And the new header name is ``Total-Objects``. (#1624)
 - Remove the ``UserResource`` class. And ``ShareableResource`` is now deprecated in
   favor of ``Resource``.
+- Removed ``kinto.core.utils.parse_resource()`. Use ``kinto.core.utils.view_lookup_registry()`` instead (#1828)
 
 **Bug Fixes**
 

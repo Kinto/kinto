@@ -142,7 +142,7 @@ class TestMain(unittest.TestCase):
         assert "memory" in content
 
     def test_cli_migrate_command_runs_init_schema(self):
-        with mock.patch("kinto.__main__.scripts.migrate") as mocked_migrate:
+        with mock.patch("kinto.__main__.core_scripts.migrate") as mocked_migrate:
             res = main(
                 [
                     "init",
@@ -160,7 +160,7 @@ class TestMain(unittest.TestCase):
             assert mocked_migrate.call_count == 1
 
     def test_cli_delete_collection_run_delete_collection_script(self):
-        with mock.patch("kinto.__main__.scripts.delete_collection") as del_col:
+        with mock.patch("kinto.__main__.kinto_scripts.delete_collection") as del_col:
             del_col.return_value = mock.sentinel.del_col_code
             res = main(
                 [
@@ -189,7 +189,7 @@ class TestMain(unittest.TestCase):
             assert del_col.call_count == 1
 
     def test_cli_rebuild_quotas_run_rebuild_quotas_script(self):
-        with mock.patch("kinto.__main__.scripts.rebuild_quotas") as reb_quo:
+        with mock.patch("kinto.__main__.kinto_scripts.rebuild_quotas") as reb_quo:
             reb_quo.return_value = mock.sentinel.reb_quo_code
             res = main(
                 [
@@ -283,7 +283,9 @@ class TestMain(unittest.TestCase):
             assert "--reload" in mocked_pserve.call_args[1]["argv"]
 
     def test_cli_create_user_runs_account_script(self):
-        with mock.patch("kinto.__main__.create_user", return_value=0) as mocked_create_user:
+        with mock.patch(
+            "kinto.__main__.accounts_scripts.create_user", return_value=0
+        ) as mocked_create_user:
             res = main(
                 [
                     "init",

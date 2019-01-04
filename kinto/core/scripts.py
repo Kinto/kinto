@@ -3,11 +3,7 @@ kinto.core.scripts: utilities to build admin scripts for kinto-based services
 """
 import logging
 
-import transaction as current_transaction
 from pyramid.settings import asbool
-
-from kinto.core.storage import exceptions as storage_exceptions
-from kinto.plugins.quotas import scripts as quotas
 
 
 logger = logging.getLogger(__name__)
@@ -29,88 +25,3 @@ def migrate(env, dry_run=False):
                 logger.error(message)
             else:
                 getattr(registry, backend).initialize_schema(dry_run=dry_run)
-
-
-def delete_collection(env, bucket_id, collection_id):
-    registry = env["registry"]
-    settings = registry.settings
-    readonly_mode = asbool(settings.get("readonly", False))
-
-    if readonly_mode:
-        message = "Cannot delete the collection while in readonly mode."
-        logger.error(message)
-        return 31
-
-    bucket = f"/buckets/{bucket_id}"
-    collection = f"/buckets/{bucket_id}/collections/{collection_id}"
-
-    try:
-        registry.storage.get(resource_name="bucket", parent_id="", object_id=bucket_id)
-    except storage_exceptions.ObjectNotFoundError:
-        logger.error(f"Bucket '{bucket}' does not exist.")
-        return 32
-
-    try:
-        registry.storage.get(resource_name="collection", parent_id=bucket, object_id=collection_id)
-    except storage_exceptions.ObjectNotFoundError:
-        logger.error(f"Collection '{collection}' does not exist.")
-        return 33
-
-    deleted = registry.storage.delete_all(
-        resource_name="record", parent_id=collection, with_deleted=False
-    )
-    if len(deleted) == 0:
-        logger.info(f"No records found for '{collection}'.")
-    else:
-        logger.info(f"{len(deleted)} record(s) were deleted.")
-
-    registry.storage.delete(
-        resource_name="collection", parent_id=bucket, object_id=collection_id, with_deleted=False
-    )
-    logger.info(f"'{collection}' collection object was deleted.")
-
-    obj = "/buckets/{bucket_id}/collections/{collection_id}/records/{object_id}"
-    registry.permission.delete_object_permissions(
-        collection,
-        *[
-            obj.format(bucket_id=bucket_id, collection_id=collection_id, object_id=r["id"])
-            for r in deleted
-        ],
-    )
-    logger.info("Related permissions were deleted.")
-
-    current_transaction.commit()
-
-    return 0
-
-
-def rebuild_quotas(env, dry_run=False):
-    """Administrative command to rebuild quota usage information.
-
-    This command recomputes the amount of space used by all
-    collections and all buckets and updates the quota objects in the
-    storage backend to their correct values. This can be useful when
-    cleaning up after a bug like e.g.
-    https://github.com/Kinto/kinto/issues/1226.
-    """
-    registry = env["registry"]
-    settings = registry.settings
-    readonly_mode = asbool(settings.get("readonly", False))
-
-    # FIXME: readonly_mode is not meant to be a "maintenance mode" but
-    # rather used with a database user that has read-only permissions.
-    # If we ever introduce a maintenance mode, we should maybe enforce
-    # it here.
-    if readonly_mode:
-        message = "Cannot rebuild quotas while in readonly mode."
-        logger.error(message)
-        return 41
-
-    if "kinto.plugins.quotas" not in settings["includes"]:
-        message = "Cannot rebuild quotas when quotas plugin is not installed."
-        logger.error(message)
-        return 42
-
-    quotas.rebuild_quotas(registry.storage, dry_run=dry_run)
-    current_transaction.commit()
-    return 0
