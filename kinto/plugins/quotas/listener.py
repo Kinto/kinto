@@ -156,7 +156,7 @@ def on_resource_changed(event):
                 bucket_info["collection_count"] -= 1
                 # When we delete the collection all the records in it
                 # are deleted without notification.
-                collection_records, _ = storage.get_all(
+                collection_records = storage.list_all(
                     resource_name="record", parent_id=collection_uri
                 )
                 for r in collection_records:

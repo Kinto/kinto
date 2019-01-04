@@ -127,7 +127,7 @@ class FilteringTest(BaseTest):
     def test_not_string_filter(self):
         self.validated["querystring"] = {"like_title": 10}
         try:
-            self.resource.collection_get()
+            self.resource.plural_get()
         except httpexceptions.HTTPBadRequest as e:
             error = e
         self.assertEqual(

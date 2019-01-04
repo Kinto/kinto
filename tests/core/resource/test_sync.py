@@ -142,11 +142,11 @@ class SinceModifiedTest(ThreadMixin, BaseTest):
         def long_fetch():
             """Simulate a overhead while reading on storage."""
 
-            def delayed_get(*args, **kwargs):
+            def delayed_list(*args, **kwargs):
                 time.sleep(0.100)  # 100 msec
-                return [], 0
+                return []
 
-            with mock.patch.object(self.model.storage, "get_all", delayed_get):
+            with mock.patch.object(self.model.storage, "list_all", delayed_list):
                 self.resource.plural_get()
                 fetch_at = self.last_response.headers["ETag"][1:-1]
                 timestamps["fetch"] = int(fetch_at)
