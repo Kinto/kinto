@@ -218,7 +218,7 @@ class PatchTest(BaseTest):
     def test_modify_object_updates_timestamp(self):
         before = self.stored["last_modified"]
         after = self.result["last_modified"]
-        self.assertNotEquals(after, before)
+        self.assertNotEqual(after, before)
 
     def test_patch_object_returns_updated_fields(self):
         self.assertEqual(self.stored["id"], self.result["id"])

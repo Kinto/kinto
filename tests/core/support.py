@@ -35,6 +35,7 @@ class BaseWebTest(testing.BaseWebTest):
     def get_app_settings(cls, extras=None):
         if extras is None:
             extras = {}
+        extras.setdefault("settings_prefix", "myapp")
         extras.setdefault("project_name", "myapp")
         extras.setdefault("project_version", "0.0.1")
         extras.setdefault("http_api_version", "0.1")
