@@ -232,7 +232,8 @@ def main(args=None):
         return scripts.delete_collection(env, parsed_args["bucket"], parsed_args["collection"])
 
     elif which_command == "flush-cache":
-        return cache.flush()
+        env = bootstrap(config_file, options={"command": "flush-cache"})
+        scripts.flush_cache(env, dry_run=dry_run)
 
     elif which_command == "rebuild-quotas":
         dry_run = parsed_args["dry_run"]

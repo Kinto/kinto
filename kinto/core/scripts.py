@@ -114,3 +114,12 @@ def rebuild_quotas(env, dry_run=False):
     quotas.rebuild_quotas(registry.storage, dry_run=dry_run)
     current_transaction.commit()
     return 0
+
+
+def flush_cache(env, dry_run=False):
+    registry = env["registry"]
+    settings = registry.settings
+    registry.cache.flush()
+    message = f"Cache is cleared."
+    logger.info(message)
+    return 0
