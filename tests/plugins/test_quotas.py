@@ -138,7 +138,7 @@ class QuotaListenerTest(QuotaWebTest):
 
         self.app.delete("/buckets", headers=self.headers)
 
-        stored_in_backend, _ = self.storage.get_all(
+        stored_in_backend = self.storage.list_all(
             parent_id="/buckets/*", resource_name=QUOTA_RESOURCE_NAME
         )
         assert len(stored_in_backend) == 0
@@ -146,7 +146,7 @@ class QuotaListenerTest(QuotaWebTest):
     def test_bucket_delete_destroys_its_quota_entries(self):
         self.create_bucket()
         self.app.delete(self.bucket_uri, headers=self.headers)
-        stored_in_backend, _ = self.storage.get_all(
+        stored_in_backend = self.storage.list_all(
             parent_id="/buckets/test", resource_name=QUOTA_RESOURCE_NAME
         )
         assert len(stored_in_backend) == 0
@@ -237,7 +237,7 @@ class QuotaListenerTest(QuotaWebTest):
         self.create_bucket()
         self.create_collection()
         self.app.delete(self.collection_uri, headers=self.headers)
-        stored_in_backend, _ = self.storage.get_all(
+        stored_in_backend = self.storage.list_all(
             parent_id=self.collection_uri, resource_name=QUOTA_RESOURCE_NAME
         )
         assert len(stored_in_backend) == 0

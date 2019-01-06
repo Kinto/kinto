@@ -188,7 +188,7 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
         self.assertEqual(version, self.version)
 
         # Check that previously created object is still here
-        migrated, count = self.storage.get_all("test", "jean-louis")
+        migrated = self.storage.list_all("test", "jean-louis")
         self.assertEqual(migrated[0], before)
 
         # Check that new objects can be created
@@ -239,10 +239,9 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
 
         # Check that the rotted tombstone has been removed, but the
         # original object remains.
-        objects, count = self.storage.get_all("test", "jean-louis")
+        objects = self.storage.list_all("test", "jean-louis")
         # Only the object remains.
         assert len(objects) == 1
-        assert count == 1
 
     def test_migration_18_merges_tombstones(self):
         last_version = postgresql_storage.Storage.schema_version
@@ -284,7 +283,8 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
         self.storage.initialize_schema()
 
         # Check that the object took precedence of over the tombstone.
-        objects, count = self.storage.get_all("test", "jean-louis", include_deleted=True)
+        objects = self.storage.list_all("test", "jean-louis", include_deleted=True)
+        count = self.storage.count_all("test", "jean-louis")
         assert len(objects) == 1
         assert count == 1
         assert objects[0]["drink"] == "mate"

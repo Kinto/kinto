@@ -121,7 +121,7 @@ class PermissionsModel:
         allowed_resources = {"bucket", "collection", "group"} & set(from_settings.keys())
         if allowed_resources:
             storage = self.request.registry.storage
-            every_bucket, _ = storage.get_all(parent_id="", resource_name="bucket")
+            every_bucket = storage.list_all(parent_id="", resource_name="bucket")
             for bucket in every_bucket:
                 bucket_uri = "/buckets/{id}".format_map(bucket)
                 for res in allowed_resources:
@@ -132,7 +132,7 @@ class PermissionsModel:
                         continue
                     # Fetch bucket collections and groups.
                     # XXX: wrong approach: query in a loop!
-                    every_subobjects, _ = storage.get_all(parent_id=bucket_uri, resource_name=res)
+                    every_subobjects = storage.list_all(parent_id=bucket_uri, resource_name=res)
                     for subobject in every_subobjects:
                         subobj_uri = bucket_uri + f"/{res}s/{subobject['id']}"
                         perms_by_object_uri.setdefault(subobj_uri, set()).update(resource_perms)
