@@ -48,7 +48,9 @@ class Permission(PermissionBase):
 
     @synchronized
     def remove_principal(self, principal):
-        for user_principals in self._store.values():
+        for key, user_principals in self._store.items():
+            if not key.startswith("user:"):
+                continue
             try:
                 user_principals.remove(principal)
             except KeyError:
