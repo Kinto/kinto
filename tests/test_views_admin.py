@@ -133,33 +133,53 @@ class DeleteUserDataTest(BaseWebTest, unittest.TestCase):
 
     def test_doomed_bucket_was_deleted(self):
         with self.assertRaises(exceptions.ObjectNotFoundError):
-            self.storage.get("bucket", "", "user_to_delete")
+            self.storage.get(resource_name="bucket", parent_id="", object_id="user_to_delete")
 
     def test_doomed_bucket_collection_was_deleted(self):
         # Everything under this bucket should be gone
         with self.assertRaises(exceptions.ObjectNotFoundError):
-            self.storage.get("collection", self.doomed_bucket_url, "collection")
+            self.storage.get(
+                resource_name="collection",
+                parent_id=self.doomed_bucket_url,
+                object_id="collection",
+            )
 
     def test_doomed_bucket_doomed_collection_was_deleted(self):
         with self.assertRaises(exceptions.ObjectNotFoundError):
-            self.storage.get("collection", self.doomed_bucket_url, "collection_to_delete")
+            self.storage.get(
+                resource_name="collection",
+                parent_id=self.doomed_bucket_url,
+                object_id="collection_to_delete",
+            )
 
     def test_safe_bucket_was_not_deleted(self):
-        self.storage.get("bucket", "", "user_safe")
+        self.storage.get(resource_name="bucket", parent_id="", object_id="user_safe")
 
     def test_safe_bucket_doomed_collection_was_deleted(self):
         with self.assertRaises(exceptions.ObjectNotFoundError):
-            self.storage.get("collection", self.safe_bucket_url, "collection_to_delete")
+            self.storage.get(
+                resource_name="collection",
+                parent_id=self.safe_bucket_url,
+                object_id="collection_to_delete",
+            )
 
     def test_safe_collection_was_not_deleted(self):
-        self.storage.get("collection", self.safe_bucket_url, "collection_safe")
+        self.storage.get(
+            resource_name="collection", parent_id=self.safe_bucket_url, object_id="collection_safe"
+        )
 
     def test_safe_collection_safe_record_was_not_deleted(self):
-        self.storage.get("record", self.safe_collection_url, "record_safe")
+        self.storage.get(
+            resource_name="record", parent_id=self.safe_collection_url, object_id="record_safe"
+        )
 
     def test_safe_collection_doomed_record_was_deleted(self):
         with self.assertRaises(exceptions.ObjectNotFoundError):
-            self.storage.get("record", self.safe_collection_url, "record_to_delete")
+            self.storage.get(
+                resource_name="record",
+                parent_id=self.safe_collection_url,
+                object_id="record_to_delete",
+            )
 
     def test_safe_group_doomed_user_was_removed(self):
         principals = self.permission.get_user_principals(self.doomed_user_principal)
@@ -189,7 +209,7 @@ class DeleteUserDataTest(BaseWebTest, unittest.TestCase):
             self.assertNotIn(self.doomed_user_principal, principals)
 
     def test_shared_bucket_was_not_deleted(self):
-        self.storage.get("bucket", "", "both")
+        self.storage.get(resource_name="bucket", parent_id="", object_id="both")
 
     def test_shared_bucket_permissions_are_correct(self):
         permissions = self.permission.get_object_permissions(self.shared_bucket_url)
