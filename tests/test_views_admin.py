@@ -200,13 +200,11 @@ class DeleteUserDataTest(BaseWebTest, unittest.TestCase):
 
     def test_safe_bucket_no_longer_has_doomed_user_perm(self):
         permissions = self.permission.get_object_permissions(self.safe_bucket_url)
-        for perm, principals in permissions.items():
-            self.assertNotIn(self.doomed_user_principal, principals)
+        self.assertEqual(permissions, {"write": {self.user_principal}})
 
     def test_safe_record_no_longer_has_doomed_user_perm(self):
         permissions = self.permission.get_object_permissions(self.safe_record_url)
-        for perm, principals in permissions.items():
-            self.assertNotIn(self.doomed_user_principal, principals)
+        self.assertEqual(permissions, {"write": {self.user_principal}})
 
     def test_shared_bucket_was_not_deleted(self):
         self.storage.get(resource_name="bucket", parent_id="", object_id="both")
