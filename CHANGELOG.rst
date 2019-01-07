@@ -19,6 +19,12 @@ This document describes changes between each past release.
   favor of ``Resource``.
 - Removed ``kinto.core.utils.parse_resource()`. Use ``kinto.core.utils.view_lookup_registry()`` instead (#1828)
 
+**New features**
+
+- Add a ``user-data`` endpoint at ``/__user_data__/`` which can be used to delete all data
+  associated with a principal. This might be helpful for pursuing GDPR
+  compliance, for instance. (Fixes #442.)
+
 **Bug Fixes**
 
 - Like query now returns 400 when a non string value is used. (#1899)
