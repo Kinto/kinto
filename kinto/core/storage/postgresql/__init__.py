@@ -32,7 +32,7 @@ class Storage(StorageBase, MigratorMixin):
 
     Database location URI can be customized::
 
-        kinto.storage_url = postgres://user:pass@db.server.lan:5432/dbname
+        kinto.storage_url = postgresql://user:pass@db.server.lan:5432/dbname
 
     Alternatively, username and password could also rely on system user ident
     or even specified in :file:`~/.pgpass` (*see PostgreSQL documentation*).

@@ -18,7 +18,7 @@ class Cache(CacheBase):
 
     Database location URI can be customized::
 
-        kinto.cache_url = postgres://user:pass@db.server.lan:5432/dbname
+        kinto.cache_url = postgresql://user:pass@db.server.lan:5432/dbname
 
     Alternatively, username and password could also rely on system user ident
     or even specified in :file:`~/.pgpass` (*see PostgreSQL documentation*).
