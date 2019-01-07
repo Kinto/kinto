@@ -182,6 +182,10 @@ class DeleteUserDataTest(BaseWebTest, unittest.TestCase):
                 object_id="record_to_delete",
             )
 
+    def test_safe_group_not_deleted(self):
+        principals = self.permission.get_user_principals(self.user_principal)
+        self.assertEqual(principals, {"/buckets/user_safe/groups/silly-group"})
+
     def test_safe_group_doomed_user_was_removed(self):
         principals = self.permission.get_user_principals(self.doomed_user_principal)
         self.assertEqual(principals, set())
