@@ -11,12 +11,11 @@ users, but only be certain "operator" users. By default the permission
 to use them is granted to no one (i.e. the endpoints are disabled). To
 use them, you will have to update your config to include some
 principals who are granted permission to use them. For example, if
-your user ID is
-``basicauth:930fc5d7ff056bd89fc108bbed663a8e1f9ff19564785de8f34b1ab83aa98c12``
-and you want to enable the "deleting user data" endpoint for your
-user, you would add to your ``kinto.ini``::
+your user ID is ``account:admin`` and you want to enable the "deleting
+user data" endpoint for your user, you would add to your
+``kinto.ini``::
 
-    kinto.user-data_delete_principals = basicauth:930fc5d7ff056bd89fc108bbed663a8e1f9ff19564785de8f34b1ab83aa98c12
+    kinto.user-data_delete_principals = account:admin
 
 .. _user-data-delete:
 
