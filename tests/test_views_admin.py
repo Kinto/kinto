@@ -184,12 +184,7 @@ class DeleteUserDataTest(BaseWebTest, unittest.TestCase):
 
     def test_safe_group_doomed_user_was_removed(self):
         principals = self.permission.get_user_principals(self.doomed_user_principal)
-        for principal in principals:
-            if principal.startswith("system:"):
-                continue
-            if principal == self.doomed_user_principal:
-                continue
-            self.fail(f"Got a leftover principal: {principal}")
+        self.assertEqual(principals, set())
 
     def test_doomed_collection_no_longer_has_any_perms(self):
         permissions = self.permission.get_object_permissions(self.doomed_collection_url)
