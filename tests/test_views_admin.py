@@ -11,6 +11,22 @@ from .support import BaseWebTest, MINIMALIST_BUCKET, MINIMALIST_COLLECTION, MINI
 
 
 class DeleteUserDataTest(BaseWebTest, unittest.TestCase):
+    """Create some data belonging to a user, then delete the user.
+
+    This user (and all their data) should be deleted. Thus, this user
+    (and their data) is "doomed".
+
+    To make sure we don't delete too much data, create some data owned
+    by a different user which won't be deleted. This user (and their
+    data) will be "safe". We'll use the normal self.headers user (see
+    tests.support.BaseWebTest and kinto.core.get_user_headers) for
+    this.
+
+    We also want to ensure that the "doomed" user is removed correctly
+    from "surviving" permissions and groups, so add the "doomed" user
+    to some stuff belonging to the "safe" user too.
+
+    """
     doomed_bucket_url = "/buckets/user_to_delete"
     doomed_collection_url = doomed_bucket_url + "/collections/collection_to_delete"
     doomed_bucket_collection_url = doomed_bucket_url + "/collections/collection"
@@ -92,6 +108,8 @@ class DeleteUserDataTest(BaseWebTest, unittest.TestCase):
         self.app.patch_json(
             self.safe_collection_url, {"permissions": {"write": []}}, headers=self.headers
         )
+        # This record will automatically have "write" permission for
+        # the safe user.
         self.app.put_json(
             self.safe_record_url,
             {**MINIMALIST_RECORD, "permissions": {"read": [self.doomed_user_principal]}},
