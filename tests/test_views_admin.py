@@ -27,6 +27,7 @@ class DeleteUserDataTest(BaseWebTest, unittest.TestCase):
     to some stuff belonging to the "safe" user too.
 
     """
+
     doomed_bucket_url = "/buckets/user_to_delete"
     doomed_collection_url = doomed_bucket_url + "/collections/collection_to_delete"
     doomed_bucket_collection_url = doomed_bucket_url + "/collections/collection"
