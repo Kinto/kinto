@@ -44,7 +44,6 @@ class DeleteUserDataTest(BaseWebTest, unittest.TestCase):
     doomed_hash = utils.hmac_digest(hmac_secret, "doomed:trustno1")
     doomed_user_principal = f"basicauth:{doomed_hash}"
     delete_user_url = f"/__user_data__/{doomed_user_principal}"
-    subscribed = (events.ResourceChanged,)
     events = []
 
     @classmethod
@@ -63,8 +62,7 @@ class DeleteUserDataTest(BaseWebTest, unittest.TestCase):
     def make_app(cls, settings=None, config=None):
         settings = cls.get_app_settings(settings)
         config = Configurator(settings=settings)
-        for event_cls in cls.subscribed:
-            config.add_subscriber(cls.listener, event_cls)
+        config.add_subscriber(cls.listener, events.ResourceChanged)
         config.commit()
         return super().make_app(settings=settings, config=config)
 
