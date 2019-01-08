@@ -13,7 +13,6 @@ from pyramid.paster import bootstrap
 from kinto import __version__
 from kinto.config import init
 
-
 DEFAULT_CONFIG_FILE = os.getenv("KINTO_INI", "config/kinto.ini")
 DEFAULT_PORT = 8888
 DEFAULT_LOG_LEVEL = logging.INFO
@@ -107,15 +106,9 @@ def main(args=None):
             )
         elif command == "delete-collection":
             subparser.add_argument(
-                "--bucket",
-                help="The bucket where the collection belongs to.",
-                required=True
+                "--bucket", help="The bucket where the collection belongs to.", required=True
             )
-            subparser.add_argument(
-                "--collection",
-                help="The collection to remove.",
-                required=True
-            )
+            subparser.add_argument("--collection", help="The collection to remove.", required=True)
 
         elif command == "rebuild-quotas":
             subparser.add_argument(
