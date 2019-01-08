@@ -228,7 +228,7 @@ def main(args=None):
 
     elif which_command == "flush-cache":
         env = bootstrap(config_file, options={"command": "flush-cache"})
-        kinto_scripts.flush_cache(env)
+        core_scripts.flush_cache(env)
 
     elif which_command == "rebuild-quotas":
         dry_run = parsed_args["dry_run"]

@@ -362,3 +362,9 @@ class TestMain(unittest.TestCase):
             mocked_logging.basicConfig.assert_called_with(
                 level=logging.INFO, format=DEFAULT_LOG_FORMAT
             )
+
+    def test_cli_flush_cache_command_runs_flush_cache_script(self):
+        with mock.patch("kinto.__main__.core_scripts.flush_cache") as mocked_cache_script:
+            res = main(["flush-cache", "--ini", TEMP_KINTO_INI])
+            assert res == 0
+            assert mocked_cache_script.call_count == 1
