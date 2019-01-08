@@ -12,7 +12,6 @@ from pyramid.scripts import pserve
 from pyramid.paster import bootstrap
 from kinto import __version__
 from kinto.config import init
-from kinto.core import cache
 
 
 DEFAULT_CONFIG_FILE = os.getenv("KINTO_INI", "config/kinto.ini")
@@ -26,7 +25,7 @@ def main(args=None):
     if args is None:
         args = sys.argv[1:]
 
-    parser = argparse.ArgumentParser(description="Kinto Command-Line " "Interface")
+    parser = argparse.ArgumentParser(description="Kinto Command-Line Interface")
     commands = (
         "init",
         "start",
@@ -101,7 +100,7 @@ def main(args=None):
             subparser.add_argument(
                 "--dry-run",
                 action="store_true",
-                help="Simulate the migration operations " "and show information",
+                help="Simulate the migration operations and show information",
                 dest="dry_run",
                 required=False,
                 default=False,
@@ -109,7 +108,7 @@ def main(args=None):
         elif command == "delete-collection":
             subparser.add_argument(
                 "--bucket",
-                help="The bucket where the collection " "belongs to.",
+                help="The bucket where the collection belongs to.",
                 required=True
             )
             subparser.add_argument(
@@ -122,7 +121,7 @@ def main(args=None):
             subparser.add_argument(
                 "--dry-run",
                 action="store_true",
-                help="Simulate the rebuild operation " "and show information",
+                help="Simulate the rebuild operation and show information",
                 dest="dry_run",
                 required=False,
                 default=False,
@@ -236,7 +235,7 @@ def main(args=None):
 
     elif which_command == "flush-cache":
         env = bootstrap(config_file, options={"command": "flush-cache"})
-        scripts.flush_cache(env, dry_run=dry_run)
+        kinto_scripts.flush_cache(env)
 
     elif which_command == "rebuild-quotas":
         dry_run = parsed_args["dry_run"]
