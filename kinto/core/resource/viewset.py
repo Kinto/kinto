@@ -57,7 +57,7 @@ class ViewSet:
     plural_path = "/{resource_name}s"
     object_path = "/{resource_name}s/{{id}}"
 
-    plural_methods = ("GET", "POST", "DELETE")
+    plural_methods = ("HEAD", "GET", "POST", "DELETE")
     object_methods = ("GET", "PUT", "PATCH", "DELETE")
 
     readonly_methods = ("GET", "OPTIONS", "HEAD")
@@ -84,12 +84,23 @@ class ViewSet:
     }
 
     default_plural_arguments = {"schema": RequestSchema().bind(querystring=PluralQuerySchema())}
+    plural_head_arguments = {
+        "schema": RequestSchema().bind(querystring=PluralGetQuerySchema()),
+        "cors_headers": (
+            "Next-Page",
+            "Last-Modified",
+            "ETag",
+            "Cache-Control",
+            "Expires",
+            "Pragma",
+            "Total-Objects",
+            "Total-Records",  # Deprecated.
+        ),
+    }
     plural_get_arguments = {
         "schema": RequestSchema().bind(querystring=PluralGetQuerySchema()),
         "cors_headers": (
             "Next-Page",
-            "Total-Objects",
-            "Total-Records",  # Deprecated.
             "Last-Modified",
             "ETag",
             "Cache-Control",

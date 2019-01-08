@@ -104,7 +104,7 @@ Storage
 |                              |                               |                                                                          |
 +------------------------------+-------------------------------+--------------------------------------------------------------------------+
 | kinto.storage_url            | ``''``                        | The URL to use to authenticate to the storage backend. e.g.              |
-|                              |                               | ``redis://localhost:6378/1`` or ``postgres://user:pass@database/db``     |
+|                              |                               | ``redis://localhost:6378/1`` or ``postgresql://user:pass@database/db``   |
 +------------------------------+-------------------------------+--------------------------------------------------------------------------+
 | kinto.storage_max_fetch_size | ``10000``                     | The maximum number of items that can be returned by one request to the   |
 |                              |                               | storage backend. If no pagination is enabled, this is the maximum number |
@@ -127,7 +127,7 @@ Storage
 .. code-block:: ini
 
     kinto.storage_backend = kinto.core.storage.postgresql
-    kinto.storage_url = postgres://postgres:postgres@localhost/postgres
+    kinto.storage_url = postgresql://postgres:postgres@localhost/postgres
 
     # Safety limit while fetching from storage
     # kinto.storage_max_fetch_size = 10000
@@ -146,7 +146,7 @@ Cache
 |                            |                             |                                                                              |
 +----------------------------+-----------------------------+------------------------------------------------------------------------------+
 | kinto.cache_url            | ``''``                      | The URL to use to authenticate to the cache backend. e.g.                    |
-|                            |                             | ``redis://localhost:6378/1`` or ``postgres://user:pass@database/db``         |
+|                            |                             | ``redis://localhost:6378/1`` or ``postgresql://user:pass@database/db``       |
 +----------------------------+-----------------------------+------------------------------------------------------------------------------+
 | kinto.cache_prefix         | ``''``                      | A prefix added to each key. Useful when having multiple Kinto using the same |
 |                            |                             | cache database.                                                              |
@@ -172,7 +172,7 @@ Cache
 .. code-block:: ini
 
     kinto.cache_backend = kinto.core.cache.postgresql
-    kinto.cache_url = postgres://postgres:postgres@localhost/postgres
+    kinto.cache_url = postgresql://postgres:postgres@localhost/postgres
 
     # Control number of pooled connections
     # kinto.cache_pool_size = 50
@@ -214,7 +214,7 @@ Permissions
 .. code-block:: ini
 
     kinto.permission_backend = kinto.core.permission.postgresql
-    kinto.permission_url = postgres://postgres:postgres@localhost/postgres
+    kinto.permission_url = postgresql://postgres:postgres@localhost/postgres
 
     # Control number of pooled connections
     # kinto.permission_pool_size = 50

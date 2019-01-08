@@ -315,9 +315,8 @@ class Storage(MemoryBasedStorage):
                 num_deleted += len(resource_objects) - len(kept)
         return num_deleted
 
-    @deprecate_kwargs({"collection_id": "resource_name"})
     @synchronized
-    def get_all(
+    def list_all(
         self,
         resource_name,
         parent_id,
@@ -331,10 +330,9 @@ class Storage(MemoryBasedStorage):
         deleted_field=DEFAULT_DELETED_FIELD,
         auth=None,
     ):
-
         objects = _get_objects_by_parent_id(self._store, parent_id, resource_name)
 
-        objects, count = self.extract_object_set(
+        objects, _ = self.extract_object_set(
             objects=objects,
             filters=filters,
             sorting=None,
@@ -345,7 +343,7 @@ class Storage(MemoryBasedStorage):
         if include_deleted:
             deleted = _get_objects_by_parent_id(self._cemetery, parent_id, resource_name)
 
-        objects, count = self.extract_object_set(
+        objects, _ = self.extract_object_set(
             objects=objects + deleted,
             filters=filters,
             sorting=sorting,
@@ -354,7 +352,28 @@ class Storage(MemoryBasedStorage):
             pagination_rules=pagination_rules,
             limit=limit,
         )
-        return objects, count
+        return objects
+
+    @synchronized
+    def count_all(
+        self,
+        resource_name,
+        parent_id,
+        filters=None,
+        id_field=DEFAULT_ID_FIELD,
+        modified_field=DEFAULT_MODIFIED_FIELD,
+        deleted_field=DEFAULT_DELETED_FIELD,
+        auth=None,
+    ):
+        objects = _get_objects_by_parent_id(self._store, parent_id, resource_name)
+        _, count = self.extract_object_set(
+            objects=objects,
+            filters=filters,
+            sorting=None,
+            id_field=id_field,
+            deleted_field=deleted_field,
+        )
+        return count
 
     @deprecate_kwargs({"collection_id": "resource_name"})
     @synchronized

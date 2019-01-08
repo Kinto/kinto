@@ -320,14 +320,13 @@ Retrieving all groups
     .. sourcecode:: http
 
         HTTP/1.1 200 OK
-        Access-Control-Expose-Headers: Backoff, Retry-After, Alert, Content-Length, Next-Page, Total-Objects, Last-Modified, ETag
+        Access-Control-Expose-Headers: Backoff, Retry-After, Alert, Content-Length, Next-Page, Last-Modified, ETag
         Content-Length: 147
         Content-Type: application/json; charset=UTF-8
         Date: Thu, 13 Aug 2015 12:16:05 GMT
         Etag: "1439468156451"
         Last-Modified: Thu, 13 Aug 2015 12:15:56 GMT
         Server: waitress
-        Total-Objects: 1
 
         {
             "data": [
@@ -342,6 +341,8 @@ Retrieving all groups
         }
 
 .. include:: _details-get-list.rst
+
+.. include:: _details-head-list.rst
 
 .. include:: _status-get-list.rst
 
@@ -564,4 +565,3 @@ Just modify the ``group:schema`` attribute of the parent bucket object:
             ]
         }
     }
-

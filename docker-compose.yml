@@ -16,6 +16,6 @@ web:
     KINTO_CACHE_BACKEND: kinto.core.cache.memcached
     KINTO_CACHE_HOSTS: cache:11211 cache:11212
     KINTO_STORAGE_BACKEND: kinto.core.storage.postgresql
-    KINTO_STORAGE_URL: postgres://postgres:postgres@db/postgres
+    KINTO_STORAGE_URL: postgresql://postgres:postgres@db/postgres
     KINTO_PERMISSION_BACKEND: kinto.core.permission.postgresql
-    KINTO_PERMISSION_URL: postgres://postgres:postgres@db/postgres
+    KINTO_PERMISSION_URL: postgresql://postgres:postgres@db/postgres

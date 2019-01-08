@@ -22,7 +22,7 @@ class Permission(PermissionBase, MigratorMixin):
 
     Database location URI can be customized::
 
-        kinto.permission_url = postgres://user:pass@db.server.lan:5432/dbname
+        kinto.permission_url = postgresql://user:pass@db.server.lan:5432/dbname
 
     Alternatively, username and password could also rely on system user ident
     or even specified in :file:`~/.pgpass` (*see PostgreSQL documentation*).

@@ -60,7 +60,7 @@ class FilteringTest(BaseTest):
 
     def test_number_of_objects_matches_filter(self):
         self.validated["querystring"] = {"status": 1}
-        self.resource.plural_get()
+        self.resource.plural_head()
         headers = self.last_response.headers
         self.assertEqual(int(headers["Total-Objects"]), 2)
 
@@ -127,7 +127,7 @@ class FilteringTest(BaseTest):
     def test_not_string_filter(self):
         self.validated["querystring"] = {"like_title": 10}
         try:
-            self.resource.collection_get()
+            self.resource.plural_get()
         except httpexceptions.HTTPBadRequest as e:
             error = e
         self.assertEqual(

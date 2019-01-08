@@ -1,30 +1,13 @@
-"""
-kinto.core.scripts: utilities to build admin scripts for kinto-based services
-"""
 import logging
 
+import transaction as current_transaction
 from pyramid.settings import asbool
+
+from kinto.core.storage import exceptions as storage_exceptions
+from kinto.plugins.quotas import scripts as quotas
 
 
 logger = logging.getLogger(__name__)
-
-
-def migrate(env, dry_run=False):
-    """
-    User-friendly frontend to run database migrations.
-    """
-    registry = env["registry"]
-    settings = registry.settings
-    readonly_backends = ("storage", "permission")
-    readonly_mode = asbool(settings.get("readonly", False))
-
-    for backend in ("cache", "storage", "permission"):
-        if hasattr(registry, backend):
-            if readonly_mode and backend in readonly_backends:
-                message = f"Cannot migrate the {backend} backend while in readonly mode."
-                logger.error(message)
-            else:
-                getattr(registry, backend).initialize_schema(dry_run=dry_run)
 
 
 def delete_collection(env, bucket_id, collection_id):
@@ -109,12 +92,4 @@ def rebuild_quotas(env, dry_run=False):
 
     quotas.rebuild_quotas(registry.storage, dry_run=dry_run)
     current_transaction.commit()
-    return 0
-
-
-def flush_cache(env, dry_run=False):
-    registry = env["registry"]
-    settings = registry.settings
-    registry.cache.flush()
-    logger.info(f"Cache has been cleared.")
     return 0

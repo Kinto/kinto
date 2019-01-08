@@ -61,7 +61,6 @@ Retrieve history
         Etag: "1469006098757"
         Last-Modified: Wed, 20 Jul 2016 09:14:58 GMT
         Server: waitress
-        Total-Objects: 4
 
         {
             "data": [

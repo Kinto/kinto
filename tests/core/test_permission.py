@@ -55,7 +55,7 @@ class PostgreSQLPermissionTest(PermissionTest, unittest.TestCase):
     settings = {
         "permission_backend": "kinto.core.permission.postgresql",
         "permission_pool_size": 10,
-        "permission_url": "postgres://postgres:postgres@localhost:5432/testdb",
+        "permission_url": "postgresql://postgres:postgres@localhost:5432/testdb",
     }
 
     def setUp(self):

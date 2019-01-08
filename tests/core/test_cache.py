@@ -116,7 +116,7 @@ class PostgreSQLCacheTest(CacheTest, unittest.TestCase):
     settings = {
         "cache_backend": "kinto.core.cache.postgresql",
         "cache_pool_size": 10,
-        "cache_url": "postgres://postgres:postgres@localhost:5432/testdb",
+        "cache_url": "postgresql://postgres:postgres@localhost:5432/testdb",
         "cache_prefix": "",
     }
 

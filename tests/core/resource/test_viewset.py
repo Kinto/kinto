@@ -59,7 +59,7 @@ class ViewSetTest(unittest.TestCase):
         viewset.responses = mock.MagicMock()
         arguments = viewset.plural_arguments(mock.MagicMock(), "GET")
         self.assertEqual(original_arguments, {})
-        self.assertNotEquals(original_arguments, arguments)
+        self.assertNotEqual(original_arguments, arguments)
 
     def test_schema_is_added_when_method_matches(self):
         viewset = ViewSet()

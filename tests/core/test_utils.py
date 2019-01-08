@@ -1,6 +1,5 @@
 import unittest
 import os
-import pytest
 from unittest import mock
 
 import colander
@@ -21,7 +20,6 @@ from kinto.core.utils import (
     build_request,
     dict_subset,
     dict_merge,
-    parse_resource,
     prefixed_principals,
     recursive_update_dict,
     instance_uri_registry,
@@ -315,40 +313,6 @@ class RecursiveUpdateDictTest(unittest.TestCase):
         a = {}
         recursive_update_dict(a, 1)
         self.assertEqual(a, {})
-
-
-class ParseResourceTest(unittest.TestCase):
-
-    expected = {"bucket": "bid", "collection": "cid"}
-    error_msg = "Resources should be defined as "
-    "'/buckets/<bid>/collections/<cid>' or '<bid>/<cid>'. "
-    "with valid collection and bucket ids."
-
-    def _assert_success(self, input):
-        parts = parse_resource(input)
-        self.assertEqual(self.expected, parts)
-
-    def _assert_error(self, input_arr):
-        for input in input_arr:
-            with pytest.raises(ValueError) as excinfo:
-                parse_resource(input)
-            self.assertEqual(str(excinfo.value), self.error_msg)
-
-    def test_malformed_url_raises_an_exception(self):
-        input_arr = ["foo", "/", "/bar", "baz/", "/fo/o", "/buckets/sbid/scid"]
-        self._assert_error(input_arr)
-
-    def test_returned_resources_match_the_expected_format(self):
-        input = "/buckets/bid/collections/cid"
-        self._assert_success(input)
-
-    def test_returned_resources_match_the_legacy_format(self):
-        input = "bid/cid"
-        self._assert_success(input)
-
-    def test_resources_must_be_valid_names(self):
-        input_arr = ["/buckets/bi+d1/collections/cid", "/buckets/bid1/collections/dci,d"]
-        self._assert_error(input_arr)
 
 
 class InstanceURIRegistryTest(unittest.TestCase):

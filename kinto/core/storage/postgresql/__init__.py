@@ -32,7 +32,7 @@ class Storage(StorageBase, MigratorMixin):
 
     Database location URI can be customized::
 
-        kinto.storage_url = postgres://user:pass@db.server.lan:5432/dbname
+        kinto.storage_url = postgresql://user:pass@db.server.lan:5432/dbname
 
     Alternatively, username and password could also rely on system user ident
     or even specified in :file:`~/.pgpass` (*see PostgreSQL documentation*).
@@ -620,8 +620,7 @@ class Storage(StorageBase, MigratorMixin):
 
         return deleted
 
-    @deprecate_kwargs({"collection_id": "resource_name"})
-    def get_all(
+    def list_all(
         self,
         resource_name,
         parent_id,
@@ -635,28 +634,91 @@ class Storage(StorageBase, MigratorMixin):
         deleted_field=DEFAULT_DELETED_FIELD,
         auth=None,
     ):
+
         query = """
-        WITH objects_filtered AS (
-            SELECT id, last_modified, data, deleted
-              FROM objects
-             WHERE {parent_id_filter}
-               AND resource_name = :resource_name
-               {conditions_deleted}
-               {conditions_filter}
-             {sorting}
-        ),
-        total_filtered AS (
-            SELECT COUNT(id) AS count_total
-              FROM objects_filtered
-             WHERE NOT deleted
-        )
-         SELECT count_total,
-               a.id, as_epoch(a.last_modified) AS last_modified, a.data
-          FROM objects_filtered AS a,
-               total_filtered
-          {pagination_rules}
-         LIMIT :pagination_limit;
+            SELECT id, as_epoch(last_modified) AS last_modified, data
+            FROM objects
+            WHERE {parent_id_filter}
+            AND resource_name = :resource_name
+            {conditions_deleted}
+            {conditions_filter}
+            {pagination_rules}
+            {sorting}
+            LIMIT :pagination_limit;
         """
+
+        rows = self._get_rows(
+            query,
+            resource_name,
+            parent_id,
+            filters=filters,
+            sorting=sorting,
+            pagination_rules=pagination_rules,
+            limit=limit,
+            include_deleted=include_deleted,
+            id_field=id_field,
+            modified_field=modified_field,
+            deleted_field=deleted_field,
+            auth=auth,
+        )
+
+        if len(rows) == 0:
+            return []
+
+        records = []
+        for result in rows:
+            record = result["data"]
+            record[id_field] = result["id"]
+            record[modified_field] = result["last_modified"]
+            records.append(record)
+        return records
+
+    def count_all(
+        self,
+        resource_name,
+        parent_id,
+        filters=None,
+        id_field=DEFAULT_ID_FIELD,
+        modified_field=DEFAULT_MODIFIED_FIELD,
+        deleted_field=DEFAULT_DELETED_FIELD,
+        auth=None,
+    ):
+
+        query = """
+            SELECT COUNT(*) AS total_count
+            FROM objects
+            WHERE {parent_id_filter}
+            AND resource_name = :resource_name
+            AND NOT deleted
+            {conditions_filter}
+        """
+        rows = self._get_rows(
+            query,
+            resource_name,
+            parent_id,
+            filters=filters,
+            id_field=id_field,
+            modified_field=modified_field,
+            deleted_field=deleted_field,
+            auth=auth,
+        )
+        return rows[0]["total_count"]
+
+    def _get_rows(
+        self,
+        query,
+        resource_name,
+        parent_id,
+        filters=None,
+        sorting=None,
+        pagination_rules=None,
+        limit=None,
+        include_deleted=False,
+        id_field=DEFAULT_ID_FIELD,
+        modified_field=DEFAULT_MODIFIED_FIELD,
+        deleted_field=DEFAULT_DELETED_FIELD,
+        auth=None,
+    ):
 
         # Unsafe strings escaped by PostgreSQL
         placeholders = dict(parent_id=parent_id, resource_name=resource_name)
@@ -686,30 +748,16 @@ class Storage(StorageBase, MigratorMixin):
 
         if pagination_rules:
             sql, holders = self._format_pagination(pagination_rules, id_field, modified_field)
-            safeholders["pagination_rules"] = f"WHERE {sql}"
+            safeholders["pagination_rules"] = f"AND {sql}"
             placeholders.update(**holders)
 
         # Limit the number of results (pagination).
-        limit = min(self._max_fetch_size, limit) if limit else self._max_fetch_size
+        limit = min(self._max_fetch_size + 1, limit) if limit else self._max_fetch_size
         placeholders["pagination_limit"] = limit
 
         with self.client.connect(readonly=True) as conn:
             result = conn.execute(query.format_map(safeholders), placeholders)
-            retrieved = result.fetchmany(self._max_fetch_size)
-
-        if len(retrieved) == 0:
-            return [], 0
-
-        count_total = retrieved[0]["count_total"]
-
-        objects = []
-        for result in retrieved:
-            obj = result["data"]
-            obj[id_field] = result["id"]
-            obj[modified_field] = result["last_modified"]
-            objects.append(obj)
-
-        return objects, count_total
+            return result.fetchmany(self._max_fetch_size + 1)
 
     def _format_conditions(self, filters, id_field, modified_field, prefix="filters"):
         """Format the filters list in SQL, with placeholders for safe escaping.

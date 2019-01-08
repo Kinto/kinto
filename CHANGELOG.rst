@@ -9,32 +9,49 @@ This document describes changes between each past release.
 **Breaking changes**
 
 - Remove Python 3.5 support and upgrade to Python 3.6. (#1886)
-- Remove `record` from UnicityError class (#1919). This enabled us to fix #1545.
+- Remove ``record`` from UnicityError class (#1919). This enabled us to fix #1545.
 - Storage backend API has changed, notions of collection and records were replaced
   by the generic terms *resource* and *object*. Plugins that subclass the internal
   ``ShareableResource`` class may also break.
+- GET requests no longer include the ``Total-Records`` header. To get a count in a collection
+  you need to do a HEAD request. And the new header name is ``Total-Objects``. (#1624)
 - Remove the ``UserResource`` class. And ``ShareableResource`` is now deprecated in
   favor of ``Resource``.
+- Removed ``kinto.core.utils.parse_resource()`. Use ``kinto.core.utils.view_lookup_registry()`` instead (#1828)
+
+**New features**
+
+- Add a ``user-data`` endpoint at ``/__user_data__/`` which can be used to delete all data
+  associated with a principal. This might be helpful for pursuing GDPR
+  compliance, for instance. (Fixes #442.)
 
 **Bug Fixes**
 
 - Like query now returns 400 when a non string value is used. (#1899)
+- Record ID is validated if explicitly mentioned in the collection schema (#1942)
+- The Memory permission backend implementation of ``remove_principal``
+  is now less generous with what it removes (#1955).
+
+**Documentation**
+
+- Change PostgreSQL backend URLs to be ``postgresql://`` instead of the deprecated ``postgres://``
 
 **Internal changes**
 
-- Remove depreciation warning for `mapping` (#1904)
+- Remove depreciation warning for ``mapping`` (#1904)
 - Fix depreciated warn method (#1903)
 - Use f-string instead of % or format operators. (#1886)
 - Ignore admin plugin node_modules folder while running black (#1902)
 - Remove regexp py36 warnings. (#1907)
 - Changed psycopg2 dependency for psycopg2-binary. (#1905)
+- Renamed core notions (ie. record and collection) (#710)
+- JSON Schema validation is optimized by keeping instances of validator cached. (#1807)
 
 
 11.2.1 (2018-12-09)
 -------------------
 
 - Still supports jsonschema 2.6 before 3.0 is released as a production release. (#1923)
-- Renamed core notions (ie. record and collection) (#710)
 
 
 11.2.0 (2018-11-29)

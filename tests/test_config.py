@@ -71,7 +71,7 @@ class ConfigTest(unittest.TestCase):
         args, kwargs = list(mocked_render_template.call_args)
         self.assertEqual(args, ("kinto.tpl", "kinto.ini"))
 
-        postgresql_url = "postgres://postgres:postgres@localhost/postgres"
+        postgresql_url = "postgresql://postgres:postgres@localhost/postgres"
         self.assertDictEqual(
             kwargs,
             {
@@ -95,7 +95,7 @@ class ConfigTest(unittest.TestCase):
         args, kwargs = list(mocked_render_template.call_args)
         self.assertEqual(args, ("kinto.tpl", "kinto.ini"))
 
-        postgresql_url = "postgres://postgres:postgres@localhost/postgres"
+        postgresql_url = "postgresql://postgres:postgres@localhost/postgres"
         cache_url = "127.0.0.1:11211 127.0.0.2:11211"
         self.assertDictEqual(
             kwargs,

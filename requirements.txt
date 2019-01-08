@@ -25,7 +25,7 @@ pyramid-multiauth==0.9.0
 pyramid-tm==2.2.1
 python-dateutil==2.7.5
 python-memcached==1.59
-raven==6.9.0
+raven==6.10.0
 repoze.lru==0.7
 requests==2.21.0
 simplejson==3.16.0
@@ -38,8 +38,8 @@ ujson==1.35
 urllib3==1.24.1
 venusian==1.1.0
 waitress==1.1.0
-WebOb==1.8.4
+WebOb==1.8.5
 Werkzeug==0.14.1
 zope.deprecation==4.4.0
 zope.interface==4.6.0
-zope.sqlalchemy==1.0
+zope.sqlalchemy==1.1
