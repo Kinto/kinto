@@ -223,6 +223,13 @@ class OpenAPIObjectErrorResponsesTest(OpenAPITest):
         schema = self.spec.deref(op.op_spec["responses"]["403"])
         validate_response(schema, op, response)
 
+    def test_object_delete_404(self):
+        response = self.app.delete("/buckets/b1/collections/col", headers=self.headers, status=404)
+        response = self.cast_bravado_response(response)
+        op = self.resources["Collections"].delete_collection
+        schema = self.spec.deref(op.op_spec["responses"]["404"])
+        validate_response(schema, op, response)
+
     def test_object_delete_406(self):
         headers = {**self.headers, "Accept": "text/html"}
         response = self.app.delete("/buckets/b1", headers=headers, status=406)
@@ -299,6 +306,14 @@ class OpenAPIObjectErrorResponsesTest(OpenAPITest):
         response = self.cast_bravado_response(response)
         op = self.resources["Buckets"].delete_buckets
         schema = self.spec.deref(op.op_spec["responses"]["401"])
+        validate_response(schema, op, response)
+
+    def test_list_delete_403(self):
+        headers = {**self.headers, **testing.get_user_headers("aaa")}
+        response = self.app.delete("/buckets/b1/collections", headers=headers, status=403)
+        response = self.cast_bravado_response(response)
+        op = self.resources["Collections"].delete_collections
+        schema = self.spec.deref(op.op_spec["responses"]["403"])
         validate_response(schema, op, response)
 
     def test_list_delete_405(self):

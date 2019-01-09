@@ -47,9 +47,23 @@ class OpenAPICollectionResponsesTest(OpenAPITest):
         schema = self.spec.deref(op.op_spec["responses"]["201"])
         validate_response(schema, op, response)
 
+    def test_delete_collection_200(self):
+        response = self.app.delete("/buckets/b1/collections/c1", headers=self.headers, status=200)
+        response = self.cast_bravado_response(response)
+        op = self.resources["Collections"].delete_collection
+        schema = self.spec.deref(op.op_spec["responses"]["200"])
+        validate_response(schema, op, response)
+
     def test_get_collections_200(self):
         response = self.app.get("/buckets/b1/collections", headers=self.headers, status=200)
         response = self.cast_bravado_response(response)
         op = self.resources["Collections"].get_collections
+        schema = self.spec.deref(op.op_spec["responses"]["200"])
+        validate_response(schema, op, response)
+
+    def test_delete_collections_200(self):
+        response = self.app.delete("/buckets/b1/collections", headers=self.headers, status=200)
+        response = self.cast_bravado_response(response)
+        op = self.resources["Collections"].delete_collections
         schema = self.spec.deref(op.op_spec["responses"]["200"])
         validate_response(schema, op, response)

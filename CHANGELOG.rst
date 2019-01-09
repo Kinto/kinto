@@ -18,6 +18,7 @@ This document describes changes between each past release.
 - Remove the ``UserResource`` class. And ``ShareableResource`` is now deprecated in
   favor of ``Resource``.
 - Removed ``kinto.core.utils.parse_resource()`. Use ``kinto.core.utils.view_lookup_registry()`` instead (#1828)
+- Remove delete-collection command (#1959)
 
 **New features**
 
@@ -46,7 +47,6 @@ This document describes changes between each past release.
 - Changed psycopg2 dependency for psycopg2-binary. (#1905)
 - Renamed core notions (ie. record and collection) (#710)
 - JSON Schema validation is optimized by keeping instances of validator cached. (#1807)
-- Remove delete-collection command (#1959)
 
 11.2.1 (2018-12-09)
 -------------------
