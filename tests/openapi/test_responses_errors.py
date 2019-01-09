@@ -308,7 +308,7 @@ class OpenAPIObjectErrorResponsesTest(OpenAPITest):
         schema = self.spec.deref(op.op_spec["responses"]["401"])
         validate_response(schema, op, response)
 
-    def test_lidt_delete_403(self):
+    def test_list_delete_403(self):
         headers = {**self.headers, **testing.get_user_headers("aaa")}
         response = self.app.delete("/buckets/b1/collections", headers=headers, status=403)
         response = self.cast_bravado_response(response)

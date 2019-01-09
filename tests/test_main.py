@@ -159,35 +159,6 @@ class TestMain(unittest.TestCase):
             assert res == 0
             assert mocked_migrate.call_count == 1
 
-    def test_cli_delete_collection_run_delete_collection_script(self):
-        with mock.patch("kinto.__main__.kinto_scripts.delete_collection") as del_col:
-            del_col.return_value = mock.sentinel.del_col_code
-            res = main(
-                [
-                    "init",
-                    "--ini",
-                    TEMP_KINTO_INI,
-                    "--backend",
-                    "memory",
-                    "--cache-backend",
-                    "memory",
-                ]
-            )
-            assert res == 0
-            res = main(
-                [
-                    "delete-collection",
-                    "--ini",
-                    TEMP_KINTO_INI,
-                    "--bucket",
-                    "test_bucket",
-                    "--collection",
-                    "test_collection",
-                ]
-            )
-            assert res == mock.sentinel.del_col_code
-            assert del_col.call_count == 1
-
     def test_cli_rebuild_quotas_run_rebuild_quotas_script(self):
         with mock.patch("kinto.__main__.kinto_scripts.rebuild_quotas") as reb_quo:
             reb_quo.return_value = mock.sentinel.reb_quo_code
