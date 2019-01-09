@@ -25,15 +25,7 @@ def main(args=None):
         args = sys.argv[1:]
 
     parser = argparse.ArgumentParser(description="Kinto Command-Line " "Interface")
-    commands = (
-        "init",
-        "start",
-        "migrate",
-        "delete-collection",
-        "version",
-        "rebuild-quotas",
-        "create-user",
-    )
+    commands = ("init", "start", "migrate", "version", "rebuild-quotas", "create-user")
     subparsers = parser.add_subparsers(
         title="subcommands",
         description="Main Kinto CLI commands",
@@ -103,11 +95,6 @@ def main(args=None):
                 required=False,
                 default=False,
             )
-        elif command == "delete-collection":
-            subparser.add_argument(
-                "--bucket", help="The bucket where the collection " "belongs to.", required=True
-            )
-            subparser.add_argument("--collection", help="The collection to remove.", required=True)
 
         elif command == "rebuild-quotas":
             subparser.add_argument(
@@ -218,12 +205,6 @@ def main(args=None):
         dry_run = parsed_args["dry_run"]
         env = bootstrap(config_file, options={"command": "migrate"})
         core_scripts.migrate(env, dry_run=dry_run)
-
-    elif which_command == "delete-collection":
-        env = bootstrap(config_file, options={"command": "delete-collection"})
-        return kinto_scripts.delete_collection(
-            env, parsed_args["bucket"], parsed_args["collection"]
-        )
 
     elif which_command == "rebuild-quotas":
         dry_run = parsed_args["dry_run"]
