@@ -3,7 +3,7 @@ Changelog
 
 This document describes changes between each past release.
 
-12.0.0 (unreleased)
+12.0.0 (2019-01-10)
 -------------------
 
 **Breaking changes**
@@ -19,6 +19,8 @@ This document describes changes between each past release.
   favor of ``Resource``.
 - Removed ``kinto.core.utils.parse_resource()`. Use ``kinto.core.utils.view_lookup_registry()`` instead (#1828)
 - Remove delete-collection command (#1959)
+
+API is now at version **1.21**. See `API changelog`_.
 
 **New features**
 
