@@ -143,8 +143,8 @@ For example:
 Flush Cache
 -----------
 
-Clears the Memory Backend Cache This can be usefuf if
-you want to debug. 
+Clears the Memory Backend Cache This can be useful for
+debugging. 
 
 ::
 
