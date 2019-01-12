@@ -139,3 +139,19 @@ For example:
 ::
 
     kinto rebuild-quotas --ini=config/postgresql.ini
+
+Flush Cache
+-----------
+
+Clears the Memory Backend Cache This can be usefuf if
+you want to debug. 
+
+::
+
+    usage: Kinto flush-cache [--ini INI_FILE]
+
+For example:
+
+::
+
+    kinto flush-cache --ini kinto.ini 
