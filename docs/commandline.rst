@@ -143,12 +143,12 @@ For example:
 Flush Cache
 -----------
 
-Clears the Memory Backend Cache This can be useful for
+Clears the Backend Cache.This can be useful for
 debugging. 
 
 ::
 
-    usage: Kinto flush-cache [--ini INI_FILE]
+    kinto flush-cache [--ini INI_FILE]
 
 For example:
 

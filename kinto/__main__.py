@@ -95,6 +95,7 @@ def main(args=None):
                 required=False,
                 default="127.0.0.1",
             )
+               
         elif command == "migrate":
             subparser.add_argument(
                 "--dry-run",
@@ -104,11 +105,18 @@ def main(args=None):
                 required=False,
                 default=False,
             )
+
         elif command == "delete-collection":
             subparser.add_argument(
-                "--bucket", help="The bucket where the collection belongs to.", required=True
+                "--bucket",
+                help="The bucket where the collection belongs to.",
+                required=True
             )
-            subparser.add_argument("--collection", help="The collection to remove.", required=True)
+            subparser.add_argument(
+                "--collection",
+                help="The collection to remove.",
+                required=True
+            )
 
         elif command == "rebuild-quotas":
             subparser.add_argument(
