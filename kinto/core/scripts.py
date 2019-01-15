@@ -25,3 +25,10 @@ def migrate(env, dry_run=False):
                 logger.error(message)
             else:
                 getattr(registry, backend).initialize_schema(dry_run=dry_run)
+
+
+def flush_cache(env):
+    registry = env["registry"]
+    registry.cache.flush()
+    logger.info(f"Cache has been cleared.")
+    return 0

@@ -40,3 +40,8 @@ class InitSchemaTest(unittest.TestCase):
         reg.storage.initialize_schema.assert_called_with(dry_run=True)
         reg.cache.initialize_schema.assert_called_with(dry_run=True)
         reg.permission.initialize_schema.assert_called_with(dry_run=True)
+
+    def test_flush_cache_clear_the_cache_backend(self):
+        scripts.flush_cache({"registry": self.registry})
+        reg = self.registry
+        reg.cache.flush.assert_called_with()

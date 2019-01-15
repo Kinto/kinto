@@ -24,8 +24,16 @@ def main(args=None):
     if args is None:
         args = sys.argv[1:]
 
-    parser = argparse.ArgumentParser(description="Kinto Command-Line " "Interface")
-    commands = ("init", "start", "migrate", "version", "rebuild-quotas", "create-user")
+    parser = argparse.ArgumentParser(description="Kinto Command-Line Interface")
+    commands = (
+        "init",
+        "start",
+        "migrate",
+        "flush-cache",
+        "version",
+        "rebuild-quotas",
+        "create-user",
+    )
     subparsers = parser.add_subparsers(
         title="subcommands",
         description="Main Kinto CLI commands",
@@ -86,11 +94,12 @@ def main(args=None):
                 required=False,
                 default="127.0.0.1",
             )
+
         elif command == "migrate":
             subparser.add_argument(
                 "--dry-run",
                 action="store_true",
-                help="Simulate the migration operations " "and show information",
+                help="Simulate the migration operations and show information",
                 dest="dry_run",
                 required=False,
                 default=False,
@@ -100,7 +109,7 @@ def main(args=None):
             subparser.add_argument(
                 "--dry-run",
                 action="store_true",
-                help="Simulate the rebuild operation " "and show information",
+                help="Simulate the rebuild operation and show information",
                 dest="dry_run",
                 required=False,
                 default=False,
@@ -205,6 +214,10 @@ def main(args=None):
         dry_run = parsed_args["dry_run"]
         env = bootstrap(config_file, options={"command": "migrate"})
         core_scripts.migrate(env, dry_run=dry_run)
+
+    elif which_command == "flush-cache":
+        env = bootstrap(config_file, options={"command": "flush-cache"})
+        core_scripts.flush_cache(env)
 
     elif which_command == "rebuild-quotas":
         dry_run = parsed_args["dry_run"]
