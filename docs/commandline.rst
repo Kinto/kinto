@@ -109,3 +109,18 @@ For example:
 ::
 
     kinto rebuild-quotas --ini=config/postgresql.ini
+
+Flush Cache
+-----------
+
+Clears the content of the cache backend. This can be useful for debugging.
+
+::
+
+    usage: kinto flush-cache [--ini INI_FILE]
+
+For example:
+
+::
+
+    kinto flush-cache --ini kinto.ini
