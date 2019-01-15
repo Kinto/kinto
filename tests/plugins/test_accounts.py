@@ -1,4 +1,5 @@
 import unittest
+import uuid
 from unittest import mock
 
 from kinto.core import utils
@@ -23,6 +24,15 @@ class AccountsWebTest(support.BaseWebTest, unittest.TestCase):
             "kinto.plugins.accounts.authentication." "AccountsAuthenticationPolicy",
         )
         extras.setdefault("account_cache_ttl_seconds", "30")
+        return super().get_app_settings(extras)
+
+
+class AccountsValidationWebTest(AccountsWebTest):
+    @classmethod
+    def get_app_settings(cls, extras=None):
+        if extras is None:
+            extras = {}
+        extras.setdefault("account_validation", True)
         return super().get_app_settings(extras)
 
 
@@ -156,6 +166,32 @@ class AccountCreationTest(AccountsWebTest):
 
         resp = self.app.get("/", headers=get_user_headers("me", "blah"))
         assert "user" not in resp.json
+
+
+class AccountValidationCreationTest(AccountsValidationWebTest):
+    def test_create_account_requires_activation_form_url(self):
+        resp = self.app.post_json(
+            "/accounts", {"data": {"id": "alice", "password": "12éé6"}}, status=400
+        )
+        assert "requires an `activation-form-url` field" in resp.json["message"]
+
+    def test_create_account_appends_activation_code_to_activation_form_url(self):
+        activation_form_url = "https://example.com/"
+        uuid_string = "20e81ab7-51c0-444f-b204-f1c4cfe1aa7a"
+        with mock.patch("uuid.uuid4", return_value=uuid.UUID(uuid_string)):
+            resp = self.app.post_json(
+                "/accounts",
+                {
+                    "data": {
+                        "id": "alice",
+                        "password": "12éé6",
+                        "activation-form-url": activation_form_url,
+                    }
+                },
+                status=201,
+            )
+        assert resp.json["data"]["activation-form-url"] == activation_form_url
+        assert resp.json["data"]["activation-key"] == uuid_string
 
 
 class AccountUpdateTest(AccountsWebTest):

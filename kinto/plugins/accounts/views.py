@@ -1,4 +1,5 @@
 import colander
+import uuid
 from pyramid import httpexceptions
 from pyramid.decorator import reify
 from pyramid.security import Authenticated, Everyone
@@ -50,6 +51,8 @@ class Account(resource.Resource):
         )
         # Shortcut to check if current is anonymous (before get_parent_id()).
         context.is_anonymous = Authenticated not in request.effective_principals
+        # Is the "accounts validation" setting set?
+        context.validation = request.registry.settings.get("account_validation", False)
 
         super().__init__(request, context)
 
@@ -102,6 +105,20 @@ class Account(resource.Resource):
         new = super(Account, self).process_object(new, old)
 
         new["password"] = hash_password(new["password"])
+
+        # If the "account validation" option is enabled, make sure the `activation-form-url` is set.
+        # TODO: this might be better suited for a schema. Do we have a way to
+        # dynamically change the schema according to the settings?
+        if self.context.validation:
+            if "activation-form-url" not in new:
+                error_details = {
+                    "name": "data.activation-form-url",
+                    "description": "Account validation is enabled, and requires an "
+                    "`activation-form-url` field to be set",
+                }
+                raise_invalid(self.request, **error_details)
+            activation_key = str(uuid.uuid4())
+            new["activation-key"] = activation_key
 
         # Administrators can reach other accounts and anonymous have no
         # selected_userid. So do not try to enforce.
