@@ -215,6 +215,29 @@ class AccountValidationCreationTest(AccountsValidationWebTest):
         resp = self.app.get("/", headers=get_user_headers("alice", "12éé6"))
         assert "user" not in resp.json
 
+    def test_validation_fail_bad_user(self):
+        # Validation should fail on a non existing user.
+        resp = self.app.post_json("/accounts/alice/validate/123", {}, status=403)
+        assert "Account ID and activation key do not match" in resp.json["message"]
+
+    def test_validation_fail_bad_activation_key(self):
+        uuid_string = "20e81ab7-51c0-444f-b204-f1c4cfe1aa7a"
+        with mock.patch("uuid.uuid4", return_value=uuid.UUID(uuid_string)):
+            self.app.post_json(
+                "/accounts",
+                {
+                    "data": {
+                        "id": "alice",
+                        "password": "12éé6",
+                        "activation-form-url": "https://example.com",
+                    }
+                },
+                status=201,
+            )
+        # Validate the user.
+        resp = self.app.post_json("/accounts/alice/validate/bad-activation-key", {}, status=403)
+        assert "Account ID and activation key do not match" in resp.json["message"]
+
     def test_validation_removes_fields(self):
         # On user activation the 'activation-form-url' and 'activation-key' fields are removed.
         uuid_string = "20e81ab7-51c0-444f-b204-f1c4cfe1aa7a"
@@ -236,6 +259,28 @@ class AccountValidationCreationTest(AccountsValidationWebTest):
         # An active user can authenticate.
         resp = self.app.get("/", headers=get_user_headers("alice", "12éé6"))
         assert resp.json["user"]["id"] == "account:alice"
+
+    def test_validation_fail_active_user(self):
+        uuid_string = "20e81ab7-51c0-444f-b204-f1c4cfe1aa7a"
+        with mock.patch("uuid.uuid4", return_value=uuid.UUID(uuid_string)):
+            self.app.post_json(
+                "/accounts",
+                {
+                    "data": {
+                        "id": "alice",
+                        "password": "12éé6",
+                        "activation-form-url": "https://example.com",
+                    }
+                },
+                status=201,
+            )
+        # Validate the user.
+        resp = self.app.post_json("/accounts/alice/validate/" + uuid_string, {}, status=200)
+        assert "activation-form-url" not in resp.json
+        assert "activation-key" not in resp.json
+        # Try validating again.
+        resp = self.app.post_json("/accounts/alice/validate/" + uuid_string, {}, status=403)
+        assert "Account alice has already been validated" in resp.json["message"]
 
     def test_dont_check_activation_form_url_on_an_active_user(self):
         # Once the user is active, don't check for the activation-form-url or add an activation-key.
