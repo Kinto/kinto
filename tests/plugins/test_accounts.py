@@ -52,6 +52,13 @@ class HelloViewTest(AccountsWebTest):
         self.assertIn("accounts", capabilities)
 
 
+class HelloActivationViewTest(AccountsValidationWebTest):
+    def test_account_validation_capability_if_enabled(self):
+        resp = self.app.get("/")
+        capabilities = resp.json["capabilities"]
+        self.assertIn("account-validation", capabilities)
+
+
 class AccountCreationTest(AccountsWebTest):
     def test_anyone_can_create_an_account(self):
         self.app.post_json("/accounts", {"data": {"id": "alice", "password": "12éé6"}}, status=201)

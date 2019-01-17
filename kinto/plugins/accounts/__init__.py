@@ -29,6 +29,13 @@ def includeme(config):
 
     settings = config.get_settings()
 
+    if settings.get("account_validation", False):
+        config.add_api_capability(
+            "account-validation",
+            description="Validate accounts",
+            url="https://kinto.readthedocs.io/en/latest/api/1.x/accounts.html",
+        )
+
     # Check that the account policy is mentioned in config if included.
     accountClass = "AccountsPolicy"
     policy = None
