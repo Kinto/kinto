@@ -7,9 +7,10 @@ from pyramid.settings import aslist
 from pyramid.events import subscriber
 
 from kinto.views import NameGenerator
-from kinto.core import resource, utils
+from kinto.core import Service, resource, utils
 from kinto.core.errors import raise_invalid, http_error
 from kinto.core.events import ResourceChanged, ACTIONS
+from kinto.core.storage import exceptions as storage_exceptions
 
 from .utils import hash_password, ACCOUNT_CACHE_KEY, ACCOUNT_POLICY_NAME
 
@@ -106,10 +107,11 @@ class Account(resource.Resource):
 
         new["password"] = hash_password(new["password"])
 
-        # If the "account validation" option is enabled, make sure the `activation-form-url` is set.
+        # If the "account validation" option is enabled, make sure the
+        # `activation-form-url` is set on user creation.
         # TODO: this might be better suited for a schema. Do we have a way to
         # dynamically change the schema according to the settings?
-        if self.context.validation:
+        if self.context.validation and old is None:
             if "activation-form-url" not in new:
                 error_details = {
                     "name": "data.activation-form-url",
@@ -155,3 +157,45 @@ def on_account_changed(event):
     cache_key = utils.hmac_digest(hmac_secret, ACCOUNT_CACHE_KEY.format(username))
     # Delete cache
     cache.delete(cache_key)
+
+
+# Account validation (enable in the settings).
+validation = Service(
+    name="account-validation",
+    path="/accounts/{user_id}/validate/{activation_key}",
+    description="Validate an account",
+)
+
+
+@validation.post()
+def post_validation(request):
+    user_id = request.matchdict["user_id"]
+    activation_key = request.matchdict["activation_key"]
+
+    parent_id = user_id
+    try:
+        user = request.registry.storage.get(
+            parent_id=parent_id, resource_name="account", object_id=user_id
+        )
+    except storage_exceptions.ObjectNotFoundError:
+        # Don't give information on the existence of a user id: return a generic error message.
+        error_details = {"message": "Account ID and activation key do not match"}
+        raise http_error(httpexceptions.HTTPForbidden(), **error_details)
+
+    if "activation-key" not in user:
+        error_details = {"message": f"Account {user_id} has already been validated"}
+        raise http_error(httpexceptions.HTTPForbidden(), **error_details)
+
+    if user["activation-key"] != activation_key:
+        error_details = {"message": "Account ID and activation key do not match"}
+        raise http_error(httpexceptions.HTTPForbidden(), **error_details)
+
+    # Remove fields related to the account validation now that the user is validated.
+    del user["activation-form-url"]
+    del user["activation-key"]
+
+    request.registry.storage.update(
+        parent_id=parent_id, resource_name="account", object_id=user_id, record=user
+    )
+
+    return user

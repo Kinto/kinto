@@ -10,6 +10,7 @@ from .utils import ACCOUNT_CACHE_KEY, ACCOUNT_POLICY_NAME
 def account_check(username, password, request):
     settings = request.registry.settings
     hmac_secret = settings["userid_hmac_secret"]
+    validation = settings.get("account_validation", False)
     cache_key = utils.hmac_digest(hmac_secret, ACCOUNT_CACHE_KEY.format(username))
     cache_ttl = int(settings.get("account_cache_ttl_seconds", 30))
     hashed_password = utils.hmac_digest(cache_key, password)
@@ -32,6 +33,10 @@ def account_check(username, password, request):
             parent_id=parent_id, resource_name="account", object_id=username
         )
     except storage_exceptions.ObjectNotFoundError:
+        return None
+
+    if validation and "activation-key" in existing:
+        # The account hasn't been validated yet.
         return None
 
     hashed = existing["password"].encode(encoding="utf-8")

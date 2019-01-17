@@ -193,6 +193,70 @@ class AccountValidationCreationTest(AccountsValidationWebTest):
         assert resp.json["data"]["activation-form-url"] == activation_form_url
         assert resp.json["data"]["activation-key"] == uuid_string
 
+    def test_cant_authenticate_with_unactivated_account(self):
+        self.app.post_json(
+            "/accounts",
+            {
+                "data": {
+                    "id": "alice",
+                    "password": "12éé6",
+                    "activation-form-url": "https://example.com",
+                }
+            },
+            status=201,
+        )
+        resp = self.app.get("/", headers=get_user_headers("alice", "12éé6"))
+        assert "user" not in resp.json
+
+    def test_validation_removes_fields(self):
+        # On user activation the 'activation-form-url' and 'activation-key' fields are removed.
+        uuid_string = "20e81ab7-51c0-444f-b204-f1c4cfe1aa7a"
+        with mock.patch("uuid.uuid4", return_value=uuid.UUID(uuid_string)):
+            self.app.post_json(
+                "/accounts",
+                {
+                    "data": {
+                        "id": "alice",
+                        "password": "12éé6",
+                        "activation-form-url": "https://example.com",
+                    }
+                },
+                status=201,
+            )
+        resp = self.app.post_json("/accounts/alice/validate/" + uuid_string, {}, status=200)
+        assert "activation-form-url" not in resp.json
+        assert "activation-key" not in resp.json
+        # An active user can authenticate.
+        resp = self.app.get("/", headers=get_user_headers("alice", "12éé6"))
+        assert resp.json["user"]["id"] == "account:alice"
+
+    def test_dont_check_activation_form_url_on_an_active_user(self):
+        # Once the user is active, don't check for the activation-form-url or add an activation-key.
+        uuid_string = "20e81ab7-51c0-444f-b204-f1c4cfe1aa7a"
+        with mock.patch("uuid.uuid4", return_value=uuid.UUID(uuid_string)):
+            self.app.post_json(
+                "/accounts",
+                {
+                    "data": {
+                        "id": "alice",
+                        "password": "12éé6",
+                        "activation-form-url": "https://example.com",
+                    }
+                },
+                status=201,
+            )
+        self.app.post_json("/accounts/alice/validate/" + uuid_string, {}, status=200)
+        resp = self.app.patch_json(
+            "/accounts/alice",
+            {"data": {"some-other-metadata": "foobar"}},
+            status=200,
+            headers=get_user_headers("alice", "12éé6"),
+        )
+        print(resp)
+        assert "activation-form-url" not in resp.json["data"]
+        assert "activation-key" not in resp.json["data"]
+        assert resp.json["data"]["some-other-metadata"] == "foobar"
+
 
 class AccountUpdateTest(AccountsWebTest):
     def setUp(self):
