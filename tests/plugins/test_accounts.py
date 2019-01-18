@@ -28,6 +28,11 @@ class AccountsWebTest(support.BaseWebTest, unittest.TestCase):
 
 
 class AccountsValidationWebTest(AccountsWebTest):
+    def setUp(self):
+        patch = mock.patch("kinto.plugins.accounts.views.get_mailer")
+        self.get_mailer = patch.start()
+        self.addCleanup(patch.stop)
+
     @classmethod
     def get_app_settings(cls, extras=None):
         if extras is None:
@@ -214,6 +219,11 @@ class AccountValidationCreationTest(AccountsValidationWebTest):
             )
         assert resp.json["data"]["activation-form-url"] == activation_form_url
         assert resp.json["data"]["activation-key"] == uuid_string
+        mailer_call = self.get_mailer().send.call_args_list[0]
+        assert mailer_call[0][0].sender == "admin@example.com"
+        assert mailer_call[0][0].subject == "activate your account"
+        assert mailer_call[0][0].recipients == ["alice@example.com"]
+        assert mailer_call[0][0].body == f"{activation_form_url}{uuid_string}"
 
     def test_cant_authenticate_with_unactivated_account(self):
         self.app.post_json(
@@ -327,7 +337,6 @@ class AccountValidationCreationTest(AccountsValidationWebTest):
             status=200,
             headers=get_user_headers("alice@example.com", "12éé6"),
         )
-        print(resp)
         assert "activation-form-url" not in resp.json["data"]
         assert "activation-key" not in resp.json["data"]
         assert resp.json["data"]["some-other-metadata"] == "foobar"

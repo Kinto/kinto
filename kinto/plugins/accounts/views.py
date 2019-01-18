@@ -6,6 +6,8 @@ from pyramid.decorator import reify
 from pyramid.security import Authenticated, Everyone
 from pyramid.settings import aslist
 from pyramid.events import subscriber
+from pyramid_mailer import get_mailer
+from pyramid_mailer.message import Message
 
 
 from kinto.views import NameGenerator
@@ -47,17 +49,18 @@ class Account(resource.Resource):
     schema = AccountSchema
 
     def __init__(self, request, context):
+        settings = request.registry.settings
         # Store if current user is administrator (before accessing get_parent_id())
-        allowed_from_settings = request.registry.settings.get("account_write_principals", [])
+        allowed_from_settings = settings.get("account_write_principals", [])
         context.is_administrator = (
             len(set(aslist(allowed_from_settings)) & set(request.prefixed_principals)) > 0
         )
         # Shortcut to check if current is anonymous (before get_parent_id()).
         context.is_anonymous = Authenticated not in request.effective_principals
         # Is the "accounts validation" setting set?
-        context.validation = request.registry.settings.get("account_validation", False)
+        context.validation = settings.get("account_validation", False)
         # Account validation requires the user id to be an email.
-        validation_email_regexp = request.registry.settings.get(
+        validation_email_regexp = settings.get(
             "account_validation.email_regexp", "^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$"
         )
         context.validation_email_regexp = re.compile(validation_email_regexp)
@@ -68,6 +71,19 @@ class Account(resource.Resource):
         if self.model.current_principal == Everyone or context.is_administrator:
             # Creation is anonymous, but author with write perm is this:
             self.model.current_principal = f"{ACCOUNT_POLICY_NAME}:{self.model.parent_id}"
+
+        if context.validation:
+            # pyramid_mailer instance.
+            self.mailer = get_mailer(request)
+            self.email_sender = settings.get(
+                "account_validation.email_sender", "admin@example.com"
+            )
+            self.email_subject_template = settings.get(
+                "account_validation.email_subject_template", "activate your account"
+            )
+            self.email_body_template = settings.get(
+                "account_validation.email_body_template", "{activation-form-url}{activation-key}"
+            )
 
     @reify
     def id_generator(self):
@@ -144,6 +160,15 @@ class Account(resource.Resource):
 
             activation_key = str(uuid.uuid4())
             new["activation-key"] = activation_key
+
+            # Send an email to the user with the link to activate their account.
+            message = Message(
+                subject=self.email_subject_template.format(**new),
+                sender=self.email_sender,
+                recipients=[user_email],
+                body=self.email_body_template.format(**new),
+            )
+            self.mailer.send(message)
 
         # Administrators can reach other accounts and anonymous have no
         # selected_userid. So do not try to enforce.

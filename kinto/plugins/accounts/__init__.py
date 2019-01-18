@@ -2,6 +2,7 @@ import re
 
 from kinto.authorization import PERMISSIONS_INHERITANCE_TREE
 from pyramid.exceptions import ConfigurationError
+from pyramid.settings import asbool
 
 from .authentication import AccountsAuthenticationPolicy as AccountsPolicy
 from .utils import ACCOUNT_CACHE_KEY, ACCOUNT_POLICY_NAME
@@ -35,6 +36,8 @@ def includeme(config):
             description="Validate accounts",
             url="https://kinto.readthedocs.io/en/latest/api/1.x/accounts.html",
         )
+        debug = asbool(settings.get("mail.debug_mailer", "false"))
+        config.include("pyramid_mailer" + (".debug" if debug else ""))
 
     # Check that the account policy is mentioned in config if included.
     accountClass = "AccountsPolicy"

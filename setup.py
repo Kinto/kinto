@@ -31,6 +31,7 @@ REQUIREMENTS = [
     "pyramid >= 1.9.1, < 2.0",
     "pyramid_multiauth >= 0.8",  # User on policy selected event.
     "transaction",
+    "pyramid_mailer",
     # pyramid_tm changed the location of their tween in 2.x and one of
     # our tests fails on 2.0.
     "pyramid_tm >= 2.1",
