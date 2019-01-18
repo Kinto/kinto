@@ -1,10 +1,12 @@
 import colander
+import re
 import uuid
 from pyramid import httpexceptions
 from pyramid.decorator import reify
 from pyramid.security import Authenticated, Everyone
 from pyramid.settings import aslist
 from pyramid.events import subscriber
+
 
 from kinto.views import NameGenerator
 from kinto.core import Service, resource, utils
@@ -54,6 +56,11 @@ class Account(resource.Resource):
         context.is_anonymous = Authenticated not in request.effective_principals
         # Is the "accounts validation" setting set?
         context.validation = request.registry.settings.get("account_validation", False)
+        # Account validation requires the user id to be an email.
+        validation_email_regexp = request.registry.settings.get(
+            "account_validation.email_regexp", "^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$"
+        )
+        context.validation_email_regexp = re.compile(validation_email_regexp)
 
         super().__init__(request, context)
 
@@ -107,11 +114,26 @@ class Account(resource.Resource):
 
         new["password"] = hash_password(new["password"])
 
+        # Do not let accounts be created without usernames.
+        if self.model.id_field not in new:
+            error_details = {"name": "data.id", "description": "Accounts must have an ID."}
+            raise_invalid(self.request, **error_details)
+
         # If the "account validation" option is enabled, make sure the
         # `activation-form-url` is set on user creation.
         # TODO: this might be better suited for a schema. Do we have a way to
         # dynamically change the schema according to the settings?
         if self.context.validation and old is None:
+            email_regexp = self.context.validation_email_regexp
+            # Account validation requires that the record ID is an email address.
+            user_email = new[self.model.id_field]
+            if not email_regexp.match(user_email):
+                error_details = {
+                    "name": "data.id",
+                    "description": "Account validation is enabled, and user id must be an email",
+                }
+                raise_invalid(self.request, **error_details)
+
             if "activation-form-url" not in new:
                 error_details = {
                     "name": "data.activation-form-url",
@@ -119,6 +141,7 @@ class Account(resource.Resource):
                     "`activation-form-url` field to be set",
                 }
                 raise_invalid(self.request, **error_details)
+
             activation_key = str(uuid.uuid4())
             new["activation-key"] = activation_key
 
@@ -126,11 +149,6 @@ class Account(resource.Resource):
         # selected_userid. So do not try to enforce.
         if self.context.is_administrator or self.context.is_anonymous:
             return new
-
-        # Do not let accounts be created without usernames.
-        if self.model.id_field not in new:
-            error_details = {"name": "data.id", "description": "Accounts must have an ID."}
-            raise_invalid(self.request, **error_details)
 
         # Otherwise, we force the id to match the authenticated username.
         if new[self.model.id_field] != self.request.selected_userid:

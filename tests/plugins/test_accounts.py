@@ -176,9 +176,24 @@ class AccountCreationTest(AccountsWebTest):
 
 
 class AccountValidationCreationTest(AccountsValidationWebTest):
+    def test_create_account_fails_if_not_email(self):
+        activation_form_url = "https://example.com/"
+        resp = self.app.post_json(
+            "/accounts",
+            {
+                "data": {
+                    "id": "alice",
+                    "password": "12éé6",
+                    "activation-form-url": activation_form_url,
+                }
+            },
+            status=400,
+        )
+        assert "user id must be an email" in resp.json["message"]
+
     def test_create_account_requires_activation_form_url(self):
         resp = self.app.post_json(
-            "/accounts", {"data": {"id": "alice", "password": "12éé6"}}, status=400
+            "/accounts", {"data": {"id": "alice@example.com", "password": "12éé6"}}, status=400
         )
         assert "requires an `activation-form-url` field" in resp.json["message"]
 
@@ -190,7 +205,7 @@ class AccountValidationCreationTest(AccountsValidationWebTest):
                 "/accounts",
                 {
                     "data": {
-                        "id": "alice",
+                        "id": "alice@example.com",
                         "password": "12éé6",
                         "activation-form-url": activation_form_url,
                     }
@@ -205,19 +220,19 @@ class AccountValidationCreationTest(AccountsValidationWebTest):
             "/accounts",
             {
                 "data": {
-                    "id": "alice",
+                    "id": "alice@example.com",
                     "password": "12éé6",
                     "activation-form-url": "https://example.com",
                 }
             },
             status=201,
         )
-        resp = self.app.get("/", headers=get_user_headers("alice", "12éé6"))
+        resp = self.app.get("/", headers=get_user_headers("alice@example.com", "12éé6"))
         assert "user" not in resp.json
 
     def test_validation_fail_bad_user(self):
         # Validation should fail on a non existing user.
-        resp = self.app.post_json("/accounts/alice/validate/123", {}, status=403)
+        resp = self.app.post_json("/accounts/alice@example.com/validate/123", {}, status=403)
         assert "Account ID and activation key do not match" in resp.json["message"]
 
     def test_validation_fail_bad_activation_key(self):
@@ -227,7 +242,7 @@ class AccountValidationCreationTest(AccountsValidationWebTest):
                 "/accounts",
                 {
                     "data": {
-                        "id": "alice",
+                        "id": "alice@example.com",
                         "password": "12éé6",
                         "activation-form-url": "https://example.com",
                     }
@@ -235,7 +250,9 @@ class AccountValidationCreationTest(AccountsValidationWebTest):
                 status=201,
             )
         # Validate the user.
-        resp = self.app.post_json("/accounts/alice/validate/bad-activation-key", {}, status=403)
+        resp = self.app.post_json(
+            "/accounts/alice@example.com/validate/bad-activation-key", {}, status=403
+        )
         assert "Account ID and activation key do not match" in resp.json["message"]
 
     def test_validation_removes_fields(self):
@@ -246,19 +263,21 @@ class AccountValidationCreationTest(AccountsValidationWebTest):
                 "/accounts",
                 {
                     "data": {
-                        "id": "alice",
+                        "id": "alice@example.com",
                         "password": "12éé6",
                         "activation-form-url": "https://example.com",
                     }
                 },
                 status=201,
             )
-        resp = self.app.post_json("/accounts/alice/validate/" + uuid_string, {}, status=200)
+        resp = self.app.post_json(
+            "/accounts/alice@example.com/validate/" + uuid_string, {}, status=200
+        )
         assert "activation-form-url" not in resp.json
         assert "activation-key" not in resp.json
         # An active user can authenticate.
-        resp = self.app.get("/", headers=get_user_headers("alice", "12éé6"))
-        assert resp.json["user"]["id"] == "account:alice"
+        resp = self.app.get("/", headers=get_user_headers("alice@example.com", "12éé6"))
+        assert resp.json["user"]["id"] == "account:alice@example.com"
 
     def test_validation_fail_active_user(self):
         uuid_string = "20e81ab7-51c0-444f-b204-f1c4cfe1aa7a"
@@ -267,7 +286,7 @@ class AccountValidationCreationTest(AccountsValidationWebTest):
                 "/accounts",
                 {
                     "data": {
-                        "id": "alice",
+                        "id": "alice@example.com",
                         "password": "12éé6",
                         "activation-form-url": "https://example.com",
                     }
@@ -275,12 +294,16 @@ class AccountValidationCreationTest(AccountsValidationWebTest):
                 status=201,
             )
         # Validate the user.
-        resp = self.app.post_json("/accounts/alice/validate/" + uuid_string, {}, status=200)
+        resp = self.app.post_json(
+            "/accounts/alice@example.com/validate/" + uuid_string, {}, status=200
+        )
         assert "activation-form-url" not in resp.json
         assert "activation-key" not in resp.json
         # Try validating again.
-        resp = self.app.post_json("/accounts/alice/validate/" + uuid_string, {}, status=403)
-        assert "Account alice has already been validated" in resp.json["message"]
+        resp = self.app.post_json(
+            "/accounts/alice@example.com/validate/" + uuid_string, {}, status=403
+        )
+        assert "Account alice@example.com has already been validated" in resp.json["message"]
 
     def test_dont_check_activation_form_url_on_an_active_user(self):
         # Once the user is active, don't check for the activation-form-url or add an activation-key.
@@ -290,19 +313,19 @@ class AccountValidationCreationTest(AccountsValidationWebTest):
                 "/accounts",
                 {
                     "data": {
-                        "id": "alice",
+                        "id": "alice@example.com",
                         "password": "12éé6",
                         "activation-form-url": "https://example.com",
                     }
                 },
                 status=201,
             )
-        self.app.post_json("/accounts/alice/validate/" + uuid_string, {}, status=200)
+        self.app.post_json("/accounts/alice@example.com/validate/" + uuid_string, {}, status=200)
         resp = self.app.patch_json(
-            "/accounts/alice",
+            "/accounts/alice@example.com",
             {"data": {"some-other-metadata": "foobar"}},
             status=200,
-            headers=get_user_headers("alice", "12éé6"),
+            headers=get_user_headers("alice@example.com", "12éé6"),
         )
         print(resp)
         assert "activation-form-url" not in resp.json["data"]
