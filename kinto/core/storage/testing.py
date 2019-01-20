@@ -1131,6 +1131,24 @@ class DeletedObjectsTest:
         count = self.storage.count_all(**self.storage_kw)
         self.assertEqual(count, 0)
 
+    def test_delete_all_bumps_collection_timestamp(self):
+        self.create_object()
+        self.create_object()
+        timestamp_before = self.storage.resource_timestamp(**self.storage_kw)
+
+        self.storage.delete_all(**self.storage_kw)
+
+        timestamp_after = self.storage.resource_timestamp(**self.storage_kw)
+        self.assertNotEqual(timestamp_after, timestamp_before)
+
+    def test_delete_all_keeps_tombstones(self):
+        self.create_object()
+        self.create_object()
+
+        self.storage.delete_all(**self.storage_kw)
+
+        self.assertEqual(len(self.storage.list_all(include_deleted=True, **self.storage_kw)), 2)
+
     def test_delete_all_bumps_tombstones_timestamps(self):
         self.create_object()
         self.create_object()
