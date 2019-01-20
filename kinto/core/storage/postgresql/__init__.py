@@ -484,7 +484,7 @@ class Storage(StorageBase, MigratorMixin):
                     FOR UPDATE
             )
             UPDATE objects
-               SET deleted=TRUE, data=(:deleted_data)::JSONB
+               SET deleted=TRUE, data=(:deleted_data)::JSONB, last_modified=NULL
               FROM matching_objects
              WHERE objects.id = matching_objects.id
                AND objects.parent_id = matching_objects.parent_id

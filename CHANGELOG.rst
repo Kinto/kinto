@@ -6,7 +6,7 @@ This document describes changes between each past release.
 12.1.0 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- Fix bumping of tombstones timestamps when deleting objects in PostgreSQL storage backend (fixes #1981)
 
 
 12.0.0 (2019-01-10)

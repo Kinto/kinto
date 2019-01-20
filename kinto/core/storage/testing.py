@@ -1125,9 +1125,24 @@ class DeletedObjectsTest:
     def test_delete_all_deletes_objects(self):
         self.create_object()
         self.create_object()
+
         self.storage.delete_all(**self.storage_kw)
+
         count = self.storage.count_all(**self.storage_kw)
         self.assertEqual(count, 0)
+
+    def test_delete_all_bumps_tombstones_timestamps(self):
+        self.create_object()
+        self.create_object()
+        timestamps_before = {r["last_modified"] for r in self.storage.list_all(**self.storage_kw)}
+
+        self.storage.delete_all(**self.storage_kw)
+
+        timestamps_after = {
+            r["last_modified"]
+            for r in self.storage.list_all(include_deleted=True, **self.storage_kw)
+        }
+        self.assertTrue(timestamps_after.isdisjoint(timestamps_before))
 
     def test_delete_all_can_delete_by_parent_id(self):
         self.create_object(parent_id="abc", resource_name="c")
