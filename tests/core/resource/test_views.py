@@ -670,6 +670,41 @@ class PaginationNextURLTest(BaseWebTest, unittest.TestCase):
         self.assertIn("https://server.name:443", resp.headers["Next-Page"])
 
 
+class PluralDeleteTest(BaseWebTest, unittest.TestCase):
+    def setUp(self):
+        super().setUp()
+        body = {"data": MINIMALIST_OBJECT}
+        self.app.post_json(self.plural_url, body, headers=self.headers)
+        self.app.post_json(self.plural_url, body, headers=self.headers)
+
+    def test_timestamp_is_bumped_if_some_were_deleted(self):
+        timestamp_before = self.app.get(self.plural_url, headers=self.headers).headers["ETag"]
+
+        timestamp_delete = self.app.delete(self.plural_url, headers=self.headers).headers["ETag"]
+
+        timestamp_after = self.app.get(self.plural_url, headers=self.headers).headers["ETag"]
+
+        self.assertTrue(timestamp_before < timestamp_after)
+        self.assertEqual(timestamp_delete, timestamp_after)
+
+    def test_timestamp_is_not_bumped_if_none_deleted(self):
+        timestamp_before = self.app.get(self.plural_url, headers=self.headers).headers["ETag"]
+
+        url = self.plural_url + "?title=42"
+        timestamp_delete = self.app.delete(url, headers=self.headers).headers["ETag"]
+
+        timestamp_after = self.app.get(self.plural_url, headers=self.headers).headers["ETag"]
+
+        self.assertEqual(timestamp_before, timestamp_after)
+        self.assertEqual(timestamp_delete, timestamp_after)
+
+    def test_timestamp_is_latest_tombstone(self):
+        resp = self.app.delete(self.plural_url + "?_sort=-last_modified", headers=self.headers)
+
+        timestamp = int(resp.headers["ETag"].strip('"'))
+        self.assertTrue(timestamp >= resp.json["data"][0]["last_modified"])
+
+
 class SchemaLessPartialResponseTest(BaseWebTest, unittest.TestCase):
     """Extra tests for :mod:`tests.core.resource.test_partial_response`
     """

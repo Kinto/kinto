@@ -7,6 +7,7 @@ This document describes changes between each past release.
 -------------------
 
 - Fix bumping of tombstones timestamps when deleting objects in PostgreSQL storage backend (fixes #1981)
+- Fix ETag header in responses of DELETE on plural endpoints (ref #1981)
 
 
 12.0.0 (2019-01-10)

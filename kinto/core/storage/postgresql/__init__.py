@@ -445,10 +445,10 @@ class Storage(StorageBase, MigratorMixin):
             result = conn.execute(query, placeholders)
             if result.rowcount == 0:
                 raise exceptions.ObjectNotFoundError(object_id)
-            inserted = result.fetchone()
+            updated = result.fetchone()
 
         obj = {}
-        obj[modified_field] = inserted["last_modified"]
+        obj[modified_field] = updated["last_modified"]
         obj[id_field] = object_id
 
         obj[deleted_field] = True
