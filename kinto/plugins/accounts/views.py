@@ -16,7 +16,13 @@ from kinto.core.errors import raise_invalid, http_error
 from kinto.core.events import ResourceChanged, ACTIONS
 from kinto.core.storage import exceptions as storage_exceptions
 
-from .utils import hash_password, is_validated, ACCOUNT_CACHE_KEY, ACCOUNT_POLICY_NAME
+from .utils import (
+    hash_password,
+    is_validated,
+    ACCOUNT_CACHE_KEY,
+    ACCOUNT_POLICY_NAME,
+    ACCOUNT_VALIDATION_CACHE_KEY,
+)
 
 
 def _extract_posted_body_id(request):
@@ -159,15 +165,18 @@ class Account(resource.Resource):
                 raise_invalid(self.request, **error_details)
 
             activation_key = str(uuid.uuid4())
-            new["activation-key"] = activation_key
+            extra_data = {"activation-key": activation_key}
             new["validated"] = False
+
+            # Store the activation key in the cache to be used in the `validate` endpoint.
+            cache_validation_key(activation_key, new["id"], self.request.registry)
 
             # Send an email to the user with the link to activate their account.
             message = Message(
-                subject=self.email_subject_template.format(**new),
+                subject=self.email_subject_template.format(**extra_data, **new),
                 sender=self.email_sender,
                 recipients=[user_email],
-                body=self.email_body_template.format(**new),
+                body=self.email_body_template.format(**extra_data, **new),
             )
             self.mailer.send(message)
 
@@ -211,6 +220,32 @@ validation = Service(
 )
 
 
+def cache_validation_key(activation_key, username, registry):
+    """Store a validation_key in the cache."""
+    settings = registry.settings
+    hmac_secret = settings["userid_hmac_secret"]
+    cache_key = utils.hmac_digest(hmac_secret, ACCOUNT_VALIDATION_CACHE_KEY.format(username))
+    # Store an activation key for 7 days by default.
+    cache_ttl = int(settings.get("account_validation.cache_ttl_seconds", 7 * 24 * 60))
+
+    cache = registry.cache
+    cache.set(cache_key, activation_key, ttl=cache_ttl)
+
+
+def check_validation_key(activation_key, username, registry):
+    """Given a username, get the activation-key from the cache."""
+    hmac_secret = registry.settings["userid_hmac_secret"]
+    cache_key = utils.hmac_digest(hmac_secret, ACCOUNT_VALIDATION_CACHE_KEY.format(username))
+
+    cache = registry.cache
+    cache_result = cache.get(cache_key)
+
+    if cache_result == activation_key:
+        cache.delete(cache_key)  # We're done with the activation key.
+        return True
+    return False
+
+
 @validation.post()
 def post_validation(request):
     user_id = request.matchdict["user_id"]
@@ -230,7 +265,7 @@ def post_validation(request):
         error_details = {"message": f"Account {user_id} has already been validated"}
         raise http_error(httpexceptions.HTTPForbidden(), **error_details)
 
-    if user["activation-key"] != activation_key:
+    if not check_validation_key(activation_key, user_id, request.registry):
         error_details = {"message": "Account ID and activation key do not match"}
         raise http_error(httpexceptions.HTTPForbidden(), **error_details)
 

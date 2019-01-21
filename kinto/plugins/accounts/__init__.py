@@ -5,10 +5,15 @@ from pyramid.exceptions import ConfigurationError
 from pyramid.settings import asbool
 
 from .authentication import AccountsAuthenticationPolicy as AccountsPolicy
-from .utils import ACCOUNT_CACHE_KEY, ACCOUNT_POLICY_NAME
+from .utils import ACCOUNT_CACHE_KEY, ACCOUNT_POLICY_NAME, ACCOUNT_VALIDATION_CACHE_KEY
 
 
-__all__ = ["ACCOUNT_CACHE_KEY", "ACCOUNT_POLICY_NAME", "AccountsPolicy"]
+__all__ = [
+    "ACCOUNT_CACHE_KEY",
+    "ACCOUNT_POLICY_NAME",
+    "ACCOUNT_VALIDATION_CACHE_KEY",
+    "AccountsPolicy",
+]
 
 DOCS_URL = "https://kinto.readthedocs.io/en/stable/api/1.x/accounts.html"
 

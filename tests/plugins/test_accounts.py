@@ -6,7 +6,7 @@ from kinto.core import utils
 from kinto.core.testing import get_user_headers
 from pyramid.exceptions import ConfigurationError
 
-from kinto.plugins.accounts import scripts, ACCOUNT_CACHE_KEY
+from kinto.plugins.accounts import scripts, ACCOUNT_CACHE_KEY, ACCOUNT_VALIDATION_CACHE_KEY
 from kinto.plugins.accounts.utils import hash_password
 from .. import support
 
@@ -182,6 +182,11 @@ class AccountCreationTest(AccountsWebTest):
 
 
 class AccountValidationCreationTest(AccountsValidationWebTest):
+    def get_account_validation_cache(self, username):
+        hmac_secret = self.app.app.registry.settings["userid_hmac_secret"]
+        cache_key = utils.hmac_digest(hmac_secret, ACCOUNT_VALIDATION_CACHE_KEY.format(username))
+        return self.app.app.registry.cache.get(cache_key)
+
     def test_create_account_fails_if_not_email(self):
         activation_form_url = "https://example.com/"
         resp = self.app.post_json(
@@ -219,7 +224,7 @@ class AccountValidationCreationTest(AccountsValidationWebTest):
                 status=201,
             )
         assert resp.json["data"]["activation-form-url"] == activation_form_url
-        assert resp.json["data"]["activation-key"] == uuid_string
+        assert "activation-key" not in resp.json["data"]
         assert "validated" in resp.json["data"]
         assert not resp.json["data"]["validated"]
         mailer_call = self.get_mailer().send.call_args_list[0]
@@ -227,6 +232,8 @@ class AccountValidationCreationTest(AccountsValidationWebTest):
         assert mailer_call[0][0].subject == "activate your account"
         assert mailer_call[0][0].recipients == ["alice@example.com"]
         assert mailer_call[0][0].body == f"{activation_form_url}{uuid_string}"
+        # The activation key is stored in the cache.
+        assert self.get_account_validation_cache("alice@example.com") == uuid_string
 
     def test_cant_authenticate_with_unactivated_account(self):
         self.app.post_json(
@@ -268,6 +275,8 @@ class AccountValidationCreationTest(AccountsValidationWebTest):
             "/accounts/alice@example.com/validate/bad-activation-key", {}, status=403
         )
         assert "Account ID and activation key do not match" in resp.json["message"]
+        # The activation key is still in the cache
+        assert self.get_account_validation_cache("alice@example.com") is not None
 
     def test_validation_validates_user(self):
         # On user activation the 'validated' field is set to True.
@@ -292,6 +301,8 @@ class AccountValidationCreationTest(AccountsValidationWebTest):
         # An active user can authenticate.
         resp = self.app.get("/", headers=get_user_headers("alice@example.com", "12éé6"))
         assert resp.json["user"]["id"] == "account:alice@example.com"
+        # Once activated, the activation key is removed from the cache.
+        assert self.get_account_validation_cache("alice@example.com") is None
 
     def test_validation_fail_active_user(self):
         uuid_string = "20e81ab7-51c0-444f-b204-f1c4cfe1aa7a"

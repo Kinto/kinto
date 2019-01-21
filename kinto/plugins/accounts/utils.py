@@ -3,6 +3,7 @@ import bcrypt
 
 ACCOUNT_CACHE_KEY = "accounts:{}:verified"
 ACCOUNT_POLICY_NAME = "account"
+ACCOUNT_VALIDATION_CACHE_KEY = "accounts:{}:validation-key"
 
 
 def hash_password(password):
