@@ -4,7 +4,7 @@ from pyramid import authentication as base_auth
 from kinto.core import utils
 from kinto.core.storage import exceptions as storage_exceptions
 
-from .utils import ACCOUNT_CACHE_KEY, ACCOUNT_POLICY_NAME
+from .utils import ACCOUNT_CACHE_KEY, ACCOUNT_POLICY_NAME, is_validated
 
 
 def account_check(username, password, request):
@@ -35,8 +35,7 @@ def account_check(username, password, request):
     except storage_exceptions.ObjectNotFoundError:
         return None
 
-    if validation and "activation-key" in existing:
-        # The account hasn't been validated yet.
+    if validation and not is_validated(existing):
         return None
 
     hashed = existing["password"].encode(encoding="utf-8")

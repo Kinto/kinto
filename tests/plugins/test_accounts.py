@@ -7,6 +7,7 @@ from kinto.core.testing import get_user_headers
 from pyramid.exceptions import ConfigurationError
 
 from kinto.plugins.accounts import scripts, ACCOUNT_CACHE_KEY
+from kinto.plugins.accounts.utils import hash_password
 from .. import support
 
 
@@ -202,7 +203,7 @@ class AccountValidationCreationTest(AccountsValidationWebTest):
         )
         assert "requires an `activation-form-url` field" in resp.json["message"]
 
-    def test_create_account_appends_activation_code_to_activation_form_url(self):
+    def test_create_account_stores_activated_field(self):
         activation_form_url = "https://example.com/"
         uuid_string = "20e81ab7-51c0-444f-b204-f1c4cfe1aa7a"
         with mock.patch("uuid.uuid4", return_value=uuid.UUID(uuid_string)):
@@ -219,6 +220,8 @@ class AccountValidationCreationTest(AccountsValidationWebTest):
             )
         assert resp.json["data"]["activation-form-url"] == activation_form_url
         assert resp.json["data"]["activation-key"] == uuid_string
+        assert "validated" in resp.json["data"]
+        assert not resp.json["data"]["validated"]
         mailer_call = self.get_mailer().send.call_args_list[0]
         assert mailer_call[0][0].sender == "admin@example.com"
         assert mailer_call[0][0].subject == "activate your account"
@@ -233,6 +236,7 @@ class AccountValidationCreationTest(AccountsValidationWebTest):
                     "id": "alice@example.com",
                     "password": "12éé6",
                     "activation-form-url": "https://example.com",
+                    "activated": False,
                 }
             },
             status=201,
@@ -265,8 +269,8 @@ class AccountValidationCreationTest(AccountsValidationWebTest):
         )
         assert "Account ID and activation key do not match" in resp.json["message"]
 
-    def test_validation_removes_fields(self):
-        # On user activation the 'activation-form-url' and 'activation-key' fields are removed.
+    def test_validation_validates_user(self):
+        # On user activation the 'validated' field is set to True.
         uuid_string = "20e81ab7-51c0-444f-b204-f1c4cfe1aa7a"
         with mock.patch("uuid.uuid4", return_value=uuid.UUID(uuid_string)):
             self.app.post_json(
@@ -283,8 +287,8 @@ class AccountValidationCreationTest(AccountsValidationWebTest):
         resp = self.app.post_json(
             "/accounts/alice@example.com/validate/" + uuid_string, {}, status=200
         )
-        assert "activation-form-url" not in resp.json
-        assert "activation-key" not in resp.json
+        assert "validated" in resp.json
+        assert resp.json["validated"]
         # An active user can authenticate.
         resp = self.app.get("/", headers=get_user_headers("alice@example.com", "12éé6"))
         assert resp.json["user"]["id"] == "account:alice@example.com"
@@ -307,39 +311,23 @@ class AccountValidationCreationTest(AccountsValidationWebTest):
         resp = self.app.post_json(
             "/accounts/alice@example.com/validate/" + uuid_string, {}, status=200
         )
-        assert "activation-form-url" not in resp.json
-        assert "activation-key" not in resp.json
         # Try validating again.
         resp = self.app.post_json(
             "/accounts/alice@example.com/validate/" + uuid_string, {}, status=403
         )
         assert "Account alice@example.com has already been validated" in resp.json["message"]
 
-    def test_dont_check_activation_form_url_on_an_active_user(self):
-        # Once the user is active, don't check for the activation-form-url or add an activation-key.
-        uuid_string = "20e81ab7-51c0-444f-b204-f1c4cfe1aa7a"
-        with mock.patch("uuid.uuid4", return_value=uuid.UUID(uuid_string)):
-            self.app.post_json(
-                "/accounts",
-                {
-                    "data": {
-                        "id": "alice@example.com",
-                        "password": "12éé6",
-                        "activation-form-url": "https://example.com",
-                    }
-                },
-                status=201,
-            )
-        self.app.post_json("/accounts/alice@example.com/validate/" + uuid_string, {}, status=200)
-        resp = self.app.patch_json(
-            "/accounts/alice@example.com",
-            {"data": {"some-other-metadata": "foobar"}},
-            status=200,
-            headers=get_user_headers("alice@example.com", "12éé6"),
+    def test_previously_created_accounts_can_still_authenticate(self):
+        """Accounts created before activating the 'account validation' option can still authenticate."""
+        # Create an account without going through the accounts API.
+        hashed_password = hash_password("12éé6")
+        self.app.app.registry.storage.create(
+            parent_id="alice",
+            resource_name="account",
+            record={"id": "alice", "password": hashed_password},
         )
-        assert "activation-form-url" not in resp.json["data"]
-        assert "activation-key" not in resp.json["data"]
-        assert resp.json["data"]["some-other-metadata"] == "foobar"
+        resp = self.app.get("/", headers=get_user_headers("alice", "12éé6"))
+        assert resp.json["user"]["id"] == "account:alice"
 
 
 class AccountUpdateTest(AccountsWebTest):

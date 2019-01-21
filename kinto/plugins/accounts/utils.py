@@ -11,3 +11,11 @@ def hash_password(password):
     pwd_str = password.encode(encoding="utf-8")
     hashed = bcrypt.hashpw(pwd_str, bcrypt.gensalt())
     return hashed.decode(encoding="utf-8")
+
+
+def is_validated(user):
+    """Is this user record validated?"""
+    # An account is "validated" if it has the `validated` field set to True, or
+    # no `validated` field at all (for accounts created before the "account
+    # validation option" was enabled).
+    return "validated" not in user or user["validated"]

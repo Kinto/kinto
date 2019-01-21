@@ -16,7 +16,7 @@ from kinto.core.errors import raise_invalid, http_error
 from kinto.core.events import ResourceChanged, ACTIONS
 from kinto.core.storage import exceptions as storage_exceptions
 
-from .utils import hash_password, ACCOUNT_CACHE_KEY, ACCOUNT_POLICY_NAME
+from .utils import hash_password, is_validated, ACCOUNT_CACHE_KEY, ACCOUNT_POLICY_NAME
 
 
 def _extract_posted_body_id(request):
@@ -160,6 +160,7 @@ class Account(resource.Resource):
 
             activation_key = str(uuid.uuid4())
             new["activation-key"] = activation_key
+            new["validated"] = False
 
             # Send an email to the user with the link to activate their account.
             message = Message(
@@ -225,7 +226,7 @@ def post_validation(request):
         error_details = {"message": "Account ID and activation key do not match"}
         raise http_error(httpexceptions.HTTPForbidden(), **error_details)
 
-    if "activation-key" not in user:
+    if is_validated(user):
         error_details = {"message": f"Account {user_id} has already been validated"}
         raise http_error(httpexceptions.HTTPForbidden(), **error_details)
 
@@ -233,9 +234,8 @@ def post_validation(request):
         error_details = {"message": "Account ID and activation key do not match"}
         raise http_error(httpexceptions.HTTPForbidden(), **error_details)
 
-    # Remove fields related to the account validation now that the user is validated.
-    del user["activation-form-url"]
-    del user["activation-key"]
+    # User is now validated.
+    user["validated"] = True
 
     request.registry.storage.update(
         parent_id=parent_id, resource_name="account", object_id=user_id, record=user
