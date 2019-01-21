@@ -471,14 +471,14 @@ class Resource:
         )
         if deleted:
             lastobject = deleted[-1]
-            # Get timestamp of the last deleted field
-            timestamp = lastobject[self.model.modified_field]
-            self._add_timestamp_header(self.request.response, timestamp=timestamp)
-
             # Add pagination header, but only if there are more objects beyond the limit.
             if limit and len(objects) == limit + 1:
                 next_page = self._next_page_url(sorting, limit, lastobject, offset)
                 self.request.response.headers["Next-Page"] = next_page
+
+            timestamp = max({d[self.model.modified_field] for d in deleted})
+            self._add_timestamp_header(self.request.response, timestamp=timestamp)
+
         else:
             self._add_timestamp_header(self.request.response)
 

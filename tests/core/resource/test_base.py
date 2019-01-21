@@ -67,7 +67,8 @@ class DeprecatedMethodsTest(unittest.TestCase):
 
         req = DummyRequest()
         req.validated = {"body": {}, "header": {}, "querystring": {}}
-        req.registry.storage.get_all.return_value = ([], 0)
+        req.registry.storage.list_all.return_value = []
+        req.registry.storage.delete_all.return_value = []
         req.registry.storage.create.return_value = {"id": "abc", "last_modified": 123}
 
         self.resource = Resource(context=mock.MagicMock(), request=req)

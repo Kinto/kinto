@@ -445,10 +445,10 @@ class Storage(StorageBase, MigratorMixin):
             result = conn.execute(query, placeholders)
             if result.rowcount == 0:
                 raise exceptions.ObjectNotFoundError(object_id)
-            inserted = result.fetchone()
+            updated = result.fetchone()
 
         obj = {}
-        obj[modified_field] = inserted["last_modified"]
+        obj[modified_field] = updated["last_modified"]
         obj[id_field] = object_id
 
         obj[deleted_field] = True
@@ -484,7 +484,7 @@ class Storage(StorageBase, MigratorMixin):
                     FOR UPDATE
             )
             UPDATE objects
-               SET deleted=TRUE, data=(:deleted_data)::JSONB
+               SET deleted=TRUE, data=(:deleted_data)::JSONB, last_modified=NULL
               FROM matching_objects
              WHERE objects.id = matching_objects.id
                AND objects.parent_id = matching_objects.parent_id
