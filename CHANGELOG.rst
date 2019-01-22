@@ -6,7 +6,7 @@ This document describes changes between each past release.
 12.1.0 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- Update Kinto OpenID plugin to redirect with a base64 JSON encoded token. (#1988)
 
 
 12.0.0 (2019-01-10)
