@@ -189,5 +189,5 @@ def get_token(request):
     # (eg. callback=`http://localhost:3000/#tokens=`)
     token_info = resp.text.encode("utf-8")
     encoded_token = base64.b64encode(token_info)
-    redirect = callback + urllib.parse.quote(encoded_token.decode('utf-8'))
+    redirect = callback + urllib.parse.quote(encoded_token.decode("utf-8"))
     raise httpexceptions.HTTPTemporaryRedirect(redirect)
