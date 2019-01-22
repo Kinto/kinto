@@ -296,7 +296,7 @@ class TokenViewTest(OpenIDWebTest):
                     "code": "abc",
                     "client_id": "abc",
                     "client_secret": "xyz",
-                    "redirect_uri": "http://localhost/v1/openid/auth0/token?",
+                    "redirect_uri": "http://localhost/v1/openid/auth0/token",
                     "grant_type": "authorization_code",
                 },
             )

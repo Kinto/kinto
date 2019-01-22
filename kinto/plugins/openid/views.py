@@ -115,7 +115,7 @@ def get_login(request):
 
     # Redirect the client to the Identity Provider that will eventually redirect
     # to the OpenID token endpoint.
-    token_uri = request.route_url("openid_token", provider=provider) + "?"
+    token_uri = request.route_url("openid_token", provider=provider)
     params = dict(
         client_id=client_id, response_type="code", scope=scope, redirect_uri=token_uri, state=state
     )
@@ -174,7 +174,7 @@ def get_token(request):
 
     # Trade the code for tokens on the Identity Provider.
     # Google Identity requires to specify again redirect_uri.
-    redirect_uri = request.route_url("openid_token", provider=provider) + "?"
+    redirect_uri = request.route_url("openid_token", provider=provider)
     data = {
         "code": code,
         "client_id": client_id,
