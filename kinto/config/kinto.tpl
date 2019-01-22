@@ -99,6 +99,21 @@ kinto.account_create_principals = system.Everyone
 kinto.account_write_principals = account:admin
 # Allow administrators to create buckets
 kinto.bucket_create_principals = account:admin
+# Enable the "account_validation" option.
+# kinto.account_validation = true
+# Set the sender for the validation email.
+# kinto.account_validation.email_sender = "admin@example.com"
+# Set the template for the email body. It will be `String.format`ted with the
+# content of the user, and the `activation_key`.
+# kinto.account_validation.email_body_template = "{activation-form-url}{activation-key}"
+# Set the template for the email subject. It will be `String.format`ted with the
+# content of the user, and the `activation_key`.
+# kinto.account_validation.email_subject_template = "activate your account"
+# Set the regular expression used to validate a proper email address.
+# kinto.account_validation.email_regexp = "^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$"
+# Set the "time to live" for the activation key stored in the cache. After that
+# delay the account won't be activable anymore.
+# kinto.account_validation.cache_ttl_seconds = 10080  # 7 days in seconds.
 
 # Notifications
 # https://kinto.readthedocs.io/en/latest/configuration/settings.html#notifications
