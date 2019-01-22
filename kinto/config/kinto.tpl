@@ -105,7 +105,7 @@ kinto.bucket_create_principals = account:admin
 # kinto.account_validation.email_sender = "admin@example.com"
 # Set the template for the email body. It will be `String.format`ted with the
 # content of the user, and the `activation_key`.
-# kinto.account_validation.email_body_template = "{activation-form-url}{activation-key}"
+# kinto.account_validation.email_body_template = "{{activation-form-url}}{{activation-key}}"
 # Set the template for the email subject. It will be `String.format`ted with the
 # content of the user, and the `activation_key`.
 # kinto.account_validation.email_subject_template = "activate your account"

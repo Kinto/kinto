@@ -28,7 +28,12 @@ This document describes changes between each past release.
 **New features**
 
 - Expose the user_profile in the user field of the hello page. (#1989)
+- Add an "account validation" option to the accounts plugin. (#1973)
+- Add a ``validate`` endpoint at ``/accounts/{user id}/validate/{validation
+  key}`` which can be used to validate an account when the :ref:`account
+  validation <accounts-validate>` option is enabled on the accounts plugin.
 
+API is now at version **1.22**. See `API changelog`_.
 
 12.0.2 (2019-01-25)
 -------------------
@@ -45,7 +50,6 @@ This document describes changes between each past release.
 
 - Fix bumping of tombstones timestamps when deleting objects in PostgreSQL storage backend (fixes #1981)
 - Fix ETag header in responses of DELETE on plural endpoints (ref #1981)
-
 
 12.0.0 (2019-01-10)
 -------------------

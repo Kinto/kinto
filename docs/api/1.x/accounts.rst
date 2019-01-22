@@ -147,7 +147,7 @@ Alternatively, accounts can be created using POST.  Supply the user id and passw
 
     .. sourcecode:: bash
 
-        $ echo '{"data": {"id": "bob", password": "azerty123"}}' | http POST http://localhost:8888/v1/accounts --verbose
+        $ echo '{"data": {"id": "bob", "password": "azerty123"}}' | http POST http://localhost:8888/v1/accounts --verbose
 
 .. note::
 
@@ -294,3 +294,88 @@ Or delete some account:
 ::
 
     $ http DELETE http://localhost:8888/v1/accounts/sam-body --auth admin:s3cr3t
+
+
+
+.. _accounts-validate:
+
+Validate accounts
+=================
+
+If the ``account validation`` option in :ref:`the settings
+<settings-accounts>` has been enabled, account IDs need to be valid email
+addresses: they need to match the regexp in the
+``account_validation.email_regexp`` setting.
+
+This also needs an additional field to be provided during the user creation:
+the ``activation-form-url``.
+
+.. sourcecode:: bash
+
+    $ echo '{"data": {"id": "bob@example.com", "password": "azerty123", "activation-form-url": "https://example.com/"}}' | http POST http://localhost:8888/v1/accounts --verbose
+
+If the user was created, an email will be sent to the user with a link to a
+form with the activation key. This form should POST this activation key to the
+``validate`` endpoint.
+
+Example email:
+
+::
+
+    Content-Type: text/plain; charset="us-ascii"
+    MIME-Version: 1.0
+    Content-Transfer-Encoding: quoted-printable
+    From: admin@example.com
+    Subject: activate your account
+    To: bob@example.com
+    Content-Disposition: inline
+
+    https://example.com/2fe7a389-3556-4c8f-9513-c26bfc5f160b
+
+It is the responsability of the user creator to display a form to the user with
+a call to action to validate the user, which will POST the activation key to
+the ``validate`` endpoint.
+
+.. http:post:: /accounts/(user_id)/validate/(activation_key)
+
+    :synopsis: Activates a newly created account with the ``account validation`` option enabled.
+
+    **Anonymous**
+
+    **Example Request**
+
+    .. sourcecode:: bash
+
+        $ http POST http://localhost:8888/v1/accounts/bob@example.com/validate/2fe7a389-3556-4c8f-9513-c26bfc5f160b --verbose
+
+
+    .. sourcecode:: http
+
+        POST /v1/accounts/bob@example.com/validate/2fe7a389-3556-4c8f-9513-c26bfc5f160b HTTP/1.1
+        Accept: */*
+        Accept-Encoding: gzip, deflate
+        Connection: keep-alive
+        Content-Length: 0
+        Host: localhost:8888
+        User-Agent: HTTPie/0.9.8
+
+    **Example Response**
+
+    .. sourcecode:: http
+
+        HTTP/1.1 200 OK
+        Access-Control-Expose-Headers: Content-Length, Retry-After, Backoff, Alert
+        Content-Length: 195
+        Content-Type: application/json
+        Date: Mon, 21 Jan 2019 13:41:17 GMT
+        Server: waitress
+        X-Content-Type-Options: nosniff
+
+        {
+            "activation-form-url": "https://example.com/",
+            "id": "bob@example.com",
+            "last_modified": 1548077982793,
+            "password": "$2b$12$zlTlYet5v.v57ak2gEYyoeqKSGzLvwXF/.v3DGpT/q69LecHv68gm",
+            "validated": true
+        }
+

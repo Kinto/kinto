@@ -11,6 +11,13 @@ API
 Changelog
 ---------
 
+1.22 (unreleased)
+'''''''''''''''''
+
+- new `/accounts/{user id}/validate/{validation key}` endpoint when the
+  `account validation` option is enabled for the accounts plugin. See
+  :ref:`account validation <accounts-validate>` (#1973)
+
 1.21 (2019-01-10)
 '''''''''''''''''
 

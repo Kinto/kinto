@@ -569,6 +569,45 @@ You can set ``account_create_principals`` if you want to limit account creation 
 
 See the :ref:`API docs <api-accounts>` to create accounts, change passwords etc.
 
+**About account validation**
+
+You can enable the :ref:`account validation <accounts-validate>` option, which
+will require account IDs to be valid email addresses, to which a validation
+email will be sent with an activation url.
+
+.. code-block:: ini
+
+    kinto.account_validation = true
+    # Set the sender for the validation email.
+    kinto.account_validation.email_sender = "admin@example.com"
+
+You can restrict the email addresses allowed using the
+``account_validation.email_regexp`` setting, and the delay for which the
+activation key will be valid:
+
+.. code-block:: ini
+
+    # Set the regular expression used to validate a proper email address.
+    kinto.account_validation.email_regexp = "^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$"
+    # Set the "time to live" for the activation key stored in the cache. After that
+    # delay the account won't be activable anymore.
+    kinto.account_validation.cache_ttl_seconds = 10080  # 7 days in seconds.
+
+Once :ref:`created <accounts-validate>`, the user will need to be activated
+before being able to authenticate, using the ``validate`` endpoint and the
+``activation_key`` sent by email.
+
+The template used for the email subject and body can be customized using the
+following settings:
+
+.. code-block:: ini
+
+    # Set the template for the email body. It will be `String.format`ted with the
+    # content of the user, and the `activation_key`.
+    kinto.account_validation.email_body_template = "Hello {id},\n you can now activate your account using the following link:\n {activation-form-url}{activation-key}"
+    # Set the template for the email subject. It will be `String.format`ted with the
+    # content of the user, and the `activation_key`.
+    kinto.account_validation.email_subject_template = "activate your account"
 
 .. _settings-openid:
 
