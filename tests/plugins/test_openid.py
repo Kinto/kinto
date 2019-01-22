@@ -316,4 +316,4 @@ class TokenViewTest(OpenIDWebTest):
                 "/openid/auth0/token", params={"code": "abc", "state": "key"}, status=307
             )
         location = resp.headers["Location"]
-        assert location == "http://ui/#token=%7B%22access_token%22%3A%20%22token%22%7D"
+        assert location == "http://ui/#token=eyJhY2Nlc3NfdG9rZW4iOiAidG9rZW4ifQ%3D%3D"
