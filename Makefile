@@ -39,14 +39,14 @@ all: install
 install: $(INSTALL_STAMP)
 $(INSTALL_STAMP): $(PYTHON) setup.py requirements.txt
 	$(VENV)/bin/pip install -U pip
-	$(VENV)/bin/pip install -Ue . -c requirements.txt
+	$(VENV)/bin/pip install -Ue .
 	touch $(INSTALL_STAMP)
 
 install-monitoring: $(INSTALL_STAMP)
-	$(VENV)/bin/pip install -Ue ".[monitoring]" -c requirements.txt
+	$(VENV)/bin/pip install -Ue ".[monitoring]"
 
 install-postgres: $(INSTALL_STAMP) $(DEV_STAMP)
-	$(VENV)/bin/pip install -Ue ".[postgresql]" -c requirements.txt
+	$(VENV)/bin/pip install -Ue ".[postgresql]"
 
 install-dev: $(INSTALL_STAMP) $(DEV_STAMP)
 $(DEV_STAMP): $(PYTHON) dev-requirements.txt
