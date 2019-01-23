@@ -15,6 +15,10 @@ This document describes changes between each past release.
 
 - Upgrade kinto-admin to v1.23.0
 
+**New features**
+
+- Expose the user_profile in the user field of the hello page. (#1989)
+
 
 12.0.1 (2019-01-21)
 -------------------
