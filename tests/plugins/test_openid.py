@@ -91,7 +91,7 @@ class OpenIDOnePolicyTest(support.BaseWebTest, unittest.TestCase):
         assert len(providers) == 1
 
     def test_profile_is_exposed(self):
-        key = 'openid:verify:444c6694937007bbf494f155f6cb12139db4c4c6a926742f3fe0bb4b5d191aa3'
+        key = "openid:verify:444c6694937007bbf494f155f6cb12139db4c4c6a926742f3fe0bb4b5d191aa3"
         profile = {"sub": "abcd", "email": "foobar@tld.com"}
         self.app.app.registry.cache.set(key, profile, ttl=30)
         with mock.patch("kinto.plugins.openid.utils.requests.get") as m:
