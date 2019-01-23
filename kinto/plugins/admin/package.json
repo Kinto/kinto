@@ -1,15 +1,15 @@
 {
   "name": "kwac",
-  "version": "1.22.0",
+  "version": "1.23.0",
   "private": true,
   "homepage": "http://localhost:8888/v1/admin/",
   "devDependencies": {
-    "react-scripts": "^1.0.0"
+    "react-scripts": "^2.1.3"
   },
   "dependencies": {
     "babel-polyfill": "^6.23.0",
     "codemirror": "^5.39.2",
-    "kinto-admin": "1.22.0",
+    "kinto-admin": "1.23.0",
     "react": "^16.4.1",
     "react-dom": "^16.4.1",
     "react-router": "^4.3.1",
@@ -20,5 +20,11 @@
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
-  }
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ]
 }
