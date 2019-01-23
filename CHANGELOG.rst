@@ -11,6 +11,10 @@ This document describes changes between each past release.
 - Update Kinto OpenID plugin to redirect with a base64 JSON encoded token. (#1988)
   This will work with kinto-admin 1.23
 
+**New features**
+
+- Expose the user_profile in the user field of the hello page. (#1989)
+
 
 12.0.1 (2019-01-21)
 -------------------

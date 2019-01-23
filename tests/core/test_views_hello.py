@@ -52,6 +52,23 @@ class HelloViewTest(BaseWebTest, unittest.TestCase):
             userid.startswith("basicauth:"), '"{}" does not start with "basicauth:"'.format(userid)
         )
 
+    def test_if_user_authenticated_profile_is_provided_if_present(self):
+        settings = self.get_app_settings()
+        config = testing.setUp(settings=settings)
+        app = self.make_app(config=config)
+        profile = {
+            "email": "foobar@domain.tld",
+            "profile_pic": "https://flatimage.com/100x100.png",
+        }
+
+        def get_profile(request):
+            return profile
+
+        config.add_request_method(get_profile, name="get_user_profile")
+
+        response = app.get("/", headers=self.headers)
+        self.assertEqual(response.json["user"]["profile"], profile)
+
     def test_return_http_api_version_when_set(self):
         with mock.patch.dict(self.app.app.registry.settings, [("http_api_version", "1.2")]):
             response = self.app.get("/")
