@@ -68,7 +68,9 @@ def validate(data, schema):
     return _schema_cache[cache_key].validate(data)
 
 
-def validate_schema(data, schema, id_field, ignore_fields=[]):
+def validate_schema(data, schema, id_field, ignore_fields=None):
+    if ignore_fields is None:
+        ignore_fields = []
     # Only ignore the `id` field if the schema does not explicitly mention it.
     if id_field not in schema.get("properties", {}):
         ignore_fields += (id_field,)
