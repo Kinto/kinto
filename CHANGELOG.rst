@@ -3,10 +3,13 @@ Changelog
 
 This document describes changes between each past release.
 
-12.1.0 (unreleased)
+13.0.0 (unreleased)
 -------------------
 
-- Nothing changed yet.
+**Breaking changes**
+
+- Update Kinto OpenID plugin to redirect with a base64 JSON encoded token. (#1988)
+  This will work with kinto-admin 1.23
 
 
 12.0.1 (2019-01-21)

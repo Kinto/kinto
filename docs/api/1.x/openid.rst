@@ -134,7 +134,7 @@ The ``parseToken()`` function scans the location hash to read the Identity Provi
         // No token in URL bar.
         return null;
       }
-      const tokens = tokensExtract[1];
+      const tokens = atob(tokensExtract[1]);
       const parsed = JSON.parse(tokens);
       return parsed;
     }
@@ -157,7 +157,7 @@ When the user clicks the login button, the browser will follow a sequence of red
 #. Auth0 redirects to Kinto with the *state* and a *code* `<http://localhost:8888/v1/openid/auth0/token?code=lWpsu9VoHLJEVyy1&state=3a309f5baba>`_
 #. Kinto checks that the *state* matches
 #. Kinto trades the *code* against the ID and Access tokens
-#. Kinto redirects back to the Single Page App appending the JSON encoded ID and Access tokens to the callback URL provided at step 2 `<http://localhost:3000/#provider=auth0&tokens={"access_token":"tY6um989...jfcer","id_token":"eyJ0eXAiOiJ...KV1QiL.ojkhgwRVH...UG8JGRENNF.Es8...DK10","expires_in":86400,"token_type":"Bearer"}>`_
+#. Kinto redirects back to the Single Page App appending the JSON encoded ID and Access tokens to the callback URL provided at step 2 `<http://localhost:3000/#provider=auth0&tokens=eyJhY2Nlc3NfdG9rZW4iOiJ0WTZ1bTk4OS4uLmpmY2VyIiwiaWRfdG9rZW4iOiJleUowZVhBaU9pSi4uLktWMVFpTC5vamtoZ3dSVkguLi5VRzhKR1JFTk5GLkVzOC4uLkRLMTAiLCJleHBpcmVzX2luIjo4NjQwMCwidG9rZW5fdHlwZSI6IkJlYXJlciJ9>`_
 #. JavaScript code parses the location hash and reads the ID and Access tokens
 
 The JavaScript app can now use the Access token to make authenticated calls to the Kinto server, and read the user info from the ID token fields. See :github:`demo <leplatrem/kinto-oidc-demo>`.
