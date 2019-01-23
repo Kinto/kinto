@@ -8,8 +8,12 @@ This document describes changes between each past release.
 
 **Breaking changes**
 
-- Update Kinto OpenID plugin to redirect with a base64 JSON encoded token. (#1988)
-  This will work with kinto-admin 1.23
+- Update Kinto OpenID plugin to redirect with a base64 JSON encoded token. (#1988).
+  **This will work with kinto-admin 1.23*
+
+**Internal changes**
+
+- Upgrade kinto-admin to v1.21.0
 
 
 12.0.1 (2019-01-21)
