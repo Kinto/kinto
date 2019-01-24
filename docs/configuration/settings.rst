@@ -573,7 +573,7 @@ See the :ref:`API docs <api-accounts>` to create accounts, change passwords etc.
 
 You can enable the :ref:`account validation <accounts-validate>` option, which
 will require account IDs to be valid email addresses, to which a validation
-email will be sent with an activation url.
+email will be sent with an activation key.
 
 .. code-block:: ini
 
@@ -602,12 +602,12 @@ following settings:
 
 .. code-block:: ini
 
-    # Set the template for the email body. It will be `String.format`ted with the
-    # content of the user, and the `activation_key`.
-    kinto.account_validation.email_body_template = "Hello {id},\n you can now activate your account using the following link:\n {activation-form-url}{activation-key}"
-    # Set the template for the email subject. It will be `String.format`ted with the
-    # content of the user, and the `activation_key`.
+    kinto.account_validation.email_body_template = "Hello {id},\n you can now activate your account using the following activation key:\n {activation-key}"
     kinto.account_validation.email_subject_template = "activate your account"
+
+Those templates will be rendered using the user record fields, an optional
+additional `email-context` provided alongside the user record data, and the
+`activation_key`.
 
 .. _settings-openid:
 

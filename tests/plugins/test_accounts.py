@@ -39,6 +39,13 @@ class AccountsValidationWebTest(AccountsWebTest):
         if extras is None:
             extras = {}
         extras.setdefault("account_validation", True)
+        extras.setdefault(
+            "account_validation.email_subject_template", "{name}, activate your account {id}"
+        )
+        extras.setdefault(
+            "account_validation.email_body_template",
+            "{activation-form-url}/{id}/{activation-key} {bad-key}",
+        )
         return super().get_app_settings(extras)
 
 
@@ -188,28 +195,12 @@ class AccountValidationCreationTest(AccountsValidationWebTest):
         return self.app.app.registry.cache.get(cache_key)
 
     def test_create_account_fails_if_not_email(self):
-        activation_form_url = "https://example.com/"
         resp = self.app.post_json(
-            "/accounts",
-            {
-                "data": {
-                    "id": "alice",
-                    "password": "12éé6",
-                    "activation-form-url": activation_form_url,
-                }
-            },
-            status=400,
+            "/accounts", {"data": {"id": "alice", "password": "12éé6"}}, status=400
         )
         assert "user id must be an email" in resp.json["message"]
 
-    def test_create_account_requires_activation_form_url(self):
-        resp = self.app.post_json(
-            "/accounts", {"data": {"id": "alice@example.com", "password": "12éé6"}}, status=400
-        )
-        assert "requires an `activation-form-url` field" in resp.json["message"]
-
     def test_create_account_stores_activated_field(self):
-        activation_form_url = "https://example.com/"
         uuid_string = "20e81ab7-51c0-444f-b204-f1c4cfe1aa7a"
         with mock.patch("uuid.uuid4", return_value=uuid.UUID(uuid_string)):
             resp = self.app.post_json(
@@ -218,34 +209,34 @@ class AccountValidationCreationTest(AccountsValidationWebTest):
                     "data": {
                         "id": "alice@example.com",
                         "password": "12éé6",
-                        "activation-form-url": activation_form_url,
+                        "email-context": {
+                            "name": "Alice",
+                            "activation-form-url": "https://example.com",
+                        },
                     }
                 },
                 status=201,
             )
-        assert resp.json["data"]["activation-form-url"] == activation_form_url
         assert "activation-key" not in resp.json["data"]
         assert "validated" in resp.json["data"]
         assert not resp.json["data"]["validated"]
         mailer_call = self.get_mailer().send.call_args_list[0]
         assert mailer_call[0][0].sender == "admin@example.com"
-        assert mailer_call[0][0].subject == "activate your account"
+        assert mailer_call[0][0].subject == "Alice, activate your account alice@example.com"
         assert mailer_call[0][0].recipients == ["alice@example.com"]
-        assert mailer_call[0][0].body == f"{activation_form_url}{uuid_string}"
+        # The {{bad-key}} from the template will be rendered as {bad-key} in
+        # the final email, instead of failing the formatting.
+        assert (
+            mailer_call[0][0].body
+            == f"https://example.com/alice@example.com/{uuid_string} {{bad-key}}"
+        )
         # The activation key is stored in the cache.
         assert self.get_account_validation_cache("alice@example.com") == uuid_string
 
     def test_cant_authenticate_with_unactivated_account(self):
         self.app.post_json(
             "/accounts",
-            {
-                "data": {
-                    "id": "alice@example.com",
-                    "password": "12éé6",
-                    "activation-form-url": "https://example.com",
-                    "activated": False,
-                }
-            },
+            {"data": {"id": "alice@example.com", "password": "12éé6", "activated": False}},
             status=201,
         )
         resp = self.app.get("/", headers=get_user_headers("alice@example.com", "12éé6"))
@@ -260,15 +251,7 @@ class AccountValidationCreationTest(AccountsValidationWebTest):
         uuid_string = "20e81ab7-51c0-444f-b204-f1c4cfe1aa7a"
         with mock.patch("uuid.uuid4", return_value=uuid.UUID(uuid_string)):
             self.app.post_json(
-                "/accounts",
-                {
-                    "data": {
-                        "id": "alice@example.com",
-                        "password": "12éé6",
-                        "activation-form-url": "https://example.com",
-                    }
-                },
-                status=201,
+                "/accounts", {"data": {"id": "alice@example.com", "password": "12éé6"}}, status=201
             )
         # Validate the user.
         resp = self.app.post_json(
@@ -283,15 +266,7 @@ class AccountValidationCreationTest(AccountsValidationWebTest):
         uuid_string = "20e81ab7-51c0-444f-b204-f1c4cfe1aa7a"
         with mock.patch("uuid.uuid4", return_value=uuid.UUID(uuid_string)):
             self.app.post_json(
-                "/accounts",
-                {
-                    "data": {
-                        "id": "alice@example.com",
-                        "password": "12éé6",
-                        "activation-form-url": "https://example.com",
-                    }
-                },
-                status=201,
+                "/accounts", {"data": {"id": "alice@example.com", "password": "12éé6"}}, status=201
             )
         resp = self.app.post_json(
             "/accounts/alice@example.com/validate/" + uuid_string, {}, status=200
@@ -308,15 +283,7 @@ class AccountValidationCreationTest(AccountsValidationWebTest):
         uuid_string = "20e81ab7-51c0-444f-b204-f1c4cfe1aa7a"
         with mock.patch("uuid.uuid4", return_value=uuid.UUID(uuid_string)):
             self.app.post_json(
-                "/accounts",
-                {
-                    "data": {
-                        "id": "alice@example.com",
-                        "password": "12éé6",
-                        "activation-form-url": "https://example.com",
-                    }
-                },
-                status=201,
+                "/accounts", {"data": {"id": "alice@example.com", "password": "12éé6"}}, status=201
             )
         # Validate the user.
         resp = self.app.post_json(

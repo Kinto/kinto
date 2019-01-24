@@ -307,12 +307,9 @@ If the ``account validation`` option in :ref:`the settings
 addresses: they need to match the regexp in the
 ``account_validation.email_regexp`` setting.
 
-This also needs an additional field to be provided during the user creation:
-the ``activation-form-url``.
-
 .. sourcecode:: bash
 
-    $ echo '{"data": {"id": "bob@example.com", "password": "azerty123", "activation-form-url": "https://example.com/"}}' | http POST http://localhost:8888/v1/accounts --verbose
+    $ echo '{"data": {"id": "bob@example.com", "password": "azerty123"}}' | http POST http://localhost:8888/v1/accounts --verbose
 
 If the user was created, an email will be sent to the user with a link to a
 form with the activation key. This form should POST this activation key to the
@@ -330,11 +327,33 @@ Example email:
     To: bob@example.com
     Content-Disposition: inline
 
-    https://example.com/2fe7a389-3556-4c8f-9513-c26bfc5f160b
+    2fe7a389-3556-4c8f-9513-c26bfc5f160b
 
-It is the responsability of the user creator to display a form to the user with
-a call to action to validate the user, which will POST the activation key to
-the ``validate`` endpoint.
+It is the responsability of the user creator to tell the mail recipient how to
+validate the account by modifying the email body template in the settings.
+
+This could be done by providing a link to a webapp that displays a form to the
+user with a call to action to validate the user, which will POST the activation
+key to the ``validate`` endpoint.
+
+.. code-block:: ini
+
+    kinto.account_validation.email_subject_template = "Account activation"
+    kinto.account_validation.email_body_template = "Hello {id},\n you can now activate your account using the following link:\n https://example.com/{activation-key}"
+
+Or the email could explain how to copy the activation code and paste it in some
+settings window.
+
+The templates for the email subject and body can be customized, and they will
+be `String.format`ted with the content of the user, an optional additional
+`email-context` provided alongside the user record data, and the
+`activation_key`:
+
+.. sourcecode:: bash
+
+    $ echo '{"data": {"id": "bob@example.com", "password": "azerty123", "email-context": {"name": "Bob Smith", "form-url": "https://example.com/validate/"}}}' | http POST http://localhost:8888/v1/accounts --verbose
+
+Whatever the means, a POST to the following endpoint will activate the account:
 
 .. http:post:: /accounts/(user_id)/validate/(activation_key)
 
@@ -372,7 +391,6 @@ the ``validate`` endpoint.
         X-Content-Type-Options: nosniff
 
         {
-            "activation-form-url": "https://example.com/",
             "id": "bob@example.com",
             "last_modified": 1548077982793,
             "password": "$2b$12$zlTlYet5v.v57ak2gEYyoeqKSGzLvwXF/.v3DGpT/q69LecHv68gm",

@@ -1,5 +1,6 @@
 import colander
 import re
+import string
 import uuid
 from pyramid import httpexceptions
 from pyramid.decorator import reify
@@ -49,6 +50,16 @@ class AccountSchema(resource.ResourceSchema):
     password = colander.SchemaNode(colander.String())
 
 
+class MyFormatter(string.Formatter):
+    """Formatter class that will not fail if there's a missing key."""
+
+    def __init__(self, default="{{{0}}}"):
+        self.default = default
+
+    def get_value(self, key, args, kwargs):
+        return kwargs.get(key, self.default.format(key))
+
+
 @resource.register()
 class Account(resource.Resource):
 
@@ -88,7 +99,7 @@ class Account(resource.Resource):
                 "account_validation.email_subject_template", "activate your account"
             )
             self.email_body_template = settings.get(
-                "account_validation.email_body_template", "{activation-form-url}{activation-key}"
+                "account_validation.email_body_template", "{activation-key}"
             )
 
     @reify
@@ -141,8 +152,7 @@ class Account(resource.Resource):
             error_details = {"name": "data.id", "description": "Accounts must have an ID."}
             raise_invalid(self.request, **error_details)
 
-        # If the "account validation" option is enabled, make sure the
-        # `activation-form-url` is set on user creation.
+        # Account validation requires that the record ID is an email address.
         # TODO: this might be better suited for a schema. Do we have a way to
         # dynamically change the schema according to the settings?
         if self.context.validation and old is None:
@@ -156,14 +166,6 @@ class Account(resource.Resource):
                 }
                 raise_invalid(self.request, **error_details)
 
-            if "activation-form-url" not in new:
-                error_details = {
-                    "name": "data.activation-form-url",
-                    "description": "Account validation is enabled, and requires an "
-                    "`activation-form-url` field to be set",
-                }
-                raise_invalid(self.request, **error_details)
-
             activation_key = str(uuid.uuid4())
             extra_data = {"activation-key": activation_key}
             new["validated"] = False
@@ -172,11 +174,21 @@ class Account(resource.Resource):
             cache_validation_key(activation_key, new["id"], self.request.registry)
 
             # Send an email to the user with the link to activate their account.
+            email_context = new.get("email-context", {})
+            formatter = MyFormatter()
+
+            formatted_subject = formatter.format(
+                self.email_subject_template, **new, **extra_data, **email_context
+            )
+            formatted_body = formatter.format(
+                self.email_body_template, **new, **extra_data, **email_context
+            )
+
             message = Message(
-                subject=self.email_subject_template.format(**extra_data, **new),
+                subject=formatted_subject,
                 sender=self.email_sender,
                 recipients=[user_email],
-                body=self.email_body_template.format(**extra_data, **new),
+                body=formatted_body,
             )
             self.mailer.send(message)
 
