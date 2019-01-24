@@ -1,4 +1,5 @@
 from kinto.core.testing import unittest
+from kinto.schema_validation import validate_schema
 
 from .support import BaseWebTest
 
@@ -51,6 +52,9 @@ class DeactivatedSchemaTest(BaseWebTest, unittest.TestCase):
             status=201,
         )
         self.assertNotIn("schema", resp.json["data"])
+
+    def test_validate_schema(self):
+        validate_schema(VALID_RECORD, SCHEMA, id_field="id")
 
 
 class BaseWebTestWithSchema(BaseWebTest):
