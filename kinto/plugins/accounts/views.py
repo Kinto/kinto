@@ -162,7 +162,7 @@ class Account(resource.Resource):
             if not email_regexp.match(user_email):
                 error_details = {
                     "name": "data.id",
-                    "description": "Account validation is enabled, and user id must be an email",
+                    "description": f"Account validation is enabled, and user id should match {email_regexp}",
                 }
                 raise_invalid(self.request, **error_details)
 
@@ -238,14 +238,16 @@ def cache_validation_key(activation_key, username, registry):
     hmac_secret = settings["userid_hmac_secret"]
     cache_key = utils.hmac_digest(hmac_secret, ACCOUNT_VALIDATION_CACHE_KEY.format(username))
     # Store an activation key for 7 days by default.
-    cache_ttl = int(settings.get("account_validation.cache_ttl_seconds", 7 * 24 * 60))
+    cache_ttl = int(
+        settings.get("account_validation.validation_key_cache_ttl_seconds", 7 * 24 * 60)
+    )
 
     cache = registry.cache
     cache.set(cache_key, activation_key, ttl=cache_ttl)
 
 
 def check_validation_key(activation_key, username, registry):
-    """Given a username, get the activation-key from the cache."""
+    """Given a username, compare the activation-key provided with the one from the cache."""
     hmac_secret = registry.settings["userid_hmac_secret"]
     cache_key = utils.hmac_digest(hmac_secret, ACCOUNT_VALIDATION_CACHE_KEY.format(username))
 
@@ -287,5 +289,33 @@ def post_validation(request):
     request.registry.storage.update(
         parent_id=parent_id, resource_name="account", object_id=user_id, record=user
     )
+
+    # Send a confirmation email.
+    settings = request.registry.settings
+    email_confirmation_subject_template = settings.get(
+        "account_validation.email_confirmation_subject_template", "Account active"
+    )
+    email_confirmation_body_template = settings.get(
+        "account_validation.email_confirmation_body_template", "The account {id} is now active"
+    )
+    email_sender = settings.get("account_validation.email_sender", "admin@example.com")
+
+    user_email = user["id"]
+    mailer = get_mailer(request)
+    email_context = user.get("email-context", {})
+
+    formatter = MyFormatter()
+    formatted_subject = formatter.format(
+        email_confirmation_subject_template, **user, **email_context
+    )
+    formatted_body = formatter.format(email_confirmation_body_template, **user, **email_context)
+
+    message = Message(
+        subject=formatted_subject,
+        sender=email_sender,
+        recipients=[user_email],
+        body=formatted_body,
+    )
+    mailer.send(message)
 
     return user

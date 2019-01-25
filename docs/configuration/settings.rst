@@ -591,23 +591,31 @@ activation key will be valid:
     kinto.account_validation.email_regexp = "^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$"
     # Set the "time to live" for the activation key stored in the cache. After that
     # delay the account won't be activable anymore.
-    kinto.account_validation.cache_ttl_seconds = 10080  # 7 days in seconds.
+    kinto.account_validation.validation_key_cache_ttl_seconds = 10080  # 7 days in seconds.
 
 Once :ref:`created <accounts-validate>`, the user will need to be activated
 before being able to authenticate, using the ``validate`` endpoint and the
-``activation_key`` sent by email.
+``activation-key`` sent by email.
 
 The template used for the email subject and body can be customized using the
 following settings:
 
 .. code-block:: ini
 
-    kinto.account_validation.email_body_template = "Hello {id},\n you can now activate your account using the following activation key:\n {activation-key}"
     kinto.account_validation.email_subject_template = "activate your account"
+    kinto.account_validation.email_body_template = "Hello {id},\n you can now activate your account using the following activation key:\n {activation-key}"
 
 Those templates will be rendered using the user record fields, an optional
 additional `email-context` provided alongside the user record data, and the
-`activation_key`.
+`activation-key`.
+
+Once the account is validated, another email will be sent for confirmation,
+rendered using the same `email-context`.
+
+.. code-block:: ini
+
+    kinto.account_validation.email_confirmation_subject_template = "Account active"
+    kinto.account_validation.email_confirmation_body_template = "Your account {id} is now active"
 
 .. _settings-openid:
 

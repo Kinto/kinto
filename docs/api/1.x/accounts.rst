@@ -347,7 +347,7 @@ settings window.
 The templates for the email subject and body can be customized, and they will
 be `String.format`ted with the content of the user, an optional additional
 `email-context` provided alongside the user record data, and the
-`activation_key`:
+`activation-key`:
 
 .. sourcecode:: bash
 
@@ -397,3 +397,11 @@ Whatever the means, a POST to the following endpoint will activate the account:
             "validated": true
         }
 
+If the validation is successful, the account is active and another email is
+sent for confirmation, rendered using the same context as for the first email,
+minus the `activation-key`.
+
+.. code-block:: ini
+
+    kinto.account_validation.email_confirmation_subject_template = "Account active"
+    kinto.account_validation.email_confirmation_body_template = "Your account {id} is now active"

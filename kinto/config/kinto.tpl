@@ -111,11 +111,19 @@ kinto.bucket_create_principals = account:admin
 # content of the user, an optional additional `email-context` provided
 # alongside the user record data, and the `activation_key`.
 # kinto.account_validation.email_body_template = "{{activation-key}}"
+# Set the template for the confirmation email subject. It will be `String.format`ted
+# with the content of the user, an optional additional `email-context` provided
+# alongside the user record data, and the `activation-key`.
+# kinto.account_validation.email_confirmation_subject_template = "Account active"
+# Set the template for the confirmation email body. It will be `String.format`ted
+# with the content of the user, an optional additional `email-context` provided
+# alongside the user record data, and the `activation-key`.
+# kinto.account_validation.email_confirmation_body_template = "Your account {{id}} is now active"
 # Set the regular expression used to validate a proper email address.
 # kinto.account_validation.email_regexp = "^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$"
 # Set the "time to live" for the activation key stored in the cache. After that
 # delay the account won't be activable anymore.
-# kinto.account_validation.cache_ttl_seconds = 10080  # 7 days in seconds.
+# kinto.account_validation.validation_key_cache_ttl_seconds = 10080  # 7 days in seconds.
 
 # Notifications
 # https://kinto.readthedocs.io/en/latest/configuration/settings.html#notifications

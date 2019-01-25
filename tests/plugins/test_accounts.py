@@ -39,12 +39,22 @@ class AccountsValidationWebTest(AccountsWebTest):
         if extras is None:
             extras = {}
         extras.setdefault("account_validation", True)
+        # Email templates for the user creation.
         extras.setdefault(
             "account_validation.email_subject_template", "{name}, activate your account {id}"
         )
         extras.setdefault(
             "account_validation.email_body_template",
             "{activation-form-url}/{id}/{activation-key} {bad-key}",
+        )
+        # Email templates for the user validated confirmation.
+        extras.setdefault(
+            "account_validation.email_confirmation_subject_template",
+            "{name}, your account {id} is now active",
+        )
+        extras.setdefault(
+            "account_validation.email_confirmation_body_template",
+            "Your account {id} has been successfully activated. Connect to {homepage}",
         )
         return super().get_app_settings(extras)
 
@@ -198,7 +208,7 @@ class AccountValidationCreationTest(AccountsValidationWebTest):
         resp = self.app.post_json(
             "/accounts", {"data": {"id": "alice", "password": "12éé6"}}, status=400
         )
-        assert "user id must be an email" in resp.json["message"]
+        assert "user id should match" in resp.json["message"]
 
     def test_create_account_stores_activated_field(self):
         uuid_string = "20e81ab7-51c0-444f-b204-f1c4cfe1aa7a"
@@ -266,7 +276,15 @@ class AccountValidationCreationTest(AccountsValidationWebTest):
         uuid_string = "20e81ab7-51c0-444f-b204-f1c4cfe1aa7a"
         with mock.patch("uuid.uuid4", return_value=uuid.UUID(uuid_string)):
             self.app.post_json(
-                "/accounts", {"data": {"id": "alice@example.com", "password": "12éé6"}}, status=201
+                "/accounts",
+                {
+                    "data": {
+                        "id": "alice@example.com",
+                        "password": "12éé6",
+                        "email-context": {"name": "Alice", "homepage": "https://example.com"},
+                    }
+                },
+                status=201,
             )
         resp = self.app.post_json(
             "/accounts/alice@example.com/validate/" + uuid_string, {}, status=200
@@ -278,6 +296,14 @@ class AccountValidationCreationTest(AccountsValidationWebTest):
         assert resp.json["user"]["id"] == "account:alice@example.com"
         # Once activated, the activation key is removed from the cache.
         assert self.get_account_validation_cache("alice@example.com") is None
+        mailer_call = self.get_mailer().send.call_args_list[1]  # Get the confirmation email.
+        assert mailer_call[0][0].sender == "admin@example.com"
+        assert mailer_call[0][0].subject == "Alice, your account alice@example.com is now active"
+        assert mailer_call[0][0].recipients == ["alice@example.com"]
+        assert (
+            mailer_call[0][0].body
+            == "Your account alice@example.com has been successfully activated. Connect to https://example.com"
+        )
 
     def test_validation_fail_active_user(self):
         uuid_string = "20e81ab7-51c0-444f-b204-f1c4cfe1aa7a"
