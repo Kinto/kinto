@@ -405,3 +405,52 @@ minus the `activation-key`.
 
     kinto.account_validation.email_confirmation_subject_template = "Account active"
     kinto.account_validation.email_confirmation_body_template = "Your account {id} is now active"
+
+.. _accounts-reset-password:
+
+Resetting a forgotten password
+==============================
+
+If the ``account validation`` option in :ref:`the settings
+<settings-accounts>` has been enabled, a temporary reset password may be
+requested through the endpoint is available at
+`/accounts/(user id)/reset-password`.
+
+.. sourcecode:: bash
+
+    $ http POST http://localhost:8888/v1/accounts/bob@example.com/reset-password --verbose
+
+Example email:
+
+::
+
+    Content-Type: text/plain; charset="us-ascii"
+    MIME-Version: 1.0
+    Content-Transfer-Encoding: quoted-printable
+    From: admin@example.com
+    Subject: Reset password
+    To: mathieu@agopian.info
+    Content-Disposition: inline
+
+    b8ae48e6-709e-4f01-bfb9-bca9464cdcfc
+
+It is the responsability of the user creator to tell the mail recipient how to
+change their password using this temporary password.
+
+This could be done by providing a link to a webapp that displays a form to the
+user asking for the new password and a call to action, which will POST the
+new password to the ``accounts/(user_id)`` endpoint.
+
+.. code-block:: ini
+
+    kinto.account_validation.email_reset_password_subject_template = "Reset your password"
+    kinto.account_validation.email_reset_password_body_template = "Hello {id},\n you can set a new password for your account following this link:\n https://example.com/{reset-password}"
+
+The templates for the email subject and body can be customized, and they will
+be `String.format`ted with the content of the user, an optional additional
+`email-context` provided alongside the user record data, and the
+`reset-password`:
+
+.. sourcecode:: bash
+
+    $ echo '{"data": {"email-context": {"name": "Bob Smith"}}}' | http POST http://localhost:8888/v1/accounts/bob@example.com/reset-password --verbose

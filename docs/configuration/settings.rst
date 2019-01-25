@@ -591,7 +591,7 @@ activation key will be valid:
     kinto.account_validation.email_regexp = "^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$"
     # Set the "time to live" for the activation key stored in the cache. After that
     # delay the account won't be activable anymore.
-    kinto.account_validation.validation_key_cache_ttl_seconds = 10080  # 7 days in seconds.
+    kinto.account_validation.validation_key_cache_ttl_seconds = 604800  # 7 days in seconds.
 
 Once :ref:`created <accounts-validate>`, the user will need to be activated
 before being able to authenticate, using the ``validate`` endpoint and the
@@ -616,6 +616,32 @@ rendered using the same `email-context`.
 
     kinto.account_validation.email_confirmation_subject_template = "Account active"
     kinto.account_validation.email_confirmation_body_template = "Your account {id} is now active"
+
+**About password reset**
+
+When the :ref:`account validation <accounts-validate>` option is enabled, an
+additional endpoint is available at `/accounts/{user id}/reset-password` to
+require a temporary reset password by email.
+
+The template used for the email subject and body can be customized using the
+following settings:
+
+.. code-block:: ini
+
+    kinto.account_validation.email_reset_password_subject_template = "Temporary reset password for {id}"
+    kinto.account_validation.email_reset_password_body_template = "Hello {id},\n you can use the following temporary reset password to change your password\n{reset-password}"
+
+Those templates will be rendered using the user record fields, an optional
+additional `email-context` provided alongside the user record data, and the
+`reset-password`.
+
+This temporary reset password will be valid for the amount of seconds set in
+the settings:
+
+.. code-block:: ini
+
+    # Set the "time to live" for the reset password stored in the cache.
+    kinto.account_validation.reset_password_cache_ttl_seconds = 604800  # 7 days in seconds.
 
 .. _settings-openid:
 

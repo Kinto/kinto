@@ -5,12 +5,18 @@ from pyramid.exceptions import ConfigurationError
 from pyramid.settings import asbool
 
 from .authentication import AccountsAuthenticationPolicy as AccountsPolicy
-from .utils import ACCOUNT_CACHE_KEY, ACCOUNT_POLICY_NAME, ACCOUNT_VALIDATION_CACHE_KEY
+from .utils import (
+    ACCOUNT_CACHE_KEY,
+    ACCOUNT_POLICY_NAME,
+    ACCOUNT_RESET_PASSWORD_CACHE_KEY,
+    ACCOUNT_VALIDATION_CACHE_KEY,
+)
 
 
 __all__ = [
     "ACCOUNT_CACHE_KEY",
     "ACCOUNT_POLICY_NAME",
+    "ACCOUNT_RESET_PASSWORD_CACHE_KEY",
     "ACCOUNT_VALIDATION_CACHE_KEY",
     "AccountsPolicy",
 ]
@@ -39,6 +45,11 @@ def includeme(config):
         config.add_api_capability(
             "account-validation",
             description="Validate accounts",
+            url="https://kinto.readthedocs.io/en/latest/api/1.x/accounts.html",
+        )
+        config.add_api_capability(
+            "reset-password",
+            description="Send a temporary reset password by mail for an account",
             url="https://kinto.readthedocs.io/en/latest/api/1.x/accounts.html",
         )
         debug = asbool(settings.get("mail.debug_mailer", "false"))

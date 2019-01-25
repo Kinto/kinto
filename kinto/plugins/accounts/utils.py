@@ -3,6 +3,7 @@ import bcrypt
 
 ACCOUNT_CACHE_KEY = "accounts:{}:verified"
 ACCOUNT_POLICY_NAME = "account"
+ACCOUNT_RESET_PASSWORD_CACHE_KEY = "accounts:{}:reset-password"
 ACCOUNT_VALIDATION_CACHE_KEY = "accounts:{}:validation-key"
 
 

@@ -22,6 +22,7 @@ from .utils import (
     is_validated,
     ACCOUNT_CACHE_KEY,
     ACCOUNT_POLICY_NAME,
+    ACCOUNT_RESET_PASSWORD_CACHE_KEY,
     ACCOUNT_VALIDATION_CACHE_KEY,
 )
 
@@ -239,7 +240,7 @@ def cache_validation_key(activation_key, username, registry):
     cache_key = utils.hmac_digest(hmac_secret, ACCOUNT_VALIDATION_CACHE_KEY.format(username))
     # Store an activation key for 7 days by default.
     cache_ttl = int(
-        settings.get("account_validation.validation_key_cache_ttl_seconds", 7 * 24 * 60)
+        settings.get("account_validation.validation_key_cache_ttl_seconds", 7 * 24 * 60 * 60)
     )
 
     cache = registry.cache
@@ -319,3 +320,92 @@ def post_validation(request):
     mailer.send(message)
 
     return user
+
+
+# Password reset.
+reset_password = Service(
+    name="reset-password",
+    path="/accounts/{user_id}/reset-password",
+    description="Send a temporary reset password by mail for an account",
+)
+
+
+def cache_reset_password(reset_password, username, registry):
+    """Store a reset-password in the cache."""
+    settings = registry.settings
+    hmac_secret = settings["userid_hmac_secret"]
+    cache_key = utils.hmac_digest(hmac_secret, ACCOUNT_RESET_PASSWORD_CACHE_KEY.format(username))
+    # Store a reset password for 7 days by default.
+    cache_ttl = int(
+        settings.get("account_validation.reset_password_cache_ttl_seconds", 7 * 24 * 60 * 60)
+    )
+
+    cache = registry.cache
+    cache.set(cache_key, reset_password, ttl=cache_ttl)
+
+
+@reset_password.post()
+def post_reset_password(request):
+    user_id = request.matchdict["user_id"]
+
+    parent_id = user_id
+    try:
+        user = request.registry.storage.get(
+            parent_id=parent_id, resource_name="account", object_id=user_id
+        )
+    except storage_exceptions.ObjectNotFoundError:
+        # Don't give information on the existence of a user id: return a generic message.
+        return {"message": "A temporary reset password has been sent by mail"}
+
+    settings = request.registry.settings
+
+    user_email = user["id"]
+    email_regexp = settings.get(
+        "account_validation.email_regexp", "^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$"
+    )
+    compiled_email_regexp = re.compile(email_regexp)
+    if not compiled_email_regexp.match(user_email):
+        error_details = {
+            "name": "data.id",
+            "description": f"The user id should match {email_regexp}.",
+        }
+        raise_invalid(request, **error_details)
+
+    reset_password = str(uuid.uuid4())
+    extra_data = {"reset-password": reset_password}
+    hashed_reset_password = hash_password(reset_password)
+    cache_reset_password(hashed_reset_password, user_id, request.registry)
+
+    # Send a temporary reset password by mail.
+    email_reset_password_subject_template = settings.get(
+        "account_validation.email_reset_password_subject_template", "Reset password"
+    )
+    email_reset_password_body_template = settings.get(
+        "account_validation.email_reset_password_body_template", "{reset-password}"
+    )
+    email_sender = settings.get("account_validation.email_sender", "admin@example.com")
+
+    mailer = get_mailer(request)
+    user_email_context = user.get(
+        "email-context", {}
+    )  # We might have some previous email context.
+    data = request.json.get("data", {})
+    email_context = data.get("email-context", user_email_context)
+
+    formatter = MyFormatter()
+    formatted_subject = formatter.format(
+        email_reset_password_subject_template, **user, **extra_data, **email_context
+    )
+    formatted_body = formatter.format(
+        email_reset_password_body_template, **user, **extra_data, **email_context
+    )
+
+    message = Message(
+        subject=formatted_subject,
+        sender=email_sender,
+        recipients=[user_email],
+        body=formatted_body,
+    )
+    mailer.send(message)
+
+    return {"message": "A temporary reset password has been sent by mail"}

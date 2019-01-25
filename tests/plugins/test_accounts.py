@@ -1,3 +1,4 @@
+import bcrypt
 import unittest
 import uuid
 from unittest import mock
@@ -6,7 +7,12 @@ from kinto.core import utils
 from kinto.core.testing import get_user_headers
 from pyramid.exceptions import ConfigurationError
 
-from kinto.plugins.accounts import scripts, ACCOUNT_CACHE_KEY, ACCOUNT_VALIDATION_CACHE_KEY
+from kinto.plugins.accounts import (
+    scripts,
+    ACCOUNT_CACHE_KEY,
+    ACCOUNT_RESET_PASSWORD_CACHE_KEY,
+    ACCOUNT_VALIDATION_CACHE_KEY,
+)
 from kinto.plugins.accounts.utils import hash_password
 from .. import support
 
@@ -56,6 +62,15 @@ class AccountsValidationWebTest(AccountsWebTest):
             "account_validation.email_confirmation_body_template",
             "Your account {id} has been successfully activated. Connect to {homepage}",
         )
+        # Email templates for the reset password.
+        extras.setdefault(
+            "account_validation.email_reset_password_subject_template",
+            "{name}, here is a temporary reset password for {id}",
+        )
+        extras.setdefault(
+            "account_validation.email_reset_password_body_template",
+            "You can use this temporary reset password {reset-password} to change your account {id} password",
+        )
         return super().get_app_settings(extras)
 
 
@@ -80,6 +95,11 @@ class HelloActivationViewTest(AccountsValidationWebTest):
         resp = self.app.get("/")
         capabilities = resp.json["capabilities"]
         self.assertIn("account-validation", capabilities)
+
+    def test_account_reset_password_capability_if_enabled(self):
+        resp = self.app.get("/")
+        capabilities = resp.json["capabilities"]
+        self.assertIn("reset-password", capabilities)
 
 
 class AccountCreationTest(AccountsWebTest):
@@ -202,6 +222,13 @@ class AccountValidationCreationTest(AccountsValidationWebTest):
     def get_account_validation_cache(self, username):
         hmac_secret = self.app.app.registry.settings["userid_hmac_secret"]
         cache_key = utils.hmac_digest(hmac_secret, ACCOUNT_VALIDATION_CACHE_KEY.format(username))
+        return self.app.app.registry.cache.get(cache_key)
+
+    def get_account_reset_password_cache(self, username):
+        hmac_secret = self.app.app.registry.settings["userid_hmac_secret"]
+        cache_key = utils.hmac_digest(
+            hmac_secret, ACCOUNT_RESET_PASSWORD_CACHE_KEY.format(username)
+        )
         return self.app.app.registry.cache.get(cache_key)
 
     def test_create_account_fails_if_not_email(self):
@@ -332,6 +359,56 @@ class AccountValidationCreationTest(AccountsValidationWebTest):
         )
         resp = self.app.get("/", headers=get_user_headers("alice", "12éé6"))
         assert resp.json["user"]["id"] == "account:alice"
+
+    def test_reset_password_bad_user(self):
+        resp = self.app.post_json("/accounts/alice@example.com/reset-password", {}, status=200)
+        # Don't give information on the existence of a user id: return a generic message.
+        assert resp.json["message"] == "A temporary reset password has been sent by mail"
+        # Make sure no email was sent.
+        self.get_mailer().send.assert_not_called()
+
+    def test_reset_password_bad_email(self):
+        # Create an account without going through the accounts API.
+        hashed_password = hash_password("12éé6")
+        self.app.app.registry.storage.create(
+            parent_id="alice",
+            resource_name="account",
+            record={"id": "alice", "password": hashed_password},
+        )
+        resp = self.app.post_json("/accounts/alice/reset-password", {}, status=400)
+        assert "user id should match" in resp.json["message"]
+
+    def test_reset_password_sends_email(self):
+        reset_password = "20e81ab7-51c0-444f-b204-f1c4cfe1aa7a"
+        with mock.patch("uuid.uuid4", return_value=uuid.UUID(reset_password)):
+            # Create the user.
+            self.app.post_json(
+                "/accounts", {"data": {"id": "alice@example.com", "password": "12éé6"}}, status=201
+            )
+            # Ask for a reset password.
+            resp = self.app.post_json(
+                "/accounts/alice@example.com/reset-password",
+                {"data": {"email-context": {"name": "Alice"}}},
+                status=200,
+            )
+        assert resp.json["message"] == "A temporary reset password has been sent by mail"
+        # Get the reset password email
+        mailer_call = self.get_mailer().send.call_args_list[1]
+        assert mailer_call[0][0].sender == "admin@example.com"
+        assert (
+            mailer_call[0][0].subject
+            == "Alice, here is a temporary reset password for alice@example.com"
+        )
+        assert (
+            mailer_call[0][0].body
+            == f"You can use this temporary reset password {reset_password} to change your account alice@example.com password"
+        )
+        # The reset password is stored in the cache.
+        cached_password = self.get_account_reset_password_cache("alice@example.com").encode(
+            encoding="utf-8"
+        )
+        pwd_str = reset_password.encode(encoding="utf-8")
+        assert bcrypt.checkpw(pwd_str, cached_password)
 
 
 class AccountUpdateTest(AccountsWebTest):
