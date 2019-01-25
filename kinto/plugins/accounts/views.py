@@ -389,8 +389,11 @@ def post_reset_password(request):
     user_email_context = user.get(
         "email-context", {}
     )  # We might have some previous email context.
-    data = request.json.get("data", {})
-    email_context = data.get("email-context", user_email_context)
+    try:
+        data = request.json["data"]
+        email_context = data.get("email-context", user_email_context)
+    except ValueError:
+        email_context = user_email_context
 
     formatter = MyFormatter()
     formatted_subject = formatter.format(

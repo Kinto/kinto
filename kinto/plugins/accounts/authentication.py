@@ -4,7 +4,13 @@ from pyramid import authentication as base_auth
 from kinto.core import utils
 from kinto.core.storage import exceptions as storage_exceptions
 
-from .utils import ACCOUNT_CACHE_KEY, ACCOUNT_POLICY_NAME, is_validated
+from .utils import (
+    ACCOUNT_CACHE_KEY,
+    ACCOUNT_POLICY_NAME,
+    ACCOUNT_RESET_PASSWORD_CACHE_KEY,
+    is_validated,
+    get_cached_reset_password,
+)
 
 
 def account_check(username, password, request):
@@ -42,6 +48,33 @@ def account_check(username, password, request):
     pwd_str = password.encode(encoding="utf-8")
     # Check if password is valid (it is a very expensive computation)
     if bcrypt.checkpw(pwd_str, hashed):
+        cache.set(cache_key, hashed_password, ttl=cache_ttl)
+        return True
+
+    # Last chance: is this a "reset password" flow?
+    cached_password = get_cached_reset_password(username, request.registry)
+    if not cached_password:
+        return None
+
+    # The temporary reset password is only available for changing a user's password.
+    if request.method.lower() not in ["post", "put", "patch"]:
+        return None
+
+    try:
+        data = request.json["data"]
+    except ValueError:
+        return None
+
+    if not data or "password" not in data or [key for key in data.keys() if key != "password"]:
+        return None
+
+    cached_password_str = cached_password.encode(encoding="utf-8")
+    if bcrypt.checkpw(pwd_str, cached_password_str):
+        # Remove the temporary reset password from the cache.
+        reset_password_cache_key = utils.hmac_digest(
+            hmac_secret, ACCOUNT_RESET_PASSWORD_CACHE_KEY.format(username)
+        )
+        cache.delete(reset_password_cache_key)
         cache.set(cache_key, hashed_password, ttl=cache_ttl)
         return True
 

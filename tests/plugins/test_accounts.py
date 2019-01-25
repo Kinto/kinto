@@ -410,6 +410,79 @@ class AccountValidationCreationTest(AccountsValidationWebTest):
         pwd_str = reset_password.encode(encoding="utf-8")
         assert bcrypt.checkpw(pwd_str, cached_password)
 
+    def test_fail_use_reset_password_bad_data(self):
+        validation_key = reset_password = "20e81ab7-51c0-444f-b204-f1c4cfe1aa7a"
+        with mock.patch("uuid.uuid4", return_value=uuid.UUID(reset_password)):
+            # Create the user.
+            self.app.post_json(
+                "/accounts", {"data": {"id": "alice@example.com", "password": "12éé6"}}, status=201
+            )
+            # Validate the user.
+            resp = self.app.post_json(
+                "/accounts/alice@example.com/validate/" + validation_key, {}, status=200
+            )
+            # Ask for a reset password.
+            self.app.post_json("/accounts/alice@example.com/reset-password", {}, status=200)
+        # Using reset password needs data.
+        self.app.put_json(
+            "/accounts/alice@example.com",
+            headers=get_user_headers("alice@example.com", reset_password),
+            status=401,
+        )
+        # Using reset password needs password field.
+        self.app.put_json(
+            "/accounts/alice@example.com",
+            {"data": {"foo": "bar"}},
+            headers=get_user_headers("alice@example.com", reset_password),
+            status=401,
+        )
+        # Using reset password accepts only password field.
+        self.app.put_json(
+            "/accounts/alice@example.com",
+            {"data": {"password": "newpass", "foo": "bar"}},
+            headers=get_user_headers("alice@example.com", reset_password),
+            status=401,
+        )
+        # Using wrong reset password fails.
+        self.app.put_json(
+            "/accounts/alice@example.com",
+            {"data": {"password": "newpass", "foo": "bar"}},
+            headers=get_user_headers("alice@example.com", "some random password"),
+            status=401,
+        )
+        # Can't use reset password to authenticate.
+        resp = self.app.get("/", headers=get_user_headers("alice@example.com", reset_password))
+        assert "user" not in resp.json
+
+    def test_use_reset_password_to_change_password(self):
+        validation_key = reset_password = "20e81ab7-51c0-444f-b204-f1c4cfe1aa7a"
+        with mock.patch("uuid.uuid4", return_value=uuid.UUID(reset_password)):
+            # Create the user.
+            self.app.post_json(
+                "/accounts", {"data": {"id": "alice@example.com", "password": "12éé6"}}, status=201
+            )
+            # Validate the user.
+            resp = self.app.post_json(
+                "/accounts/alice@example.com/validate/" + validation_key, {}, status=200
+            )
+            # Ask for a reset password.
+            self.app.post_json("/accounts/alice@example.com/reset-password", {}, status=200)
+        # Use reset password to set a new password.
+        self.app.put_json(
+            "/accounts/alice@example.com",
+            {"data": {"password": "newpass"}},
+            headers=get_user_headers("alice@example.com", reset_password),
+            status=200,
+        )
+        # Can use the new password to authenticate.
+        resp = self.app.get("/", headers=get_user_headers("alice@example.com", "newpass"))
+        assert resp.json["user"]["id"] == "account:alice@example.com"
+        # The reset password isn't in the cache anymore
+        assert self.get_account_reset_password_cache("alice@example.com") is None
+        # Can't use the reset password anymore to authenticate.
+        resp = self.app.get("/", headers=get_user_headers("alice@example.com", reset_password))
+        assert "user" not in resp.json
+
 
 class AccountUpdateTest(AccountsWebTest):
     def setUp(self):

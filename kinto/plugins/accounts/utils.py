@@ -1,5 +1,7 @@
 import bcrypt
 
+from kinto.core import utils
+
 
 ACCOUNT_CACHE_KEY = "accounts:{}:verified"
 ACCOUNT_POLICY_NAME = "account"
@@ -21,3 +23,13 @@ def is_validated(user):
     # no `validated` field at all (for accounts created before the "account
     # validation option" was enabled).
     return "validated" not in user or user["validated"]
+
+
+def get_cached_reset_password(username, registry):
+    """Given a username, get the reset-password from the cache."""
+    hmac_secret = registry.settings["userid_hmac_secret"]
+    cache_key = utils.hmac_digest(hmac_secret, ACCOUNT_RESET_PASSWORD_CACHE_KEY.format(username))
+
+    cache = registry.cache
+    cache_result = cache.get(cache_key)
+    return cache_result

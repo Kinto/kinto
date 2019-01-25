@@ -454,3 +454,6 @@ be `String.format`ted with the content of the user, an optional additional
 .. sourcecode:: bash
 
     $ echo '{"data": {"email-context": {"name": "Bob Smith"}}}' | http POST http://localhost:8888/v1/accounts/bob@example.com/reset-password --verbose
+
+Using this temporary reset password, one can
+:ref:`update the account <accounts-update>` providing the new password.
