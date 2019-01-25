@@ -420,7 +420,7 @@ class Storage(StorageBase, MigratorMixin):
              WHERE id = :object_id
                AND parent_id = :parent_id
                AND resource_name = :resource_name
-               AND deleted = FALSE
+               AND NOT deleted
             RETURNING as_epoch(last_modified) AS last_modified;
             """
         else:
@@ -429,7 +429,7 @@ class Storage(StorageBase, MigratorMixin):
             WHERE id = :object_id
                AND parent_id = :parent_id
                AND resource_name = :resource_name
-               AND deleted = FALSE
+               AND NOT deleted
             RETURNING as_epoch(last_modified) AS last_modified;
             """
         deleted_data = self.json.dumps(dict([(deleted_field, True)]))
@@ -476,7 +476,7 @@ class Storage(StorageBase, MigratorMixin):
                     FROM objects
                     WHERE {parent_id_filter}
                           {resource_name_filter}
-                          AND deleted = FALSE
+                          AND NOT deleted
                           {conditions_filter}
                           {pagination_rules}
                     {sorting}
@@ -498,7 +498,7 @@ class Storage(StorageBase, MigratorMixin):
                     FROM objects
                     WHERE {parent_id_filter}
                           {resource_name_filter}
-                          AND deleted = FALSE
+                          AND NOT deleted
                           {conditions_filter}
                           {pagination_rules}
                     {sorting}
@@ -546,7 +546,7 @@ class Storage(StorageBase, MigratorMixin):
 
         if pagination_rules:
             sql, holders = self._format_pagination(pagination_rules, id_field, modified_field)
-            safeholders["pagination_rules"] = f"AND {sql}"
+            safeholders["pagination_rules"] = f"AND ({sql})"
             placeholders.update(**holders)
 
         # Limit the number of results (pagination).
@@ -748,7 +748,7 @@ class Storage(StorageBase, MigratorMixin):
 
         if pagination_rules:
             sql, holders = self._format_pagination(pagination_rules, id_field, modified_field)
-            safeholders["pagination_rules"] = f"AND {sql}"
+            safeholders["pagination_rules"] = f"AND ({sql})"
             placeholders.update(**holders)
 
         # Limit the number of results (pagination).

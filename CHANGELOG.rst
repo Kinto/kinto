@@ -3,6 +3,14 @@ Changelog
 
 This document describes changes between each past release.
 
+12.0.2 (unreleased)
+-------------------
+
+**Bug fixes**
+
+- **security**: Fix a pagination bug in the PostgreSQL backend that could leak records between collections
+
+
 12.0.1 (2019-01-21)
 -------------------
 
