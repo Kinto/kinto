@@ -30,6 +30,14 @@ This document describes changes between each past release.
 - Expose the user_profile in the user field of the hello page. (#1989)
 
 
+12.0.2 (2019-01-25)
+-------------------
+
+**Bug fixes**
+
+- **security**: Fix a pagination bug in the PostgreSQL backend that could leak records between collections
+
+
 12.0.1 (2019-01-21)
 -------------------
 
