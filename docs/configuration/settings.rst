@@ -643,6 +643,12 @@ the settings:
     # Set the "time to live" for the reset password stored in the cache.
     kinto.account_validation.reset_password_cache_ttl_seconds = 604800  # 7 days in seconds.
 
+.. note::
+
+    Both the account validation and password reset need a properly configured
+    smtp server. Refer to `pyramid_mailer's configuration
+    <https://docs.pylonsproject.org/projects/pyramid_mailer/en/latest/#configuration>`_.
+
 .. _settings-openid:
 
 OpenID Connect

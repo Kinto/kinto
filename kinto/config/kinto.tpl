@@ -135,6 +135,12 @@ kinto.bucket_create_principals = account:admin
 # Set the "time to live" for the reset password stored in the cache.
 # kinto.account_validation.reset_password_cache_ttl_seconds = 604800  # 7 days in seconds.
 
+# Mail configuration (needed for the account validation option), see https://docs.pylonsproject.org/projects/pyramid_mailer/en/latest/#configuration
+# mail.host = localhost
+# mail.port = 25
+# mail.username = someusername
+# mail.password = somepassword
+
 # Notifications
 # https://kinto.readthedocs.io/en/latest/configuration/settings.html#notifications
 #
