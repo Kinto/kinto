@@ -154,7 +154,7 @@ Alternatively, accounts can be created using POST.  Supply the user id and passw
     Depending on the :ref:`configuration <settings-accounts>`, you may not be allowed to create accounts.
 
 
-.. _accounts-udpate:
+.. _accounts-update:
 
 Change password
 ===============

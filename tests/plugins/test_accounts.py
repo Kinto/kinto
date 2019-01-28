@@ -419,10 +419,10 @@ class AccountValidationCreationTest(AccountsValidationWebTest):
             )
             # Validate the user.
             resp = self.app.post_json(
-                "/accounts/alice@example.com/validate/" + validation_key, {}, status=200
+                "/accounts/alice@example.com/validate/" + validation_key, status=200
             )
             # Ask for a reset password.
-            self.app.post_json("/accounts/alice@example.com/reset-password", {}, status=200)
+            self.app.post_json("/accounts/alice@example.com/reset-password", status=200)
         # Using reset password needs data.
         self.app.put_json(
             "/accounts/alice@example.com",
@@ -446,7 +446,7 @@ class AccountValidationCreationTest(AccountsValidationWebTest):
         # Using wrong reset password fails.
         self.app.put_json(
             "/accounts/alice@example.com",
-            {"data": {"password": "newpass", "foo": "bar"}},
+            {"data": {"password": "newpass"}},
             headers=get_user_headers("alice@example.com", "some random password"),
             status=401,
         )
