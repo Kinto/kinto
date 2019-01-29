@@ -1,4 +1,4 @@
 therapist==1.5.0
 black==18.9b0
 flake8==3.6.0
-setuptools==40.7.0
+setuptools==40.7.1
