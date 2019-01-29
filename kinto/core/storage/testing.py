@@ -1581,6 +1581,29 @@ class DeletedObjectsTest:
                         sort_by_secret_data(real_objects), sort_by_secret_data(objects)
                     )
 
+    def test_pagination_rules_are_confined_by_parent(self):
+        intermediate_ts = None
+        for i in range(4):
+            r = self.create_object({"foo": i}, parent_id="/a")
+            if i == 3:
+                intermediate_ts = r["last_modified"]
+        for i in range(4):
+            self.create_object({"foo": i}, parent_id="/b")
+
+        sort = [Sort("foo", -1), Sort("last_modified", -1)]
+        pagination_rules = [
+            [Filter("foo", 1, utils.COMPARISON.GT)],
+            [Filter("last_modified", intermediate_ts, utils.COMPARISON.GT)],
+        ]
+        page = self.storage.list_all(
+            resource_name="test",
+            parent_id="/a",
+            sorting=sort,
+            limit=10,
+            pagination_rules=pagination_rules,
+        )
+        self.assertEqual(len(page), 2)
+
     def test_delete_all_supports_pagination_rules(self):
         for i in range(6):
             self.create_object({"foo": i})

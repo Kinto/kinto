@@ -3,7 +3,21 @@ Changelog
 
 This document describes changes between each past release.
 
-13.0.0 (unreleased)
+13.1.0 (unreleased)
+-------------------
+
+- Nothing changed yet.
+
+
+13.0.1 (2019-01-29)
+-------------------
+
+**Bug fixes**
+
+- Loosen up the Content-Security policies in the Kinto Admin plugin to prevent Webpack inline script to be rejected (fixes #2000)
+
+
+13.0.0 (2019-01-25)
 -------------------
 
 **Breaking changes**
@@ -14,10 +28,23 @@ This document describes changes between each past release.
 **Bug Fixes**
 
 - Fixed two potential bugs relating to mutable default values.
+- **security**: Fix a pagination bug in the PostgreSQL backend that could leak records between collections
 
 **Internal changes**
 
 - Upgrade kinto-admin to v1.23.0
+
+**New features**
+
+- Expose the user_profile in the user field of the hello page. (#1989)
+
+
+12.0.2 (2019-01-25)
+-------------------
+
+**Bug fixes**
+
+- **security**: Fix a pagination bug in the PostgreSQL backend that could leak records between collections
 
 
 12.0.1 (2019-01-21)

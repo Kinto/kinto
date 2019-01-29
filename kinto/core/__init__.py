@@ -143,7 +143,10 @@ class JsonLogFormatter(dockerflow_logging.JsonLogFormatter):
 
 def get_user_info(request):
     # Default user info (shown in hello view for example).
-    return {"id": request.prefixed_userid, "principals": request.prefixed_principals}
+    user_info = {"id": request.prefixed_userid, "principals": request.prefixed_principals}
+    if hasattr(request, "get_user_profile"):
+        user_info["profile"] = request.get_user_profile()
+    return user_info
 
 
 def includeme(config):

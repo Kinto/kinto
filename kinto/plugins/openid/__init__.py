@@ -56,6 +56,7 @@ class OpenIDConnectPolicy(base_auth.CallbackAuthenticationPolicy):
                 return None
         # Save for next time / refresh ttl.
         request.registry.cache.set(cache_key, payload, ttl=self.verification_ttl)
+        request.bound_data["user_profile"] = payload
         # Extract meaningful field from userinfo (eg. email or sub)
         return payload.get(self.userid_field)
 
@@ -77,6 +78,10 @@ class OpenIDConnectPolicy(base_auth.CallbackAuthenticationPolicy):
         except (requests.exceptions.HTTPError, ValueError, KeyError) as e:
             logger.debug("Unable to fetch user profile from %s (%s)" % (uri, e))
             return None
+
+
+def get_user_profile(request):
+    return request.bound_data.get("user_profile", {})
 
 
 def includeme(config):
@@ -124,3 +129,4 @@ def includeme(config):
         url="http://kinto.readthedocs.io/en/stable/api/1.x/authentication.html",
         providers=providers_infos,
     )
+    config.add_request_method(get_user_profile, name="get_user_profile")
