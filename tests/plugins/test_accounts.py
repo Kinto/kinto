@@ -725,6 +725,14 @@ class AdminTest(AccountsWebTest):
 
         self.app.delete("/accounts/alice", headers=get_user_headers("alice", "bouh"))
 
+    def test_user_password_update_cors_headers(self):
+        headers = get_user_headers("alice", "bouh")
+        headers["Origin"] = "lolnet.org"
+        headers["Access-Control-Request-Method"] = "PATCH"
+        headers["Access-Control-Request-Headers	"] = "authorization,content-type"
+        response = self.app.options("/accounts/alice", headers=headers, status=200)
+        assert response.headers["Access-Control-Allow-Origin"] == "*"
+
 
 class CheckAdminCreateTest(AccountsWebTest):
     def test_raise_if_create_but_no_write(self):
