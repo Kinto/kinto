@@ -6,8 +6,9 @@ This document describes changes between each past release.
 13.1.0 (unreleased)
 -------------------
 
-- Nothing changed yet.
+**Bug fixes**
 
+- Fixed two potential bugs relating to mutable default values.
 
 13.0.1 (2019-01-29)
 -------------------
@@ -27,7 +28,6 @@ This document describes changes between each past release.
 
 **Bug fixes**
 
-- Fixed two potential bugs relating to mutable default values.
 - **security**: Fix a pagination bug in the PostgreSQL backend that could leak records between collections
 
 **Internal changes**
