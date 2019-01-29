@@ -6,7 +6,9 @@ This document describes changes between each past release.
 13.0.1 (unreleased)
 -------------------
 
-- Nothing changed yet.
+**Bug fixes**
+
+- Loosen up the Content-Security policies in the Kinto Admin plugin to prevent Webpack inline script to be rejected (fixes #2000)
 
 
 13.0.0 (2019-01-25)
