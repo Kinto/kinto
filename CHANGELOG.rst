@@ -6,8 +6,9 @@ This document describes changes between each past release.
 13.1.0 (unreleased)
 -------------------
 
-- Nothing changed yet.
+**Bug fixes**
 
+- Fixed two potential bugs relating to mutable default values.
 
 13.0.1 (2019-01-29)
 -------------------

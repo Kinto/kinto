@@ -86,6 +86,7 @@ Contributors
 * Surya Prashanth <prashantsurya@ymail.com>
 * SwhGo_oN <@swhgoon>
 * Tarek Ziade <tarek@mozilla.com>
+* Taus Brock-Nannestad <taus@semmle.com>
 * Taylor Zane Glaeser <tzglaeser@gmail.com>
 * Thomas Dressler <Thomas.Dressler1@gmail.com>
 * Tiberiu Ichim <@tiberiuichim>
