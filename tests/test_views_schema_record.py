@@ -53,9 +53,6 @@ class DeactivatedSchemaTest(BaseWebTest, unittest.TestCase):
         )
         self.assertNotIn("schema", resp.json["data"])
 
-    def test_validate_schema(self):
-        validate_schema(VALID_RECORD, SCHEMA, id_field="id")
-
 
 class BaseWebTestWithSchema(BaseWebTest):
     @classmethod
@@ -110,6 +107,9 @@ class RecordsValidationTest(BaseWebTestWithSchema, unittest.TestCase):
             COLLECTION_URL, {"data": {"schema": SCHEMA}}, headers=self.headers
         )
         self.collection = resp.json["data"]
+
+    def test_validate_schema(self):
+        validate_schema(VALID_RECORD, SCHEMA, id_field="id")
 
     def test_empty_record_can_be_validated(self):
         self.app.post_json(RECORDS_URL, {"data": {}}, headers=self.headers, status=400)

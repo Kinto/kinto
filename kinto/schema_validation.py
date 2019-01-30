@@ -106,15 +106,12 @@ def validate_schema(data, schema, id_field, ignore_fields=None):
         raise e
 
 
-def validate_from_bucket_schema_or_400(data, resource_name, request, id_field, ignore_fields=None):
+def validate_from_bucket_schema_or_400(data, resource_name, request, id_field, ignore_fields):
     """Lookup in the parent objects if a schema was defined for this resource.
 
     If the schema validation feature is enabled, if a schema is/are defined, and if the
     data does not validate it/them, then it raises a 400 exception.
     """
-    if ignore_fields is None:
-        ignore_fields = []
-
     settings = request.registry.settings
     schema_validation = "experimental_collection_schema_validation"
     # If disabled from settings, do nothing.
