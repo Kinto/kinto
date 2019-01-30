@@ -9,6 +9,8 @@ This document describes changes between each past release.
 **Bug fixes**
 
 - Fixed two potential bugs relating to mutable default values.
+- Fix crash on deleting multiple accounts (#2009)
+
 
 13.0.1 (2019-01-29)
 -------------------
