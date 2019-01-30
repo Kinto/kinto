@@ -11,6 +11,10 @@ This document describes changes between each past release.
 - Fixed two potential bugs relating to mutable default values.
 - Fix crash on deleting multiple accounts (#2009)
 
+**Internal changes**
+
+- Use ``setup.cfg`` for package metadata (ref #1921)
+
 
 13.0.1 (2019-01-29)
 -------------------
