@@ -57,7 +57,7 @@ Use cases
     At Mozilla, *Kinto* is used in *Firefox* for global synchronization
     of frequently changed settings like blocklists, and the Web Extensions storage.sync API.
     It is also used in *Firefox for Android* for A/B testing and delivering extra
-    assets like fonts or hyphenation dictionnaries.
+    assets like fonts or hyphenation dictionaries.
 
 
 How?
