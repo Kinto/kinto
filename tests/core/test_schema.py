@@ -26,7 +26,7 @@ class TimeStampTest(unittest.TestCase):
 
 class URLTest(unittest.TestCase):
     def test_supports_full_url(self):
-        url = "https://user:pass@myserver:9999/feeling.html#anchor"
+        url = "https://myserver.example.com:9999/feeling.html#anchor"
         deserialized = schema.URL().deserialize(url)
         self.assertEqual(deserialized, url)
 
