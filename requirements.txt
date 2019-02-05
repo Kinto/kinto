@@ -2,7 +2,7 @@ bcrypt==3.1.6
 certifi==2018.11.29
 cffi==1.11.5
 chardet==3.0.4
-colander==1.6.0
+colander==1.7.0
 colorama==0.4.1
 cornice==3.5.1
 cornice-swagger==0.7.0

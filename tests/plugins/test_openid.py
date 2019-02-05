@@ -245,7 +245,7 @@ class LoginViewTest(OpenIDWebTest):
 
     def test_returns_400_if_email_is_not_in_scope_when_userid_field_is_email(self):
         scope = "openid"
-        cb = "http://ui"
+        cb = "http://ui.kinto.example.com"
         self.app.get("/openid/auth0/login", params={"callback": cb, "scope": scope}, status=307)
         # See config above (email is userid field)
         self.app.get("/openid/google/login", params={"callback": cb, "scope": scope}, status=400)
@@ -260,7 +260,7 @@ class LoginViewTest(OpenIDWebTest):
         )
 
     def test_redirects_to_the_identity_provider(self):
-        params = {"callback": "http://ui", "scope": "openid"}
+        params = {"callback": "http://ui.kinto.example.com", "scope": "openid"}
         resp = self.app.get("/openid/auth0/login", params=params, status=307)
         location = resp.headers["Location"]
         assert "auth0.com/authorize?" in location
@@ -269,7 +269,7 @@ class LoginViewTest(OpenIDWebTest):
         assert "client_id=abc" in location
 
     def test_redirects_to_the_identity_provider_with_prompt_none(self):
-        params = {"callback": "http://ui", "scope": "openid", "prompt": "none"}
+        params = {"callback": "http://ui.kinto.example.com", "scope": "openid", "prompt": "none"}
         resp = self.app.get("/openid/auth0/login", params=params, status=307)
         location = resp.headers["Location"]
         assert "auth0.com/authorize?" in location
@@ -279,13 +279,13 @@ class LoginViewTest(OpenIDWebTest):
         assert "prompt=none" in location
 
     def test_callback_is_stored_in_cache(self):
-        params = {"callback": "http://ui", "scope": "openid"}
+        params = {"callback": "http://ui.kinto.example.com", "scope": "openid"}
         with mock.patch("kinto.plugins.openid.views.random_bytes_hex") as m:
             m.return_value = "key"
             self.app.get("/openid/auth0/login", params=params, status=307)
 
         cached = self.app.app.registry.cache.get("openid:state:key")
-        assert cached == "http://ui"
+        assert cached == "http://ui.kinto.example.com"
 
 
 class TokenViewTest(OpenIDWebTest):
