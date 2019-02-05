@@ -101,8 +101,8 @@ The filters ``lt`` and ``gt`` are available to compare against values.
   than 100.
 
 This bound is exclusive (i.e., in the previous example, it would not
-retrieve a record whose ``orders`` field was equal to 100. To check
-"less than or equal", use ``min``. To check "greater than or equal",
+retrieve a record whose ``orders`` field was equal to 100). To check
+"greater than or equal", use ``min``. To check "less than or equal",
 use ``max``.
 
 * ``/collection?min_orders=100``
