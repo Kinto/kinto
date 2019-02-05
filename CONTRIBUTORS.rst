@@ -32,6 +32,7 @@ Contributors
 * Fil <fil@rezo.net>
 * FooBarQuaxx
 * Francisco J. Piedrahita <@fpiedrah>
+* Frank Bertsch <frank@mozilla.com>
 * Greeshma <greeshmabalabadra@gmail.com>
 * Gabriela Surita <gabsurita@gmail.com>
 * George Smith <h3rmit@protonmail.com>

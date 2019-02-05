@@ -15,6 +15,10 @@ This document describes changes between each past release.
 
 - Use ``setup.cfg`` for package metadata (ref #1921)
 
+**Documentation**
+
+- Fixed spelling and Filtering docs
+
 
 13.0.1 (2019-01-29)
 -------------------
