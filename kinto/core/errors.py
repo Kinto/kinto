@@ -148,7 +148,7 @@ def json_error_handler(request):
         description = error["description"].decode("utf-8")
 
     if name is not None:
-        if name in description:
+        if str(name) in description:
             message = description
         else:
             message = "{name} in {location}: {description}".format_map(error)
