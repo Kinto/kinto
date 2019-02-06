@@ -9,6 +9,7 @@ This document describes changes between each past release.
 **Bug fixes**
 
 - Fixed two potential bugs relating to mutable default values.
+- Fix crash on validating records with errors in arrays (#1508)
 - Fix crash on deleting multiple accounts (#2009)
 
 **Internal changes**

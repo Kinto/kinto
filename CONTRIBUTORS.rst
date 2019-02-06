@@ -29,6 +29,7 @@ Contributors
 * Éric Lemoine <eric.lemoine@gmail.com>
 * Ethan Glasser-Camp <ethan@betacantrips.com>
 * Étienne <@Étienne>
+* Eugene Kulak <kulak.eugene@gmail.com>
 * Fil <fil@rezo.net>
 * FooBarQuaxx
 * Francisco J. Piedrahita <@fpiedrah>
