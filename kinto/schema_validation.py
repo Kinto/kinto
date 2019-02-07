@@ -68,7 +68,9 @@ def validate(data, schema):
     return _schema_cache[cache_key].validate(data)
 
 
-def validate_schema(data, schema, id_field, ignore_fields=[]):
+def validate_schema(data, schema, id_field, ignore_fields=None):
+    if ignore_fields is None:
+        ignore_fields = []
     # Only ignore the `id` field if the schema does not explicitly mention it.
     if id_field not in schema.get("properties", {}):
         ignore_fields += (id_field,)
@@ -104,7 +106,7 @@ def validate_schema(data, schema, id_field, ignore_fields=[]):
         raise e
 
 
-def validate_from_bucket_schema_or_400(data, resource_name, request, id_field, ignore_fields=[]):
+def validate_from_bucket_schema_or_400(data, resource_name, request, id_field, ignore_fields):
     """Lookup in the parent objects if a schema was defined for this resource.
 
     If the schema validation feature is enabled, if a schema is/are defined, and if the

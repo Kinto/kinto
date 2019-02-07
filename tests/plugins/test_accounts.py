@@ -702,6 +702,11 @@ class AdminTest(AccountsWebTest):
         self.app.delete_json("/accounts/bob", headers=self.admin_headers)
         self.app.get("/accounts/bob", headers=get_user_headers("bob", "987654"), status=401)
 
+    def test_admin_can_delete_all_accounts(self):
+        self.app.delete_json("/accounts", headers=self.admin_headers)
+
+        self.app.get("/accounts/bob", headers=get_user_headers("bob", "987654"), status=401)
+
     def test_admin_can_set_others_password(self):
         self.app.patch_json(
             "/accounts/bob", {"data": {"password": "bouh"}}, headers=self.admin_headers

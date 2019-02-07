@@ -1,4 +1,5 @@
 from kinto.core.testing import unittest
+from kinto.schema_validation import validate_schema
 
 from .support import BaseWebTest
 
@@ -18,6 +19,7 @@ SCHEMA = {
             "type": "object",
             "properties": {"size": {"type": "number"}, "name": {"type": "string"}},
         },
+        "tags": {"type": "array", "items": {"type": "string"}},
     },
     "required": ["title"],
 }
@@ -107,6 +109,9 @@ class RecordsValidationTest(BaseWebTestWithSchema, unittest.TestCase):
         )
         self.collection = resp.json["data"]
 
+    def test_validate_schema(self):
+        validate_schema(VALID_RECORD, SCHEMA, id_field="id")
+
     def test_empty_record_can_be_validated(self):
         self.app.post_json(RECORDS_URL, {"data": {}}, headers=self.headers, status=400)
 
@@ -119,6 +124,11 @@ class RecordsValidationTest(BaseWebTestWithSchema, unittest.TestCase):
             {"data": {"body": "<h1>Without title</h1>"}},
             headers=self.headers,
             status=400,
+        )
+
+    def test_records_are_invalid_if_do_not_match_schema_in_array(self):
+        self.app.post_json(
+            RECORDS_URL, {"data": {**VALID_RECORD, "tags": [0]}}, headers=self.headers, status=400
         )
 
     def test_records_are_validated_on_patch(self):

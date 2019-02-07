@@ -29,9 +29,11 @@ Contributors
 * Éric Lemoine <eric.lemoine@gmail.com>
 * Ethan Glasser-Camp <ethan@betacantrips.com>
 * Étienne <@Étienne>
+* Eugene Kulak <kulak.eugene@gmail.com>
 * Fil <fil@rezo.net>
 * FooBarQuaxx
 * Francisco J. Piedrahita <@fpiedrah>
+* Frank Bertsch <frank@mozilla.com>
 * Greeshma <greeshmabalabadra@gmail.com>
 * Gabriela Surita <gabsurita@gmail.com>
 * George Smith <h3rmit@protonmail.com>
@@ -86,6 +88,7 @@ Contributors
 * Surya Prashanth <prashantsurya@ymail.com>
 * SwhGo_oN <@swhgoon>
 * Tarek Ziade <tarek@mozilla.com>
+* Taus Brock-Nannestad <taus@semmle.com>
 * Taylor Zane Glaeser <tzglaeser@gmail.com>
 * Thomas Dressler <Thomas.Dressler1@gmail.com>
 * Tiberiu Ichim <@tiberiuichim>

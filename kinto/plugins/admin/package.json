@@ -8,12 +8,12 @@
   },
   "dependencies": {
     "babel-polyfill": "^6.23.0",
-    "codemirror": "^5.39.2",
+    "codemirror": "^5.43.0",
     "kinto-admin": "1.23.0",
-    "react": "^16.4.1",
-    "react-dom": "^16.4.1",
+    "react": "^16.8.1",
+    "react-dom": "^16.8.1",
     "react-router": "^4.3.1",
-    "redux": "^4.0.0"
+    "redux": "^4.0.1"
   },
   "scripts": {
     "start": "react-scripts start",
