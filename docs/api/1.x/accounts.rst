@@ -302,10 +302,13 @@ Or delete some account:
 Validate accounts
 =================
 
-If the ``account validation`` option in :ref:`the settings
+If the ``account_validation`` option in :ref:`the settings
 <settings-accounts>` has been enabled, account IDs need to be valid email
 addresses: they need to match the regexp in the
 ``account_validation.email_regexp`` setting.
+To make sure the ``account_validation`` is enabled, you can check if the
+``validation_enabled`` flag is ``true`` in the ``"accounts"`` field on the
+:ref:`root URL <api-utilities-hello>`.
 
 .. sourcecode:: bash
 

@@ -94,12 +94,9 @@ class HelloActivationViewTest(AccountsValidationWebTest):
     def test_account_validation_capability_if_enabled(self):
         resp = self.app.get("/")
         capabilities = resp.json["capabilities"]
-        self.assertIn("account-validation", capabilities)
-
-    def test_account_reset_password_capability_if_enabled(self):
-        resp = self.app.get("/")
-        capabilities = resp.json["capabilities"]
-        self.assertIn("reset-password", capabilities)
+        self.assertIn("accounts", capabilities)
+        self.assertIn("validation_enabled", capabilities["accounts"])
+        self.assertTrue(capabilities["accounts"]["validation_enabled"])
 
 
 class AccountCreationTest(AccountsWebTest):

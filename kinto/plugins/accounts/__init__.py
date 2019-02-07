@@ -25,10 +25,13 @@ DOCS_URL = "https://kinto.readthedocs.io/en/stable/api/1.x/accounts.html"
 
 
 def includeme(config):
+    settings = config.get_settings()
+    validation_enabled = settings.get("account_validation", False)
     config.add_api_capability(
         "accounts",
         description="Manage user accounts.",
         url="https://kinto.readthedocs.io/en/latest/api/1.x/accounts.html",
+        validation_enabled=validation_enabled,
     )
 
     config.scan("kinto.plugins.accounts.views")
@@ -39,19 +42,7 @@ def includeme(config):
         "read": {"account": ["write", "read"]},
     }
 
-    settings = config.get_settings()
-
-    if settings.get("account_validation", False):
-        config.add_api_capability(
-            "account-validation",
-            description="Validate accounts",
-            url="https://kinto.readthedocs.io/en/latest/api/1.x/accounts.html",
-        )
-        config.add_api_capability(
-            "reset-password",
-            description="Send a temporary reset password by mail for an account",
-            url="https://kinto.readthedocs.io/en/latest/api/1.x/accounts.html",
-        )
+    if validation_enabled:
         debug = asbool(settings.get("mail.debug_mailer", "false"))
         config.include("pyramid_mailer" + (".debug" if debug else ""))
 
