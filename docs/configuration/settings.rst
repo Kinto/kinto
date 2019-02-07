@@ -649,6 +649,14 @@ the settings:
     smtp server. Refer to `pyramid_mailer's configuration
     <https://docs.pylonsproject.org/projects/pyramid_mailer/en/latest/#configuration>`_.
 
+.. note::
+
+    To use a debug or testing mailer you may use the ``mail.mailer = debug`` or
+    ``mail.mailer = testing`` settings. Refer to `pyramid_mailer's
+    configuration
+    <https://docs.pylonsproject.org/projects/pyramid_mailer/en/latest/#debugging>`_
+    to understand what they do.
+
 .. _settings-openid:
 
 OpenID Connect

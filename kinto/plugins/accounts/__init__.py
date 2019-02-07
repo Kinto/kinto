@@ -33,8 +33,10 @@ def includeme(config):
         url="https://kinto.readthedocs.io/en/latest/api/1.x/accounts.html",
         validation_enabled=validation_enabled,
     )
-
-    config.scan("kinto.plugins.accounts.views")
+    kwargs = {}
+    if not validation_enabled:
+        kwargs["ignore"] = "kinto.plugins.accounts.views.validation"
+    config.scan("kinto.plugins.accounts.views", **kwargs)
 
     PERMISSIONS_INHERITANCE_TREE["root"].update({"account:create": {}})
     PERMISSIONS_INHERITANCE_TREE["account"] = {
@@ -43,8 +45,11 @@ def includeme(config):
     }
 
     if validation_enabled:
-        debug = asbool(settings.get("mail.debug_mailer", "false"))
-        config.include("pyramid_mailer" + (".debug" if debug else ""))
+        # Valid mailers other than the default are `debug` and `testing`
+        # according to
+        # https://docs.pylonsproject.org/projects/pyramid_mailer/en/latest/#debugging
+        mailer = settings.get("mail.mailer", "")
+        config.include("pyramid_mailer" + ("." + mailer if mailer else ""))
 
     # Check that the account policy is mentioned in config if included.
     accountClass = "AccountsPolicy"

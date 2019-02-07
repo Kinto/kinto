@@ -6,6 +6,7 @@ from unittest import mock
 from kinto.core import utils
 from kinto.core.testing import get_user_headers
 from pyramid.exceptions import ConfigurationError
+from pyramid_mailer import get_mailer
 
 from kinto.plugins.accounts import (
     scripts,
@@ -36,15 +37,17 @@ class AccountsWebTest(support.BaseWebTest, unittest.TestCase):
 
 class AccountsValidationWebTest(AccountsWebTest):
     def setUp(self):
-        patch = mock.patch("kinto.plugins.accounts.views.get_mailer")
-        self.get_mailer = patch.start()
-        self.addCleanup(patch.stop)
+        self.mailer = get_mailer(self.app.app.registry)
+        self.mailer.outbox = []  # Reset the outbox before each test.
 
     @classmethod
     def get_app_settings(cls, extras=None):
         if extras is None:
             extras = {}
+        # Enable the account validation option.
         extras.setdefault("account_validation", True)
+        # Use a testing mailer.
+        extras.setdefault("mail.mailer", "testing")
         # Email templates for the user creation.
         extras.setdefault(
             "account_validation.email_subject_template", "{name}, activate your account {id}"
@@ -214,6 +217,24 @@ class AccountCreationTest(AccountsWebTest):
         resp = self.app.get("/", headers=get_user_headers("me", "blah"))
         assert "user" not in resp.json
 
+    def test_validate_view_not_active(self):
+        # The `validate` view is only active when the `account_validation` option is enabled.
+        # Create the user.
+        self.app.post_json(
+            "/accounts", {"data": {"id": "alice@example.com", "password": "12éé6"}}, status=201
+        )
+        # Validate the user.
+        self.app.post_json("/accounts/alice@example.com/validate/some_validation_key", status=404)
+
+    def test_reset_password_view_not_active(self):
+        # The `validate` view is only active when the `account_validation` option is enabled.
+        # Create the user.
+        self.app.post_json(
+            "/accounts", {"data": {"id": "alice@example.com", "password": "12éé6"}}, status=201
+        )
+        # Ask for a reset password.
+        self.app.post_json("/accounts/alice@example.com/reset-password", status=404)
+
 
 class AccountValidationCreationTest(AccountsValidationWebTest):
     def get_account_validation_cache(self, username):
@@ -254,16 +275,14 @@ class AccountValidationCreationTest(AccountsValidationWebTest):
         assert "activation-key" not in resp.json["data"]
         assert "validated" in resp.json["data"]
         assert not resp.json["data"]["validated"]
-        mailer_call = self.get_mailer().send.call_args_list[0]
-        assert mailer_call[0][0].sender == "admin@example.com"
-        assert mailer_call[0][0].subject == "Alice, activate your account alice@example.com"
-        assert mailer_call[0][0].recipients == ["alice@example.com"]
+        assert len(self.mailer.outbox) == 1
+        mail = self.mailer.outbox[0]  # Get the validation email.
+        assert mail.sender == "admin@example.com"
+        assert mail.subject == "Alice, activate your account alice@example.com"
+        assert mail.recipients == ["alice@example.com"]
         # The {{bad-key}} from the template will be rendered as {bad-key} in
         # the final email, instead of failing the formatting.
-        assert (
-            mailer_call[0][0].body
-            == f"https://example.com/alice@example.com/{uuid_string} {{bad-key}}"
-        )
+        assert mail.body == f"https://example.com/alice@example.com/{uuid_string} {{bad-key}}"
         # The activation key is stored in the cache.
         assert self.get_account_validation_cache("alice@example.com") == uuid_string
 
@@ -320,12 +339,13 @@ class AccountValidationCreationTest(AccountsValidationWebTest):
         assert resp.json["user"]["id"] == "account:alice@example.com"
         # Once activated, the activation key is removed from the cache.
         assert self.get_account_validation_cache("alice@example.com") is None
-        mailer_call = self.get_mailer().send.call_args_list[1]  # Get the confirmation email.
-        assert mailer_call[0][0].sender == "admin@example.com"
-        assert mailer_call[0][0].subject == "Alice, your account alice@example.com is now active"
-        assert mailer_call[0][0].recipients == ["alice@example.com"]
+        assert len(self.mailer.outbox) == 2  # Validation email, reset password email.
+        mail = self.mailer.outbox[1]  # Get the confirmation email.
+        assert mail.sender == "admin@example.com"
+        assert mail.subject == "Alice, your account alice@example.com is now active"
+        assert mail.recipients == ["alice@example.com"]
         assert (
-            mailer_call[0][0].body
+            mail.body
             == "Your account alice@example.com has been successfully activated. Connect to https://example.com"
         )
 
@@ -362,7 +382,7 @@ class AccountValidationCreationTest(AccountsValidationWebTest):
         # Don't give information on the existence of a user id: return a generic message.
         assert resp.json["message"] == "A temporary reset password has been sent by mail"
         # Make sure no email was sent.
-        self.get_mailer().send.assert_not_called()
+        assert len(self.mailer.outbox) == 0
 
     def test_reset_password_bad_email(self):
         # Create an account without going through the accounts API.
@@ -389,15 +409,12 @@ class AccountValidationCreationTest(AccountsValidationWebTest):
                 status=200,
             )
         assert resp.json["message"] == "A temporary reset password has been sent by mail"
-        # Get the reset password email
-        mailer_call = self.get_mailer().send.call_args_list[1]
-        assert mailer_call[0][0].sender == "admin@example.com"
+        assert len(self.mailer.outbox) == 2  # Validation email, reset password email.
+        mail = self.mailer.outbox[1]  # Get the reset password email
+        assert mail.sender == "admin@example.com"
+        assert mail.subject == "Alice, here is a temporary reset password for alice@example.com"
         assert (
-            mailer_call[0][0].subject
-            == "Alice, here is a temporary reset password for alice@example.com"
-        )
-        assert (
-            mailer_call[0][0].body
+            mail.body
             == f"You can use this temporary reset password {reset_password} to change your account alice@example.com password"
         )
         # The reset password is stored in the cache.
