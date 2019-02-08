@@ -2,7 +2,6 @@ import re
 
 from kinto.authorization import PERMISSIONS_INHERITANCE_TREE
 from pyramid.exceptions import ConfigurationError
-from pyramid.settings import asbool
 
 from .authentication import AccountsAuthenticationPolicy as AccountsPolicy
 from .utils import (
