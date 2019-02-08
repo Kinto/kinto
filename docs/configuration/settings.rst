@@ -580,6 +580,7 @@ email will be sent with an activation key.
 .. code-block:: ini
 
     kinto.account_validation = true
+    # Mail configuration:
     # Set the sender for the validation email.
     kinto.account_validation.email_sender = "admin@example.com"
 
@@ -603,7 +604,7 @@ activation key will be valid:
     # delay the account won't be activable anymore.
     kinto.account_validation.validation_key_cache_ttl_seconds = 604800  # 7 days in seconds.
 
-Once :ref:`created <accounts-create>`, the user will need to be activated
+Once :ref:`created <accounts-create>`, the account will need to be activated
 before being able to authenticate, using the ``validate`` endpoint and the
 ``activation-key`` sent by email.
 
@@ -628,7 +629,7 @@ Example email:
 
     2fe7a389-3556-4c8f-9513-c26bfc5f160b
 
-It is the responsability of the admin to tell the mail recipient how to
+It is the responsability of the administrator to tell the mail recipient how to
 validate the account by modifying the email body template in the settings.
 
 This could be done by providing a link to a webapp that displays a form to the
@@ -646,8 +647,8 @@ The templates for the email subject and body can be customized:
     kinto.account_validation.email_body_template = "Hello {id},\n you can now activate your account using the following link:\n {form-url}{activation-key}"
 
 ... and they will be ``String.format``-ted with the content of the user, an
-optional additional ``email-context`` provided alongside the user record data,
-and the ``activation-key``:
+optional additional ``email-context`` provided alongside the user object, and
+the ``activation-key``:
 
 .. sourcecode:: bash
 
@@ -698,12 +699,12 @@ following settings:
     kinto.account_validation.email_reset_password_body_template = "Hello {id},\n you can use the following temporary reset password to change your password\n{reset-password}"
 
 Those templates will be rendered using the user record fields, an optional
-additional ``email-context`` provided alongside the user record data, and the
+additional ``email-context`` provided alongside the user object, and the
 ``reset-password``.
 
 
-It is the responsability of the admin to tell the mail recipient how to change
-their password using this temporary password.
+It is the responsability of the administrator to tell the mail recipient how to
+change their password using this temporary password.
 
 This could be done by providing a link to a webapp that displays a form to the
 user asking for the new password and a call to action, which will POST the
@@ -717,8 +718,8 @@ The templates for the email subject and body can be customized:
     kinto.account_validation.email_reset_password_body_template = "Hello {id},\n you can set a new password for your account following this link:\n https://example.com/{reset-password}"
 
 ... and they will be ``String.format``-ted with the content of the user, an
-optional additional ``email-context`` provided alongside the user record data,
-and the ``reset-password``:
+optional additional ``email-context`` provided alongside the user object, and
+the ``reset-password``:
 
 .. sourcecode:: bash
 
