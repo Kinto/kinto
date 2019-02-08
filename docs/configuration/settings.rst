@@ -569,6 +569,8 @@ You can set ``account_create_principals`` if you want to limit account creation 
 
 See the :ref:`API docs <api-accounts>` to create accounts, change passwords etc.
 
+.. _settings-account-validation:
+
 **About account validation**
 
 You can enable the :ref:`account validation <accounts-validate>` option, which
@@ -580,6 +582,14 @@ email will be sent with an activation key.
     kinto.account_validation = true
     # Set the sender for the validation email.
     kinto.account_validation.email_sender = "admin@example.com"
+
+.. note::
+
+    Both the account validation and password reset need a properly configured
+    smtp server.
+    To use a debug or testing mailer you may use the ``mail.mailer = debug`` or
+    ``mail.mailer = testing`` settings. Refer to
+    `pyramid_mailer's configuration <https://docs.pylonsproject.org/projects/pyramid_mailer/en/latest/#configuration>`_.
 
 You can restrict the email addresses allowed using the
 ``account_validation.email_regexp`` setting, and the delay for which the
@@ -593,24 +603,62 @@ activation key will be valid:
     # delay the account won't be activable anymore.
     kinto.account_validation.validation_key_cache_ttl_seconds = 604800  # 7 days in seconds.
 
-Once :ref:`created <accounts-validate>`, the user will need to be activated
+Once :ref:`created <accounts-create>`, the user will need to be activated
 before being able to authenticate, using the ``validate`` endpoint and the
 ``activation-key`` sent by email.
 
-The template used for the email subject and body can be customized using the
-following settings:
+.. sourcecode:: bash
+
+    $ echo '{"data": {"id": "bob@example.com", "password": "azerty123"}}' | http POST http://localhost:8888/v1/accounts --verbose
+
+If the user was created, an email was sent to the user with the activation key,
+which needs to be POSTed to the ``validate`` endpoint.
+
+Example email:
+
+::
+
+    Content-Type: text/plain; charset="us-ascii"
+    MIME-Version: 1.0
+    Content-Transfer-Encoding: quoted-printable
+    From: admin@example.com
+    Subject: activate your account
+    To: bob@example.com
+    Content-Disposition: inline
+
+    2fe7a389-3556-4c8f-9513-c26bfc5f160b
+
+It is the responsability of the admin to tell the mail recipient how to
+validate the account by modifying the email body template in the settings.
+
+This could be done by providing a link to a webapp that displays a form to the
+user with a call to action to validate the user, which will POST the activation
+key to the ``validate`` endpoint.
+
+Or the email could explain how to copy the activation code and paste it in some
+settings window.
+
+The templates for the email subject and body can be customized:
 
 .. code-block:: ini
 
-    kinto.account_validation.email_subject_template = "activate your account"
-    kinto.account_validation.email_body_template = "Hello {id},\n you can now activate your account using the following activation key:\n {activation-key}"
+    kinto.account_validation.email_subject_template = "Account activation"
+    kinto.account_validation.email_body_template = "Hello {id},\n you can now activate your account using the following link:\n {form-url}{activation-key}"
 
-Those templates will be rendered using the user record fields, an optional
-additional `email-context` provided alongside the user record data, and the
-`activation-key`.
+... and they will be ``String.format``-ted with the content of the user, an
+optional additional ``email-context`` provided alongside the user record data,
+and the ``activation-key``:
+
+.. sourcecode:: bash
+
+    $ echo '{"data": {"id": "bob@example.com", "password": "azerty123", "email-context": {"name": "Bob Smith", "form-url": "https://example.com/validate/"}}}' | http POST http://localhost:8888/v1/accounts --verbose
+
+Whatever the means, a POST to the
+``/accounts/(user_id)/validate/(activation_key)`` will validate and activate
+the user.
 
 Once the account is validated, another email will be sent for confirmation,
-rendered using the same `email-context`.
+rendered using the same ``email-context``.
 
 .. code-block:: ini
 
@@ -620,8 +668,26 @@ rendered using the same `email-context`.
 **About password reset**
 
 When the :ref:`account validation <accounts-validate>` option is enabled, an
-additional endpoint is available at `/accounts/{user id}/reset-password` to
+additional endpoint is available at ``/accounts/(user id)/reset-password`` to
 require a temporary reset password by email.
+
+.. sourcecode:: bash
+
+    $ http POST http://localhost:8888/v1/accounts/bob@example.com/reset-password --verbose
+
+Example email:
+
+::
+
+    Content-Type: text/plain; charset="us-ascii"
+    MIME-Version: 1.0
+    Content-Transfer-Encoding: quoted-printable
+    From: admin@example.com
+    Subject: Reset password
+    To: mathieu@agopian.info
+    Content-Disposition: inline
+
+    b8ae48e6-709e-4f01-bfb9-bca9464cdcfc
 
 The template used for the email subject and body can be customized using the
 following settings:
@@ -632,8 +698,34 @@ following settings:
     kinto.account_validation.email_reset_password_body_template = "Hello {id},\n you can use the following temporary reset password to change your password\n{reset-password}"
 
 Those templates will be rendered using the user record fields, an optional
-additional `email-context` provided alongside the user record data, and the
-`reset-password`.
+additional ``email-context`` provided alongside the user record data, and the
+``reset-password``.
+
+
+It is the responsability of the admin to tell the mail recipient how to change
+their password using this temporary password.
+
+This could be done by providing a link to a webapp that displays a form to the
+user asking for the new password and a call to action, which will POST the
+new password to the ``accounts/(user_id)`` endpoint.
+
+The templates for the email subject and body can be customized:
+
+.. code-block:: ini
+
+    kinto.account_validation.email_reset_password_subject_template = "Reset your password"
+    kinto.account_validation.email_reset_password_body_template = "Hello {id},\n you can set a new password for your account following this link:\n https://example.com/{reset-password}"
+
+... and they will be ``String.format``-ted with the content of the user, an
+optional additional ``email-context`` provided alongside the user record data,
+and the ``reset-password``:
+
+.. sourcecode:: bash
+
+    $ echo '{"data": {"email-context": {"name": "Bob Smith"}}}' | http POST http://localhost:8888/v1/accounts/bob@example.com/reset-password --verbose
+
+Using this temporary reset password, one can
+:ref:`update the account <accounts-update>` providing the new password.
 
 This temporary reset password will be valid for the amount of seconds set in
 the settings:
@@ -642,20 +734,6 @@ the settings:
 
     # Set the "time to live" for the reset password stored in the cache.
     kinto.account_validation.reset_password_cache_ttl_seconds = 604800  # 7 days in seconds.
-
-.. note::
-
-    Both the account validation and password reset need a properly configured
-    smtp server. Refer to `pyramid_mailer's configuration
-    <https://docs.pylonsproject.org/projects/pyramid_mailer/en/latest/#configuration>`_.
-
-.. note::
-
-    To use a debug or testing mailer you may use the ``mail.mailer = debug`` or
-    ``mail.mailer = testing`` settings. Refer to `pyramid_mailer's
-    configuration
-    <https://docs.pylonsproject.org/projects/pyramid_mailer/en/latest/#debugging>`_
-    to understand what they do.
 
 .. _settings-openid:
 

@@ -302,65 +302,19 @@ Or delete some account:
 Validate accounts
 =================
 
-If the ``account_validation`` option in :ref:`the settings
-<settings-accounts>` has been enabled, account IDs need to be valid email
-addresses: they need to match the regexp in the
-``account_validation.email_regexp`` setting.
+When the ``account_validation`` option is enabled in :ref:`the settings
+<settings-account-validation>`, account IDs need to be valid email addresses:
+they need to match the regexp in the ``account_validation.email_regexp``
+setting. The default one is very generic, but you may restrict it to only allow
+certain emails, for example only ones from a specific domain.
+
 To make sure the ``account_validation`` is enabled, you can check if the
 ``validation_enabled`` flag is ``true`` in the ``"accounts"`` field on the
 :ref:`root URL <api-utilities-hello>`.
 
-.. sourcecode:: bash
-
-    $ echo '{"data": {"id": "bob@example.com", "password": "azerty123"}}' | http POST http://localhost:8888/v1/accounts --verbose
-
-If the user was created, an email will be sent to the user with a link to a
-form with the activation key. This form should POST this activation key to the
-``validate`` endpoint.
-
-Example email:
-
-::
-
-    Content-Type: text/plain; charset="us-ascii"
-    MIME-Version: 1.0
-    Content-Transfer-Encoding: quoted-printable
-    From: admin@example.com
-    Subject: activate your account
-    To: bob@example.com
-    Content-Disposition: inline
-
-    2fe7a389-3556-4c8f-9513-c26bfc5f160b
-
-It is the responsability of the user creator to tell the mail recipient how to
-validate the account by modifying the email body template in the settings.
-
-This could be done by providing a link to a webapp that displays a form to the
-user with a call to action to validate the user, which will POST the activation
-key to the ``validate`` endpoint.
-
-.. code-block:: ini
-
-    kinto.account_validation.email_subject_template = "Account activation"
-    kinto.account_validation.email_body_template = "Hello {id},\n you can now activate your account using the following link:\n https://example.com/{activation-key}"
-
-Or the email could explain how to copy the activation code and paste it in some
-settings window.
-
-The templates for the email subject and body can be customized, and they will
-be `String.format`ted with the content of the user, an optional additional
-`email-context` provided alongside the user record data, and the
-`activation-key`:
-
-.. sourcecode:: bash
-
-    $ echo '{"data": {"id": "bob@example.com", "password": "azerty123", "email-context": {"name": "Bob Smith", "form-url": "https://example.com/validate/"}}}' | http POST http://localhost:8888/v1/accounts --verbose
-
-Whatever the means, a POST to the following endpoint will activate the account:
-
 .. http:post:: /accounts/(user_id)/validate/(activation_key)
 
-    :synopsis: Activates a newly created account with the ``account validation`` option enabled.
+    :synopsis: Activates a newly created account with the ``account_validation`` option enabled.
 
     **Anonymous**
 
@@ -400,63 +354,55 @@ Whatever the means, a POST to the following endpoint will activate the account:
             "validated": true
         }
 
-If the validation is successful, the account is active and another email is
-sent for confirmation, rendered using the same context as for the first email,
-minus the `activation-key`.
-
-.. code-block:: ini
-
-    kinto.account_validation.email_confirmation_subject_template = "Account active"
-    kinto.account_validation.email_confirmation_body_template = "Your account {id} is now active"
-
 .. _accounts-reset-password:
 
 Resetting a forgotten password
 ==============================
 
-If the ``account validation`` option in :ref:`the settings
-<settings-accounts>` has been enabled, a temporary reset password may be
-requested through the endpoint is available at
-`/accounts/(user id)/reset-password`.
+If the ``account_validation`` option in :ref:`the settings
+<settings-account-validation>` has been enabled, a temporary reset password may
+be requested through the endpoint available at `/accounts/(user
+id)/reset-password`.
 
-.. sourcecode:: bash
+.. http:post:: /accounts/(user_id)/reset-password
 
-    $ http POST http://localhost:8888/v1/accounts/bob@example.com/reset-password --verbose
+    :synopsis: Require a temporary reset password for an account with the ``account_validation`` option enabled.
 
-Example email:
+    **Anonymous**
 
-::
+    **Example Request**
 
-    Content-Type: text/plain; charset="us-ascii"
-    MIME-Version: 1.0
-    Content-Transfer-Encoding: quoted-printable
-    From: admin@example.com
-    Subject: Reset password
-    To: mathieu@agopian.info
-    Content-Disposition: inline
+    .. sourcecode:: bash
 
-    b8ae48e6-709e-4f01-bfb9-bca9464cdcfc
+        $ http POST http://localhost:8888/v1/accounts/bob@example.com/reset-password --verbose
 
-It is the responsability of the user creator to tell the mail recipient how to
-change their password using this temporary password.
 
-This could be done by providing a link to a webapp that displays a form to the
-user asking for the new password and a call to action, which will POST the
-new password to the ``accounts/(user_id)`` endpoint.
+    .. sourcecode:: http
 
-.. code-block:: ini
+        POST /v1/accounts/bob@example.com/reset-password HTTP/1.1
+        Accept: */*
+        Accept-Encoding: gzip, deflate
+        Connection: keep-alive
+        Content-Length: 0
+        Host: localhost:8888
+        User-Agent: HTTPie/0.9.8
 
-    kinto.account_validation.email_reset_password_subject_template = "Reset your password"
-    kinto.account_validation.email_reset_password_body_template = "Hello {id},\n you can set a new password for your account following this link:\n https://example.com/{reset-password}"
 
-The templates for the email subject and body can be customized, and they will
-be `String.format`ted with the content of the user, an optional additional
-`email-context` provided alongside the user record data, and the
-`reset-password`:
+    **Example Response**
 
-.. sourcecode:: bash
+    .. sourcecode:: http
 
-    $ echo '{"data": {"email-context": {"name": "Bob Smith"}}}' | http POST http://localhost:8888/v1/accounts/bob@example.com/reset-password --verbose
+        HTTP/1.1 200 OK
+        Access-Control-Expose-Headers: Backoff, Alert, Retry-After, Content-Length
+        Content-Length: 62
+        Content-Type: application/json
+        Date: Fri, 08 Feb 2019 14:04:15 GMT
+        Server: waitress
+        X-Content-Type-Options: nosniff
+
+        {
+            "message": "A temporary reset password has been sent by mail"
+        }
 
 Using this temporary reset password, one can
 :ref:`update the account <accounts-update>` providing the new password.
