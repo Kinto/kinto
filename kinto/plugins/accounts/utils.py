@@ -23,7 +23,7 @@ def is_validated(user):
     # An account is "validated" if it has the `validated` field set to True, or
     # no `validated` field at all (for accounts created before the "account
     # validation option" was enabled).
-    return "validated" not in user or user["validated"]
+    return user.get("validated", True)
 
 
 def get_cached_reset_password(username, registry):

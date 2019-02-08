@@ -16,7 +16,7 @@ from .utils import (
 def account_check(username, password, request):
     settings = request.registry.settings
     hmac_secret = settings["userid_hmac_secret"]
-    validation = settings.get("account_validation", False)
+    validation_enabled = settings.get("account_validation", False)
     cache_key = utils.hmac_digest(hmac_secret, ACCOUNT_CACHE_KEY.format(username))
     cache_ttl = int(settings.get("account_cache_ttl_seconds", 30))
     hashed_password = utils.hmac_digest(cache_key, password)
@@ -41,7 +41,7 @@ def account_check(username, password, request):
     except storage_exceptions.ObjectNotFoundError:
         return None
 
-    if validation and not is_validated(existing):
+    if validation_enabled and not is_validated(existing):
         return None
 
     hashed = existing["password"].encode(encoding="utf-8")
@@ -51,7 +51,19 @@ def account_check(username, password, request):
         cache.set(cache_key, hashed_password, ttl=cache_ttl)
         return True
 
-    # Last chance: is this a "reset password" flow?
+    # Last chance, is this a "reset password" flow?
+    reset_password_flow(username, password, request)
+
+
+def reset_password_flow(username, password, request):
+    settings = request.registry.settings
+    hmac_secret = settings["userid_hmac_secret"]
+    cache_key = utils.hmac_digest(hmac_secret, ACCOUNT_CACHE_KEY.format(username))
+    hashed_password = utils.hmac_digest(cache_key, password)
+    pwd_str = password.encode(encoding="utf-8")
+    cache_ttl = int(settings.get("account_cache_ttl_seconds", 30))
+    cache = request.registry.cache
+
     cached_password = get_cached_reset_password(username, request.registry)
     if not cached_password:
         return None
@@ -65,7 +77,8 @@ def account_check(username, password, request):
     except ValueError:
         return None
 
-    if not data or "password" not in data or [key for key in data.keys() if key != "password"]:
+    # Request one and only one data field: the `password`.
+    if not data or "password" not in data or len(data.keys()) > 1:
         return None
 
     cached_password_str = cached_password.encode(encoding="utf-8")

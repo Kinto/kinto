@@ -23,6 +23,12 @@ from ..utils import (
     ACCOUNT_VALIDATION_CACHE_KEY,
 )
 
+DEFAULT_EMAIL_REGEXP = "^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$"
+DEFAULT_EMAIL_SENDER = "admin@example.com"
+DEFAULT_SUBJECT_TEMPLATE = "activate your account"
+DEFAULT_BODY_TEMPLATE = "{activation-key}"
+DEFAULT_VALIDATION_KEY_CACHE_TTL_SECONDS = 7 * 24 * 60 * 60
+
 
 def _extract_posted_body_id(request):
     try:
@@ -45,7 +51,10 @@ def cache_validation_key(activation_key, username, registry):
     cache_key = utils.hmac_digest(hmac_secret, ACCOUNT_VALIDATION_CACHE_KEY.format(username))
     # Store an activation key for 7 days by default.
     cache_ttl = int(
-        settings.get("account_validation.validation_key_cache_ttl_seconds", 7 * 24 * 60 * 60)
+        settings.get(
+            "account_validation.validation_key_cache_ttl_seconds",
+            DEFAULT_VALIDATION_KEY_CACHE_TTL_SECONDS,
+        )
     )
 
     cache = registry.cache
@@ -77,10 +86,10 @@ class Account(resource.Resource):
         # Shortcut to check if current is anonymous (before get_parent_id()).
         context.is_anonymous = Authenticated not in request.effective_principals
         # Is the "accounts validation" setting set?
-        context.validation = settings.get("account_validation", False)
+        context.validation_enabled = settings.get("account_validation", False)
         # Account validation requires the user id to be an email.
         validation_email_regexp = settings.get(
-            "account_validation.email_regexp", "^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$"
+            "account_validation.email_regexp", DEFAULT_EMAIL_REGEXP
         )
         context.validation_email_regexp = re.compile(validation_email_regexp)
 
@@ -91,17 +100,17 @@ class Account(resource.Resource):
             # Creation is anonymous, but author with write perm is this:
             self.model.current_principal = f"{ACCOUNT_POLICY_NAME}:{self.model.parent_id}"
 
-        if context.validation:
+        if context.validation_enabled:
             # pyramid_mailer instance.
             self.mailer = get_mailer(request)
             self.email_sender = settings.get(
-                "account_validation.email_sender", "admin@example.com"
+                "account_validation.email_sender", DEFAULT_EMAIL_SENDER
             )
             self.email_subject_template = settings.get(
-                "account_validation.email_subject_template", "activate your account"
+                "account_validation.email_subject_template", DEFAULT_SUBJECT_TEMPLATE
             )
             self.email_body_template = settings.get(
-                "account_validation.email_body_template", "{activation-key}"
+                "account_validation.email_body_template", DEFAULT_BODY_TEMPLATE
             )
 
     @reify
@@ -157,7 +166,7 @@ class Account(resource.Resource):
         # Account validation requires that the record ID is an email address.
         # TODO: this might be better suited for a schema. Do we have a way to
         # dynamically change the schema according to the settings?
-        if self.context.validation and old is None:
+        if self.context.validation_enabled and old is None:
             email_regexp = self.context.validation_email_regexp
             # Account validation requires that the record ID is an email address.
             user_email = new[self.model.id_field]

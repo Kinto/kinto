@@ -349,22 +349,6 @@ class AccountValidationCreationTest(AccountsValidationWebTest):
             == "Your account alice@example.com has been successfully activated. Connect to https://example.com"
         )
 
-    def test_validation_fail_active_user(self):
-        uuid_string = "20e81ab7-51c0-444f-b204-f1c4cfe1aa7a"
-        with mock.patch("uuid.uuid4", return_value=uuid.UUID(uuid_string)):
-            self.app.post_json(
-                "/accounts", {"data": {"id": "alice@example.com", "password": "12éé6"}}, status=201
-            )
-        # Validate the user.
-        resp = self.app.post_json(
-            "/accounts/alice@example.com/validate/" + uuid_string, {}, status=200
-        )
-        # Try validating again.
-        resp = self.app.post_json(
-            "/accounts/alice@example.com/validate/" + uuid_string, {}, status=403
-        )
-        assert "Account alice@example.com has already been validated" in resp.json["message"]
-
     def test_previously_created_accounts_can_still_authenticate(self):
         """Accounts created before activating the 'account validation' option can still authenticate."""
         # Create an account without going through the accounts API.

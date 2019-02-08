@@ -11,12 +11,18 @@ from kinto.core.storage import exceptions as storage_exceptions
 
 from ..utils import (
     hash_password,
-    is_validated,
     EmailFormatter,
     ACCOUNT_RESET_PASSWORD_CACHE_KEY,
     ACCOUNT_VALIDATION_CACHE_KEY,
 )
 
+from . import DEFAULT_EMAIL_SENDER, DEFAULT_EMAIL_REGEXP
+
+DEFAULT_RESET_PASSWORD_CACHE_TTL_SECONDS = 7 * 24 * 60 * 60
+DEFAULT_CONFIRMATION_SUBJECT_TEMPLATE = "Account active"
+DEFAULT_CONFIRMATION_BODY_TEMPLATE = "The account {id} is now active"
+DEFAULT_RESET_SUBJECT_TEMPLATE = "Reset password"
+DEFAULT_RESET_BODY_TEMPLATE = "{reset-password}"
 
 # Account validation (enable in the settings).
 validation = Service(
@@ -55,10 +61,6 @@ def post_validation(request):
         error_details = {"message": "Account ID and activation key do not match"}
         raise http_error(httpexceptions.HTTPForbidden(), **error_details)
 
-    if is_validated(user):
-        error_details = {"message": f"Account {user_id} has already been validated"}
-        raise http_error(httpexceptions.HTTPForbidden(), **error_details)
-
     if not check_validation_key(activation_key, user_id, request.registry):
         error_details = {"message": "Account ID and activation key do not match"}
         raise http_error(httpexceptions.HTTPForbidden(), **error_details)
@@ -67,18 +69,19 @@ def post_validation(request):
     user["validated"] = True
 
     request.registry.storage.update(
-        parent_id=parent_id, resource_name="account", object_id=user_id, record=user
+        parent_id=parent_id, resource_name="account", object_id=user_id, obj=user
     )
 
     # Send a confirmation email.
     settings = request.registry.settings
     email_confirmation_subject_template = settings.get(
-        "account_validation.email_confirmation_subject_template", "Account active"
+        "account_validation.email_confirmation_subject_template",
+        DEFAULT_CONFIRMATION_SUBJECT_TEMPLATE,
     )
     email_confirmation_body_template = settings.get(
-        "account_validation.email_confirmation_body_template", "The account {id} is now active"
+        "account_validation.email_confirmation_body_template", DEFAULT_CONFIRMATION_BODY_TEMPLATE
     )
-    email_sender = settings.get("account_validation.email_sender", "admin@example.com")
+    email_sender = settings.get("account_validation.email_sender", DEFAULT_EMAIL_SENDER)
 
     user_email = user["id"]
     mailer = get_mailer(request)
@@ -116,7 +119,10 @@ def cache_reset_password(reset_password, username, registry):
     cache_key = utils.hmac_digest(hmac_secret, ACCOUNT_RESET_PASSWORD_CACHE_KEY.format(username))
     # Store a reset password for 7 days by default.
     cache_ttl = int(
-        settings.get("account_validation.reset_password_cache_ttl_seconds", 7 * 24 * 60 * 60)
+        settings.get(
+            "account_validation.reset_password_cache_ttl_seconds",
+            DEFAULT_RESET_PASSWORD_CACHE_TTL_SECONDS,
+        )
     )
 
     cache = registry.cache
@@ -139,9 +145,7 @@ def post_reset_password(request):
     settings = request.registry.settings
 
     user_email = user["id"]
-    email_regexp = settings.get(
-        "account_validation.email_regexp", "^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$"
-    )
+    email_regexp = settings.get("account_validation.email_regexp", DEFAULT_EMAIL_REGEXP)
     compiled_email_regexp = re.compile(email_regexp)
     if not compiled_email_regexp.match(user_email):
         error_details = {
@@ -157,12 +161,12 @@ def post_reset_password(request):
 
     # Send a temporary reset password by mail.
     email_reset_password_subject_template = settings.get(
-        "account_validation.email_reset_password_subject_template", "Reset password"
+        "account_validation.email_reset_password_subject_template", DEFAULT_RESET_SUBJECT_TEMPLATE
     )
     email_reset_password_body_template = settings.get(
-        "account_validation.email_reset_password_body_template", "{reset-password}"
+        "account_validation.email_reset_password_body_template", DEFAULT_RESET_BODY_TEMPLATE
     )
-    email_sender = settings.get("account_validation.email_sender", "admin@example.com")
+    email_sender = settings.get("account_validation.email_sender", DEFAULT_EMAIL_SENDER)
 
     mailer = get_mailer(request)
     user_email_context = user.get(
