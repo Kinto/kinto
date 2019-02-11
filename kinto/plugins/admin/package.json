@@ -4,7 +4,7 @@
   "private": true,
   "homepage": "http://localhost:8888/v1/admin/",
   "devDependencies": {
-    "react-scripts": "^2.1.3"
+    "react-scripts": "^2.1.4"
   },
   "dependencies": {
     "babel-polyfill": "^6.23.0",
