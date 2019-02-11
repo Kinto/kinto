@@ -10,7 +10,7 @@ SQLAlchemy==1.2.17
 python-memcached==1.59
 swagger-spec-validator==2.4.3
 tox==3.7.0
-WebTest==2.0.32
+WebTest==2.0.33
 werkzeug==0.14.1
 wheel==0.32.3
 zest.releaser==6.16.0
