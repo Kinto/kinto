@@ -2,8 +2,6 @@ import re
 import uuid
 from pyramid import httpexceptions
 from pyramid.events import subscriber
-from pyramid_mailer import get_mailer
-from pyramid_mailer.message import Message
 
 
 from kinto.core import Service, utils
@@ -11,20 +9,12 @@ from kinto.core.errors import raise_invalid, http_error
 from kinto.core.events import ResourceChanged, ACTIONS
 from kinto.core.storage import exceptions as storage_exceptions
 
-from ..utils import (
-    hash_password,
-    EmailFormatter,
-    ACCOUNT_RESET_PASSWORD_CACHE_KEY,
-    ACCOUNT_VALIDATION_CACHE_KEY,
-)
+from ..mails import Emailer
+from ..utils import hash_password, ACCOUNT_RESET_PASSWORD_CACHE_KEY, ACCOUNT_VALIDATION_CACHE_KEY
 
-from . import DEFAULT_EMAIL_SENDER, DEFAULT_EMAIL_REGEXP
+from . import DEFAULT_EMAIL_REGEXP
 
 DEFAULT_RESET_PASSWORD_CACHE_TTL_SECONDS = 7 * 24 * 60 * 60
-DEFAULT_CONFIRMATION_SUBJECT_TEMPLATE = "Account active"
-DEFAULT_CONFIRMATION_BODY_TEMPLATE = "The account {id} is now active"
-DEFAULT_RESET_SUBJECT_TEMPLATE = "Reset password"
-DEFAULT_RESET_BODY_TEMPLATE = "{reset-password}"
 
 # Account validation (enable in the settings).
 validation = Service(
@@ -136,44 +126,11 @@ def post_reset_password(request):
         raise_invalid(request, **error_details)
 
     reset_password = str(uuid.uuid4())
-    extra_data = {"reset-password": reset_password}
     hashed_reset_password = hash_password(reset_password)
     cache_reset_password(hashed_reset_password, user_id, request.registry)
 
     # Send a temporary reset password by mail.
-    email_reset_password_subject_template = settings.get(
-        "account_validation.email_reset_password_subject_template", DEFAULT_RESET_SUBJECT_TEMPLATE
-    )
-    email_reset_password_body_template = settings.get(
-        "account_validation.email_reset_password_body_template", DEFAULT_RESET_BODY_TEMPLATE
-    )
-    email_sender = settings.get("account_validation.email_sender", DEFAULT_EMAIL_SENDER)
-
-    mailer = get_mailer(request)
-    user_email_context = user.get(
-        "email-context", {}
-    )  # We might have some previous email context.
-    try:
-        data = request.json.get("data", {})
-        email_context = data.get("email-context", user_email_context)
-    except ValueError:
-        email_context = user_email_context
-
-    formatter = EmailFormatter()
-    formatted_subject = formatter.format(
-        email_reset_password_subject_template, **user, **extra_data, **email_context
-    )
-    formatted_body = formatter.format(
-        email_reset_password_body_template, **user, **extra_data, **email_context
-    )
-
-    message = Message(
-        subject=formatted_subject,
-        sender=email_sender,
-        recipients=[user_email],
-        body=formatted_body,
-    )
-    mailer.send(message)
+    Emailer(request, user).send_temporary_reset_password(reset_password)
 
     return {"message": "A temporary reset password has been sent by mail"}
 
@@ -194,32 +151,4 @@ def on_account_activated(event):
             continue
 
         # Send a confirmation email.
-        email_confirmation_subject_template = settings.get(
-            "account_validation.email_confirmation_subject_template",
-            DEFAULT_CONFIRMATION_SUBJECT_TEMPLATE,
-        )
-        email_confirmation_body_template = settings.get(
-            "account_validation.email_confirmation_body_template",
-            DEFAULT_CONFIRMATION_BODY_TEMPLATE,
-        )
-        email_sender = settings.get("account_validation.email_sender", DEFAULT_EMAIL_SENDER)
-
-        user_email = account["id"]
-        mailer = get_mailer(request)
-        email_context = account.get("email-context", {})
-
-        formatter = EmailFormatter()
-        formatted_subject = formatter.format(
-            email_confirmation_subject_template, **account, **email_context
-        )
-        formatted_body = formatter.format(
-            email_confirmation_body_template, **account, **email_context
-        )
-
-        message = Message(
-            subject=formatted_subject,
-            sender=email_sender,
-            recipients=[user_email],
-            body=formatted_body,
-        )
-        mailer.send(message)
+        Emailer(request, account).send_confirmation()

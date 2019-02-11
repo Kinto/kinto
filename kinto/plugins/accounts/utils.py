@@ -1,5 +1,4 @@
 import bcrypt
-import string
 
 from kinto.core import utils
 
@@ -34,13 +33,3 @@ def get_cached_reset_password(username, registry):
     cache = registry.cache
     cache_result = cache.get(cache_key)
     return cache_result
-
-
-class EmailFormatter(string.Formatter):
-    """Formatter class that will not fail if there's a missing key."""
-
-    def __init__(self, default="{{{0}}}"):
-        self.default = default
-
-    def get_value(self, key, args, kwargs):
-        return kwargs.get(key, self.default.format(key))

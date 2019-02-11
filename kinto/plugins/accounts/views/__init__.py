@@ -6,8 +6,6 @@ from pyramid.decorator import reify
 from pyramid.security import Authenticated, Everyone
 from pyramid.settings import aslist
 from pyramid.events import subscriber
-from pyramid_mailer import get_mailer
-from pyramid_mailer.message import Message
 
 
 from kinto.views import NameGenerator
@@ -15,18 +13,15 @@ from kinto.core import resource, utils
 from kinto.core.errors import raise_invalid, http_error
 from kinto.core.events import ResourceChanged, ACTIONS
 
+from ..mails import Emailer
 from ..utils import (
     hash_password,
-    EmailFormatter,
     ACCOUNT_CACHE_KEY,
     ACCOUNT_POLICY_NAME,
     ACCOUNT_VALIDATION_CACHE_KEY,
 )
 
 DEFAULT_EMAIL_REGEXP = "^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$"
-DEFAULT_EMAIL_SENDER = "admin@example.com"
-DEFAULT_SUBJECT_TEMPLATE = "activate your account"
-DEFAULT_BODY_TEMPLATE = "{activation-key}"
 DEFAULT_VALIDATION_KEY_CACHE_TTL_SECONDS = 7 * 24 * 60 * 60
 
 
@@ -99,19 +94,6 @@ class Account(resource.Resource):
         if self.model.current_principal == Everyone or context.is_administrator:
             # Creation is anonymous, but author with write perm is this:
             self.model.current_principal = f"{ACCOUNT_POLICY_NAME}:{self.model.parent_id}"
-
-        if context.validation_enabled:
-            # pyramid_mailer instance.
-            self.mailer = get_mailer(request)
-            self.email_sender = settings.get(
-                "account_validation.email_sender", DEFAULT_EMAIL_SENDER
-            )
-            self.email_subject_template = settings.get(
-                "account_validation.email_subject_template", DEFAULT_SUBJECT_TEMPLATE
-            )
-            self.email_body_template = settings.get(
-                "account_validation.email_body_template", DEFAULT_BODY_TEMPLATE
-            )
 
     @reify
     def id_generator(self):
@@ -236,31 +218,5 @@ def on_account_created(event):
         if activation_key is None:
             continue
 
-        extra_data = {"activation-key": activation_key}
-
         # Send an email to the user with the link to activate their account.
-        email_context = account.get("email-context", {})
-        formatter = EmailFormatter()
-
-        email_subject_template = settings.get(
-            "account_validation.email_subject_template", DEFAULT_SUBJECT_TEMPLATE
-        )
-        formatted_subject = formatter.format(
-            email_subject_template, **account, **extra_data, **email_context
-        )
-        email_body_template = settings.get(
-            "account_validation.email_body_template", DEFAULT_BODY_TEMPLATE
-        )
-        formatted_body = formatter.format(
-            email_body_template, **account, **extra_data, **email_context
-        )
-        email_sender = settings.get("account_validation.email_sender", DEFAULT_EMAIL_SENDER)
-
-        message = Message(
-            subject=formatted_subject,
-            sender=email_sender,
-            recipients=[user_email],
-            body=formatted_body,
-        )
-        mailer = get_mailer(request)
-        mailer.send(message)
+        Emailer(request, account).send_activation(activation_key)

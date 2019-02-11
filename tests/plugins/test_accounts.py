@@ -4,7 +4,8 @@ import uuid
 from unittest import mock
 
 from kinto.core import utils
-from kinto.core.testing import get_user_headers
+from kinto.core.events import ACTIONS, ResourceChanged
+from kinto.core.testing import get_user_headers, DummyRequest
 from pyramid.exceptions import ConfigurationError
 from pyramid_mailer import get_mailer
 
@@ -15,6 +16,8 @@ from kinto.plugins.accounts import (
     ACCOUNT_VALIDATION_CACHE_KEY,
 )
 from kinto.plugins.accounts.utils import hash_password
+from kinto.plugins.accounts.views import on_account_created
+from kinto.plugins.accounts.views.validation import on_account_activated
 from .. import support
 
 
@@ -488,6 +491,66 @@ class AccountValidationCreationTest(AccountsValidationWebTest):
         # Can't use the reset password anymore to authenticate.
         resp = self.app.get("/", headers=get_user_headers("alice@example.com", reset_password))
         assert "user" not in resp.json
+
+    def test_user_creation_listener(self):
+        request = DummyRequest()
+        impacted_object = {"new": {"id": "alice", "password": "12éé6"}}
+        with mock.patch("kinto.plugins.accounts.mails.Emailer.send_mail") as mocked_send_mail:
+            # No email sent if account validation is not enabled.
+            event = ResourceChanged({"action": ACTIONS.UPDATE.value}, [impacted_object], request)
+            on_account_created(event)
+            mocked_send_mail.assert_not_called()
+            # No email sent if there's no activation key in the cache.
+            request.registry.settings["account_validation"] = True
+            event = ResourceChanged({"action": ACTIONS.UPDATE.value}, [impacted_object], request)
+            request.registry.cache.get = mock.MagicMock(return_value=None)
+            on_account_created(event)
+            mocked_send_mail.assert_not_called()
+            # Email sent if there is an activation key in the cache.
+            request.registry.cache.get = mock.MagicMock(return_value="some activation key")
+            on_account_created(event)
+            mocked_send_mail.assert_called_once()
+
+    def test_user_validation_listener(self):
+        request = DummyRequest()
+        old_inactive = {"id": "alice", "password": "12éé6", "validated": False}
+        old_active = {"id": "alice", "password": "12éé6", "validated": True}
+        new_inactive = {"id": "alice", "password": "12éé6", "validated": False}
+        new_active = {"id": "alice", "password": "12éé6", "validated": True}
+        with mock.patch("kinto.plugins.accounts.mails.Emailer.send_mail") as mocked_send_mail:
+            # No email sent if account validation is not enabled.
+            event = ResourceChanged(
+                {"action": ACTIONS.UPDATE.value},
+                [{"old": old_inactive, "new": new_inactive}],
+                request,
+            )
+            on_account_activated(event)
+            mocked_send_mail.assert_not_called()
+            # No email sent if the old account was already active.
+            request.registry.settings["account_validation"] = True
+            event = ResourceChanged(
+                {"action": ACTIONS.UPDATE.value}, [{"old": old_active, "new": new_active}], request
+            )
+            request.registry.cache.get = mock.MagicMock(return_value=None)
+            on_account_activated(event)
+            mocked_send_mail.assert_not_called()
+            # No email sent if the new account is still inactive.
+            event = ResourceChanged(
+                {"action": ACTIONS.UPDATE.value},
+                [{"old": old_inactive, "new": new_inactive}],
+                request,
+            )
+            request.registry.cache.get = mock.MagicMock(return_value=None)
+            on_account_activated(event)
+            mocked_send_mail.assert_not_called()
+            # Email sent if there is an activation key in the cache.
+            event = ResourceChanged(
+                {"action": ACTIONS.UPDATE.value},
+                [{"old": old_inactive, "new": new_active}],
+                request,
+            )
+            on_account_activated(event)
+            mocked_send_mail.assert_called_once()
 
 
 class AccountUpdateTest(AccountsWebTest):
