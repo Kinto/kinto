@@ -1,12 +1,14 @@
 import re
 import uuid
 from pyramid import httpexceptions
+from pyramid.events import subscriber
 from pyramid_mailer import get_mailer
 from pyramid_mailer.message import Message
 
 
 from kinto.core import Service, utils
 from kinto.core.errors import raise_invalid, http_error
+from kinto.core.events import ResourceChanged, ACTIONS
 from kinto.core.storage import exceptions as storage_exceptions
 
 from ..utils import (
@@ -66,42 +68,21 @@ def post_validation(request):
         raise http_error(httpexceptions.HTTPForbidden(), **error_details)
 
     # User is now validated.
-    user["validated"] = True
+    new = user.copy()
+    new["validated"] = True
 
-    request.registry.storage.update(
-        parent_id=parent_id, resource_name="account", object_id=user_id, obj=user
+    result = request.registry.storage.update(
+        parent_id=parent_id, resource_name="account", object_id=user_id, obj=new
     )
-
-    # Send a confirmation email.
-    settings = request.registry.settings
-    email_confirmation_subject_template = settings.get(
-        "account_validation.email_confirmation_subject_template",
-        DEFAULT_CONFIRMATION_SUBJECT_TEMPLATE,
+    request.notify_resource_event(
+        parent_id=parent_id,
+        timestamp=result["last_modified"],
+        data=result,
+        action=ACTIONS.UPDATE,
+        old=user,
+        resource_name="account",
     )
-    email_confirmation_body_template = settings.get(
-        "account_validation.email_confirmation_body_template", DEFAULT_CONFIRMATION_BODY_TEMPLATE
-    )
-    email_sender = settings.get("account_validation.email_sender", DEFAULT_EMAIL_SENDER)
-
-    user_email = user["id"]
-    mailer = get_mailer(request)
-    email_context = user.get("email-context", {})
-
-    formatter = EmailFormatter()
-    formatted_subject = formatter.format(
-        email_confirmation_subject_template, **user, **email_context
-    )
-    formatted_body = formatter.format(email_confirmation_body_template, **user, **email_context)
-
-    message = Message(
-        subject=formatted_subject,
-        sender=email_sender,
-        recipients=[user_email],
-        body=formatted_body,
-    )
-    mailer.send(message)
-
-    return user
+    return new
 
 
 # Password reset.
@@ -195,3 +176,50 @@ def post_reset_password(request):
     mailer.send(message)
 
     return {"message": "A temporary reset password has been sent by mail"}
+
+
+# Send confirmation email on account activation if account validation is enabled.
+@subscriber(ResourceChanged, for_resources=("account",), for_actions=(ACTIONS.UPDATE,))
+def on_account_activated(event):
+    request = event.request
+    settings = request.registry.settings
+    if not settings.get("account_validation", False):
+        return
+
+    for impacted_object in event.impacted_objects:
+        old_account = impacted_object["old"]
+        account = impacted_object["new"]
+        if old_account.get("validated", True) or not account.get("validated", False):
+            # It's not an account activation, bail.
+            continue
+
+        # Send a confirmation email.
+        email_confirmation_subject_template = settings.get(
+            "account_validation.email_confirmation_subject_template",
+            DEFAULT_CONFIRMATION_SUBJECT_TEMPLATE,
+        )
+        email_confirmation_body_template = settings.get(
+            "account_validation.email_confirmation_body_template",
+            DEFAULT_CONFIRMATION_BODY_TEMPLATE,
+        )
+        email_sender = settings.get("account_validation.email_sender", DEFAULT_EMAIL_SENDER)
+
+        user_email = account["id"]
+        mailer = get_mailer(request)
+        email_context = account.get("email-context", {})
+
+        formatter = EmailFormatter()
+        formatted_subject = formatter.format(
+            email_confirmation_subject_template, **account, **email_context
+        )
+        formatted_body = formatter.format(
+            email_confirmation_body_template, **account, **email_context
+        )
+
+        message = Message(
+            subject=formatted_subject,
+            sender=email_sender,
+            recipients=[user_email],
+            body=formatted_body,
+        )
+        mailer.send(message)
