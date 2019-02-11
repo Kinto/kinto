@@ -448,6 +448,14 @@ class AccountValidationCreationTest(AccountsValidationWebTest):
             headers=get_user_headers("alice@example.com", "some random password"),
             status=401,
         )
+        # Can't use the reset password to modify other resources than accounts.
+        resp = self.app.post_json(
+            "/buckets/default/collections",
+            {"data": {"id": "some_collection_id"}},
+            headers=get_user_headers("alice@example.com", reset_password),
+            status=401,
+        )
+        assert resp.json["message"] == "Please authenticate yourself to use this endpoint."
         # Can't use reset password to authenticate.
         resp = self.app.get("/", headers=get_user_headers("alice@example.com", reset_password))
         assert "user" not in resp.json

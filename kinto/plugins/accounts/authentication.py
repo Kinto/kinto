@@ -72,6 +72,12 @@ def reset_password_flow(username, password, request):
     if request.method.lower() not in ["post", "put", "patch"]:
         return None
 
+    # Only allow modifying a user account, no other resource.
+    uri = utils.strip_uri_prefix(request.path)
+    resource_name, _ = utils.view_lookup(request, uri)
+    if resource_name != "account":
+        return None
+
     try:
         data = request.json["data"]
     except ValueError:
