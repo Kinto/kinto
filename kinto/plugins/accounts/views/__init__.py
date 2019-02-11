@@ -178,30 +178,10 @@ class Account(resource.Resource):
                 raise_invalid(self.request, **error_details)
 
             activation_key = str(uuid.uuid4())
-            extra_data = {"activation-key": activation_key}
             new["validated"] = False
 
             # Store the activation key in the cache to be used in the `validate` endpoint.
             cache_validation_key(activation_key, new["id"], self.request.registry)
-
-            # Send an email to the user with the link to activate their account.
-            email_context = new.get("email-context", {})
-            formatter = EmailFormatter()
-
-            formatted_subject = formatter.format(
-                self.email_subject_template, **new, **extra_data, **email_context
-            )
-            formatted_body = formatter.format(
-                self.email_body_template, **new, **extra_data, **email_context
-            )
-
-            message = Message(
-                subject=formatted_subject,
-                sender=self.email_sender,
-                recipients=[user_email],
-                body=formatted_body,
-            )
-            self.mailer.send(message)
 
         # Administrators can reach other accounts and anonymous have no
         # selected_userid. So do not try to enforce.
@@ -235,3 +215,52 @@ def on_account_changed(event):
         cache_key = utils.hmac_digest(hmac_secret, ACCOUNT_CACHE_KEY.format(username))
         # Delete cache
         cache.delete(cache_key)
+
+
+# Send activation code by email on account creation if account validation is enabled.
+@subscriber(ResourceChanged, for_resources=("account",), for_actions=(ACTIONS.CREATE,))
+def on_account_created(event):
+    request = event.request
+    settings = request.registry.settings
+    if not settings.get("account_validation", False):
+        return
+
+    cache = request.registry.cache
+    hmac_secret = settings["userid_hmac_secret"]
+
+    for impacted_object in event.impacted_objects:
+        account = impacted_object["new"]
+        user_email = account["id"]
+        cache_key = utils.hmac_digest(hmac_secret, ACCOUNT_VALIDATION_CACHE_KEY.format(user_email))
+        activation_key = cache.get(cache_key)
+        if activation_key is None:
+            continue
+
+        extra_data = {"activation-key": activation_key}
+
+        # Send an email to the user with the link to activate their account.
+        email_context = account.get("email-context", {})
+        formatter = EmailFormatter()
+
+        email_subject_template = settings.get(
+            "account_validation.email_subject_template", DEFAULT_SUBJECT_TEMPLATE
+        )
+        formatted_subject = formatter.format(
+            email_subject_template, **account, **extra_data, **email_context
+        )
+        email_body_template = settings.get(
+            "account_validation.email_body_template", DEFAULT_BODY_TEMPLATE
+        )
+        formatted_body = formatter.format(
+            email_body_template, **account, **extra_data, **email_context
+        )
+        email_sender = settings.get("account_validation.email_sender", DEFAULT_EMAIL_SENDER)
+
+        message = Message(
+            subject=formatted_subject,
+            sender=email_sender,
+            recipients=[user_email],
+            body=formatted_body,
+        )
+        mailer = get_mailer(request)
+        mailer.send(message)
