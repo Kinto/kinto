@@ -59,7 +59,7 @@ def cache_validation_key(activation_key, username, registry):
 class AccountIdGenerator(NameGenerator):
     """Allow @ signs in account IDs."""
 
-    regexp = r"^[a-zA-Z0-9][.@a-zA-Z0-9_-]*$"
+    regexp = r"^[a-zA-Z0-9][+.@a-zA-Z0-9_-]*$"
 
 
 class AccountSchema(resource.ResourceSchema):

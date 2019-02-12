@@ -132,7 +132,7 @@ class AccountCreationTest(AccountsWebTest):
 
     def test_id_can_be_email(self):
         self.app.put_json(
-            "/accounts/alice@example.com", {"data": {"password": "123456"}}, status=201
+            "/accounts/alice+test@example.com", {"data": {"password": "123456"}}, status=201
         )
 
     def test_account_can_have_metadata(self):
