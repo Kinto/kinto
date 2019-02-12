@@ -66,6 +66,7 @@ class ConfigTest(unittest.TestCase):
 
     @mock.patch("kinto.config.render_template")
     def test_init_postgresql_values(self, mocked_render_template):
+        self.maxDiff = None
         config.init("kinto.ini", backend="postgresql", cache_backend="postgresql")
 
         args, kwargs = list(mocked_render_template.call_args)
