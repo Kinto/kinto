@@ -48,7 +48,7 @@ def includeme(config):
         # according to
         # https://docs.pylonsproject.org/projects/pyramid_mailer/en/latest/#debugging
         mailer = settings.get("mail.mailer", "")
-        config.include("pyramid_mailer" + ("." + mailer if mailer else ""))
+        config.include("pyramid_mailer" + (f".{mailer}" if mailer else ""))
 
     # Check that the account policy is mentioned in config if included.
     accountClass = "AccountsPolicy"
