@@ -477,7 +477,7 @@ class AccountValidationCreationTest(AccountsValidationWebTest):
             # Ask for a reset password.
             self.app.post_json("/accounts/alice@example.com/reset-password", {}, status=200)
         # Use reset password to set a new password.
-        self.app.put_json(
+        self.app.patch_json(
             "/accounts/alice@example.com",
             {"data": {"password": "newpass"}},
             headers=get_user_headers("alice@example.com", reset_password),
@@ -486,6 +486,12 @@ class AccountValidationCreationTest(AccountsValidationWebTest):
         # Can use the new password to authenticate.
         resp = self.app.get("/", headers=get_user_headers("alice@example.com", "newpass"))
         assert resp.json["user"]["id"] == "account:alice@example.com"
+        # The user hasn't changed.
+        resp = self.app.get(
+            "/accounts/alice@example.com", headers=get_user_headers("alice@example.com", "newpass")
+        )
+        assert resp.json["data"]["id"] == "alice@example.com"
+        assert resp.json["data"]["validated"]
         # The reset password isn't in the cache anymore
         assert self.get_account_reset_password_cache("alice@example.com") is None
         # Can't use the reset password anymore to authenticate.
