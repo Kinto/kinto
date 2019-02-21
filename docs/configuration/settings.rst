@@ -710,16 +710,6 @@ This could be done by providing a link to a webapp that displays a form to the
 user asking for the new password and a call to action, which will POST the
 new password to the ``accounts/(user_id)`` endpoint.
 
-The templates for the email subject and body can be customized:
-
-.. code-block:: ini
-
-    kinto.account_validation.email_reset_password_subject_template = "Reset your password"
-    kinto.account_validation.email_reset_password_body_template = "Hello {id},\n you can set a new password for your account following this link:\n https://example.com/{reset-password}"
-
-... and they will be ``String.format``-ted with the content of the user, an
-optional additional ``email-context`` provided alongside the user object, and
-the ``reset-password``:
 
 .. sourcecode:: bash
 
