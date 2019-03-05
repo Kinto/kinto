@@ -1,11 +1,11 @@
 import colander
-from jsonschema import ValidationError, SchemaError, RefResolutionError
+from jsonschema import (
+    Draft7Validator as DraftValidator,
+    ValidationError,
+    SchemaError,
+    RefResolutionError,
+)
 from jsonschema.validators import validator_for
-
-try:  # pragma: no cover
-    from jsonschema import Draft7Validator as DraftValidator
-except ImportError:
-    from jsonschema import Draft4Validator as DraftValidator
 
 from pyramid.settings import asbool
 
