@@ -1,5 +1,5 @@
 bcrypt==3.1.6
-certifi==2018.11.29
+certifi==2019.3.9
 cffi==1.12.2
 chardet==3.0.4
 colander==1.7.0
