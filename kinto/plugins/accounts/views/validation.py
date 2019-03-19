@@ -4,17 +4,20 @@ from pyramid import httpexceptions
 from pyramid.events import subscriber
 
 
-from kinto.core import Service, utils
+from kinto.core import Service
 from kinto.core.errors import raise_invalid, http_error
 from kinto.core.events import ResourceChanged, ACTIONS
 from kinto.core.storage import exceptions as storage_exceptions
 
 from ..mails import Emailer
-from ..utils import hash_password, ACCOUNT_RESET_PASSWORD_CACHE_KEY, ACCOUNT_VALIDATION_CACHE_KEY
+from ..utils import (
+    cache_reset_password,
+    delete_cached_validation_key,
+    get_cached_validation_key,
+    hash_password,
+)
 
 from . import DEFAULT_EMAIL_REGEXP
-
-DEFAULT_RESET_PASSWORD_CACHE_TTL_SECONDS = 7 * 24 * 60 * 60
 
 # Account validation (enable in the settings).
 validation = Service(
@@ -26,14 +29,10 @@ validation = Service(
 
 def check_validation_key(activation_key, username, registry):
     """Given a username, compare the activation-key provided with the one from the cache."""
-    hmac_secret = registry.settings["userid_hmac_secret"]
-    cache_key = utils.hmac_digest(hmac_secret, ACCOUNT_VALIDATION_CACHE_KEY.format(username))
-
-    cache = registry.cache
-    cache_result = cache.get(cache_key)
+    cache_result = get_cached_validation_key(username, registry)
 
     if cache_result == activation_key:
-        cache.delete(cache_key)  # We're done with the activation key.
+        delete_cached_validation_key(username, registry)  # We're done with the activation key.
         return True
     return False
 
@@ -81,23 +80,6 @@ reset_password = Service(
     path="/accounts/{user_id}/reset-password",
     description="Send a temporary reset password by mail for an account",
 )
-
-
-def cache_reset_password(reset_password, username, registry):
-    """Store a reset-password in the cache."""
-    settings = registry.settings
-    hmac_secret = settings["userid_hmac_secret"]
-    cache_key = utils.hmac_digest(hmac_secret, ACCOUNT_RESET_PASSWORD_CACHE_KEY.format(username))
-    # Store a reset password for 7 days by default.
-    cache_ttl = int(
-        settings.get(
-            "account_validation.reset_password_cache_ttl_seconds",
-            DEFAULT_RESET_PASSWORD_CACHE_TTL_SECONDS,
-        )
-    )
-
-    cache = registry.cache
-    cache.set(cache_key, reset_password, ttl=cache_ttl)
 
 
 @reset_password.post()

@@ -27,6 +27,11 @@ This document describes changes between each past release.
 - Add a ``validate`` endpoint at ``/accounts/{user id}/validate/{validation
   key}`` which can be used to validate an account when the :ref:`account
   validation <accounts-validate>` option is enabled on the accounts plugin.
+- Add a ``reset-password`` endpoint at ``/accounts/(user
+  id)/reset-password`` which can be used to reset a user's password when the
+  :ref:`account validation <accounts-validate>` option is enabled on the
+  accounts plugin.
+
 
 API is now at version **1.22**. See `API changelog`_.
 

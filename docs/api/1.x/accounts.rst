@@ -153,6 +153,15 @@ Alternatively, accounts can be created using POST.  Supply the user id and passw
 
     Depending on the :ref:`configuration <settings-accounts>`, you may not be allowed to create accounts.
 
+.. note::
+
+    If the :ref:`accounts validation <settings-account-validation>` is enabled,
+    you might also need to provide an ``email-context`` in the ``data``: 
+
+    .. sourcecode:: bash
+
+        $ echo '{"data": {"id": "bob@example.com", "password": "azerty123", "email-context": {"name": "Bob Smith", "form-url": "https://example.com/validate/"}}}' | http POST http://localhost:8888/v1/accounts --verbose
+
 
 .. _accounts-update:
 
@@ -361,12 +370,12 @@ Resetting a forgotten password
 
 If the ``account_validation`` option in :ref:`the settings
 <settings-account-validation>` has been enabled, a temporary reset password may
-be requested through the endpoint available at `/accounts/(user
-id)/reset-password`.
+be requested through the endpoint available at ``/accounts/(user
+id)/reset-password``.
 
 .. http:post:: /accounts/(user_id)/reset-password
 
-    :synopsis: Require a temporary reset password for an account with the ``account_validation`` option enabled.
+    :synopsis: Request a temporary reset password for an account with the ``account_validation`` option enabled.
 
     **Anonymous**
 
@@ -403,6 +412,16 @@ id)/reset-password`.
         {
             "message": "A temporary reset password has been sent by mail"
         }
+
+   .. note::
+
+       You might also need to provide an ``email-context`` in the ``data`` to fill
+       in the holes of the email template defined in the :ref:`settings
+       <settings-account-password-reset>`:
+
+       .. sourcecode:: bash
+
+          $ echo '{"data": {"email-context": {"name": "Bob Smith"}}}' | http POST http://localhost:8888/v1/accounts/bob@example.com/reset-password --verbose
 
 Using this temporary reset password, one can
 :ref:`update the account <accounts-update>` providing the new password.

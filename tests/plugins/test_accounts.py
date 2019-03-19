@@ -9,13 +9,12 @@ from kinto.core.testing import get_user_headers, DummyRequest
 from pyramid.exceptions import ConfigurationError
 from pyramid_mailer import get_mailer
 
-from kinto.plugins.accounts import (
-    scripts,
-    ACCOUNT_CACHE_KEY,
-    ACCOUNT_RESET_PASSWORD_CACHE_KEY,
-    ACCOUNT_VALIDATION_CACHE_KEY,
+from kinto.plugins.accounts import scripts, ACCOUNT_CACHE_KEY
+from kinto.plugins.accounts.utils import (
+    get_cached_reset_password,
+    get_cached_validation_key,
+    hash_password,
 )
-from kinto.plugins.accounts.utils import hash_password
 from kinto.plugins.accounts.views import on_account_created
 from kinto.plugins.accounts.views.validation import on_account_activated
 from .. import support
@@ -240,18 +239,6 @@ class AccountCreationTest(AccountsWebTest):
 
 
 class AccountValidationCreationTest(AccountsValidationWebTest):
-    def get_account_validation_cache(self, username):
-        hmac_secret = self.app.app.registry.settings["userid_hmac_secret"]
-        cache_key = utils.hmac_digest(hmac_secret, ACCOUNT_VALIDATION_CACHE_KEY.format(username))
-        return self.app.app.registry.cache.get(cache_key)
-
-    def get_account_reset_password_cache(self, username):
-        hmac_secret = self.app.app.registry.settings["userid_hmac_secret"]
-        cache_key = utils.hmac_digest(
-            hmac_secret, ACCOUNT_RESET_PASSWORD_CACHE_KEY.format(username)
-        )
-        return self.app.app.registry.cache.get(cache_key)
-
     def test_create_account_fails_if_not_email(self):
         resp = self.app.post_json(
             "/accounts", {"data": {"id": "alice", "password": "12éé6"}}, status=400
@@ -287,7 +274,7 @@ class AccountValidationCreationTest(AccountsValidationWebTest):
         # the final email, instead of failing the formatting.
         assert mail.body == f"https://example.com/alice@example.com/{uuid_string} {{bad-key}}"
         # The activation key is stored in the cache.
-        assert self.get_account_validation_cache("alice@example.com") == uuid_string
+        assert get_cached_validation_key("alice@example.com", self.app.app.registry) == uuid_string
 
     def test_cant_authenticate_with_unactivated_account(self):
         self.app.post_json(
@@ -315,7 +302,7 @@ class AccountValidationCreationTest(AccountsValidationWebTest):
         )
         assert "Account ID and activation key do not match" in resp.json["message"]
         # The activation key is still in the cache
-        assert self.get_account_validation_cache("alice@example.com") is not None
+        assert get_cached_validation_key("alice@example.com", self.app.app.registry) is not None
 
     def test_validation_validates_user(self):
         # On user activation the 'validated' field is set to True.
@@ -341,7 +328,7 @@ class AccountValidationCreationTest(AccountsValidationWebTest):
         resp = self.app.get("/", headers=get_user_headers("alice@example.com", "12éé6"))
         assert resp.json["user"]["id"] == "account:alice@example.com"
         # Once activated, the activation key is removed from the cache.
-        assert self.get_account_validation_cache("alice@example.com") is None
+        assert get_cached_validation_key("alice@example.com", self.app.app.registry) is None
         assert len(self.mailer.outbox) == 2  # Validation email, reset password email.
         mail = self.mailer.outbox[1]  # Get the confirmation email.
         assert mail.sender == "admin@example.com"
@@ -405,9 +392,9 @@ class AccountValidationCreationTest(AccountsValidationWebTest):
             == f"You can use this temporary reset password {reset_password} to change your account alice@example.com password"
         )
         # The reset password is stored in the cache.
-        cached_password = self.get_account_reset_password_cache("alice@example.com").encode(
-            encoding="utf-8"
-        )
+        cached_password = get_cached_reset_password(
+            "alice@example.com", self.app.app.registry
+        ).encode(encoding="utf-8")
         pwd_str = reset_password.encode(encoding="utf-8")
         assert bcrypt.checkpw(pwd_str, cached_password)
 
@@ -493,7 +480,7 @@ class AccountValidationCreationTest(AccountsValidationWebTest):
         assert resp.json["data"]["id"] == "alice@example.com"
         assert resp.json["data"]["validated"]
         # The reset password isn't in the cache anymore
-        assert self.get_account_reset_password_cache("alice@example.com") is None
+        assert get_cached_reset_password("alice@example.com", self.app.app.registry) is None
         # Can't use the reset password anymore to authenticate.
         resp = self.app.get("/", headers=get_user_headers("alice@example.com", reset_password))
         assert "user" not in resp.json

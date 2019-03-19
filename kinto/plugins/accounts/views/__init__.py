@@ -9,20 +9,20 @@ from pyramid.events import subscriber
 
 
 from kinto.views import NameGenerator
-from kinto.core import resource, utils
+from kinto.core import resource
 from kinto.core.errors import raise_invalid, http_error
 from kinto.core.events import ResourceChanged, ACTIONS
 
 from ..mails import Emailer
 from ..utils import (
+    cache_validation_key,
+    delete_cached_account,
+    get_cached_validation_key,
     hash_password,
-    ACCOUNT_CACHE_KEY,
     ACCOUNT_POLICY_NAME,
-    ACCOUNT_VALIDATION_CACHE_KEY,
 )
 
 DEFAULT_EMAIL_REGEXP = "^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$"
-DEFAULT_VALIDATION_KEY_CACHE_TTL_SECONDS = 7 * 24 * 60 * 60
 
 
 def _extract_posted_body_id(request):
@@ -37,23 +37,6 @@ def _extract_posted_body_id(request):
         # Anonymous GET
         error_msg = "Cannot read accounts."
         raise http_error(httpexceptions.HTTPUnauthorized(), error=error_msg)
-
-
-def cache_validation_key(activation_key, username, registry):
-    """Store a validation_key in the cache."""
-    settings = registry.settings
-    hmac_secret = settings["userid_hmac_secret"]
-    cache_key = utils.hmac_digest(hmac_secret, ACCOUNT_VALIDATION_CACHE_KEY.format(username))
-    # Store an activation key for 7 days by default.
-    cache_ttl = int(
-        settings.get(
-            "account_validation.validation_key_cache_ttl_seconds",
-            DEFAULT_VALIDATION_KEY_CACHE_TTL_SECONDS,
-        )
-    )
-
-    cache = registry.cache
-    cache.set(cache_key, activation_key, ttl=cache_ttl)
 
 
 class AccountIdGenerator(NameGenerator):
@@ -187,16 +170,12 @@ class Account(resource.Resource):
 )
 def on_account_changed(event):
     request = event.request
-    cache = request.registry.cache
-    settings = request.registry.settings
-    hmac_secret = settings["userid_hmac_secret"]
 
     for obj in event.impacted_objects:
         # Extract username and password from current user
         username = obj["old"]["id"]
-        cache_key = utils.hmac_digest(hmac_secret, ACCOUNT_CACHE_KEY.format(username))
         # Delete cache
-        cache.delete(cache_key)
+        delete_cached_account(username, request.registry)
 
 
 # Send activation code by email on account creation if account validation is enabled.
@@ -207,14 +186,10 @@ def on_account_created(event):
     if not settings.get("account_validation", False):
         return
 
-    cache = request.registry.cache
-    hmac_secret = settings["userid_hmac_secret"]
-
     for impacted_object in event.impacted_objects:
         account = impacted_object["new"]
         user_email = account["id"]
-        cache_key = utils.hmac_digest(hmac_secret, ACCOUNT_VALIDATION_CACHE_KEY.format(user_email))
-        activation_key = cache.get(cache_key)
+        activation_key = get_cached_validation_key(user_email, request.registry)
         if activation_key is None:
             continue
 
