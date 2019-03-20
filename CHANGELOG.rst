@@ -6,20 +6,6 @@ This document describes changes between each past release.
 13.1.0 (unreleased)
 -------------------
 
-**Bug fixes**
-
-- Fixed two potential bugs relating to mutable default values.
-- Fix crash on validating records with errors in arrays (#1508)
-- Fix crash on deleting multiple accounts (#2009)
-
-**Internal changes**
-
-- Use ``setup.cfg`` for package metadata (ref #1921)
-
-**Documentation**
-
-- Fixed spelling and Filtering docs
-
 **New features**
 
 - Expose the user_profile in the user field of the hello page. (#1989)
@@ -32,8 +18,23 @@ This document describes changes between each past release.
   :ref:`account validation <accounts-validate>` option is enabled on the
   accounts plugin.
 
+**Bug fixes**
+
+- Fixed two potential bugs relating to mutable default values.
+- Fix crash on validating records with errors in arrays (#1508)
+- Fix crash on deleting multiple accounts (#2009)
+
+**Documentation**
+
+- Fixed spelling and Filtering docs
+
+**Internal changes**
+
+- Use ``setup.cfg`` for package metadata (ref #1921)
+
 
 API is now at version **1.22**. See `API changelog`_.
+
 
 13.0.1 (2019-01-29)
 -------------------
@@ -41,6 +42,7 @@ API is now at version **1.22**. See `API changelog`_.
 **Bug fixes**
 
 - Loosen up the Content-Security policies in the Kinto Admin plugin to prevent Webpack inline script to be rejected (fixes #2000)
+
 
 13.0.0 (2019-01-25)
 -------------------
