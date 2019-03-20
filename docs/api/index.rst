@@ -11,7 +11,7 @@ API
 Changelog
 ---------
 
-1.22 (unreleased)
+1.22 (2019-03-20)
 '''''''''''''''''
 
 - New ``/accounts/{user id}/validate/{validation key}`` endpoint to validate a
