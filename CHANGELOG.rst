@@ -3,6 +3,12 @@ Changelog
 
 This document describes changes between each past release.
 
+13.2.0 (unreleased)
+-------------------
+
+- Nothing changed yet.
+
+
 13.1.0 (2019-03-20)
 -------------------
 
