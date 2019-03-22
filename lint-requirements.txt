@@ -1,4 +1,6 @@
-therapist==1.5.0
+therapist==1.6.0 \
+    --hash=sha256:ba7bebe4df1ee7c78b420b5894824ce8150868eab8819e8a4a510feefc0e2884 \
+    --hash=sha256:e29c8c07676215093318e7b8aadc6c59784a1d9877eff77ffce20c9d63770a24
 black==19.3b0
 flake8==3.7.7
 setuptools==40.8.0
