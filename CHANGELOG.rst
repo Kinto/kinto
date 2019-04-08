@@ -6,8 +6,9 @@ This document describes changes between each past release.
 13.2.0 (unreleased)
 -------------------
 
-- Nothing changed yet.
+**Bug fixes**
 
+- Fix cache heartbeat test (fixes #2107)
 
 13.1.0 (2019-03-20)
 -------------------
