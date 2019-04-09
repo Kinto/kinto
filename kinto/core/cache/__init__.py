@@ -86,9 +86,9 @@ def heartbeat(backend):
         try:
             if random.SystemRandom().random() < _HEARTBEAT_DELETE_RATE:
                 backend.delete(_HEARTBEAT_KEY)
-            else:
-                backend.set(_HEARTBEAT_KEY, "alive", _HEARTBEAT_TTL_SECONDS)
-            return True
+                return backend.get(_HEARTBEAT_KEY) is None
+            backend.set(_HEARTBEAT_KEY, "alive", _HEARTBEAT_TTL_SECONDS)
+            return backend.get(_HEARTBEAT_KEY) == "alive"
         except Exception:
             logger.exception("Heartbeat Failure")
             return False
