@@ -69,7 +69,7 @@ Search in array fields
 
 * ``/collection?contains_any_field=value``
 
-  Same as the previous filter, but in the value is a list, it matches
+  Same as the previous filter, but if the value is a list, it matches
   all records whose field contains at least one of the listed values.
 
 Examples:
