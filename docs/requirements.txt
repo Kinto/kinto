@@ -2,7 +2,7 @@ docutils==0.14
 Sphinx==2.0.1
 sphinx_rtd_theme==0.4.3
 sphinxcontrib-httpdomain==1.7.0
-kinto-redis==2.0.0
+kinto
 mock==2.0.0
 webtest==2.0.33
 cornice==3.5.1
