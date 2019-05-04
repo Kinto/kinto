@@ -148,10 +148,11 @@ events.
 so that every Kinto-Core-based application can benefit from **pluggable listeners**
 without using `config.add_subscriber()` explicitely.
 
-Currently, a simple built-in listener is available, that just delivers the
-events into a Redis queue, allowing asynchronous event handling:
+Currently, a simple built-in listener is available in kinto-redis plugin,
+that just delivers the events into a Redis queue, allowing asynchronous event handling.
 
-.. autoclass:: kinto_redis.listeners.Listener
+See `Kinto Redis driver plugin repository <https://github.com/Kinto/kinto-redis>`_
+for more information.
 
 To activate it, look at :ref:`the dedicated configuration <configuring-notifications>`.
 
