@@ -15,7 +15,8 @@ PostgreSQL
 Redis
 -----
 
-.. autoclass:: kinto_redis.storage.Storage
+See `Kinto Redis driver plugin repository <https://github.com/Kinto/kinto-redis>`_
+for more information.
 
 
 Memory
