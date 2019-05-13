@@ -12,7 +12,7 @@ swagger-spec-validator==2.4.3
 tox==3.9.0
 WebTest==2.0.33
 werkzeug==0.15.2
-wheel==0.33.2
+wheel==0.33.4
 zest.releaser==6.18.2
 zope.sqlalchemy==1.1
 setuptools==41.0.1
