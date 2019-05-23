@@ -2,6 +2,7 @@ from unittest import mock
 
 import pytest
 
+from kinto.core import DEFAULT_SETTINGS
 from kinto.core.utils import COMPARISON, sqlalchemy
 from kinto.core.storage import generators, memory, postgresql, exceptions, StorageBase
 from kinto.core.storage import Filter, Sort, MISSING
@@ -270,6 +271,15 @@ class PostgreSQLStorageTest(StorageTest, unittest.TestCase):
                 storage.create(
                     resource_name="genre", parent_id="music", obj={"id": "rock-and-roll"}
                 )
+
+    def test_supports_null_pool(self):
+        settings = {
+            **DEFAULT_SETTINGS,
+            **self.settings,
+            "storage_poolclass": "sqlalchemy.pool.NullPool",
+        }
+        config = self._get_config(settings=settings)
+        self.backend.load_from_config(config)  # does not raise
 
 
 class PaginatedTest(unittest.TestCase):

@@ -45,6 +45,7 @@ class QueuePoolWithMaxBacklog(QueuePool):
     """
 
     def __init__(self, creator, max_backlog=-1, **kwds):
+        kwds.setdefault("pool_size", 25)
         QueuePool.__init__(self, creator, **kwds)
         self._pool = _QueueWithMaxBacklog(self._pool.maxsize, max_backlog)
 
