@@ -330,7 +330,7 @@ class RequestsConfigurationTest(unittest.TestCase):
     def _get_app(self, settings={}):
         app_settings = {
             "storage_backend": "kinto.core.storage.memory",
-            "cache_backend": "kinto_redis.cache",
+            "cache_backend": "kinto.core.cache.memory",
         }
         app_settings.update(**settings)
         config = Configurator(settings=app_settings)
