@@ -9,6 +9,11 @@ This document describes changes between each past release.
 **Bug fixes**
 
 - Fix cache heartbeat test (fixes #2107)
+- Fix support of ``sqlalchemy.pool.NullPool`` for PostgreSQL backends.
+  The default ``pool_size`` of 25 is maintained on the default pool class
+  (``QueuePoolWithMaxBacklog``). When using custom connection pools, please
+  refer to SQLAlchemy documentation for default values.
+
 
 **Internal changes**
 
