@@ -10,6 +10,11 @@ This document describes changes between each past release.
 
 - Fix cache heartbeat test (fixes #2107)
 
+**Internal changes**
+
+- Remove dependency to kinto-redis in core tests
+
+
 13.1.0 (2019-03-20)
 -------------------
 
