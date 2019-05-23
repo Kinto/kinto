@@ -158,11 +158,11 @@ class ProjectSettingsTest(unittest.TestCase):
         import os
 
         envkey = "MYPROJECT_CACHE_BACKEND"  # MYPROJECT_ prefix
-        os.environ[envkey] = "kinto.core.cache.memcached"
-        settings = {"kinto.cache_backend": "kinto.core.cache.memory"}
+        os.environ[envkey] = "kinto.core.cache.memory"
+        settings = {"kinto.cache_backend": "kinto.core.cache.memcached"}
         value = self.settings(settings)["cache_backend"]
         os.environ.pop(envkey)
-        self.assertEqual(value, "kinto.core.cache.memcached")
+        self.assertEqual(value, "kinto.core.cache.memory")
 
 
 class ApplicationWrapperTest(unittest.TestCase):
