@@ -28,12 +28,11 @@ This document describes changes between each past release.
 - Expose the user_profile in the user field of the hello page. (#1989)
 - Add an "account validation" option to the accounts plugin. (#1973)
 - Add a ``validate`` endpoint at ``/accounts/{user id}/validate/{validation
-  key}`` which can be used to validate an account when the :ref:`account
-  validation <accounts-validate>` option is enabled on the accounts plugin.
+  key}`` which can be used to validate an account when the *account
+  validation* option is enabled on the accounts plugin.
 - Add a ``reset-password`` endpoint at ``/accounts/(user
   id)/reset-password`` which can be used to reset a user's password when the
-  :ref:`account validation <accounts-validate>` option is enabled on the
-  accounts plugin.
+  *account validation* option is enabled on the accounts plugin.
 
 **Bug fixes**
 
