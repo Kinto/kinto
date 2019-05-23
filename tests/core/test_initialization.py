@@ -130,7 +130,7 @@ class InitializationTest(unittest.TestCase):
 class ProjectSettingsTest(unittest.TestCase):
     def settings(self, provided):
         config = Configurator(settings=provided)
-        kinto.core.initialize(config, "1.0", "kinto")
+        kinto.core.initialize(config, "1.0", "myproject")
         return config.get_settings()
 
     def test_uses_unprefixed_name(self):
@@ -138,11 +138,11 @@ class ProjectSettingsTest(unittest.TestCase):
         self.assertEqual(self.settings(settings)["paginate_by"], 3.14)
 
     def test_uses_settings_prefix(self):
-        settings = {"kinto.paginate_by": 42}
+        settings = {"myproject.paginate_by": 42}
         self.assertEqual(self.settings(settings)["paginate_by"], 42)
 
     def test_does_raise_valueerror_if_multiple_entries_are_equal(self):
-        settings = {"paginate_by": 42, "kinto.paginate_by": 42}
+        settings = {"paginate_by": 42, "myproject.paginate_by": 42}
         self.settings(settings)  # Not raising.
 
     def test_does_raise_valueerror_if_entries_are_not_hashable(self):
@@ -150,19 +150,19 @@ class ProjectSettingsTest(unittest.TestCase):
         self.settings(settings)  # Not raising.
 
     def test_raises_valueerror_if_different_multiple_entries(self):
-        settings = {"paginate_by": 42, "kinto.paginate_by": 3.14}
+        settings = {"paginate_by": 42, "myproject.paginate_by": 3.14}
         with self.assertRaises(ValueError):
             self.settings(settings)
 
     def test_environment_can_specify_settings_prefix(self):
         import os
 
-        envkey = "KINTO_STORAGE_BACKEND"
-        os.environ[envkey] = "kinto_redis.storage"
-        settings = {"kinto.storage_backend": "kinto.core.storage.memory"}
-        value = self.settings(settings)["storage_backend"]
+        envkey = "MYPROJECT_CACHE_BACKEND"  # MYPROJECT_ prefix
+        os.environ[envkey] = "kinto.core.cache.memcached"
+        settings = {"kinto.cache_backend": "kinto.core.cache.memory"}
+        value = self.settings(settings)["cache_backend"]
         os.environ.pop(envkey)
-        self.assertEqual(value, "kinto_redis.storage")
+        self.assertEqual(value, "kinto.core.cache.memcached")
 
 
 class ApplicationWrapperTest(unittest.TestCase):

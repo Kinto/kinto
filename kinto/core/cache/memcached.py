@@ -30,7 +30,7 @@ def wrap_memcached_error(func):
 
 
 def create_from_config(config, prefix=""):
-    """Redis client instantiation from settings.
+    """Memcached client instantiation from settings.
     """
     settings = config.get_settings()
     hosts = aslist(settings[prefix + "hosts"])
@@ -38,7 +38,7 @@ def create_from_config(config, prefix=""):
 
 
 class Cache(CacheBase):
-    """Cache backend implementation using Redis.
+    """Cache backend implementation using Memcached.
 
     Enable in configuration::
 
