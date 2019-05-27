@@ -1,6 +1,5 @@
 # Mozilla Kinto server
-FROM python:3.6-slim
-MAINTAINER Storage Team irc://irc.freenode.net/#kinto
+FROM python:3.7-slim
 
 RUN groupadd --gid 10001 app && \
     useradd --uid 10001 --gid 10001 --home /app --create-home app
