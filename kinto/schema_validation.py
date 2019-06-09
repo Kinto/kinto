@@ -48,6 +48,15 @@ _schema_cache = {}
 def validate(data, schema):
     """Raise a ValidationError or a RefResolutionError if the data doesn't validate
     with the given schema.
+    
+    Parameters:
+    data (int): Description of arg1 #needs completed
+    
+    schema (int): Description of arg2 #needs completed
+
+    Returns:
+    int: _schema_cache[cache_key].validate(data) #needs completed
+
 
     Note that this function is just a "wrapper" on `jsonschema.validate()` but with
     some memoization based on the schema for better repeat performance.
