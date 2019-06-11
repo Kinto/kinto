@@ -525,7 +525,7 @@ def initialize(config, version=None, settings_prefix="", default_settings=None):
     based on the specified version.
 
     :param config: Pyramid configuration
-    :type config: ~pyramid:pyramid.config.Configurator
+    :type config: :class:`~pyramid:pyramid.config.Configurator`
     :param str version: Current project version (e.g. '0.0.1') if not defined
         in application settings.
     :param str settings_prefix: Project name if not defined
