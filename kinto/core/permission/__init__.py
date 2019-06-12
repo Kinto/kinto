@@ -101,7 +101,7 @@ class PermissionBase:
         :param list bound_permissions: An optional list of tuples
             (object_id, permission) to limit the results.
             The object ids can be a pattern, (e.g. ``*``, ``'/my/articles*'``).
-        :param boolean with_children: Include the children of object ids or not.
+        :param bool with_children: Include the children of object ids or not.
 
         :returns: A mapping whose keys are the object_ids and the values are
             the related list of permissions.
