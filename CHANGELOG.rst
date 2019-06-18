@@ -6,7 +6,9 @@ This document describes changes between each past release.
 13.1.2 (unreleased)
 -------------------
 
-- Nothing changed yet.
+**Internal changes**
+
+- Upgrade kinto-admin to v1.24.0
 
 
 13.1.1 (2019-05-23)
