@@ -9,7 +9,7 @@
   "dependencies": {
     "babel-polyfill": "^6.23.0",
     "codemirror": "^5.46.0",
-    "kinto-admin": "1.23.0",
+    "kinto-admin": "1.24.0",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
     "react-router": "^4.3.1",
