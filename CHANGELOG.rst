@@ -6,7 +6,9 @@ This document describes changes between each past release.
 13.3.0 (unreleased)
 -------------------
 
-- Nothing changed yet.
+**Bug fixes**
+
+- Fix apparence of Admin notifications (fixes #2191)
 
 
 13.2.1 (2019-06-21)
