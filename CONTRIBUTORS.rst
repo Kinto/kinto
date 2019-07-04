@@ -73,6 +73,7 @@ Contributors
 * realsumit <sumitsarinofficial@gmail.com>
 * Rektide <rektide@voodoowarez.com>
 * Rémy Hubscher <rhubscher@mozilla.com>
+* Renisha Nellums <r.nellums@gmail.com>
 * Ricardo <@rkleine>
 * Rodolphe Quiédeville <rodolphe@quiedeville.org>
 * Sahil Dua <sahildua2305@gmail.com>

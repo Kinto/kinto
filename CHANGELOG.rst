@@ -6,7 +6,7 @@ This document describes changes between each past release.
 13.3.0 (unreleased)
 -------------------
 
-- Nothing changed yet.
+-  Fix intermittent failure when comparing timestamps in ConfigTest (fixes #2129)
 
 
 13.2.0 (2019-06-18)
