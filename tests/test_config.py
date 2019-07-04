@@ -17,8 +17,8 @@ class ConfigTest(unittest.TestCase):
         s1 = datetime.strptime(s1, "%a, %d %b %Y %H:%M:%S %z")
         s2 = datetime.strptime(s2, "%a, %d %b %Y %H:%M:%S %z")
         return self.assertTrue(
-            abs(s1-s2) < timedelta(seconds=1),
-            f"Delta beteen {s1} and {s2} is greater than 1 second"
+            abs(s1 - s2) < timedelta(seconds=1),
+            f"Delta between {s1} and {s2} is greater than 1 second"
         )
 
     def test_transpose_parameters_into_template(self):
