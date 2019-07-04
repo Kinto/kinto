@@ -1,4 +1,4 @@
-bcrypt==3.1.6
+bcrypt==3.1.7
 certifi==2019.6.16
 cffi==1.12.3
 chardet==3.0.4
@@ -6,7 +6,7 @@ colander==1.7.0
 colorama==0.4.1
 cornice==3.5.1
 cornice-swagger==0.7.0
-dockerflow==2019.5.0
+dockerflow==2019.6.0
 hupper==1.8.1
 idna==2.8
 iso8601==0.1.12
@@ -14,7 +14,7 @@ jsonpatch==1.23
 jsonpointer==2.0
 jsonschema==3.0.1
 logging-color-formatter==1.0.2
-newrelic==4.20.0.120
+newrelic==4.20.1.121
 PasteDeploy==2.0.1
 plaster==1.0
 plaster-pastedeploy==0.7
