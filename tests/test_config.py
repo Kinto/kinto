@@ -2,6 +2,7 @@ import codecs
 import os
 import tempfile
 import unittest
+from datetime import datetime, timedelta
 from time import strftime
 from unittest import mock
 
@@ -10,6 +11,16 @@ from kinto import __version__
 
 
 class ConfigTest(unittest.TestCase):
+
+    def _assertDatetimeAlmostEqual(self, s1, s2):
+        """Assert that two date strings are almost equal."""
+        s1 = datetime.strptime(s1, "%a, %d %b %Y %H:%M:%S %z")
+        s2 = datetime.strptime(s2, "%a, %d %b %Y %H:%M:%S %z")
+        return self.assertTrue(
+            abs(s1-s2) < timedelta(seconds=1),
+            f"Delta beteen {s1} and {s2} is greater than 1 second"
+        )
+
     def test_transpose_parameters_into_template(self):
         self.maxDiff = None
         template = "kinto.tpl"
@@ -85,8 +96,13 @@ class ConfigTest(unittest.TestCase):
                 "cache_url": postgresql_url,
                 "permission_url": postgresql_url,
                 "kinto_version": __version__,
-                "config_file_timestamp": strftime("%a, %d %b %Y %H:%M:%S %z"),
+                "config_file_timestamp": mock.ANY,
             },
+        )
+
+        self._assertDatetimeAlmostEqual(
+            strftime("%a, %d %b %Y %H:%M:%S %z"),    # expected
+            kwargs["config_file_timestamp"]          # actual
         )
 
     @mock.patch("kinto.config.render_template")
@@ -110,8 +126,13 @@ class ConfigTest(unittest.TestCase):
                 "cache_url": cache_url,
                 "permission_url": postgresql_url,
                 "kinto_version": __version__,
-                "config_file_timestamp": strftime("%a, %d %b %Y %H:%M:%S %z"),
+                "config_file_timestamp": mock.ANY,
             },
+        )
+
+        self._assertDatetimeAlmostEqual(
+            strftime("%a, %d %b %Y %H:%M:%S %z"),    # expected
+            kwargs["config_file_timestamp"]          # actual
         )
 
     @mock.patch("kinto.config.render_template")
@@ -135,8 +156,13 @@ class ConfigTest(unittest.TestCase):
                 "cache_url": redis_url + "/2",
                 "permission_url": redis_url + "/3",
                 "kinto_version": __version__,
-                "config_file_timestamp": strftime("%a, %d %b %Y %H:%M:%S %z"),
+                "config_file_timestamp": mock.ANY,
             },
+        )
+
+        self._assertDatetimeAlmostEqual(
+            strftime("%a, %d %b %Y %H:%M:%S %z"),    # expected
+            kwargs["config_file_timestamp"]          # actual
         )
 
     @mock.patch("kinto.config.render_template")
@@ -158,8 +184,13 @@ class ConfigTest(unittest.TestCase):
                 "cache_url": "",
                 "permission_url": "",
                 "kinto_version": __version__,
-                "config_file_timestamp": strftime("%a, %d %b %Y %H:%M:%S %z"),
+                "config_file_timestamp": mock.ANY,
             },
+        )
+
+        self._assertDatetimeAlmostEqual(
+            strftime("%a, %d %b %Y %H:%M:%S %z"),    # expected
+            kwargs["config_file_timestamp"]          # actual
         )
 
     def test_render_template_works_with_file_in_cwd(self):
