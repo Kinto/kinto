@@ -6,7 +6,19 @@ This document describes changes between each past release.
 13.3.0 (unreleased)
 -------------------
 
--  Fix intermittent failure when comparing timestamps in ConfigTest (fixes #2129)
+**Bug fixes**
+
+- Fix apparence of Admin notifications (fixes #2191)
+- Fix intermittent failure when comparing timestamps in ConfigTest (fixes #2129)
+
+
+13.2.1 (2019-06-21)
+-------------------
+
+**Internal changes**
+
+- Upgrade kinto-admin to v1.24.1
+
 
 
 13.2.0 (2019-06-18)
