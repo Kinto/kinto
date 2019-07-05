@@ -11,14 +11,13 @@ from kinto import __version__
 
 
 class ConfigTest(unittest.TestCase):
-
     def _assertDatetimeAlmostEqual(self, s1, s2):
         """Assert that two date strings are almost equal."""
         s1 = datetime.strptime(s1, "%a, %d %b %Y %H:%M:%S %z")
         s2 = datetime.strptime(s2, "%a, %d %b %Y %H:%M:%S %z")
         return self.assertTrue(
             abs(s1 - s2) < timedelta(seconds=1),
-            f"Delta between {s1} and {s2} is greater than 1 second"
+            f"Delta between {s1} and {s2} is greater than 1 second",
         )
 
     def test_transpose_parameters_into_template(self):
@@ -101,8 +100,8 @@ class ConfigTest(unittest.TestCase):
         )
 
         self._assertDatetimeAlmostEqual(
-            strftime("%a, %d %b %Y %H:%M:%S %z"),    # expected
-            kwargs["config_file_timestamp"]          # actual
+            strftime("%a, %d %b %Y %H:%M:%S %z"),  # expected
+            kwargs["config_file_timestamp"],  # actual
         )
 
     @mock.patch("kinto.config.render_template")
@@ -131,8 +130,8 @@ class ConfigTest(unittest.TestCase):
         )
 
         self._assertDatetimeAlmostEqual(
-            strftime("%a, %d %b %Y %H:%M:%S %z"),    # expected
-            kwargs["config_file_timestamp"]          # actual
+            strftime("%a, %d %b %Y %H:%M:%S %z"),  # expected
+            kwargs["config_file_timestamp"],  # actual
         )
 
     @mock.patch("kinto.config.render_template")
@@ -161,8 +160,8 @@ class ConfigTest(unittest.TestCase):
         )
 
         self._assertDatetimeAlmostEqual(
-            strftime("%a, %d %b %Y %H:%M:%S %z"),    # expected
-            kwargs["config_file_timestamp"]          # actual
+            strftime("%a, %d %b %Y %H:%M:%S %z"),  # expected
+            kwargs["config_file_timestamp"],  # actual
         )
 
     @mock.patch("kinto.config.render_template")
@@ -189,8 +188,8 @@ class ConfigTest(unittest.TestCase):
         )
 
         self._assertDatetimeAlmostEqual(
-            strftime("%a, %d %b %Y %H:%M:%S %z"),    # expected
-            kwargs["config_file_timestamp"]          # actual
+            strftime("%a, %d %b %Y %H:%M:%S %z"),  # expected
+            kwargs["config_file_timestamp"],  # actual
         )
 
     def test_render_template_works_with_file_in_cwd(self):
@@ -210,6 +209,6 @@ class ConfigTest(unittest.TestCase):
                 "permission_url": "",
                 "kinto_version": "",
                 "config_file_timestamp": "",
-            }
+            },
         )
         self.assertTrue(os.path.exists(os.path.join(temp_path, "kinto.ini")))
