@@ -190,7 +190,7 @@ In order to enable WSGI middleware, wrap the application in the project ``main``
         kinto.core.initialize(config, __version__, 'myproject')
         config.scan("myproject.views")
         app = config.make_wsgi_app()
-        return kinto.install_middlewares(app, settings)
+        return kinto.core.install_middlewares(app, settings)
 
 
 What's next ?
