@@ -20,7 +20,6 @@ This document describes changes between each past release.
 - Upgrade kinto-admin to v1.24.1
 
 
-
 13.2.0 (2019-06-18)
 -------------------
 
