@@ -11,8 +11,7 @@ from kinto import __version__
 
 
 class ConfigTest(unittest.TestCase):
-    def _assertTimestampStringsAlmostEqual(
-            self, s1, s2, delta=timedelta(seconds=1)):
+    def _assertTimestampStringsAlmostEqual(self, s1, s2, delta=timedelta(seconds=1)):
         """Assert that two timestamp strings are almost equal, within a
         specified timedelta.
 
@@ -29,9 +28,10 @@ class ConfigTest(unittest.TestCase):
         s2 = datetime.strptime(s2, "%a, %d %b %Y %H:%M:%S %z")
 
         return self.assertLessEqual(
-            abs(s1 - s2), delta,
+            abs(s1 - s2),
+            delta,
             f"Delta between {s1} and {s2} is {s1 - s2}. Expected difference "
-            f"to be less than or equal to {delta}"
+            f"to be less than or equal to {delta}",
         )
 
     def test_transpose_parameters_into_template(self):
