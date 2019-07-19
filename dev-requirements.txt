@@ -11,7 +11,7 @@ python-memcached==1.59
 swagger-spec-validator==2.4.3
 tox==3.13.2
 WebTest==2.0.33
-werkzeug==0.15.4
+werkzeug==0.15.5
 wheel==0.33.4
 zest.releaser==6.19.0
 zope.sqlalchemy==1.1
