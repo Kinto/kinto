@@ -4,7 +4,7 @@ cffi==1.12.3
 chardet==3.0.4
 colander==1.7.0
 colorama==0.4.1
-cornice==3.5.1
+cornice==3.6.0
 cornice-swagger==0.7.0
 dockerflow==2019.6.0
 hupper==1.8.1
