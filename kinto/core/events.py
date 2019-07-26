@@ -150,10 +150,12 @@ class EventCollectorDrain(object):
 
 
 def notify_resource_events_before(handler, registry):
-    """pyramid_tm "commit veto" hook to run ResourceChanged events.
+    """Tween that runs ResourceChanged events.
 
-    This hook being a "commit veto" let us tell pyramid_tm to abort
-    the transaction if the ResourceChanged listeners raise.
+    This tween runs under EXCVIEW, so exceptions raised by
+    ResourceChanged events are caught and dealt the same as any other
+    exceptions.
+
     """
 
     def tween(request):
