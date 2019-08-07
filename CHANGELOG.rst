@@ -9,7 +9,7 @@ This document describes changes between each past release.
 **Bug fixes**
 
 - Fix unexpected exception in ``/__version__`` endpoint
-- Add ``Content-Type`` to default_cors_headers (fixes #2220)
+- Add ``Content-Type`` to default_cors_headers (refs #2220)
 
 
 13.2.2 (2019-07-04)

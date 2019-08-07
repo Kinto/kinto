@@ -110,8 +110,7 @@ class Service(CorniceService):
     patching the default cornice service (which would impact other uses of it)
     """
 
-    default_cors_headers = ("Backoff", "Retry-After", "Alert",
-                            "Content-Length", "Content-Type")
+    default_cors_headers = ("Backoff", "Retry-After", "Alert", "Content-Length", "Content-Type")
 
     def error_handler(self, request):
         return errors.json_error_handler(request)
