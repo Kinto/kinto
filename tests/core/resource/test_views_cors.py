@@ -129,6 +129,7 @@ class CORSExposeHeadersTest(BaseWebTest, unittest.TestCase):
                 "Next-Page",
                 "Retry-After",
                 "Content-Length",
+                "Content-Type",
                 "Cache-Control",
                 "Expires",
                 "Pragma",
@@ -148,6 +149,7 @@ class CORSExposeHeadersTest(BaseWebTest, unittest.TestCase):
                 "Total-Objects",
                 "Total-Records",
                 "Content-Length",
+                "Content-Type",
                 "Cache-Control",
                 "Expires",
                 "Next-Page",
@@ -157,7 +159,7 @@ class CORSExposeHeadersTest(BaseWebTest, unittest.TestCase):
 
     def test_hello_endpoint_exposes_only_minimal_set_of_headers(self):
         self.assert_expose_headers(
-            "GET", "/", ["Alert", "Backoff", "Retry-After", "Content-Length"]
+            "GET", "/", ["Alert", "Backoff", "Retry-After", "Content-Type", "Content-Length"]
         )
 
     def test_object_get_exposes_only_used_headers(self):
@@ -174,6 +176,7 @@ class CORSExposeHeadersTest(BaseWebTest, unittest.TestCase):
                 "Retry-After",
                 "Last-Modified",
                 "Content-Length",
+                "Content-Type",
                 "Cache-Control",
                 "Expires",
                 "Pragma",
@@ -185,7 +188,7 @@ class CORSExposeHeadersTest(BaseWebTest, unittest.TestCase):
         self.assert_expose_headers(
             "POST_JSON",
             "/mushrooms",
-            ["Alert", "Backoff", "Retry-After", "Content-Length"],
+            ["Alert", "Backoff", "Retry-After", "Content-Length", "Content-Type"],
             body=body,
         )
 
@@ -194,7 +197,7 @@ class CORSExposeHeadersTest(BaseWebTest, unittest.TestCase):
         self.assert_expose_headers(
             "PUT_JSON",
             "/mushrooms/wrong=ids",
-            ["Alert", "Backoff", "Retry-After", "Content-Length"],
+            ["Alert", "Backoff", "Retry-After", "Content-Length", "Content-Type"],
             body=body,
             status=400,
         )
@@ -203,7 +206,7 @@ class CORSExposeHeadersTest(BaseWebTest, unittest.TestCase):
         self.assert_expose_headers(
             "PUT_JSON",
             "/unknown",
-            ["Alert", "Backoff", "Retry-After", "Content-Length"],
+            ["Alert", "Backoff", "Retry-After", "Content-Length", "Content-Type"],
             status=404,
         )
 

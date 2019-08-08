@@ -9,6 +9,7 @@ This document describes changes between each past release.
 **Bug fixes**
 
 - Fix unexpected exception in ``/__version__`` endpoint
+- Add ``Content-Type`` to default_cors_headers (refs #2220)
 
 **New features**
 
