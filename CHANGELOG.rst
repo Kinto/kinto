@@ -10,6 +10,10 @@ This document describes changes between each past release.
 
 - Fix unexpected exception in ``/__version__`` endpoint
 
+**New features**
+
+- Allow StatsD counter to be incremented by an arbitrary number
+
 
 13.2.2 (2019-07-04)
 -------------------

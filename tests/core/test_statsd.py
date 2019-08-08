@@ -59,6 +59,11 @@ class StatsdClientTest(unittest.TestCase):
             self.client.count("click")
             mocked_client.incr.assert_called_with("click", count=1)
 
+    def test_count_can_increment_by_more_than_one(self):
+        with mock.patch.object(self.client, "_client") as mocked_client:
+            self.client.count("click", count=10)
+            mocked_client.incr.assert_called_with("click", count=10)
+
     def test_count_with_unique_uses_sets_for_key(self):
         with mock.patch.object(self.client, "_client") as mocked_client:
             self.client.count("click", unique="menu")

@@ -29,9 +29,9 @@ class Client:
     def timer(self, key):
         return self._client.timer(key)
 
-    def count(self, key, unique=None):
+    def count(self, key, count=1, unique=None):
         if unique is None:
-            return self._client.incr(key, count=1)
+            return self._client.incr(key, count=count)
         else:
             return self._client.set(key, unique)
 
