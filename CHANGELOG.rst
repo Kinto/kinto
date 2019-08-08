@@ -10,6 +10,10 @@ This document describes changes between each past release.
 
 - Fix unexpected exception in ``/__version__`` endpoint
 
+**New features**
+
+- Allow StatsD counter to be incremented by an arbitrary number
+
 
 13.2.2 (2019-07-04)
 -------------------
@@ -17,7 +21,6 @@ This document describes changes between each past release.
 **Bug fixes**
 
 - Fix apparence of Admin notifications (fixes #2191)
-- Fix intermittent failure when comparing timestamps in ConfigTest (fixes #2129)
 
 
 13.2.1 (2019-06-21)
