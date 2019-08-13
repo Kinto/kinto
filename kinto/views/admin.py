@@ -35,7 +35,7 @@ class UserDataFactory(RouteFactory):
     method_permissions = {"delete": "delete"}
 
 
-class UserDataViewSet(viewset.ShareableViewSet):
+class UserDataViewSet(viewset.ViewSet):
     factory = UserDataFactory
 
 
@@ -94,7 +94,7 @@ def condense_under_parents(request, object_uris):
     viewset=UserDataViewSet(),
     object_methods=("DELETE",),
 )
-class UserData(resource.ShareableResource):
+class UserData(resource.Resource):
 
     schema = Deleted
 
@@ -156,7 +156,7 @@ class UserData(resource.ShareableResource):
                 batch = list(batch)
                 filters = [Filter("id", batch, core_utils.COMPARISON.IN)]
                 timestamp = storage.resource_timestamp(resource_name, parent_uri)
-                records, _ = storage.get_all(
+                records = storage.list_all(
                     resource_name=resource_name, parent_id=parent_uri, filters=filters
                 )
                 tombstones = storage.delete_all(
