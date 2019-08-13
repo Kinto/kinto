@@ -92,6 +92,7 @@ def condense_under_parents(request, object_uris):
     plural_path="/__user_data__",
     object_path="/__user_data__/{{principal}}",
     viewset=UserDataViewSet(),
+    plural_methods=tuple(),
     object_methods=("DELETE",),
 )
 class UserData(resource.ShareableResource):

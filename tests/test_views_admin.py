@@ -132,6 +132,13 @@ class DeleteUserDataTest(BaseWebTest, unittest.TestCase):
         # consequence of what got deleted.
         self.app.delete(self.delete_user_url, headers=self.headers)
 
+    def test_other_methods_are_not_allowed(self):
+        for url in ("/__user_data__", self.delete_user_url):
+            self.app.head(url, headers=self.headers, status=405)
+            self.app.get(url, headers=self.headers, status=405)
+            self.app.put(url, headers=self.headers, status=405)
+            self.app.patch(url, headers=self.headers, status=405)
+
     def test_doomed_bucket_was_deleted(self):
         with self.assertRaises(exceptions.ObjectNotFoundError):
             self.storage.get(resource_name="bucket", parent_id="", object_id="user_to_delete")

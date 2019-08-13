@@ -10,6 +10,7 @@ This document describes changes between each past release.
 
 - Fix unexpected exception in ``/__version__`` endpoint
 - Add ``Content-Type`` to default_cors_headers (refs #2220)
+- Fix crash with non-allowed requests on ``__user_data__`` (fixes #2063)
 
 **New features**
 
