@@ -467,10 +467,10 @@ def setup_listeners(config):
 
         if ACTIONS.READ in actions:
             config.add_subscriber(listener, ResourceRead, **options)
-            if len(actions) == 1:
-                return
+            actions.remove(ACTIONS.READ)
 
-        config.add_subscriber(listener, ResourceChanged, **options)
+        if len(actions) > 0:
+            config.add_subscriber(listener, ResourceChanged, **options)
 
 
 def load_default_settings(config, default_settings):
