@@ -121,7 +121,8 @@ class Account(resource.Resource):
     def process_object(self, new, old=None):
         new = super(Account, self).process_object(new, old)
 
-        new["password"] = hash_password(new["password"])
+        if "data" in self.request.json and "password" in self.request.json["data"]:
+            new["password"] = hash_password(new["password"])
 
         # Do not let accounts be created without usernames.
         if self.model.id_field not in new:

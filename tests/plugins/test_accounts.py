@@ -610,6 +610,18 @@ class AccountUpdateTest(AccountsWebTest):
         )
         assert resp.json["data"]["age"] == "captain"
 
+    def test_changing_metadata_does_not_change_password(self):
+        headers = get_user_headers("alice", "123456")
+        url = "/accounts/alice"
+        resp = self.app.get(url, headers=headers)
+        before = resp.json["data"]["password"]
+
+        self.app.patch_json(url, {"data": {"age": "captain"}}, headers=headers)
+
+        resp = self.app.get(url, headers=headers)
+        after = resp.json["data"]["password"]
+        assert before == after
+
 
 class AccountDeleteTest(AccountsWebTest):
     def setUp(self):
