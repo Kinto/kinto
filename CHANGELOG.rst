@@ -8,6 +8,7 @@ This document describes changes between each past release.
 
 **Bug fixes**
 
+- Prevent password to be modified on modification of accounts metadata (fixes #2058)
 - Fix unexpected exception in ``/__version__`` endpoint
 - Add ``Content-Type`` to default_cors_headers (refs #2220)
 
