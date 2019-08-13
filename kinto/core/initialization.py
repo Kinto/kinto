@@ -20,7 +20,7 @@ try:
 except ImportError:  # pragma: no cover
     newrelic = None
 try:
-    from werkzeug.contrib.profiler import ProfilerMiddleware
+    from werkzeug.middleware.profiler import ProfilerMiddleware
 except ImportError:  # pragma: no cover
     pass
 
