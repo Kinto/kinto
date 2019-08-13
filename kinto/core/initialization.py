@@ -467,7 +467,7 @@ def setup_listeners(config):
 
         if ACTIONS.READ in actions:
             config.add_subscriber(listener, ResourceRead, **options)
-            actions.remove(ACTIONS.READ)
+            actions = [a for a in actions if a != ACTIONS.READ]
 
         if len(actions) > 0:
             config.add_subscriber(listener, ResourceChanged, **options)
