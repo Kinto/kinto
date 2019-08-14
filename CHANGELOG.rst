@@ -3,7 +3,7 @@ Changelog
 
 This document describes changes between each past release.
 
-13.3.0 (unreleased)
+13.3.0 (2019-08-14)
 -------------------
 
 **Bug fixes**
