@@ -236,6 +236,37 @@ authenticated people to create bucket records:
 The format of these permission settings is
 ``<resource_name>_<permission>_principals = comma,separated,principals``.
 
+If you want to give all permissions to a user you can use the
+following configuration:
+
+.. code-block:: ini
+
+    # Kinto Admin Users Configuration
+    ## Accounts
+    kinto.account_create_principals = account:admin
+    kinto.account_write_principals = account:admin
+    kinto.account_read_principals = account:admin
+
+    ## Buckets
+    kinto.bucket_create_principals = account:admin
+    kinto.bucket_write_principals = account:admin
+    kinto.bucket_read_principals = account:admin
+
+    ## Collections
+    kinto.collection_create_principals = account:admin
+    kinto.collection_write_principals = account:admin
+    kinto.collection_read_principals = account:admin
+
+    ## Groups
+    kinto.group_create_principals = account:admin
+    kinto.group_write_principals = account:admin
+    kinto.group_read_principals = account:admin
+
+    ## Records
+    kinto.record_create_principals = account:admin
+    kinto.record_write_principals = account:admin
+    kinto.record_read_principals = account:admin
+
 
 Scheme, host, and port
 ======================
