@@ -1,5 +1,5 @@
 black==19.3b0
-bravado_core==5.13.1
+bravado_core==5.13.2
 flake8==3.7.8
 pytest==5.1.2
 pytest-cache==1.0
