@@ -65,7 +65,7 @@ def includeme(config):
         error_msg = (
             "\033[1;31;40m"
             "The account plugin works really poorly with the memory backend because "
-            "accounts are flushed at each startup this is why you can't use the "
+            "accounts are flushed at each startup.\nThis is why you can't use the "
             "kinto create-user command with it."
             "\033[0;37;40m"
         )
