@@ -1,4 +1,5 @@
 import re
+import sys
 
 from kinto.authorization import PERMISSIONS_INHERITANCE_TREE
 from pyramid.exceptions import ConfigurationError
@@ -59,6 +60,18 @@ def includeme(config):
             if v.endswith(accountClass) or v.endswith("AccountsAuthenticationPolicy"):
                 policy = m.group(1)
 
+
+    if settings["storage_backend"] == "kinto.core.storage.memory":
+        error_msg = (
+            "\033[1;31;40m"
+            "The account plugin works really poorly with the memory backend because "
+            "accounts are flushed at each startup this is why you can't use the "
+            "kinto create-user command with it."
+            "\033[0;37;40m"
+        )
+        print(error_msg, file=sys.stderr)
+
+    
     if not policy:
         error_msg = (
             "Account policy missing the 'multiauth.policy.*.use' "

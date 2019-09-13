@@ -6,7 +6,9 @@ This document describes changes between each past release.
 13.5.0 (unreleased)
 -------------------
 
-- Nothing changed yet.
+**Internal changes**
+
+- Add a warning when using the accounts plugin with the memory backend. (fixes #2258)
 
 
 13.4.0 (2019-09-12)
