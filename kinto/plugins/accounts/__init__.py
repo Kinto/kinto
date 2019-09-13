@@ -61,7 +61,7 @@ def includeme(config):
                 policy = m.group(1)
 
 
-    if settings["storage_backend"] == "kinto.core.storage.memory":
+    if settings["storage_backend"] == "kinto.core.storage.memory":  # pragma: no cover
         error_msg = (
             "\033[1;31;40m"
             "The account plugin works really poorly with the memory backend because "
