@@ -60,7 +60,6 @@ def includeme(config):
             if v.endswith(accountClass) or v.endswith("AccountsAuthenticationPolicy"):
                 policy = m.group(1)
 
-
     if settings["storage_backend"] == "kinto.core.storage.memory":  # pragma: no cover
         error_msg = (
             "\033[1;31;40m"
@@ -71,7 +70,6 @@ def includeme(config):
         )
         print(error_msg, file=sys.stderr)
 
-    
     if not policy:
         error_msg = (
             "Account policy missing the 'multiauth.policy.*.use' "
