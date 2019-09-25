@@ -9,6 +9,7 @@ This document describes changes between each past release.
 **Internal changes**
 
 - Add a warning when using the accounts plugin with the memory backend. (fixes #2258)
+- Upgrade kinto-admin to v1.25.1
 
 
 13.4.0 (2019-09-12)
