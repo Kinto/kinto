@@ -3,7 +3,7 @@ Changelog
 
 This document describes changes between each past release.
 
-13.5.0 (unreleased)
+13.5.0 (2019-09-26)
 -------------------
 
 **Internal changes**
