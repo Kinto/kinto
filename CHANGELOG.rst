@@ -6,7 +6,9 @@ This document describes changes between each past release.
 13.6.0 (unreleased)
 -------------------
 
-- Nothing changed yet.
+**Internal Changes**
+
+- Use package-lock file for Kinto Admin packaging
 
 
 13.5.0 (2019-09-26)
