@@ -45,11 +45,11 @@ class MigratorTest(unittest.TestCase):
 
         self.migrator.create_or_migrate_schema()
         sql_called = execute_sql.call_args_list[-3][0][0]
-        self.assertIn("migrations/migration_003_004.sql", sql_called)
+        self.assertIn(os.path.join("migrations", "migration_003_004.sql"), sql_called)
         sql_called = execute_sql.call_args_list[-2][0][0]
-        self.assertIn("migrations/migration_004_005.sql", sql_called)
+        self.assertIn(os.path.join("migrations", "migration_004_005.sql"), sql_called)
         sql_called = execute_sql.call_args_list[-1][0][0]
-        self.assertIn("migrations/migration_005_006.sql", sql_called)
+        self.assertIn(os.path.join("migrations", "migration_005_006.sql"), sql_called)
 
     def test_migration_files_are_listed_if_ran_with_dry_run(self, execute_sql):
         self._walk_from_3_to_6()
@@ -57,10 +57,10 @@ class MigratorTest(unittest.TestCase):
         with mock.patch("kinto.core.storage.postgresql.migrator.logger") as mocked:
             self.migrator.create_or_migrate_schema(dry_run=True)
 
-        output = "".join([repr(call) for call in mocked.info.call_args_list])
-        self.assertIn("migrations/migration_003_004.sql", output)
-        self.assertIn("migrations/migration_004_005.sql", output)
-        self.assertIn("migrations/migration_005_006.sql", output)
+        output = "".join([repr(call) for call in mocked.info.call_args_list]).replace("\\\\", "\\")
+        self.assertIn(os.path.join("migrations", "migration_003_004.sql"), output)
+        self.assertIn(os.path.join("migrations", "migration_004_005.sql"), output)
+        self.assertIn(os.path.join("migrations", "migration_005_006.sql"), output)
 
     def test_migration_fails_if_intermediary_version_is_missing(self, execute_sql):
         with mock.patch.object(self.migrator, "get_installed_version") as current:
