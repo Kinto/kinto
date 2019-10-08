@@ -12,14 +12,18 @@ from io import StringIO
 from kinto import __version__ as kinto_version
 from kinto.__main__ import main, DEFAULT_LOG_FORMAT
 
-_, TEMP_KINTO_INI = tempfile.mkstemp(prefix="kinto_config", suffix=".ini")
+fd, TEMP_KINTO_INI = tempfile.mkstemp(prefix="kinto_config", suffix=".ini")
+# The above call to mkstemp returns a handle to an open file. On Windows,
+# attempting to call os.remove on this file will result in an error unless it is
+# manually closed.
+os.fdopen(fd).close()
 
 
 class TestMain(unittest.TestCase):
     def setUp(self):
         try:
             os.remove(TEMP_KINTO_INI)
-        except OSError:
+        except FileNotFoundError:
             pass
 
     def test_cli_init_generates_configuration(self):
