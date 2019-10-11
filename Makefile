@@ -63,7 +63,7 @@ $(PYTHON):
 	$(VIRTUALENV) $(VENV)
 
 build-kinto-admin: need-npm
-	cd kinto/plugins/admin/; npm install && export REACT_APP_VERSION="$$(npm list | egrep kinto-admin | cut -d @ -f 2)" && npm run build
+	cd kinto/plugins/admin/; npm ci && export REACT_APP_VERSION="$$(npm list | egrep kinto-admin | cut -d @ -f 2)" && npm run build
 
 $(SERVER_CONFIG):
 	$(VENV)/bin/kinto init --ini $(SERVER_CONFIG)
