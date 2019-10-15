@@ -156,7 +156,7 @@ About transactions
 
 The whole batch of requests is executed under one transaction only.
 
-In order words, if one of the sub-request fails with a 503 status for example, then
+In other words, if one of the sub-request fails with a 503 status for example, then
 every previous operation is rolled back.
 
 .. important::
