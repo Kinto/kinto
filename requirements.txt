@@ -1,6 +1,6 @@
 bcrypt==3.1.7
 certifi==2019.9.11
-cffi==1.12.3
+cffi==1.13.0
 chardet==3.0.4
 colander==1.7.0
 colorama==0.4.1
