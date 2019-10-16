@@ -1,8 +1,9 @@
+import os
+
 from pyramid.config import Configurator
 from pyramid.static import static_view
 
 import kinto.core
-import os
 
 here = os.path.dirname(__file__)
 

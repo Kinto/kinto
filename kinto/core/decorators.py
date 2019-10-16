@@ -1,6 +1,6 @@
+from functools import update_wrapper, wraps
 import threading
 import warnings
-from functools import update_wrapper, wraps
 
 from pyramid.response import Response
 

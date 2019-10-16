@@ -1,9 +1,9 @@
-import uuid
+import os
 from unittest import mock
+import uuid
 
 from pyramid import testing
 
-import os
 from kinto.core import initialization
 from kinto.core.events import ACTIONS, ResourceChanged, ResourceRead
 from kinto.core.listeners import ListenerBase

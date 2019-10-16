@@ -1,14 +1,15 @@
+import re
 import uuid
 
 from pyramid import httpexceptions
 from pyramid.events import subscriber
 
-import re
 from kinto.core import Service
 from kinto.core.errors import http_error, raise_invalid
 from kinto.core.events import ACTIONS, ResourceChanged
 from kinto.core.storage import exceptions as storage_exceptions
 
+from . import DEFAULT_EMAIL_REGEXP
 from ..mails import Emailer
 from ..utils import (
     cache_reset_password,
@@ -16,7 +17,6 @@ from ..utils import (
     get_cached_validation_key,
     hash_password,
 )
-from . import DEFAULT_EMAIL_REGEXP
 
 # Account validation (enable in the settings).
 validation = Service(

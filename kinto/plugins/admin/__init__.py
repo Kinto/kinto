@@ -1,9 +1,8 @@
 import json
+import os
 
 from pyramid.httpexceptions import HTTPTemporaryRedirect
 from pyramid.static import static_view
-
-import os
 
 from .views import admin_home_view
 

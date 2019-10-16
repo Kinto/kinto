@@ -1,8 +1,8 @@
-import logging
-import warnings
 from collections import defaultdict
-
+import logging
 import os
+import warnings
+
 from kinto.core.decorators import deprecate_kwargs
 from kinto.core.storage import (
     DEFAULT_DELETED_FIELD,

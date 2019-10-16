@@ -1,8 +1,8 @@
 import json
+import re
 import unittest
 from unittest import mock
 
-import re
 from kinto.core.testing import get_user_headers
 
 from .support import (

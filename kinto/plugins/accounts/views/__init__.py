@@ -1,13 +1,14 @@
+import re
 import uuid
 
 import colander
+
 from pyramid import httpexceptions
 from pyramid.decorator import reify
 from pyramid.events import subscriber
 from pyramid.security import Authenticated, Everyone
 from pyramid.settings import aslist
 
-import re
 from kinto.core import resource
 from kinto.core.errors import http_error, raise_invalid
 from kinto.core.events import ACTIONS, ResourceChanged

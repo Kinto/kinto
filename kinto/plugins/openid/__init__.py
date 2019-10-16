@@ -1,8 +1,9 @@
 import requests
+from zope.interface import implementer
+
 from pyramid import authentication as base_auth
 from pyramid.interfaces import IAuthenticationPolicy
 from pyramid.settings import aslist
-from zope.interface import implementer
 
 from kinto.core import logger, utils as core_utils
 from kinto.core.openapi import OpenAPI

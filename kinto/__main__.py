@@ -1,13 +1,13 @@
 import argparse
 import logging
 import logging.config
+import os
 import subprocess
 import sys
 
 from pyramid.paster import bootstrap
 from pyramid.scripts import pserve
 
-import os
 from kinto import __version__, scripts as kinto_scripts
 from kinto.config import init
 from kinto.core import scripts as core_scripts

@@ -1,5 +1,5 @@
-import logging
 from functools import wraps
+import logging
 from math import ceil, floor
 from time import time
 

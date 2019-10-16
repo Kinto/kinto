@@ -1,6 +1,7 @@
 from unittest import mock
 
 import colander
+
 from pyramid import httpexceptions
 
 from kinto.core.errors import ERRORS

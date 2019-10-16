@@ -1,6 +1,6 @@
+import os
 import unittest
 
-import os
 from kinto.plugins.admin import views as admin_views
 
 from ..support import BaseWebTest

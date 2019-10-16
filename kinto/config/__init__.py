@@ -1,8 +1,8 @@
 import codecs
 import logging
+import os
 from time import strftime
 
-import os
 from kinto import __version__
 from kinto.core import utils as core_utils
 

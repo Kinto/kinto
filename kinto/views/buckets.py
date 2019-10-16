@@ -1,4 +1,5 @@
 import colander
+
 from pyramid.events import subscriber
 
 from kinto.core import resource

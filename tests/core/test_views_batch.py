@@ -1,8 +1,9 @@
 import unittest
-import uuid
 from unittest import mock
+import uuid
 
 import colander
+
 from pyramid.response import Response
 
 from kinto.core.testing import DummyRequest

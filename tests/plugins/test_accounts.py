@@ -1,10 +1,11 @@
 import unittest
-import uuid
 from unittest import mock
+import uuid
 
 import bcrypt
-from pyramid.exceptions import ConfigurationError
 from pyramid_mailer import get_mailer
+
+from pyramid.exceptions import ConfigurationError
 
 from kinto.core import utils
 from kinto.core.events import ACTIONS, ResourceChanged

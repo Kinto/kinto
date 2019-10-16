@@ -2,6 +2,7 @@ from unittest import TestCase, mock
 
 import colander
 from cornice.validators import colander_validator
+
 from pyramid import exceptions, testing
 
 from kinto.core import DEFAULT_SETTINGS, authorization

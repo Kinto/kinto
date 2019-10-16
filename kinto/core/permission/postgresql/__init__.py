@@ -1,7 +1,7 @@
-import logging
 from collections import OrderedDict
-
+import logging
 import os
+
 from kinto.core.permission import PermissionBase
 from kinto.core.storage.postgresql.client import create_from_config
 from kinto.core.storage.postgresql.migrator import MigratorMixin

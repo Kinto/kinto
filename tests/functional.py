@@ -1,12 +1,12 @@
+import os.path
 import random
+import re
 import unittest
-import uuid
 from urllib.parse import urljoin
+import uuid
 
 import requests
 
-import os.path
-import re
 from kinto import HTTP_API_VERSION
 
 # abspath here because __file__ may be relative if it is in __main__

@@ -1,25 +1,25 @@
-import collections
-import hashlib
-import hmac
-import time
 from base64 import b64decode, b64encode
 from binascii import hexlify
+import collections
 from enum import Enum
+import hashlib
+import hmac
+import os
+import re
+import time
 from urllib.parse import unquote
 
-import jsonpatch
-import ujson as json
 from colander import null
 from cornice import cors
+import jsonpatch
+import ujson as json
+
 from pyramid import httpexceptions
 from pyramid.interfaces import IRoutesMapper
 from pyramid.request import Request, apply_request_extensions
 from pyramid.security import Authenticated
 from pyramid.settings import aslist
 from pyramid.view import render_view_to_response
-
-import os
-import re
 
 try:
     import sqlalchemy

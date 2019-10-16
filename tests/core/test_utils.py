@@ -1,10 +1,11 @@
+import os
 import unittest
 from unittest import mock
 
 import colander
+
 from pyramid import httpexceptions, request as pyramid_request, testing
 
-import os
 from kinto.core import DEFAULT_SETTINGS, includeme
 from kinto.core.testing import DummyRequest
 from kinto.core.utils import (

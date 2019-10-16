@@ -1,10 +1,10 @@
 import json
+import os
 import unittest
 from unittest import mock
 
 from pyramid import testing
 
-import os
 from kinto.core.cache import postgresql as postgresql_cache
 from kinto.core.permission import postgresql as postgresql_permission
 from kinto.core.storage import postgresql as postgresql_storage

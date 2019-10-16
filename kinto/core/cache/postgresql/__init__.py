@@ -1,6 +1,6 @@
 import logging
-
 import os
+
 from kinto.core.cache import CacheBase
 from kinto.core.storage.postgresql.client import create_from_config
 from kinto.core.utils import json

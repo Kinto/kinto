@@ -2,8 +2,9 @@ import base64
 import urllib.parse
 
 import colander
-import requests
 from cornice.validators import colander_validator
+import requests
+
 from pyramid import httpexceptions
 
 from kinto.core import Service

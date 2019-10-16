@@ -1,11 +1,11 @@
 import codecs
-import tempfile
-import unittest
 from datetime import datetime, timedelta
+import os
+import tempfile
 from time import strftime
+import unittest
 from unittest import mock
 
-import os
 from kinto import __version__, config
 
 

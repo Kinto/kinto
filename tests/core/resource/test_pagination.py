@@ -1,5 +1,5 @@
-import random
 from base64 import b64decode, b64encode
+import random
 from unittest import mock
 from urllib.parse import parse_qs, urlparse
 

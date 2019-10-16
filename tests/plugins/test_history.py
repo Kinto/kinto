@@ -1,10 +1,10 @@
 import json
+import re
 import unittest
 from unittest import mock
 
 from pyramid import testing
 
-import re
 from kinto import main as kinto_main
 from kinto.core.testing import get_user_headers, skip_if_no_statsd
 

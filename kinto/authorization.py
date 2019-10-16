@@ -1,5 +1,6 @@
-from pyramid.security import IAuthorizationPolicy
 from zope.interface import implementer
+
+from pyramid.security import IAuthorizationPolicy
 
 from kinto.core import authorization as core_authorization
 

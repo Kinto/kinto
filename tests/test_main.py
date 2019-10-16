@@ -1,5 +1,7 @@
 import builtins
+from io import StringIO
 import logging
+import os
 import sys
 import tempfile
 import unittest
@@ -7,8 +9,6 @@ from unittest import mock
 
 import pytest
 
-import os
-from io import StringIO
 from kinto import __version__ as kinto_version
 from kinto.__main__ import DEFAULT_LOG_FORMAT, main
 

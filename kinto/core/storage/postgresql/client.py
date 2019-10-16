@@ -1,7 +1,7 @@
+from collections import defaultdict
 import contextlib
 import logging
 import warnings
-from collections import defaultdict
 
 import transaction as zope_transaction
 

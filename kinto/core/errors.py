@@ -1,7 +1,8 @@
-import logging
 from enum import Enum
+import logging
 
 import colander
+
 from pyramid import httpexceptions
 
 from kinto.core.schema import Any

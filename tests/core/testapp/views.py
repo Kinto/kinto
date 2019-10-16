@@ -1,8 +1,9 @@
 import colander
+from requests.exceptions import HTTPError
+
 from pyramid import httpexceptions
 from pyramid.security import NO_PERMISSION_REQUIRED
 from pyramid.view import view_config
-from requests.exceptions import HTTPError
 
 from kinto.core import resource
 

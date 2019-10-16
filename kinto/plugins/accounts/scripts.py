@@ -2,6 +2,7 @@ import getpass
 import logging
 
 import transaction as current_transaction
+
 from pyramid.settings import asbool
 
 from .utils import hash_password

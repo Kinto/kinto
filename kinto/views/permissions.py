@@ -1,4 +1,5 @@
 import colander
+
 from pyramid.settings import aslist
 
 from kinto.authorization import PERMISSIONS_INHERITANCE_TREE

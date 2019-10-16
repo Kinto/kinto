@@ -1,8 +1,8 @@
+import re
 import sys
 
 from pyramid.exceptions import ConfigurationError
 
-import re
 from kinto.authorization import PERMISSIONS_INHERITANCE_TREE
 
 from .authentication import AccountsAuthenticationPolicy as AccountsPolicy

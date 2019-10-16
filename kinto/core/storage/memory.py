@@ -1,11 +1,11 @@
+from collections import abc, defaultdict
 import json
 import numbers
 import operator
-from collections import abc, defaultdict
+import re
 
 import ujson
 
-import re
 from kinto.core import utils
 from kinto.core.decorators import deprecate_kwargs, synchronized
 from kinto.core.storage import (

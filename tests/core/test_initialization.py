@@ -1,6 +1,7 @@
 from unittest import mock
 
 import webtest
+
 from pyramid.config import Configurator
 from pyramid.events import NewRequest
 from pyramid.exceptions import ConfigurationError

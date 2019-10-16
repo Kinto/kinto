@@ -2,6 +2,7 @@ import time
 from unittest import mock
 
 import pytest
+
 from pyramid import testing
 
 from kinto.core.cache import heartbeat

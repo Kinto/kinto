@@ -1,11 +1,12 @@
-import logging
-import warnings
 from collections import OrderedDict
 from enum import Enum
+import logging
+import warnings
 
-import pyramid.tweens
 import transaction
+
 from pyramid.events import NewRequest
+import pyramid.tweens
 
 from kinto.core.utils import strip_uri_prefix
 

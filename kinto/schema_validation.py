@@ -6,6 +6,7 @@ from jsonschema import (
     ValidationError,
 )
 from jsonschema.validators import validator_for
+
 from pyramid.settings import asbool
 
 from kinto.core import utils

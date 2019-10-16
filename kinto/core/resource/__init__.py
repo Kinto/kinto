@@ -1,10 +1,12 @@
 import functools
 import logging
-import warnings
+import re
 from uuid import uuid4
+import warnings
 
 import colander
 import venusian
+
 from pyramid import exceptions as pyramid_exceptions
 from pyramid.decorator import reify
 from pyramid.httpexceptions import (
@@ -15,7 +17,6 @@ from pyramid.httpexceptions import (
 )
 from pyramid.security import Everyone
 
-import re
 from kinto.core import Service
 from kinto.core.errors import ERRORS, http_error, raise_invalid, request_GET, send_alert
 from kinto.core.events import ACTIONS

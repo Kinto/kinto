@@ -1,4 +1,5 @@
 import bcrypt
+
 from pyramid import authentication as base_auth
 
 from kinto.core import utils
