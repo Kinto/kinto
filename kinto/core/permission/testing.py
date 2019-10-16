@@ -2,8 +2,8 @@ from unittest import mock
 
 from pyramid import testing
 
-from kinto.core.storage import exceptions
 from kinto.core.permission import heartbeat
+from kinto.core.storage import exceptions
 from kinto.core.testing import DummyRequest
 
 

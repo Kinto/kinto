@@ -1,42 +1,40 @@
-import logging
-import re
 import functools
+import logging
 import warnings
 from uuid import uuid4
 
 import colander
 import venusian
-
 from pyramid import exceptions as pyramid_exceptions
 from pyramid.decorator import reify
-from pyramid.security import Everyone
 from pyramid.httpexceptions import (
+    HTTPNotFound,
     HTTPNotModified,
     HTTPPreconditionFailed,
-    HTTPNotFound,
     HTTPServiceUnavailable,
 )
+from pyramid.security import Everyone
 
+import re
 from kinto.core import Service
-from kinto.core.errors import http_error, raise_invalid, send_alert, ERRORS, request_GET
+from kinto.core.errors import ERRORS, http_error, raise_invalid, request_GET, send_alert
 from kinto.core.events import ACTIONS
-from kinto.core.storage import exceptions as storage_exceptions, Filter, Sort, MISSING
+from kinto.core.storage import MISSING, Filter, Sort, exceptions as storage_exceptions
 from kinto.core.utils import (
     COMPARISON,
+    apply_json_patch,
     classname,
     decode64,
-    encode64,
-    json,
-    find_nested_value,
     dict_subset,
+    encode64,
+    find_nested_value,
+    json,
     recursive_update_dict,
-    apply_json_patch,
 )
 
 from .model import Model
-from .schema import ResourceSchema, JsonPatchRequestSchema
+from .schema import JsonPatchRequestSchema, ResourceSchema
 from .viewset import ViewSet
-
 
 logger = logging.getLogger(__name__)
 

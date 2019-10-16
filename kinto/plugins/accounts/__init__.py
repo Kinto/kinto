@@ -1,8 +1,9 @@
-import re
 import sys
 
-from kinto.authorization import PERMISSIONS_INHERITANCE_TREE
 from pyramid.exceptions import ConfigurationError
+
+import re
+from kinto.authorization import PERMISSIONS_INHERITANCE_TREE
 
 from .authentication import AccountsAuthenticationPolicy as AccountsPolicy
 from .utils import (
@@ -11,7 +12,6 @@ from .utils import (
     ACCOUNT_RESET_PASSWORD_CACHE_KEY,
     ACCOUNT_VALIDATION_CACHE_KEY,
 )
-
 
 __all__ = [
     "ACCOUNT_CACHE_KEY",

@@ -1,11 +1,11 @@
 import json
+
+from pyramid.httpexceptions import HTTPTemporaryRedirect
+from pyramid.static import static_view
+
 import os
 
-from pyramid.static import static_view
-from pyramid.httpexceptions import HTTPTemporaryRedirect
-
 from .views import admin_home_view
-
 
 HERE = os.path.dirname(__file__)
 

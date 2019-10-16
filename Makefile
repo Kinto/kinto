@@ -89,7 +89,7 @@ flake8: install-dev
 	$(VENV)/bin/flake8 kinto tests
 
 isort: install-dev
-	$(VENV)/bin/isort --line-width=88 --recursive kinto tests
+	$(VENV)/bin/isort --line-width=99 --recursive kinto tests
 
 black: install-dev
 	$(VENV)/bin/black --exclude "/node_modules/" kinto tests

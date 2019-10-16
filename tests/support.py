@@ -1,7 +1,5 @@
+from kinto import DEFAULT_SETTINGS, main as kinto_main
 from kinto.core import testing
-from kinto import main as kinto_main
-from kinto import DEFAULT_SETTINGS
-
 
 MINIMALIST_BUCKET = {}
 MINIMALIST_COLLECTION = {}

@@ -1,9 +1,9 @@
-import os
 import unittest
 
+import os
 from kinto.plugins.admin import views as admin_views
-from ..support import BaseWebTest
 
+from ..support import BaseWebTest
 
 admin_module = os.path.dirname(admin_views.__file__)
 build_folder = os.path.join(admin_module, "build")

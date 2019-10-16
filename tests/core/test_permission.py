@@ -1,7 +1,6 @@
 import unittest
 from unittest import mock
 
-from kinto.core.utils import sqlalchemy
 from kinto.core.permission import (
     PermissionBase,
     memory as memory_backend,
@@ -9,6 +8,7 @@ from kinto.core.permission import (
 )
 from kinto.core.permission.testing import PermissionTest
 from kinto.core.testing import skip_if_no_postgresql
+from kinto.core.utils import sqlalchemy
 
 
 class PermissionBaseTest(unittest.TestCase):

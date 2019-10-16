@@ -1,18 +1,17 @@
-import time
 import threading
+import time
 import unittest
-from uuid import uuid4
 from unittest import mock
+from uuid import uuid4
 
-from pyramid import testing
-from pyramid import httpexceptions
+from pyramid import httpexceptions, testing
 
-from kinto.core.storage.exceptions import BackendError
-from kinto.core.utils import sqlalchemy
 from kinto.core import events
+from kinto.core.storage.exceptions import BackendError
 from kinto.core.testing import skip_if_no_postgresql
+from kinto.core.utils import sqlalchemy
 
-from .support import PostgreSQLTest, USER_PRINCIPAL
+from .support import USER_PRINCIPAL, PostgreSQLTest
 
 
 @skip_if_no_postgresql

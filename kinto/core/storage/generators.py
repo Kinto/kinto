@@ -1,5 +1,6 @@
-import re
 from uuid import uuid4
+
+import re
 
 
 class Generator:

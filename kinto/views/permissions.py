@@ -2,7 +2,7 @@ import colander
 from pyramid.settings import aslist
 
 from kinto.authorization import PERMISSIONS_INHERITANCE_TREE
-from kinto.core import utils as core_utils, resource
+from kinto.core import resource, utils as core_utils
 from kinto.core.storage import Sort
 from kinto.core.storage.memory import extract_object_set
 

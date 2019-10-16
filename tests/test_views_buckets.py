@@ -5,11 +5,11 @@ from pyramid.security import Authenticated
 from kinto.core.testing import get_user_headers
 
 from .support import (
-    BaseWebTest,
     MINIMALIST_BUCKET,
-    MINIMALIST_GROUP,
     MINIMALIST_COLLECTION,
+    MINIMALIST_GROUP,
     MINIMALIST_RECORD,
+    BaseWebTest,
 )
 
 

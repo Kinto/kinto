@@ -5,7 +5,7 @@ from unittest import mock
 
 from pyramid import testing
 
-from kinto.core import DEFAULT_SETTINGS, initialization, JsonLogFormatter
+from kinto.core import DEFAULT_SETTINGS, JsonLogFormatter, initialization
 
 from .support import BaseWebTest
 

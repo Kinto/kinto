@@ -3,14 +3,13 @@ from pyramid.settings import asbool
 
 from kinto.core import resource, utils
 from kinto.core.errors import raise_invalid
-from kinto.views import object_exists_or_404
 from kinto.schema_validation import (
+    RefResolutionError,
+    ValidationError,
     validate_from_bucket_schema_or_400,
     validate_schema,
-    ValidationError,
-    RefResolutionError,
 )
-
+from kinto.views import object_exists_or_404
 
 _parent_path = "/buckets/{{bucket_id}}/collections/{{collection_id}}"
 

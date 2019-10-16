@@ -1,15 +1,15 @@
 import unittest
-from uuid import UUID
 from unittest import mock
+from uuid import UUID
 
 from pyramid.httpexceptions import HTTPBadRequest
 
 from kinto.core.errors import ERRORS, http_error
 from kinto.core.storage import exceptions as storage_exceptions
-from kinto.core.testing import get_user_headers, FormattedErrorMixin
+from kinto.core.testing import FormattedErrorMixin, get_user_headers
 from kinto.core.utils import hmac_digest
 
-from ..support import BaseWebTest, MINIMALIST_RECORD
+from ..support import MINIMALIST_RECORD, BaseWebTest
 
 
 class DefaultBucketWebTest(BaseWebTest, unittest.TestCase):

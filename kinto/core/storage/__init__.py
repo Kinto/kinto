@@ -4,10 +4,11 @@ import random
 import warnings
 from collections import namedtuple
 
-from pyramid.settings import asbool
 import ujson
+from pyramid.settings import asbool
 
 from kinto.core.decorators import deprecate_kwargs
+
 from . import generators
 
 

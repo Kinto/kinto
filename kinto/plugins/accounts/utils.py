@@ -2,7 +2,6 @@ import bcrypt
 
 from kinto.core import utils
 
-
 ACCOUNT_CACHE_KEY = "accounts:{}:verified"
 ACCOUNT_POLICY_NAME = "account"
 ACCOUNT_RESET_PASSWORD_CACHE_KEY = "accounts:{}:reset-password"

@@ -1,13 +1,12 @@
 import codecs
-import os
 import tempfile
 import unittest
 from datetime import datetime, timedelta
 from time import strftime
 from unittest import mock
 
-from kinto import config
-from kinto import __version__
+import os
+from kinto import __version__, config
 
 
 class ConfigTest(unittest.TestCase):

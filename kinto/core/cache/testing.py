@@ -1,11 +1,11 @@
-import pytest
 import time
 from unittest import mock
 
+import pytest
 from pyramid import testing
 
-from kinto.core.storage import exceptions
 from kinto.core.cache import heartbeat
+from kinto.core.storage import exceptions
 
 
 class CacheTest:

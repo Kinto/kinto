@@ -1,9 +1,9 @@
 import colander
 
 from kinto.core import resource
-from kinto.core.utils import instance_uri
-from kinto.core.storage import Filter
 from kinto.core.resource.viewset import ViewSet
+from kinto.core.storage import Filter
+from kinto.core.utils import instance_uri
 
 
 class HistorySchema(resource.ResourceSchema):

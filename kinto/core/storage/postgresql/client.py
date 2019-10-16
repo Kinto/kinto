@@ -3,9 +3,10 @@ import logging
 import warnings
 from collections import defaultdict
 
+import transaction as zope_transaction
+
 from kinto.core.storage import exceptions
 from kinto.core.utils import sqlalchemy
-import transaction as zope_transaction
 
 logger = logging.getLogger(__name__)
 

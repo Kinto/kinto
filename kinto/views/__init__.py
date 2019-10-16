@@ -1,9 +1,10 @@
 import random
 import string
 
-from kinto.core.storage import generators, exceptions
 from pyramid.httpexceptions import HTTPNotFound
-from kinto.core.errors import http_error, ERRORS
+
+from kinto.core.errors import ERRORS, http_error
+from kinto.core.storage import exceptions, generators
 
 
 class NameGenerator(generators.Generator):

@@ -1,5 +1,4 @@
 import re
-
 from kinto.core.decorators import synchronized
 from kinto.core.permission import PermissionBase
 

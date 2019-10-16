@@ -1,12 +1,11 @@
 import colander
 from jsonschema import (
     Draft7Validator as DraftValidator,
-    ValidationError,
-    SchemaError,
     RefResolutionError,
+    SchemaError,
+    ValidationError,
 )
 from jsonschema.validators import validator_for
-
 from pyramid.settings import asbool
 
 from kinto.core import utils

@@ -1,10 +1,11 @@
-import os
 import json
 import tempfile
 import unittest
 from unittest import mock
 
+import os
 from kinto.core.views.version import version_view
+
 from .support import BaseWebTest
 
 

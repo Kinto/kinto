@@ -2,16 +2,16 @@ import warnings
 
 import colander
 
-from kinto.core.schema import (
-    Any,
-    HeaderField,
-    QueryField,
-    HeaderQuotedInteger,
-    FieldList,
-    TimeStamp,
-    URL,
-)
 from kinto.core.errors import ErrorSchema
+from kinto.core.schema import (
+    URL,
+    Any,
+    FieldList,
+    HeaderField,
+    HeaderQuotedInteger,
+    QueryField,
+    TimeStamp,
+)
 from kinto.core.utils import native_value
 
 POSTGRESQL_MAX_INTEGER_VALUE = 2 ** 63

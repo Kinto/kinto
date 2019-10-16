@@ -1,6 +1,6 @@
 from bravado_core.response import validate_response
 
-from .support import OpenAPITest, MINIMALIST_RECORD
+from .support import MINIMALIST_RECORD, OpenAPITest
 
 
 class OpenAPIRecordResponsesTest(OpenAPITest):

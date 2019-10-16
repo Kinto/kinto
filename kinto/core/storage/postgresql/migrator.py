@@ -3,6 +3,7 @@ A helper class to run migrations using a series of SQL files.
 """
 
 import logging
+
 import os
 
 logger = logging.getLogger(__name__)
