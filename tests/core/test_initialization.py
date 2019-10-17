@@ -1,7 +1,5 @@
 from unittest import mock
 
-import webtest
-
 from pyramid.config import Configurator
 from pyramid.events import NewRequest
 from pyramid.exceptions import ConfigurationError
@@ -9,6 +7,8 @@ from pyramid.exceptions import ConfigurationError
 import kinto.core
 from kinto.core import initialization
 from kinto.core.testing import unittest
+
+import webtest
 
 
 class InitializationTest(unittest.TestCase):

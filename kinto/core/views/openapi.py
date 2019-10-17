@@ -1,10 +1,10 @@
-import colander
-from cornice.service import get_services
-
 from pyramid.security import NO_PERMISSION_REQUIRED
 
 from kinto.core import Service
 from kinto.core.openapi import OpenAPI
+
+import colander
+from cornice.service import get_services
 
 openapi = Service(name="openapi", path="/__api__", description="OpenAPI description")
 

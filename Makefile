@@ -88,11 +88,8 @@ tests-once: install-dev version-file install-postgres install-monitoring
 flake8: install-dev
 	$(VENV)/bin/flake8 kinto tests
 
-isort: install-dev
-	$(VENV)/bin/isort --recursive .isort.cfg kinto tests
-
-black: install-dev
-	$(VENV)/bin/black --exclude "/node_modules/" kinto tests
+black-isort: install-dev
+	$(VENV)/bin/therapist run --fix --use-tracked-files kinto tests docs/conf.py
 
 tests: version-file
 	$(VENV)/bin/tox

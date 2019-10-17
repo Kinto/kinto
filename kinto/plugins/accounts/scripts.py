@@ -1,9 +1,9 @@
 import getpass
 import logging
 
-import transaction as current_transaction
-
 from pyramid.settings import asbool
+
+import transaction as current_transaction
 
 from .utils import hash_password
 from .views import AccountIdGenerator

@@ -1,11 +1,11 @@
-import colander
-
 from pyramid.events import subscriber
 
 from kinto.core import resource
 from kinto.core.events import ACTIONS, ResourceChanged
 from kinto.core.utils import instance_uri
 from kinto.schema_validation import JSONSchemaMapping
+
+import colander
 
 
 class BucketSchema(resource.ResourceSchema):

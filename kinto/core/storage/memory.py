@@ -4,8 +4,6 @@ import numbers
 import operator
 import re
 
-import ujson
-
 from kinto.core import utils
 from kinto.core.decorators import deprecate_kwargs, synchronized
 from kinto.core.storage import (
@@ -17,6 +15,8 @@ from kinto.core.storage import (
     exceptions,
 )
 from kinto.core.utils import COMPARISON, find_nested_value
+
+import ujson
 
 
 def tree():

@@ -4,14 +4,14 @@ import threading
 import unittest
 from unittest import mock
 
-from cornice import errors as cornice_errors
-import webtest
-
 from pyramid.url import parse_url_overrides
 
 from kinto.core import DEFAULT_SETTINGS, statsd
 from kinto.core.storage import generators
 from kinto.core.utils import encode64, follow_subrequest, memcache, sqlalchemy
+
+from cornice import errors as cornice_errors
+import webtest
 
 skip_if_travis = unittest.skipIf("TRAVIS" in os.environ, "travis")
 skip_if_no_postgresql = unittest.skipIf(sqlalchemy is None, "postgresql is not installed.")

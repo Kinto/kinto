@@ -1,10 +1,10 @@
-import colander
-
 from pyramid.events import subscriber
 
 from kinto.core import resource, utils
 from kinto.core.events import ACTIONS, ResourceChanged
 from kinto.schema_validation import validate_from_bucket_schema_or_400
+
+import colander
 
 
 def validate_member(node, member):

@@ -1,8 +1,6 @@
 import base64
 import urllib.parse
 
-import colander
-from cornice.validators import colander_validator
 import requests
 
 from pyramid import httpexceptions
@@ -12,6 +10,9 @@ from kinto.core.errors import ERRORS, raise_invalid
 from kinto.core.resource.schema import ErrorResponseSchema
 from kinto.core.schema import URL
 from kinto.core.utils import random_bytes_hex
+
+import colander
+from cornice.validators import colander_validator
 
 from .utils import fetch_openid_config
 

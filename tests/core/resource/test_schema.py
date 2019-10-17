@@ -1,9 +1,9 @@
 from unittest import mock
 
-import colander
-
 from kinto.core.resource import schema
 from kinto.core.testing import unittest
+
+import colander
 
 
 class DepracatedSchemasTest(unittest.TestCase):

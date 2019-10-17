@@ -1,7 +1,7 @@
+from pyramid.security import NO_PERMISSION_REQUIRED
+
 import colander
 from cornice import Service
-
-from pyramid.security import NO_PERMISSION_REQUIRED
 
 contribute = Service(
     name="contribute.json", description="Open-source information", path="/contribute.json"

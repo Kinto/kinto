@@ -3,12 +3,12 @@ from enum import Enum
 import logging
 import warnings
 
-import transaction
-
 from pyramid.events import NewRequest
 import pyramid.tweens
 
 from kinto.core.utils import strip_uri_prefix
+
+import transaction
 
 logger = logging.getLogger(__name__)
 

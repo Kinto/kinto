@@ -3,7 +3,6 @@ from unittest import mock
 import uuid
 
 import bcrypt
-from pyramid_mailer import get_mailer
 
 from pyramid.exceptions import ConfigurationError
 
@@ -18,6 +17,8 @@ from kinto.plugins.accounts.utils import (
 )
 from kinto.plugins.accounts.views import on_account_created
 from kinto.plugins.accounts.views.validation import on_account_activated
+
+from pyramid_mailer import get_mailer
 
 from .. import support
 

@@ -1,12 +1,12 @@
 import functools
 import warnings
 
-import colander
-from cornice.validators import colander_validator
-
 from pyramid.settings import asbool
 
 from kinto.core import authorization
+
+import colander
+from cornice.validators import colander_validator
 
 from .schema import (
     ObjectGetQuerySchema,

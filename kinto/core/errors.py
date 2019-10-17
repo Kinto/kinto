@@ -1,12 +1,12 @@
 from enum import Enum
 import logging
 
-import colander
-
 from pyramid import httpexceptions
 
 from kinto.core.schema import Any
 from kinto.core.utils import json, reapply_cors
+
+import colander
 
 
 class ERRORS(Enum):

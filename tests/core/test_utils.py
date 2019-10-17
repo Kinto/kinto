@@ -2,8 +2,6 @@ import os
 import unittest
 from unittest import mock
 
-import colander
-
 from pyramid import httpexceptions, request as pyramid_request, testing
 
 from kinto.core import DEFAULT_SETTINGS, includeme
@@ -24,6 +22,8 @@ from kinto.core.utils import (
     recursive_update_dict,
     strip_whitespace,
 )
+
+import colander
 
 
 def build_real_request(wsgi_environ):

@@ -5,7 +5,6 @@ import re
 import warnings
 
 from dateutil import parser as dateparser
-from pyramid_multiauth import MultiAuthenticationPolicy, MultiAuthPolicySelected
 
 from pyramid.events import NewRequest, NewResponse
 from pyramid.exceptions import ConfigurationError
@@ -18,6 +17,8 @@ from pyramid.settings import asbool, aslist
 
 from kinto.core import cache, errors, permission, storage, utils
 from kinto.core.events import ACTIONS, ResourceChanged, ResourceRead
+
+from pyramid_multiauth import MultiAuthenticationPolicy, MultiAuthPolicySelected
 
 try:
     import newrelic.agent

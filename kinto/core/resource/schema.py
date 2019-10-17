@@ -1,7 +1,5 @@
 import warnings
 
-import colander
-
 from kinto.core.errors import ErrorSchema
 from kinto.core.schema import (
     URL,
@@ -13,6 +11,8 @@ from kinto.core.schema import (
     TimeStamp,
 )
 from kinto.core.utils import native_value
+
+import colander
 
 POSTGRESQL_MAX_INTEGER_VALUE = 2 ** 63
 

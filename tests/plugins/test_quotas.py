@@ -1,9 +1,6 @@
 import unittest
 from unittest import mock
 
-import pytest
-import transaction
-
 from pyramid import testing
 
 from kinto import main as kinto_main
@@ -18,6 +15,9 @@ from kinto.plugins.quotas.listener import (
     QUOTA_RESOURCE_NAME,
 )
 from kinto.plugins.quotas.utils import record_size
+
+import pytest
+import transaction
 
 from .. import support
 

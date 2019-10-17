@@ -1,4 +1,3 @@
-import colander
 from jsonschema import (
     Draft7Validator as DraftValidator,
     RefResolutionError,
@@ -12,6 +11,8 @@ from pyramid.settings import asbool
 from kinto.core import utils
 from kinto.core.errors import raise_invalid
 from kinto.views import object_exists_or_404
+
+import colander
 
 
 class JSONSchemaMapping(colander.SchemaNode):
