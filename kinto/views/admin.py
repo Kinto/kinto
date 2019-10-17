@@ -5,13 +5,13 @@ Special views for administration.
 import collections
 import itertools
 
+import colander
 from kinto.authorization import RouteFactory
-from kinto.core import resource, utils as core_utils
+from kinto.core import resource
+from kinto.core import utils as core_utils
 from kinto.core.events import ACTIONS, notify_resource_event
 from kinto.core.resource import viewset
 from kinto.core.storage import Filter
-
-import colander
 
 
 def slice_into_batches(iterable, batch_size):

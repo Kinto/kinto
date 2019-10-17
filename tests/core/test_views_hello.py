@@ -1,8 +1,7 @@
 from unittest import mock
 
-from pyramid import testing
-
 from kinto.core.testing import unittest
+from pyramid import testing
 
 from .support import BaseWebTest
 

@@ -1,6 +1,5 @@
-from kinto.core import testing
-
 from bravado_core.response import validate_response
+from kinto.core import testing
 
 from ..support import MINIMALIST_BUCKET, MINIMALIST_COLLECTION, MINIMALIST_GROUP, MINIMALIST_RECORD
 from .support import OpenAPITest

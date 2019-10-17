@@ -1,14 +1,13 @@
 import logging
 
+from kinto.core.errors import ERRORS, http_error, request_GET
+from kinto.core.storage import exceptions as storage_exceptions
+from kinto.core.utils import reapply_cors
 from pyramid import httpexceptions
 from pyramid.httpexceptions import HTTPTemporaryRedirect
 from pyramid.security import NO_PERMISSION_REQUIRED, Authenticated, forget
 from pyramid.settings import asbool
 from pyramid.view import view_config
-
-from kinto.core.errors import ERRORS, http_error, request_GET
-from kinto.core.storage import exceptions as storage_exceptions
-from kinto.core.utils import reapply_cors
 
 logger = logging.getLogger()
 

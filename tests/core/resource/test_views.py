@@ -1,5 +1,5 @@
-from unittest import mock
 import uuid
+from unittest import mock
 
 from kinto.core.errors import ERRORS
 from kinto.core.storage import exceptions as storage_exceptions

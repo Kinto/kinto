@@ -1,9 +1,9 @@
 import codecs
-from datetime import datetime, timedelta
 import os
 import tempfile
-from time import strftime
 import unittest
+from datetime import datetime, timedelta
+from time import strftime
 from unittest import mock
 
 from kinto import __version__, config

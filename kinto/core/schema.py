@@ -7,9 +7,8 @@ may be reused across the `kinto.core` here.
     - If a schema is view specific, you should declare it on the respective view.
 """
 
-from kinto.core.utils import msec_time, native_value, strip_whitespace
-
 import colander
+from kinto.core.utils import msec_time, native_value, strip_whitespace
 
 
 class TimeStamp(colander.SchemaNode):

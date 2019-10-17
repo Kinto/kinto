@@ -1,11 +1,9 @@
 import json
 import os
 
-from pyramid.security import NO_PERMISSION_REQUIRED
-
-from kinto.core import Service
-
 import colander
+from kinto.core import Service
+from pyramid.security import NO_PERMISSION_REQUIRED
 
 HERE = os.path.dirname(__file__)
 ORIGIN = os.path.dirname(HERE)

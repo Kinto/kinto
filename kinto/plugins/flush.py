@@ -1,8 +1,6 @@
-from pyramid.security import NO_PERMISSION_REQUIRED
-
-from kinto.events import ServerFlushed
-
 from cornice import Service
+from kinto.events import ServerFlushed
+from pyramid.security import NO_PERMISSION_REQUIRED
 
 flush = Service(name="flush", description="Clear database content", path="/__flush__")
 

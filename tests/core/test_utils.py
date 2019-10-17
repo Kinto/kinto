@@ -2,28 +2,16 @@ import os
 import unittest
 from unittest import mock
 
-from pyramid import httpexceptions, request as pyramid_request, testing
-
+import colander
 from kinto.core import DEFAULT_SETTINGS, includeme
 from kinto.core.testing import DummyRequest
-from kinto.core.utils import (
-    build_request,
-    current_service,
-    dict_merge,
-    dict_subset,
-    find_nested_value,
-    follow_subrequest,
-    hmac_digest,
-    instance_uri_registry,
-    native_value,
-    prefixed_principals,
-    random_bytes_hex,
-    read_env,
-    recursive_update_dict,
-    strip_whitespace,
-)
-
-import colander
+from kinto.core.utils import (build_request, current_service, dict_merge, dict_subset,
+                              find_nested_value, follow_subrequest, hmac_digest,
+                              instance_uri_registry, native_value, prefixed_principals,
+                              random_bytes_hex, read_env, recursive_update_dict, strip_whitespace)
+from pyramid import httpexceptions
+from pyramid import request as pyramid_request
+from pyramid import testing
 
 
 def build_real_request(wsgi_environ):

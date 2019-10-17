@@ -1,10 +1,9 @@
 import copy
 
-from pyramid.httpexceptions import HTTPInsufficientStorage
-
 from kinto.core.errors import ERRORS, http_error
 from kinto.core.storage.exceptions import ObjectNotFoundError
 from kinto.core.utils import instance_uri
+from pyramid.httpexceptions import HTTPInsufficientStorage
 
 from .utils import record_size
 

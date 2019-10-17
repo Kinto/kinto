@@ -1,14 +1,13 @@
 import unittest
-from unittest import mock
 import uuid
-
-from pyramid.response import Response
-
-from kinto.core.testing import DummyRequest
-from kinto.core.utils import json
-from kinto.core.views.batch import BatchPayloadSchema, batch as batch_service
+from unittest import mock
 
 import colander
+from kinto.core.testing import DummyRequest
+from kinto.core.utils import json
+from kinto.core.views.batch import BatchPayloadSchema
+from kinto.core.views.batch import batch as batch_service
+from pyramid.response import Response
 
 from .support import BaseWebTest
 

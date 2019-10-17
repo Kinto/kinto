@@ -2,11 +2,10 @@ from unittest import mock
 
 from zope.interface import implementer
 
-from pyramid.security import Authenticated, IAuthorizationPolicy
-
 from kinto.core import testing
 from kinto.core.storage.exceptions import BackendError
 from kinto.core.utils import sqlalchemy
+from pyramid.security import Authenticated, IAuthorizationPolicy
 
 from .testapp import main as testapp
 

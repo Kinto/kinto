@@ -1,12 +1,11 @@
-from collections import defaultdict
 import contextlib
 import logging
 import warnings
-
-from kinto.core.storage import exceptions
-from kinto.core.utils import sqlalchemy
+from collections import defaultdict
 
 import transaction as zope_transaction
+from kinto.core.storage import exceptions
+from kinto.core.utils import sqlalchemy
 
 logger = logging.getLogger(__name__)
 

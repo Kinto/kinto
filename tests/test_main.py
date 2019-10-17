@@ -1,16 +1,15 @@
 import builtins
-from io import StringIO
 import logging
 import os
 import sys
 import tempfile
 import unittest
+from io import StringIO
 from unittest import mock
 
+import pytest
 from kinto import __version__ as kinto_version
 from kinto.__main__ import DEFAULT_LOG_FORMAT, main
-
-import pytest
 
 fd, TEMP_KINTO_INI = tempfile.mkstemp(prefix="kinto_config", suffix=".ini")
 # The above call to mkstemp returns a handle to an open file. On Windows,

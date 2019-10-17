@@ -1,8 +1,7 @@
 import random
 
-from pyramid import httpexceptions
-
 from kinto.core.errors import ERRORS
+from pyramid import httpexceptions
 
 from . import BaseTest
 

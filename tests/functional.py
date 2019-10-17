@@ -2,8 +2,8 @@ import os.path
 import random
 import re
 import unittest
-from urllib.parse import urljoin
 import uuid
+from urllib.parse import urljoin
 
 import requests
 

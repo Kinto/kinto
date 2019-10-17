@@ -1,12 +1,10 @@
-from concurrent.futures import ThreadPoolExecutor, wait
 import logging
-
-from pyramid.security import NO_PERMISSION_REQUIRED
-
-from kinto.core import Service
+from concurrent.futures import ThreadPoolExecutor, wait
 
 import colander
 import transaction
+from kinto.core import Service
+from pyramid.security import NO_PERMISSION_REQUIRED
 
 logger = logging.getLogger(__name__)
 

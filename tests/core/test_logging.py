@@ -3,9 +3,8 @@ import logging
 import unittest
 from unittest import mock
 
-from pyramid import testing
-
 from kinto.core import DEFAULT_SETTINGS, JsonLogFormatter, initialization
+from pyramid import testing
 
 from .support import BaseWebTest
 

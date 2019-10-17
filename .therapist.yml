@@ -8,7 +8,7 @@ actions:
       - kinto/plugins/admin/node_modules/
 
   isort:
-    run: isort --recursive --check-only .isort.cfg {files}
+    run: isort --check-only .isort.cfg {files}
     fix: isort {files}
     include: "*.py"
     exclude:

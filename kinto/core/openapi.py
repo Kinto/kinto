@@ -1,7 +1,6 @@
-from kinto.core.schema import Any
-
 from cornice_swagger import CorniceSwagger
 from cornice_swagger.converters.schema import TypeConverter
+from kinto.core.schema import Any
 
 
 class AnyTypeConverter(TypeConverter):

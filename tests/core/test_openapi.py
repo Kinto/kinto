@@ -1,9 +1,8 @@
 import unittest
 from unittest import mock
 
-from kinto.core.openapi import OpenAPI
-
 from cornice.service import get_services
+from kinto.core.openapi import OpenAPI
 
 from .support import BaseWebTest
 

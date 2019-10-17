@@ -1,15 +1,13 @@
 import logging
 
-from pyramid import httpexceptions
-from pyramid.security import NO_PERMISSION_REQUIRED
-
+import colander
+from cornice.validators import colander_validator
 from kinto.core import Service, errors
 from kinto.core.errors import ErrorSchema
 from kinto.core.resource.viewset import CONTENT_TYPES
 from kinto.core.utils import build_request, build_response, merge_dicts
-
-import colander
-from cornice.validators import colander_validator
+from pyramid import httpexceptions
+from pyramid.security import NO_PERMISSION_REQUIRED
 
 subrequest_logger = logging.getLogger("subrequest.summary")
 

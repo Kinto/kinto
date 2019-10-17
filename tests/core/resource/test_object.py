@@ -1,12 +1,10 @@
 from unittest import mock
 
-from pyramid import httpexceptions
-
+import colander
 from kinto.core.errors import ERRORS
 from kinto.core.resource import ResourceSchema
 from kinto.core.storage import exceptions as storage_exceptions
-
-import colander
+from pyramid import httpexceptions
 
 from . import BaseTest
 

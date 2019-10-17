@@ -1,10 +1,8 @@
 import logging
 
-from pyramid.settings import asbool
-
-from kinto.plugins.quotas import scripts as quotas
-
 import transaction as current_transaction
+from kinto.plugins.quotas import scripts as quotas
+from pyramid.settings import asbool
 
 logger = logging.getLogger(__name__)
 

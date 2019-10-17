@@ -3,10 +3,9 @@ import re
 import unittest
 from unittest import mock
 
-from pyramid import testing
-
 from kinto import main as kinto_main
 from kinto.core.testing import get_user_headers, skip_if_no_statsd
+from pyramid import testing
 
 from .. import support
 
