@@ -26,6 +26,7 @@ from kinto.core.utils import (
 
 logger = logging.getLogger(__name__)
 
+__all__ = ["initialize", "load_default_settings", "Service"]
 
 # Module version, as defined in PEP-0396.
 __version__ = pkg_resources.get_distribution("kinto").version  # FIXME?
