@@ -5,9 +5,6 @@ import warnings
 from datetime import datetime
 
 from dateutil import parser as dateparser
-
-from kinto.core import cache, errors, permission, storage, utils
-from kinto.core.events import ACTIONS, ResourceChanged, ResourceRead
 from pyramid.events import NewRequest, NewResponse
 from pyramid.exceptions import ConfigurationError
 from pyramid.httpexceptions import HTTPBadRequest, HTTPGone, HTTPTemporaryRedirect
@@ -17,6 +14,9 @@ from pyramid.response import Response
 from pyramid.security import NO_PERMISSION_REQUIRED
 from pyramid.settings import asbool, aslist
 from pyramid_multiauth import MultiAuthenticationPolicy, MultiAuthPolicySelected
+
+from kinto.core import cache, errors, permission, storage, utils
+from kinto.core.events import ACTIONS, ResourceChanged, ResourceRead
 
 try:
     import newrelic.agent

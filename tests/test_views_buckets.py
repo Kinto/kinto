@@ -1,10 +1,16 @@
 import unittest
 
-from kinto.core.testing import get_user_headers
 from pyramid.security import Authenticated
 
-from .support import (MINIMALIST_BUCKET, MINIMALIST_COLLECTION, MINIMALIST_GROUP,
-                      MINIMALIST_RECORD, BaseWebTest)
+from kinto.core.testing import get_user_headers
+
+from .support import (
+    MINIMALIST_BUCKET,
+    MINIMALIST_COLLECTION,
+    MINIMALIST_GROUP,
+    MINIMALIST_RECORD,
+    BaseWebTest,
+)
 
 
 class BucketViewTest(BaseWebTest, unittest.TestCase):

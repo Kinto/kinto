@@ -1,9 +1,10 @@
 from unittest import mock
 
-from kinto.core import statsd
-from kinto.core.testing import skip_if_no_statsd, unittest
 from pyramid import testing
 from pyramid.exceptions import ConfigurationError
+
+from kinto.core import statsd
+from kinto.core.testing import skip_if_no_statsd, unittest
 
 from .support import BaseWebTest
 

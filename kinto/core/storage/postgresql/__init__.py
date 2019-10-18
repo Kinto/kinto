@@ -1,7 +1,7 @@
-from collections import defaultdict
 import logging
 import os
 import warnings
+from collections import defaultdict
 
 from kinto.core.decorators import deprecate_kwargs
 from kinto.core.storage import (

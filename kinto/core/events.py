@@ -5,8 +5,9 @@ from enum import Enum
 
 import pyramid.tweens
 import transaction
-from kinto.core.utils import strip_uri_prefix
 from pyramid.events import NewRequest
+
+from kinto.core.utils import strip_uri_prefix
 
 logger = logging.getLogger(__name__)
 

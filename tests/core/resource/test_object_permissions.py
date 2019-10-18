@@ -1,8 +1,9 @@
 from unittest import mock
 
+from pyramid import httpexceptions
+
 from kinto.core.permission.memory import Permission
 from kinto.core.resource import Resource
-from pyramid import httpexceptions
 
 from . import BaseTest
 

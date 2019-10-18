@@ -4,11 +4,12 @@ import unittest
 from unittest import mock
 from uuid import uuid4
 
+from pyramid import httpexceptions, testing
+
 from kinto.core import events
 from kinto.core.storage.exceptions import BackendError
 from kinto.core.testing import skip_if_no_postgresql
 from kinto.core.utils import sqlalchemy
-from pyramid import httpexceptions, testing
 
 from .support import USER_PRINCIPAL, PostgreSQLTest
 

@@ -1,4 +1,5 @@
 import colander
+
 from kinto.core import resource
 from kinto.core.resource.viewset import ViewSet
 from kinto.core.storage import Filter

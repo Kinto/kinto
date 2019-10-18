@@ -2,11 +2,12 @@ from unittest import TestCase, mock
 
 import colander
 from cornice.validators import colander_validator
+from pyramid import exceptions, testing
+
 from kinto.core import DEFAULT_SETTINGS, authorization
 from kinto.core.resource import ViewSet, register_resource
 from kinto.core.resource.viewset import PartialSchema, ShareableViewSet, StrictSchema
 from kinto.core.testing import unittest
-from pyramid import exceptions, testing
 
 
 class FakeViewSet(ViewSet):

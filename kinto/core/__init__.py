@@ -3,10 +3,9 @@
 import logging
 import tempfile
 
+import pkg_resources
 from cornice import Service as CorniceService
 from dockerflow import logging as dockerflow_logging
-import pkg_resources
-
 from pyramid.settings import aslist
 
 from kinto.core import errors, events

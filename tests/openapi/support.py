@@ -6,8 +6,13 @@ from bravado_core.resource import build_resources
 from bravado_core.response import OutgoingResponse, validate_response
 from bravado_core.spec import Spec
 
-from ..support import (MINIMALIST_BUCKET, MINIMALIST_COLLECTION, MINIMALIST_GROUP,
-                       MINIMALIST_RECORD, BaseWebTest)
+from ..support import (
+    MINIMALIST_BUCKET,
+    MINIMALIST_COLLECTION,
+    MINIMALIST_GROUP,
+    MINIMALIST_RECORD,
+    BaseWebTest,
+)
 
 
 class OpenAPITest(BaseWebTest, unittest.TestCase):

@@ -1,7 +1,7 @@
+from pyramid.security import IAuthorizationPolicy
 from zope.interface import implementer
 
 from kinto.core import authorization as core_authorization
-from pyramid.security import IAuthorizationPolicy
 
 # Vocab really matters when you deal with permissions. Let's do a quick recap
 # of the terms used here:

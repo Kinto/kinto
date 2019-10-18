@@ -2,7 +2,6 @@ import re
 import uuid
 
 import colander
-
 from pyramid import httpexceptions
 from pyramid.decorator import reify
 from pyramid.events import subscriber

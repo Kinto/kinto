@@ -1,9 +1,18 @@
 from unittest import mock
 
 import pytest
+
 from kinto.core import DEFAULT_SETTINGS
-from kinto.core.storage import (MISSING, Filter, Sort, StorageBase, exceptions, generators, memory,
-                                postgresql)
+from kinto.core.storage import (
+    MISSING,
+    Filter,
+    Sort,
+    StorageBase,
+    exceptions,
+    generators,
+    memory,
+    postgresql,
+)
 from kinto.core.storage.testing import StorageTest
 from kinto.core.storage.utils import paginated
 from kinto.core.testing import skip_if_no_postgresql, unittest

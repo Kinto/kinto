@@ -1,10 +1,11 @@
 import unittest
 
+from pyramid.config import Configurator
+
 from kinto.core import events, utils
 from kinto.core.storage import exceptions
 from kinto.core.testing import get_user_headers
 from kinto.views.admin import get_parent_uri
-from pyramid.config import Configurator
 
 from .support import MINIMALIST_BUCKET, MINIMALIST_COLLECTION, MINIMALIST_RECORD, BaseWebTest
 

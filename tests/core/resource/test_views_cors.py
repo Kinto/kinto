@@ -1,7 +1,8 @@
 from unittest import mock
 
-from kinto.core.testing import unittest
 from pyramid import httpexceptions
+
+from kinto.core.testing import unittest
 
 from ..support import BaseWebTest
 

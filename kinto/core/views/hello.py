@@ -1,6 +1,7 @@
 import colander
-from kinto.core import Service
 from pyramid.security import NO_PERMISSION_REQUIRED, Authenticated
+
+from kinto.core import Service
 
 hello = Service(name="hello", path="/", description="Welcome")
 

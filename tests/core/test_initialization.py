@@ -1,12 +1,13 @@
 from unittest import mock
 
-import kinto.core
 import webtest
-from kinto.core import initialization
-from kinto.core.testing import unittest
 from pyramid.config import Configurator
 from pyramid.events import NewRequest
 from pyramid.exceptions import ConfigurationError
+
+import kinto.core
+from kinto.core import initialization
+from kinto.core.testing import unittest
 
 
 class InitializationTest(unittest.TestCase):

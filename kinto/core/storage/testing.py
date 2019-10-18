@@ -1,10 +1,11 @@
 import time
 from unittest import mock
 
+from pyramid import testing
+
 from kinto.core import utils
 from kinto.core.storage import MISSING, Filter, Sort, exceptions, heartbeat
 from kinto.core.testing import DummyRequest, ThreadMixin, skip_if_travis
-from pyramid import testing
 
 OBJECT_ID = "472be9ec-26fe-461b-8282-9c4e4b207ab3"
 

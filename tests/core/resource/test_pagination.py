@@ -3,8 +3,9 @@ from base64 import b64decode, b64encode
 from unittest import mock
 from urllib.parse import parse_qs, urlparse
 
-from kinto.core.utils import json
 from pyramid.httpexceptions import HTTPBadRequest
+
+from kinto.core.utils import json
 
 from . import BaseTest
 

@@ -1,11 +1,10 @@
-from collections import namedtuple
 import json
 import logging
 import random
 import warnings
+from collections import namedtuple
 
 import ujson
-
 from pyramid.settings import asbool
 
 from kinto.core.decorators import deprecate_kwargs

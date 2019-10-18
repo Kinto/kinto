@@ -8,6 +8,7 @@ from io import StringIO
 from unittest import mock
 
 import pytest
+
 from kinto import __version__ as kinto_version
 from kinto.__main__ import DEFAULT_LOG_FORMAT, main
 

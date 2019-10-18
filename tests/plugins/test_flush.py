@@ -1,8 +1,9 @@
 import unittest
 
+from pyramid.config import Configurator
+
 from kinto.core.testing import get_user_headers
 from kinto.events import ServerFlushed
-from pyramid.config import Configurator
 
 from ..support import MINIMALIST_BUCKET, MINIMALIST_COLLECTION, MINIMALIST_RECORD, BaseWebTest
 

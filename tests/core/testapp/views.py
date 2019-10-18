@@ -1,10 +1,10 @@
-from requests.exceptions import HTTPError
-
 import colander
-from kinto.core import resource
 from pyramid import httpexceptions
 from pyramid.security import NO_PERMISSION_REQUIRED
 from pyramid.view import view_config
+from requests.exceptions import HTTPError
+
+from kinto.core import resource
 
 
 class MushroomSchema(resource.ResourceSchema):

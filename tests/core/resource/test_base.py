@@ -1,10 +1,11 @@
 import unittest
 from unittest import mock
 
+from pyramid import httpexceptions
+
 from kinto.core.resource import Resource, ShareableResource
 from kinto.core.storage import exceptions as storage_exceptions
 from kinto.core.testing import DummyRequest
-from pyramid import httpexceptions
 
 from . import BaseTest
 

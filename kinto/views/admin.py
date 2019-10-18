@@ -6,6 +6,7 @@ import collections
 import itertools
 
 import colander
+
 from kinto.authorization import RouteFactory
 from kinto.core import resource
 from kinto.core import utils as core_utils
