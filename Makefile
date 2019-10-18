@@ -16,7 +16,7 @@ OBJECTS = .venv .coverage
 
 help:
 	@echo "Please use 'make <target>' where <target> is one of"
-	@echo "  black	                     reformat code"
+	@echo "  format                      reformat code"
 	@echo "  install                     install dependencies and prepare environment"
 	@echo "  install-monitoring          enable monitoring features like StatsD and Newrelic"
 	@echo "  install-postgres            install postgresql support"
@@ -24,7 +24,8 @@ help:
 	@echo "  build-kinto-admin           build the Kinto admin UI plugin (requires npm)"
 	@echo "  serve                       start the kinto server on default port"
 	@echo "  migrate                     run the kinto migrations"
-	@echo "  flake8                      run the flake8 linter"
+	@echo "  lint                        run the code linters"
+	@echo "  isort                       run the isort tool, which will automatically sort all of the imports"
 	@echo "  tests                       run all the tests with all the supported python interpreters (same as travis)"
 	@echo "  tdd                         run pytest-watch to rerun tests automatically on changes for tdd"
 	@echo "  tests-once  	             only run the tests once with the default python interpreter"
@@ -84,11 +85,11 @@ migrate: install $(SERVER_CONFIG)
 tests-once: install-dev version-file install-postgres install-monitoring
 	$(VENV)/bin/py.test --cov-report term-missing --cov-fail-under 100 --cov kinto
 
-flake8: install-dev
-	$(VENV)/bin/flake8 kinto tests
+lint: install-dev
+	$(VENV)/bin/therapist run --use-tracked-files kinto tests docs/conf.py
 
-black: install-dev
-	$(VENV)/bin/black --exclude "/node_modules/" kinto tests
+format: install-dev
+	$(VENV)/bin/therapist run --fix --use-tracked-files kinto tests docs/conf.py
 
 tests: version-file
 	$(VENV)/bin/tox

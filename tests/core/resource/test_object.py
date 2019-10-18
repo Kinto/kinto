@@ -3,8 +3,8 @@ from unittest import mock
 import colander
 from pyramid import httpexceptions
 
-from kinto.core.resource import ResourceSchema
 from kinto.core.errors import ERRORS
+from kinto.core.resource import ResourceSchema
 from kinto.core.storage import exceptions as storage_exceptions
 
 from . import BaseTest

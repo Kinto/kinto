@@ -1,6 +1,6 @@
 from kinto.core.testing import unittest
 
-from .support import BaseWebTest, MINIMALIST_BUCKET, MINIMALIST_COLLECTION, MINIMALIST_RECORD
+from .support import MINIMALIST_BUCKET, MINIMALIST_COLLECTION, MINIMALIST_RECORD, BaseWebTest
 
 
 class GlobalSettingsTest(BaseWebTest, unittest.TestCase):

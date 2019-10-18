@@ -1,16 +1,24 @@
 import collections
 import hashlib
 import hmac
-import jsonpatch
 import os
 import re
 import time
 from base64 import b64decode, b64encode
 from binascii import hexlify
-from urllib.parse import unquote
 from enum import Enum
+from urllib.parse import unquote
 
+import jsonpatch
 import ujson as json
+from colander import null
+from cornice import cors
+from pyramid import httpexceptions
+from pyramid.interfaces import IRoutesMapper
+from pyramid.request import Request, apply_request_extensions
+from pyramid.security import Authenticated
+from pyramid.settings import aslist
+from pyramid.view import render_view_to_response
 
 try:
     import sqlalchemy
@@ -21,15 +29,6 @@ try:
     import memcache
 except ImportError:  # pragma: no cover
     memcache = None
-
-from pyramid import httpexceptions
-from pyramid.interfaces import IRoutesMapper
-from pyramid.request import Request, apply_request_extensions
-from pyramid.security import Authenticated
-from pyramid.settings import aslist
-from pyramid.view import render_view_to_response
-from cornice import cors
-from colander import null
 
 
 def json_serializer(v, **kw):

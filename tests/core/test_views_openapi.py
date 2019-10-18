@@ -1,6 +1,7 @@
 import unittest
 
 from kinto.core.views.openapi import openapi_view
+
 from .support import BaseWebTest
 
 

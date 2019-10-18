@@ -2,7 +2,6 @@ from kinto.core.testing import unittest
 
 from .support import BaseWebTest
 
-
 BUCKET_URL = "/buckets/blog"
 GROUPS_URL = "/buckets/blog/groups"
 GROUP_URL = GROUPS_URL + "/tarnac-nine"

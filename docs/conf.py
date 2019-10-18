@@ -12,8 +12,9 @@
 # serve to show the default.
 import datetime
 import os
-import pkg_resources
 import sys
+
+import pkg_resources
 
 # abspath because this could be __main__, in which case it may not
 # have an absolute __file__

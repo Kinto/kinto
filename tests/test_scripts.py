@@ -1,5 +1,6 @@
 import unittest
 from unittest import mock
+
 from kinto import scripts
 
 

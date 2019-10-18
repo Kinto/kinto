@@ -1,7 +1,7 @@
 import requests
 from pyramid import authentication as base_auth
-from pyramid.settings import aslist
 from pyramid.interfaces import IAuthenticationPolicy
+from pyramid.settings import aslist
 from zope.interface import implementer
 
 from kinto.core import logger

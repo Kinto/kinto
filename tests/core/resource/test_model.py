@@ -1,4 +1,4 @@
-from unittest import mock, TestCase
+from unittest import TestCase, mock
 
 from kinto.core.resource.model import ShareableModel
 

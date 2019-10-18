@@ -1,14 +1,13 @@
 import logging
 import warnings
 from collections import OrderedDict
-
-import transaction
-from pyramid.events import NewRequest
-import pyramid.tweens
 from enum import Enum
 
-from kinto.core.utils import strip_uri_prefix
+import pyramid.tweens
+import transaction
+from pyramid.events import NewRequest
 
+from kinto.core.utils import strip_uri_prefix
 
 logger = logging.getLogger(__name__)
 

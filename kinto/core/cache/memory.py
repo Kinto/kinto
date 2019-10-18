@@ -1,9 +1,8 @@
 import logging
 
 from kinto.core.cache import CacheBase
-from kinto.core.utils import msec_time
 from kinto.core.decorators import synchronized
-
+from kinto.core.utils import msec_time
 
 logger = logging.getLogger(__name__)
 

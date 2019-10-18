@@ -7,6 +7,14 @@ actions:
       - .venv/
       - kinto/plugins/admin/node_modules/
 
+  isort:
+    fix: isort -m 3 --line-width=99 --use-parentheses --trailing-comma --recursive --virtual-env=.venv {files}
+    run: isort -m 3 --line-width=99 --use-parentheses --trailing-comma --recursive --virtual-env=.venv --check-only {files}
+    include: "*.py"
+    exclude:
+      - .venv/
+      - kinto/plugins/admin/node_modules/
+
   flake8:
     run: flake8 {files}
     include: "*.py"

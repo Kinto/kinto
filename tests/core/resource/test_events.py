@@ -6,11 +6,11 @@ from pyramid.config import Configurator
 
 from kinto.core import statsd
 from kinto.core.events import (
-    ResourceChanged,
-    AfterResourceChanged,
-    ResourceRead,
-    AfterResourceRead,
     ACTIONS,
+    AfterResourceChanged,
+    AfterResourceRead,
+    ResourceChanged,
+    ResourceRead,
     notify_resource_event,
 )
 from kinto.core.storage.exceptions import BackendError

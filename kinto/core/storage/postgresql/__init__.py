@@ -3,19 +3,18 @@ import os
 import warnings
 from collections import defaultdict
 
+from kinto.core.decorators import deprecate_kwargs
 from kinto.core.storage import (
-    StorageBase,
-    exceptions,
+    DEFAULT_DELETED_FIELD,
     DEFAULT_ID_FIELD,
     DEFAULT_MODIFIED_FIELD,
-    DEFAULT_DELETED_FIELD,
     MISSING,
+    StorageBase,
+    exceptions,
 )
-from kinto.core.decorators import deprecate_kwargs
 from kinto.core.storage.postgresql.client import create_from_config
 from kinto.core.storage.postgresql.migrator import MigratorMixin
 from kinto.core.utils import COMPARISON
-
 
 logger = logging.getLogger(__name__)
 HERE = os.path.dirname(__file__)

@@ -5,14 +5,14 @@ from kinto.core import utils
 from kinto.core.storage import exceptions as storage_exceptions
 
 from .utils import (
+    ACCOUNT_POLICY_NAME,
     cache_account,
+    delete_cached_reset_password,
     get_account_cache_key,
     get_cached_account,
     get_cached_reset_password,
-    delete_cached_reset_password,
     is_validated,
     refresh_cached_account,
-    ACCOUNT_POLICY_NAME,
 )
 
 

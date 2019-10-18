@@ -1,7 +1,8 @@
+from datetime import datetime
+
 from pyramid.settings import aslist
 
 from kinto.core.utils import instance_uri
-from datetime import datetime
 
 
 def on_resource_changed(event):

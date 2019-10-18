@@ -5,7 +5,6 @@ from kinto.core.cache import CacheBase
 from kinto.core.storage.postgresql.client import create_from_config
 from kinto.core.utils import json
 
-
 logger = logging.getLogger(__name__)
 
 

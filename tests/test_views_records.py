@@ -6,11 +6,11 @@ from unittest import mock
 from kinto.core.testing import get_user_headers
 
 from .support import (
-    BaseWebTest,
-    MINIMALIST_RECORD,
-    MINIMALIST_GROUP,
     MINIMALIST_BUCKET,
     MINIMALIST_COLLECTION,
+    MINIMALIST_GROUP,
+    MINIMALIST_RECORD,
+    BaseWebTest,
 )
 
 
