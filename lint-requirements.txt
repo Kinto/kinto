@@ -1,5 +1,0 @@
-black==19.3b0
-flake8==3.7.8
-isort==4.3.21
-setuptools==41.4.0
-therapist==2.0.0
