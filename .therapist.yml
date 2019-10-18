@@ -8,8 +8,8 @@ actions:
       - kinto/plugins/admin/node_modules/
 
   isort:
-    run: isort --check-only .isort.cfg {files}
-    fix: isort {files}
+    fix: isort -m 3 --line-width=99 --use-parentheses --trailing-comma --recursive --virtual-env=.venv {files}
+    run: isort -m 3 --line-width=99 --use-parentheses --trailing-comma --recursive --virtual-env=.venv --check-only {files}
     include: "*.py"
     exclude:
       - .venv/
