@@ -1,20 +1,20 @@
 import unittest
 from unittest import mock
 
-import transaction
 import pytest
+import transaction
 from pyramid import testing
 
 from kinto import main as kinto_main
 from kinto.core.errors import ERRORS
 from kinto.core.storage import Sort
 from kinto.core.storage.exceptions import ObjectNotFoundError
-from kinto.core.testing import FormattedErrorMixin, sqlalchemy, skip_if_no_statsd
+from kinto.core.testing import FormattedErrorMixin, skip_if_no_statsd, sqlalchemy
 from kinto.plugins.quotas import scripts
 from kinto.plugins.quotas.listener import (
-    QUOTA_RESOURCE_NAME,
     BUCKET_QUOTA_OBJECT_ID,
     COLLECTION_QUOTA_OBJECT_ID,
+    QUOTA_RESOURCE_NAME,
 )
 from kinto.plugins.quotas.utils import record_size
 

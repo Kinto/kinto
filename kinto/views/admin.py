@@ -2,13 +2,15 @@
 Special views for administration.
 """
 
-import itertools
-import colander
 import collections
+import itertools
+
+import colander
 
 from kinto.authorization import RouteFactory
-from kinto.core import utils as core_utils, resource
-from kinto.core.events import notify_resource_event, ACTIONS
+from kinto.core import resource
+from kinto.core import utils as core_utils
+from kinto.core.events import ACTIONS, notify_resource_event
 from kinto.core.resource import viewset
 from kinto.core.storage import Filter
 

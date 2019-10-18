@@ -3,6 +3,7 @@ import os
 
 import colander
 from pyramid.security import NO_PERMISSION_REQUIRED
+
 from kinto.core import Service
 
 HERE = os.path.dirname(__file__)

@@ -1,15 +1,15 @@
-import bcrypt
 import unittest
 import uuid
 from unittest import mock
 
-from kinto.core import utils
-from kinto.core.events import ACTIONS, ResourceChanged
-from kinto.core.testing import get_user_headers, DummyRequest
+import bcrypt
 from pyramid.exceptions import ConfigurationError
 from pyramid_mailer import get_mailer
 
-from kinto.plugins.accounts import scripts, ACCOUNT_CACHE_KEY
+from kinto.core import utils
+from kinto.core.events import ACTIONS, ResourceChanged
+from kinto.core.testing import DummyRequest, get_user_headers
+from kinto.plugins.accounts import ACCOUNT_CACHE_KEY, scripts
 from kinto.plugins.accounts.utils import (
     get_cached_reset_password,
     get_cached_validation_key,
@@ -17,6 +17,7 @@ from kinto.plugins.accounts.utils import (
 )
 from kinto.plugins.accounts.views import on_account_created
 from kinto.plugins.accounts.views.validation import on_account_activated
+
 from .. import support
 
 

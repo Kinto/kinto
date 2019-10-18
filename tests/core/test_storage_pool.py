@@ -1,5 +1,5 @@
-import time
 import threading
+import time
 import unittest
 
 from pyramid import testing

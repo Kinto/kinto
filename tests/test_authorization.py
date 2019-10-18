@@ -1,6 +1,5 @@
+from kinto.authorization import _inherited_permissions, _relative_object_uri, _resource_endpoint
 from kinto.core.testing import unittest
-
-from kinto.authorization import _resource_endpoint, _relative_object_uri, _inherited_permissions
 
 
 class ResourceEndpointTest(unittest.TestCase):

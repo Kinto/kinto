@@ -3,17 +3,16 @@ import urllib.parse
 
 import colander
 import requests
+from cornice.validators import colander_validator
 from pyramid import httpexceptions
 
-from cornice.validators import colander_validator
 from kinto.core import Service
-from kinto.core.errors import raise_invalid, ERRORS
-from kinto.core.utils import random_bytes_hex
+from kinto.core.errors import ERRORS, raise_invalid
 from kinto.core.resource.schema import ErrorResponseSchema
 from kinto.core.schema import URL
+from kinto.core.utils import random_bytes_hex
 
 from .utils import fetch_openid_config
-
 
 DEFAULT_STATE_TTL_SECONDS = 3600
 DEFAULT_STATE_LENGTH = 32

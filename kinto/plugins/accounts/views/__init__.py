@@ -1,25 +1,25 @@
-import colander
 import re
 import uuid
+
+import colander
 from pyramid import httpexceptions
 from pyramid.decorator import reify
+from pyramid.events import subscriber
 from pyramid.security import Authenticated, Everyone
 from pyramid.settings import aslist
-from pyramid.events import subscriber
 
-
-from kinto.views import NameGenerator
 from kinto.core import resource
-from kinto.core.errors import raise_invalid, http_error
-from kinto.core.events import ResourceChanged, ACTIONS
+from kinto.core.errors import http_error, raise_invalid
+from kinto.core.events import ACTIONS, ResourceChanged
+from kinto.views import NameGenerator
 
 from ..mails import Emailer
 from ..utils import (
+    ACCOUNT_POLICY_NAME,
     cache_validation_key,
     delete_cached_account,
     get_cached_validation_key,
     hash_password,
-    ACCOUNT_POLICY_NAME,
 )
 
 DEFAULT_EMAIL_REGEXP = "^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$"

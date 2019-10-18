@@ -2,15 +2,13 @@ import time
 import unittest
 from unittest import mock
 
-from kinto.core.utils import sqlalchemy, memcache
-from kinto.core.cache import (
-    CacheBase,
-    memory as memory_backend,
-    memcached as memcached_backend,
-    postgresql as postgresql_backend,
-)
+from kinto.core.cache import CacheBase
+from kinto.core.cache import memcached as memcached_backend
+from kinto.core.cache import memory as memory_backend
+from kinto.core.cache import postgresql as postgresql_backend
 from kinto.core.cache.testing import CacheTest
-from kinto.core.testing import skip_if_no_postgresql, skip_if_no_memcached
+from kinto.core.testing import skip_if_no_memcached, skip_if_no_postgresql
+from kinto.core.utils import memcache, sqlalchemy
 
 
 class CacheBaseTest(unittest.TestCase):

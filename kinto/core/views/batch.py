@@ -5,12 +5,10 @@ from cornice.validators import colander_validator
 from pyramid import httpexceptions
 from pyramid.security import NO_PERMISSION_REQUIRED
 
-from kinto.core import errors
-from kinto.core import Service
+from kinto.core import Service, errors
 from kinto.core.errors import ErrorSchema
-from kinto.core.utils import merge_dicts, build_request, build_response
 from kinto.core.resource.viewset import CONTENT_TYPES
-
+from kinto.core.utils import build_request, build_response, merge_dicts
 
 subrequest_logger = logging.getLogger("subrequest.summary")
 

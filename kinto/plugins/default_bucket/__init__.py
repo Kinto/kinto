@@ -1,16 +1,15 @@
 import uuid
 
 from pyramid import httpexceptions
-from pyramid.settings import asbool
 from pyramid.security import NO_PERMISSION_REQUIRED, Authenticated
+from pyramid.settings import asbool
 
+from kinto.authorization import RouteFactory
 from kinto.core import get_user_info as core_get_user_info
 from kinto.core.errors import raise_invalid
 from kinto.core.events import ACTIONS
 from kinto.core.storage.exceptions import UnicityError
-from kinto.core.utils import build_request, reapply_cors, hmac_digest, instance_uri, view_lookup
-
-from kinto.authorization import RouteFactory
+from kinto.core.utils import build_request, hmac_digest, instance_uri, reapply_cors, view_lookup
 from kinto.views.buckets import Bucket
 from kinto.views.collections import Collection
 

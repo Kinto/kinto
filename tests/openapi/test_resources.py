@@ -1,9 +1,9 @@
 from .support import (
-    OpenAPITest,
     MINIMALIST_BUCKET,
-    MINIMALIST_GROUP,
     MINIMALIST_COLLECTION,
+    MINIMALIST_GROUP,
     MINIMALIST_RECORD,
+    OpenAPITest,
 )
 
 

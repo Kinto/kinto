@@ -1,12 +1,12 @@
 import copy
 
 from pyramid.httpexceptions import HTTPInsufficientStorage
-from kinto.core.errors import http_error, ERRORS
+
+from kinto.core.errors import ERRORS, http_error
 from kinto.core.storage.exceptions import ObjectNotFoundError
 from kinto.core.utils import instance_uri
 
 from .utils import record_size
-
 
 QUOTA_RESOURCE_NAME = "quota"
 BUCKET_QUOTA_OBJECT_ID = "bucket_info"

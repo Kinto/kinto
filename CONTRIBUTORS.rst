@@ -38,6 +38,7 @@ Contributors
 * Gabriela Surita <gabsurita@gmail.com>
 * George Smith <h3rmit@protonmail.com>
 * Greg Guthe <gguthe@mozilla.com>
+* Haseeb Majid <hmajid2301@gmail.com>
 * Heron Rossi <heron.rossi@hotmail.com>
 * Hiromipaw <silvia@nopressure.co.uk>
 * Indranil Dutta <duttaindranil497@gmail.com>

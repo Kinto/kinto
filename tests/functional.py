@@ -1,14 +1,13 @@
 import os.path
-from urllib.parse import urljoin
-
 import random
 import re
 import unittest
 import uuid
+from urllib.parse import urljoin
 
 import requests
-from kinto import HTTP_API_VERSION
 
+from kinto import HTTP_API_VERSION
 
 # abspath here because __file__ may be relative if it is in __main__
 __HERE__ = os.path.abspath(os.path.dirname(__file__))

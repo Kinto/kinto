@@ -1,32 +1,31 @@
 """Main entry point
 """
 import logging
-import pkg_resources
 import tempfile
 
+import pkg_resources
 from cornice import Service as CorniceService
 from dockerflow import logging as dockerflow_logging
 from pyramid.settings import aslist
 
-from kinto.core import errors
-from kinto.core import events
+from kinto.core import errors, events
 from kinto.core.initialization import (  # NOQA
     initialize,
     install_middlewares,
     load_default_settings,
 )
 from kinto.core.utils import (
-    follow_subrequest,
-    current_service,
     current_resource_name,
-    prefixed_userid,
-    prefixed_principals,
+    current_service,
+    follow_subrequest,
     log_context,
+    prefixed_principals,
+    prefixed_userid,
 )
-
 
 logger = logging.getLogger(__name__)
 
+__all__ = ["initialize", "load_default_settings", "Service"]
 
 # Module version, as defined in PEP-0396.
 __version__ = pkg_resources.get_distribution("kinto").version  # FIXME?

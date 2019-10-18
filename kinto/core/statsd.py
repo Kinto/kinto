@@ -1,14 +1,14 @@
 import types
+from urllib.parse import urlparse
+
+from pyramid.exceptions import ConfigurationError
+
+from kinto.core import utils
 
 try:
     import statsd as statsd_module
 except ImportError:  # pragma: no cover
     statsd_module = None
-
-from pyramid.exceptions import ConfigurationError
-from urllib.parse import urlparse
-
-from kinto.core import utils
 
 
 class Client:

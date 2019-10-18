@@ -2,8 +2,8 @@ import colander
 from pyramid.events import subscriber
 
 from kinto.core import resource, utils
-from kinto.core.events import ResourceChanged, ACTIONS
-from kinto.schema_validation import validate_from_bucket_schema_or_400, JSONSchemaMapping
+from kinto.core.events import ACTIONS, ResourceChanged
+from kinto.schema_validation import JSONSchemaMapping, validate_from_bucket_schema_or_400
 
 
 class CollectionSchema(resource.ResourceSchema):

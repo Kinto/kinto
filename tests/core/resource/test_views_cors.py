@@ -6,7 +6,6 @@ from kinto.core.testing import unittest
 
 from ..support import BaseWebTest
 
-
 MINIMALIST_OBJECT = {"name": "Champignon"}
 
 
