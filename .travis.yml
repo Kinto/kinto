@@ -9,7 +9,6 @@ addons:
 env:
   - TOX_ENV=py36
   - TOX_ENV=py36-raw
-  - TOX_ENV=docs
 install:
   - pip install tox
 before_script:
@@ -51,3 +50,8 @@ matrix:
       env:
         - ENV=build-kinto-admin
       script: make build-kinto-admin
+    - python: 3.7
+      dist: xenial
+      env:
+        - ENV=docs
+      script: make docs
