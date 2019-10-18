@@ -1,14 +1,13 @@
 from unittest import mock
 
-from pyramid.security import IAuthorizationPolicy, Authenticated
 from zope.interface import implementer
 
 from kinto.core import testing
 from kinto.core.storage.exceptions import BackendError
 from kinto.core.utils import sqlalchemy
+from pyramid.security import Authenticated, IAuthorizationPolicy
 
 from .testapp import main as testapp
-
 
 # This is the principal a connected user should have (in the tests).
 USER_PRINCIPAL = "basicauth:8a931a10fc88ab2f6d1cc02a07d3a81b5d4768f6f13e85c5" "d8d4180419acb1b4"

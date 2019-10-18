@@ -3,22 +3,12 @@ import warnings
 
 import colander
 from cornice.validators import colander_validator
+from kinto.core import authorization
 from pyramid.settings import asbool
 
-from kinto.core import authorization
-
-from .schema import (
-    PermissionsSchema,
-    RequestSchema,
-    PayloadRequestSchema,
-    PatchHeaderSchema,
-    PluralQuerySchema,
-    PluralGetQuerySchema,
-    ObjectGetQuerySchema,
-    ObjectSchema,
-    ResourceReponses,
-)
-
+from .schema import (ObjectGetQuerySchema, ObjectSchema, PatchHeaderSchema, PayloadRequestSchema,
+                     PermissionsSchema, PluralGetQuerySchema, PluralQuerySchema, RequestSchema,
+                     ResourceReponses)
 
 CONTENT_TYPES = ["application/json"]
 

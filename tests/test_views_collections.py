@@ -2,7 +2,7 @@ import unittest
 
 from kinto.core.testing import get_user_headers
 
-from .support import BaseWebTest, MINIMALIST_BUCKET, MINIMALIST_COLLECTION, MINIMALIST_RECORD
+from .support import MINIMALIST_BUCKET, MINIMALIST_COLLECTION, MINIMALIST_RECORD, BaseWebTest
 
 
 class CollectionViewTest(BaseWebTest, unittest.TestCase):

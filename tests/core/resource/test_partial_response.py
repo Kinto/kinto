@@ -1,6 +1,5 @@
-from pyramid import httpexceptions
-
 from kinto.core.resource import Resource
+from pyramid import httpexceptions
 
 from . import BaseTest
 

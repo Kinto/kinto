@@ -1,10 +1,5 @@
-from .support import (
-    OpenAPITest,
-    MINIMALIST_BUCKET,
-    MINIMALIST_GROUP,
-    MINIMALIST_COLLECTION,
-    MINIMALIST_RECORD,
-)
+from .support import (MINIMALIST_BUCKET, MINIMALIST_COLLECTION, MINIMALIST_GROUP,
+                      MINIMALIST_RECORD, OpenAPITest)
 
 
 class OpenAPIResourcesTest(OpenAPITest):

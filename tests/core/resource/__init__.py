@@ -3,8 +3,8 @@ from unittest import mock
 
 from kinto.core import resource
 from kinto.core.authorization import RouteFactory
-from kinto.core.storage import memory as storage_memory
 from kinto.core.cache import memory as cache_memory
+from kinto.core.storage import memory as storage_memory
 from kinto.core.testing import DummyRequest
 
 

@@ -1,9 +1,9 @@
+from io import StringIO
 from unittest import mock
 
 import pytest
-from io import StringIO
-from pyramid.httpexceptions import HTTPOk
 from kinto.core.decorators import cache_forever
+from pyramid.httpexceptions import HTTPOk
 
 
 @cache_forever

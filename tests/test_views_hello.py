@@ -1,8 +1,7 @@
 from kinto import __version__ as VERSION
-
 from kinto.core.testing import unittest
 
-from .support import BaseWebTest, MINIMALIST_BUCKET, MINIMALIST_GROUP
+from .support import MINIMALIST_BUCKET, MINIMALIST_GROUP, BaseWebTest
 
 
 class HelloViewTest(BaseWebTest, unittest.TestCase):

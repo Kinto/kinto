@@ -1,14 +1,13 @@
 from unittest import mock
 
 import pytest
-
 from kinto.core import DEFAULT_SETTINGS
-from kinto.core.utils import COMPARISON, sqlalchemy
-from kinto.core.storage import generators, memory, postgresql, exceptions, StorageBase
-from kinto.core.storage import Filter, Sort, MISSING
+from kinto.core.storage import (MISSING, Filter, Sort, StorageBase, exceptions, generators, memory,
+                                postgresql)
 from kinto.core.storage.testing import StorageTest
 from kinto.core.storage.utils import paginated
-from kinto.core.testing import unittest, skip_if_no_postgresql
+from kinto.core.testing import skip_if_no_postgresql, unittest
+from kinto.core.utils import COMPARISON, sqlalchemy
 
 
 class GeneratorTest(unittest.TestCase):

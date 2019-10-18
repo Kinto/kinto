@@ -1,17 +1,20 @@
 import logging
+import random
 import re
 import warnings
 from datetime import datetime
-from dateutil import parser as dateparser
-import random
 
+from dateutil import parser as dateparser
+
+from kinto.core import cache, errors, permission, storage, utils
+from kinto.core.events import ACTIONS, ResourceChanged, ResourceRead
 from pyramid.events import NewRequest, NewResponse
 from pyramid.exceptions import ConfigurationError
-from pyramid.httpexceptions import HTTPTemporaryRedirect, HTTPGone, HTTPBadRequest
+from pyramid.httpexceptions import HTTPBadRequest, HTTPGone, HTTPTemporaryRedirect
+from pyramid.interfaces import IAuthenticationPolicy
 from pyramid.renderers import JSON as JSONRenderer
 from pyramid.response import Response
 from pyramid.security import NO_PERMISSION_REQUIRED
-from pyramid.interfaces import IAuthenticationPolicy
 from pyramid.settings import asbool, aslist
 from pyramid_multiauth import MultiAuthenticationPolicy, MultiAuthPolicySelected
 
@@ -23,13 +26,6 @@ try:
     from werkzeug.middleware.profiler import ProfilerMiddleware
 except ImportError:  # pragma: no cover
     pass
-
-from kinto.core import errors
-from kinto.core import utils
-from kinto.core import cache
-from kinto.core import storage
-from kinto.core import permission
-from kinto.core.events import ResourceRead, ResourceChanged, ACTIONS
 
 
 logger = logging.getLogger(__name__)

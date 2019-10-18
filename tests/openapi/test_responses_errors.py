@@ -1,8 +1,8 @@
 from bravado_core.response import validate_response
-
 from kinto.core import testing
+
+from ..support import MINIMALIST_BUCKET, MINIMALIST_COLLECTION, MINIMALIST_GROUP, MINIMALIST_RECORD
 from .support import OpenAPITest
-from ..support import MINIMALIST_BUCKET, MINIMALIST_GROUP, MINIMALIST_COLLECTION, MINIMALIST_RECORD
 
 
 class OpenAPIObjectErrorResponsesTest(OpenAPITest):

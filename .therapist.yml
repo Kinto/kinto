@@ -7,6 +7,14 @@ actions:
       - .venv/
       - kinto/plugins/admin/node_modules/
 
+  isort:
+    run: isort --check-only .isort.cfg {files}
+    fix: isort {files}
+    include: "*.py"
+    exclude:
+      - .venv/
+      - kinto/plugins/admin/node_modules/
+
   flake8:
     run: flake8 {files}
     include: "*.py"

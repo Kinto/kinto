@@ -1,11 +1,10 @@
 from unittest import mock
 
-from pyramid.request import Request
-
 from kinto.core import utils
-from kinto.core.authorization import RouteFactory, AuthorizationPolicy, groupfinder
+from kinto.core.authorization import AuthorizationPolicy, RouteFactory, groupfinder
 from kinto.core.storage import exceptions as storage_exceptions
 from kinto.core.testing import DummyRequest, unittest
+from pyramid.request import Request
 
 
 class RouteFactoryTest(unittest.TestCase):

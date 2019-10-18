@@ -1,13 +1,12 @@
-from pyramid.config import Configurator
 import unittest
 
-from kinto.core import events
+from kinto.core import events, utils
 from kinto.core.storage import exceptions
 from kinto.core.testing import get_user_headers
-from kinto.core import utils
 from kinto.views.admin import get_parent_uri
+from pyramid.config import Configurator
 
-from .support import BaseWebTest, MINIMALIST_BUCKET, MINIMALIST_COLLECTION, MINIMALIST_RECORD
+from .support import MINIMALIST_BUCKET, MINIMALIST_COLLECTION, MINIMALIST_RECORD, BaseWebTest
 
 
 class DeleteUserDataTest(BaseWebTest, unittest.TestCase):

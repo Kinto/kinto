@@ -1,13 +1,15 @@
+from collections import namedtuple
 import json
 import logging
 import random
 import warnings
-from collections import namedtuple
 
-from pyramid.settings import asbool
 import ujson
 
+from pyramid.settings import asbool
+
 from kinto.core.decorators import deprecate_kwargs
+
 from . import generators
 
 

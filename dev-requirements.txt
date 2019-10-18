@@ -1,6 +1,7 @@
 black==19.3b0
 bravado_core==5.13.2
 flake8==3.7.8
+isort==4.3.21
 pytest==5.2.1
 pytest-cache==1.0
 pytest-cov==2.8.1
@@ -9,6 +10,7 @@ pytest-watch==4.2.0
 SQLAlchemy==1.3.10
 python-memcached==1.59
 swagger-spec-validator==2.4.3
+therapist==2.0.0
 tox==3.14.0
 WebTest==2.0.33
 werkzeug==0.16.0

@@ -1,7 +1,6 @@
 from unittest import mock
 
-from kinto.core import authentication
-from kinto.core import utils
+from kinto.core import authentication, utils
 from kinto.core.testing import DummyRequest, unittest
 
 from .support import BaseWebTest

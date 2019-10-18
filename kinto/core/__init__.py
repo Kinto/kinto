@@ -1,29 +1,28 @@
 """Main entry point
 """
 import logging
-import pkg_resources
 import tempfile
 
 from cornice import Service as CorniceService
 from dockerflow import logging as dockerflow_logging
+import pkg_resources
+
 from pyramid.settings import aslist
 
-from kinto.core import errors
-from kinto.core import events
+from kinto.core import errors, events
 from kinto.core.initialization import (  # NOQA
     initialize,
     install_middlewares,
     load_default_settings,
 )
 from kinto.core.utils import (
-    follow_subrequest,
-    current_service,
     current_resource_name,
-    prefixed_userid,
-    prefixed_principals,
+    current_service,
+    follow_subrequest,
     log_context,
+    prefixed_principals,
+    prefixed_userid,
 )
-
 
 logger = logging.getLogger(__name__)
 

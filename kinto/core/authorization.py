@@ -1,13 +1,12 @@
 import functools
 import logging
 
-from pyramid.settings import aslist
-from pyramid.security import IAuthorizationPolicy, Authenticated
 from zope.interface import implementer
 
 from kinto.core import utils
 from kinto.core.storage import exceptions as storage_exceptions
-
+from pyramid.security import Authenticated, IAuthorizationPolicy
+from pyramid.settings import aslist
 
 logger = logging.getLogger(__name__)
 

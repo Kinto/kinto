@@ -2,13 +2,11 @@ import os
 import uuid
 from unittest import mock
 
-from pyramid import testing
-
 from kinto.core import initialization
-from kinto.core.events import ResourceChanged, ResourceRead, ACTIONS
+from kinto.core.events import ACTIONS, ResourceChanged, ResourceRead
 from kinto.core.listeners import ListenerBase
 from kinto.core.testing import unittest
-
+from pyramid import testing
 
 UID = str(uuid.uuid4())
 

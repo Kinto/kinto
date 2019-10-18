@@ -1,13 +1,11 @@
-from unittest import mock
 import uuid
+from unittest import mock
 
-from kinto.core.storage import exceptions as storage_exceptions
 from kinto.core.errors import ERRORS
-from kinto.core.testing import unittest, FormattedErrorMixin
-
+from kinto.core.storage import exceptions as storage_exceptions
+from kinto.core.testing import FormattedErrorMixin, unittest
 
 from ..support import BaseWebTest
-
 
 MINIMALIST_OBJECT = {"name": "Champignon"}
 

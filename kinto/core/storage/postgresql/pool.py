@@ -1,5 +1,5 @@
-from sqlalchemy.util.queue import Queue
 from sqlalchemy.pool import QueuePool
+from sqlalchemy.util.queue import Queue
 
 
 class _QueueWithMaxBacklog(Queue):

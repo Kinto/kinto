@@ -1,6 +1,7 @@
 import unittest
 
 from kinto import main
+
 from .support import BaseWebTest
 
 

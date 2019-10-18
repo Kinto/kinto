@@ -1,6 +1,6 @@
 from bravado_core.response import validate_response
 
-from .support import OpenAPITest, MINIMALIST_COLLECTION
+from .support import MINIMALIST_COLLECTION, OpenAPITest
 
 
 class OpenAPICollectionResponsesTest(OpenAPITest):

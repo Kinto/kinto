@@ -1,14 +1,14 @@
-import pkg_resources
 import logging
 
-import kinto.core
-from kinto.core import utils
+import pkg_resources
+
 from pyramid.config import Configurator
-from pyramid.settings import asbool
 from pyramid.security import Authenticated, Everyone
+from pyramid.settings import asbool
 
 from kinto.authorization import RouteFactory
-
+import kinto.core
+from kinto.core import utils
 
 # Module version, as defined in PEP-0396.
 __version__ = pkg_resources.get_distribution(__package__).version

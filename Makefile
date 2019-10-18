@@ -25,6 +25,7 @@ help:
 	@echo "  serve                       start the kinto server on default port"
 	@echo "  migrate                     run the kinto migrations"
 	@echo "  flake8                      run the flake8 linter"
+	@echo "  isort                       run the isort tool, which will automatically sort all of the imports"
 	@echo "  tests                       run all the tests with all the supported python interpreters (same as travis)"
 	@echo "  tdd                         run pytest-watch to rerun tests automatically on changes for tdd"
 	@echo "  tests-once  	             only run the tests once with the default python interpreter"
@@ -87,8 +88,8 @@ tests-once: install-dev version-file install-postgres install-monitoring
 flake8: install-dev
 	$(VENV)/bin/flake8 kinto tests
 
-black: install-dev
-	$(VENV)/bin/black --exclude "/node_modules/" kinto tests
+black-isort: install-dev
+	$(VENV)/bin/therapist run --fix --use-tracked-files kinto tests docs/conf.py
 
 tests: version-file
 	$(VENV)/bin/tox

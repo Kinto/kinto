@@ -1,8 +1,9 @@
 import unittest
+
 from kinto.core.errors import ERRORS
 from kinto.core.testing import FormattedErrorMixin
 
-from .support import BaseWebTest, MINIMALIST_BUCKET, MINIMALIST_GROUP
+from .support import MINIMALIST_BUCKET, MINIMALIST_GROUP, BaseWebTest
 
 
 class GroupViewTest(FormattedErrorMixin, BaseWebTest, unittest.TestCase):

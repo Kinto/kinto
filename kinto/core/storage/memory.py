@@ -1,24 +1,15 @@
-import re
-import operator
-from collections import defaultdict
-from collections import abc
-import numbers
-
-from kinto.core import utils
-from kinto.core.decorators import synchronized
-from kinto.core.storage import (
-    StorageBase,
-    exceptions,
-    DEFAULT_ID_FIELD,
-    DEFAULT_MODIFIED_FIELD,
-    DEFAULT_DELETED_FIELD,
-    MISSING,
-)
-from kinto.core.utils import COMPARISON, find_nested_value
-from kinto.core.decorators import deprecate_kwargs
-
 import json
+import numbers
+import operator
+import re
+from collections import abc, defaultdict
+
 import ujson
+from kinto.core import utils
+from kinto.core.decorators import deprecate_kwargs, synchronized
+from kinto.core.storage import (DEFAULT_DELETED_FIELD, DEFAULT_ID_FIELD, DEFAULT_MODIFIED_FIELD,
+                                MISSING, StorageBase, exceptions)
+from kinto.core.utils import COMPARISON, find_nested_value
 
 
 def tree():
