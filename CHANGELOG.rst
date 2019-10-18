@@ -9,6 +9,7 @@ This document describes changes between each past release.
 **Internal Changes**
 
 - Use package-lock file for Kinto Admin packaging
+- Use isort for formatting imports (Fixes #2270)
 
 
 13.5.0 (2019-09-26)
