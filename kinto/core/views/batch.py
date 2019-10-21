@@ -155,8 +155,6 @@ def post_batch(request):
                 # JSONify raw Pyramid errors.
                 resp = errors.http_error(e)
 
-        subrequest_logger.info("subrequest.summary", extra=log_context)
-
         dict_resp = build_response(resp, subrequest)
         responses.append(dict_resp)
 
