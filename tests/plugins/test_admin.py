@@ -54,11 +54,15 @@ class AdminViewTest(BaseWebTest, unittest.TestCase):
         capabilities = resp.json["capabilities"]
         assert "permissions_endpoint" in capabilities
 
-    def test_admin_index_cat_be_reached(self):
+    def test_admin_index_can_be_reached(self):
         self.maxDiff = None
         resp = self.app.get("/admin/")
-        assert "html" in resp.body.decode("utf-8")
+        assert "<html>" in resp.body.decode("utf-8")
 
     def test_admin_redirect_without_trailing_slash(self):
         resp = self.app.get("/admin", status=307)
         self.assertTrue(resp.headers["location"].endswith("/admin/"))
+
+    def test_admin_has_csp_header(self):
+        resp = self.app.get("/admin/")
+        assert "default-src 'self'" in resp.headers["Content-Security-Policy"]
