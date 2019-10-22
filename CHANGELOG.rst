@@ -6,6 +6,10 @@ This document describes changes between each past release.
 13.6.0 (unreleased)
 -------------------
 
+**New Features**
+
+- Add ``Content-Security-Policy`` header and report URI (fixes #2303)
+
 **Internal Changes**
 
 - Use package-lock file for Kinto Admin packaging
