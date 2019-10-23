@@ -93,6 +93,7 @@ class RequestSummaryTest(BaseWebTest, unittest.TestCase):
             [
                 "Access-Control-Expose-Headers",
                 "Content-Length",
+                "Content-Security-Policy",
                 "Content-Type",
                 "X-Content-Type-Options",
             ],

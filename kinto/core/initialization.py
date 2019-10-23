@@ -56,6 +56,19 @@ def setup_json_serializer(config):
     config.add_renderer("json", renderer)
 
 
+def setup_csp_headers(config):
+    """Content-Security-Policy HTTP response header helps reduce XSS risks on
+    modern browsers by declaring, which dynamic resources are allowed to load.
+    On APIs, we disable everything.
+    """
+    disable_all = "default-src 'none'; frame-ancestors 'none'; base-uri 'none'; "
+
+    def on_new_response(event):
+        event.response.headers.setdefault("Content-Security-Policy", disable_all)
+
+    config.add_subscriber(on_new_response, NewResponse)
+
+
 def setup_version_redirection(config):
     """Add a view which redirects to the current version of the API.
     """

@@ -14,4 +14,17 @@ def admin_home_view(request):
     except FileNotFoundError:  # pragma: no cover
         with open(os.path.join(HERE, "public/help.html")) as f:
             page_content = f.read()
+
+    # Add Content-Security-Policy HTTP response header to protect against XSS:
+    # only allow from local domain:
+    allow_local_only = "; ".join(
+        (
+            "default-src 'self'",
+            "img-src data: 'self'",
+            "script-src 'self' 'unsafe-inline'",
+            "style-src 'self' 'unsafe-inline'",
+        )
+    )
+    request.response.headers["Content-Security-Policy"] = allow_local_only
+
     return page_content
