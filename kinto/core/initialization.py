@@ -61,7 +61,7 @@ def setup_csp_headers(config):
     modern browsers by declaring, which dynamic resources are allowed to load.
     On APIs, we disable everything.
     """
-    disable_all = "default-src 'none'; " "frame-ancestors 'none'; " "base-uri 'none'; "
+    disable_all = "default-src 'none'; frame-ancestors 'none'; base-uri 'none'; "
 
     def on_new_response(event):
         event.response.headers.setdefault("Content-Security-Policy", disable_all)

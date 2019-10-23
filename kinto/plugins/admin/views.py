@@ -17,11 +17,13 @@ def admin_home_view(request):
 
     # Add Content-Security-Policy HTTP response header to protect against XSS:
     # only allow from local domain:
-    allow_local_only = (
-        "default-src 'self'; "
-        "img-src data: 'self'; "
-        "script-src 'self' 'unsafe-inline'; "
-        "style-src 'self' 'unsafe-inline'; "
+    allow_local_only = "; ".join(
+        (
+            "default-src 'self'",
+            "img-src data: 'self'",
+            "script-src 'self' 'unsafe-inline'",
+            "style-src 'self' 'unsafe-inline'",
+        )
     )
     request.response.headers["Content-Security-Policy"] = allow_local_only
 
