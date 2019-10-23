@@ -10,7 +10,7 @@
     "babel-polyfill": "^6.23.0",
     "codemirror": "^5.49.0",
     "kinto-admin": "1.25.2",
-    "react": "^16.10.2",
+    "react": "^16.11.0",
     "react-dom": "^16.10.2",
     "react-router": "^5.1.2",
     "redux": "^4.0.4"
