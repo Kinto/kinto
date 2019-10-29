@@ -1,6 +1,6 @@
 black==19.3b0
 bravado_core==5.14.0
-flake8==3.7.8
+flake8==3.7.9
 isort==4.3.21
 pytest==5.2.2
 pytest-cache==1.0
