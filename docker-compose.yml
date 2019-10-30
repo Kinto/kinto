@@ -1,21 +1,32 @@
-db:
-  image: postgres
-  environment:
-    POSTGRES_USER: postgres
-    POSTGRES_PASSWORD: postgres
-cache:
-  image: library/memcached
-web:
-  image: kinto/kinto-server
-  links:
-   - db
-   - cache
-  ports:
-   - "8888:8888"
-  environment:
-    KINTO_CACHE_BACKEND: kinto.core.cache.memcached
-    KINTO_CACHE_HOSTS: cache:11211 cache:11212
-    KINTO_STORAGE_BACKEND: kinto.core.storage.postgresql
-    KINTO_STORAGE_URL: postgresql://postgres:postgres@db/postgres
-    KINTO_PERMISSION_BACKEND: kinto.core.permission.postgresql
-    KINTO_PERMISSION_URL: postgresql://postgres:postgres@db/postgres
+version: '3'
+
+services:
+  db:
+    image: postgres:9.5
+    env_file:
+      - '.env/db'
+    volumes:
+      - 'postgres:/var/lib/postgresql/data'
+    ports:
+      - '5432:5432'
+
+  cache:
+    image: library/memcached
+    env_file:
+      - '.env/cache'
+
+  web:
+    build: .
+    links:
+      - db
+      - cache
+    env_file:
+      - '.env/web'
+    volumes:
+      - '.:/kinto'
+    ports:
+      - '8888:8888'
+
+volumes:
+  postgres:
+  cache:
