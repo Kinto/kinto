@@ -2,31 +2,30 @@ version: '3'
 
 services:
   db:
-    image: postgres:9.5
+    image: postgres
     env_file:
-      - '.env/db'
+      - './.env/db'
     volumes:
       - 'postgres:/var/lib/postgresql/data'
     ports:
       - '5432:5432'
-
   cache:
     image: library/memcached
     env_file:
-      - '.env/cache'
-
-  web:
-    build: .
-    links:
-      - db
-      - cache
-    env_file:
-      - '.env/web'
+      - './.env/cache'
     volumes:
-      - '.:/kinto'
+      - 'memcached:/var/lib/memcached/data'
+  web:
+    image: kinto/kinto-server
+    links:
+     - db
+     - cache
     ports:
-      - '8888:8888'
+     - "8888:8888"
+    env_file:
+      - './.env/web'
+
 
 volumes:
   postgres:
-  cache:
+  memcached:
