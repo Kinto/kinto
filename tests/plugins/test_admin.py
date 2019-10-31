@@ -66,3 +66,6 @@ class AdminViewTest(BaseWebTest, unittest.TestCase):
     def test_admin_has_csp_header(self):
         resp = self.app.get("/admin/")
         assert "default-src 'self'" in resp.headers["Content-Security-Policy"]
+        # The cached version too.
+        resp = self.app.get("/admin/")
+        assert "default-src 'self'" in resp.headers["Content-Security-Policy"]
