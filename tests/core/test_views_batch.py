@@ -323,38 +323,38 @@ class BatchServiceTest(unittest.TestCase):
     def test_subrequests_have_parent_attribute(self):
         self.request.path = "/batch"
         self.post({"requests": [{"path": "/"}]})
-        subrequest, = self.request.invoke_subrequest.call_args[0]
+        (subrequest,) = self.request.invoke_subrequest.call_args[0]
         self.assertEqual(subrequest.parent.path, "/batch")
 
     def test_subrequests_are_GET_by_default(self):
         self.post({"requests": [{"path": "/"}]})
-        subrequest, = self.request.invoke_subrequest.call_args[0]
+        (subrequest,) = self.request.invoke_subrequest.call_args[0]
         self.assertEqual(subrequest.method, "GET")
 
     def test_original_request_headers_are_passed_to_subrequests(self):
         self.request.headers["Authorization"] = "Basic ertyfghjkl"
         self.post({"requests": [{"path": "/"}]})
-        subrequest, = self.request.invoke_subrequest.call_args[0]
+        (subrequest,) = self.request.invoke_subrequest.call_args[0]
         self.assertIn("Basic", subrequest.headers["Authorization"])
 
     def test_subrequests_body_are_json_serialized(self):
         request = {"path": "/", "body": {"json": "payload"}}
         self.post({"requests": [request]})
         wanted = {"json": "payload"}
-        subrequest, = self.request.invoke_subrequest.call_args[0]
+        (subrequest,) = self.request.invoke_subrequest.call_args[0]
         self.assertEqual(subrequest.body.decode("utf8"), json.dumps(wanted))
 
     def test_subrequests_body_have_json_content_type(self):
         self.request.headers["Content-Type"] = "text/xml"
         request = {"path": "/", "body": {"json": "payload"}}
         self.post({"requests": [request]})
-        subrequest, = self.request.invoke_subrequest.call_args[0]
+        (subrequest,) = self.request.invoke_subrequest.call_args[0]
         self.assertIn("application/json", subrequest.headers["Content-Type"])
 
     def test_subrequests_body_have_utf8_charset(self):
         request = {"path": "/", "body": {"json": "😂"}}
         self.post({"requests": [request]})
-        subrequest, = self.request.invoke_subrequest.call_args[0]
+        (subrequest,) = self.request.invoke_subrequest.call_args[0]
         self.assertIn("charset=utf-8", subrequest.headers["Content-Type"])
         wanted = {"json": "😂"}
         self.assertEqual(subrequest.body.decode("utf8"), json.dumps(wanted))
@@ -362,7 +362,7 @@ class BatchServiceTest(unittest.TestCase):
     def test_subrequests_paths_are_url_encoded(self):
         request = {"path": "/test?param=©"}
         self.post({"requests": [request]})
-        subrequest, = self.request.invoke_subrequest.call_args[0]
+        (subrequest,) = self.request.invoke_subrequest.call_args[0]
         self.assertEqual(subrequest.path, "/v0/test")
         self.assertEqual(subrequest.GET["param"], "©")
 
