@@ -235,7 +235,7 @@ function Invoke-Kinto {
 			if(-NOT (Test-Path $KINTO_INI)) {Create-IniTemplate -From $KINTO_INI}
 			iex "kinto migrate --ini $KINTO_INI;kinto start --ini $KINTO_INI --port $PORT"
 			cd $PWD
-		}
+		} elseif($Test){iex 'pytest'}
 	} elseif ($Help) {
 		Get-Help Kinto-Help -Full | more
 	} else { Get-Help Kinto-Help -Example | more }
