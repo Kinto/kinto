@@ -210,32 +210,6 @@ Assuming `brew <http://brew.sh/>`_ is installed:
     pip install virtualenv
 
 
-
-Microsoft Windows
-'''''''''''''''''
-[Required]
-To run *kinto* you need to install *Microsoft Build Tools* `msbuild <https://visualstudio.microsoft.com/thank-you-downloading-visual-studio/?sku=BuildTools&rel=16>`. Since *libffi* is needed to run *kinto* project properly, you shoul make it once you've installed Build Tools 14.0+ by applying following lines in x86/x64 **Native Tool Command Prompt**
-  `git clone git://github.com/libffi/libffi.git`
-Navigate to *libffi* folder and from there run the follwing line
-  `path/to/configure CC=path/to/msvcc.sh CXX=path/to/msvcc.sh LD=link CPP="cl -nologo -EP"`
-If you're on x64 arch machine you should have set CC="path/to/msvcc.sh -m64" and CXX="path/to/msvcc.sh -m64" and run the above command instead. Also, it's noticeable that if you haven't installed *git* yet, you can easily install it via command line thanks to *scoop* as following
-  *scoop* install git-with-openssh`
-
-[Optional]
-Command-line tool `scoop <https://scoop.sh>` is an optional and useful tool to install and manage application via command line (almost like brew in *Mac*). To take advantage of it you need to change execution policy to either of _Unrestricted_, _RemoteSigned_, or _Bypass_ due to run scrips via *Powershell* by executing following lines:
-    `Set-ExecutionPolicy RemoteSigned -scope CurrentUser`
-    `iwr -useb get.scoop.sh | iex`
-
-
-::
-
-    scoop install openssl pkg-config winpython
-
-    pip install virtualenv
-
-    .\kinto.ps1 -Install -Run
-
-
 Quick start
 -----------
 
