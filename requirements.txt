@@ -24,7 +24,7 @@ pyramid==1.10.4
 pyramid-mailer==0.15.1
 pyramid-multiauth==0.9.0
 pyramid-tm==2.3
-python-dateutil==2.8.0
+python-dateutil==2.8.1
 python-memcached==1.59
 raven==6.10.0
 repoze.lru==0.7
