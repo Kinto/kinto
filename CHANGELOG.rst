@@ -3,10 +3,12 @@ Changelog
 
 This document describes changes between each past release.
 
-13.7.0 (unreleased)
+13.6.2 (2019-11-04)
 -------------------
 
-- Nothing changed yet.
+**Bug fixes**
+
+- Second attempt at fixing loading of Kinto Admin (#2322)
 
 
 13.6.1 (2018-10-31)
