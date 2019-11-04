@@ -21,7 +21,7 @@ def admin_home_view(request):
         (
             "default-src 'self'",
             "img-src data: 'self'",
-            "script-src 'self' 'unsafe-inline'",
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
             "style-src 'self' 'unsafe-inline'",
         )
     )
