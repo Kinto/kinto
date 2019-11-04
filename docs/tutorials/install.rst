@@ -212,7 +212,7 @@ Assuming `brew <http://brew.sh/>`_ is installed:
 
 
 Microsoft Windows
-''''
+'''''''''''''''''
 [Required]
 To run *kinto* you need to install *Microsoft Build Tools* `msbuild <https://visualstudio.microsoft.com/thank-you-downloading-visual-studio/?sku=BuildTools&rel=16>`. Since *libffi* is needed to run *kinto* project properly, you shoul make it once you've installed Build Tools 14.0+ by applying following lines in x86/x64 **Native Tool Command Prompt**
   `git clone git://github.com/libffi/libffi.git`
