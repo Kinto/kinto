@@ -15,7 +15,7 @@ RUN \
     apt-get update; \
     apt-get install -y gcc libpq5 curl libssl-dev libffi-dev libpq-dev gnupg2; \
     curl -sL https://deb.nodesource.com/setup_10.x | bash -; \
-    apt-get install -y nodejs; \
+    apt-get install -y nodejs httpie; \
     cd kinto/plugins/admin; npm install; npm run build; \
     pip3 install --upgrade pip; \
     pip3 install -e /app[postgresql,memcached,monitoring] -c /app/requirements.txt; \
