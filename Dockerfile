@@ -15,13 +15,14 @@ RUN \
     apt-get update; \
     apt-get install -y gcc libpq5 curl libssl-dev libffi-dev libpq-dev gnupg2; \
     curl -sL https://deb.nodesource.com/setup_10.x | bash -; \
-    apt-get install -y nodejs httpie; \
+    apt-get install -y nodejs; \
     cd kinto/plugins/admin; npm install; npm run build; \
     pip3 install --upgrade pip; \
     pip3 install -e /app[postgresql,memcached,monitoring] -c /app/requirements.txt; \
     pip3 install kinto-attachment kinto-emailer kinto-elasticsearch kinto-portier kinto-redis; \
+    pip3 install httpie; \
     kinto init --ini $KINTO_INI --host 0.0.0.0 --backend=memory --cache-backend=memory; \
-    apt-get purge -y -qq gcc libssl-dev libffi-dev libpq-dev curl nodejs httpie; \
+    apt-get purge -y -qq gcc libssl-dev libffi-dev libpq-dev curl nodejs; \
     apt-get autoremove -y -qq; \
     apt-get clean -y
 
