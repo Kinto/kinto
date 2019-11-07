@@ -1,8 +1,8 @@
-from io import StringIO
 from unittest import mock
 
 import pytest
 from pyramid.httpexceptions import HTTPOk
+from pyramid.response import Response
 
 from kinto.core.decorators import cache_forever
 
@@ -33,24 +33,24 @@ def test_cache_forever_decorator_call_the_decorated_function_once():
 
 def test_cache_forever_doesnt_care_about_arguments():
     request1 = mock.MagicMock()
-    request1.response = StringIO()
+    request1.response = Response()
 
     request2 = mock.MagicMock()
-    request2.response = StringIO()
+    request2.response = Response()
 
-    response1 = demo2(request1, "Henri").getvalue()
-    response2 = demo2(request2, "Paul").getvalue()
+    response1 = demo2(request1, "Henri").text
+    response2 = demo2(request2, "Paul").text
     assert response1 == response2 == "demo2: Henri"
 
 
 def test_each_function_is_cached_separately_for_the_life_of_the_process():
     request1 = mock.MagicMock()
-    request1.response = StringIO()
-    response1 = demo1(request1).getvalue()
+    request1.response = Response()
+    response1 = demo1(request1).text
 
     request2 = mock.MagicMock()
-    request2.response = StringIO()
-    response2 = demo2(request2).getvalue()
+    request2.response = Response()
+    response2 = demo2(request2).text
 
     assert response1 != response2
     assert response1 == "demo1"

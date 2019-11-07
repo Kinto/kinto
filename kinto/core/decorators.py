@@ -9,16 +9,19 @@ class cache_forever:
     def __init__(self, wrapped):
         self.wrapped = wrapped
         self.saved = None
+        self.saved_headers = None
         update_wrapper(self, wrapped)
 
     def __call__(self, request, *args, **kwargs):
         if self.saved is None:
             self.saved = self.wrapped(request, *args, **kwargs)
+            self.saved_headers = request.response.headers
             if isinstance(self.saved, Response):
                 self.saved = None
                 raise ValueError("cache_forever cannot cache Response only its body")
 
         request.response.write(self.saved)
+        request.response.headers.update(**self.saved_headers)
         return request.response
 
 

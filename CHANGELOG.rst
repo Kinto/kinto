@@ -3,10 +3,28 @@ Changelog
 
 This document describes changes between each past release.
 
-1313.7.0 (unreleased)
----------------------
+13.7.0 (unreleased)
+-------------------
 
-- Nothing changed yet.
+**Bug fixes**
+
+- History entries datetimes now carry timezone information
+
+
+13.6.2 (2019-11-04)
+-------------------
+
+**Bug fixes**
+
+- Second attempt at fixing loading of Kinto Admin (#2322)
+
+
+13.6.1 (2018-10-31)
+-------------------
+
+**Bug fixes**
+
+- Fix loading of Kinto Admin (#2320)
 
 
 13.6.0 (2019-10-24)

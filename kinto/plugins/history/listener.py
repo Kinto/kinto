@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 from pyramid.settings import aslist
 
@@ -99,7 +99,7 @@ def on_resource_changed(event):
         eventattrs[f"{resource_name}_id"] = obj_id
         eventattrs["uri"] = uri
         attrs = dict(
-            date=datetime.now().isoformat(),
+            date=datetime.now(timezone.utc).isoformat(),
             target={"data": target, "permissions": perms},
             **eventattrs,
         )
