@@ -6,7 +6,9 @@ This document describes changes between each past release.
 13.7.0 (unreleased)
 -------------------
 
-- Nothing changed yet.
+**Bug fixes**
+
+- History entries datetimes now carry timezone information
 
 
 13.6.2 (2019-11-04)
