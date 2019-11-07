@@ -10,6 +10,8 @@ from kinto.core.testing import get_user_headers, skip_if_no_statsd
 
 from .. import support
 
+DATETIME_REGEX = r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}\+\d{2}:\d{2}$"
+
 
 class PluginSetup(unittest.TestCase):
     @skip_if_no_statsd
@@ -78,7 +80,7 @@ class HistoryViewTest(HistoryWebTest):
         resp = self.app.get(self.history_uri, headers=self.headers)
         entry = resp.json["data"][-1]
         assert entry["user_id"] == self.principal
-        assert re.match("^....-..-..T..:..:..\\.......+..:..$", entry["date"])
+        assert re.match(DATETIME_REGEX, entry["date"])
 
     #
     # Bucket
