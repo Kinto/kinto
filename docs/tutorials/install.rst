@@ -209,6 +209,17 @@ Assuming `brew <http://brew.sh/>`_ is installed:
 
     pip install virtualenv
 
+Microsoft Windows
+'''''''''''''''''
+
+* `Python compiler <https://www.python.org/downloads/windows/>`_ has to be installed and you have access to an instance of `Visual C++ Build tools <https://wiki.python.org/moin/WindowsCompilers>`_ on the global path to apply commands via command line.
+
+::
+
+    pip install virtualenv
+
+**PS**: You might follow the instruction on `Wiki <https://github.com/Kinto/kinto/wiki/Microsoft-Windows-Users/>`_ to run the application properly.
+
 
 Quick start
 -----------
