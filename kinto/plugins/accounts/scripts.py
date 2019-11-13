@@ -37,12 +37,11 @@ def create_user(env, username=None, password=None):
         if password is None:
             while True:  # The user didn't entered twice the same password
                 password = getpass.getpass(f"Please enter a password for {username}: ")
-                confirm = getpass.getpass("Please confirm the password: ".format(username))
+                confirm = getpass.getpass("Please confirm the password: ")
 
-                if password != confirm:
-                    print("Sorry, passwords do not match, please try again.")
-                else:
+                if password == confirm:
                     break
+                print("Sorry, passwords do not match, please try again.")
     except EOFError:
         print("User creation aborted")
         return 53
