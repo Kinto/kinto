@@ -211,36 +211,14 @@ Assuming `brew <http://brew.sh/>`_ is installed:
 
 Microsoft Windows
 '''''''''''''''''
-`[Required]`
-To run *kinto* you need to install `Microsoft Build Tools <https://visualstudio.microsoft.com/thank-you-downloading-visual-studio/?sku=BuildTools&rel=16>`_. Since *libffi* is needed to run *kinto* project properly, you should make it once you've installed Build Tools 14.0+ by applying following lines in x86/x64 **Native Tool Command Prompt**::
 
-    git clone git://github.com/libffi/libffi.git
-
-Navigate to *libffi* folder and from there run the follwing line::
-
-    path/to/configure CC=path/to/msvcc.sh CXX=path/to/msvcc.sh LD=link CPP="cl -nologo -EP"
-
-If you're on x64 arch machine you should have set::
-
-    CC="path/to/msvcc.sh -m64" and CXX="path/to/msvcc.sh -m64"
-
-and run the above command instead. `libffi homepage <https://github.com/libffi/libffi>`_ has more information if it's needed. Also, it's noticeable that if you didn't installed *git* yet, you could easily install it via command line thanks to *scoop* as following::
-
-    scoop install git-with-openssh
-
-`[Optional]`
-Command-line tool `scoop <https://scoop.sh>`_ is an optional and useful tool to install and manage application via command line (almost like brew in *Mac*). To take advantage of it you need to change execution policy to either of `Unrestricted`, `RemoteSigned`, or `Bypass` due to run scrips via *Powershell* by executing following lines::
-
-    Set-ExecutionPolicy RemoteSigned -scope CurrentUser
-    iwr -useb get.scoop.sh | iex
-
-Yet, if you did not installed `scoop`, you could skip first line and install those requirements manually unless you might wanna execute all lines. 
+* `Python compiler <https://www.python.org/downloads/windows/>`_ has to be installed and you have access to an instance of `Visual C++ Build tools <https://wiki.python.org/moin/WindowsCompilers>`_ on the global path to apply commands via command line.
 
 ::
 
-    scoop install openssl pkg-config winpython
-
     pip install virtualenv
+
+**PS**: You might follow the instruction on `Wiki <https://github.com/Kinto/kinto/wiki/Microsoft-Windows-Users/>`_ to run the application properly.
 
 
 Quick start
