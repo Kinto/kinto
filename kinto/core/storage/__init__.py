@@ -76,12 +76,12 @@ class StorageBase:
         """
         raise NotImplementedError
 
-    def flush(self, auth=None):
+    def flush(self):
         """Remove **every** object from this storage.
         """
         raise NotImplementedError
 
-    def resource_timestamp(self, resource_name, parent_id, auth=None):
+    def resource_timestamp(self, resource_name, parent_id):
         """Get the highest timestamp of every objects in this `resource_name` for
         this `parent_id`.
 
@@ -105,7 +105,6 @@ class StorageBase:
         id_generator=None,
         id_field=DEFAULT_ID_FIELD,
         modified_field=DEFAULT_MODIFIED_FIELD,
-        auth=None,
     ):
         """Create the specified `obj` in this `resource_name` for this `parent_id`.
         Assign the id to the object, using the attribute
@@ -133,7 +132,6 @@ class StorageBase:
         object_id,
         id_field=DEFAULT_ID_FIELD,
         modified_field=DEFAULT_MODIFIED_FIELD,
-        auth=None,
     ):
         """Retrieve the object with specified `object_id`, or raise error
         if not found.
@@ -158,7 +156,6 @@ class StorageBase:
         obj,
         id_field=DEFAULT_ID_FIELD,
         modified_field=DEFAULT_MODIFIED_FIELD,
-        auth=None,
     ):
         """Overwrite the `obj` with the specified `object_id`.
 
@@ -188,7 +185,6 @@ class StorageBase:
         with_deleted=True,
         modified_field=DEFAULT_MODIFIED_FIELD,
         deleted_field=DEFAULT_DELETED_FIELD,
-        auth=None,
         last_modified=None,
     ):
         """Delete the object with specified `object_id`, and raise error
@@ -227,7 +223,6 @@ class StorageBase:
         with_deleted=True,
         modified_field=DEFAULT_MODIFIED_FIELD,
         deleted_field=DEFAULT_DELETED_FIELD,
-        auth=None,
     ):
         """Delete all objects in this `resource_name` for this `parent_id`.
 
@@ -266,7 +261,6 @@ class StorageBase:
         before=None,
         id_field=DEFAULT_ID_FIELD,
         modified_field=DEFAULT_MODIFIED_FIELD,
-        auth=None,
     ):
         """Delete all deleted object tombstones in this `resource_name`
         for this `parent_id`.
@@ -312,7 +306,6 @@ class StorageBase:
         id_field=DEFAULT_ID_FIELD,
         modified_field=DEFAULT_MODIFIED_FIELD,
         deleted_field=DEFAULT_DELETED_FIELD,
-        auth=None,
     ):
         """Retrieve all objects in this `resource_name` for this `parent_id`.
 
@@ -362,7 +355,6 @@ class StorageBase:
         id_field=DEFAULT_ID_FIELD,
         modified_field=DEFAULT_MODIFIED_FIELD,
         deleted_field=DEFAULT_DELETED_FIELD,
-        auth=None,
     ):
         """Return a count of all objects in this `resource_name` for this `parent_id`.
 
@@ -381,10 +373,10 @@ class StorageBase:
         """
         raise NotImplementedError
 
-    def collection_timestamp(self, collection_id, parent_id, auth=None):
+    def collection_timestamp(self, collection_id, parent_id):
         message = "`collection_timestamp()` is deprecated, use `resource_timestamp()` instead."
         warnings.warn(message, DeprecationWarning)
-        return self.resource_timestamp(resource_name=collection_id, parent_id=parent_id, auth=auth)
+        return self.resource_timestamp(resource_name=collection_id, parent_id=parent_id)
 
 
 def heartbeat(backend):
@@ -397,10 +389,7 @@ def heartbeat(backend):
         :rtype: bool
         """
         try:
-            auth = request.headers.get("Authorization")
-            storage_kw = dict(
-                resource_name=_HEARTBEAT_RESOURCE_NAME, parent_id=_HEART_PARENT_ID, auth=auth
-            )
+            storage_kw = dict(resource_name=_HEARTBEAT_RESOURCE_NAME, parent_id=_HEART_PARENT_ID)
             if asbool(request.registry.settings.get("readonly")):
                 # Do not try to write in readonly mode.
                 backend.get_all(**storage_kw)

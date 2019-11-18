@@ -10,6 +10,10 @@ This document describes changes between each past release.
 
 - History entries datetimes now carry timezone information
 
+**Internal Changes**
+
+- Drop ``auth`` parameter from storage backend methods.
+
 
 13.6.2 (2019-11-04)
 -------------------

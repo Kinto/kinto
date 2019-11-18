@@ -33,7 +33,6 @@ class Model:
         id_generator=None,
         resource_name="",
         parent_id="",
-        auth=None,
         current_principal=None,
         prefixed_principals=None,
     ):
@@ -51,7 +50,6 @@ class Model:
         self.id_generator = id_generator
         self.parent_id = parent_id
         self.resource_name = resource_name
-        self.auth = auth
         self.current_principal = current_principal
         self.prefixed_principals = prefixed_principals
 
@@ -66,7 +64,7 @@ class Model:
         """
         parent_id = parent_id or self.parent_id
         return self.storage.resource_timestamp(
-            resource_name=self.resource_name, parent_id=parent_id, auth=self.auth
+            resource_name=self.resource_name, parent_id=parent_id
         )
 
     def _annotate(self, obj, perm_object_id):
@@ -140,7 +138,6 @@ class Model:
             id_field=self.id_field,
             modified_field=self.modified_field,
             deleted_field=self.deleted_field,
-            auth=self.auth,
         )
 
     def count_objects(self, filters=None, parent_id=None):
@@ -167,7 +164,6 @@ class Model:
             id_field=self.id_field,
             modified_field=self.modified_field,
             deleted_field=self.deleted_field,
-            auth=self.auth,
         )
 
     def delete_objects(
@@ -214,7 +210,6 @@ class Model:
             id_field=self.id_field,
             modified_field=self.modified_field,
             deleted_field=self.deleted_field,
-            auth=self.auth,
         )
         # Take a huge shortcut in case we want to delete everything.
         if not filters:
@@ -240,7 +235,6 @@ class Model:
             object_id=object_id,
             id_field=self.id_field,
             modified_field=self.modified_field,
-            auth=self.auth,
         )
         perm_object_id = self.get_permission_object_id(object_id)
         return self._annotate(obj, perm_object_id)
@@ -278,7 +272,6 @@ class Model:
             id_generator=self.id_generator,
             id_field=self.id_field,
             modified_field=self.modified_field,
-            auth=self.auth,
         )
 
         object_id = created[self.id_field]
@@ -323,7 +316,6 @@ class Model:
             obj=obj,
             id_field=self.id_field,
             modified_field=self.modified_field,
-            auth=self.auth,
         )
 
         perm_object_id = self.get_permission_object_id(object_id)
@@ -364,7 +356,6 @@ class Model:
             id_field=self.id_field,
             modified_field=self.modified_field,
             deleted_field=self.deleted_field,
-            auth=self.auth,
             last_modified=last_modified,
         )
 
