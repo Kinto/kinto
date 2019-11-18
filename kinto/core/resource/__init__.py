@@ -199,9 +199,6 @@ class Resource:
         # Models are isolated by user.
         parent_id = self.get_parent_id(request)
 
-        # Authentication to storage is transmitted as is (cf. cloud_storage).
-        auth = request.headers.get("Authorization")
-
         # The principal of an anonymous is system.Everyone
         current_principal = self.request.prefixed_userid or Everyone
 
@@ -214,7 +211,6 @@ class Resource:
                 parent_id=parent_id,
                 current_principal=current_principal,
                 prefixed_principals=request.prefixed_principals,
-                auth=auth,
             )
 
         # Initialize timestamp as soon as possible.
