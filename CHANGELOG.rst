@@ -9,6 +9,7 @@ This document describes changes between each past release.
 **Bug fixes**
 
 - History entries datetimes now carry timezone information
+- Fix ``kinto init`` command (#2375)
 
 **Internal Changes**
 
