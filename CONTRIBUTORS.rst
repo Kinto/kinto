@@ -80,6 +80,7 @@ Contributors
 * Rodolphe Quiédeville <rodolphe@quiedeville.org>
 * Sahil Dua <sahildua2305@gmail.com>
 * Sebastian Rodriguez <srodrigu85@gmail.com>
+* Sergey Maranchuk <https://github.com/slav0nic/>
 * Stanisław Wasiutyński <https://github.com/stanley>
 * Stephen Daves <contact@stephendaves.com>
 * Stephen Donner <stephen.donner@gmail.com>

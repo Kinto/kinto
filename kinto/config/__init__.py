@@ -27,16 +27,39 @@ def render_template(template, destination, **kwargs):
             output.write(rendered)
 
 
-def get_cache_backend_url(cache_be_value):
-    if cache_be_value == "kinto.core.cache.postgresql":
-        url = "postgresql://postgres:postgres@localhost/postgres"
-    elif cache_be_value == "kinto.core.cache.redis":
-        url = "redis://localhost:6379/2"
-    elif cache_be_value == "kinto.core.cache.memcached":
-        url = "127.0.0.1:11211 127.0.0.2:11211"
-    else:
-        url = ""
-    return url
+postgresql_url = "postgresql://postgres:postgres@localhost/postgres"
+redis_url = "redis://localhost:6379"
+
+backend_to_values = {
+    "postgresql": {
+        "storage_backend": "kinto.core.storage.postgresql",
+        "storage_url": postgresql_url,
+        "permission_backend": "kinto.core.permission.postgresql",
+        "permission_url": postgresql_url,
+    },
+    "redis": {
+        "storage_backend": "kinto_redis.storage",
+        "storage_url": redis_url + "/1",
+        "permission_backend": "kinto_redis.permission",
+        "permission_url": redis_url + "/3",
+    },
+    "memory": {
+        "storage_backend": "kinto.core.storage.memory",
+        "storage_url": "",
+        "permission_backend": "kinto.core.permission.memory",
+        "permission_url": "",
+    },
+}
+
+cache_backend_to_values = {
+    "postgresql": {"cache_backend": "kinto.core.cache.postgresql", "cache_url": postgresql_url},
+    "redis": {"cache_backend": "kinto_redis.cache", "cache_url": redis_url + "/2"},
+    "memcached": {
+        "cache_backend": "kinto.core.cache.memcached",
+        "cache_url": "127.0.0.1:11211 127.0.0.2:11211",
+    },
+    "memory": {"cache_backend": "kinto.core.cache.memory", "cache_url": ""},
+}
 
 
 def init(config_file, backend, cache_backend, host="127.0.0.1"):
@@ -48,30 +71,7 @@ def init(config_file, backend, cache_backend, host="127.0.0.1"):
     values["kinto_version"] = __version__
     values["config_file_timestamp"] = str(strftime("%a, %d %b %Y %H:%M:%S %z"))
 
-    values["storage_backend"] = f"kinto.core.storage.{backend}"
-    values["cache_backend"] = f"kinto.core.cache.{cache_backend}"
-    values["permission_backend"] = f"kinto.core.permission.{backend}"
-    cache_backend_url = get_cache_backend_url(values["cache_backend"])
-
-    if backend == "postgresql":
-        postgresql_url = "postgresql://postgres:postgres@localhost/postgres"
-        values["storage_url"] = postgresql_url
-        values["cache_url"] = cache_backend_url
-        values["permission_url"] = postgresql_url
-
-    elif backend == "redis":
-        redis_url = "redis://localhost:6379"
-        values["storage_backend"] = "kinto_redis.storage"
-        values["cache_backend"] = "kinto_redis.cache"
-        values["permission_backend"] = "kinto_redis.permission"
-
-        values["storage_url"] = redis_url + "/1"
-        values["cache_url"] = cache_backend_url
-        values["permission_url"] = redis_url + "/3"
-
-    else:
-        values["storage_url"] = ""
-        values["cache_url"] = ""
-        values["permission_url"] = ""
+    values.update(backend_to_values[backend])
+    values.update(cache_backend_to_values[cache_backend])
 
     render_template("kinto.tpl", config_file, **values)
