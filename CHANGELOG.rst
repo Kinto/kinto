@@ -10,7 +10,7 @@ This document describes changes between each past release.
 
 - History entries datetimes now carry timezone information
 - Fix ``kinto init`` command (#2375)
-- Fix issue parsing certain strings in URL query parameters
+- Fix float strings parsing in certain URL query parameters. (#2392)
 
 **Internal Changes**
 
