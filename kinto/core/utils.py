@@ -1,6 +1,7 @@
 import collections
 import hashlib
 import hmac
+import math
 import os
 import re
 import time
@@ -110,7 +111,9 @@ def native_value(value):
     """
     if isinstance(value, str):
         try:
-            value = json.loads(value)
+            parsed_value = json.loads(value)
+            if parsed_value != math.inf:
+                value = parsed_value
         except ValueError:
             return value
     return value

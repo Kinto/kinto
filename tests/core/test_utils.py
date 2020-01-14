@@ -83,6 +83,10 @@ class NativeValueTest(unittest.TestCase):
     def test_bad_string_values(self):
         self.assertEqual(native_value("\u0000"), "\x00")
 
+    def test_infinite_strings(self):
+        self.assertEqual(native_value("803E5708"), "803E5708")
+        self.assertEqual(native_value("Infinity"), "Infinity")
+
 
 class StripWhitespaceTest(unittest.TestCase):
     def test_removes_all_kinds_of_spaces(self):
