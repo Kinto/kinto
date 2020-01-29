@@ -14,6 +14,7 @@ This document describes changes between each past release.
 
 **Internal Changes**
 
+- Upgrade kinto-admin to v1.26.1
 - Drop ``auth`` parameter from storage backend methods.
 
 
