@@ -10,7 +10,7 @@ dockerflow==2019.10.0
 hupper==1.9.1
 idna==2.8
 iso8601==0.1.12
-jsonpatch==1.24
+jsonpatch==1.25
 jsonpointer==2.0
 jsonschema==3.2.0
 logging-color-formatter==1.0.2
