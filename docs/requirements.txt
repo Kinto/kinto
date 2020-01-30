@@ -4,6 +4,6 @@ sphinx_rtd_theme==0.4.3
 sphinxcontrib-httpdomain==1.7.0
 kinto
 mock==3.0.5
-webtest==2.0.33
+webtest==2.0.34
 cornice==4.0.1
 pyramid==1.10.4
