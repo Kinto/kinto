@@ -197,7 +197,7 @@ def _end_of_life_tween_factory(handler, registry):
             )
 
         errors.send_alert(request, eos_message, url=eos_url, code=code)
-        return request.response
+        return utils.reapply_cors(request, request.response)
 
     return eos_tween
 
