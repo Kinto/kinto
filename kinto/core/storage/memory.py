@@ -148,13 +148,13 @@ class Storage(MemoryBasedStorage):
         self.readonly = readonly
         self.flush()
 
-    def flush(self, auth=None):
+    def flush(self):
         self._store = tree()
         self._cemetery = tree()
         self._timestamps = defaultdict(dict)
 
     @synchronized
-    def resource_timestamp(self, resource_name, parent_id, auth=None):
+    def resource_timestamp(self, resource_name, parent_id):
         ts = self._timestamps[parent_id].get(resource_name)
         if ts is not None:
             return ts
@@ -187,7 +187,6 @@ class Storage(MemoryBasedStorage):
         id_generator=None,
         id_field=DEFAULT_ID_FIELD,
         modified_field=DEFAULT_MODIFIED_FIELD,
-        auth=None,
     ):
         id_generator = id_generator or self.id_generator
         obj = {**obj}
@@ -217,7 +216,6 @@ class Storage(MemoryBasedStorage):
         object_id,
         id_field=DEFAULT_ID_FIELD,
         modified_field=DEFAULT_MODIFIED_FIELD,
-        auth=None,
     ):
         objects = self._store[parent_id][resource_name]
         if object_id not in objects:
@@ -234,7 +232,6 @@ class Storage(MemoryBasedStorage):
         obj,
         id_field=DEFAULT_ID_FIELD,
         modified_field=DEFAULT_MODIFIED_FIELD,
-        auth=None,
     ):
         obj = {**obj}
         obj[id_field] = object_id
@@ -256,7 +253,6 @@ class Storage(MemoryBasedStorage):
         with_deleted=True,
         modified_field=DEFAULT_MODIFIED_FIELD,
         deleted_field=DEFAULT_DELETED_FIELD,
-        auth=None,
         last_modified=None,
     ):
         existing = self.get(resource_name, parent_id, object_id)
@@ -288,7 +284,6 @@ class Storage(MemoryBasedStorage):
         before=None,
         id_field=DEFAULT_ID_FIELD,
         modified_field=DEFAULT_MODIFIED_FIELD,
-        auth=None,
     ):
         parent_id_match = re.compile(parent_id.replace("*", ".*"))
         by_parent_id = {
@@ -326,7 +321,6 @@ class Storage(MemoryBasedStorage):
         id_field=DEFAULT_ID_FIELD,
         modified_field=DEFAULT_MODIFIED_FIELD,
         deleted_field=DEFAULT_DELETED_FIELD,
-        auth=None,
     ):
         objects = _get_objects_by_parent_id(self._store, parent_id, resource_name)
 
@@ -361,7 +355,6 @@ class Storage(MemoryBasedStorage):
         id_field=DEFAULT_ID_FIELD,
         modified_field=DEFAULT_MODIFIED_FIELD,
         deleted_field=DEFAULT_DELETED_FIELD,
-        auth=None,
     ):
         objects = _get_objects_by_parent_id(self._store, parent_id, resource_name)
         _, count = self.extract_object_set(
@@ -387,7 +380,6 @@ class Storage(MemoryBasedStorage):
         with_deleted=True,
         modified_field=DEFAULT_MODIFIED_FIELD,
         deleted_field=DEFAULT_DELETED_FIELD,
-        auth=None,
     ):
         objects = _get_objects_by_parent_id(self._store, parent_id, resource_name, with_meta=True)
         objects, count = self.extract_object_set(
