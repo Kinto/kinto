@@ -190,7 +190,6 @@ class Resource:
         """
         self.request = request
         self.context = context
-        self.object_id = self.request.matchdict.get("id")
 
         content_type = str(self.request.headers.get("Content-Type")).lower()
         self._is_json_patch = content_type == "application/json-patch+json"
@@ -251,6 +250,22 @@ class Resource:
                 "writable instance."
             )
             raise http_error(HTTPServiceUnavailable(), errno=ERRORS.BACKEND, message=error_msg)
+
+    @reify
+    def object_id(self):
+        """Return the object id for this request. It's either in the match dict
+        or in the posted body.
+        """
+        if self.request.method.lower() == "post":
+            try:
+                # Since ``id`` does not belong to schema, it is not in validated
+                # data. Must look up in body directly instead of request.validated.
+                _id = self.request.json["data"][self.model.id_field]
+                self._raise_400_if_invalid_id(_id)
+                return _id
+            except (KeyError, ValueError):
+                return None
+        return self.request.matchdict.get("id")
 
     def get_parent_id(self, request):
         """Return the parent_id of the resource with regards to the current
@@ -413,15 +428,16 @@ class Resource:
             :meth:`kinto.core.resource.Resource.process_object`
         """
         new_object = self.request.validated["body"].get("data", {})
-        try:
-            # Since ``id`` does not belong to schema, it is not in validated
-            # data. Must look up in body.
-            id_field = self.model.id_field
-            new_object[id_field] = _id = self.request.json["data"][id_field]
-            self._raise_400_if_invalid_id(_id)
-            existing = self._get_object_or_404(_id)
-        except (HTTPNotFound, KeyError, ValueError):
-            existing = None
+
+        existing = None
+        # If id was specified, then add it to posted body and look-up
+        # the existing object.
+        if self.object_id is not None:
+            new_object[self.model.id_field] = self.object_id
+            try:
+                existing = self._get_object_or_404(self.object_id)
+            except HTTPNotFound:
+                pass
 
         self._raise_412_if_modified(obj=existing)
 
