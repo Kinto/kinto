@@ -179,7 +179,7 @@ class Storage(StorageBase, MigratorMixin):
             MAX_FLUSHABLE_SCHEMA_VERSION = 20
             return MAX_FLUSHABLE_SCHEMA_VERSION
 
-    def flush(self, auth=None):
+    def flush(self):
         """Delete objects from tables without destroying schema.
 
         This is used in test suites as well as in the flush plugin.
@@ -192,7 +192,7 @@ class Storage(StorageBase, MigratorMixin):
             conn.execute(query)
         logger.debug("Flushed PostgreSQL storage tables")
 
-    def resource_timestamp(self, resource_name, parent_id, auth=None):
+    def resource_timestamp(self, resource_name, parent_id):
         query_existing = """
         WITH existing_timestamps AS (
           -- Timestamp of latest object.
@@ -256,7 +256,6 @@ class Storage(StorageBase, MigratorMixin):
         id_generator=None,
         id_field=DEFAULT_ID_FIELD,
         modified_field=DEFAULT_MODIFIED_FIELD,
-        auth=None,
     ):
         id_generator = id_generator or self.id_generator
         obj = {**obj}
@@ -328,7 +327,6 @@ class Storage(StorageBase, MigratorMixin):
         object_id,
         id_field=DEFAULT_ID_FIELD,
         modified_field=DEFAULT_MODIFIED_FIELD,
-        auth=None,
     ):
         query = """
         SELECT as_epoch(last_modified) AS last_modified, data
@@ -360,7 +358,6 @@ class Storage(StorageBase, MigratorMixin):
         obj,
         id_field=DEFAULT_ID_FIELD,
         modified_field=DEFAULT_MODIFIED_FIELD,
-        auth=None,
     ):
 
         # Remove redundancy in data field
@@ -407,7 +404,6 @@ class Storage(StorageBase, MigratorMixin):
         with_deleted=True,
         modified_field=DEFAULT_MODIFIED_FIELD,
         deleted_field=DEFAULT_DELETED_FIELD,
-        auth=None,
         last_modified=None,
     ):
         if with_deleted:
@@ -466,7 +462,6 @@ class Storage(StorageBase, MigratorMixin):
         with_deleted=True,
         modified_field=DEFAULT_MODIFIED_FIELD,
         deleted_field=DEFAULT_DELETED_FIELD,
-        auth=None,
     ):
         if with_deleted:
             query = """
@@ -574,7 +569,6 @@ class Storage(StorageBase, MigratorMixin):
         before=None,
         id_field=DEFAULT_ID_FIELD,
         modified_field=DEFAULT_MODIFIED_FIELD,
-        auth=None,
     ):
         delete_tombstones = """
         DELETE
@@ -631,7 +625,6 @@ class Storage(StorageBase, MigratorMixin):
         id_field=DEFAULT_ID_FIELD,
         modified_field=DEFAULT_MODIFIED_FIELD,
         deleted_field=DEFAULT_DELETED_FIELD,
-        auth=None,
     ):
 
         query = """
@@ -658,7 +651,6 @@ class Storage(StorageBase, MigratorMixin):
             id_field=id_field,
             modified_field=modified_field,
             deleted_field=deleted_field,
-            auth=auth,
         )
 
         if len(rows) == 0:
@@ -680,7 +672,6 @@ class Storage(StorageBase, MigratorMixin):
         id_field=DEFAULT_ID_FIELD,
         modified_field=DEFAULT_MODIFIED_FIELD,
         deleted_field=DEFAULT_DELETED_FIELD,
-        auth=None,
     ):
 
         query = """
@@ -699,7 +690,6 @@ class Storage(StorageBase, MigratorMixin):
             id_field=id_field,
             modified_field=modified_field,
             deleted_field=deleted_field,
-            auth=auth,
         )
         return rows[0]["total_count"]
 
@@ -716,7 +706,6 @@ class Storage(StorageBase, MigratorMixin):
         id_field=DEFAULT_ID_FIELD,
         modified_field=DEFAULT_MODIFIED_FIELD,
         deleted_field=DEFAULT_DELETED_FIELD,
-        auth=None,
     ):
 
         # Unsafe strings escaped by PostgreSQL

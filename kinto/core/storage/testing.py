@@ -24,9 +24,9 @@ class BaseTestStorage:
         self.client_error_patcher = None
 
         self.obj = {"foo": "bar"}
-        self.storage_kw = {"resource_name": "test", "parent_id": "1234", "auth": "Basic bWF0OjI="}
+        self.storage_kw = {"resource_name": "test", "parent_id": "1234"}
         self.other_parent_id = "5678"
-        self.other_auth = "Basic bWF0OjE="
+        self.auth = "Basic bWF0OjE="
 
     def _get_config(self, settings=None):
         """Mock Pyramid config object.
@@ -76,7 +76,7 @@ class BaseTestStorage:
         for call, kwargs in calls:
             kwargs.update(**self.storage_kw)
             self.assertRaises(exceptions.BackendError, call, **kwargs)
-        self.assertRaises(exceptions.BackendError, self.storage.flush, auth=self.other_auth)
+        self.assertRaises(exceptions.BackendError, self.storage.flush)
 
     def test_initialize_schema_is_idempotent(self):
         self.storage.initialize_schema()
@@ -84,7 +84,7 @@ class BaseTestStorage:
 
     def test_ping_returns_false_if_unavailable(self):
         request = DummyRequest()
-        request.headers["Authorization"] = self.storage_kw["auth"]
+        request.headers["Authorization"] = self.auth
         request.registry.settings = {"readonly": "false"}
         ping = heartbeat(self.storage)
 
@@ -99,7 +99,7 @@ class BaseTestStorage:
 
     def test_ping_returns_true_when_working(self):
         request = DummyRequest()
-        request.headers["Authorization"] = "Basic bWF0OjI="
+        request.headers["Authorization"] = self.auth
         ping = heartbeat(self.storage)
         with mock.patch("kinto.core.storage.random.SystemRandom.random", return_value=0.7):
             self.assertTrue(ping(request))
@@ -108,14 +108,14 @@ class BaseTestStorage:
 
     def test_ping_returns_true_when_working_in_readonly_mode(self):
         request = DummyRequest()
-        request.headers["Authorization"] = "Basic bWF0OjI="
+        request.headers["Authorization"] = self.auth
         request.registry.settings = {"readonly": "true"}
         ping = heartbeat(self.storage)
         self.assertTrue(ping(request))
 
     def test_ping_returns_false_if_unavailable_in_readonly_mode(self):
         request = DummyRequest()
-        request.headers["Authorization"] = "Basic bWF0OjI="
+        request.headers["Authorization"] = self.auth
         request.registry.settings = {"readonly": "true"}
         ping = heartbeat(self.storage)
         with mock.patch.object(
@@ -135,7 +135,7 @@ class BaseTestStorage:
 
     def test_ping_leaves_no_tombstone(self):
         request = DummyRequest()
-        request.headers["Authorization"] = "Basic bWF0OjI="
+        request.headers["Authorization"] = self.auth
         ping = heartbeat(self.storage)
         with mock.patch("kinto.core.storage.random.SystemRandom.random", return_value=0.7):
             ping(request)
@@ -1623,7 +1623,6 @@ class ParentObjectAccessTest:
             resource_name=self.storage_kw["resource_name"],
             parent_id=self.other_parent_id,
             object_id=obj["id"],
-            auth=self.other_auth,
         )
 
     def test_parent_cannot_delete_other_parent_object(self):
@@ -1634,14 +1633,13 @@ class ParentObjectAccessTest:
             resource_name=self.storage_kw["resource_name"],
             parent_id=self.other_parent_id,
             object_id=obj["id"],
-            auth=self.other_auth,
         )
 
     def test_parent_cannot_update_other_parent_object(self):
         obj = self.create_object()
 
         new_object = {"another": "object"}
-        kw = {**self.storage_kw, "parent_id": self.other_parent_id, "auth": self.other_auth}
+        kw = {**self.storage_kw, "parent_id": self.other_parent_id}
         self.storage.update(object_id=obj["id"], obj=new_object, **kw)
 
         not_updated = self.storage.get(object_id=obj["id"], **self.storage_kw)
