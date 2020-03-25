@@ -6,7 +6,10 @@ This document describes changes between each past release.
 13.7.0 (unreleased)
 -------------------
 
-- Nothing changed yet.
+**Internal Changes**
+
+- Add method to ``PostgreSQLClient`` to set connection options, such
+  as isolation level etc.
 
 
 13.6.3 (2020-01-29)

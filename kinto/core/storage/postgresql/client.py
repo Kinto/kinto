@@ -25,6 +25,14 @@ class PostgreSQLClient:
         self.session_factory = session_factory
         self.commit_manually = commit_manually
         self.invalidate = invalidate
+        self._execution_options = {}
+
+    def set_execution_options(self, **options):
+        """
+        Add connection options, like isolation-level.
+        See https://docs.sqlalchemy.org/en/13/orm/session_transaction.html#setting-isolation-for-individual-transactions
+        """
+        self._execution_options = options
 
     @contextlib.contextmanager
     def connect(self, readonly=False, force_commit=False):
@@ -40,6 +48,8 @@ class PostgreSQLClient:
         try:
             # Pull connection from pool.
             session = self.session_factory()
+            # Set session connection options.
+            session.connection(execution_options=self._execution_options)
             # Start context
             yield session
             if not readonly and not self.commit_manually:
