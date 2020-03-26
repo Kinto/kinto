@@ -143,10 +143,7 @@ class AccountCreationTest(AccountsWebTest):
 
     def test_cannot_create_account_if_already_exists(self):
         self.app.post_json("/accounts", {"data": {"id": "me", "password": "bouh"}}, status=201)
-        resp = self.app.post_json(
-            "/accounts", {"data": {"id": "me", "password": "bouh"}}, status=403
-        )
-        assert "already exists" in resp.json["message"]
+        self.app.post_json("/accounts", {"data": {"id": "me", "password": "not read"}}, status=401)
 
     def test_username_and_account_id_must_match(self):
         resp = self.app.put_json(
