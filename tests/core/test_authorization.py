@@ -199,9 +199,17 @@ class AuthorizationPolicyTest(unittest.TestCase):
         self.assertTrue(allowed)
 
     def test_permits_refers_to_context_to_check_permission_principals(self):
-        self.context.check_permission.return_value = False
+        self.context.check_permission.side_effect = (False, True)
+        self.context.current_object = None
+        self.context.resource_name = "object"
+        self.context.fetch_shared_objects = mock.MagicMock(return_value=[])
+
         allowed = self.authz.permits(self.context, self.principals, "dynamic")
+
         self.assertTrue(allowed)
+        self.context.check_permission.assert_called_with(
+            self.principals, [("/articles/43/comments", "object:create")]
+        )
 
     def test_permits_reads_the_context(self):
         self.authz.permits(self.context, self.principals, "dynamic")
