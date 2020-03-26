@@ -84,7 +84,11 @@ class AuthorizationPolicy:
         # If not allowed on this plural endpoint, but some objects are shared with
         # the current user, then authorize.
         # The :class:`kinto.core.resource.Resource` class will take care of the filtering.
-        is_list_operation = context.on_plural_endpoint and not permission.endswith("create")
+        is_list_operation = (
+            context.on_plural_endpoint
+            and not permission.endswith("create")
+            and context.current_object is None
+        )
         if not allowed and is_list_operation:
             allowed = bool(
                 context.fetch_shared_objects(permission, principals, self.get_bound_permissions)
@@ -151,22 +155,32 @@ class RouteFactory:
         is_on_resource = (
             service is not None and hasattr(service, "viewset") and hasattr(service, "resource")
         )
+        self._resource = None
         if is_on_resource:
             self.resource_name = request.current_resource_name
             self.on_plural_endpoint = getattr(service, "type", None) == "plural"
 
-            # Try to fetch the target object. Its existence will affect permissions checking.
-            if not self.on_plural_endpoint and request.method.lower() in (
+            # Check if this request targets an individual object.
+            # Its existence will affect permissions checking (cf `_find_required_permission()`).
+            # There are cases where the permission is not directly related to the HTTP method,
+            # For example:
+            # - with POST on plural endpoint, with an id supplied
+            # - with PUT on an object, which can either be creation or update
+            is_write_on_object = not self.on_plural_endpoint and request.method.lower() in (
                 "put",
                 "delete",
                 "patch",
-            ):
-                resource = service.resource(request=request, context=self)
-                try:
-                    # Save a reference, to avoid refetching from storage in resource.
-                    self.current_object = resource.model.get_object(resource.object_id)
-                except storage_exceptions.ObjectNotFoundError:
-                    pass
+            )
+            is_post_on_plural = self.on_plural_endpoint and request.method.lower() == "post"
+            if is_write_on_object or is_post_on_plural:
+                # We instantiate the resource to determine the object targetted by the request.
+                self._resource = resource = service.resource(request=request, context=self)
+                if resource.object_id is not None:  # Skip POST on plural without id.
+                    try:
+                        # Save a reference, to avoid refetching from storage in resource.
+                        self.current_object = resource.model.get_object(resource.object_id)
+                    except storage_exceptions.ObjectNotFoundError:
+                        pass
 
             self.permission_object_id, self.required_permission = self._find_required_permission(
                 request, service
@@ -282,5 +296,14 @@ class RouteFactory:
                     required_permission = "create"
                 else:
                     required_permission = "write"
+
+        # In the case of a "POST" on a plural endpoint, if an "id" was
+        # specified, then the object is returned. The required permission
+        # is thus "read" on this object.
+        if request.method.lower() == "post" and self.current_object is not None:
+            permission_object_id = self.get_permission_object_id(
+                request, object_id=self._resource.object_id
+            )
+            required_permission = "read"
 
         return (permission_object_id, required_permission)
