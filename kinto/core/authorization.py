@@ -173,7 +173,7 @@ class RouteFactory:
             )
             is_post_on_plural = self.on_plural_endpoint and request.method.lower() == "post"
             if is_write_on_object or is_post_on_plural:
-                # We instantiate the resource to determine the object targetted by the request.
+                # We instantiate the resource to determine the object targeted by the request.
                 self._resource = resource = service.resource(request=request, context=self)
                 if resource.object_id is not None:  # Skip POST on plural without id.
                     try:
