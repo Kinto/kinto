@@ -55,6 +55,21 @@ class BucketPermissionsTest(PermissionsTest):
         resp = self.app.get("/buckets/sodas", headers=self.headers)
         self.assertIn("write", resp.json["permissions"])
 
+    def test_cannot_post_existing_id_if_cannot_read(self):
+        self.app.get("/buckets/sodas", headers=self.bob_headers, status=403)
+        self.app.post_json(
+            "/buckets", {"data": {"id": "sodas"}}, headers=self.bob_headers, status=403
+        )
+
+    def test_can_post_existing_id_if_can_read(self):
+        self.app.patch_json(
+            "/buckets/sodas",
+            {"data": {"marker": True}, "permissions": {"read": ["system.Authenticated"]}},
+            headers=self.headers,
+        )
+        resp = self.app.post_json("/buckets", {"data": {"id": "sodas"}}, headers=self.bob_headers)
+        assert resp.json["data"]["marker"]
+
 
 class CollectionPermissionsTest(PermissionsTest):
     def setUp(self):
@@ -220,7 +235,12 @@ class ChildrenCreationTest(PermissionsTest):
             status=412,
         )
 
-    def test_safe_creation_with_post_returns_412_if_allowed_to_create(self):
+    def test_safe_creation_with_post_returns_412_if_allowed_to_create_and_read(self):
+        self.app.patch_json(
+            "/buckets/create/groups/child",
+            {"permissions": {"read": ["system.Authenticated"]}},
+            headers=self.alice_headers,
+        )
         self.app.post_json(
             "/buckets/create/groups",
             {"data": {"id": "child", "members": []}},
@@ -252,12 +272,20 @@ class ChildrenCreationTest(PermissionsTest):
             status=403,
         )
 
-    def test_safe_creation_with_post_returns_403_if_only_allowed_to_read(self):
+    def test_safe_creation_with_post_returns_403_if_not_allowed_to_read(self):
+        self.app.post_json(
+            "/buckets/create/groups",
+            {"data": {"id": "child", "members": []}},
+            headers=self.bob_headers_safe_creation,
+            status=403,
+        )
+
+    def test_safe_creation_with_post_returns_412_if_only_allowed_to_read(self):
         self.app.post_json(
             "/buckets/read/groups",
             {"data": {"id": "child", "members": []}},
             headers=self.bob_headers_safe_creation,
-            status=403,
+            status=412,
         )
 
     def test_delete_returns_404_on_unknown_if_only_allowed_to_read(self):

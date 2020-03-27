@@ -187,9 +187,8 @@ class ModifiedMeanwhileTest(BaseTest):
     def test_post_if_none_match_star_succeeds_if_object_does_not_exist(self):
         self.validated["header"].pop("If-Match")
         self.validated["header"]["If-None-Match"] = "*"
-        self.validated["body"] = {
-            "data": {"id": self.resource.model.id_generator(), "field": "new"}
-        }
+        self.resource.object_id = self.resource.model.id_generator()
+        self.validated["body"] = {"data": {"id": self.resource.object_id, "field": "new"}}
         self.resource.plural_post()  # not raising.
 
     def test_get_if_none_match_star_fails_on_plural_endpoints(self):

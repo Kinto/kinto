@@ -111,13 +111,6 @@ class Account(resource.Resource):
 
         return _extract_posted_body_id(request)
 
-    def plural_post(self):
-        result = super(Account, self).plural_post()
-        if self.context.is_anonymous and self.request.response.status_code == 200:
-            error_details = {"message": "Account ID %r already exists" % result["data"]["id"]}
-            raise http_error(httpexceptions.HTTPForbidden(), **error_details)
-        return result
-
     def process_object(self, new, old=None):
         new = super(Account, self).process_object(new, old)
 

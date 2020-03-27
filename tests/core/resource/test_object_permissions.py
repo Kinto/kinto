@@ -83,7 +83,7 @@ class SpecifyObjectPermissionTest(PermissionTest):
         object_id = self.obj["id"]
         self.object_uri = "/articles/{}".format(object_id)
         self.permission.add_principal_to_ace(self.object_uri, "read", "account:readonly")
-        self.resource.object_id = object_id
+        self.resource.request.matchdict["id"] = object_id
         self.resource.request.validated["body"] = {"data": {}}
         self.resource.request.path = self.object_uri
 
