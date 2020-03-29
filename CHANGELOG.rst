@@ -3,7 +3,7 @@ Changelog
 
 This document describes changes between each past release.
 
-13.6.4 (2020-03-27)
+13.6.4 (2020-03-29)
 -------------------
 
 **Security fix**
