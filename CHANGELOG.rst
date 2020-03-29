@@ -3,12 +3,21 @@ Changelog
 
 This document describes changes between each past release.
 
-13.7.0 (unreleased)
+13.6.4 (2020-03-29)
 -------------------
 
 **Security fix**
 
 - Fix permission checking with POST on plural endpoints (fixes #2459)
+
+**Bug fixes**
+
+- Apply CORS headers to EOL responses (#2452)
+
+**Internal Changes**
+
+- Remove ``auth`` parameter from postgresql/memory storage backends
+- Removed pytest-sugar
 
 
 13.6.3 (2020-01-29)
