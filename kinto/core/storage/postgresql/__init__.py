@@ -77,7 +77,7 @@ class Storage(StorageBase, MigratorMixin):
 
     # MigratorMixin attributes.
     name = "storage"
-    schema_version = 21
+    schema_version = 22
     schema_file = os.path.join(HERE, "schema.sql")
     migrations_directory = os.path.join(HERE, "migrations")
 

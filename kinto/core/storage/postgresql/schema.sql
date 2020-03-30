@@ -64,8 +64,8 @@ DROP TRIGGER IF EXISTS tgr_objects_last_modified ON objects;
 CREATE OR REPLACE FUNCTION bump_timestamp()
 RETURNS trigger AS $$
 DECLARE
-    previous TIMESTAMP;
-    current TIMESTAMP;
+    previous BIGINT;
+    current BIGINT;
 BEGIN
     previous := NULL;
     WITH existing_timestamps AS (
@@ -87,7 +87,7 @@ BEGIN
           AND resource_name = NEW.resource_name
       )
     )
-    SELECT MAX(last_modified) INTO previous
+    SELECT as_epoch(MAX(last_modified)) INTO previous
       FROM existing_timestamps;
 
     --
@@ -99,16 +99,16 @@ BEGIN
     -- an error (operation is cancelled).
     -- See https://github.com/mozilla-services/cliquet/issues/25
     --
-    current := clock_timestamp();
+    current := as_epoch(clock_timestamp()::TIMESTAMP);
     IF previous IS NOT NULL AND previous >= current THEN
-        current := previous + INTERVAL '1 milliseconds';
+        current := previous + 1;
     END IF;
 
     IF NEW.last_modified IS NULL OR
-       (previous IS NOT NULL AND as_epoch(NEW.last_modified) = as_epoch(previous)) THEN
+       (previous IS NOT NULL AND as_epoch(NEW.last_modified) = previous) THEN
         -- If record does not carry last-modified, or if the one specified
         -- is equal to previous, assign it to current (i.e. bump it).
-        NEW.last_modified := current;
+        NEW.last_modified := from_epoch(current);
     END IF;
 
     RETURN NEW;
@@ -131,4 +131,4 @@ INSERT INTO metadata (name, value) VALUES ('created_at', NOW()::TEXT);
 
 -- Set storage schema version.
 -- Should match ``kinto.core.storage.postgresql.PostgreSQL.schema_version``
-INSERT INTO metadata (name, value) VALUES ('storage_schema_version', '21');
+INSERT INTO metadata (name, value) VALUES ('storage_schema_version', '22');
