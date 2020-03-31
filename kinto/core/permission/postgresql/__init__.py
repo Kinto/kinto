@@ -358,28 +358,19 @@ class Permission(PermissionBase, MigratorMixin):
         return total["matched"] > 0
 
     def get_objects_permissions(self, objects_ids, permissions=None):
-        object_ids_values = []
-        placeholders = {}
-        for i, obj_id in enumerate(objects_ids):
-            object_ids_values.append("({0}, :obj_id_{0})".format(i))
-            placeholders[f"obj_id_{i}"] = obj_id
-
+        placeholders = {"object_ids": tuple(objects_ids)}
         query = """
-        WITH required_object_ids AS (
-          VALUES {objects_ids}
-        )
         SELECT object_id, permission, principal
-            FROM required_object_ids JOIN access_control_entries
-              ON (object_id = column2)
-              {permissions_condition}
-        ORDER BY column1 ASC;
+            FROM access_control_entries
+           WHERE object_id IN :object_ids
+              {permissions_condition};
         """
-        safeholders = {"objects_ids": ",".join(object_ids_values), "permissions_condition": ""}
+        safeholders = {"permissions_condition": ""}
         if permissions is not None:
             safeholders[
                 "permissions_condition"
             ] = """
-              WHERE permission IN :permissions"""
+              AND permission IN :permissions"""
             placeholders["permissions"] = tuple(permissions)
 
         with self.client.connect(readonly=True) as conn:
