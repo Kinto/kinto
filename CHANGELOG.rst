@@ -3,10 +3,12 @@ Changelog
 
 This document describes changes between each past release.
 
-13.7.0 (unreleased)
+13.6.5 (2020-03-31)
 -------------------
 
-- Nothing changed yet.
+**Bug fixes**
+
+- Simplify get_objects_permissions query (#2475)
 
 
 13.6.4 (2020-03-29)
