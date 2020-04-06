@@ -18,7 +18,7 @@ newrelic==5.10.0.138
 PasteDeploy==2.1.0
 plaster==1.0
 plaster-pastedeploy==0.7
-psycopg2-binary==2.8.4
+psycopg2-binary==2.8.5
 pycparser==2.20
 pyramid==1.10.4
 pyramid-mailer==0.15.1
