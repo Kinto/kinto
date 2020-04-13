@@ -82,7 +82,7 @@ Toolkit
 * Monitoring tools;
 * Profiling tools.
 
-:term:`Pluggable` components can be replaced by another one via configuration.
+:term:`Pluggable <pluggable>` components can be replaced by another one via configuration.
 
 
 Dependencies

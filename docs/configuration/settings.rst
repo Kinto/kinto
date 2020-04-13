@@ -498,7 +498,7 @@ to create your own plugin.
 Pluggable components
 ::::::::::::::::::::
 
-:term:`Pluggable` components can be substituted from configuration files,
+:term:`Pluggable <pluggable>` components can be substituted from configuration files,
 as long as the replacement follows the original component API.
 
 .. code-block:: ini
@@ -520,7 +520,7 @@ Kinto authentication mechanism is entirely pluggable. We call them :term:`authen
 
 It is possible to enable several authentication policies. **The order matters**: when multiple policies are configured, the first one in the list that succeeds is picked.
 
-**The name matters**: the policy name that is picked will be used as the prefix of the :term:`user ID` (eg. ``ldap:alice``).
+**The name matters**: the policy name that is picked will be used as the prefix of the :term:`user ID <user id>` (eg. ``ldap:alice``).
 
 +--------------------------------+-------------------------------------------------------+--------------------------------------------------------------------------+
 | Setting name                   | Default                                               | What does it do?                                                         |
