@@ -12,7 +12,7 @@ python-memcached==1.59
 swagger-spec-validator==2.5.0
 therapist==2.0.0
 tox==3.15.0
-WebTest==2.0.34
+WebTest==2.0.35
 werkzeug==1.0.1
 wheel==0.34.2
 zest.releaser==6.20.1
