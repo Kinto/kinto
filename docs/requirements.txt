@@ -5,5 +5,5 @@ sphinxcontrib-httpdomain==1.7.0
 kinto
 mock==4.0.2
 webtest==2.0.35
-cornice==4.0.1
+cornice==5.0.0
 pyramid==1.10.4
