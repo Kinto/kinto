@@ -255,6 +255,7 @@ handlers = console
 level = DEBUG
 handlers = console
 qualname = kinto
+propagate = 0
 
 [handler_console]
 class = StreamHandler
