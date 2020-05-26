@@ -6,7 +6,9 @@ This document describes changes between each past release.
 13.7.0 (unreleased)
 -------------------
 
-- Nothing changed yet.
+**Bug fixes**
+
+- Fix messages duplication in logs (#2513)
 
 
 13.6.5 (2020-03-31)
