@@ -9,6 +9,11 @@ This document describes changes between each past release.
 **Bug fixes**
 
 - Fix messages duplication in logs (#2513)
+- Fix resource timestamp unicity (fixes #2472, #602)
+
+**Documentation**
+
+- Refer to proper terms in glossary (#2486)
 
 
 13.6.5 (2020-03-31)
