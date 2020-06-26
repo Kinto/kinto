@@ -77,7 +77,7 @@ class Storage(StorageBase, MigratorMixin):
 
     # MigratorMixin attributes.
     name = "storage"
-    schema_version = 21
+    schema_version = 22
     schema_file = os.path.join(HERE, "schema.sql")
     migrations_directory = os.path.join(HERE, "migrations")
 
@@ -201,7 +201,7 @@ class Storage(StorageBase, MigratorMixin):
             FROM objects
             WHERE parent_id = :parent_id
               AND resource_name = :resource_name
-            ORDER BY last_modified DESC
+            ORDER BY as_epoch(last_modified) DESC
             LIMIT 1
           )
           -- Timestamp of empty resource.
