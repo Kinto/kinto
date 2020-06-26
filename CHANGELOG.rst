@@ -3,6 +3,12 @@ Changelog
 
 This document describes changes between each past release.
 
+13.7.0 (unreleased)
+-------------------
+
+- Nothing changed yet.
+
+
 13.6.6 (2020-06-26)
 -------------------
 
