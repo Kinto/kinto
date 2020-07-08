@@ -83,10 +83,14 @@ class FilteringTest(BaseTest):
         self.validated["querystring"] = {"lt_last_modified": ""}
         self.assertRaises(httpexceptions.HTTPBadRequest, self.resource.plural_get)
 
-    def test_filter_raises_error_if_since_or_before_value_is_empty_dict(self):
+    def test_filter_raises_error_if_since_or_before_value_is_neither_int_nor_string(self):
         self.validated["querystring"] = {"_before": dict()}
         self.assertRaises(httpexceptions.HTTPBadRequest, self.resource.plural_get)
         self.validated["querystring"] = {"_since": dict()}
+        self.assertRaises(httpexceptions.HTTPBadRequest, self.resource.plural_get)
+        self.validated["querystring"] = {"_before": list()}
+        self.assertRaises(httpexceptions.HTTPBadRequest, self.resource.plural_get)
+        self.validated["querystring"] = {"_since": list()}
         self.assertRaises(httpexceptions.HTTPBadRequest, self.resource.plural_get)
 
     def test_filter_errors_are_json_formatted(self):
