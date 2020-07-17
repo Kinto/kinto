@@ -1095,7 +1095,7 @@ class Resource:
                         send_alert(self.request, message, url)
                     operator = COMPARISON.LT
 
-                if value == "" or (not isinstance(value, int) and not isinstance(value, str)):
+                if value == "" or not isinstance(value, (int, str)):
                     raise_invalid(self.request, **error_details)
 
                 filters.append(Filter(self.model.modified_field, value, operator))
