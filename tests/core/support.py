@@ -64,9 +64,9 @@ class PostgreSQLTest(BaseWebTest):
     def get_app_settings(cls, extras=None):
         settings = super().get_app_settings(extras)
         if sqlalchemy is not None:
-            from .test_storage import PostgreSQLStorageTest
             from .test_cache import PostgreSQLCacheTest
             from .test_permission import PostgreSQLPermissionTest
+            from .test_storage import PostgreSQLStorageTest
 
             settings.update(**PostgreSQLStorageTest.settings)
             settings.update(**PostgreSQLCacheTest.settings)
