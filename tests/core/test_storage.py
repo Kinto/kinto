@@ -127,7 +127,7 @@ class LenientMemoryStorageTest(MemoryStorageTest):
     def test_create_bytes_raises(self):
         data = {"steak": "haché".encode(encoding="utf-8")}
         self.assertIsInstance(data["steak"], bytes)
-        self.assertIsNotNone(self.create_object(data))
+        self.assertRaises(TypeError, self.create_object, data)
 
     def test_update_bytes_raises(self):
         obj = self.create_object()
@@ -135,8 +135,8 @@ class LenientMemoryStorageTest(MemoryStorageTest):
         new_object = {"steak": "haché".encode(encoding="utf-8")}
         self.assertIsInstance(new_object["steak"], bytes)
 
-        self.assertIsNotNone(
-            self.storage.update(object_id=obj["id"], obj=new_object, **self.storage_kw)
+        self.assertRaises(
+            TypeError, self.storage.update, object_id=obj["id"], obj=new_object, **self.storage_kw
         )
 
 
