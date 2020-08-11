@@ -29,5 +29,5 @@ def migrate(env, dry_run=False):
 def flush_cache(env):
     registry = env["registry"]
     registry.cache.flush()
-    logger.info(f"Cache has been cleared.")
+    logger.info("Cache has been cleared.")
     return 0

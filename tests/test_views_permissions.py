@@ -85,8 +85,8 @@ class PermissionsUnauthenticatedViewTest(BaseWebTest, unittest.TestCase):
         # kinto_http.js uses this sort of request when listing permissions
         real_permissions = self.app.get("/permissions", headers=self.everyone_headers).json["data"]
 
-        def sort_by_uri(l):
-            return sorted(l, key=lambda r: r["uri"])
+        def sort_by_uri(records):
+            return sorted(records, key=lambda r: r["uri"])
 
         for order in ["id", "-id", "uri", "-uri"]:
             for limit in range(1, 10):

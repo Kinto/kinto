@@ -387,8 +387,8 @@ class BaseTestStorage:
             )
 
     def test_list_all_can_filter_with_list_of_values(self):
-        for l in ["a", "b", "c"]:
-            self.create_object({"code": l})
+        for code in ["a", "b", "c"]:
+            self.create_object({"code": code})
         filters = [Filter("code", ["a", "b"], utils.COMPARISON.IN)]
         objects = self.storage.list_all(filters=filters, **self.storage_kw)
         self.assertEqual(len(objects), 2)
@@ -503,8 +503,8 @@ class BaseTestStorage:
 
     def test_list_all_can_filter_with_numeric_values(self):
         self.create_object({"missing": "code"})
-        for l in [1, 10, 6, 46]:
-            self.create_object({"code": l})
+        for code in [1, 10, 6, 46]:
+            self.create_object({"code": code})
 
         sorting = [Sort("code", 1)]
         filters = [Filter("code", 10, utils.COMPARISON.MAX)]
@@ -521,8 +521,8 @@ class BaseTestStorage:
         self.assertEqual(len(objects), 2)
 
     def test_list_all_can_filter_with_numeric_id(self):
-        for l in [0, 42]:
-            self.create_object({"id": str(l)})
+        for code in [0, 42]:
+            self.create_object({"id": str(code)})
 
         filters = [Filter("id", 0, utils.COMPARISON.EQ)]
         objects = self.storage.list_all(filters=filters, **self.storage_kw)
@@ -533,29 +533,29 @@ class BaseTestStorage:
         self.assertEqual(len(objects), 1)
 
     def test_list_all_can_filter_with_numeric_strings(self):
-        for l in ["0566199093", "0781566199"]:
-            self.create_object({"phone": l})
+        for code in ["0566199093", "0781566199"]:
+            self.create_object({"phone": code})
         filters = [Filter("phone", "0566199093", utils.COMPARISON.EQ)]
         objects = self.storage.list_all(filters=filters, **self.storage_kw)
         self.assertEqual(len(objects), 1)
 
     def test_list_all_can_filter_with_empty_numeric_strings(self):
-        for l in ["0566199093", "0781566199"]:
-            self.create_object({"phone": l})
+        for code in ["0566199093", "0781566199"]:
+            self.create_object({"phone": code})
         filters = [Filter("phone", "", utils.COMPARISON.EQ)]
         objects = self.storage.list_all(filters=filters, **self.storage_kw)
         self.assertEqual(len(objects), 0)
 
     def test_list_all_can_filter_with_float_values(self):
-        for l in [10, 11.5, 8.5, 6, 7.5]:
-            self.create_object({"note": l})
+        for code in [10, 11.5, 8.5, 6, 7.5]:
+            self.create_object({"note": code})
         filters = [Filter("note", 9.5, utils.COMPARISON.LT)]
         objects = self.storage.list_all(filters=filters, **self.storage_kw)
         self.assertEqual(len(objects), 3)
 
     def test_list_all_can_filter_with_strings(self):
-        for l in ["Rémy", "Alexis", "Marie"]:
-            self.create_object({"name": l})
+        for code in ["Rémy", "Alexis", "Marie"]:
+            self.create_object({"name": code})
         sorting = [Sort("name", 1)]
         filters = [Filter("name", "Mathieu", utils.COMPARISON.LT)]
         objects = self.storage.list_all(sorting=sorting, filters=filters, **self.storage_kw)
@@ -637,29 +637,29 @@ class BaseTestStorage:
         self.assertEqual(len(objects), 0)
 
     def test_list_all_can_filter_with_list_of_excluded_values(self):
-        for l in ["a", "b", "c"]:
-            self.create_object({"code": l})
+        for code in ["a", "b", "c"]:
+            self.create_object({"code": code})
         filters = [Filter("code", ("a", "b"), utils.COMPARISON.EXCLUDE)]
         objects = self.storage.list_all(filters=filters, **self.storage_kw)
         self.assertEqual(len(objects), 1)
 
     def test_list_all_can_filter_a_list_of_integer_values(self):
-        for l in [1, 2, 3]:
-            self.create_object({"code": l})
+        for code in [1, 2, 3]:
+            self.create_object({"code": code})
         filters = [Filter("code", (1, 2), utils.COMPARISON.EXCLUDE)]
         objects = self.storage.list_all(filters=filters, **self.storage_kw)
         self.assertEqual(len(objects), 1)
 
     def test_list_all_can_filter_a_list_of_mixed_typed_values(self):
-        for l in [1, 2, 3]:
-            self.create_object({"code": l})
+        for code in [1, 2, 3]:
+            self.create_object({"code": code})
         filters = [Filter("code", (1, "b"), utils.COMPARISON.EXCLUDE)]
         objects = self.storage.list_all(filters=filters, **self.storage_kw)
         self.assertEqual(len(objects), 2)
 
     def test_list_all_can_filter_a_list_of_integer_values_on_subobjects(self):
-        for l in [1, 2, 3]:
-            self.create_object({"code": {"city": l}})
+        for code in [1, 2, 3]:
+            self.create_object({"code": {"city": code}})
         filters = [Filter("code.city", (1, 2), utils.COMPARISON.EXCLUDE)]
         objects = self.storage.list_all(filters=filters, **self.storage_kw)
         self.assertEqual(len(objects), 1)
@@ -722,8 +722,8 @@ class BaseTestStorage:
         self.assertEqual(objects[0]["flavor"], "strawberry")
 
     def test_list_all_can_filter_by_subobjects_values(self):
-        for l in ["a", "b", "c"]:
-            self.create_object({"code": {"sub": l}})
+        for code in ["a", "b", "c"]:
+            self.create_object({"code": {"sub": code}})
         filters = [Filter("code.sub", "a", utils.COMPARISON.EQ)]
         objects = self.storage.list_all(filters=filters, **self.storage_kw)
         self.assertEqual(len(objects), 1)
@@ -1368,8 +1368,8 @@ class DeletedObjectsTest:
 
     def test_sorting_on_numeric_arbitrary_field(self):
         filters = self._get_last_modified_filters()
-        for l in [1, 10, 6, 46]:
-            self.create_object({"status": l})
+        for code in [1, 10, 6, 46]:
+            self.create_object({"status": code})
 
         sorting = [Sort("status", -1)]
         objects = self.storage.list_all(
@@ -1532,8 +1532,8 @@ class DeletedObjectsTest:
         real_objects = self.storage.list_all(parent_id="abc*", resource_name="c")
         self.assertEqual(len(real_objects), 10)
 
-        def sort_by_secret_data(l):
-            return sorted(l, key=lambda r: r["secret_data"])
+        def sort_by_secret_data(records):
+            return sorted(records, key=lambda r: r["secret_data"])
 
         GT = utils.COMPARISON.GT
         LT = utils.COMPARISON.LT
