@@ -459,10 +459,10 @@ class BulkTest(HistoryWebTest):
         requests = [
             {
                 "method": "PATCH",
-                "path": "/buckets/bid/collections/cid/records/{}".format(l),
-                "body": {"data": {"label": l}},
+                "path": "/buckets/bid/collections/cid/records/{}".format(label),
+                "body": {"data": {"label": label}},
             }
-            for l in ("a", "b", "c")
+            for label in ("a", "b", "c")
         ]
         self.app.post_json("/batch", {"requests": requests}, headers=self.headers)
         resp = self.app.get("/buckets/bid/history", headers=self.headers)
