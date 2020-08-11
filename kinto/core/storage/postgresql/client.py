@@ -82,8 +82,8 @@ def create_from_config(config, prefix="", with_transaction=True):
         )
         raise ImportWarning(message)
 
-    from zope.sqlalchemy import register, invalidate
-    from sqlalchemy.orm import sessionmaker, scoped_session
+    from sqlalchemy.orm import scoped_session, sessionmaker
+    from zope.sqlalchemy import invalidate, register
 
     settings = {**config.get_settings()}
 
