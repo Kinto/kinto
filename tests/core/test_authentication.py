@@ -36,6 +36,7 @@ class AuthenticationPoliciesTest(BaseWebTest, unittest.TestCase):
 
     @mock.patch("kinto.core.authentication.BasicAuthAuthenticationPolicy")
     def test_policy_name_is_used(self, basicAuth):
+        basicAuth.return_value.authenticated_userid.return_value = "user"
         basicAuth.return_value.name = "foobar"
         app = self.make_app(
             {
