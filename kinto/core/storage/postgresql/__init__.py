@@ -14,7 +14,7 @@ from kinto.core.storage import (
 )
 from kinto.core.storage.postgresql.client import create_from_config
 from kinto.core.storage.postgresql.migrator import MigratorMixin
-from kinto.core.utils import COMPARISON
+from kinto.core.utils import COMPARISON, json
 
 logger = logging.getLogger(__name__)
 HERE = os.path.dirname(__file__)
@@ -307,7 +307,7 @@ class Storage(StorageBase, MigratorMixin):
             parent_id=parent_id,
             resource_name=resource_name,
             last_modified=obj.get(modified_field),
-            data=self.json.dumps(query_object),
+            data=json.dumps(query_object),
         )
         with self.client.connect() as conn:
             result = conn.execute(query % safe_holders, placeholders)
@@ -383,7 +383,7 @@ class Storage(StorageBase, MigratorMixin):
             parent_id=parent_id,
             resource_name=resource_name,
             last_modified=obj.get(modified_field),
-            data=self.json.dumps(query_object),
+            data=json.dumps(query_object),
         )
 
         with self.client.connect() as conn:
@@ -427,7 +427,7 @@ class Storage(StorageBase, MigratorMixin):
                AND NOT deleted
             RETURNING as_epoch(last_modified) AS last_modified;
             """
-        deleted_data = self.json.dumps(dict([(deleted_field, True)]))
+        deleted_data = json.dumps(dict([(deleted_field, True)]))
         placeholders = dict(
             object_id=object_id,
             parent_id=parent_id,
@@ -510,7 +510,7 @@ class Storage(StorageBase, MigratorMixin):
 
         id_field = id_field or self.id_field
         modified_field = modified_field or self.modified_field
-        deleted_data = self.json.dumps(dict([(deleted_field, True)]))
+        deleted_data = json.dumps(dict([(deleted_field, True)]))
         placeholders = dict(
             parent_id=parent_id, resource_name=resource_name, deleted_data=deleted_data
         )
@@ -804,9 +804,9 @@ class Storage(StorageBase, MigratorMixin):
                     COMPARISON.EXCLUDE,
                     COMPARISON.CONTAINS_ANY,
                 ):
-                    value = self.json.dumps(value)
+                    value = json.dumps(value)
                 else:
-                    value = [self.json.dumps(v) for v in value]
+                    value = [json.dumps(v) for v in value]
 
             if filtr.operator in (COMPARISON.IN, COMPARISON.EXCLUDE):
                 value = tuple(value)
@@ -996,12 +996,9 @@ class Storage(StorageBase, MigratorMixin):
 def load_from_config(config):
     settings = config.get_settings()
     max_fetch_size = int(settings["storage_max_fetch_size"])
-    strict = settings.get("storage_strict_json", False)
     readonly = settings.get("readonly", False)
     client = create_from_config(config, prefix="storage_")
-    return Storage(
-        client=client, max_fetch_size=max_fetch_size, strict_json=strict, readonly=readonly
-    )
+    return Storage(client=client, max_fetch_size=max_fetch_size, readonly=readonly)
 
 
 UNKNOWN_SCHEMA_VERSION_MESSAGE = """

@@ -1,10 +1,11 @@
-import json
 import unittest
 
 from bravado_core.request import IncomingRequest, unmarshal_request
 from bravado_core.resource import build_resources
 from bravado_core.response import OutgoingResponse, validate_response
 from bravado_core.spec import Spec
+
+from kinto.core.utils import json
 
 from ..support import (
     MINIMALIST_BUCKET,

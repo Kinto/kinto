@@ -95,7 +95,6 @@ class MemoryBasedStorageTest(unittest.TestCase):
 
 class MemoryStorageTest(StorageTest, unittest.TestCase):
     backend = memory
-    settings = {"storage_strict_json": True}
 
     def setUp(self):
         super().setUp()
@@ -119,10 +118,6 @@ class MemoryStorageTest(StorageTest, unittest.TestCase):
 
     def test_ping_logs_error_if_unavailable(self):
         pass
-
-
-class LenientMemoryStorageTest(MemoryStorageTest):
-    settings = {"storage_strict_json": False}
 
     def test_create_bytes_raises(self):
         data = {"steak": "haché".encode(encoding="utf-8")}
@@ -148,7 +143,6 @@ class PostgreSQLStorageTest(StorageTest, unittest.TestCase):
         "storage_backend": "kinto.core.storage.postgresql",
         "storage_poolclass": "sqlalchemy.pool.StaticPool",
         "storage_url": "postgresql://postgres:postgres@localhost:5432/testdb",
-        "storage_strict_json": True,
     }
 
     def setUp(self):

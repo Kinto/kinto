@@ -6,7 +6,9 @@ This document describes changes between each past release.
 13.7.0 (unreleased)
 -------------------
 
-- Nothing changed yet.
+**Breaking changes**
+
+- Drop the ``strict_json`` option, and use ``ultrajson`` everywhere
 
 
 13.6.6 (2020-06-26)

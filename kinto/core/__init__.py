@@ -67,6 +67,7 @@ DEFAULT_SETTINGS = {
         "kinto.core.events.setup_transaction_hook",
     ),
     "event_listeners": "",
+    "json_renderer": "ultrajson",
     "heartbeat_timeout_seconds": 10,
     "newrelic_config": None,
     "newrelic_env": "dev",
@@ -117,6 +118,7 @@ class Service(CorniceService):
 
     @classmethod
     def init_from_settings(cls, settings):
+        cls.renderer = settings["json_renderer"]
         cls.cors_origins = tuple(aslist(settings["cors_origins"]))
         cors_max_age = settings["cors_max_age_seconds"]
         cls.cors_max_age = int(cors_max_age) if cors_max_age else None

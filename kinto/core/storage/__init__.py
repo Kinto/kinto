@@ -1,10 +1,8 @@
-import json
 import logging
 import random
 import warnings
 from collections import namedtuple
 
-import ujson
 from pyramid.settings import asbool
 
 from kinto.core.decorators import deprecate_kwargs
@@ -58,13 +56,6 @@ class StorageBase:
 
     id_generator = generators.UUID4()
     """Id generator used when no one is provided for create."""
-
-    def __init__(self, strict_json=True):
-        """initialize json (de)serializer to be the strict, slow json or ujson"""
-        if strict_json:
-            self.json = json
-        else:
-            self.json = ujson
 
     def initialize_schema(self, dry_run=False):
         """Create every necessary objects (like tables or indices) in the

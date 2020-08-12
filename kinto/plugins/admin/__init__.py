@@ -1,8 +1,9 @@
-import json
 import os
 
 from pyramid.httpexceptions import HTTPTemporaryRedirect
 from pyramid.static import static_view
+
+from kinto.core.utils import json
 
 from .views import admin_home_view
 
