@@ -53,7 +53,7 @@ def setup_json_serializer(config):
 
     # Override json renderer using ujson
     renderer = JSONRenderer(serializer=utils.json_serializer)
-    config.add_renderer("json", renderer)
+    config.add_renderer("ultrajson", renderer)  # See `kinto.core.Service`
 
 
 def setup_csp_headers(config):
