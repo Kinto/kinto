@@ -24,6 +24,7 @@ class MemoryBasedStorage(StorageBase):
     """Abstract storage class, providing basic operations and
     methods for in-memory implementations of sorting and filtering.
     """
+
     def initialize_schema(self, dry_run=False):
         # Nothing to do.
         pass
@@ -130,6 +131,7 @@ class Storage(MemoryBasedStorage):
 
         kinto.storage_backend = kinto.core.storage.memory
     """
+
     def __init__(self, *args, readonly=False, **kwargs):
         super().__init__(*args, **kwargs)
         self.readonly = readonly

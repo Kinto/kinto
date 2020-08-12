@@ -6,6 +6,7 @@ from bravado_core.response import OutgoingResponse, validate_response
 from bravado_core.spec import Spec
 
 from kinto.core.utils import json
+
 from ..support import (
     MINIMALIST_BUCKET,
     MINIMALIST_COLLECTION,

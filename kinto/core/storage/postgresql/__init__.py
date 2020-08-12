@@ -998,9 +998,7 @@ def load_from_config(config):
     max_fetch_size = int(settings["storage_max_fetch_size"])
     readonly = settings.get("readonly", False)
     client = create_from_config(config, prefix="storage_")
-    return Storage(
-        client=client, max_fetch_size=max_fetch_size, readonly=readonly
-    )
+    return Storage(client=client, max_fetch_size=max_fetch_size, readonly=readonly)
 
 
 UNKNOWN_SCHEMA_VERSION_MESSAGE = """
