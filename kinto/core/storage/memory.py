@@ -178,7 +178,13 @@ class Storage(MemoryBasedStorage):
         modified_field=DEFAULT_MODIFIED_FIELD,
     ):
         id_generator = id_generator or self.id_generator
-        obj = {**obj}
+
+        # This is very inefficient, but memory storage is not used in production.
+        # The serialization provides the necessary consistency with other
+        # backends implementation, and the deserialization creates a deep
+        # copy of the passed object.
+        obj = json.loads(json.dumps(obj))
+
         if id_field in obj:
             # Raise unicity error if object with same id already exists.
             try:
@@ -221,7 +227,12 @@ class Storage(MemoryBasedStorage):
         id_field=DEFAULT_ID_FIELD,
         modified_field=DEFAULT_MODIFIED_FIELD,
     ):
-        obj = {**obj}
+        # This is very inefficient, but memory storage is not used in production.
+        # The serialization provides the necessary consistency with other
+        # backends implementation, and the deserialization creates a deep
+        # copy of the passed object.
+        obj = json.loads(json.dumps(obj))
+
         obj[id_field] = object_id
 
         self.set_object_timestamp(resource_name, parent_id, obj, modified_field=modified_field)
@@ -429,7 +440,8 @@ def extract_object_set(
 
 
 def canonical_json(obj):
-    return json.dumps(obj, sort_keys=True, separators=(",", ":"))
+    # We just a predictable serialization so that we just compare strings.
+    return json.dumps(obj, sort_keys=True)
 
 
 def apply_filters(objects, filters):
