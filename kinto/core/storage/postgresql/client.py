@@ -15,7 +15,6 @@ BLACKLISTED_SETTINGS = [
     "max_fetch_size",
     "max_size_bytes",
     "prefix",
-    "strict_json",
     "hosts",
 ]
 

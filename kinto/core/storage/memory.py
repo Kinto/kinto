@@ -1,10 +1,7 @@
-import json
 import numbers
 import operator
 import re
 from collections import abc, defaultdict
-
-import ujson
 
 from kinto.core import utils
 from kinto.core.decorators import deprecate_kwargs, synchronized
@@ -16,7 +13,7 @@ from kinto.core.storage import (
     StorageBase,
     exceptions,
 )
-from kinto.core.utils import COMPARISON, find_nested_value
+from kinto.core.utils import COMPARISON, find_nested_value, json
 
 
 def tree():
@@ -27,10 +24,6 @@ class MemoryBasedStorage(StorageBase):
     """Abstract storage class, providing basic operations and
     methods for in-memory implementations of sorting and filtering.
     """
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
     def initialize_schema(self, dry_run=False):
         # Nothing to do.
         pass
@@ -136,13 +129,7 @@ class Storage(MemoryBasedStorage):
     Enable in configuration::
 
         kinto.storage_backend = kinto.core.storage.memory
-
-    Enable strict json validation before saving (instead of the more lenient
-    ujson, see #1238)::
-
-        kinto.storage_strict_json = true
     """
-
     def __init__(self, *args, readonly=False, **kwargs):
         super().__init__(*args, **kwargs)
         self.readonly = readonly
@@ -202,7 +189,6 @@ class Storage(MemoryBasedStorage):
 
         self.set_object_timestamp(resource_name, parent_id, obj, modified_field=modified_field)
         _id = obj[id_field]
-        obj = ujson.loads(self.json.dumps(obj))
         self._store[parent_id][resource_name][_id] = obj
         self._cemetery[parent_id][resource_name].pop(_id, None)
         return obj
@@ -235,7 +221,6 @@ class Storage(MemoryBasedStorage):
     ):
         obj = {**obj}
         obj[id_field] = object_id
-        obj = ujson.loads(self.json.dumps(obj))
 
         self.set_object_timestamp(resource_name, parent_id, obj, modified_field=modified_field)
         self._store[parent_id][resource_name][object_id] = obj
@@ -586,6 +571,4 @@ def _get_objects_by_parent_id(store, parent_id, resource_name, with_meta=False):
 
 
 def load_from_config(config):
-    settings = {**config.get_settings()}
-    strict = settings.get("storage_strict_json", False)
-    return Storage(strict_json=strict)
+    return Storage()

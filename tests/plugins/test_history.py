@@ -19,7 +19,6 @@ class PluginSetup(unittest.TestCase):
         settings = {
             "statsd_url": "udp://127.0.0.1:8125",
             "includes": "kinto.plugins.history",
-            "storage_strict_json": True,
         }
         config = testing.setUp(settings=settings)
         with mock.patch("kinto.core.statsd.Client.timer") as mocked:
