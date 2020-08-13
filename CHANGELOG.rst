@@ -6,7 +6,9 @@ This document describes changes between each past release.
 13.7.0 (unreleased)
 -------------------
 
-- Nothing changed yet.
+**Internal Changes**
+
+- Upgrade kinto-admin to v1.26.2
 
 
 13.6.6 (2020-06-26)
