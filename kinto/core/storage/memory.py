@@ -24,6 +24,7 @@ class MemoryBasedStorage(StorageBase):
     """Abstract storage class, providing basic operations and
     methods for in-memory implementations of sorting and filtering.
     """
+
     json = json
 
     def initialize_schema(self, dry_run=False):
