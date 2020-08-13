@@ -55,9 +55,8 @@ Use cases
 .. note::
 
     At Mozilla, *Kinto* is used in *Firefox* for global synchronization
-    of frequently changed settings like blocklists, and the Web Extensions storage.sync API.
-    It is also used in *Firefox for Android* for A/B testing and delivering extra
-    assets like fonts or hyphenation dictionaries.
+    of frequently changed settings like blocklists, experimentation, A/B testing,
+    list of search engines, or delivering extra assets like fonts or hyphenation dictionaries.
 
 
 How?
@@ -77,8 +76,8 @@ to work completely offline and synchronise data when online.
 
 It's even possible for data to be encrypted on the client to keep user data safe on the server.
 
-The ecosystem is growing and plugins already provide advanced features like history tracking,
-push notifications, file attachments, schema validation...
+The ecosystem of plugins provide advanced features like history tracking, specific authentication,
+push notifications, file attachments...
 
 
 Key features
@@ -165,8 +164,8 @@ Key features
    :alt: approved by Gregor Črešnar from the Noun Project
    :width: 50px
 
-.. |logo-boilerplate| image:: images/logo-react.svg
-   :alt: https://commons.wikimedia.org/wiki/File:React.js_logo.svg
+.. |logo-indexing| image:: images/logo-indexing.svg
+   :alt: indexing by Vectors Market from the Noun Project
    :width: 50px
 
 .. |logo-quotas| image:: images/logo-quotas.svg
@@ -194,9 +193,9 @@ Key features
 | :github:`File attachments on records        | :github:`Digital signature and review       |
 | <Kinto/kinto-attachment>`                   | workflows <Kinto/kinto-signer>`             |
 +---------------------------------------------+---------------------------------------------+
-| |logo-quotas|                               | |logo-boilerplate|                          |
-| :ref:`Storage quotas                        | :github:`Kinto+React boilerplate            |
-| <api-quotas>`                               | <Kinto/kinto-react-boilerplate>`            |
+| |logo-quotas|                               | |logo-indexing|                             |
+| :ref:`Storage quotas                        | :github:`Records indexing                   |
+| <api-quotas>`                               | <Kinto/kinto-algolia>`                      |
 +---------------------------------------------+---------------------------------------------+
 
 **Learn from examples**
@@ -209,12 +208,6 @@ or our :ref:`tutorials <tutorials>`!
 - `kinto-http-java <https://github.com/intesens/kinto-http-java>`_: A Java HTTP Client
 - `ember-kinto <https://github.com/ptgamr/ember-kinto>`_: Offline first Ember Data adapter
 
-**Coming soon**
-
-- Push notifications using `the Push API <https://developer.mozilla.org/en-US/docs/Web/API/Push_API>`_ (:github:`under construction <Kinto/kinto-webpush>`)
-
-(See `our roadmap <https://github.com/Kinto/kinto/wiki/Roadmap>`_)
-
 
 .. _overview-synchronisation:
 
@@ -223,8 +216,8 @@ Synchronisation
 
 Bi-directional synchronisation of records is a very hard topic.
 
-*Kinto* takes some shortcuts by only providing the basics for concurrency control
-and polling for changes, and not trying to resolve conflicts automatically.
+*Kinto* takes some **shortcuts** by only providing the basics for concurrency control
+and polling for changes, and **not trying to resolve conflicts** automatically.
 
 Basically, each object has a revision number which is guaranteed to be incremented after
 each modification. Unless the :ref:`history plugin <api-history>` is activated,
@@ -253,7 +246,8 @@ For example, when a record is created or updated in a particular collection.
 
 It can send a notification to clients using `WebSockets <https://en.wikipedia.org/wiki/WebSocket>`_
 or fill a queue of messages in `Redis <http://redis.io/>`_ or execute any custom code of your choice,
-like for sending emails or pinging a third-party.
+like for sending emails or pinging a third-party. For example, at Mozilla, Push notifications are sent to millions of clients using `kinto-megaphone <https://github.com/Kinto/kinto-megaphone>`_.
+
 
 See :ref:`our tutorials <tutorials>` for more in-depth information on
 these topics.
