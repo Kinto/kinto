@@ -3,12 +3,16 @@ Changelog
 
 This document describes changes between each past release.
 
-13.7.0 (unreleased)
+14.0.0 (2020-08-13)
 -------------------
 
 **Breaking changes**
 
 - Drop the ``strict_json`` option, and use ``ultrajson`` everywhere
+
+**Internal Changes**
+
+- Upgrade kinto-admin to v1.26.2
 
 
 13.6.6 (2020-06-26)
