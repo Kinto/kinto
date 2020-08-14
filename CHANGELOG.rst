@@ -6,7 +6,9 @@ This document describes changes between each past release.
 14.0.1 (unreleased)
 -------------------
 
-- Nothing changed yet.
+**Bug fixes**
+
+- Do not break storage implementations (ie. kinto-redis) that rely on ``json`` class attribute (removed in v14.0.0)
 
 
 14.0.0 (2020-08-13)

@@ -25,6 +25,8 @@ class MemoryBasedStorage(StorageBase):
     methods for in-memory implementations of sorting and filtering.
     """
 
+    json = json
+
     def initialize_schema(self, dry_run=False):
         # Nothing to do.
         pass
