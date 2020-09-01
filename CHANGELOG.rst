@@ -9,6 +9,7 @@ This document describes changes between each past release.
 **Bug fixes**
 
 - Do not break storage implementations (ie. kinto-redis) that rely on ``json`` class attribute (removed in v14.0.0)
+- Do not return 400 for ``?_since=null`` (fixes #2595)
 
 
 14.0.0 (2020-08-13)
@@ -17,6 +18,10 @@ This document describes changes between each past release.
 **Breaking changes**
 
 - Drop the ``strict_json`` option, and use ``ultrajson`` everywhere
+
+**Bug fixes**
+
+- Return 400 if ``_since`` is not ``int`` or ``str`` (fixes #2495)
 
 **Internal Changes**
 

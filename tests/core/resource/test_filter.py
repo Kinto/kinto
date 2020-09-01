@@ -83,6 +83,11 @@ class FilteringTest(BaseTest):
         self.validated["querystring"] = {"lt_last_modified": ""}
         self.assertRaises(httpexceptions.HTTPBadRequest, self.resource.plural_get)
 
+    def test_filter_works_with_since_none(self):
+        self.validated["querystring"] = {"_since": None}
+        result = self.resource.plural_get()
+        self.assertEqual(len(result["data"]), 8)
+
     def test_filter_raises_error_if_since_or_before_value_is_neither_int_nor_string(self):
         self.validated["querystring"] = {"_before": dict()}
         self.assertRaises(httpexceptions.HTTPBadRequest, self.resource.plural_get)

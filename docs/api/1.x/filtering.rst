@@ -189,9 +189,11 @@ collection was not changed, a |status-304| response is returned.
 
 .. note::
 
-    ``_since`` and ``_before`` also accept a value between quotes (``"``) as
-    it would be returned in the ``ETag`` response header
-    (see :ref:`response timestamps <server-timestamps>`).
+    * ``_since`` and ``_before`` also accept a value between quotes (``"``) as
+      it would be returned in the ``ETag`` response header
+      (see :ref:`response timestamps <server-timestamps>`).
+    * ``_since`` and ``_before`` also accept a ``null`` value, which is equivalent
+      to the parameter not being specified.
 
 **Request**:
 
