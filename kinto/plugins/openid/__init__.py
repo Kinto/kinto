@@ -28,8 +28,7 @@ class OpenIDConnectPolicy(base_auth.CallbackAuthenticationPolicy):
         self._jwt_keys = None
 
     def unauthenticated_userid(self, request):
-        """Return the userid or ``None`` if token could not be verified.
-        """
+        """Return the userid or ``None`` if token could not be verified."""
         settings = request.registry.settings
         hmac_secret = settings["userid_hmac_secret"]
 

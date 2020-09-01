@@ -28,8 +28,7 @@ from kinto.core.utils import (
 
 
 def build_real_request(wsgi_environ):
-    """Build a Pyramid request, as if it was instantiated by Pyramid.
-    """
+    """Build a Pyramid request, as if it was instantiated by Pyramid."""
     config = testing.setUp(settings=DEFAULT_SETTINGS)
     includeme(config)
     request = pyramid_request.Request(wsgi_environ)

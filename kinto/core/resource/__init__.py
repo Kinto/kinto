@@ -81,8 +81,7 @@ def register_resource(resource_cls, settings=None, viewset=None, depth=1, **kwar
     resource_name = viewset.get_name(resource_cls)
 
     def register_service(endpoint_type, settings):
-        """Registers a service in cornice, for the given type.
-        """
+        """Registers a service in cornice, for the given type."""
         path_pattern = getattr(viewset, f"{endpoint_type}_path")
         path_values = {"resource_name": resource_name}
         path = path_pattern.format_map(path_values)
@@ -887,9 +886,7 @@ class Resource:
             raise self._404_for_object(object_id)
 
     def _add_timestamp_header(self, response, timestamp=None):
-        """Add current timestamp in response headers, when request comes in.
-
-        """
+        """Add current timestamp in response headers, when request comes in."""
         if timestamp is None:
             timestamp = self.timestamp
         # Pyramid takes care of converting.
@@ -1026,8 +1023,7 @@ class Resource:
             raise_invalid(self.request, **error_details)
 
     def _extract_partial_fields(self):
-        """Extract the fields to do the projection from QueryString parameters.
-        """
+        """Extract the fields to do the projection from QueryString parameters."""
         fields = self.request.validated["querystring"].get("_fields")
         if fields:
             root_fields = [f.split(".")[0] for f in fields]

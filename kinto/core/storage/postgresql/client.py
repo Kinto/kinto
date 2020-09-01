@@ -72,8 +72,7 @@ _CLIENTS = defaultdict(dict)
 
 
 def create_from_config(config, prefix="", with_transaction=True):
-    """Create a PostgreSQLClient client using settings in the provided config.
-    """
+    """Create a PostgreSQLClient client using settings in the provided config."""
     if sqlalchemy is None:
         message = (
             "PostgreSQL SQLAlchemy dependency missing. "

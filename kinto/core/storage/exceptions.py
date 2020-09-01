@@ -17,17 +17,13 @@ class BackendError(Exception):
 
 
 class RecordNotFoundError(Exception):
-    """Deprecated exception name.
-
-    """
+    """Deprecated exception name."""
 
     pass
 
 
 class ObjectNotFoundError(RecordNotFoundError):
-    """An exception raised when a specific object could not be found.
-
-    """
+    """An exception raised when a specific object could not be found."""
 
     pass
 

@@ -19,8 +19,7 @@ skip_if_no_statsd = unittest.skipIf(not statsd.statsd_module, "statsd is not ins
 
 
 class DummyRequest(mock.MagicMock):
-    """Fully mocked request.
-    """
+    """Fully mocked request."""
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -64,8 +63,7 @@ def get_request_class(prefix):
 
 
 class FormattedErrorMixin:
-    """Test mixin in order to perform advanced error responses assertions.
-    """
+    """Test mixin in order to perform advanced error responses assertions."""
 
     def assertFormattedError(self, response, code, errno, error, message=None, info=None):
         self.assertIn("application/json", response.headers["Content-Type"])

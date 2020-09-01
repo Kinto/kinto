@@ -43,8 +43,7 @@ class Collection(resource.Resource):
 
 @subscriber(ResourceChanged, for_resources=("collection",), for_actions=(ACTIONS.DELETE,))
 def on_collections_deleted(event):
-    """Some collections were deleted, delete records.
-    """
+    """Some collections were deleted, delete records."""
     storage = event.request.registry.storage
     permission = event.request.registry.permission
 

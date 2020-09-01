@@ -79,8 +79,7 @@ class Model:
         return annotated
 
     def _allow_write(self, perm_object_id):
-        """Helper to give the ``write`` permission to the current user.
-        """
+        """Helper to give the ``write`` permission to the current user."""
         self.permission.add_principal_to_ace(perm_object_id, "write", self.current_principal)
 
     def get_objects(

@@ -79,8 +79,7 @@ def _resource_endpoint(object_uri):
 
 
 def _relative_object_uri(resource_name, object_uri):
-    """Returns object_uri
-    """
+    """Returns object_uri"""
     obj_parts = object_uri.split("/")
     for length in range(len(obj_parts) + 1):
         parent_uri = "/".join(obj_parts[:length])

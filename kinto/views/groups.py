@@ -51,8 +51,7 @@ class Group(resource.Resource):
 
 @subscriber(ResourceChanged, for_resources=("group",), for_actions=(ACTIONS.DELETE,))
 def on_groups_deleted(event):
-    """Some groups were deleted, remove them from users principals.
-    """
+    """Some groups were deleted, remove them from users principals."""
     permission_backend = event.request.registry.permission
 
     for change in event.impacted_objects:
@@ -67,8 +66,7 @@ def on_groups_deleted(event):
     ResourceChanged, for_resources=("group",), for_actions=(ACTIONS.CREATE, ACTIONS.UPDATE)
 )
 def on_groups_changed(event):
-    """Some groups were changed, update users principals.
-    """
+    """Some groups were changed, update users principals."""
     permission_backend = event.request.registry.permission
 
     for change in event.impacted_objects:
