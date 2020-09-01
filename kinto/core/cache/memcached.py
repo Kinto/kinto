@@ -30,8 +30,7 @@ def wrap_memcached_error(func):
 
 
 def create_from_config(config, prefix=""):
-    """Memcached client instantiation from settings.
-    """
+    """Memcached client instantiation from settings."""
     settings = config.get_settings()
     hosts = aslist(settings[prefix + "hosts"])
     return memcache.Client(hosts)

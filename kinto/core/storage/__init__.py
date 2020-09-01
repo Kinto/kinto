@@ -68,8 +68,7 @@ class StorageBase:
         raise NotImplementedError
 
     def flush(self):
-        """Remove **every** object from this storage.
-        """
+        """Remove **every** object from this storage."""
         raise NotImplementedError
 
     def resource_timestamp(self, resource_name, parent_id):

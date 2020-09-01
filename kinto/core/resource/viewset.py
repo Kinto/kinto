@@ -158,8 +158,7 @@ class ViewSet:
         return args
 
     def get_object_schema(self, resource_cls, method):
-        """Return the Cornice schema for the given method.
-        """
+        """Return the Cornice schema for the given method."""
         if method.lower() in ("patch", "delete"):
             resource_schema = SimpleSchema
         else:
@@ -185,8 +184,7 @@ class ViewSet:
         return f"{endpoint_type}_{method.lower()}"
 
     def get_name(self, resource_cls):
-        """Returns the name of the resource.
-        """
+        """Returns the name of the resource."""
         # Provided on viewset during registration.
         if "name" in self.__dict__:
             return self.__dict__["name"]

@@ -88,8 +88,7 @@ class Storage(StorageBase, MigratorMixin):
         self.readonly = readonly
 
     def create_schema(self, dry_run=False):
-        """Override create_schema to ensure DB encoding and TZ are OK.
-        """
+        """Override create_schema to ensure DB encoding and TZ are OK."""
         self._check_database_encoding()
         self._check_database_timezone()
         return super().create_schema(dry_run)
@@ -124,8 +123,7 @@ class Storage(StorageBase, MigratorMixin):
             raise AssertionError(f"Unexpected database encoding {encoding}")
 
     def get_installed_version(self):
-        """Return current version of schema or None if not any found.
-        """
+        """Return current version of schema or None if not any found."""
         # Check for objects table, which definitely indicates a new
         # DB. (metadata can exist if the permission schema ran first.)
         table_exists_query = """

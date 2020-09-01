@@ -263,8 +263,7 @@ def reapply_cors(request, response):
 
 
 def log_context(request, **kwargs):
-    """Bind information to the current request summary log.
-    """
+    """Bind information to the current request summary log."""
     non_empty = {k: v for k, v in kwargs.items() if v is not None}
     try:
         request._log_context.update(**non_empty)

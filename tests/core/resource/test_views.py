@@ -629,8 +629,7 @@ class StorageErrorTest(BaseWebTest, unittest.TestCase):
 
 
 class PaginationNextURLTest(BaseWebTest, unittest.TestCase):
-    """Extra tests for `tests.core.resource.test_pagination`
-    """
+    """Extra tests for `tests.core.resource.test_pagination`"""
 
     def setUp(self):
         super().setUp()
@@ -704,8 +703,7 @@ class PluralDeleteTest(BaseWebTest, unittest.TestCase):
 
 
 class SchemaLessPartialResponseTest(BaseWebTest, unittest.TestCase):
-    """Extra tests for :mod:`tests.core.resource.test_partial_response`
-    """
+    """Extra tests for :mod:`tests.core.resource.test_partial_response`"""
 
     plural_url = "/spores"
 

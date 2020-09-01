@@ -29,8 +29,7 @@ class BaseTestStorage:
         self.auth = "Basic bWF0OjE="
 
     def _get_config(self, settings=None):
-        """Mock Pyramid config object.
-        """
+        """Mock Pyramid config object."""
         if settings is None:
             settings = self.settings
         config = testing.setUp()

@@ -27,8 +27,7 @@ class Bucket(resource.Resource):
 
 @subscriber(ResourceChanged, for_resources=("bucket",), for_actions=(ACTIONS.DELETE,))
 def on_buckets_deleted(event):
-    """Some buckets were deleted, delete sub-resources.
-    """
+    """Some buckets were deleted, delete sub-resources."""
     storage = event.request.registry.storage
     permission = event.request.registry.permission
 

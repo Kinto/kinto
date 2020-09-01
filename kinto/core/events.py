@@ -45,8 +45,7 @@ class _ResourceEvent:
 
 
 class ResourceRead(_ResourceEvent):
-    """Triggered when a resource is being read.
-    """
+    """Triggered when a resource is being read."""
 
     def __init__(self, payload, read_objects, request):
         super().__init__(payload, request)
@@ -54,8 +53,7 @@ class ResourceRead(_ResourceEvent):
 
 
 class ResourceChanged(_ResourceEvent):
-    """Triggered when a resource is being changed.
-    """
+    """Triggered when a resource is being changed."""
 
     def __init__(self, payload, impacted_objects, request):
         super().__init__(payload, request)
@@ -63,8 +61,7 @@ class ResourceChanged(_ResourceEvent):
 
 
 class AfterResourceRead(_ResourceEvent):
-    """Triggered after a resource was successfully read.
-    """
+    """Triggered after a resource was successfully read."""
 
     def __init__(self, payload, read_objects, request):
         super().__init__(payload, request)
@@ -72,8 +69,7 @@ class AfterResourceRead(_ResourceEvent):
 
 
 class AfterResourceChanged(_ResourceEvent):
-    """Triggered after a resource was successfully changed.
-    """
+    """Triggered after a resource was successfully changed."""
 
     def __init__(self, payload, impacted_objects, request):
         super().__init__(payload, request)
@@ -176,8 +172,7 @@ def setup_transaction_hook(config):
     """
 
     def _notify_resource_events_after(success, request):
-        """Notify the accumulated resource events if transaction succeeds.
-        """
+        """Notify the accumulated resource events if transaction succeeds."""
         if not success:  # pragma: no cover
             return
 
@@ -188,8 +183,7 @@ def setup_transaction_hook(config):
                 logger.error("Unable to notify", exc_info=True)
 
     def on_new_request(event):
-        """When a new request comes in, hook on transaction commit.
-        """
+        """When a new request comes in, hook on transaction commit."""
         # Since there is one transaction per batch, ignore subrequests.
         if hasattr(event.request, "parent"):
             return

@@ -70,8 +70,7 @@ def setup_csp_headers(config):
 
 
 def setup_version_redirection(config):
-    """Add a view which redirects to the current version of the API.
-    """
+    """Add a view which redirects to the current version of the API."""
     settings = config.get_settings()
     redirect_enabled = settings["version_prefix_redirect_enabled"]
     version_prefix_redirection_enabled = asbool(redirect_enabled)

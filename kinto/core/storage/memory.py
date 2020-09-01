@@ -118,8 +118,7 @@ class MemoryBasedStorage(StorageBase):
     def bump_and_store_timestamp(
         self, resource_name, parent_id, obj=None, modified_field=None, last_modified=None
     ):
-        """Use the bump_timestamp to get its next value and store the resource_timestamp.
-        """
+        """Use the bump_timestamp to get its next value and store the resource_timestamp."""
         raise NotImplementedError
 
 
@@ -157,8 +156,7 @@ class Storage(MemoryBasedStorage):
     def bump_and_store_timestamp(
         self, resource_name, parent_id, obj=None, modified_field=None, last_modified=None
     ):
-        """Use the bump_timestamp to get its next value and store the resource_timestamp.
-        """
+        """Use the bump_timestamp to get its next value and store the resource_timestamp."""
         current_resource_timestamp = self._timestamps[parent_id].get(resource_name, 0)
 
         current, resource_timestamp = self.bump_timestamp(
@@ -447,8 +445,7 @@ def canonical_json(obj):
 
 
 def apply_filters(objects, filters):
-    """Filter the specified objects, using basic iteration.
-    """
+    """Filter the specified objects, using basic iteration."""
 
     def contains_filtering(object_value, search_term):
         if object_value == MISSING:
@@ -552,8 +549,7 @@ def schwartzian_transform(value):
 
 
 def apply_sorting(objects, sorting):
-    """Sort the specified objects, using cumulative python sorting.
-    """
+    """Sort the specified objects, using cumulative python sorting."""
     result = list(objects)
 
     if not result:

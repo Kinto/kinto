@@ -19,8 +19,7 @@ class PermissionTest:
         self.client_error_patcher = []
 
     def _get_config(self):
-        """Mock Pyramid config object.
-        """
+        """Mock Pyramid config object."""
         config = testing.setUp()
         config.add_settings(self.settings)
         return config
