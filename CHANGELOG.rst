@@ -3,7 +3,7 @@ Changelog
 
 This document describes changes between each past release.
 
-14.0.1 (unreleased)
+14.0.1 (2020-09-09)
 -------------------
 
 **Bug fixes**
