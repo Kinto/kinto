@@ -1,7 +1,7 @@
 black==20.8b1
 bravado_core==5.17.0
 flake8==3.8.3
-isort==5.5.2
+isort==5.5.3
 pytest==6.0.2
 pytest-cache==1.0
 pytest-cov==2.10.1
