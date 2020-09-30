@@ -16,6 +16,14 @@ class BackendError(Exception):
         super().__init__(message, *args, **kwargs)
 
 
+class ReadonlyError(BackendError):
+    """An error raised when a write operation is attempted on a
+    read-only instance.
+    """
+
+    pass
+
+
 class RecordNotFoundError(Exception):
     """Deprecated exception name."""
 

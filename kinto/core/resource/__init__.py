@@ -235,10 +235,7 @@ class Resource:
         """
         try:
             return self.model.timestamp()
-        except storage_exceptions.BackendError as e:
-            is_readonly = self.request.registry.settings["readonly"]
-            if not is_readonly:
-                raise e
+        except storage_exceptions.ReadonlyError as e:
             # If the instance is configured to be readonly, and if the
             # resource is empty, the backend will try to bump the timestamp.
             # It fails if the configured db user has not write privileges.

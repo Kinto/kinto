@@ -31,7 +31,7 @@ class ResourceTest(BaseTest):
         with mock.patch.object(
             request.registry.storage,
             "resource_timestamp",
-            side_effect=storage_exceptions.BackendError,
+            side_effect=storage_exceptions.ReadonlyError,
         ):
             with self.assertRaises(excepted_exc) as cm:
                 self.resource_class(request)

@@ -61,6 +61,7 @@ class Model:
 
         :param str parent_id: optional filter for parent id
         :rtype: int
+
         """
         parent_id = parent_id or self.parent_id
         return self.storage.resource_timestamp(
