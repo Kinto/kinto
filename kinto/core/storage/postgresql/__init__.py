@@ -233,7 +233,7 @@ class Storage(StorageBase, MigratorMixin):
             if self.readonly:
                 if existing_ts is None:
                     error_msg = (
-                        "Cannot initialize empty resource timestamp " "when running in readonly."
+                        "Cannot initialize empty resource timestamp when running in readonly."
                     )
                     raise exceptions.ReadonlyError(message=error_msg)
                 obj = row
