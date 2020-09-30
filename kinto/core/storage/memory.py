@@ -150,7 +150,7 @@ class Storage(MemoryBasedStorage):
             return ts
         if self.readonly:
             error_msg = "Cannot initialize empty resource timestamp when running in readonly."
-            raise exceptions.BackendError(message=error_msg)
+            raise exceptions.ReadonlyError(message=error_msg)
         return self.bump_and_store_timestamp(resource_name, parent_id)
 
     def bump_and_store_timestamp(

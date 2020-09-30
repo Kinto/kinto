@@ -235,7 +235,7 @@ class Storage(StorageBase, MigratorMixin):
                     error_msg = (
                         "Cannot initialize empty resource timestamp " "when running in readonly."
                     )
-                    raise exceptions.BackendError(message=error_msg)
+                    raise exceptions.ReadonlyError(message=error_msg)
                 obj = row
             else:
                 create_result = conn.execute(

@@ -61,7 +61,9 @@ class Model:
 
         :param str parent_id: optional filter for parent id
         :rtype: int
+
         """
+        raise ValueError("poppp")
         parent_id = parent_id or self.parent_id
         return self.storage.resource_timestamp(
             resource_name=self.resource_name, parent_id=parent_id

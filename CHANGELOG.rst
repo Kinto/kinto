@@ -6,7 +6,9 @@ This document describes changes between each past release.
 14.0.2 (unreleased)
 -------------------
 
-- Nothing changed yet.
+**Internal Changes**
+
+- Distinguish readonly errors in storage backend (``kinto.core.storage.exceptions.ReadonlyError``)
 
 
 14.0.1 (2020-09-09)
