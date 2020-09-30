@@ -20,6 +20,7 @@ class ReadonlyError(BackendError):
     """An error raised when a write operation is attempted on a
     read-only instance.
     """
+
     pass
 
 
