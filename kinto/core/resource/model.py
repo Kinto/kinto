@@ -35,6 +35,7 @@ class Model:
         parent_id="",
         current_principal=None,
         prefixed_principals=None,
+        explicit_perm=True,
     ):
         """
         :param storage: an instance of storage
@@ -44,6 +45,12 @@ class Model:
 
         :param str resource_name: the resource name
         :param str parent_id: the default parent id
+        :param bool explicit_perm:
+            Without explicit permissions, the ACLs on the object will
+            fully depend on the inherited permission tree (eg. read/write on parent).
+            This basically means that if user loose the permission on the
+            parent, they also loose the permission on children.
+            See https://github.com/Kinto/kinto/issues/893
         """
         self.storage = storage
         self.permission = permission
@@ -52,6 +59,7 @@ class Model:
         self.resource_name = resource_name
         self.current_principal = current_principal
         self.prefixed_principals = prefixed_principals
+        self.explicit_perm = explicit_perm
 
         # Object permission id.
         self.get_permission_object_id = None
@@ -81,7 +89,8 @@ class Model:
 
     def _allow_write(self, perm_object_id):
         """Helper to give the ``write`` permission to the current user."""
-        self.permission.add_principal_to_ace(perm_object_id, "write", self.current_principal)
+        if self.explicit_perm:
+            self.permission.add_principal_to_ace(perm_object_id, "write", self.current_principal)
 
     def get_objects(
         self,

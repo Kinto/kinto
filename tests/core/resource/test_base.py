@@ -27,7 +27,7 @@ class ResourceTest(BaseTest):
 
         excepted_exc = httpexceptions.HTTPServiceUnavailable
 
-        request.registry.settings = {"readonly": "true"}
+        request.registry.settings = {"readonly": "true", "explicit_permissions": "true"}
         with mock.patch.object(
             request.registry.storage,
             "resource_timestamp",

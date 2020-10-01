@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 
-from pyramid.settings import aslist
+from pyramid.settings import asbool, aslist
 
 from kinto.core.utils import instance_uri
 
@@ -108,6 +108,14 @@ def on_resource_changed(event):
         # the bucket URI (c.f. views.py).
         # Note: this will be rolledback if the transaction is rolledback.
         entry = storage.create(parent_id=bucket_uri, resource_name="history", obj=attrs)
+
+        # Without explicit permissions, the ACLs on the history entries will
+        # fully depend on the inherited permission tree (eg. bucket:read, bucket:write).
+        # This basically means that if user loose the permissions on the related
+        # object, they also loose the permission on the history entry.
+        # See https://github.com/Kinto/kinto/issues/893
+        if not asbool(settings["explicit_permissions"]):
+            return
 
         # The read permission on the newly created history entry is the union
         # of the object permissions with the one from bucket and collection.
