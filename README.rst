@@ -25,8 +25,16 @@ Kinto
 .. |pypi| image:: https://img.shields.io/pypi/v/kinto.svg
     :target: https://pypi.python.org/pypi/kinto
 
+What JSON is?
+================
+
+JSON is a popular and easy to use markup language.
+
+What Kinto is capable of?
+=========================
 
 Kinto is a minimalist JSON storage service with synchronisation and sharing abilities.
+
 
 * `Online documentation <https://kinto.readthedocs.io/en/latest/>`_
 * `Tutorial <https://kinto.readthedocs.io/en/latest/tutorials/first-steps.html>`_
