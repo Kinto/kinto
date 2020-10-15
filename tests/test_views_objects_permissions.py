@@ -346,3 +346,95 @@ class ParentMetadataTest(PermissionsTest):
             headers=get_user_headers("mahmud:hatim"),
             status=403,
         )
+
+
+class DisabledExplicitPermissionsTest(BaseWebTest, unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.alice_headers = {**cls.headers, **get_user_headers("alice")}
+        cls.alice_principal = (
+            "basicauth:d5b0026601f1b251974e09548d44155e16812e3c64ff7ae053fe3542e2ca1570"
+        )
+
+    @classmethod
+    def get_app_settings(cls, extras=None):
+        settings = super().get_app_settings(extras)
+        settings["explicit_permissions"] = "false"
+        settings["experimental_permissions_endpoint"] = "true"
+        return settings
+
+    def setUp(self):
+        self.app.put_json(
+            "/buckets/write",
+            {"permissions": {"write": ["system.Authenticated"]}},
+            headers=self.headers,
+        )
+        self.app.put_json(
+            "/buckets/write/collections/test",
+            {"permissions": {"write": ["system.Authenticated"]}},
+            headers=self.alice_headers,
+        )
+
+    def test_can_create_and_access_child_object(self):
+        self.app.put(
+            "/buckets/write/collections/test/records/1",
+            headers=self.alice_headers,
+        )
+        self.app.get(
+            "/buckets/write/collections/test/records/1",
+            headers=self.alice_headers,
+        )
+
+    def test_current_user_is_not_added_to_object_permissions(self):
+        resp = self.app.put_json(
+            "/buckets/write/collections/test/records/1",
+            {"permissions": {"write": ["system.Authenticated"], "read": ["ldap:chantal"]}},
+            headers=self.alice_headers,
+        )
+        self.assertEqual(
+            resp.json["permissions"], {"write": ["system.Authenticated"], "read": ["ldap:chantal"]}
+        )
+
+    def test_child_objects_are_not_listed_in_permission_endpoint(self):
+        self.app.put(
+            "/buckets/write/collections/test/records/1",
+            headers=self.alice_headers,
+        )
+
+        resp = self.app.get("/permissions", headers=self.alice_headers)
+        perms = resp.json["data"]
+
+        self.assertEqual(
+            sorted(p["uri"] for p in perms),
+            ["/", "/buckets/write", "/buckets/write/collections/test"],
+        )
+
+    def test_write_via_groups(self):
+        self.app.put_json(
+            "/buckets/viagroup",
+            {
+                "permissions": {
+                    "write": [
+                        self.principal,
+                    ]
+                }
+            },
+            headers=self.headers,
+        )
+        self.app.put_json(
+            "/buckets/viagroup/collections/c",
+            {"permissions": {"write": ["/buckets/viagroup/groups/editors"]}},
+            headers=self.headers,
+        )
+        self.app.put_json(
+            "/buckets/viagroup/groups/editors",
+            {"data": {"members": [self.alice_principal]}},
+            headers=self.headers,
+        )
+
+        self.app.post_json(
+            "/buckets/viagroup/collections/c/records",
+            {},
+            headers=self.alice_headers,
+        )
