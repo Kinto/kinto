@@ -668,3 +668,40 @@ class ExcludeResourcesTest(HistoryWebTest):
         resp = self.app.get("/buckets/b/history?group_id=a", headers=self.headers)
         entries = resp.json["data"]
         assert len(entries) == 0  # nothing.
+
+
+class DisabledExplicitPermissionsTest(HistoryWebTest, unittest.TestCase):
+    @classmethod
+    def get_app_settings(cls, extras=None):
+        settings = super().get_app_settings(extras)
+        settings["explicit_permissions"] = "false"
+        return settings
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.alice_headers = {**cls.headers, **get_user_headers("alice")}
+        cls.alice_principal = (
+            "basicauth:d5b0026601f1b251974e09548d44155e16812e3c64ff7ae053fe3542e2ca1570"
+        )
+
+    def setUp(self):
+        self.app.put_json(
+            "/buckets/test",
+            {"permissions": {"write": ["system.Authenticated"]}},
+            headers=self.headers,
+        )
+        self.app.put_json(
+            "/buckets/test/collections/test",
+            {"permissions": {"write": ["system.Authenticated"]}},
+            headers=self.headers,
+        )
+
+    def test_history_can_still_be_read(self):
+        self.app.post_json("/buckets/test/collections/test/records", headers=self.alice_headers)
+
+        resp = self.app.get("/buckets/test/history", headers=self.alice_headers)
+        self.assertEqual(
+            [(entry["action"], entry["resource_name"]) for entry in resp.json["data"]],
+            [("create", "record"), ("create", "collection"), ("create", "bucket")],
+        )
