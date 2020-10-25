@@ -8,7 +8,7 @@
   },
   "dependencies": {
     "babel-polyfill": "^6.23.0",
-    "codemirror": "^5.58.1",
+    "codemirror": "^5.58.2",
     "kinto-admin": "1.26.2",
     "react": "^16.14.0",
     "react-dom": "^16.14.0",
