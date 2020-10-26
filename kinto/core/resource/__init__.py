@@ -15,6 +15,7 @@ from pyramid.httpexceptions import (
     HTTPServiceUnavailable,
 )
 from pyramid.security import Everyone
+from pyramid.settings import asbool
 
 from kinto.core import Service
 from kinto.core.errors import ERRORS, http_error, raise_invalid, request_GET, send_alert
@@ -209,6 +210,7 @@ class Resource:
                 parent_id=parent_id,
                 current_principal=current_principal,
                 prefixed_principals=request.prefixed_principals,
+                explicit_perm=asbool(request.registry.settings["explicit_permissions"]),
             )
 
         # Initialize timestamp as soon as possible.

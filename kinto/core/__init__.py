@@ -44,6 +44,7 @@ DEFAULT_SETTINGS = {
     "eos": None,
     "eos_message": None,
     "eos_url": None,
+    "explicit_permissions": True,
     "error_info_link": "https://github.com/Kinto/kinto/issues/",
     "http_host": None,
     "http_scheme": None,
@@ -155,7 +156,7 @@ def includeme(config):
     config.registry.heartbeats = {}
 
     # Public settings registry.
-    config.registry.public_settings = {"batch_max_requests", "readonly"}
+    config.registry.public_settings = {"batch_max_requests", "readonly", "explicit_permissions"}
 
     # Directive to declare arbitrary API capabilities.
     def add_api_capability(config, identifier, description="", url="", **kw):

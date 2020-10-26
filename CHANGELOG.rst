@@ -6,6 +6,10 @@ This document describes changes between each past release.
 14.0.2 (unreleased)
 -------------------
 
+**New feature**
+
+- Add ability to disable explicit permissions at object level (ref #893). Use ``kinto.explicit_permissions = false`` to only rely on inherited permissions (see settings docs)
+
 **Internal Changes**
 
 - Distinguish readonly errors in storage backend (``kinto.core.storage.exceptions.ReadonlyError``)
