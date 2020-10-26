@@ -13,6 +13,7 @@ This document describes changes between each past release.
 **Internal Changes**
 
 - Distinguish readonly errors in storage backend (``kinto.core.storage.exceptions.ReadonlyError``)
+- Upgrade kinto-admin to v1.27.0
 
 
 14.0.1 (2020-09-09)
