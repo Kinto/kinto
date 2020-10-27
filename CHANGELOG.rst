@@ -3,7 +3,7 @@ Changelog
 
 This document describes changes between each past release.
 
-14.0.2 (unreleased)
+14.1.0 (2020-10-26)
 -------------------
 
 **New feature**
@@ -13,6 +13,8 @@ This document describes changes between each past release.
 **Internal Changes**
 
 - Distinguish readonly errors in storage backend (``kinto.core.storage.exceptions.ReadonlyError``)
+- Upgrade kinto-admin to v1.27.0
+- Add support to Python 3.9
 
 
 14.0.1 (2020-09-09)
