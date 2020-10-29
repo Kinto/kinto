@@ -29,6 +29,16 @@ class DefaultBucketViewTest(FormattedErrorMixin, DefaultBucketWebTest):
         bucket = self.app.get(self.bucket_url, headers=self.headers)
         result = bucket.json
         settings = self.app.app.registry.settings
+        default_bucket_ID_salt = settings["default_bucket_ID_salt"]
+        bucket_id = hmac_digest(default_bucket_ID_salt, self.principal)[:32]
+
+        self.assertEqual(result["data"]["id"], str(UUID(bucket_id)))
+        self.assertEqual(result["permissions"]["write"], [self.principal])
+
+    def test_default_bucket_exists_and_has_user_id_fallback_to_hmac_secret(self):
+        bucket = self.app.get(self.bucket_url, headers=self.headers)
+        result = bucket.json
+        settings = self.app.app.registry.settings
         hmac_secret = settings["userid_hmac_secret"]
         bucket_id = hmac_digest(hmac_secret, self.principal)[:32]
 

@@ -156,7 +156,7 @@ def default_bucket(request):
 
 def default_bucket_id(request):
     settings = request.registry.settings
-    secret = settings["userid_hmac_secret"]
+    secret = settings.get("default_bucket_ID_salt", settings["userid_hmac_secret"])
     # Build the user unguessable bucket_id UUID from its user_id
     digest = hmac_digest(secret, request.prefixed_userid)
     return str(uuid.UUID(digest[:32]))

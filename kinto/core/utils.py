@@ -4,6 +4,7 @@ import hmac
 import math
 import os
 import re
+import secrets
 import time
 from base64 import b64decode, b64encode
 from binascii import hexlify
@@ -101,6 +102,15 @@ def random_bytes_hex(bytes_length):
     :rtype: str
     """
     return hexlify(os.urandom(bytes_length)).decode("utf-8")
+
+
+def random_urlsafe(length):
+    """Return a urlsafe secret
+
+    :param int length: number of random string.
+    :rtype: str
+    """
+    return secrets.token_urlsafe(length)
 
 
 def native_value(value):
