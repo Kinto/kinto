@@ -57,6 +57,8 @@ matrix:
       dist: xenial
       env:
         - ENV=build-kinto-admin
+      before_install:
+        - nvm install 12
       script: make build-kinto-admin
     - python: 3.7
       dist: xenial
