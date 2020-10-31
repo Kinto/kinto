@@ -42,6 +42,7 @@ class ConfigTest(unittest.TestCase):
             dest,
             host="127.0.0.1",
             secret="secret",
+            bucket_id_salt="bucket_id_salt",
             storage_backend="storage_backend",
             cache_backend="cache_backend",
             permission_backend="permission_backend",
