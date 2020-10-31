@@ -70,6 +70,7 @@ class ConfigTest(unittest.TestCase):
             dest,
             host="127.0.0.1",
             secret="secret",
+            bucket_id_salt="bucket_id_salt",
             storage_backend="storage_backend",
             cache_backend="cache_backend",
             permission_backend="permission_backend",
@@ -89,6 +90,12 @@ class ConfigTest(unittest.TestCase):
         self.assertEqual(type(kwargs["secret"]), str)
 
     @mock.patch("kinto.config.render_template")
+    def test_bukcket_id_salt_is_text(self, mocked_render_template):
+        config.init("kinto.ini", backend="postgresql", cache_backend="postgresql")
+        args, kwargs = list(mocked_render_template.call_args)
+        self.assertEqual(type(kwargs["bucket_id_salt"]), str)
+
+    @mock.patch("kinto.config.render_template")
     def test_init_postgresql_values(self, mocked_render_template):
         self.maxDiff = None
         config.init("kinto.ini", backend="postgresql", cache_backend="postgresql")
@@ -102,6 +109,7 @@ class ConfigTest(unittest.TestCase):
             {
                 "host": "127.0.0.1",
                 "secret": kwargs["secret"],
+                "bucket_id_salt": kwargs["bucket_id_salt"],
                 "storage_backend": "kinto.core.storage.postgresql",
                 "cache_backend": "kinto.core.cache.postgresql",
                 "permission_backend": "kinto.core.permission.postgresql",
@@ -132,6 +140,7 @@ class ConfigTest(unittest.TestCase):
             {
                 "host": "127.0.0.1",
                 "secret": kwargs["secret"],
+                "bucket_id_salt": kwargs["bucket_id_salt"],
                 "storage_backend": "kinto.core.storage.postgresql",
                 "cache_backend": "kinto.core.cache.memcached",
                 "permission_backend": "kinto.core.permission.postgresql",
@@ -162,6 +171,7 @@ class ConfigTest(unittest.TestCase):
             {
                 "host": "127.0.0.1",
                 "secret": kwargs["secret"],
+                "bucket_id_salt": kwargs["bucket_id_salt"],
                 "storage_backend": "kinto_redis.storage",
                 "cache_backend": "kinto_redis.cache",
                 "permission_backend": "kinto_redis.permission",
@@ -192,6 +202,7 @@ class ConfigTest(unittest.TestCase):
             {
                 "host": "127.0.0.1",
                 "secret": kwargs["secret"],
+                "bucket_id_salt": kwargs["bucket_id_salt"],
                 "storage_backend": "kinto.core.storage.postgresql",
                 "cache_backend": "kinto_redis.cache",
                 "permission_backend": "kinto.core.permission.postgresql",
@@ -215,6 +226,7 @@ class ConfigTest(unittest.TestCase):
             {
                 "host": "127.0.0.1",
                 "secret": kwargs["secret"],
+                "bucket_id_salt": kwargs["bucket_id_salt"],
                 "storage_backend": "kinto.core.storage.memory",
                 "cache_backend": "kinto.core.cache.memory",
                 "permission_backend": "kinto.core.permission.memory",
@@ -240,6 +252,7 @@ class ConfigTest(unittest.TestCase):
             **{
                 "host": "127.0.0.1",
                 "secret": "abcd-ceci-est-un-secret",
+                "bucket_id_salt": "backet-id-salt-random",
                 "storage_backend": "kinto.core.storage.memory",
                 "cache_backend": "kinto.core.cache.memory",
                 "permission_backend": "kinto.core.permission.memory",
