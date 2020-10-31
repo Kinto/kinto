@@ -85,7 +85,7 @@ kinto.userid_hmac_secret = {secret}
 multiauth.policies = account
 
 # Bucket ID salt
-kinto.default_bucket_id_salt = {bucket_id_salt}
+kinto.default_bucket_hmac_secret = {bucket_id_salt}
 
 # Any pyramid multiauth setting can be specified for custom authentication
 # https://github.com/uralbash/awesome-pyramid#authentication

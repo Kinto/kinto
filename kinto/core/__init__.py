@@ -93,7 +93,7 @@ DEFAULT_SETTINGS = {
     "tm.annotate_user": False,  # Do annotate transactions with the user-id.
     "transaction_per_request": True,
     "userid_hmac_secret": "",
-    "default_bucket_id_salt": "",
+    "default_bucket_hmac_secret": "",
     "version_json_path": "version.json",
     "version_prefix_redirect_enabled": True,
     "trailing_slash_redirect_enabled": True,
