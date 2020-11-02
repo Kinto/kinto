@@ -6,7 +6,9 @@ This document describes changes between each past release.
 14.2.0 (unreleased)
 -------------------
 
-- Nothing changed yet.
+**New feature**
+
+- Allow rotation of the user password hmac secret without rotating the default bucket id hmac secret. (#2647)
 
 
 14.1.0 (2020-10-26)
