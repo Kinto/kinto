@@ -67,7 +67,7 @@ def init(config_file, backend, cache_backend, host="127.0.0.1"):
 
     values["host"] = host
     values["secret"] = core_utils.random_bytes_hex(32)
-    values["bucket_id_salt"] = core_utils.random_urlsafe(32)
+    values["bucket_id_salt"] = core_utils.random_bytes_hex(32)
 
     values["kinto_version"] = __version__
     values["config_file_timestamp"] = str(strftime("%a, %d %b %Y %H:%M:%S %z"))
