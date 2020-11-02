@@ -820,7 +820,7 @@ Legacy Basic Auth
 In the first versions of Kinto, we had a built-in ``basicauth`` policy enabled by default.
 
 Basically it generates a unique :term:`user identifier` from any username/password combination using a HMAC secret.
-Bucket IDs are generated using salt declared in `default_bucket_hmac_secret`.
+Bucket IDs are generated using salt declared in ``default_bucket_hmac_secret``.
 
 Even if it was convenient to get started, we decided to get rid of it because it was very confusing. But you can enable it with the follow configuration:
 
