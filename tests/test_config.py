@@ -90,7 +90,7 @@ class ConfigTest(unittest.TestCase):
         self.assertEqual(type(kwargs["secret"]), str)
 
     @mock.patch("kinto.config.render_template")
-    def test_bukcket_id_salt_is_text(self, mocked_render_template):
+    def test_bucket_id_salt_is_text(self, mocked_render_template):
         config.init("kinto.ini", backend="postgresql", cache_backend="postgresql")
         args, kwargs = list(mocked_render_template.call_args)
         self.assertEqual(type(kwargs["bucket_id_salt"]), str)
