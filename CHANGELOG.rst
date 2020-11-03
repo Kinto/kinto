@@ -3,6 +3,12 @@ Changelog
 
 This document describes changes between each past release.
 
+14.2.0 (unreleased)
+-------------------
+
+- Nothing changed yet.
+
+
 14.1.1 (2020-11-03)
 -------------------
 
