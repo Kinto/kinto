@@ -1,15 +1,15 @@
 {
   "name": "kwac",
-  "version": "1.26.2",
+  "version": "1.27.3",
   "private": true,
   "homepage": "http://localhost:8888/v1/admin/",
   "devDependencies": {
     "react-scripts": "^3.4.3"
   },
   "dependencies": {
+    "kinto-admin": "1.27.3",
     "babel-polyfill": "^6.23.0",
     "codemirror": "^5.58.2",
-    "kinto-admin": "1.27.1",
     "react": "^16.14.0",
     "react-dom": "^16.14.0",
     "react-router": "^5.2.0",

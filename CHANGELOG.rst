@@ -6,7 +6,13 @@ This document describes changes between each past release.
 14.2.0 (unreleased)
 -------------------
 
-- Nothing changed yet.
+**Bug fixes**
+
+- Fix broken Kinto admin (#2646)
+
+**Internal Changes**
+
+- Upgrade kinto-admin to v1.27.3
 
 
 14.1.0 (2020-10-26)
