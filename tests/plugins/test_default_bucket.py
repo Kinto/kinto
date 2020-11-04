@@ -45,6 +45,26 @@ class DefaultBucketViewTest(FormattedErrorMixin, DefaultBucketWebTest):
         self.assertEqual(result["data"]["id"], str(UUID(bucket_id)))
         self.assertEqual(result["permissions"]["write"], [self.principal])
 
+    def test_default_bucket_hmac_secret_define(self):
+        settings = self.get_app_settings(
+            {"default_bucket_hmac_secret": "bucket_id_salt", "userid_hmac_secret": "secret"}
+        )
+        secret = settings.get("default_bucket_hmac_secret", settings["userid_hmac_secret"])
+        value = hmac_digest(secret, "input data")
+
+        self.assertEqual(secret, "bucket_id_salt")
+        self.assertTrue(value.startswith("70f09c2d07853887d6b72bc70517f96377"))
+
+    def test_default_bucket_hmac_secret_not_define_fallback_to_userid_hmac_secret(self):
+        settings = self.get_app_settings({"userid_hmac_secret": "secret"})
+        if "default_bucket_hmac_secret" in settings:
+            del settings["default_bucket_hmac_secret"]
+        secret = settings.get("default_bucket_hmac_secret", settings["userid_hmac_secret"])
+        value = hmac_digest(secret, "input data")
+
+        self.assertEqual(secret, "secret")
+        self.assertTrue(value.startswith("6b9fc51c8e13506e9aee1f4c4bdbb650cd"))
+
     def test_default_bucket_can_still_be_explicitly_created(self):
         bucket = {"permissions": {"read": ["system.Everyone"]}}
         resp = self.app.put_json(self.bucket_url, bucket, headers=self.headers)
