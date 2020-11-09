@@ -3,7 +3,7 @@ Changelog
 
 This document describes changes between each past release.
 
-14.1.3 (unreleased)
+14.1.3 (2020-11-09)
 -------------------
 
 - Repackage kinto-admin
