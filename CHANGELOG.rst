@@ -6,7 +6,9 @@ This document describes changes between each past release.
 14.2.0 (unreleased)
 -------------------
 
-- Nothing changed yet.
+**Internal Changes**
+
+- Upgrade kinto-admin to v1.28.0
 
 
 14.1.1 (2020-11-03)
