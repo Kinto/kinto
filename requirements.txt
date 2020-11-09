@@ -42,5 +42,5 @@ waitress==1.4.4
 WebOb==1.8.6
 Werkzeug==1.0.1
 zope.deprecation==4.4.0
-zope.interface==5.1.2
+zope.interface==5.2.0
 zope.sqlalchemy==1.3
