@@ -20,7 +20,7 @@ plaster==1.0
 plaster-pastedeploy==0.7
 psycopg2-binary==2.8.6
 pycparser==2.20
-pyramid==1.10.4
+pyramid==1.10.5
 pyramid-mailer==0.15.1
 pyramid-multiauth==0.9.0
 pyramid-tm==2.4
