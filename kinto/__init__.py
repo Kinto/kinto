@@ -36,6 +36,11 @@ DEFAULT_SETTINGS = {
     "group_id_generator": "kinto.views.NameGenerator",
     "record_id_generator": "kinto.views.RelaxedUUID",
     "project_name": "kinto",
+    "mail.host": "localhost",
+    "mail.port": 25,
+    "mail.default_sender": None,
+    "mail.username": None,
+    "mail.password": None,
 }
 
 
