@@ -1,0 +1,32 @@
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+name: Kinto Admin
+jobs:
+  chore:
+    name: Build Kinto Admin
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-python@v2
+        with:
+          python-version: "3.x"
+
+      - uses: actions/setup-node@v1
+        with:
+          node-version: "14.x"
+
+      - name: Print environment
+        run: |
+          python --version
+          pip --version
+          node --version
+          npm --version
+
+      - name: make build-kinto-admin
+        run: make build-kinto-admin
