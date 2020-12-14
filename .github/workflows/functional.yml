@@ -30,6 +30,9 @@ jobs:
         with:
           python-version: "3.x"
 
+      - name: Install virtualenv
+        run: pip install virtualenv
+
       - name: Print environment
         run: |
           python --version
