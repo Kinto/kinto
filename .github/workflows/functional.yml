@@ -48,6 +48,8 @@ jobs:
           make install-postgres
 
       - name: Create database
+        env:
+          PGPASSWORD: postgres
         run: |
           psql -c "CREATE DATABASE testdb ENCODING 'UTF8' TEMPLATE template0;" -U postgres -h localhost
 
