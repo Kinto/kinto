@@ -10,6 +10,7 @@ env:
   - TOX_ENV=py36
   - TOX_ENV=py36-raw
 install:
+  - pip install -U pip
   - pip install tox
 before_script:
   - echo "Pull request ${TRAVIS_PULL_REQUEST}"
