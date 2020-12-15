@@ -49,7 +49,7 @@ jobs:
 
       - name: Create database
         run: |
-          psql -c "CREATE DATABASE testdb ENCODING 'UTF8' TEMPLATE template0;" -U postgres
+          psql -c "CREATE DATABASE testdb ENCODING 'UTF8' TEMPLATE template0;" -U postgres -h localhost
 
       - name: Start Kinto
         run: |
