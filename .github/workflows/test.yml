@@ -4,10 +4,10 @@ on:
       - master
   pull_request:
 
-name: Functional Testing
+name: Unit Testing
 jobs:
   chore:
-    name: Functional
+    name: Unit Tests
     runs-on: ubuntu-latest
     strategy:
       matrix:
