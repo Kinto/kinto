@@ -27,8 +27,6 @@ jobs:
           source .venv/bin/activate
           python --version
           pip --version
-          which python
-          which pip
 
       - name: make lint
         run: |
