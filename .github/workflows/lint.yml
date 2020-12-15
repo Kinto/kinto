@@ -21,14 +21,16 @@ jobs:
         run: |
           pip install virtualenv
           virtualenv --python=python3 .venv
-          source .venv/bin/activate
 
       - name: Print environment
         run: |
+          source .venv/bin/activate
           python --version
           pip --version
           which python
           which pip
 
       - name: make lint
-        run: make lint
+        run: |
+          source .venv/bin/activate
+          make lint
