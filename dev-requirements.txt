@@ -17,4 +17,4 @@ werkzeug==1.0.1
 wheel==0.35.1
 zest.releaser==6.22.1
 zope.sqlalchemy==1.3
-setuptools==50.3.2
+setuptools==51.1.0.post20201221
