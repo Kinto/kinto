@@ -83,7 +83,7 @@ Any issue with the |question label|_ is open for feedback, so feel free to
 share your thoughts with us!
 
 .. |question label| replace:: **question** label
-.. _`question label`: <https://github.com/Kinto/kinto/labels/question>
+.. _`question label`: https://github.com/Kinto/kinto/labels/question
 
 The best way to send feedback is to
 `file a new issue <https://github.com/Kinto/kinto/issues/new>`_ on GitHub.
