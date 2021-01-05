@@ -5,7 +5,7 @@ from pyramid import testing
 
 from kinto.core import utils
 from kinto.core.storage import MISSING, Filter, Sort, exceptions, heartbeat
-from kinto.core.testing import DummyRequest, ThreadMixin, skip_if_travis
+from kinto.core.testing import DummyRequest, ThreadMixin, skip_if_ci
 
 OBJECT_ID = "472be9ec-26fe-461b-8282-9c4e4b207ab3"
 
@@ -782,7 +782,7 @@ class TimestampsTest:
         after = self.storage.resource_timestamp(**self.storage_kw)
         self.assertTrue(before < after)
 
-    @skip_if_travis
+    @skip_if_ci
     def test_timestamps_are_unique(self):  # pragma: no cover
         obtained = []
 
