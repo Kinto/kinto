@@ -1,0 +1,34 @@
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+name: Lint
+jobs:
+  chore:
+    name: Lint and check format
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-python@v2
+        with:
+          python-version: "3.x"
+
+      - name: Install virtualenv
+        run: |
+          pip install virtualenv
+          virtualenv --python=python3 .venv
+
+      - name: Print environment
+        run: |
+          source .venv/bin/activate
+          python --version
+          pip --version
+
+      - name: make lint
+        run: |
+          source .venv/bin/activate
+          make lint
