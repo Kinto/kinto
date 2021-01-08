@@ -36,7 +36,7 @@ statsd==3.3.0
 transaction==3.0.0
 translationstring==1.4
 ujson==4.0.1
-urllib3==1.25.11
+urllib3==1.26.2
 venusian==3.0.0
 waitress==1.4.4
 WebOb==1.8.6
