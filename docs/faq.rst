@@ -53,7 +53,7 @@ Language                     Python  Node.js                  Erlang   Node.js N
 
 You can also read `a longer explanation of our choices and motivations behind the
 creation of Kinto 
-<https://web.archive.org/web/20171123111009/http://www.servicedenuages.fr/en/generic-storage-ecosystem>`_
+<https://mozilla-services.github.io/servicedenuages.fr/en/generic-storage-ecosystem>`_
 on our blog.
 
 Why the name «Kinto»?

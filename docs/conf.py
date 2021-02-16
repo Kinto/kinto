@@ -130,7 +130,7 @@ nitpick_ignore = [
 extlinks = {
     "github": ("https://github.com/%s/", ""),
     "rtd": ("https://%s.readthedocs.io", ""),
-    "blog": ("https://web.archive.org/web/20171023004729/http://www.servicedenuages.fr/en/%s", "")
+    "blog": ("https://mozilla-services.github.io/servicedenuages.fr/en/%s", "")
 }
 
 

@@ -16,4 +16,4 @@ With Kinto, your records can have a text field that stores the encrypted attribu
 The client will encrypt the payload before sending to the server, and decrypt it upon reception.
 
 See the `online demo <https://michielbdejong.github.io/kinto-encryption-example/>`_ that leverages
-kinto.js and WebCrypto, and read `the complete tutorial <https://web.archive.org/web/20171123111009if_/http://www.servicedenuages.fr/en/kinto-encryption-example>`_!
+kinto.js and WebCrypto, and read `the complete tutorial <https://mozilla-services.github.io/servicedenuages.fr/en/generic-storage-ecosystem>`_!
