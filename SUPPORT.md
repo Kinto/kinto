@@ -2,7 +2,7 @@
 
 If you're looking for support for Kinto there are a lot of options, check out:
 
-* Team blog - http://www.servicedenuages.fr/en
+* Team blog (archive) - https://web.archive.org/web/20171023004729if_/http://www.servicedenuages.fr/en/
 * Stack Overflow &mdash;  [questions tagged kinto on Stack Overflow](http://stackoverflow.com/questions/tagged/kinto)
 * IRC &mdash; join `#kinto` on `irc.freenode.net` ([webclient](https://kiwiirc.com/client/irc.freenode.net/?#kinto))
 * Slack &mdash; [Join the Kinto Slack team](https://slack.kinto-storage.org/)
