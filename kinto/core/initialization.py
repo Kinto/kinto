@@ -25,7 +25,7 @@ except ImportError:  # pragma: no cover
 try:
     from werkzeug.middleware.profiler import ProfilerMiddleware
 except ImportError:  # pragma: no cover
-    pass
+    ProfilerMiddleware = False
 
 
 logger = logging.getLogger(__name__)
