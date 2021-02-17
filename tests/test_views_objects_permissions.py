@@ -79,7 +79,9 @@ class CollectionPermissionsTest(PermissionsTest):
         }
         self.app.put_json("/buckets/beer", bucket, headers=self.headers)
         self.app.put_json(
-            "/buckets/beer/collections/barley", MINIMALIST_COLLECTION, headers=self.headers,
+            "/buckets/beer/collections/barley",
+            MINIMALIST_COLLECTION,
+            headers=self.headers,
         )
 
     def test_passing_unicode_on_parent_id_is_supported(self):
@@ -115,7 +117,9 @@ class CollectionPermissionsTest(PermissionsTest):
         self.app.get("/buckets/beer/collections/barley'", headers=self.headers, status=400)
         # XXX: We should validate the collection ID on the records collection endpoint. #1077
         self.app.get(
-            "/buckets/beer/collections/barley'/records", headers=self.headers, status=404,
+            "/buckets/beer/collections/barley'/records",
+            headers=self.headers,
+            status=404,
         )
 
         self.app.get("/buckets/beer/groups/barley'", headers=self.headers, status=400)
@@ -156,7 +160,10 @@ class GroupPermissionsTest(PermissionsTest):
 
     def test_creation_is_forbidden_is_no_write_on_bucket(self):
         self.app.post_json(
-            "/buckets/beer/groups", MINIMALIST_GROUP, headers=self.alice_headers, status=403,
+            "/buckets/beer/groups",
+            MINIMALIST_GROUP,
+            headers=self.alice_headers,
+            status=403,
         )
 
 
@@ -346,7 +353,9 @@ class ParentMetadataTest(PermissionsTest):
 
     def test_list_is_denied_if_not_allowed_to_create(self):
         self.app.get(
-            "/buckets/beer/collections", headers=get_user_headers("jean:paul"), status=403,
+            "/buckets/beer/collections",
+            headers=get_user_headers("jean:paul"),
+            status=403,
         )
         self.app.get(
             "/buckets/beer/collections/barley/records",
@@ -385,10 +394,12 @@ class DisabledExplicitPermissionsTest(BaseWebTest, unittest.TestCase):
 
     def test_can_create_and_access_child_object(self):
         self.app.put(
-            "/buckets/write/collections/test/records/1", headers=self.alice_headers,
+            "/buckets/write/collections/test/records/1",
+            headers=self.alice_headers,
         )
         self.app.get(
-            "/buckets/write/collections/test/records/1", headers=self.alice_headers,
+            "/buckets/write/collections/test/records/1",
+            headers=self.alice_headers,
         )
 
     def test_current_user_is_not_added_to_object_permissions(self):
@@ -404,7 +415,8 @@ class DisabledExplicitPermissionsTest(BaseWebTest, unittest.TestCase):
 
     def test_child_objects_are_not_listed_in_permission_endpoint(self):
         self.app.put(
-            "/buckets/write/collections/test/records/1", headers=self.alice_headers,
+            "/buckets/write/collections/test/records/1",
+            headers=self.alice_headers,
         )
 
         resp = self.app.get("/permissions", headers=self.alice_headers)
@@ -433,5 +445,7 @@ class DisabledExplicitPermissionsTest(BaseWebTest, unittest.TestCase):
         )
 
         self.app.post_json(
-            "/buckets/viagroup/collections/c/records", {}, headers=self.alice_headers,
+            "/buckets/viagroup/collections/c/records",
+            {},
+            headers=self.alice_headers,
         )
