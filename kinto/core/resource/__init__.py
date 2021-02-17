@@ -222,6 +222,7 @@ class Resource:
             )
 
     @reify
+    @property
     def id_generator(self):
         # ID generator by resource name in settings.
         default_id_generator = self.request.registry.id_generators[""]
@@ -230,6 +231,7 @@ class Resource:
         return id_generator
 
     @reify
+    @property
     def timestamp(self):
         """Return the current resource timestamp.
 
@@ -250,6 +252,7 @@ class Resource:
             raise http_error(HTTPServiceUnavailable(), errno=ERRORS.BACKEND, message=error_msg)
 
     @reify
+    @property
     def object_id(self):
         """Return the object id for this request. It's either in the match dict
         or in the posted body.
