@@ -52,7 +52,8 @@ Language                     Python  Node.js                  Erlang   Node.js N
        a procol) but makes it easy to start with JavaScript and Node.js.
 
 You can also read `a longer explanation of our choices and motivations behind the
-creation of Kinto <http://www.servicedenuages.fr/en/generic-storage-ecosystem>`_
+creation of Kinto 
+<https://mozilla-services.github.io/servicedenuages.fr/en/generic-storage-ecosystem>`_
 on our blog.
 
 Why the name «Kinto»?
@@ -75,7 +76,7 @@ Can I encrypt my data?
 
 Kinto server stores any data you pass to it, whether it's encrypted or not. We believe
 encryption should always be done on the client-side, and we make it `easy to use encryption in our Kinto.js client
-<http://www.servicedenuages.fr/en/kinto-encryption-example>`_.
+<https://mozilla-services.github.io/servicedenuages.fr/en/kinto-encryption-example>`_.
 
 
 Is there a package for my Operating System?
