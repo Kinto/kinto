@@ -121,7 +121,7 @@ maintainer-clean: distclean
 	rm -fr .venv/ .tox/ kinto/plugins/admin/build/ kinto/plugins/admin/node_modules/
 
 docs: install-docs
-	$(VENV)/bin/sphinx-build -a -W -n -b html -d $(SPHINX_BUILDDIR)/doctrees docs $(SPHINX_BUILDDIR)/html
+	$(VENV)/bin/sphinx-build -a -n -b html -d $(SPHINX_BUILDDIR)/doctrees docs $(SPHINX_BUILDDIR)/html
 	@echo
 	@echo "Build finished. The HTML pages are in $(SPHINX_BUILDDIR)/html/index.html"
 
