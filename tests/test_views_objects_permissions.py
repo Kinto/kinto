@@ -378,12 +378,10 @@ class DisabledExplicitPermissionsTest(BaseWebTest, unittest.TestCase):
 
     def test_can_create_and_access_child_object(self):
         self.app.put(
-            "/buckets/write/collections/test/records/1",
-            headers=self.alice_headers,
+            "/buckets/write/collections/test/records/1", headers=self.alice_headers,
         )
         self.app.get(
-            "/buckets/write/collections/test/records/1",
-            headers=self.alice_headers,
+            "/buckets/write/collections/test/records/1", headers=self.alice_headers,
         )
 
     def test_current_user_is_not_added_to_object_permissions(self):
@@ -398,8 +396,7 @@ class DisabledExplicitPermissionsTest(BaseWebTest, unittest.TestCase):
 
     def test_child_objects_are_not_listed_in_permission_endpoint(self):
         self.app.put(
-            "/buckets/write/collections/test/records/1",
-            headers=self.alice_headers,
+            "/buckets/write/collections/test/records/1", headers=self.alice_headers,
         )
 
         resp = self.app.get("/permissions", headers=self.alice_headers)
@@ -413,13 +410,7 @@ class DisabledExplicitPermissionsTest(BaseWebTest, unittest.TestCase):
     def test_write_via_groups(self):
         self.app.put_json(
             "/buckets/viagroup",
-            {
-                "permissions": {
-                    "write": [
-                        self.principal,
-                    ]
-                }
-            },
+            {"permissions": {"write": [self.principal]}},
             headers=self.headers,
         )
         self.app.put_json(
@@ -434,7 +425,5 @@ class DisabledExplicitPermissionsTest(BaseWebTest, unittest.TestCase):
         )
 
         self.app.post_json(
-            "/buckets/viagroup/collections/c/records",
-            {},
-            headers=self.alice_headers,
+            "/buckets/viagroup/collections/c/records", {}, headers=self.alice_headers,
         )
