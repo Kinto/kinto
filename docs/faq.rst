@@ -76,7 +76,7 @@ Can I encrypt my data?
 
 Kinto server stores any data you pass to it, whether it's encrypted or not. We believe
 encryption should always be done on the client-side, and we make it `easy to use encryption in our Kinto.js client
-<https://web.archive.org/web/20171123111009if_/http://www.servicedenuages.fr/en/kinto-encryption-example>`_.
+<https://mozilla-services.github.io/servicedenuages.fr/en/kinto-encryption-example>`_.
 
 
 Is there a package for my Operating System?
