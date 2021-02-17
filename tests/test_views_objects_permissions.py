@@ -19,12 +19,10 @@ class PermissionsTest(BaseWebTest, unittest.TestCase):
         cls.bob_headers = {**cls.headers, **get_user_headers("bob")}
 
         cls.alice_principal = (
-            "basicauth:d5b0026601f1b251974e09548d44155e16"
-            "812e3c64ff7ae053fe3542e2ca1570"
+            "basicauth:d5b0026601f1b251974e09548d44155e16812e3c64ff7ae053fe3542e2ca1570"
         )
         cls.bob_principal = (
-            "basicauth:c031ced27503f788b102ca54269a062ec737"
-            "94bb075154c74a0d4311e74ca8b6"
+            "basicauth:c031ced27503f788b102ca54269a062ec73794bb075154c74a0d4311e74ca8b6"
         )
 
 
@@ -37,9 +35,7 @@ class BucketPermissionsTest(PermissionsTest):
         self.app.put_json("/buckets/beer", MINIMALIST_BUCKET, headers=self.headers)
 
     def test_current_user_receives_write_permission_on_creation(self):
-        resp = self.app.put_json(
-            "/buckets/beer", MINIMALIST_BUCKET, headers=self.headers
-        )
+        resp = self.app.put_json("/buckets/beer", MINIMALIST_BUCKET, headers=self.headers)
         permissions = resp.json["permissions"]
         self.assertIn(self.principal, permissions["write"])
 
@@ -68,15 +64,10 @@ class BucketPermissionsTest(PermissionsTest):
     def test_can_post_existing_id_if_can_read(self):
         self.app.patch_json(
             "/buckets/sodas",
-            {
-                "data": {"marker": True},
-                "permissions": {"read": ["system.Authenticated"]},
-            },
+            {"data": {"marker": True}, "permissions": {"read": ["system.Authenticated"]}},
             headers=self.headers,
         )
-        resp = self.app.post_json(
-            "/buckets", {"data": {"id": "sodas"}}, headers=self.bob_headers
-        )
+        resp = self.app.post_json("/buckets", {"data": {"id": "sodas"}}, headers=self.bob_headers)
         assert resp.json["data"]["marker"]
 
 
@@ -84,16 +75,11 @@ class CollectionPermissionsTest(PermissionsTest):
     def setUp(self):
         bucket = {
             **MINIMALIST_BUCKET,
-            "permissions": {
-                "read": [self.alice_principal],
-                "write": [self.bob_principal],
-            },
+            "permissions": {"read": [self.alice_principal], "write": [self.bob_principal]},
         }
         self.app.put_json("/buckets/beer", bucket, headers=self.headers)
         self.app.put_json(
-            "/buckets/beer/collections/barley",
-            MINIMALIST_COLLECTION,
-            headers=self.headers,
+            "/buckets/beer/collections/barley", MINIMALIST_COLLECTION, headers=self.headers,
         )
 
     def test_passing_unicode_on_parent_id_is_supported(self):
@@ -123,19 +109,13 @@ class CollectionPermissionsTest(PermissionsTest):
 
     def test_permission_backend_prevent_sql_injections(self):
         self.app.get("/buckets/beer'", headers=self.headers, status=403)
-        self.app.get(
-            "/buckets/beer'/collections/barley", headers=self.headers, status=403
-        )
+        self.app.get("/buckets/beer'/collections/barley", headers=self.headers, status=403)
         self.app.get("/buckets/beer'/groups/barley", headers=self.headers, status=403)
 
-        self.app.get(
-            "/buckets/beer/collections/barley'", headers=self.headers, status=400
-        )
+        self.app.get("/buckets/beer/collections/barley'", headers=self.headers, status=400)
         # XXX: We should validate the collection ID on the records collection endpoint. #1077
         self.app.get(
-            "/buckets/beer/collections/barley'/records",
-            headers=self.headers,
-            status=404,
+            "/buckets/beer/collections/barley'/records", headers=self.headers, status=404,
         )
 
         self.app.get("/buckets/beer/groups/barley'", headers=self.headers, status=400)
@@ -145,10 +125,7 @@ class GroupPermissionsTest(PermissionsTest):
     def setUp(self):
         bucket = {
             **MINIMALIST_BUCKET,
-            "permissions": {
-                "read": [self.alice_principal],
-                "write": [self.bob_principal],
-            },
+            "permissions": {"read": [self.alice_principal], "write": [self.bob_principal]},
         }
         self.app.put_json("/buckets/beer", bucket, headers=self.headers)
 
@@ -157,9 +134,7 @@ class GroupPermissionsTest(PermissionsTest):
         )
 
     def test_creation_is_allowed_if_write_on_bucket(self):
-        self.app.post_json(
-            "/buckets/beer/groups", MINIMALIST_GROUP, headers=self.headers
-        )
+        self.app.post_json("/buckets/beer/groups", MINIMALIST_GROUP, headers=self.headers)
 
     def test_read_is_allowed_if_read_on_bucket(self):
         self.app.get("/buckets/beer/groups/moderators", headers=self.alice_headers)
@@ -181,10 +156,7 @@ class GroupPermissionsTest(PermissionsTest):
 
     def test_creation_is_forbidden_is_no_write_on_bucket(self):
         self.app.post_json(
-            "/buckets/beer/groups",
-            MINIMALIST_GROUP,
-            headers=self.alice_headers,
-            status=403,
+            "/buckets/beer/groups", MINIMALIST_GROUP, headers=self.alice_headers, status=403,
         )
 
 
@@ -197,9 +169,7 @@ class RecordPermissionsTest(PermissionsTest):
             **MINIMALIST_COLLECTION,
             "permissions": {"write": [self.bob_principal]},
         }
-        self.app.put_json(
-            "/buckets/beer/collections/barley", collection, headers=self.headers
-        )
+        self.app.put_json("/buckets/beer/collections/barley", collection, headers=self.headers)
 
     def test_creation_is_allowed_if_write_on_bucket(self):
         self.app.post_json(
@@ -226,9 +196,7 @@ class RecordPermissionsTest(PermissionsTest):
 
     def test_record_permissions_are_modified_by_patch(self):
         collection_url = "/buckets/beer/collections/barley/records"
-        resp = self.app.post_json(
-            collection_url, MINIMALIST_RECORD, headers=self.headers
-        )
+        resp = self.app.post_json(collection_url, MINIMALIST_RECORD, headers=self.headers)
         record = resp.json["data"]
         resp = self.app.patch_json(
             "{}/{}".format(collection_url, record["id"]),
@@ -261,14 +229,10 @@ class ChildrenCreationTest(PermissionsTest):
                 MINIMALIST_GROUP,
                 headers=self.alice_headers,
             )
-        self.bob_headers_safe_creation = dict(
-            {"If-None-Match": "*"}, **self.bob_headers
-        )
+        self.bob_headers_safe_creation = dict({"If-None-Match": "*"}, **self.bob_headers)
 
     def test_cannot_read_others_objects_if_only_allowed_to_create(self):
-        self.app.get(
-            "/buckets/create/groups/child", headers=self.bob_headers, status=403
-        )
+        self.app.get("/buckets/create/groups/child", headers=self.bob_headers, status=403)
 
     def test_safe_creation_with_put_returns_412_if_allowed_to_create(self):
         self.app.put_json(
@@ -377,16 +341,12 @@ class ParentMetadataTest(PermissionsTest):
         self.assertEqual(len(resp.json["data"]), 1)
         self.assertEqual(resp.json["data"][0]["id"], "barley")
 
-        resp = self.app.get(
-            "/buckets/beer/collections/barley/records", headers=self.alice_headers
-        )
+        resp = self.app.get("/buckets/beer/collections/barley/records", headers=self.alice_headers)
         self.assertEqual(resp.json["data"], [])
 
     def test_list_is_denied_if_not_allowed_to_create(self):
         self.app.get(
-            "/buckets/beer/collections",
-            headers=get_user_headers("jean:paul"),
-            status=403,
+            "/buckets/beer/collections", headers=get_user_headers("jean:paul"), status=403,
         )
         self.app.get(
             "/buckets/beer/collections/barley/records",
@@ -434,12 +394,7 @@ class DisabledExplicitPermissionsTest(BaseWebTest, unittest.TestCase):
     def test_current_user_is_not_added_to_object_permissions(self):
         resp = self.app.put_json(
             "/buckets/write/collections/test/records/1",
-            {
-                "permissions": {
-                    "write": ["system.Authenticated"],
-                    "read": ["ldap:chantal"],
-                }
-            },
+            {"permissions": {"write": ["system.Authenticated"], "read": ["ldap:chantal"]}},
             headers=self.alice_headers,
         )
         self.assertEqual(
