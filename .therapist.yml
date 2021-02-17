@@ -1,6 +1,6 @@
 actions:
   black:
-    run: black --check {files}
+    run: black --check --diff {files}
     fix: black {files}
     include: "*.py"
     exclude:
