@@ -7,7 +7,7 @@
     "react-scripts": "^4.0.2"
   },
   "dependencies": {
-    "kinto-admin": "1.28.0",
+    "kinto-admin": "1.29.0",
     "babel-polyfill": "^6.23.0",
     "codemirror": "^5.59.2",
     "react": "^16.14.0",
