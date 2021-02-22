@@ -1,19 +1,21 @@
 {
   "name": "kwac",
-  "version": "1.28.0",
+  "version": "1.29.0",
   "private": true,
   "homepage": "http://localhost:8888/v1/admin/",
   "devDependencies": {
     "react-scripts": "^4.0.2"
   },
   "dependencies": {
-    "kinto-admin": "1.28.0",
     "babel-polyfill": "^6.23.0",
     "codemirror": "^5.59.3",
+    "kinto-admin": "1.29.0",
+    "lodash.isequalwith": "^4.4.0",
     "react": "^16.14.0",
     "react-dom": "^16.14.0",
     "react-router": "^5.2.0",
-    "redux": "^4.0.5"
+    "redux": "^4.0.5",
+    "typescript": "^4.1.5"
   },
   "scripts": {
     "start": "react-scripts start",
