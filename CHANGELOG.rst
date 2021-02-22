@@ -22,7 +22,7 @@ This document describes changes between each past release.
 - servicedenuages.fr domain is parked, replace links with web.archive.org (#2720)
 - Fix broken url in docs (#2692)
 
-**Docuemtation**
+**Documentation**
 
 - Show diff on failures. (#2723)
 - Add GitHub Actions workflows (#2677)
