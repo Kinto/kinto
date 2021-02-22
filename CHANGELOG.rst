@@ -16,14 +16,14 @@ This document describes changes between each past release.
 
 - Allow rotation of the user password hmac secret without rotating the default bucket id hmac secret. (#2647)
 
-**Internal changes**
+**Documentation**
 
-- Upgrade kinto-admin to v1.29.0
 - servicedenuages.fr domain is parked, replace links with web.archive.org (#2720)
 - Fix broken url in docs (#2692)
 
-**Documentation**
+**Internal changes**
 
+- Upgrade kinto-admin to v1.29.0
 - Show diff on failures. (#2723)
 - Add GitHub Actions workflows (#2677)
 
