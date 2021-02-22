@@ -3,12 +3,23 @@ Changelog
 
 This document describes changes between each past release.
 
-14.2.0 (unreleased)
+14.2.0 (2021-02-22)
 -------------------
 
 **New feature**
 
 - Allow rotation of the user password hmac secret without rotating the default bucket id hmac secret. (#2647)
+
+**Internal changes**
+
+- Upgrade kinto-admin to v1.29.0
+- servicedenuages.fr domain is parked, replace links with web.archive.org (#2720)
+- Fix broken url in docs (#2692)
+
+**Docuemtation**
+
+- Show diff on failures. (#2723)
+- Add GitHub Actions workflows (#2677)
 
 
 14.1.3 (2020-11-09)
