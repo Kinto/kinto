@@ -6,7 +6,7 @@ dockerflow==2020.10.0
 jsonpatch==1.28
 jsonschema==3.2.0
 logging-color-formatter==1.0.2
-newrelic==6.0.1.155
+newrelic==6.2.0.156
 psycopg2-binary==2.8.6
 pyramid==1.10.7
 pyramid-mailer==0.15.1
