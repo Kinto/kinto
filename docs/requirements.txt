@@ -6,4 +6,4 @@ kinto
 mock==4.0.3
 webtest==2.0.35
 cornice==5.1.0
-pyramid==1.10.7
+pyramid==2.0
