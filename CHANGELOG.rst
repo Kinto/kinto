@@ -6,7 +6,9 @@ This document describes changes between each past release.
 14.3.0 (unreleased)
 -------------------
 
-- Nothing changed yet.
+**Internal changes**
+
+- Replace ujson with simdjson for PostgreSQL storage backend, native json for memory storage backend. (#2677)
 
 
 14.2.0 (2021-02-22)
