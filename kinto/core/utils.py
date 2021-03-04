@@ -11,7 +11,7 @@ from enum import Enum
 from urllib.parse import unquote
 
 import jsonpatch
-import simdjson as json
+import ujson as json
 from colander import null
 from cornice import cors
 from pyramid import httpexceptions
@@ -33,7 +33,7 @@ except ImportError:  # pragma: no cover
 
 
 def json_serializer(v, **kw):
-    return json.dumps(v)
+    return json.dumps(v, escape_forward_slashes=False)
 
 
 def strip_whitespace(v):
