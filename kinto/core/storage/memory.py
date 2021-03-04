@@ -13,8 +13,7 @@ from kinto.core.storage import (
     StorageBase,
     exceptions,
 )
-from kinto.core.utils import COMPARISON, find_nested_value
-import json
+from kinto.core.utils import COMPARISON, find_nested_value, json
 
 
 def tree():
