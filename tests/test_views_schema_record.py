@@ -385,3 +385,23 @@ class BucketUnresolvableRecordSchema(BaseWebTestWithSchema, unittest.TestCase):
 
     def test_records_are_valid_if_match_schema(self):
         self.app.post_json(RECORDS_URL, {"data": {"title": "b"}}, headers=self.headers, status=400)
+
+
+class RecordsWithLargeNumbers(BaseWebTestWithSchema, unittest.TestCase):
+    def setUp(self):
+        super().setUp()
+        self.app.put_json(COLLECTION_URL, {"data": {"schema": SCHEMA}}, headers=self.headers)
+
+    def test_record_with_number_less_than_64_bits(self):
+        size = 2**63
+        self.app.post_json(RECORDS_URL,
+            {"data": {"title": "Very large file", "file": {"size": size}}}, 
+            headers=self.headers, status=201
+        )
+
+    def test_record_with_number_greater_than_64_bits(self):
+        size = 2**65
+        self.app.post_json(RECORDS_URL,
+            {"data": {"title": "Very large file", "file": {"size": size}}}, 
+            headers=self.headers, status=201
+        )
