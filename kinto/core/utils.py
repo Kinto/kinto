@@ -11,6 +11,7 @@ from enum import Enum
 from urllib.parse import unquote
 
 import jsonpatch
+import rapidjson
 from colander import null
 from cornice import cors
 from pyramid import httpexceptions
@@ -19,7 +20,6 @@ from pyramid.request import Request, apply_request_extensions
 from pyramid.security import Authenticated
 from pyramid.settings import aslist
 from pyramid.view import render_view_to_response
-import rapidjson
 
 try:
     import sqlalchemy
@@ -30,7 +30,6 @@ try:
     import memcache
 except ImportError:  # pragma: no cover
     memcache = None
-
 
 
 class json:
@@ -46,9 +45,9 @@ class json:
     def loads(v, **kw):
         return rapidjson.loads(v, number_mode=rapidjson.NM_NATIVE)
 
+
 json_deserializer = json.loads
 json_serializer = json.dumps
-
 
 
 def strip_whitespace(v):
