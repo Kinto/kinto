@@ -8,7 +8,7 @@ This document describes changes between each past release.
 
 **Internal changes**
 
-- Replace ujson with simdjson for PostgreSQL storage backend, native json for memory storage backend. (#2677)
+- Replace ujson with rapidjson. (#2677)
 
 
 14.2.0 (2021-02-22)

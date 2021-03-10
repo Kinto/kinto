@@ -11,7 +11,6 @@ from enum import Enum
 from urllib.parse import unquote
 
 import jsonpatch
-import simdjson as json
 from colander import null
 from cornice import cors
 from pyramid import httpexceptions
@@ -20,6 +19,7 @@ from pyramid.request import Request, apply_request_extensions
 from pyramid.security import Authenticated
 from pyramid.settings import aslist
 from pyramid.view import render_view_to_response
+import rapidjson
 
 try:
     import sqlalchemy
@@ -32,8 +32,23 @@ except ImportError:  # pragma: no cover
     memcache = None
 
 
-def json_serializer(v, **kw):
-    return json.dumps(v)
+
+class json:
+    def dump(v, **kw):
+        return rapidjson.dump(v, bytes_mode=rapidjson.BM_NONE)
+
+    def dumps(v, **kw):
+        return rapidjson.dumps(v, bytes_mode=rapidjson.BM_NONE)
+
+    def load(v, **kw):
+        return rapidjson.load(v, number_mode=rapidjson.NM_NATIVE)
+
+    def loads(v, **kw):
+        return rapidjson.loads(v, number_mode=rapidjson.NM_NATIVE)
+
+json_deserializer = json.loads
+json_serializer = json.dumps
+
 
 
 def strip_whitespace(v):
@@ -111,7 +126,7 @@ def native_value(value):
     """
     if isinstance(value, str):
         try:
-            parsed_value = json.loads(value)
+            parsed_value = json_deserializer(value)
             if parsed_value != math.inf:
                 value = parsed_value
         except ValueError:

@@ -1,4 +1,3 @@
-import json
 import numbers
 import operator
 import re
@@ -14,7 +13,7 @@ from kinto.core.storage import (
     StorageBase,
     exceptions,
 )
-from kinto.core.utils import COMPARISON, find_nested_value
+from kinto.core.utils import COMPARISON, find_nested_value, json
 
 
 def tree():
