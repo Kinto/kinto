@@ -33,9 +33,6 @@ except ImportError:  # pragma: no cover
 
 
 class json:
-    def dump(v, **kw):
-        return rapidjson.dump(v, bytes_mode=rapidjson.BM_NONE)
-
     def dumps(v, **kw):
         return rapidjson.dumps(v, bytes_mode=rapidjson.BM_NONE)
 
@@ -46,7 +43,6 @@ class json:
         return rapidjson.loads(v, number_mode=rapidjson.NM_NATIVE)
 
 
-json_deserializer = json.loads
 json_serializer = json.dumps
 
 
@@ -125,7 +121,7 @@ def native_value(value):
     """
     if isinstance(value, str):
         try:
-            parsed_value = json_deserializer(value)
+            parsed_value = json.loads(value)
             if parsed_value != math.inf:
                 value = parsed_value
         except ValueError:
