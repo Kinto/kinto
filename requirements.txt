@@ -3,12 +3,12 @@ colander==1.8.3
 cornice==5.1.0
 cornice-swagger==1.0.0
 dockerflow==2020.10.0
-jsonpatch==1.31
+jsonpatch==1.32
 jsonschema==3.2.0
 logging-color-formatter==1.0.2
 newrelic==6.2.0.156
 psycopg2-binary==2.8.6
-pyramid==2.0
+pyramid==1.10.8
 pyramid-mailer==0.15.1
 pyramid-multiauth==0.9.0
 pyramid-tm==2.4
