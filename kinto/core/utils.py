@@ -44,8 +44,8 @@ class json:
         return rapidjson.load(v, **kw)
 
     def loads(v, **kw):
-        if 'number_mode' not in kw:
-            kw['number_mode'] = rapidjson.NM_NATIVE
+        if "number_mode" not in kw:
+            kw["number_mode"] = rapidjson.NM_NATIVE
         return rapidjson.loads(v, **kw)
 
 
