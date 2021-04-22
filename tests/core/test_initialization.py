@@ -1,5 +1,5 @@
-from unittest import mock
 import warnings
+from unittest import mock
 
 import webtest
 from pyramid.config import Configurator
