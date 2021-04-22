@@ -1,4 +1,5 @@
 from unittest import mock
+import warnings
 
 import webtest
 from pyramid.config import Configurator
@@ -65,17 +66,19 @@ class InitializationTest(unittest.TestCase):
         self.assertEqual(config.registry.settings["settings_prefix"], "kinto")
 
     def test_warns_if_not_https(self):
-        with mock.patch("kinto.core.initialization.warnings.warn") as mocked:
+        error_msg = "HTTPS is not enabled"
+        with warnings.catch_warnings(record=True) as warns:
+            warnings.simplefilter("always")
+
             config = Configurator(
                 settings={"settings_prefix": "kinto", "kinto.http_scheme": "https"}
             )
             kinto.core.initialize(config, "0.0.1")
-            self.assertFalse(mocked.called)
+            self.assertFalse(any(error_msg in str(w.message) for w in warns))
 
             config = Configurator(settings={"kinto.http_scheme": "http"})
             kinto.core.initialize(config, "0.0.1")
-            error_msg = "HTTPS is not enabled"
-            mocked.assert_any_call(error_msg)
+            self.assertTrue(any(error_msg in str(w.message) for w in warns))
 
     def test_default_settings_are_overriden_if_specified_in_initialize(self):
         config = Configurator()
