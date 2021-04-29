@@ -176,7 +176,7 @@ class PermissionsSchema(colander.SchemaNode):
 
 
 class HeaderSchema(colander.MappingSchema):
-    """Base schema used for validating and deserializing request headers. """
+    """Base schema used for validating and deserializing request headers."""
 
     missing = colander.drop
 
