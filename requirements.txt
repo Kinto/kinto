@@ -16,7 +16,7 @@ python-dateutil==2.8.1
 python-memcached==1.59
 raven==6.10.0
 requests==2.25.1
-SQLAlchemy==1.4.9
+SQLAlchemy==1.4.11
 statsd==3.3.0
 transaction==3.0.1
 ujson==4.0.2
