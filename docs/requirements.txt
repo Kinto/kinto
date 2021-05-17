@@ -1,5 +1,5 @@
 docutils==0.16
-Sphinx==3.5.4
+Sphinx==4.0.1
 sphinx_rtd_theme==0.5.2
 sphinxcontrib-httpdomain==1.7.0
 kinto
