@@ -995,23 +995,17 @@ To do so, a setting key must be defined for the disabled resources endpoints::
 
 Where:
 
-- **endpoint_type** is either ``collection`` (plural, e.g. ``/buckets``) or ``record`` (single, e.g. ``/buckets/abc``);
+- **endpoint_type** is either ``plural`` (e.g. ``/buckets``) or ``object`` (e.g. ``/buckets/abc``);
 - **resource_name** is the name of the resource (e.g. ``bucket``, ``group``, ``collection``, ``record``);
 - **method** is the http method (in lower case) (e.g. ``get``, ``post``, ``put``, ``patch``, ``delete``).
-
-.. important::
-
-    These settings are confusing because of the naming used in ``kinto.core``.
-    Especially ``collection`` and ``record`` are endpoint types in ``kinto.core`` and resource names in Kinto.
-    We want to solve this in #710.
 
 For example, to disable the POST on the list of buckets and DELETE on single records, the
 following setting should be declared in the ``.ini`` file:
 
 .. code-block:: ini
 
-    kinto.collection_bucket_post_enabled = false
-    kinto.record_record_delete_enabled = false
+    kinto.plural_bucket_post_enabled = false
+    kinto.object_record_delete_enabled = false
 
 
 Activating the permissions endpoint
