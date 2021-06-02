@@ -6,7 +6,9 @@ This document describes changes between each past release.
 14.3.0 (unreleased)
 -------------------
 
-- Nothing changed yet.
+**Documentation**
+
+- Fix documentation about disabling endpoints (#2794)
 
 
 14.2.0 (2021-02-22)
