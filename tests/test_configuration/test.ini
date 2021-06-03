@@ -200,16 +200,14 @@ kinto.bucket_create_principals = account:admin
 # Enabling or disabling endpoints
 # https://kinto.readthedocs.io/en/latest/configuration/settings.html#enabling-or-disabling-endpoints
 #
-# This is a rather confusing setting due to naming conventions used in kinto.core
-# For a more in depth explanation, refer to https://github.com/Kinto/kinto/issues/710
 # kinto.endpoint_type_resource_name_method_enabled = false
 # Where:
-# endpoint_type: is either ``collection`` (plural, e.g. ``/buckets``) or ``record`` (single, e.g. ``/buckets/abc``);
+# endpoint_type: is either ``plural`` (e.g. ``/buckets``) or ``object`` (e.g. ``/buckets/abc``);
 # resource_name: is the name of the resource (e.g. ``bucket``, ``group``, ``collection``, ``record``);
 # method: is the http method (in lower case) (e.g. ``get``, ``post``, ``put``, ``patch``, ``delete``).
 # For example, to disable the POST on the list of buckets and DELETE on single records
-# kinto.collection_bucket_post_enabled = false
-# kinto.record_record_delete_enabled = false
+# kinto.plural_bucket_post_enabled = false
+# kinto.object_record_delete_enabled = false
 
 # [uwsgi]
 # wsgi-file = app.wsgi
