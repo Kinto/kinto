@@ -157,8 +157,8 @@ rst_epilog = """
 # --
 def setup(app):
     # path relative to _static
-    app.add_stylesheet("theme_overrides.css")
-    app.add_javascript("piwik.js")
+    app.add_css_file("theme_overrides.css")
+    app.add_js_file("piwik.js")
 
 
 # -- Options for intersphinx --------------------------------------------------
