@@ -34,18 +34,15 @@ except ImportError:  # pragma: no cover
 
 class json:
     def dumps(v, **kw):
-        if "bytes_mode" not in kw:
-            kw["bytes_mode"] = rapidjson.BM_NONE
+        kw.setdefault("bytes_mode", rapidjson.BM_NONE)
         return rapidjson.dumps(v, **kw)
 
     def load(v, **kw):
-        if "number_mode" not in kw:
-            kw["number_mode"] = rapidjson.NM_NATIVE
+        kw.setdefault("number_mode", rapidjson.NM_NATIVE)
         return rapidjson.load(v, **kw)
 
     def loads(v, **kw):
-        if "number_mode" not in kw:
-            kw["number_mode"] = rapidjson.NM_NATIVE
+        kw.setdefault("number_mode", rapidjson.NM_NATIVE)
         return rapidjson.loads(v, **kw)
 
 
