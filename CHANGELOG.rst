@@ -10,6 +10,10 @@ This document describes changes between each past release.
 
 - Fix documentation about disabling endpoints (#2794)
 
+**Internal changes**
+
+- Upgrade kinto-admin to v1.30.0
+
 
 14.2.0 (2021-02-22)
 -------------------
