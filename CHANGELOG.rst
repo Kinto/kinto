@@ -12,6 +12,7 @@ This document describes changes between each past release.
 
 **Internal changes**
 
+- Now compatible with Pyramid 2 (#2764)
 - Upgrade kinto-admin to v1.30.0
 
 
