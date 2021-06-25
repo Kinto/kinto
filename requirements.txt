@@ -7,7 +7,7 @@ jsonpatch==1.32
 jsonschema==3.2.0
 logging-color-formatter==1.0.2
 newrelic==6.4.1.158
-psycopg2-binary==2.8.6
+psycopg2-binary==2.9.1
 pyramid==2.0
 pyramid-mailer==0.15.1
 pyramid-multiauth==0.9.0
