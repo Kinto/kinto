@@ -478,7 +478,7 @@ class InvalidBodyTest(BaseWebTest, unittest.TestCase):
     def test_invalid_body_returns_json_formatted_error(self):
         self.maxDiff = None
         resp = self.app.post(self.plural_url, self.invalid_body, headers=self.headers, status=400)
-        error_msg = "Invalid JSON: Expected object or value"
+        error_msg = "Invalid JSON: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)"
         self.assertDictEqual(
             resp.json,
             {
@@ -505,12 +505,18 @@ class InvalidBodyTest(BaseWebTest, unittest.TestCase):
     def test_invalid_uft8_returns_400(self):
         body = '{"foo": "\\u0d1"}'
         resp = self.app.post(self.plural_url, body, headers=self.headers, status=400)
-        self.assertIn("Invalid JSON: Unexpected character in unicode escape", resp.json["message"])
+        self.assertIn(
+            "Invalid JSON: Invalid \\uXXXX escape: line 1 column 11 (char 10)",
+            resp.json["message"],
+        )
 
     def test_modify_with_invalid_uft8_returns_400(self):
         body = '{"foo": "\\u0d1"}'
         resp = self.app.patch(self.get_item_url(), body, headers=self.headers, status=400)
-        self.assertIn("Invalid JSON: Unexpected character in unicode escape", resp.json["message"])
+        self.assertIn(
+            "Invalid JSON: Invalid \\uXXXX escape: line 1 column 11 (char 10)",
+            resp.json["message"],
+        )
 
     def test_modify_with_empty_body_returns_400(self):
         self.app.patch(self.get_item_url(), headers=self.headers, status=400)
