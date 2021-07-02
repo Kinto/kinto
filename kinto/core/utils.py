@@ -11,7 +11,7 @@ from enum import Enum
 from urllib.parse import unquote
 
 import jsonpatch
-import ujson as json
+import rapidjson
 from colander import null
 from cornice import cors
 from pyramid import httpexceptions
@@ -32,8 +32,21 @@ except ImportError:  # pragma: no cover
     memcache = None
 
 
-def json_serializer(v, **kw):
-    return json.dumps(v, escape_forward_slashes=False)
+class json:
+    def dumps(v, **kw):
+        kw.setdefault("bytes_mode", rapidjson.BM_NONE)
+        return rapidjson.dumps(v, **kw)
+
+    def load(v, **kw):
+        kw.setdefault("number_mode", rapidjson.NM_NATIVE)
+        return rapidjson.load(v, **kw)
+
+    def loads(v, **kw):
+        kw.setdefault("number_mode", rapidjson.NM_NATIVE)
+        return rapidjson.loads(v, **kw)
+
+
+json_serializer = json.dumps
 
 
 def strip_whitespace(v):

@@ -6,7 +6,9 @@ This document describes changes between each past release.
 14.4.0 (unreleased)
 -------------------
 
-- Nothing changed yet.
+**Internal changes**
+
+- Replace ujson with rapidjson. (#2677)
 
 
 14.3.0 (2021-06-11)

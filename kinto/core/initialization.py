@@ -47,11 +47,11 @@ def setup_json_serializer(config):
     import requests
     import webob
 
-    # Monkey patch to use ujson
+    # Monkey patch to use rapidjson
     webob.request.json = utils.json
     requests.models.json = utils.json
 
-    # Override json renderer using ujson
+    # Override json renderer using rapidjson
     renderer = JSONRenderer(serializer=utils.json_serializer)
     config.add_renderer("ultrajson", renderer)  # See `kinto.core.Service`
 
