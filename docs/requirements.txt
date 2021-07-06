@@ -7,4 +7,4 @@ mock==4.0.3
 webtest==2.0.35
 cornice==5.2.0
 pyramid==1.10.8
-python-rapidjson==1.0
+python-rapidjson==1.4
