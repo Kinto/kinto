@@ -478,7 +478,7 @@ class InvalidBodyTest(BaseWebTest, unittest.TestCase):
     def test_invalid_body_returns_json_formatted_error(self):
         self.maxDiff = None
         resp = self.app.post(self.plural_url, self.invalid_body, headers=self.headers, status=400)
-        error_msg = "Invalid JSON: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)"
+        error_msg = "Invalid JSON: Parse error at offset 1: Missing a name for object member."
         self.assertDictEqual(
             resp.json,
             {
@@ -506,7 +506,7 @@ class InvalidBodyTest(BaseWebTest, unittest.TestCase):
         body = '{"foo": "\\u0d1"}'
         resp = self.app.post(self.plural_url, body, headers=self.headers, status=400)
         self.assertIn(
-            "Invalid JSON: Invalid \\uXXXX escape: line 1 column 11 (char 10)",
+            "Invalid JSON: Parse error at offset 9: Incorrect hex digit after \\u escape in string.",
             resp.json["message"],
         )
 
@@ -514,7 +514,7 @@ class InvalidBodyTest(BaseWebTest, unittest.TestCase):
         body = '{"foo": "\\u0d1"}'
         resp = self.app.patch(self.get_item_url(), body, headers=self.headers, status=400)
         self.assertIn(
-            "Invalid JSON: Invalid \\uXXXX escape: line 1 column 11 (char 10)",
+            "Invalid JSON: Parse error at offset 9: Incorrect hex digit after \\u escape in string.",
             resp.json["message"],
         )
 
