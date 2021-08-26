@@ -4,7 +4,7 @@ sphinx_rtd_theme==0.5.2
 sphinxcontrib-httpdomain==1.7.0
 kinto
 mock==4.0.3
-webtest==2.0.35
+webtest==3.0.0
 cornice==5.2.0
 pyramid==1.10.8
 python-rapidjson==1.4
