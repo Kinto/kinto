@@ -9,7 +9,7 @@ pytest-watch==4.2.0
 python-memcached==1.59
 swagger-spec-validator==2.7.3
 therapist==2.2.0
-tox==3.24.1
+tox==3.24.3
 WebTest==3.0.0
 wheel==0.37.0
 zest.releaser==6.22.1
