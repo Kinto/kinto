@@ -13,4 +13,4 @@ tox==3.24.3
 WebTest==3.0.0
 wheel==0.37.0
 zest.releaser==6.22.1
-zope.sqlalchemy==1.5
+zope.sqlalchemy==1.6
