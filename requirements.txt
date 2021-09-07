@@ -22,4 +22,4 @@ transaction==3.0.1
 python-rapidjson==1.4
 waitress==2.0.0
 Werkzeug==2.0.1
-zope.sqlalchemy==1.5
+zope.sqlalchemy==1.6
