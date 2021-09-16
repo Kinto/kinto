@@ -3,7 +3,7 @@ Changelog
 
 This document describes changes between each past release.
 
-14.4.0 (unreleased)
+14.4.0 (2021-09-16)
 -------------------
 
 **Internal changes**
