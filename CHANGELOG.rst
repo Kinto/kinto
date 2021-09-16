@@ -3,12 +3,17 @@ Changelog
 
 This document describes changes between each past release.
 
-14.4.0 (unreleased)
+14.4.0 (2021-09-16)
 -------------------
+
+**Documentation**
+
+- Fix "negociation" typo in docs/images/architecture.svg (#2813)
 
 **Internal changes**
 
 - Replace ujson with rapidjson. (#2677)
+- Upgrade kinto-admin to v1.30.2
 
 
 14.3.0 (2021-06-11)
