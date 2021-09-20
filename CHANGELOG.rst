@@ -3,10 +3,12 @@ Changelog
 
 This document describes changes between each past release.
 
-14.5.0 (unreleased)
+14.4.1 (2021-09-20)
 -------------------
 
-- Nothing changed yet.
+**Bug fixes**
+
+- Fix bundle of kinto-admin, using same versions of React as upstream package
 
 
 14.4.0 (2021-09-16)
