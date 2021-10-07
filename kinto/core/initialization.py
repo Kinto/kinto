@@ -74,6 +74,7 @@ def setup_version_redirection(config):
     settings = config.get_settings()
     redirect_enabled = settings["version_prefix_redirect_enabled"]
     version_prefix_redirection_enabled = asbool(redirect_enabled)
+    cache_seconds = int(settings["version_prefix_redirect_ttl_seconds"])
 
     route_prefix = config.route_prefix
     config.registry.route_prefix = route_prefix
@@ -91,7 +92,10 @@ def setup_version_redirection(config):
 
         querystring = request.url[(request.url.rindex(request.path) + len(request.path)) :]
         redirect = f"/{route_prefix}{request.path}{querystring}"
-        raise HTTPTemporaryRedirect(redirect)
+        resp = HTTPTemporaryRedirect(redirect)
+        if cache_seconds >= 0:
+            resp.cache_expires(cache_seconds)
+        raise resp
 
     # Disable the route prefix passed by the app.
     config.route_prefix = None

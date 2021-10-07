@@ -313,6 +313,13 @@ class RedirectViewTest(FormattedErrorMixin, BaseWebTest, unittest.TestCase):
         resp = self.app.options("/", headers=headers, status=200)
         self.assertIn("Access-Control-Allow-Origin", resp.headers)
 
+    def test_redirects_sends_cache_control_headers(self):
+        app = self.make_app({"version_prefix_redirect_ttl_seconds": 3600})
+        resp = app.get("/", status=307)
+        self.assertIn("Expires", resp.headers)
+        self.assertIn("Cache-Control", resp.headers)
+        self.assertEqual(resp.headers["Cache-Control"], "max-age=3600")
+
     def test_do_not_redirect_to_version_if_disabled_in_settings(self):
         # GET on the hello view.
         app = self.make_app({"version_prefix_redirect_enabled": False})
