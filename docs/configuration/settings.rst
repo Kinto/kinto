@@ -1064,27 +1064,30 @@ If set to ``0`` then the resource becomes uncacheable (``no-cache``).
 Project information
 ===================
 
-+---------------------------------------+--------------------------------------------+--------------------------------------------------------------------------+
-| Setting name                          | Default                                    | What does it do?                                                         |
-+=======================================+============================================+==========================================================================+
-| kinto.version_json_path               | ``./version.json``                         | Location of the file containing the information to be shown in the       |
-|                                       |                                            | :ref:`version endpoint <api-utilities-version>`.                         |
-+---------------------------------------+--------------------------------------------+--------------------------------------------------------------------------+
-| kinto.error_info_link                 | ``https://github.com/kinto/kinto/issues/`` | The HTTP link returned when uncaught errors are triggered on the server. |
-+---------------------------------------+--------------------------------------------+--------------------------------------------------------------------------+
-| kinto.project_docs                    | ``https://kinto.readthedocs.io``           | The URL where the documentation of the Kinto instance can be found. Will |
-|                                       |                                            | be returned in :ref:`the hello view <api-utilities>`.                    |
-+---------------------------------------+--------------------------------------------+--------------------------------------------------------------------------+
-| kinto.project_name                    | ``kinto``                                  | The name of your project (powered by Kinto)                              |
-+---------------------------------------+--------------------------------------------+--------------------------------------------------------------------------+
-| kinto.project_version                 | ``''``                                     | The version of the project. Will be returned in :ref:`the hello view     |
-|                                       |                                            | <api-utilities>`. By default, this is the major version of Kinto.        |
-+---------------------------------------+--------------------------------------------+--------------------------------------------------------------------------+
-| kinto.version_prefix_redirect_enabled | ``True``                                   | By default, all endpoints exposed by Kinto are prefixed by a             |
-|                                       |                                            | :ref:`version number <api-versioning>`. If this flag is enabled, the     |
-|                                       |                                            | server will redirect all requests not matching the supported version     |
-|                                       |                                            | to the supported one.                                                    |
-+---------------------------------------+--------------------------------------------+--------------------------------------------------------------------------+
++-------------------------------------------------+--------------------------------------------+--------------------------------------------------------------------------+
+| Setting name                                    | Default                                    | What does it do?                                                         |
++=================================================+============================================+==========================================================================+
+| kinto.version_json_path                         | ``./version.json``                         | Location of the file containing the information to be shown in the       |
+|                                                 |                                            | :ref:`version endpoint <api-utilities-version>`.                         |
++-------------------------------------------------+--------------------------------------------+--------------------------------------------------------------------------+
+| kinto.error_info_link                           | ``https://github.com/kinto/kinto/issues/`` | The HTTP link returned when uncaught errors are triggered on the server. |
++-------------------------------------------------+--------------------------------------------+--------------------------------------------------------------------------+
+| kinto.project_docs                              | ``https://kinto.readthedocs.io``           | The URL where the documentation of the Kinto instance can be found. Will |
+|                                                 |                                            | be returned in :ref:`the hello view <api-utilities>`.                    |
++-------------------------------------------------+--------------------------------------------+--------------------------------------------------------------------------+
+| kinto.project_name                              | ``kinto``                                  | The name of your project (powered by Kinto)                              |
++-------------------------------------------------+--------------------------------------------+--------------------------------------------------------------------------+
+| kinto.project_version                           | ``''``                                     | The version of the project. Will be returned in :ref:`the hello view     |
+|                                                 |                                            | <api-utilities>`. By default, this is the major version of Kinto.        |
++-------------------------------------------------+--------------------------------------------+--------------------------------------------------------------------------+
+| kinto.version_prefix_redirect_enabled           | ``True``                                   | By default, all endpoints exposed by Kinto are prefixed by a             |
+|                                                 |                                            | :ref:`version number <api-versioning>`. If this flag is enabled, the     |
+|                                                 |                                            | server will redirect all requests not matching the supported version     |
+|                                                 |                                            | to the supported one.                                                    |
++-------------------------------------------------+--------------------------------------------+--------------------------------------------------------------------------+
+| kinto.version_prefix_redirect_ttl_seconds       | ``-1``                                     | Seconds specified in cache control headers on version prefix redirects.  |
+|                                                 |                                            | Set to ``-1`` to disable, and ``0``  to send ``no-cache`` explicitly.    |
++-------------------------------------------------+--------------------------------------------+--------------------------------------------------------------------------+
 
 Example:
 

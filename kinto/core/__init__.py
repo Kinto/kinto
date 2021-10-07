@@ -83,6 +83,7 @@ DEFAULT_SETTINGS = {
     "project_version": "",
     "readonly": False,
     "retry_after_seconds": 30,
+    "version_prefix_redirect_ttl_seconds": -1,
     "settings_prefix": "",
     "statsd_backend": "kinto.core.statsd",
     "statsd_prefix": "kinto.core",

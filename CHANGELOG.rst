@@ -6,7 +6,9 @@ This document describes changes between each past release.
 14.5.0 (unreleased)
 -------------------
 
-- Nothing changed yet.
+**New feature**
+
+- Add ``kinto.version_prefix_redirect_ttl_seconds`` setting in order to send ``Cache-Control`` response headers on version prefix redirects (fixes #2874)
 
 
 14.4.1 (2021-09-20)
