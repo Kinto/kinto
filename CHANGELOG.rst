@@ -3,7 +3,7 @@ Changelog
 
 This document describes changes between each past release.
 
-14.5.1 (unreleased)
+14.5.1 (2021-10-18)
 -------------------
 
 **Bug fixes**
