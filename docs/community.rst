@@ -223,6 +223,41 @@ For example:
     .venv/bin/pip install -e ../cornice/
 
 
+Functional Tests
+----------------
+
+In a terminal, run an instance with the provided ``functional.ini`` configuration:
+
+::
+
+    make runkinto
+
+In another terminal, run the end-to-end tests with:
+
+::
+
+    make functional
+
+
+Browser Tests
+-------------
+
+Make sure the `geckodriver <https://github.com/mozilla/geckodriver/releases>`_ binary is available in your path.
+
+
+In a terminal, run an instance with the provided ``browser.ini`` configuration:
+
+::
+
+    kinto start --ini tests/browser.ini
+
+In another terminal, run the end-to-end tests with:
+
+::
+
+    make browser-test
+
+
 Cleaning your environment
 -------------------------
 
