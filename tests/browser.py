@@ -35,14 +35,11 @@ class BrowserTest(unittest.TestCase):
         resp.raise_for_status()
 
     def tearDown(self):
-        print(self.driver.page_source)
         self.driver.close()
 
     def test_admin_ui_renders_properly(self):
         base_url = urljoin(SERVER_URL, "/v1/admin/")
         self.driver.get(base_url)
-
-        print(self.driver.page_source)
 
         # Load auth page.
         header = self.driver.find_element(By.CSS_SELECTOR, ".content div > h1")
