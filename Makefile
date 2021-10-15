@@ -25,7 +25,7 @@ help:
 	@echo "  serve                       start the kinto server on default port"
 	@echo "  migrate                     run the kinto migrations"
 	@echo "  lint                        run the code linters"
-	@echo "  tests                       run all the tests with all the supported python interpreters (same as travis)"
+	@echo "  tests                       run all the tests with all the supported python interpreters (same as CI)"
 	@echo "  tdd                         run pytest-watch to rerun tests automatically on changes for tdd"
 	@echo "  tests-once  	             only run the tests once with the default python interpreter"
 	@echo "  functional                  run functional test against a real kinto"
