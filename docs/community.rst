@@ -244,6 +244,14 @@ Browser Tests
 
 Make sure the `geckodriver <https://github.com/mozilla/geckodriver/releases>`_ binary is available in your path.
 
+.. note::
+
+    If your installation of *Firefox* is custom, specify the path of its binary using an alias:
+
+    ::
+
+        alias geckodriver="geckodriver --binary /path/to/firefox"
+
 
 In a terminal, run an instance with the provided ``browser.ini`` configuration:
 
