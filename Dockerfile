@@ -1,5 +1,5 @@
 # Mozilla Kinto server
-FROM python:3.7-slim
+FROM python:3.10-slim
 
 RUN groupadd --gid 10001 app && \
     useradd --uid 10001 --gid 10001 --home /app --create-home app

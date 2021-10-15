@@ -1,4 +1,4 @@
-import collections
+import collections.abc as collections_abc
 import hashlib
 import hmac
 import os
@@ -172,7 +172,7 @@ def dict_subset(d, keys):
     for key in keys:
         if "." in key:
             field, subfield = key.split(".", 1)
-            if isinstance(d.get(field), collections.Mapping):
+            if isinstance(d.get(field), collections_abc.Mapping):
                 subvalue = dict_subset(d[field], [subfield])
                 result[field] = dict_merge(subvalue, result.get(field, {}))
             elif field in d:
@@ -188,7 +188,7 @@ def dict_merge(a, b):
     """Merge the two specified dicts"""
     result = dict(**b)
     for key, value in a.items():
-        if isinstance(value, collections.Mapping):
+        if isinstance(value, collections_abc.Mapping):
             value = dict_merge(value, result.setdefault(key, {}))
         result[key] = value
     return result
