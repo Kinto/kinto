@@ -23,6 +23,8 @@ jobs:
             python-version: "3.8"
           - toxenv: py39
             python-version: "3.9"
+          - toxenv: py10
+            python-version: "3.10"
 
     services:
       postgres:
