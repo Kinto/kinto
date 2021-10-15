@@ -13,8 +13,6 @@ jobs:
       matrix:
         toxenv: [py36, py37, py38, py38-raw, py39]
         include:
-          - toxenv: py36
-            python-version: "3.6"
           - toxenv: py37
             python-version: "3.7"
           - toxenv: py38
