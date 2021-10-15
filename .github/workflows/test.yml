@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        toxenv: [py36, py37, py38, py38-raw, py39]
+        toxenv: [py37, py38, py38-raw, py39]
         include:
           - toxenv: py37
             python-version: "3.7"
