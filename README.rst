@@ -1,7 +1,7 @@
 Kinto
 =====
 
-|coc| |gitter| |readthedocs| |pypi| |travis| |master-coverage|
+|coc| |gitter| |readthedocs| |pypi| |ci| |master-coverage|
 
 .. |coc| image:: https://img.shields.io/badge/%E2%9D%A4-code%20of%20conduct-blue.svg
     :target: https://github.com/Kinto/kinto/blob/master/CODE_OF_CONDUCT.md
@@ -10,8 +10,8 @@ Kinto
 .. |gitter| image:: https://badges.gitter.im/Kinto/kinto.svg
     :target: https://gitter.im/Kinto/kinto
 
-.. |travis| image:: https://travis-ci.org/Kinto/kinto.svg?branch=master
-    :target: https://travis-ci.org/Kinto/kinto
+.. |ci| image:: ![example branch parameter](https://github.com/Kinto/kinto/actions/workflows/test.yml/badge.svg?branch=master)
+    :target: https://github.com/Kinto/kinto/actions
 
 .. |readthedocs| image:: https://readthedocs.org/projects/kinto/badge/?version=latest
     :target: https://kinto.readthedocs.io/en/latest/
