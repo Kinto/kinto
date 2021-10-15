@@ -11,18 +11,18 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        toxenv: [py36, py36-raw, py37, py38, py39]
+        toxenv: [py37, py38, py38-raw, py39]
         include:
-          - toxenv: py36
-            python-version: "3.6"
-          - toxenv: py36-raw
-            python-version: "3.6"
           - toxenv: py37
             python-version: "3.7"
           - toxenv: py38
             python-version: "3.8"
+          - toxenv: py38-raw
+            python-version: "3.8"
           - toxenv: py39
             python-version: "3.9"
+          - toxenv: py10
+            python-version: "3.10"
 
     services:
       postgres:
