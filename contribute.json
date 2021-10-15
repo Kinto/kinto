@@ -4,7 +4,7 @@
   "repository": {
     "url": "https://github.com/Kinto/kinto",
     "license": "Apache License (2.0)",
-    "tests": "https://travis-ci.org/Kinto/kinto"
+    "tests": "https://github.com/Kinto/kinto/actions"
   },
   "participate": {
     "home": "https://kinto.readthedocs.io/en/latest/community.html#how-to-contribute",
