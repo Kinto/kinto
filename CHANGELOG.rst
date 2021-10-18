@@ -13,6 +13,7 @@ This document describes changes between each past release.
 **Internal Changes**
 
 - Add Selenium tests to detect Admin UI packaging issues (#2880)
+- Add safety check in release hook to make sure the bundle version of `kinto-admin` matches the plugin package version (fixes #1562)
 
 
 14.5.0 (2021-10-08)
