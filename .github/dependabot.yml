@@ -43,3 +43,9 @@ updates:
   - dependency-name: react-scripts
     versions:
     - 4.0.0
+  - dependency-name: react
+    versions:
+    - 17.x
+  - dependency-name: react-dom
+    versions:
+    - 17.x
