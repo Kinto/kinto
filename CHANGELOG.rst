@@ -6,7 +6,13 @@ This document describes changes between each past release.
 14.5.1 (unreleased)
 -------------------
 
-- Nothing changed yet.
+**Bug fixes**
+
+- Fix bundle of kinto-admin, using same versions of React as upstream package #GroundhogDay
+
+**Internal Changes**
+
+- Add Selenium tests to detect Admin UI packaging issues (#2880)
 
 
 14.5.0 (2021-10-08)

@@ -29,6 +29,7 @@ help:
 	@echo "  tdd                         run pytest-watch to rerun tests automatically on changes for tdd"
 	@echo "  tests-once  	             only run the tests once with the default python interpreter"
 	@echo "  functional                  run functional test against a real kinto"
+	@echo "  browser-test                run browser test against a real kinto"
 	@echo "  clean                       remove *.pyc files and __pycache__ directory"
 	@echo "  distclean                   remove *.egg-info files and *.egg, build and dist directories"
 	@echo "  maintainer-clean            remove the .tox and the .venv directories"
@@ -108,6 +109,9 @@ runkinto: install-dev
 
 functional: install-dev need-kinto-running
 	$(VENV)/bin/py.test tests/functional.py
+
+browser-test: need-kinto-running
+	$(VENV)/bin/py.test tests/browser.py
 
 clean:
 	find . -name '*.pyc' -delete
