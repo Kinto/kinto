@@ -10,8 +10,7 @@ Before doing so, here are a few guidelines:
   our code.
 * A pull-request adding functionality should also update the documentation
   accordingly.
-* [Travis CI integration tests](https://travis-ci.org/Kinto/kinto) should be
-  green.
+* [CI integration tests](https://github.com/Kinto/kinto/actions) should be green.
 * If you're interested, you can also check the [contributing
   documentation](https://kinto.readthedocs.io/en/latest/community.html#how-to-contribute)
   guide which goes into more details.

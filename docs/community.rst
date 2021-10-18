@@ -203,7 +203,7 @@ Before we merge a pull request, we check that it meets these guidelines:
 
 1. The pull request should include tests.
 2. If the pull request adds functionality, the docs should be updated.
-3. *TravisCI* integration tests should be *green* :) It will make sure the tests
+3. *CI* integration tests should be *green* :) It will make sure the tests
    pass with `every supported version of Python <https://github.com/Kinto/kinto/blob/master/tox.ini#L2>`_.
 
 
@@ -221,6 +221,49 @@ For example:
     git clone https://github.com/mozilla-services/cornice.git
     cd kinto/
     .venv/bin/pip install -e ../cornice/
+
+
+Functional Tests
+----------------
+
+In a terminal, run an instance with the provided ``functional.ini`` configuration:
+
+::
+
+    make runkinto
+
+In another terminal, run the end-to-end tests with:
+
+::
+
+    make functional
+
+
+Browser Tests
+-------------
+
+Make sure the `geckodriver <https://github.com/mozilla/geckodriver/releases>`_ binary is available in your path.
+
+.. note::
+
+    If your installation of *Firefox* is custom, specify the path of its binary using an alias:
+
+    ::
+
+        alias geckodriver="geckodriver --binary /path/to/firefox"
+
+
+In a terminal, run an instance with the provided ``browser.ini`` configuration:
+
+::
+
+    kinto start --ini tests/browser.ini
+
+In another terminal, run the end-to-end tests with:
+
+::
+
+    make browser-test
 
 
 Cleaning your environment

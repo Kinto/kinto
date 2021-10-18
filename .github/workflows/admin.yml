@@ -7,7 +7,7 @@ on:
 name: Kinto Admin
 jobs:
   chore:
-    name: Build Kinto Admin
+    name: Kinto Admin
     runs-on: ubuntu-latest
 
     steps:
@@ -38,3 +38,26 @@ jobs:
         run: |
           source .venv/bin/activate
           make build-kinto-admin
+
+      - name: geckodriver/firefox
+        run: |
+          echo "geckodriver/firefox"
+          which geckodriver
+          geckodriver --version
+          which firefox
+          firefox --version
+
+      - name: Install dependencies
+        run: |
+          source .venv/bin/activate
+          make install-dev
+
+      - name: Start Kinto
+        run: |
+          source .venv/bin/activate
+          kinto start --ini tests/browser.ini & sleep 5
+
+      - name: Browser Tests
+        run: |
+          source .venv/bin/activate
+          make browser-test
