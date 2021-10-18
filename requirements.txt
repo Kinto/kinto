@@ -19,7 +19,7 @@ requests==2.26.0
 SQLAlchemy==1.4.25
 statsd==3.3.0
 transaction==3.0.1
-python-rapidjson==1.4
+python-rapidjson==1.5
 waitress==2.0.0
 Werkzeug==2.0.2
 zope.sqlalchemy==1.6
