@@ -37,6 +37,7 @@ Contributors
 * Greeshma <greeshmabalabadra@gmail.com>
 * Gabriela Surita <gabsurita@gmail.com>
 * George Smith <h3rmit@protonmail.com>
+* Graham Beckley <gbeckley@mozilla.com>
 * Greg Guthe <gguthe@mozilla.com>
 * Haseeb Majid <hmajid2301@gmail.com>
 * Heron Rossi <heron.rossi@hotmail.com>
