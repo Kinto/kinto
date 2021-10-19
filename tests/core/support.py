@@ -1,6 +1,7 @@
 from unittest import mock
 
-from pyramid.security import Authenticated, IAuthorizationPolicy
+from pyramid.authorization import Authenticated
+from pyramid.interfaces import IAuthorizationPolicy
 from zope.interface import implementer
 
 from kinto.core import testing

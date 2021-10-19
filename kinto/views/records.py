@@ -1,4 +1,4 @@
-from pyramid.security import Authenticated
+from pyramid.authorization import Authenticated
 from pyramid.settings import asbool
 
 from kinto.core import resource, utils
