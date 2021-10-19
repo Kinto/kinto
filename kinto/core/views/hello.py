@@ -1,5 +1,6 @@
 import colander
-from pyramid.security import NO_PERMISSION_REQUIRED, Authenticated
+from pyramid.authorization import Authenticated
+from pyramid.security import NO_PERMISSION_REQUIRED
 
 from kinto.core import Service
 

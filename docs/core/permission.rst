@@ -107,7 +107,7 @@ To do so, specify the ``get_bound_permissions`` of the *Kinto-Core* authorizatio
 .. code-block:: python
     :emphasize-lines: 7,8
 
-    from pyramid.security import IAuthorizationPolicy
+    from pyramid.interfaces import IAuthorizationPolicy
 
     def main(global_settings, **settings):
         ...
@@ -127,7 +127,7 @@ It is also possible to subclass the default :class:`kinto.core.authorization.Aut
 .. code-block:: python
 
     from kinto.core import authorization
-    from pyramid.security import IAuthorizationPolicy
+    from pyramid.interfaces import IAuthorizationPolicy
     from zope.interface import implementer
 
     @implementer(IAuthorizationPolicy)
@@ -245,7 +245,7 @@ For example, a simplistic example with the previous resource viewset:
 
 .. code-block:: python
 
-    from pyramid.security import IAuthorizationPolicy
+    from pyramid.interfaces import IAuthorizationPolicy
 
     class MyRootFactory:
         def __init__(self, request):

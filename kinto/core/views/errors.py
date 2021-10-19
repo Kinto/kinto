@@ -1,8 +1,9 @@
 import logging
 
 from pyramid import httpexceptions
+from pyramid.authorization import Authenticated
 from pyramid.httpexceptions import HTTPTemporaryRedirect
-from pyramid.security import NO_PERMISSION_REQUIRED, Authenticated, forget
+from pyramid.security import NO_PERMISSION_REQUIRED, forget
 from pyramid.settings import asbool
 from pyramid.view import view_config
 

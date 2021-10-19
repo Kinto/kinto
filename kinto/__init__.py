@@ -1,8 +1,8 @@
 import logging
 
 import pkg_resources
+from pyramid.authorization import Authenticated, Everyone
 from pyramid.config import Configurator
-from pyramid.security import Authenticated, Everyone
 from pyramid.settings import asbool
 
 import kinto.core

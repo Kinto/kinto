@@ -3,9 +3,9 @@ import uuid
 
 import colander
 from pyramid import httpexceptions
+from pyramid.authorization import Authenticated, Everyone
 from pyramid.decorator import reify
 from pyramid.events import subscriber
-from pyramid.security import Authenticated, Everyone
 from pyramid.settings import aslist
 
 from kinto.core import resource

@@ -1,6 +1,6 @@
 import unittest
 
-from pyramid.security import Authenticated
+from pyramid.authorization import Authenticated
 
 from kinto.core.testing import get_user_headers
 

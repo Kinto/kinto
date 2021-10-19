@@ -1,7 +1,8 @@
 import uuid
 
 from pyramid import httpexceptions
-from pyramid.security import NO_PERMISSION_REQUIRED, Authenticated
+from pyramid.authorization import Authenticated
+from pyramid.security import NO_PERMISSION_REQUIRED
 from pyramid.settings import asbool
 
 from kinto.authorization import RouteFactory

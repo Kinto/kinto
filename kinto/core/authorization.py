@@ -1,7 +1,8 @@
 import functools
 import logging
 
-from pyramid.security import Authenticated, IAuthorizationPolicy
+from pyramid.authorization import Authenticated
+from pyramid.interfaces import IAuthorizationPolicy
 from pyramid.settings import aslist
 from zope.interface import implementer
 

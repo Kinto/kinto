@@ -7,6 +7,7 @@ from uuid import uuid4
 import colander
 import venusian
 from pyramid import exceptions as pyramid_exceptions
+from pyramid.authorization import Everyone
 from pyramid.decorator import reify
 from pyramid.httpexceptions import (
     HTTPNotFound,
@@ -14,7 +15,6 @@ from pyramid.httpexceptions import (
     HTTPPreconditionFailed,
     HTTPServiceUnavailable,
 )
-from pyramid.security import Everyone
 from pyramid.settings import asbool
 
 from kinto.core import Service
