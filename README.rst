@@ -10,7 +10,7 @@ Kinto
 .. |gitter| image:: https://badges.gitter.im/Kinto/kinto.svg
     :target: https://gitter.im/Kinto/kinto
 
-.. |ci| image:: ![example branch parameter](https://github.com/Kinto/kinto/actions/workflows/test.yml/badge.svg?branch=master)
+.. |ci| image:: https://github.com/Kinto/kinto/actions/workflows/test.yml/badge.svg
     :target: https://github.com/Kinto/kinto/actions
 
 .. |readthedocs| image:: https://readthedocs.org/projects/kinto/badge/?version=latest
