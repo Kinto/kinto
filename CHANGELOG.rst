@@ -10,6 +10,10 @@ This document describes changes between each past release.
 
 - Now send ``Cache-Control`` response headers on trailing slash redirects. See ``kinto.trailing_slash_redirect_ttl_seconds`` setting.
 
+**Documentation**
+
+- Fix query params typo in docs/tutorials/synchronisation.rst
+
 
 14.5.1 (2021-10-18)
 -------------------
