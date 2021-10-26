@@ -26,6 +26,7 @@ use = egg:kinto
 # kinto.experimental_permissions_endpoint = false
 #
 # kinto.trailing_slash_redirect_enabled = true
+# kinto.trailing_slash_redirect_ttl_seconds = 3600
 # kinto.heartbeat_timeout_seconds = 10
 
 # Plugins

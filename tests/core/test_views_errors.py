@@ -359,6 +359,19 @@ class TrailingSlashRedirectViewTest(FormattedErrorMixin, BaseWebTest, unittest.T
         self.assertEqual(response.status_int, 307)
         self.assertIn("default-src 'none'", response.headers["Content-Security-Policy"])
 
+    def test_does_contain_cache_control(self):
+        response = self.app.get("")
+        self.assertEqual(response.status_int, 307)
+        self.assertIn("Expires", response.headers)
+        self.assertIn("Cache-Control", response.headers)
+        self.assertEqual(response.headers["Cache-Control"], "max-age=3600")
+
+    def test_redirects_cache_control_headers_can_be_disabled(self):
+        app = self.make_app({"trailing_slash_redirect_ttl_seconds": -1})
+        response = app.get("")
+        self.assertEqual(response.status_int, 307)
+        self.assertNotIn("Expires", response.headers)
+
     def test_it_redirects_if_it_ends_with_a__slash_(self):
         response = self.app.get("/mushrooms/")
         self.assertEqual(response.status_int, 307)

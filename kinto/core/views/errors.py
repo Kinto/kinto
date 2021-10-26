@@ -64,7 +64,11 @@ def page_not_found(response, request):
             redirect = f"/{request.registry.route_prefix}/{querystring}"
 
         if redirect:
-            return reapply_cors(request, HTTPTemporaryRedirect(redirect))
+            resp = HTTPTemporaryRedirect(redirect)
+            cache_seconds = int(request.registry.settings["trailing_slash_redirect_ttl_seconds"])
+            if cache_seconds >= 0:
+                resp.cache_expires(cache_seconds)
+            return reapply_cors(request, resp)
 
     if response.content_type != "application/json":
         response = http_error(httpexceptions.HTTPNotFound(), errno=errno, message=error_msg)
