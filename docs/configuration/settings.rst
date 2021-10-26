@@ -70,6 +70,9 @@ Feature settings
 |                                                 |              | endpoint: ``/v1`` redirects to ``/v1/`` and ``/buckets/default/``         |
 |                                                 |              | to ``/buckets/default``. No redirections are made when turned off.        |
 +-------------------------------------------------+--------------+---------------------------------------------------------------------------+
+| kinto.trailing_slash_redirect_ttl_seconds       | ``3600``     | Seconds specified in cache control headers on trailing slash redirects.   |
+|                                                 |              | Set to ``-1`` to disable, and ``0``  to send ``no-cache`` explicitly.     |
++-------------------------------------------------+--------------+---------------------------------------------------------------------------+
 | kinto.heartbeat_timeout_seconds                 | ``10``       | The maximum duration of each heartbeat entry, in seconds.                 |
 +-------------------------------------------------+--------------+---------------------------------------------------------------------------+
 

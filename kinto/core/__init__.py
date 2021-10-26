@@ -98,6 +98,7 @@ DEFAULT_SETTINGS = {
     "version_json_path": "version.json",
     "version_prefix_redirect_enabled": True,
     "trailing_slash_redirect_enabled": True,
+    "trailing_slash_redirect_ttl_seconds": 3600,
     "multiauth.groupfinder": "kinto.core.authorization.groupfinder",
     "multiauth.policies": "",
     "multiauth.policy.basicauth.use": (

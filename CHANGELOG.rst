@@ -3,6 +3,14 @@ Changelog
 
 This document describes changes between each past release.
 
+14.6.0 (unreleased)
+-------------------
+
+**New features**
+
+- Now send ``Cache-Control`` response headers on trailing slash redirects. See ``kinto.trailing_slash_redirect_ttl_seconds`` setting.
+
+
 14.5.1 (2021-10-18)
 -------------------
 
