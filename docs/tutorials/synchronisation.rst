@@ -69,7 +69,7 @@ Strategy #1 — Oldest first
 The simplest way to obtain the changes is to sort the records by timestamp
 ascending.
 
-We will use ``sort=last_modified`` and ``_since=<timestamp>``:
+We will use ``_sort=last_modified`` and ``_since=<timestamp>``:
 
 #. First sync: ``timestamp := 0``
 #. Next sync: ``timestamp := MAX(local_records['last_modified'])``
@@ -94,7 +94,7 @@ In order to populate a UI, it might be relevant to obtain the latest changes fir
 Syncing newest records first is a bit more complex since changes can occur between
 the retrieval of the first and the last pages.
 
-We will use ``sort=-last_modified`` (desc), ``_before`` to omit later changes,
+We will use ``_sort=-last_modified`` (desc), ``_before`` to omit later changes,
 and ``_since`` to include changes after last sync:
 
 #. First sync: ``timestamp := 0``

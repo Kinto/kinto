@@ -59,6 +59,7 @@ Contributors
 * Masataka Takeuchi <masataka.takeuchi@l-is-b.com>
 * Mathieu Agopian <mathieu@agopian.info>
 * Mathieu Leplatre <mathieu@mozilla.com>
+* Matt Boris <mboris@mozilla.com>
 * Maxime Warnier <marmax@gmail.com>
 * Michael Charlton <m.charlton@mac.com>
 * Michiel de Jong <michiel@unhosted.org>
