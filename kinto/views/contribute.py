@@ -33,5 +33,5 @@ def contribute_get(request):
             "irc": "irc://irc.freenode.net/#kinto",
         },
         "keywords": ["JSON", "Python", "Offline", "Sync", "Storage"],
-        "urls": {"dev": "https://kinto.dev.mozaws.net/v1/"},
+        "urls": {"dev": "https://demo.kinto-storage.org/v1/"},
     }

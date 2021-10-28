@@ -67,7 +67,7 @@ Using the `httpie <http://httpie.org>`_ tool, it is as simple as:
 .. code-block:: shell
 
     $ echo '{"data": {"password": "s3cr3t"}}' | \
-        http PUT https://kinto.dev.mozaws.net/v1/accounts/bob -v
+        http PUT https://demo.kinto-storage.org/v1/accounts/bob -v
 
 .. code-block:: http
 
@@ -104,7 +104,7 @@ Using the `httpie <http://httpie.org>`_ tool, it is as simple as:
 
     If this fails on your server, this means your server is not configured with the accounts feature enabled.
     You can double check by having a look at the ``"capabilities"`` field in the
-    :ref:`root URL <api-utilities-hello>` (eg. ``https://kinto.dev.mozaws.net/v1/``).
+    :ref:`root URL <api-utilities-hello>` (eg. ``https://demo.kinto-storage.org/v1/``).
 
 
 Basic data storage APIs
@@ -116,7 +116,7 @@ Now that we have a user, we can authenticate and post a sample record in the
 .. code-block:: shell
 
     $ echo '{"data": {"description": "Write a tutorial explaining Kinto", "status": "todo"}}' | \
-        http POST https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks/records \
+        http POST https://demo.kinto-storage.org/v1/buckets/default/collections/tasks/records \
              -v --auth 'bob:s3cr3t'
 
 .. code-block:: http
@@ -159,7 +159,7 @@ Let us fetch our new collection of tasks:
 
 .. code-block:: shell
 
-    $ http GET https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks/records \
+    $ http GET https://demo.kinto-storage.org/v1/buckets/default/collections/tasks/records \
            -v --auth 'bob:s3cr3t'
 
 .. code-block:: http
@@ -196,7 +196,7 @@ We can also update one of our tasks using its ``id``:
 .. code-block:: shell
 
     $ echo '{"data": {"status": "doing"}}' | \
-         http PATCH https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks/records/a5f490b2-218e-4d71-ac5a-f046ae285c55 \
+         http PATCH https://demo.kinto-storage.org/v1/buckets/default/collections/tasks/records/a5f490b2-218e-4d71-ac5a-f046ae285c55 \
               -v  --auth 'bob:s3cr3t'
 
 .. code-block:: http
@@ -245,7 +245,7 @@ while we fetched the collection earlier - you kept a note, didn't you?):
 .. code-block:: shell
 
     $ echo '{"data": {"status": "done"}}' | \
-        http PATCH https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks/records/a5f490b2-218e-4d71-ac5a-f046ae285c55 \
+        http PATCH https://demo.kinto-storage.org/v1/buckets/default/collections/tasks/records/a5f490b2-218e-4d71-ac5a-f046ae285c55 \
             If-Match:'"1434641515332"' \
             -v  --auth 'bob:s3cr3t'
 
@@ -275,7 +275,7 @@ single record and merge attributes locally:
 
 .. code-block:: shell
 
-    $ http GET https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks/records/a5f490b2-218e-4d71-ac5a-f046ae285c55 \
+    $ http GET https://demo.kinto-storage.org/v1/buckets/default/collections/tasks/records/a5f490b2-218e-4d71-ac5a-f046ae285c55 \
            -v  --auth 'bob:s3cr3t'
 
 .. code-block:: http
@@ -324,7 +324,7 @@ record ``ETag`` value:
 .. code-block:: shell
 
     $ echo '{"data": {"status": "done"}}' | \
-        http PATCH https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks/records/a5f490b2-218e-4d71-ac5a-f046ae285c55 \
+        http PATCH https://demo.kinto-storage.org/v1/buckets/default/collections/tasks/records/a5f490b2-218e-4d71-ac5a-f046ae285c55 \
             If-Match:'"1436172229372"' \
             -v  --auth 'bob:s3cr3t'
 
@@ -358,7 +358,7 @@ You can also delete the record and use the same mechanism to avoid conflicts:
 
 .. code-block:: shell
 
-    $ http DELETE https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks/records/a5f490b2-218e-4d71-ac5a-f046ae285c55 \
+    $ http DELETE https://demo.kinto-storage.org/v1/buckets/default/collections/tasks/records/a5f490b2-218e-4d71-ac5a-f046ae285c55 \
            If-Match:'"1436172442466"' \
            -v  --auth 'bob:s3cr3t'
 
@@ -390,7 +390,7 @@ Just add the ``_since`` querystring filter, using the value of any ``ETag`` (or
 
 .. code-block:: shell
 
-    $ http GET https://kinto.dev.mozaws.net/v1/buckets/default/collections/tasks/records?_since="1434642603605" \
+    $ http GET https://demo.kinto-storage.org/v1/buckets/default/collections/tasks/records?_since="1434642603605" \
            -v  --auth 'bob:s3cr3t'
 
 .. code-block:: http
@@ -430,7 +430,7 @@ application-specific bucket called ``todo``.
 
 .. code-block:: shell
 
-    $ http PUT https://kinto.dev.mozaws.net/v1/buckets/todo \
+    $ http PUT https://demo.kinto-storage.org/v1/buckets/todo \
         -v --auth 'bob:s3cr3t'
 
 .. code-block:: http
@@ -467,7 +467,7 @@ authenticated users (i.e. ``system.Authenticated``):
 .. code-block:: shell
 
     $ echo '{"permissions": {"record:create": ["system.Authenticated"]}}' | \
-        http PUT https://kinto.dev.mozaws.net/v1/buckets/todo/collections/tasks \
+        http PUT https://demo.kinto-storage.org/v1/buckets/todo/collections/tasks \
             -v --auth 'bob:s3cr3t'
 
 .. code-block:: http
@@ -507,7 +507,7 @@ Now Alice can create a task in this collection:
 .. code-block:: shell
 
     $ echo '{"data": {"description": "Alice task", "status": "todo"}}' | \
-        http POST https://kinto.dev.mozaws.net/v1/buckets/todo/collections/tasks/records \
+        http POST https://demo.kinto-storage.org/v1/buckets/todo/collections/tasks/records \
         -v --auth 'alice:p4ssw0rd'
 
 .. code-block:: http
@@ -540,7 +540,7 @@ And Bob can also create a task:
 .. code-block:: shell
 
     $ echo '{"data": {"description": "Bob new task", "status": "todo"}}' | \
-        http POST https://kinto.dev.mozaws.net/v1/buckets/todo/collections/tasks/records \
+        http POST https://demo.kinto-storage.org/v1/buckets/todo/collections/tasks/records \
         -v --auth 'bob:s3cr3t'
 
 .. code-block:: http
@@ -577,7 +577,7 @@ permission on her records:
     $ echo '{"permissions": {
         "read": ["account:bob"]
     }}' | \
-    http PATCH https://kinto.dev.mozaws.net/v1/buckets/todo/collections/tasks/records/2fa91620-f4fa-412e-aee0-957a7ad2dc0e \
+    http PATCH https://demo.kinto-storage.org/v1/buckets/todo/collections/tasks/records/2fa91620-f4fa-412e-aee0-957a7ad2dc0e \
         -v --auth 'alice:p4ssw0rd'
 
 .. code-block:: http
@@ -613,7 +613,7 @@ If Bob wants to get the record list, he will get his records as well as Alice's 
 
 .. code-block:: shell
 
-    $ http GET https://kinto.dev.mozaws.net/v1/buckets/todo/collections/tasks/records \
+    $ http GET https://demo.kinto-storage.org/v1/buckets/todo/collections/tasks/records \
            -v --auth 'bob:s3cr3t'
 
 .. code-block:: http
@@ -654,7 +654,7 @@ bucket:
 .. code-block:: shell
 
     $ echo '{"permissions": {"group:create": ["system.Authenticated"]}}' | \
-        http PATCH https://kinto.dev.mozaws.net/v1/buckets/todo \
+        http PATCH https://demo.kinto-storage.org/v1/buckets/todo \
             -v --auth 'bob:s3cr3t'
 
 .. code-block:: http
@@ -690,7 +690,7 @@ Now Alice can create a group of her friends (Bob and Mary):
     $ echo '{"data": {
         "members": ["account:bob",
                     "account:mary"]
-    }}' | http PUT https://kinto.dev.mozaws.net/v1/buckets/todo/groups/alice-friends \
+    }}' | http PUT https://demo.kinto-storage.org/v1/buckets/todo/groups/alice-friends \
         -v --auth 'alice:p4ssw0rd'
 
 .. code-block:: http
@@ -729,7 +729,7 @@ Now Alice can share records directly with her group of friends:
             "read": ["/buckets/todo/groups/alice-friends"]
         }
     }' | \
-    http PATCH https://kinto.dev.mozaws.net/v1/buckets/todo/collections/tasks/records/2fa91620-f4fa-412e-aee0-957a7ad2dc0e \
+    http PATCH https://demo.kinto-storage.org/v1/buckets/todo/collections/tasks/records/2fa91620-f4fa-412e-aee0-957a7ad2dc0e \
         -v --auth 'alice:p4ssw0rd'
 
 .. code-block:: http
@@ -763,7 +763,7 @@ And now Mary can access the record:
 
 .. code-block:: shell
 
-    $ http GET https://kinto.dev.mozaws.net/v1/buckets/todo/collections/tasks/records/2fa91620-f4fa-412e-aee0-957a7ad2dc0e \
+    $ http GET https://demo.kinto-storage.org/v1/buckets/todo/collections/tasks/records/2fa91620-f4fa-412e-aee0-957a7ad2dc0e \
         -v --auth 'mary:wh1sp3r'
 
 

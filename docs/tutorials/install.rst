@@ -15,7 +15,7 @@ set up your own instance.
 Mozilla demo server
 ===================
 
-A Kinto instance is running at https://kinto.dev.mozaws.net/v1/
+A Kinto instance is running at https://demo.kinto-storage.org/v1/
 
 It should be enough to get started, but the records are flushed every
 day at 7:00 AM UTC.
