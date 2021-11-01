@@ -1,4 +1,4 @@
-black==21.9b0
+black==21.10b0
 bravado_core==5.17.0
 flake8==4.0.1
 isort==5.9.3
