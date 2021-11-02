@@ -17,7 +17,7 @@
     "report": "https://github.com/Kinto/kinto/issues/new"
   },
   "urls": {
-    "dev": "https://kinto.dev.mozaws.net/v1/"
+    "dev": "https://demo.kinto-storage.org/v1/"
   },
   "keywords": [
     "JSON",
