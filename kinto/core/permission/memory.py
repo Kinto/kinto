@@ -103,7 +103,7 @@ class Permission(PermissionBase):
         else:
             for pattern, perm in bound_permissions:
                 id_match = ".*" if with_children else "[^/]+"
-                regexp = re.compile(f"^{pattern.replace('*', id_match)}$")
+                regexp = re.compile(f"^{re.escape(pattern).replace('*', id_match)}$")
                 for key, value in self._store.items():
                     if key.endswith(perm):
                         object_id = key.split(":")[1]

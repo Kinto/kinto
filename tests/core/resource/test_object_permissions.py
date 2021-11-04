@@ -76,6 +76,20 @@ class ObtainObjectPermissionTest(PermissionTest):
         self.assertEqual(result["permissions"], {})
 
 
+class GetObjectsPermissionTest(PermissionTest):
+    def setUp(self):
+        super().setUp()
+        self.object_id = ")EFg9=)%5E(M~%2037"
+        self.object_uri = "/articles/{}".format(self.object_id)
+        self.perm = "read"
+        self.permission.add_principal_to_ace(self.object_uri, self.perm, "account:readonly")
+
+    def test_get_objects_permissions_escapes_regex_chars_in_id(self):
+        principals = self.permission.get_object_permission_principals(self.object_uri, self.perm)
+        result = self.permission.get_accessible_objects(principals, [(self.object_uri, self.perm)])
+        self.assertEqual(result, {self.object_uri: {self.perm}})
+
+
 class SpecifyObjectPermissionTest(PermissionTest):
     def setUp(self):
         super().setUp()
