@@ -18,6 +18,7 @@ This document describes changes between each past release.
 **Internal Changes**
 
 - Update import path for authz consts and interface for Pyramid 2 (#2890)
+- Upgrade kinto-admin to 1.31.0
 
 14.5.1 (2021-10-18)
 -------------------
