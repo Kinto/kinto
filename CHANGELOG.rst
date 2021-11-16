@@ -3,7 +3,7 @@ Changelog
 
 This document describes changes between each past release.
 
-14.5.1 (2021-11-15)
+14.6.0 (2021-11-16)
 -------------------
 
 **New features**
