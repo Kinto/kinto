@@ -82,7 +82,7 @@ jobs:
           source .venv/bin/activate
           tox -e ${{ matrix.toxenv }}
       
-      - name: Coveralls Parallel
+      - name: Coveralls for ${{ matrix.toxenv }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           COVERALLS_FLAG_NAME: ${{ matrix.toxenv }}
