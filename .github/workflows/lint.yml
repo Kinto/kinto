@@ -17,18 +17,11 @@ jobs:
         with:
           python-version: "3.x"
 
-      - name: Install virtualenv
-        run: |
-          pip install virtualenv
-          virtualenv --python=python3 .venv
-
       - name: Print environment
         run: |
-          source .venv/bin/activate
           python --version
           pip --version
 
       - name: make lint
         run: |
-          source .venv/bin/activate
           make lint

@@ -53,20 +53,13 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Install virtualenv
-        run: |
-          pip install virtualenv
-          virtualenv --python=python3 .venv
-
       - name: Print environment
         run: |
-          source .venv/bin/activate
           python --version
           pip --version
 
       - name: Install dependencies
         run: |
-          source .venv/bin/activate
           make install-dev
           make install-postgres
           pip install tox coveralls
@@ -79,18 +72,16 @@ jobs:
 
       - name: Tox
         run: |
-          source .venv/bin/activate
           tox -e ${{ matrix.toxenv }}
-      
+
       - name: Coveralls for ${{ matrix.toxenv }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           COVERALLS_FLAG_NAME: ${{ matrix.toxenv }}
           COVERALLS_PARALLEL: true
         run: |
-          source .venv/bin/activate
           coveralls --service=github
-      
+
   coveralls:
     name: Coveralls Finished
     needs: chore
