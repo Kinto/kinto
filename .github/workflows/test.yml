@@ -69,7 +69,7 @@ jobs:
           source .venv/bin/activate
           make install-dev
           make install-postgres
-          pip install tox
+          pip install tox coveralls
 
       - name: Create database
         env:
@@ -81,3 +81,25 @@ jobs:
         run: |
           source .venv/bin/activate
           tox -e ${{ matrix.toxenv }}
+      
+      - name: Coveralls Parallel
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          COVERALLS_FLAG_NAME: ${{ matrix.toxenv }}
+          COVERALLS_PARALLEL: true
+        run: coveralls --service=github
+      
+  coveralls:
+    name: Coveralls Finished
+    needs: chore
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-python@v2
+        with:
+          python-version: "3.x"
+      - name: Install coveralls
+        run: pip install coveralls
+      - name: Finished
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: coveralls --service=github --finish
