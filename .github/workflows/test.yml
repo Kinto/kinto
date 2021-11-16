@@ -87,7 +87,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           COVERALLS_FLAG_NAME: ${{ matrix.toxenv }}
           COVERALLS_PARALLEL: true
-        run: coveralls --service=github
+        run: |
+          source .venv/bin/activate
+          coveralls --service=github
       
   coveralls:
     name: Coveralls Finished
