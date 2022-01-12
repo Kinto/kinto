@@ -1,5 +1,6 @@
 import unittest
 
+from bravado.requests_client import RequestsClient
 from bravado_core.request import IncomingRequest, unmarshal_request
 from bravado_core.resource import build_resources
 from bravado_core.response import OutgoingResponse, validate_response
@@ -22,6 +23,7 @@ class OpenAPITest(BaseWebTest, unittest.TestCase):
         super().setUpClass()
         cls.spec_dict = cls.app.get("/__api__").json
         bravado_config = {
+            # Use models (Python classes) instead of dicts for #/definitions/{models}
             # use_models causes us to break in bravado-core 4.13.0,
             # probably because of
             # https://github.com/Yelp/bravado-core/pull/254, and we
@@ -29,7 +31,9 @@ class OpenAPITest(BaseWebTest, unittest.TestCase):
             # here anyhow.
             "use_models": False
         }
-        cls.spec = Spec.from_dict(cls.spec_dict, config=bravado_config)
+        cls.spec = Spec.from_dict(
+            cls.spec_dict, http_client=RequestsClient(), config=bravado_config
+        )
         cls.resources = build_resources(cls.spec)
 
     @classmethod
