@@ -304,6 +304,7 @@ Step 1
 
 - Merge remaining pull requests
 - Update ``CHANGELOG.rst``
+- Update supported version in ``SECURITY.md``
 - If API was updated, update API changelog in :file:`docs/api/index.rst`
 - Make sure ``HTTP_API_VERSION`` is up-to-date in :file:`kinto/__init__.py`
 - Update the link in :file:`docs/configuration/production.rst`

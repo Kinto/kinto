@@ -3,7 +3,13 @@ Changelog
 
 This document describes changes between each past release.
 
-14.6.0 (unreleased)
+14.7.0 (unreleased)
+-------------------
+
+- Nothing changed yet.
+
+
+14.6.0 (2021-11-16)
 -------------------
 
 **New features**
@@ -13,7 +19,11 @@ This document describes changes between each past release.
 **Documentation**
 
 - Fix query params typo in docs/tutorials/synchronisation.rst
+- Ref #2295: update URL of demo server (#2899)
 
+**Internal Changes**
+
+- Update import path for authz consts and interface for Pyramid 2 (#2890)
 
 14.5.1 (2021-10-18)
 -------------------

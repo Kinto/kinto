@@ -1,10 +1,10 @@
 docutils==0.16
-Sphinx==4.2.0
+Sphinx==4.3.2
 sphinx_rtd_theme==1.0.0
 sphinxcontrib-httpdomain==1.8.0
 kinto
 mock==4.0.3
 webtest==3.0.0
-cornice==6.0.0
+cornice==6.0.1
 pyramid==2.0
 python-rapidjson==1.5
