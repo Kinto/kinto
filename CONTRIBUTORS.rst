@@ -105,7 +105,6 @@ Contributors
 * Wil Clouser <wclouser@mozilla.com>
 * Yann Klis <yann.klis@gmail.com>
 * Jeff Schobelock <jswhatnot15@gmail.com>
-* Victor Zhuang <coal143@hotmail.com>
 * Shivasheesh Yadav <shivasheeshyadav@gmail.com>
 * Fabian Chong <@feiming>
 * Dan Milgram <danm@intervivo.com>
