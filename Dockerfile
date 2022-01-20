@@ -1,30 +1,37 @@
 # Mozilla Kinto server
-FROM python:3.10-slim
 
+FROM node:lts-bullseye-slim as node-builder
+COPY /kinto/plugins/admin/package.json /kinto/plugins/admin/package-lock.json ./
+RUN npm ci
+COPY /kinto/plugins/admin ./
+RUN npm run build
+
+FROM python:3.10-slim-bullseye as python-builder
+RUN python -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+RUN apt-get update && apt-get install -y --no-install-recommends build-essential libpq-dev
+COPY requirements.txt .
+RUN pip install --upgrade pip && \
+    pip install -r requirements.txt && \
+    pip install kinto-attachment kinto-emailer kinto-elasticsearch kinto-portier kinto-redis httpie
+
+FROM python:3.10-slim-bullseye
+RUN apt-get update && apt-get install -y --no-install-recommends libpq-dev
 RUN groupadd --gid 10001 app && \
     useradd --uid 10001 --gid 10001 --home /app --create-home app
+
 WORKDIR /app
+COPY --from=python-builder /opt/venv /opt/venv
 COPY . /app
+COPY --from=node-builder /build ./kinto/plugins/admin/build
 
-ENV KINTO_INI /etc/kinto/kinto.ini
-ENV PORT 8888
+ENV KINTO_INI=/etc/kinto/kinto.ini \
+    PORT=8888 \
+    PATH="/opt/venv/bin:$PATH"
 
-# Install build dependencies, build the virtualenv and remove build
-# dependencies all at once to build a small image.
 RUN \
-    apt-get update && \
-    apt-get install -y g++ gcc libpq5 curl libssl-dev libffi-dev libpq-dev gnupg2 && \
-    curl -sL https://deb.nodesource.com/setup_10.x | bash - && \
-    apt-get install -y nodejs && \
-    cd kinto/plugins/admin && npm install && npm run build && \
-    pip3 install --upgrade pip && \
-    pip3 install -e /app[postgresql,memcached,monitoring] -c /app/requirements.txt && \
-    pip3 install kinto-attachment kinto-emailer kinto-elasticsearch kinto-portier kinto-redis && \
-    pip3 install httpie && \
-    kinto init --ini $KINTO_INI --host 0.0.0.0 --backend=memory --cache-backend=memory && \
-    apt-get purge -y -qq g++ gcc libssl-dev libffi-dev libpq-dev curl nodejs && \
-    apt-get autoremove -y -qq && \
-    apt-get clean -y
+    pip install -e /app[postgresql,memcached,monitoring] -c /app/requirements.txt && \
+    kinto init --ini $KINTO_INI --host 0.0.0.0 --backend=memory --cache-backend=memory
 
 USER app
 # Run database migrations and start the kinto server
