@@ -12,6 +12,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    image: kinto/kinto-server:latest
     depends_on:
     - db
     - cache
