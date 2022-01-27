@@ -264,5 +264,5 @@ The right database node is chosen based on some elements of the data query
 automatically.
 
 As an example, see `pgPool <http://www.pgpool.net/mediawiki/index.php/Main_Page>`_
-or :github:`pgShard <citusdata/pg_shard>` for ways to shard a PostgreSQL
+or `pgShard <https://github.com/citusdata/pg_shard>`_ for ways to shard a PostgreSQL
 database.

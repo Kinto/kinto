@@ -315,7 +315,7 @@ or to resolve the conflict manually, might also be an option.
 .. note::
 
     Don't run away! Remember, you will most likely use a library like
-    :github:`Kinto/kinto.js`, which provides nice abstractions to
+    https://github.com/Kinto/kinto.js, which provides nice abstractions to
     interact with the Kinto API.
 
 Once merged, we can send back again our modifications using the last

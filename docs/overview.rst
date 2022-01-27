@@ -176,27 +176,27 @@ Key features
    :alt: https://thenounproject.com/search/?q=tutorial&i=24313
    :width: 50px
 
-+---------------------------------------------+---------------------------------------------+
-| |logo-javascript|                           | |logo-python|                               |
-| :github:`JavaScript HTTP API client         | :github:`Python HTTP API client             |
-| <Kinto/kinto-http.js/>`                     | <Kinto/kinto.py>`                           |
-+---------------------------------------------+---------------------------------------------+
-| |logo-offline|                              | |logo-admin|                                |
-| Offline-first `JavaScript client            | :ref:`Web Admin UI                          |
-| <https://kintojs.readthedocs.io>`_          | <kinto-admin>`                              |
-+---------------------------------------------+---------------------------------------------+
-| |logo-history|                              | |logo-livesync|                             |
-| :ref:`History of changes and authorship     | Live :ref:`Push notifications               |
-| <api-history>`                              | <tutorials>`                                |
-+---------------------------------------------+---------------------------------------------+
-| |logo-attachment|                           | |logo-signature|                            |
-| :github:`File attachments on records        | :github:`Digital signature and review       |
-| <Kinto/kinto-attachment>`                   | workflows <Kinto/kinto-signer>`             |
-+---------------------------------------------+---------------------------------------------+
-| |logo-quotas|                               | |logo-indexing|                             |
-| :ref:`Storage quotas                        | :github:`Records indexing                   |
-| <api-quotas>`                               | <Kinto/kinto-algolia>`                      |
-+---------------------------------------------+---------------------------------------------+
++-----------------------------------------------+-----------------------------------------------------+
+| |logo-javascript|                             | |logo-python|                                       |
+| `JavaScript HTTP API client                   | `Python HTTP API client                             |
+| <https://github.com/Kinto/kinto-http.js/>`_   | <https://github.com/Kinto/kinto.py>`_               |
++-----------------------------------------------+-----------------------------------------------------+
+| |logo-offline|                                | |logo-admin|                                        |
+| Offline-first `JavaScript client              | :ref:`Web Admin UI                                  |
+| <https://kintojs.readthedocs.io>`             | <kinto-admin>`                                      |
++-----------------------------------------------+-----------------------------------------------------+
+| |logo-history|                                | |logo-livesync|                                     |
+| :ref:`History of changes and authorship       | Live :ref:`Push notifications                       |
+| <api-history>`                                | <tutorials>`                                        |
++-----------------------------------------------+-----------------------------------------------------+
+| |logo-attachment|                             | |logo-signature|                                    |
+| `File attachments on records                  | `Digital signature and review                       |
+| <https://github.com/Kinto/kinto-attachment>`_ | workflows <https://github.com/Kinto/kinto-signer>`_ |
++-----------------------------------------------+-----------------------------------------------------+
+| |logo-quotas|                                 | |logo-indexing|                                     |
+| :ref:`Storage quotas                          | `Records indexing                                   |
+| <api-quotas>`                                 | <https://github.com/Kinto/kinto-algolia>`_          |
++-----------------------------------------------+-----------------------------------------------------+
 
 **Learn from examples**
 

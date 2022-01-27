@@ -73,7 +73,7 @@ This official documentation is maintained in `GitHub
 Output is written at ``docs/_build/html/index.html``.
 
 We obviously accept pull requests for this documentation, just as we accept them
-for bug fixes and features! See :github:`open issues <Kinto/kinto/labels/documentation>`.
+for bug fixes and features! See `open issues <https://github.com/Kinto/kinto/labels/documentation>`_.
 
 
 Submit feedback

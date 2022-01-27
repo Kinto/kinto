@@ -54,7 +54,7 @@ Run a PostgreSQL server
 
 The instructions to run a local PostgreSQL database are out of scope here.
 
-A detailed guide is :github:`available on the Kinto Wiki <Kinto/kinto/wiki/How-to-run-a-PostgreSQL-server%3F>`.
+A detailed guide is `available on the Kinto Wiki <https://github.com/Kinto/kinto/wiki/How-to-run-a-PostgreSQL-server%3F>`_.
 
 
 Database setup
@@ -153,7 +153,7 @@ The last step consists in creating the necessary tables and indices, run the ``m
 .. note::
 
     Alternatively the SQL initialization files can be found in the
-    *Kinto* :github:`source code <Kinto/kinto>`.
+    *Kinto* `source <https://github.com/Kinto/kinto>`_.
 
 
 Production checklist
@@ -181,7 +181,7 @@ adjustments:
 .. note::
 
     For an exhaustive list of available settings and their default values,
-    refer to the *Kinto* :github:`source code <Kinto/kinto/blob/13.6.2/kinto/core/__init__.py#L34-L103>`.
+    refer to the *Kinto* `source code <https://github.com/Kinto/kinto/blob/13.6.2/kinto/core/__init__.py#L34-L103>`_.
 
 
 By default, nobody can read buckets list. You can change that using:
@@ -339,8 +339,8 @@ run the Kinto application:
 Using nginx
 -----------
 
-nginx can act as a *reverse proxy* in front of :rtd:`uWSGI <uwsgi-docs>`
-(or any other wsgi server like `Gunicorn <http://gunicorn.org>`_ or :rtd:`Circus <circus>`).
+nginx can act as a *reverse proxy* in front of `uWSGI <https://uwsgi-docs.readthedocs.io>`_
+(or any other wsgi server like `Gunicorn <http://gunicorn.org>`_ or `Circus <https://circus.readthedocs.io>`_).
 
 Download the ``uwsgi_params`` file:
 

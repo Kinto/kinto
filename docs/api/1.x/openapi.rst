@@ -86,7 +86,7 @@ Improving the documentation
 
 The Kinto OpenAPI description relies on
 `Cornice Swagger <https://github.com/Cornices/cornice.ext.swagger>`_,
-which is an extension for :rtd:`Cornice <cornice>` that extracts API
+which is an extension for `Cornice <https://cornice.readthedocs.io>`_ that extracts API
 information from service definitions.
 Cornice Swagger also needs some information that is not on the service such as
 *Tags*, *Possible Responses* and *operation IDs*, so you may upgrade those
