@@ -90,8 +90,8 @@ Dependencies
 
 *Kinto-Core* is built on the shoulders of giants:
 
-* :rtd:`Cornice <cornice>` for the REST helpers;
-* :rtd:`Pyramid <pyramid>` for the heavy HTTP stuff;
+* `Cornice <https://cornice.readthedocs.io>`_ for the REST helpers;
+* `Pyramid <https://pyramid.readthedocs.io>`_ for the heavy HTTP stuff;
 * `SQLAlchemy <http://docs.sqlalchemy.org>`_ core, for database sessions and
   pooling;
 
@@ -119,10 +119,10 @@ Built with Kinto-Core
 
 Some applications in the wild built with *Kinto-Core*:
 
-* :rtd:`Reading List <readinglist>`, a service to synchronize articles between
+* `Reading List <https://readinglist.readthedocs.io>`_, a service to synchronize articles between
   devices;
-* :rtd:`Kinto <kinto>`, a service to store and synchronize schema-less data.
-* :rtd:`Syncto <syncto>`, a service to access *Firefox Sync* using *kinto.js*.
+* `Kinto <https://kinto.readthedocs.io>`_, a service to store and synchronize schema-less data.
+* `Syncto <https://syncto.readthedocs.io>`_, a service to access *Firefox Sync* using *kinto.js*.
 * *Please contact us to add yours*.
 
 Any application built with *Kinto-Core*:

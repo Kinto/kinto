@@ -110,7 +110,7 @@ See also
 
 * :term:`Kinto glossary <CRUD>`, for formal definitions of terms used in the documentation
 * :ref:`HTTP API reference documentation <api-permissions>`
-* :blog:`Our blog post <en/handling-permissions>` on permissions design in *Kinto*
+* `Our blog post <https://mozilla-services.github.io/servicedenuages.fr/en/handling-permissions>`_ on permissions design in *Kinto*
 
 
 .. _technical-architecture:
@@ -121,7 +121,7 @@ Technical Architecture
 Every concept of bucket, group, collection or record is a REST
 *resource* and behaves according to the conventions of a resource.
 
-*Kinto* relies on :rtd:`Cornice <cornice>` and :rtd:`Pyramid <pyramid>`
+*Kinto* relies on `Cornice <https://cornice.readthedocs.io>`_ and `Pyramid <https://pyramid.readthedocs.io>`_
 to implement the endpoints and HTTP request/response handling.
 
 .. image:: images/architecture.svg

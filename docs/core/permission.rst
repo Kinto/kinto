@@ -117,7 +117,7 @@ To do so, specify the ``get_bound_permissions`` of the *Kinto-Core* authorizatio
         authz.get_bound_permissions = get_bound_permissions
 
 
-In :rtd:`Kinto <Kinto/kinto>`, this is leveraged to implement an inheritance tree
+In `Kinto <https://kinto.readthedocs.io>`_, this is leveraged to implement an inheritance tree
 of permissions between nested objects. The root objects permissions still have to be specified
 via settings though.
 

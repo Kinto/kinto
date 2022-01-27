@@ -39,7 +39,7 @@ which can be provided as a regexp.
     The id generator should be random enough to avoid collisions.
 
     The random approach here serves the purpose of this tutorial, but for a production
-    ready implementation, have a look at :github:`dylang/shortid` for example.
+    ready implementation, have a look at https://github.com/dylang/shortid for example.
 
 
 Enable in configuration
@@ -106,5 +106,5 @@ For example:
 Kinto.js client
 ---------------
 
-The offline-first client :github:`Kinto/kinto.js` can also be configured to
+The offline-first client https://github.com/Kinto/kinto.js can also be configured to
 generate custom ids. See `its documentation <https://kintojs.readthedocs.io/en/latest/api/#custom-id-generation-using-an-id-schema>`_ for more details.

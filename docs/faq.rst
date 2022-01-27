@@ -118,7 +118,7 @@ YES™. Have a look at the ``/dev/null`` backend. ;-)
 Can I store files inside Kinto?
 -------------------------------
 
-Yes, using the :github:`Kinto/kinto-attachment` plugin.
+Yes, using the https://github.com/Kinto/kinto-attachment plugin.
 
 
 I want to add business logic to Kinto!
@@ -187,7 +187,7 @@ The application developer can implement custom conflict resolution strategies,
 using the :ref:`two versions of the object <error-responses-precondition>`,
 or the :ref:`history of actions <api-history>` of that object.
 
-Some helpers are provided in the :github:`Kinto/kinto.js` client. The three
+Some helpers are provided in the https://github.com/Kinto/kinto.js client. The three
 provided conflict resolution strategies are:
 
 * SERVER_WINS: local changes are overridden by remote ones ;

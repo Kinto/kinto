@@ -75,7 +75,7 @@ Like any *Pyramid* application, it can be served locally with:
 A *hello* view is now available at `http://localhost:6543/v0/ <http://localhost:6543/v0/>`_
 (As well as basic endpoints like the :ref:`utilities <api-utilities>`).
 
-The next steps will consist in building a custom application using :rtd:`Cornice <cornice>` or
+The next steps will consist in building a custom application using `Cornice <https://cornice.readthedocs.io>`_ or
 **the Pyramid ecosystem**.
 
 But most likely, it will consist in **defining REST resources** using *Kinto-Core*\ 's
@@ -154,7 +154,7 @@ Schema validation
 It is possible to validate records against a predefined schema, associated
 to the resource.
 
-Currently, only :rtd:`Colander <colander>` is supported, and it looks like this:
+Currently, only `Colander <https://colander.readthedocs.io>`_ is supported, and it looks like this:
 
 
 .. code-block:: python

@@ -376,7 +376,7 @@ Example output:
 JSON Logging
 ::::::::::::
 
-Using a JSON logging formatter, like :github:`this one <mozilla/mozilla-cloud-services-logger>`,
+Using a JSON logging formatter, like `this one <https://github.com/mozilla/mozilla-cloud-services-logger>`_,
 it is possible to output logs as JSON:
 
 .. code-block:: ini
@@ -874,7 +874,7 @@ to highly complex.
 
 .. note::
 
-    *Kinto* relies on :github:`pyramid multiauth <mozilla-services/pyramid_multiauth>` to initialise authentication.
+    *Kinto* relies on `pyramid multiauth <https://github.com/mozilla-services/pyramid_multiauth>`_ to initialise authentication.
 
 .. seealso::
 

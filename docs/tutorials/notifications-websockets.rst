@@ -10,7 +10,7 @@ Currently, it relies on a plugin that sends events through WebSockets using `Pus
 
 .. note::
 
-    Another plugin is under construction for WebPush: :github:`Kinto/kinto-webpush`
+    Another plugin is under construction for WebPush: https://github.com/Kinto/kinto-webpush
 
 
 Setup a Pusher account

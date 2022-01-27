@@ -40,8 +40,8 @@ Full example
 
             return new
 
-See the :github:`ReadingList <mozilla-services/readinglist>` and
-:github:`Kinto <mozilla-services/kinto>` projects source code for real use cases.
+See the `ReadingList <https://github.com/mozilla-services/readinglist>`_ and
+`Kinto <https://github.com/mozilla-services/kinto>`_ projects source code for real use cases.
 
 
 .. _resource-urls:
@@ -92,7 +92,7 @@ HTTP methods and options
 ========================
 
 In order to specify which HTTP verbs (``GET``, ``PUT``, ``PATCH``, ...)
-are allowed on the resource, as well as specific custom Pyramid (or :rtd:`cornice`)
+are allowed on the resource, as well as specific custom Pyramid (or `Cornice <https://cornice.readthedocs.io>`_)
 view arguments, refer to the :ref:`viewset section <viewset>`.
 
 

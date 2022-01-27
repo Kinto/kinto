@@ -122,7 +122,7 @@ In order to know which authentication methods are supported by a *Kinto* server,
     }
 
 
-For example, :github:`Kinto Admin <Kinto/kinto-admin>` inspects that list in order to dynamically offer several authentication options in its login form.
+For example, `Kinto Admin <https://github.com/Kinto/kinto-admin>`_ inspects that list in order to dynamically offer several authentication options in its login form.
 
 
 Permissions

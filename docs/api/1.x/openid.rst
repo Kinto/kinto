@@ -69,7 +69,7 @@ for the configured provider ``name``.
 JavaScript example
 ------------------
 
-Let's go through a simple OpenID login example using the :github:`JavaScript kinto client <Kinto/kinto-http.js>`.
+Let's go through a simple OpenID login example using the `JavaScript kinto client <https://github.com/Kinto/kinto-http.js>`_.
 
 When the user clicks a login button, it initiates the login process by redirecting the browser to the
 Identity Provider, which itself redirects it to the application page once successful.
@@ -139,7 +139,7 @@ The ``parseToken()`` function scans the location hash to read the Identity Provi
       return parsed;
     }
 
-Check out the :github:`full demo source code <leplatrem/kinto-oidc-demo>`.
+Check out the `full demo source code <https://github.com/leplatrem/kinto-oidc-demo>`_.
 
 
 Example of login redirections
@@ -160,4 +160,4 @@ When the user clicks the login button, the browser will follow a sequence of red
 #. Kinto redirects back to the Single Page App appending the JSON encoded ID and Access tokens to the callback URL provided at step 2 `<http://localhost:3000/#provider=auth0&tokens=eyJhY2Nlc3NfdG9rZW4iOiJ0WTZ1bTk4OS4uLmpmY2VyIiwiaWRfdG9rZW4iOiJleUowZVhBaU9pSi4uLktWMVFpTC5vamtoZ3dSVkguLi5VRzhKR1JFTk5GLkVzOC4uLkRLMTAiLCJleHBpcmVzX2luIjo4NjQwMCwidG9rZW5fdHlwZSI6IkJlYXJlciJ9>`_
 #. JavaScript code parses the location hash and reads the ID and Access tokens
 
-The JavaScript app can now use the Access token to make authenticated calls to the Kinto server, and read the user info from the ID token fields. See :github:`demo <leplatrem/kinto-oidc-demo>`.
+The JavaScript app can now use the Access token to make authenticated calls to the Kinto server, and read the user info from the ID token fields. See `demo <https://github.com/leplatrem/kinto-oidc-demo>`_.
