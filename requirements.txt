@@ -2,7 +2,7 @@ bcrypt==3.2.0
 colander==1.8.3
 cornice==6.0.1
 cornice-swagger==1.0.1
-dockerflow==2021.7.0
+dockerflow==2022.1.0
 jsonpatch==1.32
 jsonschema==4.4.0
 logging-color-formatter==1.0.2
