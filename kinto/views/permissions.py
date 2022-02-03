@@ -25,10 +25,12 @@ def allowed_from_settings(settings, principals):
     """
     potential_settings = {tuple(k.split("_")): v for k, v in settings.items()}
     perms_settings = {
-        k: aslist(v) for k, v in potential_settings.items() if len(k) == 3 and k[2] == "principals"
+        k[:2]: aslist(v)  # ("bucket", "write"), ["account:admin"]
+        for k, v in potential_settings.items()
+        if len(k) == 3 and k[2] == "principals"  # bucket_write_principals = ...
     }
     from_settings = {}
-    for (resource_name, permission, _), allowed_principals in perms_settings.items():
+    for (resource_name, permission), allowed_principals in perms_settings.items():
         # Keep the known permissions only.
         if resource_name not in PERMISSIONS_INHERITANCE_TREE.keys():
             continue
