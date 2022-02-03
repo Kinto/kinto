@@ -6,7 +6,9 @@ This document describes changes between each past release.
 14.7.0 (unreleased)
 -------------------
 
-- Nothing changed yet.
+**Bug Fixes**
+
+- Fix crash in ``/permissions`` endpoint when a setting is misinterpreted as resource permission (e.g. ``signer.auto_create_resources_principals``)
 
 
 14.6.0 (2021-11-16)

@@ -23,10 +23,12 @@ def allowed_from_settings(settings, principals):
 
     XXX: This helper will be useful for Kinto/kinto#894
     """
-    perms_settings = {k: aslist(v) for k, v in settings.items() if k.endswith("_principals")}
+    potential_settings = {tuple(k.split("_")): v for k, v in settings.items()}
+    perms_settings = {
+        k: aslist(v) for k, v in potential_settings.items() if len(k) == 3 and k[2] == "principals"
+    }
     from_settings = {}
-    for key, allowed_principals in perms_settings.items():
-        resource_name, permission, _ = key.split("_")
+    for (resource_name, permission, _), allowed_principals in perms_settings.items():
         # Keep the known permissions only.
         if resource_name not in PERMISSIONS_INHERITANCE_TREE.keys():
             continue
