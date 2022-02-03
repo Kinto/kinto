@@ -375,3 +375,18 @@ class DeletedObjectsTest(PermissionsViewTest):
     def test_deleted_objects_are_not_listed(self):
         resp = self.app.get("/permissions", headers=self.headers)
         self.assertEqual(len(resp.json["data"]), 1)
+
+
+class IgnoredSettingsTest(PermissionsViewTest):
+    @classmethod
+    def get_app_settings(cls, extras=None):
+        settings = super().get_app_settings(extras)
+        settings["signer.auto_create_resources_principals"] = "system.Authenticated"
+        return settings
+
+    def test_unrecognized_settings_are_ignored(self):
+        resp = self.app.get("/permissions", headers=self.headers)
+        self.assertEqual(
+            resp.json["data"],
+            [{"permissions": ["bucket:create"], "resource_name": "root", "uri": "/"}],
+        )

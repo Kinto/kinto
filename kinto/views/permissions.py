@@ -1,3 +1,5 @@
+import re
+
 import colander
 from pyramid.settings import aslist
 
@@ -23,10 +25,16 @@ def allowed_from_settings(settings, principals):
 
     XXX: This helper will be useful for Kinto/kinto#894
     """
-    perms_settings = {k: aslist(v) for k, v in settings.items() if k.endswith("_principals")}
+    # Select settings about explicit permissions set on resources
+    # bucket_write_principals = ... --> {("bucket", "write"): ["account:admin"]}
+    perms_settings = {
+        tuple(k.split("_", 3)[:2]): aslist(v)
+        for k, v in settings.items()
+        if re.match("(.+)_(create|write|read)_principals", k)
+    }
+
     from_settings = {}
-    for key, allowed_principals in perms_settings.items():
-        resource_name, permission, _ = key.split("_")
+    for (resource_name, permission), allowed_principals in perms_settings.items():
         # Keep the known permissions only.
         if resource_name not in PERMISSIONS_INHERITANCE_TREE.keys():
             continue
