@@ -3,12 +3,19 @@ Changelog
 
 This document describes changes between each past release.
 
-14.7.0 (unreleased)
+14.6.1 (2022-02-03)
 -------------------
 
 **Bug Fixes**
 
 - Fix crash in ``/permissions`` endpoint when a setting is misinterpreted as resource permission (e.g. ``signer.auto_create_resources_principals``)
+
+**Internal Changes**
+
+- Update `Dockerfile` & `docker-compose` for faster, usable builds (#2942)
+- Add a SECURITY.md file (fixes #2912) (#2918)
+- Fix coveralls.io support (#2921)
+- Remove duplicated dependencies (#2922)
 
 
 14.6.0 (2021-11-16)
