@@ -14,5 +14,5 @@ therapist==2.2.0
 tox==3.24.5
 WebTest==3.0.0
 wheel==0.37.1
-zest.releaser==6.22.2
+zest.releaser==7.0.0a2
 zope.sqlalchemy==1.6

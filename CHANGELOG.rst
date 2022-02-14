@@ -6,7 +6,9 @@ This document describes changes between each past release.
 14.7.0 (unreleased)
 -------------------
 
-- Nothing changed yet.
+**Internal Changes**
+
+- Test package description formatting in CI
 
 
 14.6.1 (2022-02-03)

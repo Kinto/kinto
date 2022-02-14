@@ -32,3 +32,8 @@ jobs:
         run: |
           source .venv/bin/activate
           make docs
+
+      - name: Package description
+        run: |
+          source .venv/bin/activate
+          make test-description
