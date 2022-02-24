@@ -39,19 +39,20 @@ got a few different options:
 
 .. |alwaysdata-button| image:: ../images/alwaysdata-button.svg
    :target: https://kinto.github.io/kinto-alwaysdata/
-   :alt: Deploy on Alwaysdata
+   :alt: Deploy on alwaysdata
 
-+----------------+------------------------------------------------+------------------------+
-| Provider       | What you get / Plan                            | Link / Install button  |
-+================+================================================+========================+
-| Heroku         | Free plan for up to 10.000 rows on PostgreSQL. |  |heroku-button|       |
-+----------------+------------------------------------------------+------------------------+
-| Scalingo       | 1 month free trial with 512MB RAM, 512MB       |  |scalingo-button|     |
-|                | storage and a PostgreSQL database.             |                        |
-+----------------+------------------------------------------------+------------------------+
-| Alwaysdata     | Open an account and deploy Kinto on it.        |  |alwaysdata-button|   |
-|                | 10 MB of free storage.                         |                        |
-+----------------+------------------------------------------------+------------------------+
++----------------+--------------------------------------------------------------------------------+------------------------+
+| Provider       | What you get / Plan                                                            | Link / Install button  |
++================+================================================================================+========================+
+| Heroku         | Free plan for up to 10.000 rows on PostgreSQL.                                 |  |heroku-button|       |
++----------------+--------------------------------------------------------------------------------+------------------------+
+| Scalingo       | 1 month free trial with 512MB RAM, 512MB                                       |  |scalingo-button|     |
+|                | storage and a PostgreSQL database.                                             |                        |
++----------------+--------------------------------------------------------------------------------+------------------------+
+| alwaysdata     | Open an account and deploy Kinto on it.                                        |  |alwaysdata-button|   |
+|                | 10 MB of free storage.                                                         |                        |
+|                | `Install from Marketplace <https://www.alwaysdata.com/en/marketplace/kinto/>`_ |                        |
++----------------+--------------------------------------------------------------------------------+------------------------+
 
 
 .. _run-kinto-docker:
