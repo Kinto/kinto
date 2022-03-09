@@ -131,3 +131,6 @@ docs: install-docs
 
 build:
 	docker build --pull -t kinto/kinto-server:latest .
+
+test-description: install-dev
+	$(VENV)/bin/longtest --headless
