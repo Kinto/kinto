@@ -11,7 +11,7 @@ psycopg2==2.9.3
 pyramid==2.0
 pyramid-mailer==0.15.1
 pyramid-multiauth==1.0.1
-pyramid-tm==2.4
+pyramid-tm==2.5
 python-dateutil==2.8.2
 python-memcached==1.59
 raven==6.10.0
