@@ -1,10 +1,10 @@
 # Mozilla Kinto server
 
 FROM node:lts-bullseye-slim as node-builder
-COPY /kinto/plugins/admin/package.json /kinto/plugins/admin/package-lock.json ./
-RUN npm ci
-COPY /kinto/plugins/admin ./
-RUN npm run build
+RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates curl
+COPY scripts/build-kinto-admin.sh .
+COPY /kinto/plugins/admin ./kinto/plugins/admin
+RUN build-kinto-admin.sh
 
 FROM python:3.10-slim-bullseye as python-builder
 RUN python -m venv /opt/venv
@@ -23,7 +23,7 @@ RUN groupadd --gid 10001 app && \
 WORKDIR /app
 COPY --from=python-builder /opt/venv /opt/venv
 COPY . /app
-COPY --from=node-builder /build ./kinto/plugins/admin/build
+COPY --from=node-builder /kinto/plugins/admin/build ./kinto/plugins/admin/build
 
 ENV KINTO_INI=/etc/kinto/kinto.ini \
     PORT=8888 \

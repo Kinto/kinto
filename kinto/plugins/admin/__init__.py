@@ -1,21 +1,15 @@
-import os
+from pathlib import Path
 
 from pyramid.httpexceptions import HTTPTemporaryRedirect
 from pyramid.static import static_view
 
-from kinto.core.utils import json
-
 from .views import admin_home_view
 
-HERE = os.path.dirname(__file__)
+VERSION_FILE_PATH = Path(__file__).parent / "VERSION"
 
 
 def includeme(config):
-    # Process settings to remove storage wording.
-
-    # Read version from package.json
-    package_json = json.load(open(os.path.join(HERE, "package.json")))
-    admin_version = package_json["dependencies"]["kinto-admin"]
+    admin_version = VERSION_FILE_PATH.read_text().strip()
 
     # Expose capability.
     config.add_api_capability(

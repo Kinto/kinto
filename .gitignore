@@ -14,9 +14,7 @@ config/*.ini
 version.json
 dist
 kinto/plugins/admin/build
-kinto/plugins/admin/node_modules
-kinto/plugins/admin/coverage
-kinto/plugins/admin/npm-debug.log
+kinto/plugins/admin/kinto-admin-*
 .pytest_cache/
 mail/
 .history/
