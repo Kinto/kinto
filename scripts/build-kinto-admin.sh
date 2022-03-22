@@ -7,7 +7,6 @@ TARBALL_NAME="${TAG}.tar.gz"
 SRC_DIR="kinto-admin-${VERSION}"
 
 # download and unzip release
-# TODO: error handling (404 error, can't unzip tarball, etc)
 cd kinto/plugins/admin/
 curl -OL https://github.com/Kinto/kinto-admin/archive/refs/tags/${TAG}.tar.gz
 tar -xf $TARBALL_NAME && rm $TARBALL_NAME
