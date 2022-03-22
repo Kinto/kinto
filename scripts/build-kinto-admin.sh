@@ -14,6 +14,7 @@ tar -xf $TARBALL_NAME && rm $TARBALL_NAME
 pushd $SRC_DIR
 npm ci
 export SINGLE_SERVER=1
+export ASSET_PATH="/v1/admin/"
 npm run build
 popd
 
