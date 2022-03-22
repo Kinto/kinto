@@ -1,4 +1,6 @@
 #!/bin/bash
+set -euo pipefail
+
 VERSION=$(cat kinto/plugins/admin/VERSION)
 TAG="v${VERSION}"
 TARBALL_NAME="${TAG}.tar.gz"
