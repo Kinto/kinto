@@ -4,7 +4,7 @@ FROM node:lts-bullseye-slim as node-builder
 RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates curl
 COPY scripts/build-kinto-admin.sh .
 COPY /kinto/plugins/admin ./kinto/plugins/admin
-RUN build-kinto-admin.sh
+RUN bash build-kinto-admin.sh
 
 FROM python:3.10-slim-bullseye as python-builder
 RUN python -m venv /opt/venv
