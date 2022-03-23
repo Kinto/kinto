@@ -9,6 +9,7 @@ This document describes changes between each past release.
 **Internal Changes**
 
 - Test package description formatting in CI
+- Build ``kinto-admin`` (now at version 2.0.0) from source rather than mounting the ``<KintoAdmin />`` component in a ``create-react-app`` app. (#2966)
 
 
 14.6.1 (2022-02-03)
