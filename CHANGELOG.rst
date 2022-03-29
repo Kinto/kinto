@@ -3,13 +3,29 @@ Changelog
 
 This document describes changes between each past release.
 
-14.7.0 (unreleased)
+14.7.0 (2022-03-30)
 -------------------
 
 **Internal Changes**
 
 - Test package description formatting in CI
 - Build ``kinto-admin`` (now at version 2.0.0) from source rather than mounting the ``<KintoAdmin />`` component in a ``create-react-app`` app. (#2966)
+
+Kinto Admin
+^^^^^^^^^^^
+
+**Internal Changes**
+
+- Replace react-breadcrumbs with custom component (Kinto/kinto-admin#2207)
+- Move signoff into main component tree, remove plugin system (Kinto/kinto-admin#2360)
+- Use environment variable to set SINGLE_SERVER, deprecate other settings (Kinto/kinto-admin#2373)
+
+**Bug Fixes**
+
+- Downgrade to history v4 (Kinto/kinto-admin#2180)
+- Fix crash on incorrect auth credentials (Kinto/kinto-admin#2119)
+
+For a complete log of Kinto Admin changes, see `v1.31.0...v2.0.0 <https://github.com/Kinto/kinto-admin/compare/v1.31.0...v2.0.0>`_
 
 
 14.6.1 (2022-02-03)
