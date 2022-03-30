@@ -3,6 +3,17 @@ Changelog
 
 This document describes changes between each past release.
 
+14.7.1 (2022-03-30)
+-------------------
+
+**Bug Fixes**
+
+- Include Kinto Admin VERSION file in package
+
+**Internal Changes**
+
+- Exclude tests from built package
+
 14.7.0 (2022-03-30)
 -------------------
 
