@@ -5,6 +5,9 @@ on:
   pull_request:
 
 name: Kinto Admin
+permissions:
+  contents: read
+
 jobs:
   chore:
     name: Kinto Admin
