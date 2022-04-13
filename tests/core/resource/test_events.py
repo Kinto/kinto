@@ -411,6 +411,64 @@ class CascadingEventsTest(BaseEventTest, unittest.TestCase):
         self.assertEqual(merged_event.impacted_objects[1]["new"]["name"], "de New York")
 
 
+class BatchCascadeEventsTest(BaseEventTest, unittest.TestCase):
+    subscribed = (ResourceChanged,)
+
+    @classmethod
+    def listener(cls, event):
+        cls.events.append(event)
+
+        # In these resource tests, the resource parent id is the user id.
+        parent_id = event.request.prefixed_userid
+
+        # Let's create a cascade of event. When a CREATE event is received,
+        # we send an UPDATE one.
+        if event.payload["action"] == "create":
+            notify_resource_event(
+                event.request, parent_id, event.payload["timestamp"], {"foo": "42"}, ACTIONS.UPDATE
+            )
+
+    def test_cascading_events_are_not_merged_if_issuer_differs(self):
+        resp = self.app.post_json(self.plural_url, self.body, headers=self.headers)
+        existing = resp.json["data"]
+        before = len(self.events)
+
+        # In this batch request, the first request will lead to a CREATE event.
+        # The above listener will trigger an UPDATE event, and we then make sure
+        # that it wasn't be merged with the other UPDATED event related to the
+        # second request (PATCH).
+        self.app.post_json(
+            "/batch",
+            {
+                "requests": [
+                    {
+                        "method": "POST",
+                        "path": "/mushrooms",
+                        "body": {"data": {"name": "b"}},
+                    },
+                    {
+                        "method": "PATCH",
+                        "path": "/mushrooms/" + existing["id"],
+                        "body": {"data": {"foo": "bar"}},
+                    },
+                ],
+            },
+            headers=self.headers,
+        )
+
+        batch_events = self.events[before:]
+        self.assertEqual(len(batch_events), 3)
+        # Creation (first request)
+        self.assertEqual(len(batch_events[0].impacted_objects), 1)
+        self.assertEqual(batch_events[0].impacted_objects[0]["new"]["name"], "b")
+        # Update (second request)
+        self.assertEqual(len(batch_events[1].impacted_objects), 1)
+        self.assertEqual(batch_events[1].impacted_objects[0]["new"]["foo"], "bar")
+        # Update (cascade event)
+        self.assertEqual(len(batch_events[2].impacted_objects), 1)
+        self.assertEqual(batch_events[2].impacted_objects[0]["new"]["foo"], "42")
+
+
 class DeprecatedAttributes(unittest.TestCase):
     def setUp(self):
         patch = mock.patch("warnings.warn")
