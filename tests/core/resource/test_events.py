@@ -400,7 +400,7 @@ class CascadingEventsTest(BaseEventTest, unittest.TestCase):
             resource_changed_events[1].impacted_objects[0]["new"]["name"], "de New York"
         )
 
-    def test_cascading_events_are_merged(self):
+    def test_cascading_events_are_merged_in_after_resourced_changed(self):
         self.app.post_json(self.plural_url, self.body, headers=self.headers, status=201)
         relevant_events = [e for e in self.events if isinstance(e, AfterResourceChanged)]
         self.assertEqual(len(relevant_events), 1)
@@ -428,7 +428,7 @@ class BatchCascadeEventsTest(BaseEventTest, unittest.TestCase):
                 event.request, parent_id, event.payload["timestamp"], {"foo": "42"}, ACTIONS.UPDATE
             )
 
-    def test_cascading_events_are_not_merged_if_issuer_differs(self):
+    def test_cascading_events_are_not_merged(self):
         resp = self.app.post_json(self.plural_url, self.body, headers=self.headers)
         existing = resp.json["data"]
         before = len(self.events)
