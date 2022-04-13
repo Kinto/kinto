@@ -84,13 +84,19 @@ class EventCollector(object):
     fewer events.
     """
 
-    def __init__(self):
+    def __init__(self, cascade_level=1):
+        self.cascade_level = cascade_level
+        """Current level of event cascade. When we start consuming the
+        gathered events, we increment it. This way, events emitted from
+        events listeners (cascade) are not merged with upstream ones.
+        """
+
         self.event_dict = OrderedDict()
         """The events as collected so far.
 
-        The key of the event_dict is a triple (resource_name,
+        The key of the event_dict is a quadruple (cascade_level, resource_name,
         parent_id, action). The value is a triple (impacted, request,
-        payload). If the same (resource_name, parent_id, action) is
+        payload). If the same (cascade_level, resource_name, parent_id, action) is
         encountered, we just extend the existing impacted with the new
         impacted. N.B. this means all values in the payload must not
         be specific to a single impacted_object. See
@@ -99,7 +105,7 @@ class EventCollector(object):
         """
 
     def add_event(self, resource_name, parent_id, action, payload, impacted, request):
-        key = (resource_name, parent_id, action)
+        key = (self.cascade_level, resource_name, parent_id, action)
         if key not in self.event_dict:
             value = (payload, impacted, request)
             self.event_dict[key] = value
@@ -119,6 +125,8 @@ class EventCollector(object):
         Items yielded will be of a tuple suitable for using as
         arguments to EventCollector.add_event.
         """
+        # Since we start consuming the gathered events, we increment the cascade level.
+        self.cascade_level += 1
         return EventCollectorDrain(self)
 
 
@@ -213,9 +221,9 @@ def get_resource_events(request, after_commit=False):
     by_resource = request.bound_data.get("resource_events", EventCollector())
     afterwards = EventCollector()
 
-    for event_call in by_resource.drain():
-        afterwards.add_event(*event_call)
-        (_, _, action, payload, impacted, request) = event_call
+    for event in by_resource.drain():
+        (_, resource_name, parent_id, action, payload, impacted, request) = event
+        afterwards.add_event(resource_name, parent_id, action, payload, impacted, request)
 
         if after_commit:
             if action == ACTIONS.READ:

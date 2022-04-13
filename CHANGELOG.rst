@@ -6,7 +6,10 @@ This document describes changes between each past release.
 14.7.2 (unreleased)
 -------------------
 
-- Nothing changed yet.
+**Bug Fixes**
+
+- Prevents merging of `ResourceChanged` events if they were triggered from
+  events listeners (cascade) (see mozilla/remote-settings#203)
 
 
 14.7.1 (2022-03-30)
