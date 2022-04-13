@@ -94,7 +94,7 @@ class EventCollector(object):
         self.event_dict = OrderedDict()
         """The events as collected so far.
 
-        The key of the event_dict is a triple (cascade_level, resource_name,
+        The key of the event_dict is a quadruple (cascade_level, resource_name,
         parent_id, action). The value is a triple (impacted, request,
         payload). If the same (cascade_level, resource_name, parent_id, action) is
         encountered, we just extend the existing impacted with the new
