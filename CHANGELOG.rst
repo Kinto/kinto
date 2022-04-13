@@ -3,7 +3,7 @@ Changelog
 
 This document describes changes between each past release.
 
-14.7.2 (unreleased)
+14.7.2 (2022-04-13)
 -------------------
 
 **Bug Fixes**
