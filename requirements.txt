@@ -4,7 +4,7 @@ cornice==6.0.1
 cornice-swagger==1.0.1
 dockerflow==2022.1.0
 jsonpatch==1.32
-jsonschema==4.4.0
+jsonschema==4.5.1
 logging-color-formatter==1.0.2
 newrelic==7.10.0.175
 psycopg2==2.9.3
