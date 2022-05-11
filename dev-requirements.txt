@@ -8,7 +8,7 @@ pytest-cache==1.0
 pytest-cov==3.0.0
 pytest-watch==4.2.0
 python-memcached==1.59
-selenium==4.1.3
+selenium==4.1.5
 swagger-spec-validator==2.7.4
 therapist==2.2.0
 tox==3.25.0
