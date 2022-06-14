@@ -20,6 +20,6 @@ SQLAlchemy==1.4.37
 statsd==3.3.0
 transaction==3.0.1
 python-rapidjson==1.6
-waitress==2.1.1
+waitress==2.1.2
 Werkzeug==2.1.2
 zope.sqlalchemy==1.6
