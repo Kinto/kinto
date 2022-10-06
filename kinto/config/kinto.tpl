@@ -170,6 +170,9 @@ kinto.bucket_create_principals = account:admin
 # Client cache headers
 # https://kinto.readthedocs.io/en/latest/configuration/settings.html#client-caching
 #
+# Root URL
+# kinto.root_cache_expires_seconds = 86400
+#
 # Every bucket objects objects and list
 # kinto.bucket_cache_expires_seconds = 3600
 #

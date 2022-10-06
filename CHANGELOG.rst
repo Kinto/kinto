@@ -6,7 +6,9 @@ This document describes changes between each past release.
 14.7.3 (unreleased)
 -------------------
 
-- Nothing changed yet.
+**New features**
+
+- Add ``Cache-Control`` response header in root URL endpoint (``/v1/``) when no authentication request header is provided.
 
 
 14.7.2 (2022-04-13)
