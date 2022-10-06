@@ -49,6 +49,11 @@ def get_hello(request):
     if Authenticated in request.effective_principals:
         data["user"] = request.get_user_info()
 
+    if settings["readonly"]:
+        # Information can be cached.
+        cache_seconds = int(settings["root_cache_expires_seconds"])
+        request.response.cache_expires(cache_seconds)
+
     # Application can register and expose arbitrary capabilities.
     data["capabilities"] = request.registry.api_capabilities
 

@@ -22,6 +22,18 @@ class HelloViewTest(BaseWebTest, unittest.TestCase):
         response = self.app.get("/")
         self.assertNotIn("user", response.json)
 
+    def test_cache_control_if_readonly(self):
+        settings = self.get_app_settings()
+        settings["readonly"] = True
+        app = self.make_app(settings=settings)
+        response = app.get("/")
+        self.assertIn("Cache-Control", response.headers)
+        self.assertEqual(response.headers["Cache-Control"], "max-age=86400")
+
+    def test_no_cache_control_if_not_readonly(self):
+        response = self.app.get("/", headers=self.headers)
+        self.assertNotIn("Cache-Control", response.headers)
+
     def test_returns_user_id_if_authenticated(self):
         response = self.app.get("/", headers=self.headers)
         self.assertEqual(response.json["user"]["id"], self.principal)

@@ -82,6 +82,7 @@ DEFAULT_SETTINGS = {
     "project_name": "",
     "project_version": "",
     "readonly": False,
+    "root_cache_expires_seconds": 86400,
     "retry_after_seconds": 30,
     "version_prefix_redirect_ttl_seconds": -1,
     "settings_prefix": "",
