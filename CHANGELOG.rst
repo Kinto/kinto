@@ -8,7 +8,7 @@ This document describes changes between each past release.
 
 **New features**
 
-- Add ``Cache-Control`` response header in root URL endpoint (``/v1/``) when no authentication request header is provided.
+- Add ``Cache-Control`` response header in root URL endpoint (``/v1/``) when the instance is configured as read-only.
 
 
 14.7.2 (2022-04-13)
