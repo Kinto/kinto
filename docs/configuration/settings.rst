@@ -1038,12 +1038,12 @@ to add cache control headers for the root URL and every *Kinto* object.
 The client (or cache server or proxy) will use them to cache the collection
 records for a certain amount of time, in seconds.
 
-For the root URL endpoint, the cache control header can be adjusted with this setting:
+For the root URL endpoint, when the instance :ref:`is readonly <configuration-features>`, the cache control header can be adjusted with this setting:
 
 .. code-block:: ini
 
     # default is 1 day
-    kinto.cache_expires_seconds = 86400
+    kinto.root_cache_expires_seconds = 86400
 
 For GET requests on resource endpoints, on any kind of object (``GET /buckets``, ``GET /buckets/{}/groups``, ``GET /buckets/{}/collections``,
 ``GET /buckets/{}/collections/{}/records``), the settings are:
