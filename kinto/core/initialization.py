@@ -5,7 +5,7 @@ import warnings
 from datetime import datetime
 
 from dateutil import parser as dateparser
-from pyramid.events import NewRequest, NewResponse
+from pyramid.events import ApplicationCreated, NewRequest, NewResponse
 from pyramid.exceptions import ConfigurationError
 from pyramid.httpexceptions import HTTPBadRequest, HTTPGone, HTTPTemporaryRedirect
 from pyramid.interfaces import IAuthenticationPolicy
@@ -26,6 +26,10 @@ try:
     from werkzeug.middleware.profiler import ProfilerMiddleware
 except ImportError:  # pragma: no cover
     ProfilerMiddleware = False
+try:
+    import sentry_sdk
+except ImportError:  # pragma: no cover
+    sentry_sdk = None
 
 
 logger = logging.getLogger(__name__)
@@ -262,6 +266,26 @@ def setup_cache(config):
 
     heartbeat = cache.heartbeat(backend)
     config.registry.heartbeats["cache"] = heartbeat
+
+
+def setup_sentry(config):
+    settings = config.get_settings()
+
+    # Note: SENTRY_DSN and SENTRY_ENV env variables will override
+    # .ini values thanks to `load_default_settings()`.
+
+    if dsn := settings["sentry_dsn"]:
+        env_options = {}
+        if env := settings["sentry_env"]:
+            env_options["environment"] = env
+
+        sentry_sdk.init(dsn, **env_options)
+
+        def on_app_created(event):
+            msg = "Running {project_name} {project_version}.".format_map(settings)
+            sentry_sdk.capture_message(msg, "info")
+
+        config.add_subscriber(on_app_created, ApplicationCreated)
 
 
 def setup_statsd(config):

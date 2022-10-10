@@ -242,6 +242,27 @@ class ApplicationWrapperTest(unittest.TestCase):
         self.assertEqual(settings["my_cool_setting"], "1.2")
 
 
+class SentryTest(unittest.TestCase):
+    def test_sentry_not_enabled_by_default(self):
+        config = Configurator()
+        with mock.patch("sentry_sdk.init") as mocked:
+            kinto.core.initialize(config, "0.0.1")
+
+        self.assertFalse(mocked.called)
+
+    def test_sentry_enabled_if_sentry_dsn_is_set(self):
+        config = Configurator(
+            settings={
+                "sentry_dsn": "https://notempty",
+                "sentry_env": "local",
+            }
+        )
+        with mock.patch("sentry_sdk.init") as mocked:
+            kinto.core.initialize(config, "0.0.1")
+
+        mocked.assert_called_with("https://notempty", environment="local")
+
+
 class StatsDConfigurationTest(unittest.TestCase):
     def setUp(self):
         settings = {

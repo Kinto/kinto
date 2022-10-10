@@ -396,17 +396,29 @@ Example output:
     {"Pid": 19240, "Type": "root", "Timestamp": 1489067817834153984, "Severity": 4, "Hostname": "pluo", "Logger": "%", "EnvVersion": "2.0", "Fields": {"perm": "read", "userid": "ldap:john@corp.com", "message": "Permission not granted.", "uri": "/buckets/123"}}
 
 
+.. handling-exceptions-with-sentry:
+
 Handling exceptions with Sentry
 :::::::::::::::::::::::::::::::
 
-Requires the ``raven`` package.
 
-Sentry logging can be enabled `as explained in official documentation
-<https://raven.readthedocs.io/en/latest/integrations/pyramid.html#logger-setup>`_.
+Sentry reporting can be enabled via the following settings:
+
+.. code-block:: ini
+
+    kinto.sentry_dsn = https://userid@o1.ingest.sentry.io/1
+    kinto.sentry_env = stage
+
+Or the equivalent environment variables:
+
+::
+
+    SENTRY_DSN=https://userid@o1.ingest.sentry.io/1
+    SENTRY_ENV=stage
 
 .. note::
 
-    The application sends an *INFO* message on startup (mainly for setup check).
+    The application sends an event on startup (mainly for setup check).
 
 
 Monitoring with StatsD

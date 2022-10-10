@@ -271,7 +271,6 @@ processed through `Kibana <https://github.com/elastic/kibana>`_ or
 
 With the following configuration, all logs are structured in JSON and
 redirected to standard output (See `12factor app <http://12factor.net/logs>`_).
-A `Sentry <https://getsentry.com>`_ logger is also enabled.
 
 .. note::
 
@@ -283,26 +282,20 @@ A `Sentry <https://getsentry.com>`_ logger is also enabled.
     keys = root
 
     [handlers]
-    keys = console, sentry
+    keys = console
 
     [formatters]
     keys = generic, json
 
     [logger_root]
     level = INFO
-    handlers = console, sentry
+    handlers = console
 
     [handler_console]
     class = StreamHandler
     args = (sys.stdout,)
     level = NOTSET
     formatter = json
-
-    [handler_sentry]
-    class = raven.handlers.logging.SentryHandler
-    args = ('https://<key>:<secret>@app.getsentry.com/<project>',)
-    level = WARNING
-    formatter = generic
 
     [formatter_json]
     class = kinto.core.JsonLogFormatter

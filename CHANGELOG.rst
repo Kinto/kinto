@@ -6,7 +6,39 @@ This document describes changes between each past release.
 14.8.1 (unreleased)
 -------------------
 
-- Nothing changed yet.
+**Breaking Changes**
+
+- ``raven`` is not installed by default anymore (fixes #3054). Sentry reporting is now enabled via settings (or environment variables).
+
+In order to migrate from Kinto <14 to Kinto 15, remove the mention of ``sentry`` and ``raven`` from your logging configuration:
+
+.. code-block:: diff
+
+         # kinto.ini
+
+         [logger_root]
+         level = INFO
+    -    handlers = console, sentry
+    +    handlers = console
+
+         [handlers]
+    -    keys = console, sentry
+    +    keys = console
+
+    -    [handler_sentry]
+    -    class = raven.handlers.logging.SentryHandler
+    -    args = ('https://<key>:<secret>@app.getsentry.com/<project>',)
+    -    level = WARNING
+    -    formatter = generic
+
+And add the following settings:
+
+.. code-block:: ini
+
+    kinto.sentry_dsn = https://userid@o1.ingest.sentry.io/1
+    kinto.sentry_env = prod
+
+For more information, see :ref:`Settings documentation <handling-exceptions-with-sentry>`_.
 
 
 14.8.0 (2022-10-06)
