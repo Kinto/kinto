@@ -6,7 +6,9 @@ This document describes changes between each past release.
 14.8.1 (unreleased)
 -------------------
 
-- Nothing changed yet.
+**Documentation**
+
+- Fix ``/batch`` endpoint documentation about required authentication.
 
 
 14.8.0 (2022-10-06)
