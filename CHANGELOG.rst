@@ -38,7 +38,7 @@ And add the following settings:
     kinto.sentry_dsn = https://userid@o1.ingest.sentry.io/1
     kinto.sentry_env = prod
 
-For more information, see :ref:`Settings documentation <handling-exceptions-with-sentry>`.
+For more information, see `Settings documentation <https://kinto.readthedocs.io/en/stable/configuration/settings.html#authentication>`_.
 
 
 14.8.0 (2022-10-06)
