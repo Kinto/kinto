@@ -396,7 +396,7 @@ Example output:
     {"Pid": 19240, "Type": "root", "Timestamp": 1489067817834153984, "Severity": 4, "Hostname": "pluo", "Logger": "%", "EnvVersion": "2.0", "Fields": {"perm": "read", "userid": "ldap:john@corp.com", "message": "Permission not granted.", "uri": "/buckets/123"}}
 
 
-.. handling-exceptions-with-sentry:
+.. _handling-exceptions-with-sentry:
 
 Handling exceptions with Sentry
 :::::::::::::::::::::::::::::::
