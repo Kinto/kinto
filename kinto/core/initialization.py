@@ -274,9 +274,11 @@ def setup_sentry(config):
     # Note: SENTRY_DSN and SENTRY_ENV env variables will override
     # .ini values thanks to `load_default_settings()`.
 
-    if dsn := settings["sentry_dsn"]:
+    dsn = settings["sentry_dsn"]
+    if dsn:
         env_options = {}
-        if env := settings["sentry_env"]:
+        env = settings["sentry_env"]
+        if env:
             env_options["environment"] = env
 
         sentry_sdk.init(dsn, **env_options)
