@@ -262,6 +262,22 @@ class SentryTest(unittest.TestCase):
 
         mocked.assert_called_with("https://notempty", environment="local")
 
+    def test_message_is_sent_on_startup(self):
+        config = Configurator(settings={**kinto.core.DEFAULT_SETTINGS})
+        config.add_settings(
+            {
+                "sentry_dsn": "https://notempty",
+            }
+        )
+
+        with mock.patch("sentry_sdk.init"):
+            kinto.core.initialize(config, "0.0.1", "name")
+
+            with mock.patch("sentry_sdk.capture_message") as mocked:
+                config.make_wsgi_app()
+
+        mocked.assert_called_with("Running  0.0.1.", "info")
+
 
 class StatsDConfigurationTest(unittest.TestCase):
     def setUp(self):
