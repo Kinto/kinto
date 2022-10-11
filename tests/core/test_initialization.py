@@ -243,6 +243,7 @@ class ApplicationWrapperTest(unittest.TestCase):
 
 
 class SentryTest(unittest.TestCase):
+    @unittest.skipIf(initialization.sentry_sdk is None, "sentry is not installed.")
     def test_sentry_not_enabled_by_default(self):
         config = Configurator()
         with mock.patch("sentry_sdk.init") as mocked:
@@ -250,6 +251,7 @@ class SentryTest(unittest.TestCase):
 
         self.assertFalse(mocked.called)
 
+    @unittest.skipIf(initialization.sentry_sdk is None, "sentry is not installed.")
     def test_sentry_enabled_if_sentry_dsn_is_set(self):
         config = Configurator(
             settings={
@@ -262,6 +264,7 @@ class SentryTest(unittest.TestCase):
 
         mocked.assert_called_with("https://notempty", environment="local")
 
+    @unittest.skipIf(initialization.sentry_sdk is None, "sentry is not installed.")
     def test_message_is_sent_on_startup(self):
         config = Configurator(settings={**kinto.core.DEFAULT_SETTINGS})
         config.add_settings(
