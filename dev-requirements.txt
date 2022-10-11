@@ -1,4 +1,4 @@
-black==22.8.0
+black==22.10.0
 bravado==11.0.3
 bravado_core==5.17.1
 flake8==5.0.4
