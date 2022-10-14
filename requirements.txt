@@ -1,4 +1,4 @@
-bcrypt==4.0.0
+bcrypt==4.0.1
 colander==1.8.3
 cornice==6.0.1
 cornice-swagger==1.0.1
@@ -7,7 +7,7 @@ jsonpatch==1.32
 jsonschema==4.16.0
 logging-color-formatter==1.0.3
 newrelic==8.2.0.181
-psycopg2==2.9.3
+psycopg2==2.9.4
 pyramid==2.0
 pyramid-mailer==0.15.1
 pyramid-multiauth==1.0.1

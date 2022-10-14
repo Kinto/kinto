@@ -7,8 +7,6 @@ Batch operations
 POST /batch
 ===========
 
-**Requires authentication**
-
 The POST body is a mapping, with the following attributes:
 
 - ``requests``: the list of requests

@@ -40,6 +40,10 @@ And add the following settings:
 
 For more information, see `Settings documentation <https://kinto.readthedocs.io/en/stable/configuration/settings.html#authentication>`_.
 
+**Documentation**
+
+- Fix ``/batch`` endpoint documentation about required authentication.
+
 
 14.8.0 (2022-10-06)
 -------------------
