@@ -283,6 +283,14 @@ class SentryTest(unittest.TestCase):
 
         mocked.assert_called_with("Running  0.0.1.", "info")
 
+    @unittest.skipIf(initialization.sentry_sdk is None, "sentry is not installed.")
+    def unexpected_exceptions_are_reported(self):
+        with mock.patch("kinto.core.views.hello.get_eos", side_effect=ValueError):
+            with mock.patch("sentry_sdk.hub.Hub.capture_event") as mocked:
+                resp = self.app.get("/")
+        assert resp.status == 500
+        assert len(mocked.call_args_list) > 0
+
 
 class StatsDConfigurationTest(unittest.TestCase):
     def setUp(self):
