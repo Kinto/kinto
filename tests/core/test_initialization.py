@@ -242,6 +242,56 @@ class ApplicationWrapperTest(unittest.TestCase):
         self.assertEqual(settings["my_cool_setting"], "1.2")
 
 
+class SentryTest(unittest.TestCase):
+    @unittest.skipIf(initialization.sentry_sdk is None, "sentry is not installed.")
+    def test_sentry_not_enabled_by_default(self):
+        config = Configurator()
+        with mock.patch("sentry_sdk.init") as mocked:
+            kinto.core.initialize(config, "0.0.1")
+
+        self.assertFalse(mocked.called)
+
+    @unittest.skipIf(initialization.sentry_sdk is None, "sentry is not installed.")
+    def test_sentry_enabled_if_sentry_dsn_is_set(self):
+        config = Configurator(
+            settings={
+                "sentry_dsn": "https://notempty",
+                "sentry_env": "local",
+            }
+        )
+        with mock.patch("sentry_sdk.init") as mocked:
+            kinto.core.initialize(config, "0.0.1")
+
+        init_call = mocked.call_args_list[0]
+        self.assertEqual(init_call[0][0], "https://notempty")
+        self.assertEqual(init_call[1]["environment"], "local")
+
+    @unittest.skipIf(initialization.sentry_sdk is None, "sentry is not installed.")
+    def test_message_is_sent_on_startup(self):
+        config = Configurator(settings={**kinto.core.DEFAULT_SETTINGS})
+        config.add_settings(
+            {
+                "sentry_dsn": "https://notempty",
+            }
+        )
+
+        with mock.patch("sentry_sdk.init"):
+            kinto.core.initialize(config, "0.0.1", "name")
+
+            with mock.patch("sentry_sdk.capture_message") as mocked:
+                config.make_wsgi_app()
+
+        mocked.assert_called_with("Running  0.0.1.", "info")
+
+    @unittest.skipIf(initialization.sentry_sdk is None, "sentry is not installed.")
+    def unexpected_exceptions_are_reported(self):
+        with mock.patch("kinto.core.views.hello.get_eos", side_effect=ValueError):
+            with mock.patch("sentry_sdk.hub.Hub.capture_event") as mocked:
+                resp = self.app.get("/")
+        assert resp.status == 500
+        assert len(mocked.call_args_list) > 0
+
+
 class StatsDConfigurationTest(unittest.TestCase):
     def setUp(self):
         settings = {

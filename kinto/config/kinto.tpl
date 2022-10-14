@@ -239,6 +239,9 @@ kinto.bucket_create_principals = account:admin
 # kinto.statsd_prefix = kinto
 # kinto.statsd_url =
 
+# kinto.sentry_dsn =
+# kinto.sentry_env =
+
 # kinto.newrelic_config =
 # kinto.newrelic_env = dev
 
