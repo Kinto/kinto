@@ -262,7 +262,9 @@ class SentryTest(unittest.TestCase):
         with mock.patch("sentry_sdk.init") as mocked:
             kinto.core.initialize(config, "0.0.1")
 
-        mocked.assert_called_with("https://notempty", environment="local")
+        init_call = mocked.call_args_list[0]
+        self.assertEqual(init_call[0][0], "https://notempty")
+        self.assertEqual(init_call[1]["environment"], "local")
 
     @unittest.skipIf(initialization.sentry_sdk is None, "sentry is not installed.")
     def test_message_is_sent_on_startup(self):

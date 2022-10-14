@@ -28,6 +28,7 @@ except ImportError:  # pragma: no cover
     ProfilerMiddleware = False
 try:
     import sentry_sdk
+    from sentry_sdk.integrations.pyramid import PyramidIntegration
 except ImportError:  # pragma: no cover
     sentry_sdk = None
 
@@ -281,7 +282,13 @@ def setup_sentry(config):
         if env:
             env_options["environment"] = env
 
-        sentry_sdk.init(dsn, **env_options)
+        sentry_sdk.init(
+            dsn,
+            integrations=[
+                PyramidIntegration(),
+            ],
+            **env_options,
+        )
 
         def on_app_created(event):
             msg = "Running {project_name} {project_version}.".format_map(settings)
