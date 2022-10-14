@@ -3,6 +3,12 @@ Changelog
 
 This document describes changes between each past release.
 
+15.0.1 (unreleased)
+-------------------
+
+- Nothing changed yet.
+
+
 15.0.0 (2022-10-14)
 -------------------
 
