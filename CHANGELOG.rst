@@ -6,7 +6,9 @@ This document describes changes between each past release.
 15.0.1 (unreleased)
 -------------------
 
-- Nothing changed yet.
+**New features**
+
+- Enable SQLAlchemy integration for Sentry
 
 
 15.0.0 (2022-10-14)
