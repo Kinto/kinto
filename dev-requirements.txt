@@ -9,7 +9,7 @@ pytest-cov==4.0.0
 pytest-watch==4.2.0
 python-memcached==1.59
 selenium==4.5.0
-swagger-spec-validator==2.7.6
+swagger-spec-validator==3.0.2
 therapist==2.2.0
 tox==3.26.0
 WebTest==3.0.0
