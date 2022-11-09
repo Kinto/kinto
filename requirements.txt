@@ -17,7 +17,7 @@ python-memcached==1.59
 sentry-sdk==1.10.1
 requests==2.28.1
 SQLAlchemy==1.4.43
-statsd==3.3.0
+statsd==4.0.1
 transaction==3.0.1
 python-rapidjson==1.9
 waitress==2.1.2
