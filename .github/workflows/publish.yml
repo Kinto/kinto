@@ -33,16 +33,9 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       -
-        name: Login to GHCR
-        uses: docker/login-action@v2
-        with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      -
         name: Build and push
         uses: docker/build-push-action@v3
         with:
           push: true
           platforms: linux/amd64,linux/arm64
-          tags: elswork/kinto:1.0.0, elswork/kinto:latest
+          tags: kinto/kinto-server:14.4.0, kinto/kinto-server:latest
