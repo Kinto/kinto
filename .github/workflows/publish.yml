@@ -1,6 +1,6 @@
 # This is a basic workflow to help you get started with Actions
 
-name: CI
+name: Build & Publish
 
 # Controls when the workflow will run
 on:
@@ -40,5 +40,8 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
       -
-        name: Make Buildx
-        run: make build
+        name: Build and push
+        uses: docker/build-push-action@v3
+        with:
+          push: true
+          tags: elswork/kinto:latest, elswork/kinto:1.0.0
