@@ -44,5 +44,5 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           push: true
-          platforms: linux/amd64,linux/arm64,linux/ppc64le,linux/s390x
+          platforms: linux/amd64,linux/arm64
           tags: elswork/kinto:1.0.0, elswork/kinto:latest
