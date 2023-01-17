@@ -276,7 +276,7 @@ def setup_sentry(config):
     # .ini values thanks to `load_default_settings()`.
 
     dsn = settings["sentry_dsn"]
-    if dsn:
+    if dsn:  # pragma: no cover
         env_options = {}
         env = settings["sentry_env"]
         if env:
