@@ -10,6 +10,10 @@ This document describes changes between each past release.
 
 - Enable SQLAlchemy integration for Sentry
 
+**Internal Changes**
+
+- Force SQLAlchemy version to 1.X
+
 
 15.0.0 (2022-10-14)
 -------------------
