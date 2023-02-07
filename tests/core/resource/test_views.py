@@ -466,7 +466,6 @@ class IgnoredFieldsTest(BaseWebTest, unittest.TestCase):
 
 
 class InvalidBodyTest(BaseWebTest, unittest.TestCase):
-
     invalid_body = "{'foo>}"
 
     def setUp(self):

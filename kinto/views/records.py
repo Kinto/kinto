@@ -20,7 +20,6 @@ _parent_path = "/buckets/{{bucket_id}}/collections/{{collection_id}}"
     object_path=_parent_path + "/records/{{id}}",
 )
 class Record(resource.Resource):
-
     schema_field = "schema"
 
     def __init__(self, request, **kwargs):

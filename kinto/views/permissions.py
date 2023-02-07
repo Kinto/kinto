@@ -212,7 +212,6 @@ class PermissionsSchema(resource.ResourceSchema):
     plural_methods=("HEAD", "GET"),
 )
 class Permissions(resource.Resource):
-
     schema = PermissionsSchema
 
     def __init__(self, request, context=None):

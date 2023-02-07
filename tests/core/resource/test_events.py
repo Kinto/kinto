@@ -34,7 +34,6 @@ def notif_broken(app, event_cls):
 
 
 class BaseEventTest(BaseWebTest):
-
     subscribed = tuple()
     events = []
 
@@ -62,7 +61,6 @@ class BaseEventTest(BaseWebTest):
 
 
 class ResourceReadTest(BaseEventTest, unittest.TestCase):
-
     subscribed = (ResourceRead,)
 
     def test_get_sends_read_event(self):
@@ -93,7 +91,6 @@ class ResourceReadTest(BaseEventTest, unittest.TestCase):
 
 
 class ResourceChangedTest(BaseEventTest, unittest.TestCase):
-
     subscribed = (ResourceChanged,)
 
     def test_events_have_custom_representation(self):
@@ -202,7 +199,6 @@ class ResourceChangedTest(BaseEventTest, unittest.TestCase):
 
 
 class AfterResourceChangedTest(BaseEventTest, unittest.TestCase):
-
     subscribed = (AfterResourceChanged,)
 
     def test_request_succeeds_if_notify_fails(self):
@@ -213,7 +209,6 @@ class AfterResourceChangedTest(BaseEventTest, unittest.TestCase):
 
 
 class AfterResourceReadTest(BaseEventTest, unittest.TestCase):
-
     subscribed = (AfterResourceRead,)
 
     def test_request_succeeds_if_notify_fails(self):
@@ -224,7 +219,6 @@ class AfterResourceReadTest(BaseEventTest, unittest.TestCase):
 
 
 class ImpactedObjectsTest(BaseEventTest, unittest.TestCase):
-
     subscribed = (ResourceChanged,)
 
     def test_create_has_new_object_and_no_old_in_payload(self):
@@ -281,7 +275,6 @@ class ImpactedObjectsTest(BaseEventTest, unittest.TestCase):
 
 
 class BatchEventsTest(BaseEventTest, unittest.TestCase):
-
     subscribed = (ResourceChanged, ResourceRead)
 
     def test_impacted_objects_are_merged(self):

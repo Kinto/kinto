@@ -26,7 +26,6 @@ openapi_response_schemas = {
     operation_id="get_openapi_spec",
 )
 def openapi_view(request):
-
     # Only build json once
     try:
         return openapi_view.__json__

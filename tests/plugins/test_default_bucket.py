@@ -21,7 +21,6 @@ class DefaultBucketWebTest(BaseWebTest, unittest.TestCase):
 
 
 class DefaultBucketViewTest(FormattedErrorMixin, DefaultBucketWebTest):
-
     bucket_url = "/buckets/default"
     collection_url = "/buckets/default/collections/tasks"
 

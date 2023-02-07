@@ -15,7 +15,6 @@ from .support import (
 
 
 class RecordsViewTest(BaseWebTest, unittest.TestCase):
-
     collection_url = "/buckets/beers/collections/barley/records"
     _record_url = "/buckets/beers/collections/barley/records/{}"
 
@@ -227,7 +226,6 @@ class RecordsViewTest(BaseWebTest, unittest.TestCase):
 
 
 class RecordsViewMergeTest(BaseWebTest, unittest.TestCase):
-
     collection_url = "/buckets/beers/collections/barley/records"
     _record_url = "/buckets/beers/collections/barley/records/{}"
 
@@ -281,7 +279,6 @@ class RecordsViewMergeTest(BaseWebTest, unittest.TestCase):
 
 
 class RecordsViewPatchTest(BaseWebTest, unittest.TestCase):
-
     collection_url = "/buckets/beers/collections/barley/records"
     _record_url = "/buckets/beers/collections/barley/records/{}"
 

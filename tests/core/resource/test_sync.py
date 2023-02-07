@@ -136,7 +136,6 @@ class SinceModifiedTest(ThreadMixin, BaseTest):
         self.assertTrue(before < now < after)
 
     def test_objects_created_during_fetch_are_above_fetch_timestamp(self):
-
         timestamps = {}
 
         def long_fetch():

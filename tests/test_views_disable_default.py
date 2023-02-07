@@ -4,7 +4,6 @@ from .support import BaseWebTest
 
 
 class DisableDefaultBucketViewTest(BaseWebTest, unittest.TestCase):
-
     test_url = "/buckets/default"
 
     def test_returns_403_if_excluded_in_configuration(self):

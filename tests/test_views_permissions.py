@@ -281,7 +281,6 @@ class GroupsPermissionTest(PermissionsViewTest):
 
 
 class SettingsPermissionsTest(PermissionsViewTest):
-
     admin_headers = get_user_headers("admin")
     admin_principal = (
         "basicauth:bb7fe7b98e759578ef0de85b546dd57d21fe1e399390ad8dafc9886043a00e5c"  # NOQA

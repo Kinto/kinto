@@ -1076,7 +1076,6 @@ class Resource:
 
             # Handle the _since specific filter.
             if param in ("_since", "_to", "_before"):
-
                 if param == "_since":
                     operator = COMPARISON.GT
                 else:

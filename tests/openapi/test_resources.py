@@ -8,7 +8,6 @@ from .support import (
 
 
 class OpenAPIResourcesTest(OpenAPITest):
-
     allowed_failures = ["version"]
 
     def test_resource_utilities(self):

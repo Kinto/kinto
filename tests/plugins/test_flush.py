@@ -9,7 +9,6 @@ from ..support import MINIMALIST_BUCKET, MINIMALIST_COLLECTION, MINIMALIST_RECOR
 
 
 class FlushViewTest(BaseWebTest, unittest.TestCase):
-
     collection_url = "/buckets/beers/collections/barley/records"
     events = []
 

@@ -51,7 +51,6 @@ class AccountSchema(resource.ResourceSchema):
 
 @resource.register()
 class Account(resource.Resource):
-
     schema = AccountSchema
 
     def __init__(self, request, context):

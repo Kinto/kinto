@@ -14,7 +14,6 @@ from .support import (
 
 
 class BucketViewTest(BaseWebTest, unittest.TestCase):
-
     collection_url = "/buckets"
     record_url = "/buckets/beers"
 
@@ -124,7 +123,6 @@ class BucketCreationTest(BaseWebTest, unittest.TestCase):
 
 
 class BucketReadPermissionTest(BaseWebTest, unittest.TestCase):
-
     collection_url = "/buckets"
     record_url = "/buckets/beers"
 
@@ -153,7 +151,6 @@ class BucketReadPermissionTest(BaseWebTest, unittest.TestCase):
 
 
 class BucketDeletionTest(BaseWebTest, unittest.TestCase):
-
     bucket_url = "/buckets/beers"
     collection_url = "/buckets/beers/collections/barley"
     group_url = "/buckets/beers/groups/moderators"
