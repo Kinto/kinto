@@ -198,7 +198,7 @@ class RouteFactory:
         """
         if not bound_perms:
             bound_perms = [(self.resource_name, self.required_permission)]
-        for (_, permission) in bound_perms:
+        for _, permission in bound_perms:
             # With Kinto inheritance tree, we can have: `permission = "record:create"`
             if self.resource_name and permission.startswith(self.resource_name):
                 setting = f"{permission.replace(':', '_')}_principals"

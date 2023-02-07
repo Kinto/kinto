@@ -6,7 +6,6 @@ from .support import MINIMALIST_BUCKET, MINIMALIST_COLLECTION, MINIMALIST_RECORD
 
 
 class CollectionViewTest(BaseWebTest, unittest.TestCase):
-
     collections_url = "/buckets/beers/collections"
     collection_url = "/buckets/beers/collections/barley"
 
@@ -89,7 +88,6 @@ class CollectionViewTest(BaseWebTest, unittest.TestCase):
 
 
 class CollectionDeletionTest(BaseWebTest, unittest.TestCase):
-
     collection_url = "/buckets/beers/collections/barley"
 
     def setUp(self):
@@ -156,7 +154,6 @@ class CollectionDeletionTest(BaseWebTest, unittest.TestCase):
 
 
 class CollectionCreationTest(BaseWebTest, unittest.TestCase):
-
     collections_url = "/buckets/beers/collections"
 
     def setUp(self):

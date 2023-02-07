@@ -125,7 +125,7 @@ def on_resource_changed(event):
             pass
 
     # Update the bucket quotas values for each impacted record.
-    for (uri, obj_id, old, new) in targets:
+    for uri, obj_id, old, new in targets:
         old_size = record_size(old)
         new_size = record_size(new)
 

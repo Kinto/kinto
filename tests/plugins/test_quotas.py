@@ -35,7 +35,6 @@ class PluginSetup(unittest.TestCase):
 
 
 class QuotaWebTest(support.BaseWebTest, unittest.TestCase):
-
     bucket_uri = "/buckets/test"
     collection_uri = "/buckets/test/collections/col"
     record_uri = "/buckets/test/collections/col/records/rec"
@@ -93,7 +92,6 @@ class HelloViewTest(QuotaWebTest):
 
 
 class QuotaListenerTest(QuotaWebTest):
-
     #
     # Bucket
     #
@@ -782,7 +780,6 @@ class QuotaMaxBytesExceededSettingsListenerTest(
     QuotaBucketMixin,
     QuotaWebTest,
 ):
-
     error_message = "Bucket maximum total size exceeded "
 
     @classmethod
@@ -799,7 +796,6 @@ class QuotaMaxBytesExceededBucketSettingsListenerTest(
     QuotaBucketMixin,
     QuotaWebTest,
 ):
-
     error_message = "Bucket maximum total size exceeded "
 
     @classmethod
@@ -812,7 +808,6 @@ class QuotaMaxBytesExceededBucketSettingsListenerTest(
 class QuotaMaxItemsExceededSettingsListenerTest(
     FormattedErrorMixin, QuotaBucketRecordMixin, QuotaWebTest
 ):
-
     error_message = "Bucket maximum number of objects exceeded "
 
     @classmethod
@@ -825,7 +820,6 @@ class QuotaMaxItemsExceededSettingsListenerTest(
 class QuotaMaxItemsExceededBucketSettingsListenerTest(
     FormattedErrorMixin, QuotaBucketRecordMixin, QuotaWebTest
 ):
-
     error_message = "Bucket maximum number of objects exceeded "
 
     @classmethod
@@ -842,7 +836,6 @@ class QuotaMaxBytesPerItemExceededListenerTest(
     QuotaBucketMixin,
     QuotaWebTest,
 ):
-
     error_message = "Maximum bytes per object exceeded "
 
     @classmethod
@@ -859,7 +852,6 @@ class QuotaMaxBytesPerItemExceededBucketListenerTest(
     QuotaBucketMixin,
     QuotaWebTest,
 ):
-
     error_message = "Maximum bytes per object exceeded "
 
     @classmethod
@@ -931,7 +923,6 @@ class QuotaCollectionUpdateMixin:
 class QuotaMaxBytesExceededCollectionSettingsListenerTest(
     FormattedErrorMixin, QuotaCollectionMixin, QuotaCollectionUpdateMixin, QuotaWebTest
 ):
-
     error_message = "Collection maximum size exceeded "
 
     @classmethod
@@ -944,7 +935,6 @@ class QuotaMaxBytesExceededCollectionSettingsListenerTest(
 class QuotaMaxBytesExceededCollectionBucketSettingsListenerTest(
     FormattedErrorMixin, QuotaCollectionMixin, QuotaCollectionUpdateMixin, QuotaWebTest
 ):
-
     error_message = "Collection maximum size exceeded "
 
     @classmethod
@@ -957,7 +947,6 @@ class QuotaMaxBytesExceededCollectionBucketSettingsListenerTest(
 class QuotaMaxBytesExceededBucketCollectionSettingsListenerTest(
     FormattedErrorMixin, QuotaCollectionMixin, QuotaCollectionUpdateMixin, QuotaWebTest
 ):
-
     error_message = "Collection maximum size exceeded "
 
     @classmethod
@@ -970,7 +959,6 @@ class QuotaMaxBytesExceededBucketCollectionSettingsListenerTest(
 class QuotaMaxItemsExceededCollectionSettingsListenerTest(
     FormattedErrorMixin, QuotaCollectionMixin, QuotaWebTest
 ):
-
     error_message = "Collection maximum number of objects exceeded "
 
     @classmethod
@@ -983,7 +971,6 @@ class QuotaMaxItemsExceededCollectionSettingsListenerTest(
 class QuotaMaxItemsExceededCollectionBucketSettingsListenerTest(
     FormattedErrorMixin, QuotaCollectionMixin, QuotaWebTest
 ):
-
     error_message = "Collection maximum number of objects exceeded "
 
     @classmethod
@@ -996,7 +983,6 @@ class QuotaMaxItemsExceededCollectionBucketSettingsListenerTest(
 class QuotaMaxItemsExceededBucketCollectionSettingsListenerTest(
     FormattedErrorMixin, QuotaCollectionMixin, QuotaWebTest
 ):
-
     error_message = "Collection maximum number of objects exceeded "
 
     @classmethod
@@ -1009,7 +995,6 @@ class QuotaMaxItemsExceededBucketCollectionSettingsListenerTest(
 class QuotaMaxBytesPerItemExceededCollectionSettingsListenerTest(
     FormattedErrorMixin, QuotaCollectionMixin, QuotaWebTest
 ):
-
     error_message = "Maximum bytes per object exceeded "
 
     @classmethod
@@ -1022,7 +1007,6 @@ class QuotaMaxBytesPerItemExceededCollectionSettingsListenerTest(
 class QuotaMaxBytesPerItemExceededCollectionBucketSettingsListenerTest(
     FormattedErrorMixin, QuotaCollectionMixin, QuotaCollectionUpdateMixin, QuotaWebTest
 ):
-
     error_message = "Maximum bytes per object exceeded "
 
     @classmethod
@@ -1035,7 +1019,6 @@ class QuotaMaxBytesPerItemExceededCollectionBucketSettingsListenerTest(
 class QuotaMaxBytesPerItemExceededBucketCollectionSettingsListenerTest(
     FormattedErrorMixin, QuotaCollectionMixin, QuotaCollectionUpdateMixin, QuotaWebTest
 ):
-
     error_message = "Maximum bytes per object exceeded "
 
     @classmethod

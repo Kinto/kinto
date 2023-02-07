@@ -98,7 +98,6 @@ def condense_under_parents(request, object_uris):
     object_methods=("DELETE",),
 )
 class UserData(resource.Resource):
-
     schema = Deleted
 
     def delete(self):

@@ -89,7 +89,7 @@ def on_resource_changed(event):
     read_principals.update(collection_perms.get("write", []))
 
     # Create a history entry for each impacted object.
-    for (uri, target) in targets:
+    for uri, target in targets:
         obj_id = target["id"]
         # Prepare the history entry attributes.
         perms = {k: list(v) for k, v in perms_by_object_id[uri].items()}

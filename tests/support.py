@@ -10,7 +10,6 @@ USER_PRINCIPAL = "basicauth:8a931a10fc88ab2f6d1cc02a07d3a81b5d4768f6f13e85c5" "d
 
 
 class BaseWebTest(testing.BaseWebTest):
-
     api_prefix = "v1"
     entry_point = kinto_main
     principal = USER_PRINCIPAL

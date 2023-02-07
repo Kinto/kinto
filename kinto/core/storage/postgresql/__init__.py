@@ -357,7 +357,6 @@ class Storage(StorageBase, MigratorMixin):
         id_field=DEFAULT_ID_FIELD,
         modified_field=DEFAULT_MODIFIED_FIELD,
     ):
-
         # Remove redundancy in data field
         query_object = {**obj}
         query_object.pop(id_field, None)
@@ -624,7 +623,6 @@ class Storage(StorageBase, MigratorMixin):
         modified_field=DEFAULT_MODIFIED_FIELD,
         deleted_field=DEFAULT_DELETED_FIELD,
     ):
-
         query = """
             SELECT id, as_epoch(last_modified) AS last_modified, data
             FROM objects
@@ -671,7 +669,6 @@ class Storage(StorageBase, MigratorMixin):
         modified_field=DEFAULT_MODIFIED_FIELD,
         deleted_field=DEFAULT_DELETED_FIELD,
     ):
-
         query = """
             SELECT COUNT(*) AS total_count
             FROM objects
@@ -705,7 +702,6 @@ class Storage(StorageBase, MigratorMixin):
         modified_field=DEFAULT_MODIFIED_FIELD,
         deleted_field=DEFAULT_DELETED_FIELD,
     ):
-
         # Unsafe strings escaped by PostgreSQL
         placeholders = dict(parent_id=parent_id, resource_name=resource_name)
 
@@ -968,7 +964,6 @@ class Storage(StorageBase, MigratorMixin):
         sorts = []
         holders = {}
         for i, sort in enumerate(sorting):
-
             if sort.field == id_field:
                 sql_field = "id"
             elif sort.field == modified_field:

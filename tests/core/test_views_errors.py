@@ -11,7 +11,6 @@ from .support import BaseWebTest
 
 
 class ErrorViewTest(FormattedErrorMixin, BaseWebTest, unittest.TestCase):
-
     sample_url = "/mushrooms"
 
     def test_backoff_headers_is_not_present_by_default(self):

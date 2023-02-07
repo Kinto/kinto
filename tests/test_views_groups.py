@@ -7,7 +7,6 @@ from .support import MINIMALIST_BUCKET, MINIMALIST_GROUP, BaseWebTest
 
 
 class GroupViewTest(FormattedErrorMixin, BaseWebTest, unittest.TestCase):
-
     collection_url = "/buckets/beers/groups"
     record_url = "/buckets/beers/groups/moderators"
 
@@ -136,7 +135,6 @@ class GroupViewTest(FormattedErrorMixin, BaseWebTest, unittest.TestCase):
 
 
 class GroupManagementTest(BaseWebTest, unittest.TestCase):
-
     group_url = "/buckets/beers/groups/moderators"
 
     def setUp(self):

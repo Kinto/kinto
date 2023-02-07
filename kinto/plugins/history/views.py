@@ -48,7 +48,6 @@ delete_history_arguments = {
     plural_delete_arguments=delete_history_arguments,
 )
 class History(resource.Resource):
-
     schema = HistorySchema
 
     def get_parent_id(self, request):

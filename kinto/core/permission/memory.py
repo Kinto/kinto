@@ -111,7 +111,7 @@ class Permission(PermissionBase):
                             candidates.append((object_id, perm, value))
 
         perms_by_object_id = {}
-        for (object_id, perm, value) in candidates:
+        for object_id, perm, value in candidates:
             if len(principals & value) > 0:
                 perms_by_object_id.setdefault(object_id, set()).add(perm)
         return perms_by_object_id
