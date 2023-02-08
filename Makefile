@@ -38,7 +38,7 @@ help:
 
 all: install
 install: $(INSTALL_STAMP)
-$(INSTALL_STAMP): $(PYTHON) setup.py requirements.txt
+$(INSTALL_STAMP): $(PYTHON) setup.py requirements.txt setup.cfg
 	$(VENV)/bin/pip install -U pip
 	$(VENV)/bin/pip install -Ue . -c requirements.txt
 	touch $(INSTALL_STAMP)
