@@ -28,7 +28,8 @@ except ImportError:  # pragma: no cover
     ProfilerMiddleware = False
 try:
     import sentry_sdk
-    from sentry_sdk.integrations.pyramid import PyramidIntegration, SqlalchemyIntegration
+    from sentry_sdk.integrations.pyramid import PyramidIntegration
+    from sentry_sdk.integrations.sqlalchemy import SqlalchemyIntegration
 except ImportError:  # pragma: no cover
     sentry_sdk = None
 
