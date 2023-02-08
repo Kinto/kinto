@@ -6,8 +6,8 @@ Mozilla has a [well-defined process for handling security vulnerabilities](https
 
 | Version | Supported          |
 | ------- | ------------------ |
-| 14.x.x  | :white_check_mark: |
-| < 14.0  | :x:                |
+| 15.x.x  | :white_check_mark: |
+| < 15.0  | :x:                |
 
 ## Reporting a Vulnerability
 
