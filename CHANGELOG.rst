@@ -3,6 +3,12 @@ Changelog
 
 This document describes changes between each past release.
 
+15.1.1 (unreleased)
+-------------------
+
+- Nothing changed yet.
+
+
 15.1.0 (2023-02-08)
 -------------------
 
