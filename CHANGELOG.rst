@@ -3,7 +3,7 @@ Changelog
 
 This document describes changes between each past release.
 
-15.1.1 (unreleased)
+15.1.1 (2023-02-09)
 -------------------
 
 **Bug Fixes**
