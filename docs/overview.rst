@@ -17,7 +17,7 @@ Why use Kinto?
 
     Don't build silos. Redecentralize the Web!
 
-It's hard for frontend developers to respect users privacy when building applications
+It's hard for frontend developers to respect user privacy when building applications
 that work offline, store data remotely, and synchronise across devices.
 Existing solutions either rely on big corporations that crave user data, or require
 a non-trivial amount of time and expertise to setup a new server for every new project.
