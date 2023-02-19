@@ -74,6 +74,7 @@ Contributors
 * PeriGK <per.gkolias@gmail.com>
 * Peter Bengtsson <mail@peterbe.com>
 * Peter Rassias <ubcpeter@hotmail.com>
+* Ravi Kalsi <jadeleafmoon@gmail.com>
 * realsumit <sumitsarinofficial@gmail.com>
 * Rektide <rektide@voodoowarez.com>
 * Rémy Hubscher <rhubscher@mozilla.com>
