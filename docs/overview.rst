@@ -20,7 +20,7 @@ Why use Kinto?
 It's hard for frontend developers to respect user privacy when building applications
 that work offline, store data remotely, and synchronise across devices.
 Existing solutions either rely on big corporations that crave user data, or require
-a non-trivial amount of time and expertise to setup a new server for every new project.
+a considerable amount of time and expertise to setup a new server for every new project.
 
 We want to help developers focus on the frontend, and we don't want the challenge
 of storing user data to get in their way. The path between a new idea and deploying to
