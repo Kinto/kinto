@@ -246,7 +246,7 @@ For example, when a record is created or updated in a particular collection.
 
 It can send a notification to clients using `WebSockets <https://en.wikipedia.org/wiki/WebSocket>`_
 or fill a queue of messages in `Redis <http://redis.io/>`_ or execute any custom code of your choice,
-like for sending emails or pinging a third-party. For example, at Mozilla, Push notifications are sent to millions of clients using `kinto-megaphone <https://github.com/Kinto/kinto-megaphone>`_.
+like for sending emails or pinging a third party. For example, at Mozilla, push notifications are sent to millions of clients using `kinto-megaphone <https://github.com/Kinto/kinto-megaphone>`_.
 
 
 See :ref:`our tutorials <tutorials>` for more in-depth information on
