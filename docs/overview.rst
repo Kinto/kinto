@@ -31,7 +31,7 @@ Applications should be decoupled from the storage location, and users should be
 able to choose where their personal data is stored.
 
 The backend can often be universal, generic, and resusable. We envision mutualisation
-of services and self-hosting: the backend is deployed, secured and scaled
+of services and self-hosting: the backend is deployed, secured, and scaled
 only once for several applications.
 
 
@@ -46,11 +46,11 @@ Use cases
 - **Applications as static files**: just host your apps on GitHub pages, your backend storage
   is elsewhere!
 - **Offline-first applications**: data can also be stored locally and published later.
-- **Build collaborative applications** with real time updates and fine-grained permissions.
+- **Build collaborative applications** with real-time updates and fine-grained permissions.
 - **Synchronise application data** between different devices.
 - **Content delivery**: manage remote content or configuration for your apps via an administration UI.
 - **Data collection**: easily collect structured data from surveys, forms, and analytics.
-- **Store encrypted data** at a location users can control, ensuring better privacy and security.
+- **Store encrypted data** at a location that users can control, ensuring better privacy and security.
 
 .. note::
 
