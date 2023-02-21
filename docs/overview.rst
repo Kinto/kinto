@@ -186,7 +186,7 @@ Key features
 | <https://kintojs.readthedocs.io>`_            | <kinto-admin>`                                      |
 +-----------------------------------------------+-----------------------------------------------------+
 | |logo-history|                                | |logo-livesync|                                     |
-| :ref:`History of changes and authorship       | Live :ref:`Push notifications                       |
+| :ref:`History of changes and authorship       | :ref:`Live push notifications                       |
 | <api-history>`                                | <tutorials>`                                        |
 +-----------------------------------------------+-----------------------------------------------------+
 | |logo-attachment|                             | |logo-signature|                                    |
