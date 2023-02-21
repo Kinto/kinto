@@ -48,8 +48,8 @@ Use cases
 - **Offline-first applications**: data can also be stored locally and published later.
 - **Build collaborative applications** with real time updates and fine-grained permissions.
 - **Synchronise application data** between different devices.
-- **Content delivery**: manage remote content or configuration for your apps via an administration UI
-- **Data collection**: easily collect structured data from surveys, forms, analytics.
+- **Content delivery**: manage remote content or configuration for your apps via an administration UI.
+- **Data collection**: easily collect structured data from surveys, forms, and analytics.
 - **Store encrypted data** at a location users can control, ensuring better privacy and security.
 
 .. note::
