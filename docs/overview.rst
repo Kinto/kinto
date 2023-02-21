@@ -18,9 +18,9 @@ Why use Kinto?
     Don't build silos. Decentralize the Web!
 
 It's hard for frontend developers to respect user privacy when building applications
-that work offline, store data remotely, and synchronise across devices.
+that work offline, store data remotely and synchronise across devices.
 Existing solutions either rely on big corporations that crave user data, or require
-a considerable amount of time and expertise to setup a new server for every new project.
+a considerable amount of time and expertise to set up a new server for every new project.
 
 We want to help developers focus on the frontend, and we don't want the challenge
 of storing user data to get in their way. The path between a new idea and deploying to
@@ -30,7 +30,7 @@ Also, we believe data belongs to the users, and not necessarily to the applicati
 Applications should be decoupled from the storage location, and users should be
 able to choose where their personal data is stored.
 
-The backend can often be universal, generic and resusable. We envision mutualisation
+The backend can often be universal, generic, and resusable. We envision mutualisation
 of services and self-hosting: the backend is deployed, secured and scaled
 only once for several applications.
 
