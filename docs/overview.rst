@@ -76,8 +76,8 @@ to work completely offline and synchronise data when online.
 
 It's even possible for data to be encrypted on the client to keep user data safe on the server.
 
-The ecosystem of plugins provide advanced features like history tracking, specific authentication,
-push notifications, file attachments...
+The ecosystem of plugins provides advanced features such as history tracking, specific authentication,
+push notifications, and file attachments.
 
 
 Key features
