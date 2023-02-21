@@ -15,7 +15,7 @@ abilities. It is meant to be **easy to use** and **easy to self-host**.
 Why use Kinto?
 ==============
 
-    Don't build silos. Redecentralize the Web!
+    Don't build silos. Decentralize the Web!
 
 It's hard for frontend developers to respect user privacy when building applications
 that work offline, store data remotely, and synchronise across devices.
@@ -30,7 +30,7 @@ Also, we believe data belongs to the users, and not necessarily to the applicati
 Applications should be decoupled from the storage location, and users should be
 able to choose where their personal data is stored.
 
-The backend can often be universal, generic and resuable. We envision mutualisation
+The backend can often be universal, generic and resusable. We envision mutualisation
 of services and self-hosting: the backend is deployed, secured and scaled
 only once for several applications.
 
@@ -43,7 +43,7 @@ Use cases
 - **A generic Web database**: JSON store for mobile and Web apps, games, or IoT...
 - **Quickly prototype frontend applications**: don't lose time with server stuff,
   the backend for your next single page app is already there.
-- **Applications as static files**: just host your apps on GitHub pages, your storage backend
+- **Applications as static files**: just host your apps on GitHub pages, your backend storage
   is elsewhere!
 - **Offline-first applications**: data can also be stored locally and published later.
 - **Build collaborative applications** with real time updates and fine-grained permissions.
