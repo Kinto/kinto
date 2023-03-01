@@ -6,10 +6,10 @@ Concepts
 
 Basically, *Kinto* is a service where client applications can store and retrieve JSON data.
 
-In order to provide synchronisation and sharing features for these data, *Kinto*
+In order to provide synchronisation and sharing features for this data, *Kinto*
 introduces some basic concepts.
 
-*Kinto* objects in brief:
+Here is a summary of *Kinto* objects:
 
 +-----------------+---------------------------------------------------------+
 | Object          | Description                                             |
@@ -18,9 +18,9 @@ introduces some basic concepts.
 |                 | collection names won't collide if stored in different   |
 |                 | buckets.                                                |
 +-----------------+---------------------------------------------------------+
-| **collection**  | A collection of records                                 |
+| **collection**  | A collection of records.                                |
 +-----------------+---------------------------------------------------------+
-| **record**      | The actual stored data                                  |
+| **record**      | The actual stored data.                                 |
 +-----------------+---------------------------------------------------------+
 | **group**       | A named list of :ref:`principals <api-principals>` to   |
 |                 | define permissions.                                     |
@@ -32,8 +32,8 @@ introduces some basic concepts.
 Buckets, Collections, and Records
 =================================
 
-A **record** is the smallest unit of data. By default, there is no schema,
-and the JSON can contain anything.
+A **record** is the smallest unit of data. By default, there is no schema.
+The JSON can contain anything.
 
 A **collection** is a group of records. Records are manipulated as a list
 and can be filtered or sorted. Clients can obtain the list of changes that
@@ -59,7 +59,7 @@ collections are folders, and records are files!
 Groups
 ======
 
-Kinto has a concept of *groups* of users. A group has a list of members and
+*Kinto* has a concept of *groups* of users. A group has a list of members and
 belongs to a bucket.
 
 Permissions can refer to the *group* URI instead of an individual user - this makes
@@ -71,8 +71,8 @@ to several objects.
 Authentication
 ==============
 
-Kinto reads the request headers in order to authenticate the incoming request and assign a :term:`user id`.
-It can rely on a third-party called "`Identity provider <https://en.wikipedia.org/wiki/Identity_provider>`_"
+*Kinto* reads the request headers in order to authenticate the incoming request and assign a :term:`user id`.
+It can rely on a third party called "`Identity provider <https://en.wikipedia.org/wiki/Identity_provider>`_"
 like *Auth0*, *GitHub* or *Google*.
 
 .. _concepts-permissions:
