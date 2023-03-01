@@ -9,7 +9,7 @@ Basically, *Kinto* is a service where client applications can store and retrieve
 In order to provide synchronisation and sharing features for this data, *Kinto*
 introduces some basic concepts.
 
-*Kinto* objects in brief:
+Here is a summary of *Kinto* objects:
 
 +-----------------+---------------------------------------------------------+
 | Object          | Description                                             |
@@ -18,9 +18,9 @@ introduces some basic concepts.
 |                 | collection names won't collide if stored in different   |
 |                 | buckets.                                                |
 +-----------------+---------------------------------------------------------+
-| **collection**  | A collection of records                                 |
+| **collection**  | A collection of records.                                 |
 +-----------------+---------------------------------------------------------+
-| **record**      | The actual stored data                                  |
+| **record**      | The actual stored data.                                  |
 +-----------------+---------------------------------------------------------+
 | **group**       | A named list of :ref:`principals <api-principals>` to   |
 |                 | define permissions.                                     |
@@ -32,8 +32,8 @@ introduces some basic concepts.
 Buckets, Collections, and Records
 =================================
 
-A **record** is the smallest unit of data. By default, there is no schema,
-and the JSON can contain anything.
+A **record** is the smallest unit of data. By default, there is no schema.
+The JSON can contain anything.
 
 A **collection** is a group of records. Records are manipulated as a list
 and can be filtered or sorted. Clients can obtain the list of changes that
