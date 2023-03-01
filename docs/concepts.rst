@@ -59,7 +59,7 @@ collections are folders, and records are files!
 Groups
 ======
 
-Kinto has a concept of *groups* of users. A group has a list of members and
+*Kinto* has a concept of *groups* of users. A group has a list of members and
 belongs to a bucket.
 
 Permissions can refer to the *group* URI instead of an individual user - this makes
@@ -71,8 +71,8 @@ to several objects.
 Authentication
 ==============
 
-Kinto reads the request headers in order to authenticate the incoming request and assign a :term:`user id`.
-It can rely on a third-party called "`Identity provider <https://en.wikipedia.org/wiki/Identity_provider>`_"
+*Kinto* reads the request headers in order to authenticate the incoming request and assign a :term:`user id`.
+It can rely on a third party called "`Identity provider <https://en.wikipedia.org/wiki/Identity_provider>`_"
 like *Auth0*, *GitHub* or *Google*.
 
 .. _concepts-permissions:
