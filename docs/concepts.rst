@@ -18,9 +18,9 @@ Here is a summary of *Kinto* objects:
 |                 | collection names won't collide if stored in different   |
 |                 | buckets.                                                |
 +-----------------+---------------------------------------------------------+
-| **collection**  | A collection of records.                                 |
+| **collection**  | A collection of records.                                |
 +-----------------+---------------------------------------------------------+
-| **record**      | The actual stored data.                                  |
+| **record**      | The actual stored data.                                 |
 +-----------------+---------------------------------------------------------+
 | **group**       | A named list of :ref:`principals <api-principals>` to   |
 |                 | define permissions.                                     |
