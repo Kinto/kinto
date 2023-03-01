@@ -6,7 +6,7 @@ Concepts
 
 Basically, *Kinto* is a service where client applications can store and retrieve JSON data.
 
-In order to provide synchronisation and sharing features for these data, *Kinto*
+In order to provide synchronisation and sharing features for this data, *Kinto*
 introduces some basic concepts.
 
 *Kinto* objects in brief:
