@@ -18,7 +18,7 @@ sentry-sdk==1.16.0
 requests==2.28.2
 SQLAlchemy==1.4.46
 statsd==4.0.1
-transaction==3.0.1
+transaction==3.1.0
 python-rapidjson==1.9
 waitress==2.1.2
 Werkzeug==2.2.3
