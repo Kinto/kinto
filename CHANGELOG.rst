@@ -6,7 +6,9 @@ This document describes changes between each past release.
 15.1.2 (unreleased)
 -------------------
 
-- Nothing changed yet.
+**Breaking Changes**
+
+- Drop support of Python 3.7 (end-of-life 2023-06-27)
 
 
 15.1.1 (2023-02-09)
