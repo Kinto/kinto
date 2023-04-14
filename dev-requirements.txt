@@ -11,7 +11,7 @@ python-memcached==1.59
 selenium==4.8.3
 swagger-spec-validator==3.0.3
 therapist==2.2.0
-tox==3.27.1
+tox==4.4.12
 WebTest==3.0.0
 wheel==0.40.0
 zest.releaser==7.3.0
