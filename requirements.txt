@@ -21,5 +21,5 @@ statsd==4.0.1
 transaction==3.1.0
 python-rapidjson==1.10
 waitress==2.1.2
-Werkzeug==2.3.1
+Werkzeug==2.3.3
 zope.sqlalchemy==2.0
