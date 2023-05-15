@@ -1,4 +1,4 @@
-docutils==0.16
+docutils==0.20
 Sphinx==5.3.0
 sphinx_rtd_theme==1.2.0
 sphinxcontrib-httpdomain==1.8.1
