@@ -10,6 +10,9 @@ This document describes changes between each past release.
 
 - Drop support of Python 3.7 (end-of-life 2023-06-27)
 
+**New features**
+
+- Add request id to ``request.summary`` logs (read from ``X-Request-Id`` header and defaults to 16 hex string)
 
 15.1.1 (2023-02-09)
 -------------------
