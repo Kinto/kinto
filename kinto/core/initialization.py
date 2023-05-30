@@ -3,6 +3,7 @@ import random
 import re
 import warnings
 from datetime import datetime
+from secrets import token_hex
 
 from dateutil import parser as dateparser
 from pyramid.events import ApplicationCreated, NewRequest, NewResponse
@@ -392,6 +393,7 @@ def setup_logging(config):
             path=request_path,
             method=request.method,
             lang=request.headers.get("Accept-Language"),
+            rid=request.headers.get("X-Request-Id", token_hex(16)),
             errno=0,
         )
         qs = dict(errors.request_GET(request))

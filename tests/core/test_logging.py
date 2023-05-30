@@ -67,6 +67,11 @@ class RequestSummaryTest(BaseWebTest, unittest.TestCase):
         event_dict = self.logger_context()
         self.assertEqual(event_dict["authn_type"], "basicauth")
 
+    def test_request_id_is_taken_from_headers(self):
+        self.app.get("/", headers={"X-Request-Id": "foo"})
+        event_dict = self.logger_context()
+        self.assertEqual(event_dict["rid"], "foo")
+
     def test_headers_and_body_when_level_is_debug(self):
         self.mocked.level = logging.DEBUG
         body = b'{"boom": 1}'
