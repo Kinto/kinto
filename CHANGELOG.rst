@@ -3,7 +3,7 @@ Changelog
 
 This document describes changes between each past release.
 
-15.1.2 (unreleased)
+16.0.0 (2023-05-30)
 -------------------
 
 **Breaking Changes**
@@ -13,6 +13,11 @@ This document describes changes between each past release.
 **New features**
 
 - Add request id to ``request.summary`` logs (read from ``X-Request-Id`` header and defaults to 16 hex string)
+
+**Documentation**
+
+- Fix typos on the Concepts page (#3151)
+
 
 15.1.1 (2023-02-09)
 -------------------
