@@ -13,6 +13,6 @@ swagger-spec-validator==3.0.3
 therapist==2.2.0
 tox==4.10.0
 WebTest==3.0.0
-wheel==0.40.0
+wheel==0.41.1
 zest.releaser==8.0.0
 zope.sqlalchemy==3.0
