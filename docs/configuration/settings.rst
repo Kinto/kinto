@@ -409,6 +409,10 @@ Sentry reporting can be enabled via the following settings:
     kinto.sentry_dsn = https://userid@o1.ingest.sentry.io/1
     kinto.sentry_env = stage
 
+    # Integrate logging with Sentry.
+    # kinto.sentry_breadcrumbs_min_level = 10 # DEBUG
+    # kinto.sentry_events_min_level = 30 # WARNING
+
 Or the equivalent environment variables:
 
 ::

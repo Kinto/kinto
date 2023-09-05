@@ -6,7 +6,9 @@ This document describes changes between each past release.
 16.0.1 (unreleased)
 -------------------
 
-- Nothing changed yet.
+**New features**
+
+- Send logging warnings to Sentry, with logging debugs as breadcrumbs. Configure levels with ``kinto.sentry_breadcrumbs_min_level`` and ``kinto.sentry_events_min_level`` settings.
 
 
 16.0.0 (2023-05-30)
