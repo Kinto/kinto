@@ -3,7 +3,7 @@ Changelog
 
 This document describes changes between each past release.
 
-16.0.1 (unreleased)
+16.1.0 (2023-09-06)
 -------------------
 
 **New features**
