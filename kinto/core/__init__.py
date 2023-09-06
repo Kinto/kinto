@@ -89,6 +89,8 @@ DEFAULT_SETTINGS = {
     "settings_prefix": "",
     "sentry_dsn": None,
     "sentry_env": None,
+    "sentry_breadcrumbs_min_level": logging.DEBUG,
+    "sentry_events_min_level": logging.WARNING,
     "statsd_backend": "kinto.core.statsd",
     "statsd_prefix": "kinto.core",
     "statsd_url": None,

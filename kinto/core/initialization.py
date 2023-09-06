@@ -29,6 +29,7 @@ except ImportError:  # pragma: no cover
     ProfilerMiddleware = False
 try:
     import sentry_sdk
+    from sentry_sdk.integrations.logging import LoggingIntegration
     from sentry_sdk.integrations.pyramid import PyramidIntegration
     from sentry_sdk.integrations.sqlalchemy import SqlalchemyIntegration
 except ImportError:  # pragma: no cover
@@ -284,11 +285,19 @@ def setup_sentry(config):
         if env:
             env_options["environment"] = env
 
+        breadcrumbs_level = settings["sentry_breadcrumbs_min_level"]
+        events_level = settings["sentry_events_min_level"]
         sentry_sdk.init(
             dsn,
             integrations=[
                 PyramidIntegration(),
                 SqlalchemyIntegration(),
+                LoggingIntegration(
+                    # Logs to be captured as breadcrumbs (debug and above by default)
+                    level=breadcrumbs_level,
+                    # Logs to be catpured as events (warning and above by default)
+                    event_level=events_level,
+                ),
             ],
             **env_options,
         )
