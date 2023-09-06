@@ -293,9 +293,9 @@ def setup_sentry(config):
                 PyramidIntegration(),
                 SqlalchemyIntegration(),
                 LoggingIntegration(
-                    # Capture debug and above as breadcrumbs
+                    # Logs to be captured as breadcrumbs (debug and above by default)
                     level=breadcrumbs_level,
-                    # Send warnings and above as events
+                    # Logs to be catpured as events (warning and above by default)
                     event_level=events_level,
                 ),
             ],
