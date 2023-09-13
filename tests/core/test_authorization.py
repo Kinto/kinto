@@ -185,7 +185,7 @@ class AuthorizationPolicyTest(unittest.TestCase):
         userid = "portier:yourself"
         object_id = "/articles/43/comments/2"
         perm = "read"
-        mocked.warning.assert_called_with(
+        mocked.info.assert_called_with(
             "Permission %r on %r not granted to %r.",
             perm,
             object_id,
