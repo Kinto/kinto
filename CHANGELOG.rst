@@ -3,10 +3,12 @@ Changelog
 
 This document describes changes between each past release.
 
-16.2.0 (unreleased)
+16.2.1 (2023-09-13)
 -------------------
 
-- Nothing changed yet.
+**Bug fixes**
+
+- Keep warning level for server-side logging (#3263)
 
 
 16.1.0 (2023-09-06)
