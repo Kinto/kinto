@@ -133,4 +133,5 @@ build:
 	docker build --pull -t kinto/kinto-server:latest .
 
 test-description: install-dev
-	$(VENV)/bin/longtest --headless
+	$(VENV)/bin/python setup.py bdist_wheel
+	$(VENV)/bin/twine check dist/*.whl
