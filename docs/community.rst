@@ -299,7 +299,7 @@ Step 1
 .. code-block:: bash
 
      $ git checkout -b prepare-X.Y.Z
-     $ longtest
+     $ make test-description
      $ prerelease
 
 - Merge remaining pull requests
