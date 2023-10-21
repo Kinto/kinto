@@ -6,6 +6,11 @@ services:
       POSTGRES_NAME: postgres
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
   cache:
     image: memcached:1
   web:
@@ -14,8 +19,10 @@ services:
       dockerfile: Dockerfile
     image: kinto/kinto-server:latest
     depends_on:
-    - db
-    - cache
+      db:
+        condition: service_healthy
+      cache:
+        condition: service_started
     ports:
     - "8888:8888"
     environment:
