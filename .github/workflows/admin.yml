@@ -25,7 +25,7 @@ jobs:
           pip install virtualenv
           virtualenv --python=python3 .venv
 
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
           node-version: "14.x"
 
