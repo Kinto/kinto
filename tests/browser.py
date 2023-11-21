@@ -47,7 +47,7 @@ class BrowserTest(unittest.TestCase):
         self.assertTrue(header.is_displayed())
 
         # Select Kinto Accounts.
-        radio = self.driver.find_element(By.CSS_SELECTOR, "input[value='accounts']")
+        radio = self.driver.find_element(By.XPATH, "//label[contains(.,'Kinto Account Auth')]")
         radio.click()
 
         # Fill username and password.

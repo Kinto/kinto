@@ -9,6 +9,7 @@ Contributors
 * Anh <anh.trinhtrung@gmail.com>
 * Alexander Ryabkov <alexryabkov@gmail.com>
 * Alexis Metaireau <alexis@mozilla.com>
+* Alex Cottner <acottner@mozilla.com>
 * Andy McKay <amckay@mozilla.com>
 * Anthony Garuccio <garuccio124@gmail.com>
 * Aymeric Faivre <miho@miho-stories.com>
