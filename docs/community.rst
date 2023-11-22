@@ -308,9 +308,8 @@ Step 1
 - If API was updated, update API changelog in :file:`docs/api/index.rst`
 - Make sure ``HTTP_API_VERSION`` is up-to-date in :file:`kinto/__init__.py`
 - Update the link in :file:`docs/configuration/production.rst`
-- Update the **kinto-admin** version in :file:`kinto/plugins/admin/package.json` if needed
+- Update the **kinto-admin** version in :file:`kinto/plugins/admin/VERSION` if needed
   (`available releases <https://github.com/Kinto/kinto-admin/releases>`_)
-- If **kinto-admin** was updated, run ``npm install`` from the `kinto/plugins/admin/` folder in order to refresh the ``package-lock.json`` file
 
 - Update :file:`CONTRIBUTORS.rst`. The following hairy command will output the full list:
 
