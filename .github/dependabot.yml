@@ -5,52 +5,14 @@ updates:
   schedule:
     interval: weekly
   open-pull-requests-limit: 99
-  ignore:
-  - dependency-name: sqlalchemy
-    versions:
-    - 1.3.23
-    - 1.4.2
-    - 1.4.3
-    - 1.4.5
-    - 1.4.7
-  - dependency-name: cornice
-    versions:
-    - 5.2.0
-  - dependency-name: docutils
-    versions:
-    - "0.17"
-  - dependency-name: sphinx
-    versions:
-    - 3.5.3
-  - dependency-name: flake8
-    versions:
-    - 3.9.0
-  - dependency-name: tox
-    versions:
-    - 3.21.3
-  - dependency-name: cffi
-    versions:
-    - 1.14.4
-- package-ecosystem: npm
-  directory: "/kinto/plugins/admin"
-  schedule:
-    interval: weekly
-  open-pull-requests-limit: 99
-  ignore:
-  - dependency-name: typescript
-    versions:
-    - 4.2.2
-  - dependency-name: react-scripts
-    versions:
-    - 4.0.0
-  - dependency-name: react
-    versions:
-    - 17.x
-  - dependency-name: react-dom
-    versions:
-    - 17.x
+  groups:
+    all-dependencies:
+      update-types: ["major", "minor", "patch"]
 - package-ecosystem: "github-actions"
   directory: "/"
   schedule: 
     interval: weekly
   open-pull-requests-limit: 99
+  groups:
+    all-dependencies:
+      update-types: ["major", "minor", "patch"]
