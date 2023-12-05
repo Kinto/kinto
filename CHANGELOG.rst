@@ -3,7 +3,7 @@ Changelog
 
 This document describes changes between each past release.
 
-16.3.0 (unreleased)
+16.2.3 (2023-12-05)
 -------------------
 
 - Upgraded Kinto Admin to `v2.1.1 <https://github.com/Kinto/kinto-admin/releases/tag/v2.1.1>`_
