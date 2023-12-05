@@ -62,5 +62,4 @@ class BrowserTest(unittest.TestCase):
         # Navigate to simple review page (uses React Hooks and broke a few times)
         review_url = base_url + "#/buckets/workspace/collections/articles/simple-review"
         self.driver.get(review_url)
-        message = self.driver.find_element(By.CSS_SELECTOR, ".alert-warning")
-        self.assertTrue(message.is_displayed())
+        self.assertTrue(self.driver.find_element(By.CSS_SELECTOR, ".alert-warning").is_displayed())
