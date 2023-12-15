@@ -5,7 +5,7 @@ A helper class to run migrations using a series of SQL files.
 import logging
 import os
 
-from sqlalchemy import text
+from kinto.core.utils import sqlalchemy as sa
 
 logger = logging.getLogger(__name__)
 
@@ -94,4 +94,4 @@ class MigratorMixin:
             schema = f.read()
         # Since called outside request, force commit.
         with self.client.connect(force_commit=True) as conn:
-            conn.execute(text(schema))
+            conn.execute(sa.text(schema))

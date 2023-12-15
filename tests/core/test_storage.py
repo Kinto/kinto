@@ -1,7 +1,6 @@
 from unittest import mock
 
 import pytest
-from sqlalchemy import text
 
 from kinto.core import DEFAULT_SETTINGS
 from kinto.core.storage import (
@@ -17,7 +16,8 @@ from kinto.core.storage import (
 from kinto.core.storage.testing import StorageTest
 from kinto.core.storage.utils import paginated
 from kinto.core.testing import skip_if_no_postgresql, unittest
-from kinto.core.utils import COMPARISON, sqlalchemy
+from kinto.core.utils import COMPARISON
+from kinto.core.utils import sqlalchemy as sa
 
 
 class GeneratorTest(unittest.TestCase):
@@ -149,7 +149,7 @@ class PostgreSQLStorageTest(StorageTest, unittest.TestCase):
     def setUp(self):
         super().setUp()
         self.client_error_patcher = mock.patch.object(
-            self.storage.client, "session_factory", side_effect=sqlalchemy.exc.SQLAlchemyError
+            self.storage.client, "session_factory", side_effect=sa.exc.SQLAlchemyError
         )
 
     def test_number_of_fetched_objects_can_be_limited_in_settings(self):
@@ -186,7 +186,7 @@ class PostgreSQLStorageTest(StorageTest, unittest.TestCase):
     def test_connection_is_rolledback_if_error_occurs(self):
         with self.storage.client.connect() as conn:
             query = "DELETE FROM objects WHERE resource_name = 'genre';"
-            conn.execute(text(query))
+            conn.execute(sa.text(query))
 
         try:
             with self.storage.client.connect() as conn:
@@ -201,13 +201,13 @@ class PostgreSQLStorageTest(StorageTest, unittest.TestCase):
                 """
                 conn.execute(query)
 
-                raise sqlalchemy.exc.TimeoutError()
+                raise sa.exc.TimeoutError()
         except exceptions.BackendError:
             pass
 
         with self.storage.client.connect() as conn:
             query = "SELECT COUNT(*) FROM objects WHERE resource_name = 'genre';"
-            result = conn.execute(text(query))
+            result = conn.execute(sa.text(query))
             self.assertEqual(result.fetchone()[0], 1)
 
     def test_pool_object_is_shared_among_backend_instances(self):
@@ -238,7 +238,7 @@ class PostgreSQLStorageTest(StorageTest, unittest.TestCase):
             with client.connect() as conn:
                 # Make some change in a table.
                 conn.execute(
-                    text(
+                    sa.text(
                         """
                 INSERT INTO objects
                 VALUES ('rock-and-roll', 'music', 'genre', NOW(), '{}', FALSE);
@@ -247,8 +247,8 @@ class PostgreSQLStorageTest(StorageTest, unittest.TestCase):
                 )
                 # Go into a failing integrity constraint.
                 query = "INSERT INTO timestamps VALUES ('a', 'b', NOW());"
-                conn.execute(text(query))
-                conn.execute(text(query))
+                conn.execute(sa.text(query))
+                conn.execute(sa.text(query))
                 conn.commit()
                 conn.close()
 
