@@ -113,7 +113,7 @@ class Permission(PermissionBase, MigratorMixin):
             with self.client.connect() as conn:
                 result = conn.execute(text(query))
                 if result.rowcount > 0:
-                    return int(result.fetchone()["version"])
+                    return int(result.fetchone().version)
 
         # Either the metadata table doesn't exist, or it doesn't have
         # a permission_schema_version row. Many possiblities exist:
@@ -190,7 +190,7 @@ class Permission(PermissionBase, MigratorMixin):
         with self.client.connect(readonly=True) as conn:
             result = conn.execute(text(query), dict(user_id=user_id))
             results = result.fetchall()
-        return set([r["principal"] for r in results])
+        return set([r.principal for r in results])
 
     def add_principal_to_ace(self, object_id, permission, principal):
         query = """
@@ -228,7 +228,7 @@ class Permission(PermissionBase, MigratorMixin):
         with self.client.connect(readonly=True) as conn:
             result = conn.execute(text(query), dict(object_id=object_id, permission=permission))
             results = result.fetchall()
-        return set([r["principal"] for r in results])
+        return set([r.principal for r in results])
 
     def get_authorized_principals(self, bound_permissions):
         # XXX: this method is not used, except in test suites :(
@@ -253,7 +253,7 @@ class Permission(PermissionBase, MigratorMixin):
         with self.client.connect(readonly=True) as conn:
             result = conn.execute(text(query), placeholders)
             results = result.fetchall()
-        return set([r["principal"] for r in results])
+        return set([r.principal for r in results])
 
     def get_accessible_objects(self, principals, bound_permissions=None, with_children=True):
         placeholders = {}
@@ -318,7 +318,7 @@ class Permission(PermissionBase, MigratorMixin):
 
         perms_by_id = {}
         for r in results:
-            perms_by_id.setdefault(r["object_id"], set()).add(r["permission"])
+            perms_by_id.setdefault(r.object_id, set()).add(r[1])
         return perms_by_id
 
     def check_permission(self, principals, bound_permissions):
@@ -357,7 +357,7 @@ class Permission(PermissionBase, MigratorMixin):
         with self.client.connect(readonly=True) as conn:
             result = conn.execute(text(query), placeholders)
             total = result.fetchone()
-        return total["matched"] > 0
+        return total.matched > 0
 
     def get_objects_permissions(self, objects_ids, permissions=None):
         placeholders = {"object_ids": tuple(objects_ids)}
@@ -386,9 +386,9 @@ class Permission(PermissionBase, MigratorMixin):
             groupby_id[object_id] = {}
         for row in rows:
             object_id, permission, principal = (
-                row["object_id"],
-                row["permission"],
-                row["principal"],
+                row.object_id,
+                row.permission,
+                row.principal,
             )
             groupby_id[object_id].setdefault(permission, set()).add(principal)
         return list(groupby_id.values())

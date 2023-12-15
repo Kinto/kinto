@@ -104,7 +104,7 @@ class Storage(StorageBase, MigratorMixin):
         with self.client.connect() as conn:
             result = conn.execute(text(query))
             obj = result.fetchone()
-        timezone = obj["timezone"].upper()
+        timezone = obj.timezone.upper()
         if timezone != "UTC":  # pragma: no cover
             msg = f"Database timezone is not UTC ({timezone})"
             warnings.warn(msg)
@@ -120,7 +120,7 @@ class Storage(StorageBase, MigratorMixin):
         with self.client.connect() as conn:
             result = conn.execute(text(query))
             obj = result.fetchone()
-        encoding = obj["encoding"].lower()
+        encoding = obj.encoding.lower()
         if encoding != "utf8":  # pragma: no cover
             raise AssertionError(f"Unexpected database encoding {encoding}")
 
@@ -150,7 +150,7 @@ class Storage(StorageBase, MigratorMixin):
 
             result = conn.execute(text(schema_version_metadata_query))
             if result.rowcount > 0:
-                return int(result.fetchone()["version"])
+                return int(result.fetchone().version)
 
             # No storage_schema_version row.
             # Perhaps it got flush()ed by a pre-8.1.2 Kinto (which
@@ -229,7 +229,7 @@ class Storage(StorageBase, MigratorMixin):
             existing_ts = None
             ts_result = conn.execute(text(query_existing), placeholders)
             row = ts_result.fetchone()  # Will return (None, None) when empty.
-            existing_ts = row["last_modified"]
+            existing_ts = row.last_modified
 
             # If the backend is readonly, we should not try to create the timestamp.
             if self.readonly:
@@ -245,7 +245,7 @@ class Storage(StorageBase, MigratorMixin):
                 )
                 obj = create_result.fetchone() or row
 
-        return obj["last_epoch"]
+        return obj.last_epoch
 
     @deprecate_kwargs({"collection_id": "resource_name", "record": "obj"})
     def create(
@@ -316,7 +316,7 @@ class Storage(StorageBase, MigratorMixin):
         if not inserted:
             raise exceptions.UnicityError(id_field)
 
-        obj[modified_field] = inserted["last_modified"]
+        obj[modified_field] = inserted.last_modified
         return obj
 
     @deprecate_kwargs({"collection_id": "resource_name"})
@@ -344,9 +344,9 @@ class Storage(StorageBase, MigratorMixin):
             else:
                 existing = result.fetchone()
 
-        obj = existing["data"]
+        obj = existing.data
         obj[id_field] = object_id
-        obj[modified_field] = existing["last_modified"]
+        obj[modified_field] = existing.last_modified
         return obj
 
     @deprecate_kwargs({"collection_id": "resource_name", "record": "obj"})
@@ -390,7 +390,7 @@ class Storage(StorageBase, MigratorMixin):
             updated = result.fetchone()
 
         obj = {**obj, id_field: object_id}
-        obj[modified_field] = updated["last_modified"]
+        obj[modified_field] = updated.last_modified
         return obj
 
     @deprecate_kwargs({"collection_id": "resource_name"})
@@ -442,7 +442,7 @@ class Storage(StorageBase, MigratorMixin):
             updated = result.fetchone()
 
         obj = {}
-        obj[modified_field] = updated["last_modified"]
+        obj[modified_field] = updated.last_modified
         obj[id_field] = object_id
 
         obj[deleted_field] = True
@@ -555,8 +555,8 @@ class Storage(StorageBase, MigratorMixin):
         objects = []
         for result in deleted:
             obj = {}
-            obj[id_field] = result["id"]
-            obj[modified_field] = result["last_modified"]
+            obj[id_field] = result.id
+            obj[modified_field] = result.last_modified
             obj[deleted_field] = True
             objects.append(obj)
 
@@ -658,9 +658,9 @@ class Storage(StorageBase, MigratorMixin):
 
         records = []
         for result in rows:
-            record = result["data"]
-            record[id_field] = result["id"]
-            record[modified_field] = result["last_modified"]
+            record = result.data
+            record[id_field] = result.id
+            record[modified_field] = result.last_modified
             records.append(record)
         return records
 
@@ -690,7 +690,7 @@ class Storage(StorageBase, MigratorMixin):
             modified_field=modified_field,
             deleted_field=deleted_field,
         )
-        return rows[0]["total_count"]
+        return rows[0].total_count
 
     def _get_rows(
         self,

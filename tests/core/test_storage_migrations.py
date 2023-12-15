@@ -174,8 +174,8 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
             )
             result = conn.execute(text(query), placeholders)
             inserted = result.fetchone()
-            before["id"] = str(inserted["id"])
-            before["last_modified"] = inserted["last_modified"]
+            before["id"] = str(inserted.id)
+            before["last_modified"] = inserted.last_modified
 
         # In cliquet 1.6, version = 1.
         version = self.storage.get_installed_version()

@@ -115,7 +115,7 @@ class Cache(CacheBase):
         with self.client.connect(readonly=True) as conn:
             result = conn.execute(text(query), dict(key=self.prefix + key))
             if result.rowcount > 0:
-                return result.fetchone()["ttl"]
+                return result.fetchone().ttl
         return -1
 
     def expire(self, key, ttl):
@@ -156,7 +156,7 @@ class Cache(CacheBase):
             conn.execute(text(purge))
             result = conn.execute(text(query), dict(key=self.prefix + key))
             if result.rowcount > 0:
-                value = result.fetchone()["value"]
+                value = result.fetchone().value
                 return json.loads(value)
 
     def delete(self, key):
@@ -164,7 +164,7 @@ class Cache(CacheBase):
         with self.client.connect() as conn:
             result = conn.execute(text(query), dict(key=self.prefix + key))
             if result.rowcount > 0:
-                value = result.fetchone()["value"]
+                value = result.fetchone().value
                 return json.loads(value)
         return None
 
