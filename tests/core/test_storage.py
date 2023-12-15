@@ -193,13 +193,13 @@ class PostgreSQLStorageTest(StorageTest, unittest.TestCase):
                 query = """
                 INSERT INTO objects VALUES ('rock-and-roll', 'music', 'genre', NOW(), '{}', FALSE);
                 """
-                conn.execute(query)
+                conn.execute(sa.text(query))
                 conn.commit()
 
                 query = """
                 INSERT INTO objects VALUES ('jazz', 'music', 'genre', NOW(), '{}', FALSE);
                 """
-                conn.execute(query)
+                conn.execute(sa.text(query))
 
                 raise sa.exc.TimeoutError()
         except exceptions.BackendError:
@@ -255,11 +255,13 @@ class PostgreSQLStorageTest(StorageTest, unittest.TestCase):
         # Check that change in the above table was rolledback.
         with client.connect() as conn:
             result = conn.execute(
-                """
+                sa.text(
+                    """
             SELECT FROM objects
              WHERE parent_id = 'music'
                AND resource_name = 'genre';
             """
+                )
             )
         self.assertEqual(result.rowcount, 0)
 
