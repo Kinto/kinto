@@ -1,6 +1,7 @@
 from unittest import mock
 
 import pytest
+from sqlalchemy import text
 
 from kinto.core import DEFAULT_SETTINGS
 from kinto.core.storage import (
@@ -185,7 +186,7 @@ class PostgreSQLStorageTest(StorageTest, unittest.TestCase):
     def test_connection_is_rolledback_if_error_occurs(self):
         with self.storage.client.connect() as conn:
             query = "DELETE FROM objects WHERE resource_name = 'genre';"
-            conn.execute(query)
+            conn.execute(text(query))
 
         try:
             with self.storage.client.connect() as conn:
@@ -206,7 +207,7 @@ class PostgreSQLStorageTest(StorageTest, unittest.TestCase):
 
         with self.storage.client.connect() as conn:
             query = "SELECT COUNT(*) FROM objects WHERE resource_name = 'genre';"
-            result = conn.execute(query)
+            result = conn.execute(text(query))
             self.assertEqual(result.fetchone()[0], 1)
 
     def test_pool_object_is_shared_among_backend_instances(self):
@@ -237,15 +238,17 @@ class PostgreSQLStorageTest(StorageTest, unittest.TestCase):
             with client.connect() as conn:
                 # Make some change in a table.
                 conn.execute(
-                    """
+                    text(
+                        """
                 INSERT INTO objects
                 VALUES ('rock-and-roll', 'music', 'genre', NOW(), '{}', FALSE);
                 """
+                    )
                 )
                 # Go into a failing integrity constraint.
                 query = "INSERT INTO timestamps VALUES ('a', 'b', NOW());"
-                conn.execute(query)
-                conn.execute(query)
+                conn.execute(text(query))
+                conn.execute(text(query))
                 conn.commit()
                 conn.close()
 

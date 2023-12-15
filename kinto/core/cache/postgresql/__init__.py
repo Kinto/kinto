@@ -1,6 +1,8 @@
 import logging
 import os
 
+from sqlalchemy import text
+
 from kinto.core.cache import CacheBase
 from kinto.core.storage.postgresql.client import create_from_config
 from kinto.core.utils import json
@@ -74,7 +76,7 @@ class Cache(CacheBase):
          WHERE table_name = 'cache';
         """
         with self.client.connect(readonly=True) as conn:
-            result = conn.execute(query)
+            result = conn.execute(text(query))
             if result.rowcount > 0:
                 logger.info("PostgreSQL cache schema is up-to-date.")
                 return
@@ -91,7 +93,7 @@ class Cache(CacheBase):
         with open(sql_file) as f:
             schema = f.read()
         with self.client.connect(force_commit=True) as conn:
-            conn.execute(schema)
+            conn.execute(text(schema))
         logger.info("Created PostgreSQL cache tables")
 
     def flush(self):
@@ -100,7 +102,7 @@ class Cache(CacheBase):
         """
         # Since called outside request (e.g. tests), force commit.
         with self.client.connect(force_commit=True) as conn:
-            conn.execute(query)
+            conn.execute(text(query))
         logger.debug("Flushed PostgreSQL cache tables")
 
     def ttl(self, key):
@@ -111,7 +113,7 @@ class Cache(CacheBase):
            AND ttl IS NOT NULL;
         """
         with self.client.connect(readonly=True) as conn:
-            result = conn.execute(query, dict(key=self.prefix + key))
+            result = conn.execute(text(query), dict(key=self.prefix + key))
             if result.rowcount > 0:
                 return result.fetchone()["ttl"]
         return -1
@@ -121,7 +123,7 @@ class Cache(CacheBase):
         UPDATE cache SET ttl = sec2ttl(:ttl) WHERE key = :key;
         """
         with self.client.connect() as conn:
-            conn.execute(query, dict(ttl=ttl, key=self.prefix + key))
+            conn.execute(text(query), dict(ttl=ttl, key=self.prefix + key))
 
     def set(self, key, value, ttl):
         if isinstance(value, bytes):
@@ -136,7 +138,7 @@ class Cache(CacheBase):
         """
         value = json.dumps(value)
         with self.client.connect() as conn:
-            conn.execute(query, dict(key=self.prefix + key, value=value, ttl=ttl))
+            conn.execute(text(query), dict(key=self.prefix + key, value=value, ttl=ttl))
 
     def get(self, key):
         purge = """
@@ -151,8 +153,8 @@ class Cache(CacheBase):
         WHERE del.key = c.key;"""
         query = "SELECT value FROM cache WHERE key = :key AND now() < ttl;"
         with self.client.connect() as conn:
-            conn.execute(purge)
-            result = conn.execute(query, dict(key=self.prefix + key))
+            conn.execute(text(purge))
+            result = conn.execute(text(query), dict(key=self.prefix + key))
             if result.rowcount > 0:
                 value = result.fetchone()["value"]
                 return json.loads(value)
@@ -160,7 +162,7 @@ class Cache(CacheBase):
     def delete(self, key):
         query = "DELETE FROM cache WHERE key = :key RETURNING value;"
         with self.client.connect() as conn:
-            result = conn.execute(query, dict(key=self.prefix + key))
+            result = conn.execute(text(query), dict(key=self.prefix + key))
             if result.rowcount > 0:
                 value = result.fetchone()["value"]
                 return json.loads(value)

@@ -2,6 +2,8 @@ import logging
 import os
 from collections import OrderedDict
 
+from sqlalchemy import text
+
 from kinto.core.permission import PermissionBase
 from kinto.core.storage.postgresql.client import create_from_config
 from kinto.core.storage.postgresql.migrator import MigratorMixin
@@ -97,7 +99,7 @@ class Permission(PermissionBase, MigratorMixin):
         """
         query = "SELECT tablename FROM pg_tables WHERE tablename = 'metadata';"
         with self.client.connect() as conn:
-            result = conn.execute(query)
+            result = conn.execute(text(query))
             table_exists = result.rowcount > 0
 
         if table_exists:
@@ -109,7 +111,7 @@ class Permission(PermissionBase, MigratorMixin):
              LIMIT 1;
             """
             with self.client.connect() as conn:
-                result = conn.execute(query)
+                result = conn.execute(text(query))
                 if result.rowcount > 0:
                     return int(result.fetchone()["version"])
 
@@ -132,7 +134,7 @@ class Permission(PermissionBase, MigratorMixin):
          WHERE table_name = 'user_principals';
         """
         with self.client.connect(readonly=True) as conn:
-            result = conn.execute(query)
+            result = conn.execute(text(query))
             if result.rowcount > 0:
                 return 1
 
@@ -148,7 +150,7 @@ class Permission(PermissionBase, MigratorMixin):
         """
         # Since called outside request (e.g. tests), force commit.
         with self.client.connect(force_commit=True) as conn:
-            conn.execute(query)
+            conn.execute(text(query))
         logger.debug("Flushed PostgreSQL permission tables")
 
     def add_user_principal(self, user_id, principal):
@@ -162,7 +164,7 @@ class Permission(PermissionBase, MigratorMixin):
               AND principal = :principal
         );"""
         with self.client.connect() as conn:
-            conn.execute(query, dict(user_id=user_id, principal=principal))
+            conn.execute(text(query), dict(user_id=user_id, principal=principal))
 
     def remove_user_principal(self, user_id, principal):
         query = """
@@ -170,14 +172,14 @@ class Permission(PermissionBase, MigratorMixin):
          WHERE user_id = :user_id
            AND principal = :principal;"""
         with self.client.connect() as conn:
-            conn.execute(query, dict(user_id=user_id, principal=principal))
+            conn.execute(text(query), dict(user_id=user_id, principal=principal))
 
     def remove_principal(self, principal):
         query = """
         DELETE FROM user_principals
          WHERE principal = :principal;"""
         with self.client.connect() as conn:
-            conn.execute(query, dict(principal=principal))
+            conn.execute(text(query), dict(principal=principal))
 
     def get_user_principals(self, user_id):
         query = """
@@ -186,7 +188,7 @@ class Permission(PermissionBase, MigratorMixin):
          WHERE user_id = :user_id
             OR user_id = 'system.Authenticated';"""
         with self.client.connect(readonly=True) as conn:
-            result = conn.execute(query, dict(user_id=user_id))
+            result = conn.execute(text(query), dict(user_id=user_id))
             results = result.fetchall()
         return set([r["principal"] for r in results])
 
@@ -203,7 +205,7 @@ class Permission(PermissionBase, MigratorMixin):
         );"""
         with self.client.connect() as conn:
             conn.execute(
-                query, dict(object_id=object_id, permission=permission, principal=principal)
+                text(query), dict(object_id=object_id, permission=permission, principal=principal)
             )
 
     def remove_principal_from_ace(self, object_id, permission, principal):
@@ -214,7 +216,7 @@ class Permission(PermissionBase, MigratorMixin):
            AND principal = :principal;"""
         with self.client.connect() as conn:
             conn.execute(
-                query, dict(object_id=object_id, permission=permission, principal=principal)
+                text(query), dict(object_id=object_id, permission=permission, principal=principal)
             )
 
     def get_object_permission_principals(self, object_id, permission):
@@ -224,7 +226,7 @@ class Permission(PermissionBase, MigratorMixin):
          WHERE object_id = :object_id
            AND permission = :permission;"""
         with self.client.connect(readonly=True) as conn:
-            result = conn.execute(query, dict(object_id=object_id, permission=permission))
+            result = conn.execute(text(query), dict(object_id=object_id, permission=permission))
             results = result.fetchall()
         return set([r["principal"] for r in results])
 
@@ -249,7 +251,7 @@ class Permission(PermissionBase, MigratorMixin):
             ON (object_id = column1 AND permission = column2);
         """
         with self.client.connect(readonly=True) as conn:
-            result = conn.execute(query, placeholders)
+            result = conn.execute(text(query), placeholders)
             results = result.fetchall()
         return set([r["principal"] for r in results])
 
@@ -311,7 +313,7 @@ class Permission(PermissionBase, MigratorMixin):
             """
 
         with self.client.connect(readonly=True) as conn:
-            result = conn.execute(query, placeholders)
+            result = conn.execute(text(query), placeholders)
             results = result.fetchall()
 
         perms_by_id = {}
@@ -353,7 +355,7 @@ class Permission(PermissionBase, MigratorMixin):
         """
 
         with self.client.connect(readonly=True) as conn:
-            result = conn.execute(query, placeholders)
+            result = conn.execute(text(query), placeholders)
             total = result.fetchone()
         return total["matched"] > 0
 
@@ -373,8 +375,10 @@ class Permission(PermissionBase, MigratorMixin):
               AND permission IN :permissions"""
             placeholders["permissions"] = tuple(permissions)
 
+        query = query.format_map(safeholders)
+
         with self.client.connect(readonly=True) as conn:
-            result = conn.execute(query.format_map(safeholders), placeholders)
+            result = conn.execute(text(query), placeholders)
             rows = result.fetchall()
 
         groupby_id = OrderedDict()
@@ -439,7 +443,7 @@ class Permission(PermissionBase, MigratorMixin):
             """
 
         with self.client.connect() as conn:
-            conn.execute(query, placeholders)
+            conn.execute(text(query), placeholders)
 
     def delete_object_permissions(self, *object_id_list):
         if len(object_id_list) == 0:
@@ -474,8 +478,10 @@ class Permission(PermissionBase, MigratorMixin):
              WHERE object_id LIKE :obj_id_0;
             """
 
+        query = query.format_map(safeholders)
+
         with self.client.connect() as conn:
-            conn.execute(query.format_map(safeholders), placeholders)
+            conn.execute(text(query), placeholders)
 
 
 def load_from_config(config):
