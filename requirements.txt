@@ -1,5 +1,5 @@
 bcrypt==4.1.1
-colander==1.8.3
+colander==2.0
 cornice==6.0.1
 cornice-swagger==1.0.1
 dockerflow==2022.8.0
