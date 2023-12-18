@@ -144,17 +144,13 @@ Get started!
 
     make tests
 
-8. (Optional) Install a git hook::
-
-    therapist install
-
-9. Commit your changes and push your branch to GitHub::
+8. Commit your changes and push your branch to GitHub::
 
     git add .
     git commit -m "Your detailed description of your changes."
     git push origin name-of-your-bugfix-or-feature
 
-10. Submit a pull request through the GitHub website.
+9. Submit a pull request through the GitHub website.
 
 
 Testing methodology
