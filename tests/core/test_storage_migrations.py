@@ -10,6 +10,7 @@ from kinto.core.permission import postgresql as postgresql_permission
 from kinto.core.storage import postgresql as postgresql_storage
 from kinto.core.storage.postgresql.migrator import MigratorMixin
 from kinto.core.testing import skip_if_no_postgresql
+from kinto.core.utils import sqlalchemy as sa
 
 
 @mock.patch.object(MigratorMixin, "_execute_sql_file")
@@ -107,21 +108,21 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
         DROP FUNCTION IF EXISTS bump_timestamp();
         """
         with self.storage.client.connect() as conn:
-            conn.execute(q)
+            conn.execute(sa.text(q))
 
     def _load_schema(self, filepath):
         with self.storage.client.connect() as conn:
             here = os.path.dirname(__file__)
             with open(os.path.join(here, filepath)) as f:
                 old_schema = f.read()
-            conn.execute(old_schema)
+            conn.execute(sa.text(old_schema))
 
     def test_does_not_execute_if_ran_with_dry(self):
         self.storage.initialize_schema(dry_run=True)
         query = """SELECT 1 FROM information_schema.tables
         WHERE table_name = 'objects';"""
         with self.storage.client.connect(readonly=True) as conn:
-            result = conn.execute(query)
+            result = conn.execute(sa.text(query))
         self.assertEqual(result.rowcount, 0)
 
     def test_schema_sets_the_current_version(self):
@@ -135,7 +136,7 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
         self.storage.initialize_schema()
         with self.storage.client.connect() as conn:
             q = "DELETE FROM metadata WHERE name = 'storage_schema_version';"
-            conn.execute(q)
+            conn.execute(sa.text(q))
 
         self.assertEqual(self.storage.get_installed_version(), 1)
 
@@ -144,7 +145,7 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
         self.storage.initialize_schema()
         with self.storage.client.connect() as conn:
             q = "DELETE FROM metadata;"
-            conn.execute(q)
+            conn.execute(sa.text(q))
 
         self.assertEqual(self.storage.get_installed_version(), 20)
 
@@ -171,10 +172,10 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
             placeholders = dict(
                 user_id="jean-louis", resource_name="test", data=json.dumps(before)
             )
-            result = conn.execute(query, placeholders)
+            result = conn.execute(sa.text(query), placeholders)
             inserted = result.fetchone()
-            before["id"] = str(inserted["id"])
-            before["last_modified"] = inserted["last_modified"]
+            before["id"] = str(inserted.id)
+            before["last_modified"] = inserted.last_modified
 
         # In cliquet 1.6, version = 1.
         version = self.storage.get_installed_version()
@@ -224,14 +225,14 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
             last_modified=123456,
         )
         with self.storage.client.connect() as conn:
-            conn.execute(insert_query, placeholders)
+            conn.execute(sa.text(insert_query), placeholders)
 
         create_tombstone = """
         INSERT INTO deleted (id, parent_id, collection_id, last_modified)
         VALUES (:id, :parent_id, :collection_id, from_epoch(:last_modified))
         """
         with self.storage.client.connect() as conn:
-            conn.execute(create_tombstone, placeholders)
+            conn.execute(sa.text(create_tombstone), placeholders)
 
         # Execute the 011 to 012 migration (and others)
         postgresql_storage.Storage.schema_version = last_version
@@ -251,10 +252,12 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
         postgresql_storage.Storage.schema_version = 17
         with self.storage.client.connect() as conn:
             conn.execute(
-                """
+                sa.text(
+                    """
             UPDATE metadata SET value = '17'
             WHERE name = 'storage_schema_version';
             """
+                )
             )
 
         insert_query = """
@@ -269,14 +272,14 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
             last_modified=123456,
         )
         with self.storage.client.connect() as conn:
-            conn.execute(insert_query, placeholders)
+            conn.execute(sa.text(insert_query), placeholders)
 
         create_tombstone = """
         INSERT INTO deleted (id, parent_id, collection_id, last_modified)
         VALUES (:id, :parent_id, :collection_id, from_epoch(:last_modified))
         """
         with self.storage.client.connect() as conn:
-            conn.execute(create_tombstone, placeholders)
+            conn.execute(sa.text(create_tombstone), placeholders)
 
         # Execute the 017 to 018 migration (and others)
         postgresql_storage.Storage.schema_version = last_version
@@ -313,14 +316,14 @@ class PostgresqlPermissionMigrationTest(unittest.TestCase):
         DROP TABLE IF EXISTS metadata CASCADE;
         """
         with self.permission.client.connect() as conn:
-            conn.execute(q)
+            conn.execute(sa.text(q))
 
     def _load_schema(self, filepath):
         with self.permission.client.connect() as conn:
             here = os.path.dirname(__file__)
             with open(os.path.join(here, filepath)) as f:
                 old_schema = f.read()
-            conn.execute(old_schema)
+            conn.execute(sa.text(old_schema))
 
     def test_assumes_schema_1_if_no_permission_schema_version(self):
         self.permission.initialize_schema()
@@ -328,7 +331,7 @@ class PostgresqlPermissionMigrationTest(unittest.TestCase):
         DELETE FROM metadata WHERE name = 'permission_schema_version';
         """
         with self.permission.client.connect() as conn:
-            conn.execute(q)
+            conn.execute(sa.text(q))
 
         self.assertEqual(self.permission.get_installed_version(), 1)
 
@@ -338,7 +341,7 @@ class PostgresqlPermissionMigrationTest(unittest.TestCase):
         DROP TABLE metadata;
         """
         with self.permission.client.connect() as conn:
-            conn.execute(q)
+            conn.execute(sa.text(q))
 
         self.assertEqual(self.permission.get_installed_version(), 1)
 
@@ -352,7 +355,7 @@ class PostgresqlPermissionMigrationTest(unittest.TestCase):
         DROP TABLE user_principals;
         """
         with self.permission.client.connect() as conn:
-            conn.execute(q)
+            conn.execute(sa.text(q))
 
         self.assertEqual(self.permission.get_installed_version(), None)
 
@@ -365,7 +368,7 @@ class PostgresqlPermissionMigrationTest(unittest.TestCase):
         query = """SELECT 1 FROM information_schema.tables
         WHERE table_name = 'user_principals';"""
         with self.permission.client.connect(readonly=True) as conn:
-            result = conn.execute(query)
+            result = conn.execute(sa.text(query))
             self.assertEqual(result.rowcount, 1)
 
     def test_does_not_execute_if_ran_with_dry(self):
@@ -373,7 +376,7 @@ class PostgresqlPermissionMigrationTest(unittest.TestCase):
         query = """SELECT 1 FROM information_schema.tables
         WHERE table_name = 'user_principals';"""
         with self.permission.client.connect(readonly=True) as conn:
-            result = conn.execute(query)
+            result = conn.execute(sa.text(query))
         self.assertEqual(result.rowcount, 0)
 
     def test_every_available_migration(self):
@@ -397,7 +400,7 @@ class PostgresqlPermissionMigrationTest(unittest.TestCase):
               ('sailboat/log', 'read', 'system.Authenticated'),
               ('sailboat/log', 'write', 'admin');
             """
-            conn.execute(query)
+            conn.execute(sa.text(query))
 
         version = self.permission.get_installed_version()
         self.assertEqual(version, 1)
@@ -448,14 +451,14 @@ class PostgresqlCacheMigrationTest(unittest.TestCase):
         DROP TABLE IF EXISTS cache CASCADE;
         """
         with self.cache.client.connect() as conn:
-            conn.execute(q)
+            conn.execute(sa.text(q))
 
     def test_runs_initialize_schema_if_using_it_fails(self):
         self.cache.initialize_schema()
         query = """SELECT 1 FROM information_schema.tables
         WHERE table_name = 'cache';"""
         with self.cache.client.connect(readonly=True) as conn:
-            result = conn.execute(query)
+            result = conn.execute(sa.text(query))
             self.assertEqual(result.rowcount, 1)
 
     def test_does_not_execute_if_ran_with_dry(self):
@@ -463,7 +466,7 @@ class PostgresqlCacheMigrationTest(unittest.TestCase):
         query = """SELECT 1 FROM information_schema.tables
         WHERE table_name = 'cache';"""
         with self.cache.client.connect(readonly=True) as conn:
-            result = conn.execute(query)
+            result = conn.execute(sa.text(query))
         self.assertEqual(result.rowcount, 0)
 
 

@@ -15,6 +15,7 @@ from kinto.core.storage import (
 from kinto.core.storage.postgresql.client import create_from_config
 from kinto.core.storage.postgresql.migrator import MigratorMixin
 from kinto.core.utils import COMPARISON, json
+from kinto.core.utils import sqlalchemy as sa
 
 logger = logging.getLogger(__name__)
 HERE = os.path.dirname(__file__)
@@ -100,9 +101,9 @@ class Storage(StorageBase, MigratorMixin):
         # Make sure database has UTC timezone.
         query = "SELECT current_setting('TIMEZONE') AS timezone;"
         with self.client.connect() as conn:
-            result = conn.execute(query)
+            result = conn.execute(sa.text(query))
             obj = result.fetchone()
-        timezone = obj["timezone"].upper()
+        timezone = obj.timezone.upper()
         if timezone != "UTC":  # pragma: no cover
             msg = f"Database timezone is not UTC ({timezone})"
             warnings.warn(msg)
@@ -116,9 +117,9 @@ class Storage(StorageBase, MigratorMixin):
          WHERE datname =  current_database();
         """
         with self.client.connect() as conn:
-            result = conn.execute(query)
+            result = conn.execute(sa.text(query))
             obj = result.fetchone()
-        encoding = obj["encoding"].lower()
+        encoding = obj.encoding.lower()
         if encoding != "utf8":  # pragma: no cover
             raise AssertionError(f"Unexpected database encoding {encoding}")
 
@@ -138,17 +139,17 @@ class Storage(StorageBase, MigratorMixin):
          ORDER BY LPAD(value, 3, '0') DESC;
         """
         with self.client.connect() as conn:
-            result = conn.execute(table_exists_query.format("objects"))
+            result = conn.execute(sa.text(table_exists_query.format("objects")))
             objects_table_exists = result.rowcount > 0
-            result = conn.execute(table_exists_query.format("records"))
+            result = conn.execute(sa.text(table_exists_query.format("records")))
             records_table_exists = result.rowcount > 0
 
             if not objects_table_exists and not records_table_exists:
                 return
 
-            result = conn.execute(schema_version_metadata_query)
+            result = conn.execute(sa.text(schema_version_metadata_query))
             if result.rowcount > 0:
-                return int(result.fetchone()["version"])
+                return int(result.fetchone().version)
 
             # No storage_schema_version row.
             # Perhaps it got flush()ed by a pre-8.1.2 Kinto (which
@@ -158,7 +159,7 @@ class Storage(StorageBase, MigratorMixin):
             # Check for a created_at row. If this is gone, it's
             # probably been flushed at some point.
             query = "SELECT COUNT(*) FROM metadata WHERE name = 'created_at';"
-            result = conn.execute(query)
+            result = conn.execute(sa.text(query))
             was_flushed = int(result.fetchone()[0]) == 0
             if not was_flushed:
                 error_msg = "No schema history; assuming migration from Cliquet (version 1)."
@@ -187,7 +188,7 @@ class Storage(StorageBase, MigratorMixin):
         DELETE FROM timestamps;
         """
         with self.client.connect(force_commit=True) as conn:
-            conn.execute(query)
+            conn.execute(sa.text(query))
         logger.debug("Flushed PostgreSQL storage tables")
 
     def resource_timestamp(self, resource_name, parent_id):
@@ -225,9 +226,9 @@ class Storage(StorageBase, MigratorMixin):
         placeholders = dict(parent_id=parent_id, resource_name=resource_name)
         with self.client.connect(readonly=False) as conn:
             existing_ts = None
-            ts_result = conn.execute(query_existing, placeholders)
+            ts_result = conn.execute(sa.text(query_existing), placeholders)
             row = ts_result.fetchone()  # Will return (None, None) when empty.
-            existing_ts = row["last_modified"]
+            existing_ts = row.last_modified
 
             # If the backend is readonly, we should not try to create the timestamp.
             if self.readonly:
@@ -239,11 +240,11 @@ class Storage(StorageBase, MigratorMixin):
                 obj = row
             else:
                 create_result = conn.execute(
-                    create_if_missing, dict(last_modified=existing_ts, **placeholders)
+                    sa.text(create_if_missing), dict(last_modified=existing_ts, **placeholders)
                 )
                 obj = create_result.fetchone() or row
 
-        return obj["last_epoch"]
+        return obj.last_epoch
 
     @deprecate_kwargs({"collection_id": "resource_name", "record": "obj"})
     def create(
@@ -308,13 +309,13 @@ class Storage(StorageBase, MigratorMixin):
             data=json.dumps(query_object),
         )
         with self.client.connect() as conn:
-            result = conn.execute(query % safe_holders, placeholders)
+            result = conn.execute(sa.text(query % safe_holders), placeholders)
             inserted = result.fetchone()
 
         if not inserted:
             raise exceptions.UnicityError(id_field)
 
-        obj[modified_field] = inserted["last_modified"]
+        obj[modified_field] = inserted.last_modified
         return obj
 
     @deprecate_kwargs({"collection_id": "resource_name"})
@@ -336,15 +337,15 @@ class Storage(StorageBase, MigratorMixin):
         """
         placeholders = dict(object_id=object_id, parent_id=parent_id, resource_name=resource_name)
         with self.client.connect(readonly=True) as conn:
-            result = conn.execute(query, placeholders)
+            result = conn.execute(sa.text(query), placeholders)
             if result.rowcount == 0:
                 raise exceptions.ObjectNotFoundError(object_id)
             else:
                 existing = result.fetchone()
 
-        obj = existing["data"]
+        obj = existing.data
         obj[id_field] = object_id
-        obj[modified_field] = existing["last_modified"]
+        obj[modified_field] = existing.last_modified
         return obj
 
     @deprecate_kwargs({"collection_id": "resource_name", "record": "obj"})
@@ -384,11 +385,11 @@ class Storage(StorageBase, MigratorMixin):
         )
 
         with self.client.connect() as conn:
-            result = conn.execute(query, placeholders)
+            result = conn.execute(sa.text(query), placeholders)
             updated = result.fetchone()
 
         obj = {**obj, id_field: object_id}
-        obj[modified_field] = updated["last_modified"]
+        obj[modified_field] = updated.last_modified
         return obj
 
     @deprecate_kwargs({"collection_id": "resource_name"})
@@ -434,13 +435,13 @@ class Storage(StorageBase, MigratorMixin):
         )
 
         with self.client.connect() as conn:
-            result = conn.execute(query, placeholders)
+            result = conn.execute(sa.text(query), placeholders)
             if result.rowcount == 0:
                 raise exceptions.ObjectNotFoundError(object_id)
             updated = result.fetchone()
 
         obj = {}
-        obj[modified_field] = updated["last_modified"]
+        obj[modified_field] = updated.last_modified
         obj[id_field] = object_id
 
         obj[deleted_field] = True
@@ -544,15 +545,17 @@ class Storage(StorageBase, MigratorMixin):
         limit = min(self._max_fetch_size, limit) if limit else self._max_fetch_size
         placeholders["pagination_limit"] = limit
 
+        query = query.format_map(safeholders)
+
         with self.client.connect() as conn:
-            result = conn.execute(query.format_map(safeholders), placeholders)
+            result = conn.execute(sa.text(query), placeholders)
             deleted = result.fetchmany(self._max_fetch_size)
 
         objects = []
         for result in deleted:
             obj = {}
-            obj[id_field] = result["id"]
-            obj[modified_field] = result["last_modified"]
+            obj[id_field] = result.id
+            obj[modified_field] = result.last_modified
             obj[deleted_field] = True
             objects.append(obj)
 
@@ -596,7 +599,7 @@ class Storage(StorageBase, MigratorMixin):
             placeholders["before"] = before
 
         with self.client.connect() as conn:
-            result = conn.execute(delete_tombstones.format_map(safeholders), placeholders)
+            result = conn.execute(sa.text(delete_tombstones.format_map(safeholders)), placeholders)
             deleted = result.rowcount
 
             # If purging everything from a parent_id, then clear timestamps.
@@ -606,7 +609,7 @@ class Storage(StorageBase, MigratorMixin):
                 FROM timestamps
                 WHERE {parent_id_filter}
                 """
-                conn.execute(delete_timestamps.format_map(safeholders), placeholders)
+                conn.execute(sa.text(delete_timestamps.format_map(safeholders)), placeholders)
 
         return deleted
 
@@ -654,9 +657,9 @@ class Storage(StorageBase, MigratorMixin):
 
         records = []
         for result in rows:
-            record = result["data"]
-            record[id_field] = result["id"]
-            record[modified_field] = result["last_modified"]
+            record = result.data
+            record[id_field] = result.id
+            record[modified_field] = result.last_modified
             records.append(record)
         return records
 
@@ -686,7 +689,7 @@ class Storage(StorageBase, MigratorMixin):
             modified_field=modified_field,
             deleted_field=deleted_field,
         )
-        return rows[0]["total_count"]
+        return rows[0].total_count
 
     def _get_rows(
         self,
@@ -738,7 +741,7 @@ class Storage(StorageBase, MigratorMixin):
         placeholders["pagination_limit"] = limit
 
         with self.client.connect(readonly=True) as conn:
-            result = conn.execute(query.format_map(safeholders), placeholders)
+            result = conn.execute(sa.text(query.format_map(safeholders)), placeholders)
             return result.fetchmany(self._max_fetch_size + 1)
 
     def _format_conditions(self, filters, id_field, modified_field, prefix="filters"):
