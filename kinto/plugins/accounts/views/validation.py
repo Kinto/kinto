@@ -18,6 +18,7 @@ from ..utils import (
 )
 from . import DEFAULT_EMAIL_REGEXP
 
+
 # Account validation (enable in the settings).
 validation = Service(
     name="account-validation",

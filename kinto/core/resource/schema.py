@@ -14,6 +14,7 @@ from kinto.core.schema import (
 )
 from kinto.core.utils import native_value
 
+
 POSTGRESQL_MAX_INTEGER_VALUE = 2**63
 
 positive_big_integer = colander.Range(min=0, max=POSTGRESQL_MAX_INTEGER_VALUE)

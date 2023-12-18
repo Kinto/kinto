@@ -4,6 +4,7 @@ from pyramid.security import NO_PERMISSION_REQUIRED
 
 from kinto.core import Service
 
+
 hello = Service(name="hello", path="/", description="Welcome")
 
 

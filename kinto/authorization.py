@@ -3,6 +3,7 @@ from zope.interface import implementer
 
 from kinto.core import authorization as core_authorization
 
+
 # Vocab really matters when you deal with permissions. Let's do a quick recap
 # of the terms used here:
 #

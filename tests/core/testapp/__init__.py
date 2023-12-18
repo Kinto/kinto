@@ -5,6 +5,7 @@ from pyramid.static import static_view
 
 import kinto.core
 
+
 here = os.path.dirname(__file__)
 
 

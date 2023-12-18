@@ -19,6 +19,7 @@ from .schema import (
     ResourceReponses,
 )
 
+
 CONTENT_TYPES = ["application/json"]
 
 PATCH_CONTENT_TYPES = ["application/merge-patch+json"]

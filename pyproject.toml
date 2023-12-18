@@ -1,4 +1,5 @@
 [tool.ruff]
+line-length = 99
 extend-exclude = [
     "__pycache__",
     ".venv/",

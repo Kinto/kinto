@@ -2,6 +2,7 @@ import os
 
 from kinto.core.decorators import cache_forever
 
+
 HERE = os.path.dirname(__file__)
 
 

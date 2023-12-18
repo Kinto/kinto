@@ -4,6 +4,7 @@ kinto.core.storage.utils: methods for making it easier to work with kinto storag
 from kinto.core.storage import Filter
 from kinto.core.utils import COMPARISON
 
+
 BATCH_SIZE = 25
 
 

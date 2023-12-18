@@ -2,6 +2,7 @@ from kinto.core.testing import unittest
 
 from .support import BaseWebTest
 
+
 BUCKET_URL = "/buckets/blog"
 COLLECTION_URL = "/buckets/blog/collections/articles"
 

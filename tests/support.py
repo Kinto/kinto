@@ -2,6 +2,7 @@ from kinto import DEFAULT_SETTINGS
 from kinto import main as kinto_main
 from kinto.core import testing
 
+
 MINIMALIST_BUCKET = {}
 MINIMALIST_COLLECTION = {}
 MINIMALIST_GROUP = {"data": dict(members=["fxa:user"])}

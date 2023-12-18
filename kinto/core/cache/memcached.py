@@ -9,6 +9,7 @@ from kinto.core.cache import CacheBase
 from kinto.core.storage import exceptions
 from kinto.core.utils import json, memcache
 
+
 logger = logging.getLogger(__name__)
 
 

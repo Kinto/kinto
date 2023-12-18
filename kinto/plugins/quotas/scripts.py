@@ -9,6 +9,7 @@ from kinto.core.storage.utils import paginated
 from .listener import BUCKET_QUOTA_OBJECT_ID, COLLECTION_QUOTA_OBJECT_ID
 from .utils import record_size
 
+
 logger = logging.getLogger(__name__)
 
 OLDEST_FIRST = Sort("last_modified", 1)

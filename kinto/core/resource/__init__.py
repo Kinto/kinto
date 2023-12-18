@@ -38,6 +38,7 @@ from .model import Model
 from .schema import JsonPatchRequestSchema, ResourceSchema
 from .viewset import ViewSet
 
+
 logger = logging.getLogger(__name__)
 
 

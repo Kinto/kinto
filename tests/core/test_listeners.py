@@ -9,6 +9,7 @@ from kinto.core.events import ACTIONS, ResourceChanged, ResourceRead
 from kinto.core.listeners import ListenerBase
 from kinto.core.testing import unittest
 
+
 UID = str(uuid.uuid4())
 
 

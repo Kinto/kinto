@@ -5,6 +5,7 @@ from pyramid.settings import asbool
 
 from kinto.plugins.quotas import scripts as quotas
 
+
 logger = logging.getLogger(__name__)
 
 

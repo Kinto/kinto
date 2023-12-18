@@ -8,6 +8,7 @@ import transaction as zope_transaction
 from kinto.core.storage import exceptions
 from kinto.core.utils import sqlalchemy
 
+
 logger = logging.getLogger(__name__)
 
 BLACKLISTED_SETTINGS = [

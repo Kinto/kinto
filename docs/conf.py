@@ -16,6 +16,7 @@ import sys
 
 import pkg_resources
 
+
 # abspath because this could be __main__, in which case it may not
 # have an absolute __file__
 __HERE__ = os.path.dirname(os.path.abspath(__file__))

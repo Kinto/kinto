@@ -5,6 +5,7 @@ import requests
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 
+
 SERVER_URL = "http://localhost:8888/v1"
 DEFAULT_AUTH = ("user", "p4ssw0rd")
 

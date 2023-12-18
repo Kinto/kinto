@@ -6,6 +6,7 @@ from pyramid.security import NO_PERMISSION_REQUIRED
 from kinto.core import Service
 from kinto.core.utils import json
 
+
 HERE = os.path.dirname(__file__)
 ORIGIN = os.path.dirname(HERE)
 

@@ -7,6 +7,7 @@ from kinto.core.testing import FormattedErrorMixin, unittest
 
 from ..support import BaseWebTest
 
+
 MINIMALIST_OBJECT = {"name": "Champignon"}
 
 

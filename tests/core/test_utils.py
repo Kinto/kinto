@@ -3,9 +3,8 @@ import unittest
 from unittest import mock
 
 import colander
-from pyramid import httpexceptions
+from pyramid import httpexceptions, testing
 from pyramid import request as pyramid_request
-from pyramid import testing
 
 from kinto.core import DEFAULT_SETTINGS, includeme
 from kinto.core.testing import DummyRequest
