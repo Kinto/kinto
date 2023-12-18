@@ -225,8 +225,6 @@ class QuerySchema(colander.MappingSchema):
         values = {}
 
         schema_values = super().deserialize(cstruct)
-        if schema_values is colander.drop:
-            return schema_values
 
         # Deserialize querystring field filters (see docstring e.g)
         for k, v in cstruct.items():

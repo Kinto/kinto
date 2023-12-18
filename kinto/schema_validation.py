@@ -16,10 +16,6 @@ class JSONSchemaMapping(colander.SchemaNode):
     def deserialize(self, cstruct=colander.null):
         # Start by deserializing a simple mapping.
         validated = super().deserialize(cstruct)
-
-        # In case it is optional in parent schema.
-        if not validated or validated in (colander.null, colander.drop):
-            return validated
         try:
             check_schema(validated)
         except ValidationError as e:
