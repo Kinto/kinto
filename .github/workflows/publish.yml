@@ -1,6 +1,9 @@
 name: Publish Python 🐍 distribution 📦 to PyPI
 
-on: push
+on:
+  push:
+    tags:
+      - '*'
 
 jobs:
   build:
@@ -36,7 +39,7 @@ jobs:
   publish-to-pypi:
     name: Publish Python 🐍 distribution 📦 to PyPI
     # only publish to PyPI on tag pushes
-    if: startsWith(github.ref, 'refs/tags/')
+    if: startsWith(github.ref, 'refs/tags/debug-publish-action-') != true
     needs:
       - build
     runs-on: ubuntu-latest
@@ -53,4 +56,3 @@ jobs:
           path: dist/
       - name: Publish distribution 📦 to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
-
