@@ -24,11 +24,14 @@ jobs:
           node-version: "14"
       - run: npm --version
 
-      - name: Install release tools
-        run: pip install "zest.releaser[recommended]"
+      - name: Build Admin UI
+        run: make build-kinto-admin
+
+      - name: Install pypa/build
+        run: python3 -m pip install build
 
       - name: Build a binary wheel and a source tarball
-        run: release --no-input
+        run: python3 -m build
 
       - name: Store the distribution packages
         uses: actions/upload-artifact@v3

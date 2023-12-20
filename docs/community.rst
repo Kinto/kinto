@@ -283,7 +283,7 @@ How to release
 
 In order to prepare a new release, we are following the following steps.
 
-The `prerelease` and `postrelease` commands are coming from `zest.releaser
+The ``prerelease`` and ``postrelease`` commands are coming from `zest.releaser
 <https://pypi.python.org/pypi/zest.releaser>`_, which should already be
 installed along with other development requirements.
 
