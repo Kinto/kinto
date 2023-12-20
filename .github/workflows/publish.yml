@@ -17,12 +17,16 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: "3.x"
-      - run: python --version
 
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
-          node-version: "14"
-      - run: npm --version
+          node-version: "20"
+
+      - name: Print environment
+        run: |
+          python --version
+          node --version
+          npm --version
 
       - name: Build Admin UI
         run: make build-kinto-admin
