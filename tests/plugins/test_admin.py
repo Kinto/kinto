@@ -5,6 +5,7 @@ from kinto.plugins.admin import views as admin_views
 
 from ..support import BaseWebTest
 
+
 admin_module = os.path.dirname(admin_views.__file__)
 build_folder = os.path.join(admin_module, "build")
 built_index = os.path.join(build_folder, "index.html")

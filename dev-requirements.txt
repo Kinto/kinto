@@ -1,16 +1,13 @@
-black==23.11.0
 bravado==11.0.3
 bravado_core==6.1.0
-flake8==6.1.0
-isort==5.13.1
 pytest==7.4.3
 pytest-cache==1.0
 pytest-cov==4.1.0
 pytest-watch==4.2.0
 python-memcached==1.59
+ruff==0.1.8
 selenium==4.12.0
 swagger-spec-validator==3.0.3
-therapist==2.2.0
 tox==4.11.4
 WebTest==3.0.0
 wheel==0.42.0

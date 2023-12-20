@@ -144,7 +144,7 @@ class SpecifyObjectPermissionTest(PermissionTest):
         self.resource.request.method = "PATCH"
         result = self.resource.patch()
         permissions = result["permissions"]
-        self.assertEqual(sorted(permissions["read"]), ["account:readonly"]),
+        (self.assertEqual(sorted(permissions["read"]), ["account:readonly"]),)
         self.assertEqual(sorted(permissions["write"]), ["basicauth:bob"])
 
     def test_permissions_can_be_removed_with_patch(self):

@@ -86,10 +86,12 @@ tests-once: install-dev version-file install-postgres install-monitoring
 	$(VENV)/bin/py.test --cov-report term-missing --cov-fail-under 100 --cov kinto
 
 lint: install-dev
-	$(VENV)/bin/therapist run --use-tracked-files kinto tests docs/conf.py
+	$(VENV)/bin/ruff check kinto tests docs/conf.py
+	$(VENV)/bin/ruff format --check kinto tests docs/conf.py
 
 format: install-dev
-	$(VENV)/bin/therapist run --fix --use-tracked-files kinto tests docs/conf.py
+	$(VENV)/bin/ruff check --fix kinto tests docs/conf.py
+	$(VENV)/bin/ruff format kinto tests docs/conf.py
 
 tests: version-file
 	$(VENV)/bin/tox

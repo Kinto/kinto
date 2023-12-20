@@ -7,6 +7,7 @@ import os
 
 from kinto.core.utils import sqlalchemy as sa
 
+
 logger = logging.getLogger(__name__)
 
 

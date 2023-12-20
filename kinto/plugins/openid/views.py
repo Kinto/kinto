@@ -14,6 +14,7 @@ from kinto.core.utils import random_bytes_hex
 
 from .utils import fetch_openid_config
 
+
 DEFAULT_STATE_TTL_SECONDS = 3600
 DEFAULT_STATE_LENGTH = 32
 

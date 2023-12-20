@@ -23,6 +23,7 @@ from kinto.core.utils import (
     prefixed_userid,
 )
 
+
 logger = logging.getLogger(__name__)
 
 __all__ = ["initialize", "load_default_settings", "Service"]

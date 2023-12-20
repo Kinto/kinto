@@ -9,6 +9,7 @@ from pyramid.events import NewRequest
 
 from kinto.core.utils import strip_uri_prefix
 
+
 logger = logging.getLogger(__name__)
 
 

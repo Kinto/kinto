@@ -9,6 +9,7 @@ from zope.interface import implementer
 from kinto.core import utils
 from kinto.core.storage import exceptions as storage_exceptions
 
+
 logger = logging.getLogger(__name__)
 
 # When permission is set to "private", only the current user is allowed.

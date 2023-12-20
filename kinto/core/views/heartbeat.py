@@ -7,6 +7,7 @@ from pyramid.security import NO_PERMISSION_REQUIRED
 
 from kinto.core import Service
 
+
 logger = logging.getLogger(__name__)
 
 

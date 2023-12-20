@@ -10,6 +10,7 @@ from .support import (
     BaseWebTest,
 )
 
+
 RECORD_ID = "d5db6e57-2c10-43e2-96c8-56602ef01435"
 
 
@@ -282,9 +283,7 @@ class GroupsPermissionTest(PermissionsViewTest):
 
 class SettingsPermissionsTest(PermissionsViewTest):
     admin_headers = get_user_headers("admin")
-    admin_principal = (
-        "basicauth:bb7fe7b98e759578ef0de85b546dd57d21fe1e399390ad8dafc9886043a00e5c"  # NOQA
-    )
+    admin_principal = "basicauth:bb7fe7b98e759578ef0de85b546dd57d21fe1e399390ad8dafc9886043a00e5c"  # NOQA
 
     @classmethod
     def get_app_settings(cls, extras=None):

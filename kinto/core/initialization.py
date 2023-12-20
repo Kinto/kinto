@@ -19,6 +19,7 @@ from pyramid_multiauth import MultiAuthenticationPolicy, MultiAuthPolicySelected
 from kinto.core import cache, errors, permission, storage, utils
 from kinto.core.events import ACTIONS, ResourceChanged, ResourceRead
 
+
 try:
     import newrelic.agent
 except ImportError:  # pragma: no cover

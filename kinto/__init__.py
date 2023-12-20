@@ -9,6 +9,7 @@ import kinto.core
 from kinto.authorization import RouteFactory
 from kinto.core import utils
 
+
 # Module version, as defined in PEP-0396.
 __version__ = pkg_resources.get_distribution(__package__).version
 

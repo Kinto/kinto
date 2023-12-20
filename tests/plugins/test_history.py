@@ -10,6 +10,7 @@ from kinto.core.testing import get_user_headers, skip_if_no_statsd
 
 from .. import support
 
+
 DATETIME_REGEX = r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}\+\d{2}:\d{2}$"
 
 

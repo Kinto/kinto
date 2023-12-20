@@ -3,6 +3,7 @@ import string
 from pyramid_mailer import get_mailer
 from pyramid_mailer.message import Message
 
+
 DEFAULT_EMAIL_SENDER = "admin@example.com"
 DEFAULT_SUBJECT_TEMPLATE = "activate your account"
 DEFAULT_BODY_TEMPLATE = "{activation-key}"

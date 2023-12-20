@@ -6,6 +6,7 @@ from time import strftime
 from kinto import __version__
 from kinto.core import utils as core_utils
 
+
 logger = logging.getLogger(__name__)
 
 HERE = os.path.dirname(__file__)

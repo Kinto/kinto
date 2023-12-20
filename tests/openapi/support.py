@@ -102,7 +102,7 @@ class OpenAPITest(BaseWebTest, unittest.TestCase):
             body=json.dumps(self.request.json()).encode(),
             method=op.http_method.upper(),
             headers=self.headers,
-            **kargs
+            **kargs,
         )
         schema = self.spec.deref(op.op_spec["responses"][str(response.status_code)])
         casted_resp = self.cast_bravado_response(response)

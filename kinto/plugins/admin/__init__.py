@@ -5,6 +5,7 @@ from pyramid.static import static_view
 
 from .views import admin_home_view
 
+
 VERSION_FILE_PATH = Path(__file__).parent / "VERSION"
 
 

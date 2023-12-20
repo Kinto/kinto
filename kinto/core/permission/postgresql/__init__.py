@@ -7,6 +7,7 @@ from kinto.core.storage.postgresql.client import create_from_config
 from kinto.core.storage.postgresql.migrator import MigratorMixin
 from kinto.core.utils import sqlalchemy as sa
 
+
 logger = logging.getLogger(__name__)
 
 HERE = os.path.dirname(__file__)
@@ -370,9 +371,7 @@ class Permission(PermissionBase, MigratorMixin):
         """
         safeholders = {"permissions_condition": ""}
         if permissions is not None:
-            safeholders[
-                "permissions_condition"
-            ] = """
+            safeholders["permissions_condition"] = """
               AND permission IN :permissions"""
             placeholders["permissions"] = tuple(permissions)
 

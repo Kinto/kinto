@@ -8,6 +8,7 @@ from kinto.core.utils import instance_uri
 
 from .utils import record_size
 
+
 QUOTA_RESOURCE_NAME = "quota"
 BUCKET_QUOTA_OBJECT_ID = "bucket_info"
 COLLECTION_QUOTA_OBJECT_ID = "collection_info"

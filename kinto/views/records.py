@@ -11,6 +11,7 @@ from kinto.schema_validation import (
 )
 from kinto.views import object_exists_or_404
 
+
 _parent_path = "/buckets/{{bucket_id}}/collections/{{collection_id}}"
 
 

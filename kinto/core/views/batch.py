@@ -10,6 +10,7 @@ from kinto.core.errors import ErrorSchema
 from kinto.core.resource.viewset import CONTENT_TYPES
 from kinto.core.utils import build_request, build_response, merge_dicts
 
+
 subrequest_logger = logging.getLogger("subrequest.summary")
 
 valid_http_method = colander.OneOf(("GET", "HEAD", "DELETE", "TRACE", "POST", "PUT", "PATCH"))

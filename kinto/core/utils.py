@@ -20,6 +20,7 @@ from pyramid.request import Request, apply_request_extensions
 from pyramid.settings import aslist
 from pyramid.view import render_view_to_response
 
+
 try:
     import sqlalchemy
 except ImportError:  # pragma: no cover

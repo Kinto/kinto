@@ -11,6 +11,7 @@ from kinto.core.errors import ERRORS, http_error, request_GET
 from kinto.core.storage import exceptions as storage_exceptions
 from kinto.core.utils import reapply_cors
 
+
 logger = logging.getLogger()
 
 

@@ -12,6 +12,7 @@ import pytest
 from kinto import __version__ as kinto_version
 from kinto.__main__ import DEFAULT_LOG_FORMAT, main
 
+
 fd, TEMP_KINTO_INI = tempfile.mkstemp(prefix="kinto_config", suffix=".ini")
 # The above call to mkstemp returns a handle to an open file. On Windows,
 # attempting to call os.remove on this file will result in an error unless it is

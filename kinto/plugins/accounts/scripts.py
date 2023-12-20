@@ -7,6 +7,7 @@ from pyramid.settings import asbool
 from .utils import hash_password
 from .views import AccountIdGenerator
 
+
 logger = logging.getLogger(__name__)
 
 

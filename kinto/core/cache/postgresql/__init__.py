@@ -6,6 +6,7 @@ from kinto.core.storage.postgresql.client import create_from_config
 from kinto.core.utils import json
 from kinto.core.utils import sqlalchemy as sa
 
+
 logger = logging.getLogger(__name__)
 
 
