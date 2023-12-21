@@ -1,0 +1,65 @@
+name: Publish Python 🐍 distribution 📦 to PyPI
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  build:
+    name: Build distribution 📦
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.x"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Print environment
+        run: |
+          python --version
+          node --version
+          npm --version
+
+      - name: Build Admin UI
+        run: make build-kinto-admin
+
+      - name: Install pypa/build
+        run: python3 -m pip install build
+
+      - name: Build a binary wheel and a source tarball
+        run: python3 -m build
+
+      - name: Store the distribution packages
+        uses: actions/upload-artifact@v3
+        with:
+          name: python-package-distributions
+          path: dist/
+
+  publish-to-pypi:
+    name: Publish Python 🐍 distribution 📦 to PyPI
+    # only publish to PyPI on tag pushes
+    if: startsWith(github.ref, 'refs/tags/debug-publish-action-') != true
+    needs:
+      - build
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/kinto
+    permissions:
+      id-token: write
+    steps:
+      - name: Download all the dists
+        uses: actions/download-artifact@v3
+        with:
+          name: python-package-distributions
+          path: dist/
+      - name: Publish distribution 📦 to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1

@@ -279,24 +279,12 @@ How to release
 
 In order to prepare a new release, we are following the following steps.
 
-The `prerelease` and `postrelease` commands are coming from `zest.releaser
-<https://pypi.python.org/pypi/zest.releaser>`_.
-
-Install `zest.releaser` with the `recommended` dependencies. They contain
-`wheel` and `twine`, which are required to release a new version.
-
-.. code-block:: bash
-
-    $ pip install "zest.releaser[recommended]"
+The ``prerelease`` and ``postrelease`` commands are coming from `zest.releaser
+<https://pypi.python.org/pypi/zest.releaser>`_, which should already be
+installed along with other development requirements.
 
 Step 1
 ------
-
-.. code-block:: bash
-
-     $ git checkout -b prepare-X.Y.Z
-     $ make test-description
-     $ prerelease
 
 - Merge remaining pull requests
 - Update ``CHANGELOG.rst``
@@ -313,6 +301,14 @@ Step 1
 
      $ git shortlog -sne | awk '{$1=""; sub(" ", ""); print}' | awk -F'<' '!x[$1]++' | awk -F'<' '!x[$2]++' | sort
 
+- Leverage zest.releaser to update setup file and changelog:
+
+.. code-block:: bash
+
+     $ git checkout -b prepare-X.Y.Z
+     $ make test-description
+     $ prerelease
+
 - Open a pull-request to release the new version.
 
 .. code-block:: bash
@@ -324,40 +320,29 @@ Step 1
 Step 2
 ------
 
-Once the pull-request is validated, merge it and do a release.
-Use the ``release`` command to invoke the ``setup.py``, which builds and uploads to PyPI.
-
-.. important::
-
-    The Kinto Admin bundle will be built during the release process. Make sure
-    a recent version of ``npm`` is available in your shell when running ``release``.
+Once the pull-request is approved, merge it and initiate a release.
 
 .. code-block:: bash
 
     $ git checkout master
-    $ git merge --no-ff prepare-X.Y.Z
-    $ release
-    $ postrelease
+    $ git tag -a X.Y.Z -m "X.Y.Z"
+    $ git push origin X.Y.Z
+
+With this tag push, a Github Action will take care of publishing the package on Pypi.
 
 Step 3
 ------
 
 As a final step:
 
-- Close the milestone in GitHub
-- Create next milestone in GitHub in the case of a major release
-- Add entry in GitHub release page
+- Add entry in GitHub releases page
 - Check that the version in ReadTheDocs is up-to-date
-- Check that a Docker image was built
-- Send mail to ML (If major release)
+- Check that a Pypi package was built
 - Tweet about it!
 
-Upgrade:
+You can now use the ``postrelease`` command to add a new empty section in the changelog and bump the next version with a ``.dev0`` suffix.
 
-- Deploy new version on demo server
-- Upgrade dependency in ``kinto-dist`` repo
-- Upgrade version targetted in ``kinto-heroku`` repo
-- Upgrade version of Kinto server for the tests of clients and plugins repos
-  (*kinto-http.js, kinto-http.py, kinto-attachment, etc.*)
 
-That's all folks!
+.. note::
+
+    Dependabot will take care of upgrading the ``kinto`` package via pull-requests on the various repositories of the Kinto ecosystem.
