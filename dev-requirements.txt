@@ -4,7 +4,7 @@ pytest==7.4.3
 pytest-cache==1.0
 pytest-cov==4.1.0
 pytest-watch==4.2.0
-python-memcached==1.59
+python-memcached==1.61
 ruff==0.1.11
 selenium==4.12.0
 swagger-spec-validator==3.0.3
