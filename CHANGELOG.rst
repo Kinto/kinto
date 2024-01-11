@@ -6,7 +6,9 @@ This document describes changes between each past release.
 16.3.0 (unreleased)
 -------------------
 
-- Nothing changed yet.
+**New features**
+
+- Add a new ``kinto.admin_assets_path`` setting to specify the location on the Admin UI assets.
 
 
 16.2.3 (2023-12-05)
