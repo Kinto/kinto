@@ -201,6 +201,10 @@ kinto.bucket_create_principals = account:admin
 # kinto.group_id_generator = name_generator.GroupGenerator
 # kinto.record_id_generator = name_generator.RecordGenerator
 
+# Kinto admin
+# Absolute path to UI assets
+# kinto.admin_assets_path = /app/kinto/plugins/admin/build/
+
 # Enabling or disabling endpoints
 # https://kinto.readthedocs.io/en/latest/configuration/settings.html#enabling-or-disabling-endpoints
 #
