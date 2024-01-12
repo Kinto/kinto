@@ -37,6 +37,7 @@ DEFAULT_SETTINGS = {
     "group_id_generator": "kinto.views.NameGenerator",
     "record_id_generator": "kinto.views.RelaxedUUID",
     "project_name": "kinto",
+    "admin_assets_path": None,
 }
 
 
