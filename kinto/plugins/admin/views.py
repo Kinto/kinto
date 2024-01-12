@@ -15,12 +15,11 @@ def admin_home_view(request):
 
     This requires the Admin UI to be built with ``ASSET_PATH="/v1/admin/"``.
     """
-    admin_assets_path = request.registry.settings["admin_assets_path"]
-    if not admin_assets_path:
-        # Default location of the Admin UI is relative to this plugin source folder,
-        # as built with the ``make build-kinto-admin`` command.
-        admin_assets_path = os.path.join(HERE, "build")
-
+    # Default location of the Admin UI is relative to this plugin source folder,
+    # as built with the ``make build-kinto-admin`` command.
+    admin_assets_path = request.registry.settings["admin_assets_path"] or os.path.join(
+        HERE, "build"
+    )
     try:
         with open(os.path.join(admin_assets_path, "index.html")) as f:
             page_content = f.read()

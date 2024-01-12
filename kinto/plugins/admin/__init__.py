@@ -23,7 +23,10 @@ def includeme(config):
     config.add_route("admin_home", "/admin/")
     config.add_view(admin_home_view, route_name="admin_home")
 
-    build_dir = static_view("kinto.plugins.admin:build", use_subpath=True)
+    admin_assets_path = (
+        config.registry.settings["admin_assets_path"] or "kinto.plugins.admin:build"
+    )
+    build_dir = static_view(admin_assets_path, use_subpath=True)
     config.add_route("catchall_static", "/admin/*subpath")
     config.add_view(build_dir, route_name="catchall_static")
 
