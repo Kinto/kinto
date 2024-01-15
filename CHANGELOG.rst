@@ -3,12 +3,19 @@ Changelog
 
 This document describes changes between each past release.
 
-16.3.0 (unreleased)
+16.3.0 (2024-01-12)
 -------------------
 
 **New features**
 
 - Add a new ``kinto.admin_assets_path`` setting to specify the location on the Admin UI assets.
+
+**Internal Changes**
+
+- Publish to docker hub on tag (#3329)
+- Publish to Pypi on tag (#3328)
+- Switch to ruff insteaf of therapist+flake8+black+isort (#3321)
+- Upgrade to SQLAlchemy 2 (fixes #3128)
 
 
 16.2.3 (2023-12-05)
