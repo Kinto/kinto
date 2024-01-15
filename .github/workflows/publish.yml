@@ -51,7 +51,7 @@ jobs:
       - build
     runs-on: ubuntu-latest
     environment:
-      name: pypi
+      name: release
       url: https://pypi.org/p/kinto
     permissions:
       id-token: write
@@ -67,6 +67,8 @@ jobs:
   push-to-registry:
     name: Push Docker image to Docker Hub
     runs-on: ubuntu-latest
+    environment:
+      name: release
     steps:
       - name: Check out the repo
         uses: actions/checkout@v4
