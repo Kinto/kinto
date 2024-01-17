@@ -14,8 +14,11 @@ tar -xf $TARBALL_NAME && rm $TARBALL_NAME
 # build kinto-admin bundle
 pushd $SRC_DIR
 npm ci
-export SINGLE_SERVER=1
 export ASSET_PATH="/v1/admin/"
+# kinto-admin <= 2.1.1
+export SINGLE_SERVER=1
+# kinto-admin >= 2.1.2
+export KINTO_ADMIN_SINGLE_SERVER=1
 npm run build
 popd
 
