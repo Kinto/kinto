@@ -131,7 +131,7 @@ with a *PostgreSQL* container.
 
 ::
 
-    wget https://raw.githubusercontent.com/Kinto/kinto/master/docker-compose.yml
+    wget https://raw.githubusercontent.com/Kinto/kinto/main/docker-compose.yml
     sudo docker-compose up
 
 Now you can:

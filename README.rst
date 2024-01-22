@@ -1,10 +1,10 @@
 Kinto
 =====
 
-|coc| |gitter| |readthedocs| |pypi| |ci| |master-coverage|
+|coc| |gitter| |readthedocs| |pypi| |ci| |main-coverage|
 
 .. |coc| image:: https://img.shields.io/badge/%E2%9D%A4-code%20of%20conduct-blue.svg
-    :target: https://github.com/Kinto/kinto/blob/master/CODE_OF_CONDUCT.md
+    :target: https://github.com/Kinto/kinto/blob/main/CODE_OF_CONDUCT.md
     :alt: Code of conduct
 
 .. |gitter| image:: https://badges.gitter.im/Kinto/kinto.svg
@@ -17,8 +17,8 @@ Kinto
     :target: https://kinto.readthedocs.io/en/latest/
     :alt: Documentation Status
 
-.. |master-coverage| image::
-    https://coveralls.io/repos/Kinto/kinto/badge.svg?branch=master
+.. |main-coverage| image::
+    https://coveralls.io/repos/Kinto/kinto/badge.svg?branch=main
     :alt: Coverage
     :target: https://coveralls.io/r/Kinto/kinto
 
