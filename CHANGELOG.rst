@@ -3,6 +3,12 @@ Changelog
 
 This document describes changes between each past release.
 
+>= 16.4.0
+---------
+
+Since 16.4.0, the `changelog in our documentation <https://docs.kinto-storage.org/en/stable/changelog.html>`_ is automatically generated from our `Github releases <https://github.com/Kinto/kinto/releases>`_
+
+
 16.3.0 (2024-01-12)
 -------------------
 
@@ -27,7 +33,7 @@ This document describes changes between each past release.
 16.2.2 (2023-11-21)
 -------------------
 
-- Upgraded Kinto Admin to `v2.1.0 <https://github.com/Kinto/kinto-admin/releases/tag/v2.1.0>`_  
+- Upgraded Kinto Admin to `v2.1.0 <https://github.com/Kinto/kinto-admin/releases/tag/v2.1.0>`_
 
 
 16.2.1 (2023-09-13)

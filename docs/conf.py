@@ -50,6 +50,7 @@ extensions = [
     "sphinxcontrib.httpdomain",
     "sphinx.ext.extlinks",
     "sphinx.ext.intersphinx",
+    "sphinx_github_changelog",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -168,6 +169,10 @@ intersphinx_mapping = {
     "cornice": ("https://cornice.readthedocs.io/en/latest/", None),
     "pyramid": ("https://pyramid.readthedocs.io/en/latest/", None),
 }
+
+# -- Changelog
+
+sphinx_github_changelog_token = os.getenv("SPHINX_GITHUB_CHANGELOG_TOKEN")
 
 # -- Options for LaTeX output ---------------------------------------------
 
