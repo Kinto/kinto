@@ -138,7 +138,7 @@ Get started!
 
 6. When you're done making changes, check that your changes pass linting (requires python >= 3.6)::
 
-    tox -e lint
+    make lint
 
 7. Don't forget to check that your changes pass the tests::
 
@@ -199,9 +199,7 @@ Before we merge a pull request, we check that it meets these guidelines:
 
 1. The pull request should include tests.
 2. If the pull request adds functionality, the docs should be updated.
-3. *CI* integration tests should be *green* :) It will make sure the tests
-   pass with `every supported version of Python <https://github.com/Kinto/kinto/blob/main/tox.ini#L2>`_.
-
+3. *CI* integration tests should be *green* :)
 
 Hack core libraries
 -------------------
@@ -270,8 +268,7 @@ There are three levels of cleaning your environment:
  - ``make clean`` will remove ``*.pyc`` files and ``__pycache__`` directory.
  - ``make distclean`` will also remove ``*.egg-info`` files and ``*.egg``,
    ``build`` and ``dist`` directories.
- - ``make maintainer-clean`` will also remove the ``.tox`` and the
-   ``.venv`` directories.
+ - ``make maintainer-clean`` will also remove the ``.venv`` directory.
 
 
 How to release

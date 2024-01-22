@@ -27,17 +27,17 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        toxenv: [py38, py39, py310, py311, py311-raw]
+        pyenv: [py38, py39, py310, py311, py311-raw]
         include:
-          - toxenv: py38
+          - pyenv: py38
             python-version: "3.8"
-          - toxenv: py39
+          - pyenv: py39
             python-version: "3.9"
-          - toxenv: py310
+          - pyenv: py310
             python-version: "3.10"
-          - toxenv: py311
+          - pyenv: py311
             python-version: "3.11"
-          - toxenv: py311-raw
+          - pyenv: py311-raw
             python-version: "3.11"
     services:
       postgres:
@@ -64,27 +64,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v5
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-
-      - name: Install virtualenv
-        run: |
-          pip install virtualenv
-          virtualenv --python=python3 .venv
-
-      - name: Print environment
-        run: |
-          source .venv/bin/activate
-          python --version
-          pip --version
-
-      - name: Install dependencies
-        run: |
-          source .venv/bin/activate
-          make install-dev
-          make install-postgres
-          pip install tox coveralls
+          cache: pip
+          cache-dependency-path: pyproject.toml
 
       - name: Create database
         env:
@@ -92,19 +77,22 @@ jobs:
         run: |
           psql -c "CREATE DATABASE testdb ENCODING 'UTF8' TEMPLATE template0;" -U postgres -h localhost
 
-      - name: Tox
-        run: |
-          source .venv/bin/activate
-          tox -e ${{ matrix.toxenv }}
+      - name: Run tests with optional dependencies
+        if: endsWith(matrix.pyenv, '-raw') != true
+        run: make tests
 
-      - name: Coveralls for ${{ matrix.toxenv }}
+      - name: Run tests with minimal dependencies
+        if: endsWith(matrix.pyenv, '-raw') == true
+        run: make tests-raw
+
+      - name: Coveralls for ${{ matrix.pyenv }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          COVERALLS_FLAG_NAME: ${{ matrix.toxenv }}
+          COVERALLS_FLAG_NAME: ${{ matrix.pyenv }}
           COVERALLS_PARALLEL: true
         run: |
-          source .venv/bin/activate
-          coveralls --service=github
+          .venv/bin/python -m pip install coveralls
+          .venv/bin/coveralls --service=github
 
   coveralls:
     name: Coveralls Finished

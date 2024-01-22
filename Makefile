@@ -31,7 +31,7 @@ help:
 	@echo "  browser-test                run browser test against a real kinto"
 	@echo "  clean                       remove *.pyc files and __pycache__ directory"
 	@echo "  distclean                   remove *.egg-info files and *.egg, build and dist directories"
-	@echo "  maintainer-clean            remove the .tox and the .venv directories"
+	@echo "  maintainer-clean            remove the .venv directory"
 	@echo "  docs                        build the docs"
 	@echo "Check the Makefile to know exactly what each target is doing."
 
@@ -50,6 +50,9 @@ install-monitoring: $(INSTALL_STAMP) $(DEV_STAMP)
 
 install-postgres: $(INSTALL_STAMP) $(DEV_STAMP)
 	$(VENV)/bin/pip install -Ue ".[postgresql]" -c requirements.txt
+
+install-memcached: $(INSTALL_STAMP) $(DEV_STAMP)
+	$(VENV)/bin/pip install -Ue ".[memcached]" -c requirements.txt
 
 install-dev: $(INSTALL_STAMP) $(DEV_STAMP)
 $(DEV_STAMP): $(PYTHON) dev-requirements.txt
@@ -80,7 +83,11 @@ serve: install-dev $(SERVER_CONFIG) migrate version-file
 migrate: install $(SERVER_CONFIG)
 	$(VENV)/bin/kinto migrate --ini $(SERVER_CONFIG)
 
-tests-once: install-dev version-file install-postgres install-monitoring
+test: tests
+tests-once: tests
+tests: install-postgres install-monitoring install-memcached version-file tests-raw
+
+tests-raw: install-dev
 	$(VENV)/bin/py.test --cov-report term-missing --cov-fail-under 100 --cov kinto
 
 lint: install-dev
@@ -90,9 +97,6 @@ lint: install-dev
 format: install-dev
 	$(VENV)/bin/ruff check --fix kinto tests docs/conf.py
 	$(VENV)/bin/ruff format kinto tests docs/conf.py
-
-tests: version-file
-	$(VENV)/bin/tox
 
 tdd: install-dev
 	$(VENV)/bin/ptw --runner $(VENV)/bin/py.test
@@ -122,7 +126,7 @@ distclean: clean
 	rm -fr *.egg *.egg-info/ dist/ build/
 
 maintainer-clean: distclean
-	rm -fr .venv/ .tox/ kinto/plugins/admin/build/ kinto/plugins/admin/node_modules/
+	rm -fr .venv/ kinto/plugins/admin/build/ kinto/plugins/admin/node_modules/
 
 docs: install-docs
 	$(VENV)/bin/sphinx-build -a -W -n -b html -d $(SPHINX_BUILDDIR)/doctrees docs $(SPHINX_BUILDDIR)/html
