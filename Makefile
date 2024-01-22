@@ -1,6 +1,5 @@
 SERVER_CONFIG = config/kinto.ini
 
-VIRTUALENV = virtualenv --python=python3
 SPHINX_BUILDDIR = docs/_build
 VENV := $(shell echo $${VIRTUAL_ENV-.venv})
 PYTHON = $(VENV)/bin/python3
@@ -10,7 +9,7 @@ INSTALL_STAMP = $(VENV)/.install.stamp
 TEMPDIR := $(shell mktemp -du)
 
 .IGNORE: clean distclean maintainer-clean
-.PHONY: all install virtualenv tests
+.PHONY: all install tests
 
 OBJECTS = .venv .coverage
 
@@ -43,7 +42,10 @@ $(INSTALL_STAMP): $(PYTHON) setup.py requirements.txt setup.cfg
 	$(VENV)/bin/pip install -Ue . -c requirements.txt
 	touch $(INSTALL_STAMP)
 
-install-monitoring: $(INSTALL_STAMP)
+$(PYTHON):
+	python3 -m venv $(VENV)
+
+install-monitoring: $(INSTALL_STAMP) $(DEV_STAMP)
 	$(VENV)/bin/pip install -Ue ".[monitoring]" -c requirements.txt
 
 install-postgres: $(INSTALL_STAMP) $(DEV_STAMP)
@@ -58,10 +60,6 @@ install-docs: $(DOC_STAMP)
 $(DOC_STAMP): $(PYTHON) docs/requirements.txt
 	$(VENV)/bin/pip install -Ur docs/requirements.txt
 	touch $(DOC_STAMP)
-
-virtualenv: $(PYTHON)
-$(PYTHON):
-	$(VIRTUALENV) $(VENV)
 
 build-kinto-admin: need-npm
 	scripts/build-kinto-admin.sh
