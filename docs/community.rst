@@ -200,7 +200,7 @@ Before we merge a pull request, we check that it meets these guidelines:
 1. The pull request should include tests.
 2. If the pull request adds functionality, the docs should be updated.
 3. *CI* integration tests should be *green* :) It will make sure the tests
-   pass with `every supported version of Python <https://github.com/Kinto/kinto/blob/master/tox.ini#L2>`_.
+   pass with `every supported version of Python <https://github.com/Kinto/kinto/blob/main/tox.ini#L2>`_.
 
 
 Hack core libraries
@@ -324,7 +324,7 @@ Once the pull-request is approved, merge it and initiate a release.
 
 .. code-block:: bash
 
-    $ git checkout master
+    $ git checkout main
     $ git tag -a X.Y.Z -m "X.Y.Z"
     $ git push origin X.Y.Z
 

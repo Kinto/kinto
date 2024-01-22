@@ -1,7 +1,7 @@
 on:
   push:
     branches:
-      - master
+      - main
   pull_request:
 
 name: Unit Testing
@@ -83,7 +83,7 @@ jobs:
         run: |
           source .venv/bin/activate
           tox -e ${{ matrix.toxenv }}
-      
+
       - name: Coveralls for ${{ matrix.toxenv }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -92,7 +92,7 @@ jobs:
         run: |
           source .venv/bin/activate
           coveralls --service=github
-      
+
   coveralls:
     name: Coveralls Finished
     needs: chore

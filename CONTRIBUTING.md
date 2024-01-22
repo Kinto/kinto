@@ -3,7 +3,7 @@ Thanks for considering submitting a pull request, we really appreciate that!
 Before doing so, here are a few guidelines:
 
 * You agree to license your contributions under the
-  [license](https://github.com/Kinto/kinto/blob/master/LICENSE).
+  [license](https://github.com/Kinto/kinto/blob/main/LICENSE).
 * Use pull-requests early so it's open for discussion, even if your
   contribution isn't ready yet.
 * All pull requests should include tests, as they help us avoid regressions in
