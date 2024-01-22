@@ -77,24 +77,27 @@ jobs:
         run: |
           psql -c "CREATE DATABASE testdb ENCODING 'UTF8' TEMPLATE template0;" -U postgres -h localhost
 
-      - name: Run tests with optional dependencies
-        if: endsWith(matrix.pyenv, '-raw') != true
-        run: make tests
-
       - name: Run tests with minimal dependencies
         if: endsWith(matrix.pyenv, '-raw') == true
         run: make tests-raw
 
+      - name: Run tests with optional dependencies
+        if: endsWith(matrix.pyenv, '-raw') != true
+        env:
+          COVERAGE_DEBUG: config,trace,pathmap
+        run: make tests
+
       - name: Coveralls for ${{ matrix.pyenv }}
+        if: endsWith(matrix.pyenv, '-raw') != true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           COVERALLS_FLAG_NAME: ${{ matrix.pyenv }}
           COVERALLS_PARALLEL: true
         run: |
-          .venv/bin/python -m pip install coveralls
-          .venv/bin/coveralls --service=github
+          pip install coveralls
+          coveralls --service=github
 
-  coveralls:
+  finish:
     name: Coveralls Finished
     needs: unit-test
     runs-on: ubuntu-latest
@@ -104,7 +107,7 @@ jobs:
           python-version: "3.x"
       - name: Install coveralls
         run: pip install coveralls
-      - name: Finished
+      - name: Coveralls Finished
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: coveralls --service=github --finish

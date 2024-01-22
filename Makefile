@@ -85,10 +85,11 @@ migrate: install $(SERVER_CONFIG)
 
 test: tests
 tests-once: tests
-tests: install-postgres install-monitoring install-memcached version-file tests-raw
+tests: install-postgres install-monitoring install-memcached version-file install-dev
+	$(VENV)/bin/py.test --cov-config setup.cfg --cov-report term-missing --cov-fail-under 100 --cov kinto
 
-tests-raw: install-dev
-	$(VENV)/bin/py.test --cov-report term-missing --cov-fail-under 100 --cov kinto
+tests-raw: version-file install-dev
+	$(VENV)/bin/py.test
 
 lint: install-dev
 	$(VENV)/bin/ruff check kinto tests docs/conf.py
