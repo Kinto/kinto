@@ -1,4 +1,4 @@
-include *.rst LICENSE Makefile tox.ini app.wsgi requirements.txt dev-requirements.txt
+include *.rst LICENSE Makefile app.wsgi requirements.txt dev-requirements.txt
 include kinto/config/kinto.tpl
 recursive-include kinto *.sql *.html
 recursive-include docs *.rst *.png *.svg *.css *.html conf.py piwik.js
