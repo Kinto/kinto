@@ -21,7 +21,7 @@ jobs:
       - name: make lint
         run: make lint
 
-  chore:
+  unit-test:
     name: Unit Tests
     needs: lint
     runs-on: ubuntu-latest
@@ -108,7 +108,7 @@ jobs:
 
   coveralls:
     name: Coveralls Finished
-    needs: chore
+    needs: unit-test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/setup-python@v5
