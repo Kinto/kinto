@@ -90,6 +90,7 @@ test = [
 dev = [
     "build",
     "ruff",
+    "twine",
 ]
 
 [tool.pip-tools]

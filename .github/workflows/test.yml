@@ -112,7 +112,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: coveralls --service=github --finish
 
-
   functional:
     name: Functional
     needs: lint
