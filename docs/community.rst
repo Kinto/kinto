@@ -274,72 +274,32 @@ There are three levels of cleaning your environment:
 How to release
 ==============
 
-In order to prepare a new release, we are following the following steps.
-
-The ``prerelease`` and ``postrelease`` commands are coming from `zest.releaser
-<https://pypi.python.org/pypi/zest.releaser>`_, which should already be
-installed along with other development requirements.
+In order to prepare a new release, we are following the following steps:
 
 Step 1
 ------
 
 - Merge remaining pull requests
-- Update ``CHANGELOG.rst``
-- Update supported version in ``SECURITY.md``
+- Make sure supported version is up-to-date in :file:`SECURITY.md`
 - If API was updated, update API changelog in :file:`docs/api/index.rst`
 - Make sure ``HTTP_API_VERSION`` is up-to-date in :file:`kinto/__init__.py`
-- Update the link in :file:`docs/configuration/production.rst`
-- Update the **kinto-admin** version in :file:`kinto/plugins/admin/VERSION` if needed
-  (`available releases <https://github.com/Kinto/kinto-admin/releases>`_)
-
-- Update :file:`CONTRIBUTORS.rst`. The following hairy command will output the full list:
+- Make sure the list of contributors is up-to-date in :file:`CONTRIBUTORS.rst`. The following hairy command will output the full list:
 
 .. code-block:: bash
 
      $ git shortlog -sne | awk '{$1=""; sub(" ", ""); print}' | awk -F'<' '!x[$1]++' | awk -F'<' '!x[$2]++' | sort
 
-- Leverage zest.releaser to update setup file and changelog:
-
-.. code-block:: bash
-
-     $ git checkout -b prepare-X.Y.Z
-     $ make test-description
-     $ prerelease
-
-- Open a pull-request to release the new version.
-
-.. code-block:: bash
-
-     $ git commit -a --amend
-     $ git push origin prepare-X.Y.Z
-
-
 Step 2
 ------
 
-Once the pull-request is approved, merge it and initiate a release.
-
-.. code-block:: bash
-
-    $ git checkout main
-    $ git tag -a X.Y.Z -m "X.Y.Z"
-    $ git push origin X.Y.Z
-
-With this tag push, a Github Action will take care of publishing the package on Pypi.
+1. Create a release on Github on https://github.com/Kinto/kinto-attachment/releases/new
+2. Create a new tag `X.Y.Z` (*This tag will be created from the target when you publish this release.*)
+3. Generate release notes
+4. Publish release
 
 Step 3
 ------
 
-As a final step:
-
-- Add entry in GitHub releases page
-- Check that the version in ReadTheDocs is up-to-date
-- Check that a Pypi package was built
+- Check that the version in ReadTheDocs was published
+- Check that a Pypi package was published
 - Tweet about it!
-
-You can now use the ``postrelease`` command to add a new empty section in the changelog and bump the next version with a ``.dev0`` suffix.
-
-
-.. note::
-
-    Dependabot will take care of upgrading the ``kinto`` package via pull-requests on the various repositories of the Kinto ecosystem.
