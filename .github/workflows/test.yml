@@ -120,3 +120,43 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: coveralls --service=github --finish
+
+  kinto-admin:
+    name: Kinto Admin
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "18.x"
+
+      - name: Print environment
+        run: |
+          python --version
+          pip --version
+          node --version
+          npm --version
+
+      - name: geckodriver/firefox
+        run: |
+          echo "geckodriver/firefox"
+          which geckodriver
+          geckodriver --version
+          which firefox
+          firefox --version
+
+      - name: make build-kinto-admin
+        run: make build-kinto-admin
+
+      - name: Install dependencies
+        run: make install-dev
+
+      - name: Start Kinto
+        run: .venv/bin/kinto start --ini tests/browser.ini & sleep 5
+
+      - name: Browser Tests
+        run: make browser-test
