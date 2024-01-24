@@ -1,3 +1,104 @@
+[project]
+dynamic = ["version", "readme"]
+name = "kinto"
+description = "Kinto Web Service - Store, Sync, Share, and Self-Host."
+license = {file = "LICENSE"}
+classifiers = [
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Topic :: Internet :: WWW/HTTP",
+    "Topic :: Internet :: WWW/HTTP :: WSGI :: Application",
+    "License :: OSI Approved :: Apache Software License",
+]
+keywords = ["web", "sync", "json", "storage", "services"]
+authors = [
+  {name = "Mozilla Services", email = "developers@kinto-storage.org"},
+]
+dependencies = [
+    "bcrypt",
+    "colander",
+    "cornice",
+    "cornice_swagger",
+    "dockerflow",
+    "jsonschema",
+    "jsonpatch",
+    "logging-color-formatter",
+    "python-dateutil",
+    "pyramid",
+    "pyramid_mailer",
+    "pyramid_multiauth",
+    "transaction",
+    "pyramid_tm",
+    "requests",
+    "waitress",
+    "python-rapidjson",
+]
+
+[project.urls]
+Repository = "https://github.com/Kinto/kinto"
+
+[project.scripts]
+kinto = "kinto.__main__:main"
+
+[project.entry-points."paste.app_factory"]
+main = "kinto:main"
+
+[tool.setuptools.packages.find]
+include = ["kinto"]
+
+[tool.setuptools.dynamic]
+readme = {file = ["README.rst", "CONTRIBUTORS.rst"]}
+
+[tool.setuptools_scm]
+# can be empty if no extra settings are needed, presence enables setuptools_scm
+
+[build-system]
+requires = ["setuptools>=64", "setuptools_scm>=8"]
+build-backend = "setuptools.build_meta"
+
+[project.optional-dependencies]
+redis = [
+    "kinto_redis",
+]
+memcached = [
+    "python-memcached",
+]
+postgresql = [
+    "SQLAlchemy < 3",
+    "psycopg2",
+    "zope.sqlalchemy",
+]
+monitoring = [
+    "newrelic",
+    "sentry-sdk[sqlalchemy]",
+    "statsd",
+    "werkzeug",
+]
+test = [
+    "bravado_core",
+    "pytest",
+    "pytest-cache",
+    "pytest-cov",
+    "selenium",
+    "webtest",
+]
+dev = [
+    "build",
+    "ruff",
+]
+
+[tool.pip-tools]
+# Pip does not support installing in editable mode with hashes.
+generate-hashes = false
+
+[tool.coverage.run]
+branch = true
+
 [tool.ruff]
 line-length = 99
 extend-exclude = [
