@@ -37,7 +37,7 @@ Creates a configuration file that works out of the box.
 
     optional arguments:
       -h, --help         show this help message and exit
-      --backend BACKEND  {memory,redis,postgresql}
+      --backend BACKEND  {memory,postgresql}
 
 
 .. note::

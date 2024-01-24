@@ -44,28 +44,28 @@ class TestMain(unittest.TestCase):
             assert "{} already exists.".format(TEMP_KINTO_INI) in content
 
     def test_cli_init_asks_for_backend_if_not_specified(self):
-        with mock.patch("kinto.__main__.input", create=True, return_value="2"):
+        with mock.patch("kinto.__main__.input", create=True, return_value="1"):
             res = main(["init", "--ini", TEMP_KINTO_INI])
             assert res == 0
         with open(TEMP_KINTO_INI) as f:
             content = f.read()
-        assert "redis" in content
+        assert "postgresql" in content
 
     def test_cli_init_asks_until_backend_is_valid(self):
-        with mock.patch("kinto.__main__.input", create=True, side_effect=["10", "2", "2"]):
+        with mock.patch("kinto.__main__.input", create=True, side_effect=["10", "1", "1"]):
             res = main(["init", "--ini", TEMP_KINTO_INI])
             assert res == 0
             with open(TEMP_KINTO_INI) as f:
                 content = f.read()
-            assert "redis" in content
+            assert "postgresql" in content
 
     def test_cli_init_asks_until_cache_backend_is_valid(self):
-        with mock.patch("kinto.__main__.input", create=True, side_effect=["2", "21", "2"]):
+        with mock.patch("kinto.__main__.input", create=True, side_effect=["1", "10", "2"]):
             res = main(["init", "--ini", TEMP_KINTO_INI])
             assert res == 0
             with open(TEMP_KINTO_INI) as f:
                 content = f.read()
-            assert "redis" in content
+            assert "memcached" in content
 
     def test_fails_if_not_enough_args(self):
         with mock.patch("sys.stderr", new_callable=StringIO) as mock_stderr:
@@ -92,24 +92,6 @@ class TestMain(unittest.TestCase):
                     assert res == 0
                     assert mocked_pip.call_count == 1
 
-    def test_cli_init_installs_redis_dependencies_if_needed(self):
-        realimport = builtins.__import__
-
-        def redis_missing(name, *args, **kwargs):
-            if name == "kinto_redis":
-                raise ImportError()
-            else:
-                return realimport(name, *args, **kwargs)
-
-        with mock.patch("builtins.__import__", side_effect=redis_missing):
-            with mock.patch(
-                "kinto.__main__.subprocess.check_call", return_value=None
-            ) as mocked_pip:
-                with mock.patch("kinto.__main__.input", create=True, return_value="2"):
-                    res = main(["init", "--ini", TEMP_KINTO_INI])
-                    assert res == 0
-                    assert mocked_pip.call_count == 1
-
     def test_cli_init_installs_memcached_dependencies_if_needed(self):
         realimport = builtins.__import__
 
@@ -123,7 +105,7 @@ class TestMain(unittest.TestCase):
             with mock.patch(
                 "kinto.__main__.subprocess.check_call", return_value=None
             ) as mocked_pip:
-                with mock.patch("kinto.__main__.input", create=True, return_value="3"):
+                with mock.patch("kinto.__main__.input", create=True, return_value="2"):
                     res = main(["init", "--ini", TEMP_KINTO_INI, "--backend", "memory"])
                     assert res == 0
                     assert mocked_pip.call_count == 1

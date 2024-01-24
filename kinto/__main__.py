@@ -77,14 +77,14 @@ def main(args=None):
         if command == "init":
             subparser.add_argument(
                 "--backend",
-                help="{memory,redis,postgresql}",
+                help="{memory,postgresql}",
                 dest="backend",
                 required=False,
                 default=None,
             )
             subparser.add_argument(
                 "--cache-backend",
-                help="{memory,redis,postgresql,memcached}",
+                help="{memory,postgresql,memcached}",
                 dest="cache-backend",
                 required=False,
                 default=None,
@@ -162,11 +162,11 @@ def main(args=None):
             while True:
                 prompt = (
                     "Select the backend you would like to use: "
-                    "(1 - postgresql, 2 - redis, default - memory) "
+                    "(1 - postgresql, default - memory) "
                 )
                 answer = input(prompt).strip()
                 try:
-                    backends = {"1": "postgresql", "2": "redis", "": "memory"}
+                    backends = {"1": "postgresql", "": "memory"}
                     backend = backends[answer]
                     break
                 except KeyError:
@@ -176,14 +176,13 @@ def main(args=None):
             while True:
                 prompt = (
                     "Select the cache backend you would like to use: "
-                    "(1 - postgresql, 2 - redis, 3 - memcached, default - memory) "
+                    "(1 - postgresql, 2 - memcached, default - memory) "
                 )
                 answer = input(prompt).strip()
                 try:
                     cache_backends = {
                         "1": "postgresql",
-                        "2": "redis",
-                        "3": "memcached",
+                        "2": "memcached",
                         "": "memory",
                     }
                     cache_backend = cache_backends[answer]
@@ -201,11 +200,6 @@ def main(args=None):
                 subprocess.check_call(
                     [sys.executable, "-m", "pip", "install", "kinto[postgresql]"]
                 )
-        elif backend == "redis" or cache_backend == "redis":
-            try:
-                import kinto_redis  # NOQA
-            except ImportError:
-                subprocess.check_call([sys.executable, "-m", "pip", "install", "kinto[redis]"])
         elif cache_backend == "memcached":
             try:
                 import memcache  # NOQA

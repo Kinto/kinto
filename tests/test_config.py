@@ -158,63 +158,6 @@ class ConfigTest(unittest.TestCase):
         )
 
     @mock.patch("kinto.config.render_template")
-    def test_init_redis_values(self, mocked_render_template):
-        config.init("kinto.ini", backend="redis", cache_backend="redis")
-
-        args, kwargs = list(mocked_render_template.call_args)
-        self.assertEqual(args, ("kinto.tpl", "kinto.ini"))
-
-        redis_url = "redis://localhost:6379"
-        self.maxDiff = None  # See the full diff in case of error
-        self.assertDictEqual(
-            kwargs,
-            {
-                "host": "127.0.0.1",
-                "secret": kwargs["secret"],
-                "bucket_id_salt": kwargs["bucket_id_salt"],
-                "storage_backend": "kinto_redis.storage",
-                "cache_backend": "kinto_redis.cache",
-                "permission_backend": "kinto_redis.permission",
-                "storage_url": redis_url + "/1",
-                "cache_url": redis_url + "/2",
-                "permission_url": redis_url + "/3",
-                "kinto_version": __version__,
-                "config_file_timestamp": mock.ANY,
-            },
-        )
-
-        self._assertTimestampStringsAlmostEqual(
-            strftime("%a, %d %b %Y %H:%M:%S %z"),  # expected
-            kwargs["config_file_timestamp"],  # actual
-        )
-
-    @mock.patch("kinto.config.render_template")
-    def test_init_postgresql_redis_values(self, mocked_render_template):
-        config.init("kinto.ini", backend="postgresql", cache_backend="redis")
-
-        args, kwargs = list(mocked_render_template.call_args)
-        self.assertEqual(args, ("kinto.tpl", "kinto.ini"))
-
-        redis_url = "redis://localhost:6379"
-        self.maxDiff = None  # See the full diff in case of error
-        self.assertDictEqual(
-            kwargs,
-            {
-                "host": "127.0.0.1",
-                "secret": kwargs["secret"],
-                "bucket_id_salt": kwargs["bucket_id_salt"],
-                "storage_backend": "kinto.core.storage.postgresql",
-                "cache_backend": "kinto_redis.cache",
-                "permission_backend": "kinto.core.permission.postgresql",
-                "storage_url": "postgresql://postgres:postgres@localhost/postgres",
-                "cache_url": redis_url + "/2",
-                "permission_url": "postgresql://postgres:postgres@localhost/postgres",
-                "kinto_version": __version__,
-                "config_file_timestamp": mock.ANY,
-            },
-        )
-
-    @mock.patch("kinto.config.render_template")
     def test_init_memory_values(self, mocked_render_template):
         config.init("kinto.ini", backend="memory", cache_backend="memory")
 
