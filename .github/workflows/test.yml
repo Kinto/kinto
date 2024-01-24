@@ -123,6 +123,7 @@ jobs:
 
   kinto-admin:
     name: Kinto Admin
+    needs: lint
     runs-on: ubuntu-latest
 
     steps:
@@ -160,3 +161,24 @@ jobs:
 
       - name: Browser Tests
         run: make browser-test
+
+  docs:
+    name: Validate docs
+    needs: lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+
+      - name: Print environment
+        run: |
+          python --version
+          pip --version
+
+      - name: make docs
+        run: make docs
+
+      - name: Package description
+        run: make test-description
