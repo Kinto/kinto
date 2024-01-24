@@ -1,0 +1,23 @@
+changelog:
+  exclude:
+    authors:
+      - dependabot
+  categories:
+    - title: Breaking Changes
+      labels:
+        - "breaking-change"
+    - title: Bug Fixes
+      labels:
+        - "bug"
+    - title: New Features
+      labels:
+        - "enhancement"
+    - title: Documentation
+      labels:
+        - "documentation"
+    - title: Dependency Updates
+      labels:
+        - "dependencies"
+    - title: Other Changes
+      labels:
+        - "*"
