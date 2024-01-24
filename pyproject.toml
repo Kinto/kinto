@@ -80,7 +80,7 @@ monitoring = [
     "werkzeug",
 ]
 test = [
-    "bravado_core",
+    "bravado",
     "pytest",
     "pytest-cache",
     "pytest-cov",

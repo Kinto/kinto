@@ -64,6 +64,9 @@ $(DOC_STAMP): $(PYTHON) docs/requirements.txt
 	$(VENV)/bin/pip install -Ur docs/requirements.txt
 	touch $(DOC_STAMP)
 
+requirements.txt: requirements.in
+	pip-compile --strip-extras
+
 build-kinto-admin: need-npm
 	scripts/build-kinto-admin.sh
 
