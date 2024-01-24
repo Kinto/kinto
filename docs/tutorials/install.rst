@@ -290,7 +290,7 @@ During the installation, you will be asked which backend you would like to use:
 
 ::
 
-    $ Select the backend you would like to use: (1 - postgresql, 2 - redis, default - memory)
+    $ Select the backend you would like to use: (1 - postgresql, default - memory)
 
 If you don't know, just push "enter" to choose the default Memory backend.
 You can always change your backend selection

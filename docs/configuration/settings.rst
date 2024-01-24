@@ -908,6 +908,10 @@ the *event_handlers* setting, which takes a list of aliases.
 In the example below, the Redis listener is activated and will send events
 data in the ``queue`` Redis list.
 
+.. note::
+
+    Install the `kinto-redis package <https://github.com/Kinto/kinto-redis>`_ first.
+
 .. code-block:: ini
 
     kinto.event_listeners = redis
