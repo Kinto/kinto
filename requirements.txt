@@ -54,6 +54,8 @@ execnet==2.0.2
     # via pytest-cache
 fqdn==1.5.1
     # via jsonschema
+greenlet==3.0.3
+    # via sqlalchemy
 h11==0.14.0
     # via wsproto
 hupper==1.12
@@ -174,7 +176,7 @@ rpds-py==0.17.1
     #   referencing
 ruff==0.1.14
     # via -r requirements.in
-selenium==4.12.0
+selenium==4.17.2
     # via -r requirements.in
 sentry-sdk==1.39.2
     # via -r requirements.in
@@ -238,6 +240,7 @@ urllib3==2.1.0
     #   requests
     #   selenium
     #   sentry-sdk
+    #   urllib3
 venusian==3.1.0
     # via
     #   cornice
