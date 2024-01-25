@@ -17,8 +17,6 @@ requests
 waitress
 python-rapidjson
 # optional dependencies
-# redis
-kinto_redis
 # memcached
 python-memcached
 # postgresql
