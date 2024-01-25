@@ -22,7 +22,7 @@ jobs:
         run: make lint
 
       - name: Run ShellCheck
-        uses: ludeeus/action-shellcheck@v2
+        uses: ludeeus/action-shellcheck@master
         with:
           scandir: './scripts'
 
