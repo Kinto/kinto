@@ -179,6 +179,7 @@ jobs:
           cache-to: type=local,dest=${{ env.DOCKER_CACHE}},mode=max
           tags: ${{ env.TEST_TAG }}
           file: Dockerfile
+          load: true
           context: .
 
       - name: Run container
