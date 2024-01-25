@@ -37,7 +37,7 @@ help:
 
 all: install
 install: $(INSTALL_STAMP)
-$(INSTALL_STAMP): $(PYTHON) setup.py requirements.txt setup.cfg
+$(INSTALL_STAMP): $(PYTHON) requirements.txt pyproject.toml
 	$(VENV)/bin/pip install -U pip
 	$(VENV)/bin/pip install -Ue . -c requirements.txt
 	touch $(INSTALL_STAMP)
@@ -55,14 +55,17 @@ install-memcached: $(INSTALL_STAMP) $(DEV_STAMP)
 	$(VENV)/bin/pip install -Ue ".[memcached]" -c requirements.txt
 
 install-dev: $(INSTALL_STAMP) $(DEV_STAMP)
-$(DEV_STAMP): $(PYTHON) dev-requirements.txt
-	$(VENV)/bin/pip install -Ur dev-requirements.txt
+$(DEV_STAMP): $(PYTHON) requirements.txt
+	$(VENV)/bin/pip install -Ue ".[dev,test]" -c requirements.txt
 	touch $(DEV_STAMP)
 
 install-docs: $(DOC_STAMP)
 $(DOC_STAMP): $(PYTHON) docs/requirements.txt
 	$(VENV)/bin/pip install -Ur docs/requirements.txt
 	touch $(DOC_STAMP)
+
+requirements.txt: requirements.in
+	pip-compile
 
 build-kinto-admin: need-npm
 	scripts/build-kinto-admin.sh
@@ -86,7 +89,7 @@ migrate: install $(SERVER_CONFIG)
 test: tests
 tests-once: tests
 tests: install-postgres install-monitoring install-memcached version-file install-dev
-	$(VENV)/bin/py.test --cov-config setup.cfg --cov-report term-missing --cov-fail-under 100 --cov kinto
+	$(VENV)/bin/py.test --cov-config pyproject.toml --cov-report term-missing --cov-fail-under 100 --cov kinto
 
 tests-raw: version-file install-dev
 	$(VENV)/bin/py.test
@@ -134,9 +137,10 @@ docs: install-docs
 	@echo
 	@echo "Build finished. The HTML pages are in $(SPHINX_BUILDDIR)/html/index.html"
 
+.PHONY: build
 build:
-	docker build --pull -t kinto/kinto-server:latest .
+	docker build --build-arg="KINTO_VERSION=$(shell git describe --abbrev=0)" --pull -t kinto/kinto-server:latest .
 
 test-description: install-dev
-	$(VENV)/bin/python setup.py bdist_wheel
+	$(VENV)/bin/python -m build
 	$(VENV)/bin/twine check dist/*.whl

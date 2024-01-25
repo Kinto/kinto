@@ -25,7 +25,9 @@ COPY --from=python-builder /opt/venv /opt/venv
 COPY . /app
 COPY --from=node-builder /kinto/plugins/admin/build ./kinto/plugins/admin/build
 
-ENV KINTO_INI=/etc/kinto/kinto.ini \
+ARG KINTO_VERSION=1
+ENV SETUPTOOLS_SCM_PRETEND_VERSION_FOR_KINTO=${KINTO_VERSION} \
+    KINTO_INI=/etc/kinto/kinto.ini \
     PORT=8888 \
     PATH="/opt/venv/bin:$PATH"
 

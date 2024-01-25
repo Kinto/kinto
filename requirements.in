@@ -1,0 +1,40 @@
+# main dependencies
+bcrypt
+colander
+cornice
+cornice_swagger
+dockerflow
+jsonschema
+jsonpatch
+logging-color-formatter
+python-dateutil
+pyramid
+pyramid_mailer
+pyramid_multiauth
+transaction
+pyramid_tm
+requests
+waitress
+python-rapidjson
+# optional dependencies
+# memcached
+python-memcached
+# postgresql
+SQLAlchemy < 3
+psycopg2
+zope.sqlalchemy
+# monitoring
+newrelic
+sentry-sdk[sqlalchemy]
+statsd
+werkzeug
+# test
+bravado_core
+pytest
+pytest-cache
+pytest-cov
+selenium
+webtest
+# dev
+build
+ruff

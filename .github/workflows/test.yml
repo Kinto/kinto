@@ -99,7 +99,7 @@ jobs:
           COVERALLS_FLAG_NAME: ${{ matrix.pyenv }}
           COVERALLS_PARALLEL: true
         run: |
-          pip install coveralls
+          pip install tomli coveralls
           coveralls --service=github
 
   finish:
@@ -111,12 +111,11 @@ jobs:
         with:
           python-version: "3.x"
       - name: Install coveralls
-        run: pip install coveralls
+        run: pip install tomli coveralls
       - name: Coveralls Finished
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: coveralls --service=github --finish
-
 
   functional:
     name: Functional
