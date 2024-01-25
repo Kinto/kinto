@@ -60,8 +60,8 @@ $(DEV_STAMP): $(PYTHON) constraints.txt
 	touch $(DEV_STAMP)
 
 install-docs: $(DOC_STAMP)
-$(DOC_STAMP): $(PYTHON) docs/constraints.txt
-	$(VENV)/bin/pip install -Ur docs/constraints.txt
+$(DOC_STAMP): $(PYTHON) docs/requirements.txt
+	$(VENV)/bin/pip install -r docs/requirements.txt
 	touch $(DOC_STAMP)
 
 constraints.txt: constraints.in
