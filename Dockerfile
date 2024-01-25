@@ -12,10 +12,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends build-essential
 ARG KINTO_VERSION=1
 ENV SETUPTOOLS_SCM_PRETEND_VERSION_FOR_KINTO=${KINTO_VERSION} \
     PATH="/opt/venv/bin:$PATH"
-COPY requirements.txt .
+COPY constraints.txt .
 COPY pyproject.toml .
 RUN pip install --upgrade pip && \
-    pip install -e ".[postgresql,memcached,monitoring]" -c requirements.txt && \
+    pip install -e ".[postgresql,memcached,monitoring]" -c constraints.txt && \
     pip install kinto-attachment kinto-emailer httpie
 
 FROM python:3.10-slim-bullseye
