@@ -21,6 +21,11 @@ jobs:
       - name: make lint
         run: make lint
 
+      - name: Run ShellCheck
+        uses: ludeeus/action-shellcheck@v2
+        with:
+          scandir: './scripts'
+
   unit-test:
     name: Unit Tests
     needs: lint
