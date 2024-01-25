@@ -137,8 +137,9 @@ docs: install-docs
 	@echo
 	@echo "Build finished. The HTML pages are in $(SPHINX_BUILDDIR)/html/index.html"
 
+.PHONY: build
 build:
-	docker build --pull -t kinto/kinto-server:latest .
+	docker build --build-arg="KINTO_VERSION=$(shell git describe --abbrev=0)" --pull -t kinto/kinto-server:latest .
 
 test-description: install-dev
 	$(VENV)/bin/python -m build
