@@ -1,0 +1,14 @@
+name: Force pull-requests label(s)
+
+on:
+  pull_request:
+    types: [opened, labeled, unlabeled]
+jobs:
+  pr-has-label:
+    name: Will be skipped if labelled
+    runs-on: ubuntu-latest
+    if: ${{ join(github.event.pull_request.labels.*.name, ', ') == '' }}
+    steps:
+      - run: |
+          echo 'Pull-request must have at least one label'
+          exit 1
