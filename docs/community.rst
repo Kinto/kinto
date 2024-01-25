@@ -274,7 +274,7 @@ There are three levels of cleaning your environment:
 How to release
 ==============
 
-In order to prepare a new release, we are following the following steps:
+In order to prepare a new release, follow these steps:
 
 Step 1
 ------
