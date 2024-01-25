@@ -186,7 +186,8 @@ jobs:
         run: |
           docker run --net=host --detach --rm \
             -p 8888:8888 \
-            -v tests/functional.ini:/etc/kinto/kinto.ini \
+            -v `pwd`/tests/functional.ini:/etc/functional.ini \
+            -e KINTO_INI=/etc/functional.ini \
             ${{ env.TEST_TAG }} && sleep 5
 
       - name: Functional Tests
