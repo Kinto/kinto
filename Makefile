@@ -65,7 +65,7 @@ $(DOC_STAMP): $(PYTHON) docs/requirements.txt
 	touch $(DOC_STAMP)
 
 requirements.txt: requirements.in
-	pip-compile --strip-extras
+	pip-compile
 
 build-kinto-admin: need-npm
 	scripts/build-kinto-admin.sh

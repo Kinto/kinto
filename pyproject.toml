@@ -96,6 +96,8 @@ dev = [
 [tool.pip-tools]
 # Pip does not support installing in editable mode with hashes.
 generate-hashes = false
+# Pip does not support extras in constraints.
+strip-extras = true
 
 [tool.coverage.run]
 branch = true

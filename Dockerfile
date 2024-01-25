@@ -11,8 +11,6 @@ RUN python -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 RUN apt-get update && apt-get install -y --no-install-recommends build-essential libpq-dev
 COPY requirements.txt .
-ARG KINTO_VERSION=1
-ENV SETUPTOOLS_SCM_PRETEND_VERSION_FOR_KINTO=${KINTO_VERSION}
 RUN pip install --upgrade pip && \
     pip install -r requirements.txt && \
     pip install kinto-attachment kinto-emailer httpie
@@ -27,7 +25,9 @@ COPY --from=python-builder /opt/venv /opt/venv
 COPY . /app
 COPY --from=node-builder /kinto/plugins/admin/build ./kinto/plugins/admin/build
 
-ENV KINTO_INI=/etc/kinto/kinto.ini \
+ARG KINTO_VERSION=1
+ENV SETUPTOOLS_SCM_PRETEND_VERSION_FOR_KINTO=${KINTO_VERSION} \
+    KINTO_INI=/etc/kinto/kinto.ini \
     PORT=8888 \
     PATH="/opt/venv/bin:$PATH"
 
