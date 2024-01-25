@@ -8,11 +8,11 @@ SRC_DIR="kinto-admin-${VERSION}"
 
 # download and unzip release
 cd kinto/plugins/admin/
-curl -OL https://github.com/Kinto/kinto-admin/archive/refs/tags/${TAG}.tar.gz
-tar -xf $TARBALL_NAME && rm $TARBALL_NAME
+curl -OL "https://github.com/Kinto/kinto-admin/archive/refs/tags/${TAG}.tar.gz"
+tar -xf "${TARBALL_NAME}" && rm "${TARBALL_NAME}"
 
 # build kinto-admin bundle
-pushd $SRC_DIR
+pushd "${SRC_DIR}"
 npm ci
 export ASSET_PATH="/v1/admin/"
 # kinto-admin <= 2.1.1
@@ -24,6 +24,6 @@ popd
 
 # move build and delete source
 TARGET_DIR=./build
-rm -rf $TARGET_DIR
-mv $SRC_DIR/build $TARGET_DIR
-rm -rf $SRC_DIR
+rm -rf "${TARGET_DIR}"
+mv "${SRC_DIR}/build" "${TARGET_DIR}"
+rm -rf "${SRC_DIR}"
