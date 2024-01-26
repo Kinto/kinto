@@ -37,35 +37,35 @@ help:
 
 all: install
 install: $(INSTALL_STAMP)
-$(INSTALL_STAMP): $(PYTHON) requirements.txt pyproject.toml
+$(INSTALL_STAMP): $(PYTHON) constraints.txt pyproject.toml
 	$(VENV)/bin/pip install -U pip
-	$(VENV)/bin/pip install -Ue . -c requirements.txt
+	$(VENV)/bin/pip install -Ue . -c constraints.txt
 	touch $(INSTALL_STAMP)
 
 $(PYTHON):
 	python3 -m venv $(VENV)
 
 install-monitoring: $(INSTALL_STAMP) $(DEV_STAMP)
-	$(VENV)/bin/pip install -Ue ".[monitoring]" -c requirements.txt
+	$(VENV)/bin/pip install -Ue ".[monitoring]" -c constraints.txt
 
 install-postgres: $(INSTALL_STAMP) $(DEV_STAMP)
-	$(VENV)/bin/pip install -Ue ".[postgresql]" -c requirements.txt
+	$(VENV)/bin/pip install -Ue ".[postgresql]" -c constraints.txt
 
 install-memcached: $(INSTALL_STAMP) $(DEV_STAMP)
-	$(VENV)/bin/pip install -Ue ".[memcached]" -c requirements.txt
+	$(VENV)/bin/pip install -Ue ".[memcached]" -c constraints.txt
 
 install-dev: $(INSTALL_STAMP) $(DEV_STAMP)
-$(DEV_STAMP): $(PYTHON) requirements.txt
-	$(VENV)/bin/pip install -Ue ".[dev,test]" -c requirements.txt
+$(DEV_STAMP): $(PYTHON) constraints.txt
+	$(VENV)/bin/pip install -Ue ".[dev,test]" -c constraints.txt
 	touch $(DEV_STAMP)
 
 install-docs: $(DOC_STAMP)
 $(DOC_STAMP): $(PYTHON) docs/requirements.txt
-	$(VENV)/bin/pip install -Ur docs/requirements.txt
+	$(VENV)/bin/pip install -r docs/requirements.txt
 	touch $(DOC_STAMP)
 
-requirements.txt: requirements.in
-	pip-compile
+constraints.txt: constraints.in
+	pip-compile -o constraints.txt constraints.in
 
 build-kinto-admin: need-npm
 	scripts/build-kinto-admin.sh
