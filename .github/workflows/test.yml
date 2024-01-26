@@ -121,6 +121,9 @@ jobs:
     name: Functional
     needs: lint
     runs-on: ubuntu-latest
+    env:
+      DOCKER_CACHE: /tmp/docker-cache
+      TEST_TAG: user/app:test
 
     services:
       postgres:
@@ -148,7 +151,6 @@ jobs:
       - name: Install dependencies
         run: |
           make install-dev
-          make install-postgres
 
       - name: Create database
         env:
@@ -156,9 +158,41 @@ jobs:
         run: |
           psql -c "CREATE DATABASE testdb ENCODING 'UTF8' TEMPLATE template0;" -U postgres -h localhost
 
-      - name: Start Kinto
+      - run: mkdir ${DOCKER_CACHE}
+
+      - name: Compute cache key
+        # Create hash of hashes of checked in files not in Dockerignore
+        run: echo "CACHE_KEY=$(git ls-tree --full-tree -r HEAD | grep -v -f .dockerignore | awk '{print $3}' | git hash-object --stdin)" >> $GITHUB_ENV
+
+      - uses: actions/cache@v3
+        with:
+          path: ${{ env.DOCKER_CACHE}}
+          key: docker-build-${{ hashFiles('Dockerfile') }}-${{ env.CACHE_KEY }}
+          restore-keys: |
+            docker-build-${{ hashFiles('Dockerfile') }}-${{ env.CACHE_KEY }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          install: true
+
+      - name: Build container
+        uses: docker/build-push-action@v5
+        with:
+          cache-from: type=local,src=${{ env.DOCKER_CACHE}}
+          cache-to: type=local,dest=${{ env.DOCKER_CACHE}},mode=max
+          tags: ${{ env.TEST_TAG }}
+          file: Dockerfile
+          load: true
+          context: .
+
+      - name: Run container
         run: |
-          make runkinto & sleep 5
+          docker run --net=host --detach --rm \
+            -p 8888:8888 \
+            -v `pwd`/tests/functional.ini:/etc/functional.ini \
+            -e KINTO_INI=/etc/functional.ini \
+            ${{ env.TEST_TAG }} && sleep 5
 
       - name: Functional Tests
         run: |
