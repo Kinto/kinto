@@ -164,7 +164,7 @@ jobs:
         # Create hash of hashes of checked in files not in Dockerignore
         run: echo "CACHE_KEY=$(git ls-tree --full-tree -r HEAD | grep -v -f .dockerignore | awk '{print $3}' | git hash-object --stdin)" >> $GITHUB_ENV
 
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         with:
           path: ${{ env.DOCKER_CACHE}}
           key: docker-build-${{ hashFiles('Dockerfile') }}-${{ env.CACHE_KEY }}
