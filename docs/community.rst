@@ -236,16 +236,8 @@ In another terminal, run the end-to-end tests with:
 Browser Tests
 -------------
 
-Make sure the `geckodriver <https://github.com/mozilla/geckodriver/releases>`_ binary is available in your path.
 
-.. note::
-
-    If your installation of *Firefox* is custom, specify the path of its binary using an alias:
-
-    ::
-
-        alias geckodriver="geckodriver --binary /path/to/firefox"
-
+We use `playwright <https://playwright.dev/>`_ for browser testing. The tests included in this repo are very simple and verify the admin UI can at least authenticate with the current kinto back-end. Comprehensive unit tests are maintained in the kinto-admin repo.
 
 In a terminal, run an instance with the provided ``browser.ini`` configuration:
 
