@@ -116,7 +116,7 @@ functional: install-dev need-kinto-running
 	$(VENV)/bin/py.test tests/functional.py
 
 browser-test: need-kinto-running
-	$(VENV)/bin/py.test tests/browser.py
+	(cd tests/browser; npm run install; npm run test;)
 
 clean:
 	find . -name '*.pyc' -delete

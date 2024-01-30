@@ -1,0 +1,17 @@
+{
+  "name": "browser",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "playwright test --project=firefox",
+    "install": "playwright install firefox"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@playwright/test": "^1.41.1",
+    "@types/node": "^20.11.7"
+  }
+}
