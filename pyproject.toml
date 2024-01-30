@@ -49,7 +49,10 @@ kinto = "kinto.__main__:main"
 main = "kinto:main"
 
 [tool.setuptools.packages.find]
-include = ["kinto"]
+include = ["kinto*"]
+
+[tool.setuptools.package-data]
+"*" = ["*.tpl", "*.sql", "*.html", "VERSION"]
 
 [tool.setuptools.dynamic]
 readme = {file = ["README.rst", "CONTRIBUTORS.rst"]}
