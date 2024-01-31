@@ -75,25 +75,31 @@ class AdminViewTest(BaseWebTest, unittest.TestCase):
 
 class OverriddenAdminViewTest(BaseWebTest, unittest.TestCase):
     @classmethod
+    def make_app(cls, *args, **kwargs):
+        cls.tmp_dir = tempfile.TemporaryDirectory()
+        with open(os.path.join(cls.tmp_dir.name, "VERSION"), "w") as f:
+            f.write("42.0.0")
+        with open(os.path.join(cls.tmp_dir.name, "index.html"), "w") as f:
+            f.write("mine!")
+        with open(os.path.join(cls.tmp_dir.name, "script.js"), "w") as f:
+            f.write("kiddy")
+        return super().make_app(*args, **kwargs)
+
+    @classmethod
     def tearDownClass(cls):
         super().tearDownClass()
         cls.tmp_dir.cleanup()
 
     @classmethod
     def get_app_settings(cls, extras=None):
-        cls.tmp_dir = tempfile.TemporaryDirectory()
-
         settings = super().get_app_settings(extras)
         settings["includes"] = "kinto.plugins.admin"
         settings["admin_assets_path"] = cls.tmp_dir.name
         return settings
 
-    def setUp(self) -> None:
-        super().setUp()
-        with open(os.path.join(self.tmp_dir.name, "index.html"), "w") as f:
-            f.write("mine!")
-        with open(os.path.join(self.tmp_dir.name, "script.js"), "w") as f:
-            f.write("kiddy")
+    def test_admin_capability_reads_version_from_configured_folder(self):
+        resp = self.app.get("/")
+        self.assertEqual(resp.json["capabilities"]["admin"]["version"], "42.0.0")
 
     def test_admin_ui_is_served_from_configured_folder(self):
         resp = self.app.get("/admin/")

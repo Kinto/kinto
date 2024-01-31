@@ -11,6 +11,7 @@ configuration, a Web admin UI is available at ``/v1/admin/``.
 +=========================+==========+=================================================+
 | kinto.admin_assets_path | None     | Absolute path to the Admin UI assets files.     |
 |                         |          | The folder must contain an ``index.html`` file. |
+|                         |          | and a ``VERSION`` file.                         |
 +-------------------------+----------+-------------------------------------------------+
 
 
