@@ -6,11 +6,16 @@ from pyramid.static import static_view
 from .views import admin_home_view
 
 
-VERSION_FILE_PATH = Path(__file__).parent / "VERSION"
-
-
 def includeme(config):
-    admin_version = VERSION_FILE_PATH.read_text().strip()
+    admin_assets_path = config.registry.settings["admin_assets_path"]
+    if not admin_assets_path:
+        # Use bundled admin.
+        admin_assets_path = "kinto.plugins.admin:build"
+        version_file_parent = Path(__file__).parent
+    else:
+        version_file_parent = Path(admin_assets_path)
+
+    admin_version = (version_file_parent / "VERSION").read_text().strip()
 
     # Expose capability.
     config.add_api_capability(
@@ -23,9 +28,6 @@ def includeme(config):
     config.add_route("admin_home", "/admin/")
     config.add_view(admin_home_view, route_name="admin_home")
 
-    admin_assets_path = (
-        config.registry.settings["admin_assets_path"] or "kinto.plugins.admin:build"
-    )
     build_dir = static_view(admin_assets_path, use_subpath=True)
     config.add_route("catchall_static", "/admin/*subpath")
     config.add_view(build_dir, route_name="catchall_static")
