@@ -12,7 +12,9 @@ ENV SETUPTOOLS_SCM_PRETEND_VERSION_FOR_KINTO=${KINTO_VERSION} \
     PATH="/opt/venv/bin:$PATH"
 # At this stage we only fetch and build all dependencies.
 WORKDIR /pkg-kinto
-COPY constraints.txt pyproject.toml MANIFEST.in ./
+COPY constraints.txt .
+RUN pip install -r constraints.txt
+COPY pyproject.toml MANIFEST.in ./
 COPY kinto/ kinto/
 COPY --from=node-builder /kinto/plugins/admin/build kinto/plugins/admin/build
 RUN pip install --upgrade pip && \
