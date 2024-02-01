@@ -11,7 +11,6 @@ COPY constraints.txt pyproject.toml MANIFEST.in ./
 COPY kinto/ kinto/
 
 COPY scripts/pull-kinto-admin.sh .
-RUN ls ./kinto/plugins/admin/build
 RUN bash pull-kinto-admin.sh
 
 RUN pip install --upgrade pip && \
