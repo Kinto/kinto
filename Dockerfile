@@ -1,14 +1,12 @@
 # Mozilla Kinto server
 
-FROM node:lts-bullseye-slim as node-builder
-RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates curl
+FROM node:lts AS node-builder
 COPY scripts/build-kinto-admin.sh .
 COPY /kinto/plugins/admin ./kinto/plugins/admin
 RUN bash build-kinto-admin.sh
 
-FROM python:3.10-slim-bullseye as python-builder
+FROM python:3.10 AS python-builder
 RUN python -m venv /opt/venv
-RUN apt-get update && apt-get install -y --no-install-recommends build-essential libpq-dev
 ARG KINTO_VERSION=1
 ENV SETUPTOOLS_SCM_PRETEND_VERSION_FOR_KINTO=${KINTO_VERSION} \
     PATH="/opt/venv/bin:$PATH"
