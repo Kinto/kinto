@@ -28,8 +28,8 @@ jobs:
           node --version
           npm --version
 
-      - name: Build Admin UI
-        run: make build-kinto-admin
+      - name: Pull Admin UI
+        run: make pull-kinto-admin
 
       - name: Install pypa/build
         run: python3 -m pip install build

@@ -1,22 +1,19 @@
 # Mozilla Kinto server
-
-FROM node:lts-bullseye-slim as node-builder
-RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates curl
-COPY scripts/build-kinto-admin.sh .
-COPY /kinto/plugins/admin ./kinto/plugins/admin
-RUN bash build-kinto-admin.sh
-
 FROM python:3.10-slim-bullseye as python-builder
 RUN python -m venv /opt/venv
-RUN apt-get update && apt-get install -y --no-install-recommends build-essential libpq-dev
+RUN apt-get update && apt-get install -y --no-install-recommends build-essential libpq-dev ca-certificates curl
 ARG KINTO_VERSION=1
 ENV SETUPTOOLS_SCM_PRETEND_VERSION_FOR_KINTO=${KINTO_VERSION} \
     PATH="/opt/venv/bin:$PATH"
 # At this stage we only fetch and build all dependencies.
 WORKDIR /pkg-kinto
-COPY constraints.txt .
-COPY pyproject.toml .
+COPY constraints.txt pyproject.toml MANIFEST.in ./
 COPY kinto/ kinto/
+
+COPY scripts/pull-kinto-admin.sh .
+RUN ls ./kinto/plugins/admin/build
+RUN bash pull-kinto-admin.sh
+
 RUN pip install --upgrade pip && \
     pip install ".[postgresql,memcached,monitoring]" -c constraints.txt && \
     pip install kinto-attachment kinto-emailer httpie
@@ -27,7 +24,6 @@ RUN groupadd --gid 10001 app && \
     useradd --uid 10001 --gid 10001 --home /app --create-home app
 
 COPY --from=python-builder /opt/venv /opt/venv
-COPY --from=node-builder /kinto/plugins/admin/build ./kinto/plugins/admin/build
 
 ENV KINTO_INI=/etc/kinto/kinto.ini \
     PORT=8888 \

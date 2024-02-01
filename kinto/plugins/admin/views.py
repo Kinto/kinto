@@ -16,7 +16,7 @@ def admin_home_view(request):
     This requires the Admin UI to be built with ``ASSET_PATH="/v1/admin/"``.
     """
     # Default location of the Admin UI is relative to this plugin source folder,
-    # as built with the ``make build-kinto-admin`` command.
+    # as pulled with the ``make pull-kinto-admin`` command.
     admin_assets_path = request.registry.settings["admin_assets_path"] or os.path.join(
         HERE, "build"
     )
