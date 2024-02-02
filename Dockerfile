@@ -7,7 +7,7 @@ ENV SETUPTOOLS_SCM_PRETEND_VERSION_FOR_KINTO=${KINTO_VERSION} \
     PATH="/opt/venv/bin:$PATH"
 # At this stage we only fetch and build all dependencies.
 WORKDIR /pkg-kinto
-COPY constraints.txt pyproject.toml MANIFEST.in ./
+COPY constraints.txt pyproject.toml ./
 COPY kinto/ kinto/
 
 COPY scripts/pull-kinto-admin.sh .
