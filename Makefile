@@ -116,6 +116,7 @@ functional: install-dev need-kinto-running
 	$(VENV)/bin/py.test tests/functional.py
 
 browser-test: need-kinto-running
+	$(VENV)/bin/playwright install firefox
 	$(VENV)/bin/py.test tests/browser.py
 
 clean:
