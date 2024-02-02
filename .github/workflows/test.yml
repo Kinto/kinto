@@ -229,8 +229,8 @@ jobs:
           which firefox
           firefox --version
 
-      - name: make build-kinto-admin
-        run: make build-kinto-admin
+      - name: make pull-kinto-admin
+        run: make pull-kinto-admin
 
       - name: Install dependencies
         run: make install-dev

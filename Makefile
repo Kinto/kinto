@@ -20,7 +20,7 @@ help:
 	@echo "  install-monitoring          enable monitoring features like StatsD and Newrelic"
 	@echo "  install-postgres            install postgresql support"
 	@echo "  install-dev                 install dependencies and everything needed to run tests"
-	@echo "  build-kinto-admin           build the Kinto admin UI plugin (requires npm)"
+	@echo "  pull-kinto-admin            pull the Kinto admin UI plugin (requires npm)"
 	@echo "  serve                       start the kinto server on default port"
 	@echo "  migrate                     run the kinto migrations"
 	@echo "  lint                        run the code linters"
@@ -67,8 +67,8 @@ $(DOC_STAMP): $(PYTHON) docs/requirements.txt
 constraints.txt: constraints.in
 	pip-compile -o constraints.txt constraints.in
 
-build-kinto-admin: need-npm
-	scripts/build-kinto-admin.sh
+pull-kinto-admin:
+	scripts/pull-kinto-admin.sh
 
 $(SERVER_CONFIG):
 	$(VENV)/bin/kinto init --ini $(SERVER_CONFIG)
@@ -104,9 +104,6 @@ format: install-dev
 
 tdd: install-dev
 	$(VENV)/bin/ptw --runner $(VENV)/bin/py.test
-
-need-npm:
-	@npm --version 2>/dev/null 1>&2 || (echo "The 'npm' command is required to build the Kinto Admin UI." && exit 1)
 
 need-kinto-running:
 	@curl http://localhost:8888/v0/ 2>/dev/null 1>&2 || (echo "Run 'make runkinto' before starting tests." && exit 1)

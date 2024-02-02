@@ -316,9 +316,9 @@ Kinto Admin
 -----------
 
 In order to run a local `Kinto Admin UI <https://github.com/Kinto/kinto-admin>`_ from a cloned
-repo, the ``npm`` command must be available in order to build it with ::
+repo, run ::
 
-    make build-kinto-admin
+    make pull-kinto-admin
 
 
 Go further
