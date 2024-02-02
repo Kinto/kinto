@@ -1,21 +1,23 @@
 # Mozilla Kinto server
-FROM python:3.10-slim-bullseye as python-builder
+FROM python:3.10-bullseye as python-builder
 RUN python -m venv /opt/venv
-RUN apt-get update && apt-get install -y --no-install-recommends build-essential libpq-dev ca-certificates curl
 ARG KINTO_VERSION=1
 ENV SETUPTOOLS_SCM_PRETEND_VERSION_FOR_KINTO=${KINTO_VERSION} \
     PATH="/opt/venv/bin:$PATH"
 # At this stage we only fetch and build all dependencies.
-WORKDIR /pkg-kinto
-COPY constraints.txt pyproject.toml ./
-COPY kinto/ kinto/
 
+# Pull kinto-admin before building kinto so we can cache it
+WORKDIR /kinto-admin
+COPY kinto/plugins/admin kinto/plugins/admin
 COPY scripts/pull-kinto-admin.sh .
 RUN bash pull-kinto-admin.sh
 
-RUN pip install --upgrade pip && \
-    pip install ".[postgresql,memcached,monitoring]" -c constraints.txt && \
-    pip install kinto-attachment kinto-emailer httpie
+WORKDIR /pkg-kinto
+COPY constraints.txt pyproject.toml ./
+RUN pip install --upgrade pip && pip install -r constraints.txt
+COPY kinto/ kinto/
+RUN cp -r /kinto-admin/kinto/plugins/admin/build kinto/plugins/admin/
+RUN pip install ".[postgresql,memcached,monitoring]" -c constraints.txt && pip install kinto-attachment kinto-emailer httpie
 
 FROM python:3.10-slim-bullseye
 RUN apt-get update && apt-get install -y --no-install-recommends libpq-dev
