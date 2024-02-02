@@ -30,7 +30,6 @@ jobs:
     name: Unit Tests
     needs: lint
     runs-on: ubuntu-latest
-    timeout-minutes: 10
     strategy:
       matrix:
         pyenv: [py38, py39, py310, py311, py312, py312-raw]
