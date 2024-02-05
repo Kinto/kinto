@@ -87,7 +87,7 @@ test = [
     "pytest",
     "pytest-cache",
     "pytest-cov",
-    "selenium",
+    "playwright",
     "webtest",
 ]
 dev = [

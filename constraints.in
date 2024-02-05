@@ -33,7 +33,7 @@ bravado_core
 pytest
 pytest-cache
 pytest-cov
-selenium
+playwright
 webtest
 # dev
 build
