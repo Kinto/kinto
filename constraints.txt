@@ -165,7 +165,7 @@ rpds-py==0.17.1
     # via
     #   jsonschema
     #   referencing
-ruff==0.1.15
+ruff==0.2.0
     # via -r constraints.in
 sentry-sdk==1.39.2
     # via -r constraints.in
