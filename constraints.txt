@@ -222,7 +222,7 @@ venusian==3.1.0
     # via
     #   cornice
     #   pyramid
-waitress==2.1.2
+waitress==3.0.0
     # via
     #   -r constraints.in
     #   webtest
