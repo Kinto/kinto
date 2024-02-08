@@ -463,14 +463,15 @@ class PluginsTest(unittest.TestCase):
                 config.include.assert_any_call("elastic")
                 config.include.assert_any_call("history")
 
-    def make_app(self):
+    def make_app(self, settings=None):
         config = Configurator(settings={**kinto.core.DEFAULT_SETTINGS})
         config.add_settings(
             {
                 "permission_backend": "kinto.core.permission.memory",
                 "includes": "tests.core.testplugin",
                 "multiauth.policies": "basicauth",
-            }
+            },
+            **(settings or {}),
         )
         kinto.core.initialize(config, "0.0.1", "name")
         return webtest.TestApp(config.make_wsgi_app())
@@ -486,3 +487,25 @@ class PluginsTest(unittest.TestCase):
         headers = {"Origin": "lolnet.org", "Access-Control-Request-Method": "POST"}
         resp = app.options("/v0/attachment", headers=headers, status=200)
         self.assertIn("Access-Control-Allow-Origin", resp.headers)
+
+    def test_write_http_methods_are_rejected_if_readonly(self):
+        app = self.make_app({"readonly": True})
+        # `pytest.mark.parametrize` is not available on `TestCase` methods.
+        for method, status in [
+            ("GET", 200),
+            ("HEAD", 200),
+            ("OPTIONS", 200),
+            ("POST", 405),
+            ("PUT", 405),
+            ("PATCH", 405),
+            ("DELETE", 405),
+        ]:
+            app.request(
+                "/v0/log",
+                method=method,
+                status=status,
+                headers={
+                    "Access-Control-Request-Method": method,
+                    "Origin": "http://server.com",
+                },
+            )
