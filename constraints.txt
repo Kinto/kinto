@@ -100,7 +100,7 @@ plaster==1.1.2
     #   pyramid
 plaster-pastedeploy==1.0.1
     # via pyramid
-playwright==1.41.1
+playwright==1.41.2
     # via -r constraints.in
 pluggy==1.3.0
     # via pytest
@@ -165,7 +165,7 @@ rpds-py==0.17.1
     # via
     #   jsonschema
     #   referencing
-ruff==0.2.0
+ruff==0.2.1
     # via -r constraints.in
 sentry-sdk==1.39.2
     # via -r constraints.in
