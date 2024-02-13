@@ -8,7 +8,12 @@ from secrets import token_hex
 from dateutil import parser as dateparser
 from pyramid.events import ApplicationCreated, NewRequest, NewResponse
 from pyramid.exceptions import ConfigurationError
-from pyramid.httpexceptions import HTTPBadRequest, HTTPGone, HTTPTemporaryRedirect
+from pyramid.httpexceptions import (
+    HTTPBadRequest,
+    HTTPGone,
+    HTTPMethodNotAllowed,
+    HTTPTemporaryRedirect,
+)
 from pyramid.interfaces import IAuthenticationPolicy
 from pyramid.renderers import JSON as JSONRenderer
 from pyramid.response import Response
@@ -76,6 +81,24 @@ def setup_csp_headers(config):
         event.response.headers.setdefault("Content-Security-Policy", disable_all)
 
     config.add_subscriber(on_new_response, NewResponse)
+
+
+def restrict_http_methods_if_readonly(config):
+    """Prevent write operations if server is configured as read-only.
+
+    This is an additional layer of security on top of the verifications done
+    in :method:`kinto.core.Resource.register_service`, in case an installed
+    plugin does not take this setting into account in the definition of its
+    ad-hoc Pyramid views.
+    """
+    settings = config.get_settings()
+
+    def on_new_request(event):
+        if event.request.method.lower() not in ("get", "head", "options"):
+            raise HTTPMethodNotAllowed()
+
+    if asbool(settings["readonly"]):
+        config.add_subscriber(on_new_request, NewRequest)
 
 
 def setup_version_redirection(config):

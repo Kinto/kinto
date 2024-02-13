@@ -54,6 +54,7 @@ DEFAULT_SETTINGS = {
     "initialization_sequence": (
         "kinto.core.initialization.setup_request_bound_data",
         "kinto.core.initialization.setup_json_serializer",
+        "kinto.core.initialization.restrict_http_methods_if_readonly",
         "kinto.core.initialization.setup_csp_headers",
         "kinto.core.initialization.setup_logging",
         "kinto.core.initialization.setup_storage",
