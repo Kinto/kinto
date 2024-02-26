@@ -40,7 +40,7 @@ coverage==7.4.0
     # via
     #   coverage
     #   pytest-cov
-dockerflow==2024.1.0
+dockerflow==2024.2.0
     # via -r constraints.in
 exceptiongroup==1.2.0
     # via pytest
@@ -85,7 +85,7 @@ markupsafe==2.1.4
     # via werkzeug
 msgpack==1.0.7
     # via bravado-core
-newrelic==9.6.0
+newrelic==9.7.0
     # via -r constraints.in
 packaging==23.2
     # via
@@ -179,7 +179,7 @@ six==1.16.0
     #   rfc3339-validator
 soupsieve==2.5
     # via beautifulsoup4
-sqlalchemy==2.0.25
+sqlalchemy==2.0.27
     # via
     #   -r constraints.in
     #   sentry-sdk
