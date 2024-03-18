@@ -1,6 +1,7 @@
 """
 kinto.core.storage.utils: methods for making it easier to work with kinto storage objects
 """
+
 from kinto.core.storage import Filter
 from kinto.core.utils import COMPARISON
 

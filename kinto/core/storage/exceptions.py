@@ -1,5 +1,4 @@
-"""Exceptions raised by storage backend.
-"""
+"""Exceptions raised by storage backend."""
 
 
 class BackendError(Exception):

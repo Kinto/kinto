@@ -1,5 +1,5 @@
-"""Main entry point
-"""
+"""Main entry point"""
+
 import logging
 import tempfile
 
