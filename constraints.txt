@@ -16,7 +16,7 @@ beautifulsoup4==4.12.3
     # via webtest
 bravado-core==6.1.1
     # via -r constraints.in
-build==1.0.3
+build==1.1.1
     # via -r constraints.in
 certifi==2023.11.17
     # via
@@ -40,7 +40,7 @@ coverage==7.4.0
     # via
     #   coverage
     #   pytest-cov
-dockerflow==2024.1.0
+dockerflow==2024.3.0
     # via -r constraints.in
 exceptiongroup==1.2.0
     # via pytest
@@ -85,7 +85,7 @@ markupsafe==2.1.4
     # via werkzeug
 msgpack==1.0.7
     # via bravado-core
-newrelic==9.6.0
+newrelic==9.7.0
     # via -r constraints.in
 packaging==23.2
     # via
@@ -100,7 +100,7 @@ plaster==1.1.2
     #   pyramid
 plaster-pastedeploy==1.0.1
     # via pyramid
-playwright==1.41.2
+playwright==1.42.0
     # via -r constraints.in
 pluggy==1.3.0
     # via pytest
@@ -132,7 +132,7 @@ pytest-cache==1.0
     # via -r constraints.in
 pytest-cov==4.1.0
     # via -r constraints.in
-python-dateutil==2.8.2
+python-dateutil==2.9.0.post0
     # via
     #   -r constraints.in
     #   arrow
@@ -165,7 +165,7 @@ rpds-py==0.17.1
     # via
     #   jsonschema
     #   referencing
-ruff==0.2.2
+ruff==0.3.2
     # via -r constraints.in
 sentry-sdk==1.39.2
     # via -r constraints.in

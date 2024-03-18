@@ -1,6 +1,7 @@
 """
 kinto.plugins.quotas.scripts: scripts to maintain quotas and fix them when they're broken
 """
+
 import logging
 
 from kinto.core.storage import Sort

@@ -1,6 +1,7 @@
 """
 kinto.core.scripts: utilities to build admin scripts for kinto-based services
 """
+
 import logging
 
 from pyramid.settings import asbool
