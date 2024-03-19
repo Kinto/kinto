@@ -37,9 +37,7 @@ cornice==6.0.1
 cornice-swagger==1.0.1
     # via -r constraints.in
 coverage==7.4.0
-    # via
-    #   coverage
-    #   pytest-cov
+    # via pytest-cov
 dockerflow==2024.3.0
     # via -r constraints.in
 exceptiongroup==1.2.0
@@ -85,7 +83,7 @@ markupsafe==2.1.4
     # via werkzeug
 msgpack==1.0.7
     # via bravado-core
-newrelic==9.7.0
+newrelic==9.7.1
     # via -r constraints.in
 packaging==23.2
     # via
@@ -165,7 +163,7 @@ rpds-py==0.17.1
     # via
     #   jsonschema
     #   referencing
-ruff==0.3.2
+ruff==0.3.3
     # via -r constraints.in
 sentry-sdk==1.39.2
     # via -r constraints.in
@@ -179,7 +177,7 @@ six==1.16.0
     #   rfc3339-validator
 soupsieve==2.5
     # via beautifulsoup4
-sqlalchemy==2.0.25
+sqlalchemy==2.0.28
     # via
     #   -r constraints.in
     #   sentry-sdk
