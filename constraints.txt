@@ -128,7 +128,7 @@ pytest==7.4.4
     #   pytest-cov
 pytest-cache==1.0
     # via -r constraints.in
-pytest-cov==4.1.0
+pytest-cov==5.0.0
     # via -r constraints.in
 python-dateutil==2.9.0.post0
     # via
