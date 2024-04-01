@@ -15,6 +15,7 @@ class VersionViewTest(BaseWebTest, unittest.TestCase):
             delattr(version_view, "__json__")  # Clean-up memoization.
         except AttributeError:
             pass
+        self.obj = None
 
     tearDown = setUp
 
