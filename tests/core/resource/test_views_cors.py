@@ -15,7 +15,7 @@ class CORSOriginHeadersTest(BaseWebTest, unittest.TestCase):
     def setUpClass(cls):
         super().setUpClass()
         cls.headers["Origin"] = "notmyidea.org"
-    
+
     @classmethod
     def tearDownClass(cls):
         cls.headers.pop("Origin", None)
@@ -101,6 +101,7 @@ class CORSOriginHeadersTest(BaseWebTest, unittest.TestCase):
         ):
             response = self.app.get("/mushrooms", headers=self.headers, status=402)
         self.assertIn("Access-Control-Allow-Origin", response.headers)
+
 
 class CORSExposeHeadersTest(BaseWebTest, unittest.TestCase):
     def assert_expose_headers(self, method, path, allowed_headers, body=None, status=None):
@@ -219,7 +220,7 @@ class CORSMaxAgeTest(BaseWebTest, unittest.TestCase):
     def setUpClass(cls):
         super().setUpClass()
         cls.headers.update({"Origin": "lolnet.org", "Access-Control-Request-Method": "GET"})
-    
+
     @classmethod
     def tearDownClass(cls):
         cls.headers.pop("Access-Control-Request-Method", None)
@@ -239,4 +240,3 @@ class CORSMaxAgeTest(BaseWebTest, unittest.TestCase):
         app = self.make_app({"cors_max_age_seconds": ""})
         resp = app.options("/", headers=self.headers)
         self.assertNotIn("Access-Control-Max-Age", resp.headers)
-
