@@ -25,8 +25,9 @@ help:
 	@echo "  migrate                     run the kinto migrations"
 	@echo "  lint                        run the code linters"
 	@echo "  tests                       run all the tests with all the supported python interpreters (same as CI)"
+	@echo "  test-deps                   pulls and runs docker postgres and memcached containers for tests"
 	@echo "  tdd                         run pytest-watch to rerun tests automatically on changes for tdd"
-	@echo "  tests-once  	             only run the tests once with the default python interpreter"
+	@echo "  tests-once  	               only run the tests once with the default python interpreter"
 	@echo "  functional                  run functional test against a real kinto"
 	@echo "  browser-test                run browser test against a real kinto"
 	@echo "  clean                       remove *.pyc files and __pycache__ directory"
@@ -94,6 +95,14 @@ tests: install-postgres install-monitoring install-memcached version-file instal
 tests-raw: version-file install-dev
 	$(VENV)/bin/py.test
 
+test-deps:
+	docker pull memcached
+	docker pull postgres
+	docker run -p 11211:11211 --name kinto-memcached -d memcached || echo "cannot start memcached, already exists?"
+	docker run -p 5432:5432 --name kinto-postgres -e POSTGRES_PASSWORD=postgres -d postgres  || echo "cannot start postgres, already exists?"
+	sleep 2
+	PGPASSWORD=postgres psql -c "CREATE DATABASE testdb ENCODING 'UTF8' TEMPLATE template0;" -U postgres -h localhost
+
 lint: install-dev
 	$(VENV)/bin/ruff check kinto tests docs/conf.py
 	$(VENV)/bin/ruff format --check kinto tests docs/conf.py
@@ -123,6 +132,8 @@ clean:
 	find . -name '*.pyc' -delete
 	find . -name '__pycache__' -type d | xargs rm -fr
 	rm -fr docs/_build/
+	docker rm -f kinto-memcached || echo ""
+	docker rm -f kinto-postgres || echo ""
 
 distclean: clean
 	rm -fr *.egg *.egg-info/ dist/ build/
