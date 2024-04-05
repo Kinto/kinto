@@ -16,7 +16,7 @@ beautifulsoup4==4.12.3
     # via webtest
 bravado-core==6.1.1
     # via -r constraints.in
-build==1.1.1
+build==1.2.1
     # via -r constraints.in
 certifi==2023.11.17
     # via
@@ -83,7 +83,7 @@ markupsafe==2.1.4
     # via werkzeug
 msgpack==1.0.7
     # via bravado-core
-newrelic==9.7.1
+newrelic==9.8.0
     # via -r constraints.in
 packaging==23.2
     # via
@@ -117,7 +117,7 @@ pyramid==2.0.2
     #   pyramid-tm
 pyramid-mailer==0.15.1
     # via -r constraints.in
-pyramid-multiauth==1.0.1
+pyramid-multiauth==1.0.2
     # via -r constraints.in
 pyramid-tm==2.5
     # via -r constraints.in
@@ -163,7 +163,7 @@ rpds-py==0.17.1
     # via
     #   jsonschema
     #   referencing
-ruff==0.3.4
+ruff==0.3.5
     # via -r constraints.in
 sentry-sdk==1.39.2
     # via -r constraints.in
@@ -177,7 +177,7 @@ six==1.16.0
     #   rfc3339-validator
 soupsieve==2.5
     # via beautifulsoup4
-sqlalchemy==2.0.28
+sqlalchemy==2.0.29
     # via
     #   -r constraints.in
     #   sentry-sdk
@@ -232,7 +232,7 @@ webob==1.8.7
     #   webtest
 webtest==3.0.0
     # via -r constraints.in
-werkzeug==3.0.1
+werkzeug==3.0.2
     # via -r constraints.in
 zope-deprecation==5.0
     # via pyramid
