@@ -119,7 +119,7 @@ Get started!
 
     git clone git@github.com:your_name_here/kinto.git
 
-3. Setup a local PostgreSQL database for the tests (:ref:`more details <postgresql-install>`)::
+3. Run ``make test-deps``, or setup a local PostgreSQL database (:ref:`more details <postgresql-install>`)::
 
     sudo apt-get install postgresql
     sudo -n -u postgres -s -- psql -c "ALTER USER postgres WITH PASSWORD 'postgres';" -U postgres
