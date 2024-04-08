@@ -16,6 +16,10 @@ class CORSOriginHeadersTest(BaseWebTest, unittest.TestCase):
         super().setUpClass()
         cls.headers["Origin"] = "notmyidea.org"
 
+    @classmethod
+    def tearDownClass(cls):
+        cls.headers.pop("Origin", None)
+
     def setUp(self):
         super().setUp()
         body = {"data": MINIMALIST_OBJECT}
@@ -216,6 +220,11 @@ class CORSMaxAgeTest(BaseWebTest, unittest.TestCase):
     def setUpClass(cls):
         super().setUpClass()
         cls.headers.update({"Origin": "lolnet.org", "Access-Control-Request-Method": "GET"})
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.headers.pop("Access-Control-Request-Method", None)
+        cls.headers.pop("Origin", None)
 
     def test_cors_max_age_is_3600_seconds_by_default(self):
         app = self.make_app()
