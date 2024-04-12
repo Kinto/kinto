@@ -52,7 +52,7 @@ greenlet==3.0.3
     #   sqlalchemy
 hupper==1.12
     # via pyramid
-idna==3.6
+idna==3.7
     # via
     #   jsonschema
     #   requests
