@@ -38,7 +38,7 @@ cornice-swagger==1.0.1
     # via -r constraints.in
 coverage==7.4.0
     # via pytest-cov
-dockerflow==2024.3.0
+dockerflow==2024.4.2
     # via -r constraints.in
 exceptiongroup==1.2.0
     # via pytest
@@ -83,7 +83,7 @@ markupsafe==2.1.4
     # via werkzeug
 msgpack==1.0.7
     # via bravado-core
-newrelic==9.8.0
+newrelic==9.9.0
     # via -r constraints.in
 packaging==23.2
     # via
@@ -98,13 +98,13 @@ plaster==1.1.2
     #   pyramid
 plaster-pastedeploy==1.0.1
     # via pyramid
-playwright==1.42.0
+playwright==1.43.0
     # via -r constraints.in
-pluggy==1.4.0
+pluggy==1.5.0
     # via pytest
 psycopg2==2.9.9
     # via -r constraints.in
-pyee==11.0.1
+pyee==11.1.0
     # via playwright
 pyproject-hooks==1.0.0
     # via build
@@ -121,7 +121,7 @@ pyramid-multiauth==1.0.2
     # via -r constraints.in
 pyramid-tm==2.5
     # via -r constraints.in
-pytest==8.1.1
+pytest==8.2.0
     # via
     #   -r constraints.in
     #   pytest-cache
@@ -163,7 +163,7 @@ rpds-py==0.17.1
     # via
     #   jsonschema
     #   referencing
-ruff==0.3.5
+ruff==0.4.2
     # via -r constraints.in
 sentry-sdk==1.39.2
     # via -r constraints.in
