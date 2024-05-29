@@ -151,7 +151,7 @@ referencing==0.32.1
     #   jsonschema-specifications
 repoze-sendmail==4.4.1
     # via pyramid-mailer
-requests==2.31.0
+requests==2.32.0
     # via
     #   -r constraints.in
     #   bravado-core
