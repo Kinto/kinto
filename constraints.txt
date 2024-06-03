@@ -151,7 +151,7 @@ referencing==0.32.1
     #   jsonschema-specifications
 repoze-sendmail==4.4.1
     # via pyramid-mailer
-requests==2.32.2
+requests==2.32.3
     # via
     #   -r constraints.in
     #   bravado-core
@@ -163,7 +163,7 @@ rpds-py==0.17.1
     # via
     #   jsonschema
     #   referencing
-ruff==0.4.6
+ruff==0.4.7
     # via -r constraints.in
 sentry-sdk==1.39.2
     # via -r constraints.in
@@ -177,7 +177,7 @@ six==1.16.0
     #   rfc3339-validator
 soupsieve==2.5
     # via beautifulsoup4
-sqlalchemy==2.0.29
+sqlalchemy==2.0.30
     # via
     #   -r constraints.in
     #   sentry-sdk
