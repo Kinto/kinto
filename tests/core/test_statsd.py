@@ -148,3 +148,19 @@ class AdditionalStatsdClientTest(unittest.TestCase):
             ## ASSERT ##
             mocked_client.timer.assert_called_with("test.testedclass.test_method")
     
+    ### ADDED TEST CASES FOR load_from_config FUNCTION ###
+    def test_load_from_config_with_project_name(self, module_mock):
+        ## INPUT ##
+        config = testing.setUp()
+        config.registry.settings = self.settings_with_project_name
+        statsd.load_from_config(config)
+        ## ASSERT ##
+        module_mock.StatsClient.assert_called_with("foo", 1234, prefix="projectname")
+
+    def test_load_from_config_without_project_name(self, module_mock):
+        ## INPUT ##
+        config = testing.setUp()
+        config.registry.settings = self.settings_without_project_name
+        statsd.load_from_config(config)
+        ## ASSERT ##
+        module_mock.StatsClient.assert_called_with("foo", 1234, prefix="prefix")
