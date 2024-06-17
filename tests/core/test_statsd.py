@@ -118,3 +118,33 @@ class TimingTest(BaseWebTest, unittest.TestCase):
             self.app.get("/", headers=self.headers)
             timers = set(c[0][0] for c in mocked.call_args_list)
             self.assertIn("authentication.basicauth.unauthenticated_userid", timers)
+
+
+### ADDITIONAL TEST CASES ###
+
+@mock.patch("kinto.core.statsd.statsd_module")
+class AdditionalStatsdClientTest(unittest.TestCase):
+    def setUp(self):
+        self.settings_with_project_name = {
+            "statsd_url": "udp://foo:1234",
+            "statsd_prefix": "prefix",
+            "project_name": "projectname"
+        }
+        self.settings_without_project_name = {
+            "statsd_url": "udp://foo:1234",
+            "statsd_prefix": "prefix",
+            "project_name": ""
+        }
+
+    ### ADDED TEST CASES FOR watch_execution_time FUNCTION ###
+    def test_watch_execution_time_decorates_public_method(self, module_mock):
+        ## INPUT ##
+        client = statsd.Client("localhost", 1234, "prefix")
+        test_object = TestedClass()
+
+        with mock.patch.object(client, "_client") as mocked_client:
+            client.watch_execution_time(test_object, prefix="test")
+            test_object.test_method()
+            ## ASSERT ##
+            mocked_client.timer.assert_called_with("test.testedclass.test_method")
+    
