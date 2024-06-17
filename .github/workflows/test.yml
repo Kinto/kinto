@@ -179,7 +179,7 @@ jobs:
           install: true
 
       - name: Build container
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           cache-from: type=local,src=${{ env.DOCKER_CACHE}}
           cache-to: type=local,dest=${{ env.DOCKER_CACHE}},mode=max
