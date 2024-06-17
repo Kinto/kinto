@@ -15,6 +15,13 @@ coverage_data_of_watch_execution_time = {
     "Branch 3": 0   ## INVISIBLE ELSE BRANCH
 }
 
+coverage_data_of_load_from_config = {
+    "Branch 1": 0,   ## IF BRANCH OF statsd_module is None
+    "Branch 2": 0,   ## INVISIBLE ELSE BRANCH
+    "Branch 3": 0,   ## IF BRANCH OF settings["project_name"] != ""
+    "Branch 4": 0   ## ELSE BRANCG
+}
+
 
 try:
     import statsd as statsd_module
@@ -60,22 +67,30 @@ def statsd_count(request, count_key):
     if statsd:
         statsd.count(count_key)
 
-
+### SELECTED FUNCTION ###
 def load_from_config(config):
     # If this is called, it means that a ``statsd_url`` was specified in settings.
     # (see ``kinto.core.initialization``)
     # Raise a proper error if the ``statsd`` module is not installed.
     if statsd_module is None:
+        ## BRANCH 1 ##
+        coverage_data_of_load_from_config["Branch 1"] += 1
         error_msg = "Please install Kinto with monitoring dependencies (e.g. statsd package)"
         raise ConfigurationError(error_msg)
+    ## BRANCH 2 ##
+    coverage_data_of_load_from_config["Branch 2"] += 1
 
     settings = config.get_settings()
     uri = settings["statsd_url"]
     uri = urlparse(uri)
 
     if settings["project_name"] != "":
+        ## BRANCH 3 ##
+        coverage_data_of_load_from_config["Branch 3"] += 1
         prefix = settings["project_name"]
     else:
+        ## BRANCH 4 ##
+        coverage_data_of_load_from_config["Branch 4"] += 1
         prefix = settings["statsd_prefix"]
 
     return Client(uri.hostname, uri.port, prefix)
@@ -93,6 +108,7 @@ def print_coverage_data():
         print(f"Total Coverage: {coverage_percentage:.2f}% \n")
 
     print_coverage_report("watch_execution_time", coverage_data_of_watch_execution_time)
+    print_coverage_report("load_from_config", coverage_data_of_load_from_config)
 
 ### PRINT COVERAGE DATA AT THE END OF THE PROGRAM ###
 atexit.register(print_coverage_data)
