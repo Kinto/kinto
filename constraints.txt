@@ -83,7 +83,7 @@ markupsafe==2.1.4
     # via werkzeug
 msgpack==1.0.7
     # via bravado-core
-newrelic==9.10.0
+newrelic==9.11.0
     # via -r constraints.in
 packaging==23.2
     # via
@@ -121,7 +121,7 @@ pyramid-multiauth==1.0.2
     # via -r constraints.in
 pyramid-tm==2.5
     # via -r constraints.in
-pytest==8.2.1
+pytest==8.2.2
     # via
     #   -r constraints.in
     #   pytest-cache
@@ -151,7 +151,7 @@ referencing==0.32.1
     #   jsonschema-specifications
 repoze-sendmail==4.4.1
     # via pyramid-mailer
-requests==2.32.2
+requests==2.32.3
     # via
     #   -r constraints.in
     #   bravado-core
@@ -163,7 +163,7 @@ rpds-py==0.17.1
     # via
     #   jsonschema
     #   referencing
-ruff==0.4.6
+ruff==0.4.9
     # via -r constraints.in
 sentry-sdk==1.39.2
     # via -r constraints.in
@@ -177,7 +177,7 @@ six==1.16.0
     #   rfc3339-validator
 soupsieve==2.5
     # via beautifulsoup4
-sqlalchemy==2.0.29
+sqlalchemy==2.0.30
     # via
     #   -r constraints.in
     #   sentry-sdk
