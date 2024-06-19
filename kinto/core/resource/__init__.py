@@ -1058,6 +1058,10 @@ class Resource:
 
     def _extract_filters(self):
         """Extracts filters from QueryString parameters."""
+
+        def is_valid_timestamp(value):
+            return isinstance(value, int) or re.match(r'^"?\d+"?$', str(value))
+
         queryparams = self.request.validated["querystring"]
 
         filters = []
@@ -1090,7 +1094,7 @@ class Resource:
                         send_alert(self.request, message, url)
                     operator = COMPARISON.LT
 
-                if value == "" or not isinstance(value, (int, str, type(None))):
+                if value is not None and not is_valid_timestamp(value):
                     raise_invalid(self.request, **error_details)
 
                 filters.append(Filter(self.model.modified_field, value, operator))
@@ -1127,7 +1131,7 @@ class Resource:
                 error_details["description"] = "Invalid character 0x00"
                 raise_invalid(self.request, **error_details)
 
-            if field == self.model.modified_field and value == "":
+            if field == self.model.modified_field and not is_valid_timestamp(value):
                 raise_invalid(self.request, **error_details)
 
             filters.append(Filter(field, value, operator))
