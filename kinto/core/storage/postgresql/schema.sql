@@ -7,7 +7,7 @@ SET client_min_messages TO ERROR;
 --
 CREATE OR REPLACE FUNCTION as_epoch(ts TIMESTAMP) RETURNS BIGINT AS $$
 BEGIN
-    RETURN (EXTRACT(EPOCH FROM ts) * 1000)::BIGINT;
+    RETURN (EXTRACT(EPOCH FROM (ts AT TIME ZONE current_setting('TIMEZONE'))) * 1000)::BIGINT;
 END;
 $$ LANGUAGE plpgsql
 IMMUTABLE;
@@ -131,4 +131,4 @@ INSERT INTO metadata (name, value) VALUES ('created_at', NOW()::TEXT);
 
 -- Set storage schema version.
 -- Should match ``kinto.core.storage.postgresql.PostgreSQL.schema_version``
-INSERT INTO metadata (name, value) VALUES ('storage_schema_version', '22');
+INSERT INTO metadata (name, value) VALUES ('storage_schema_version', '23');
