@@ -70,7 +70,7 @@ jsonpointer==2.4
     #   jsonschema
 jsonref==1.1.0
     # via bravado-core
-jsonschema==4.22.0
+jsonschema==4.23.0
     # via
     #   -r constraints.in
     #   bravado-core
@@ -98,7 +98,7 @@ plaster==1.1.2
     #   pyramid
 plaster-pastedeploy==1.0.1
     # via pyramid
-playwright==1.44.0
+playwright==1.45.0
     # via -r constraints.in
 pluggy==1.5.0
     # via pytest
@@ -163,7 +163,7 @@ rpds-py==0.17.1
     # via
     #   jsonschema
     #   referencing
-ruff==0.5.0
+ruff==0.5.1
     # via -r constraints.in
 sentry-sdk==1.39.2
     # via -r constraints.in
@@ -224,7 +224,7 @@ waitress==3.0.0
     # via
     #   -r constraints.in
     #   webtest
-webcolors==1.13
+webcolors==24.6.0
     # via jsonschema
 webob==1.8.7
     # via
