@@ -18,7 +18,7 @@ bravado-core==6.1.1
     # via -r constraints.in
 build==1.2.1
     # via -r constraints.in
-certifi==2023.11.17
+certifi==2024.7.4
     # via
     #   requests
     #   sentry-sdk
