@@ -165,7 +165,7 @@ rpds-py==0.17.1
     #   referencing
 ruff==0.5.2
     # via -r constraints.in
-sentry-sdk==1.39.2
+sentry-sdk==2.8.0
     # via -r constraints.in
 simplejson==3.19.2
     # via bravado-core
