@@ -8,5 +8,5 @@ mock==5.1.0
 webtest==3.0.0
 cornice==6.1.0
 pyramid==2.0.2
-python-rapidjson==1.19
-SQLAlchemy==2.0.31
+python-rapidjson==1.20
+SQLAlchemy==2.0.32
