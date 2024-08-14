@@ -83,7 +83,7 @@ markupsafe==2.1.4
     # via werkzeug
 msgpack==1.0.7
     # via bravado-core
-newrelic==9.12.0
+newrelic==9.13.0
     # via -r constraints.in
 packaging==23.2
     # via
@@ -98,7 +98,7 @@ plaster==1.1.2
     #   pyramid
 plaster-pastedeploy==1.0.1
     # via pyramid
-playwright==1.45.1
+playwright==1.46.0
     # via -r constraints.in
 pluggy==1.5.0
     # via pytest
@@ -163,7 +163,7 @@ rpds-py==0.17.1
     # via
     #   jsonschema
     #   referencing
-ruff==0.5.6
+ruff==0.5.7
     # via -r constraints.in
 sentry-sdk==2.8.0
     # via -r constraints.in
@@ -177,7 +177,7 @@ six==1.16.0
     #   rfc3339-validator
 soupsieve==2.5
     # via beautifulsoup4
-sqlalchemy==2.0.31
+sqlalchemy==2.0.32
     # via
     #   -r constraints.in
     #   sentry-sdk
