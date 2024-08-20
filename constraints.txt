@@ -226,7 +226,7 @@ waitress==3.0.0
     #   webtest
 webcolors==24.6.0
     # via jsonschema
-webob==1.8.7
+webob==1.8.8
     # via
     #   pyramid
     #   webtest
