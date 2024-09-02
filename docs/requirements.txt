@@ -5,7 +5,7 @@ sphinxcontrib-httpdomain==1.8.1
 sphinx-github-changelog==1.4.0
 kinto
 mock==5.1.0
-webtest==3.0.0
+webtest==3.0.1
 cornice==6.1.0
 pyramid==2.0.2
 python-rapidjson==1.20
