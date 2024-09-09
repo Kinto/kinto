@@ -16,7 +16,7 @@ beautifulsoup4==4.12.3
     # via webtest
 bravado-core==6.1.1
     # via -r constraints.in
-build==1.2.1
+build==1.2.2
     # via -r constraints.in
 certifi==2024.7.4
     # via
@@ -163,7 +163,7 @@ rpds-py==0.17.1
     # via
     #   jsonschema
     #   referencing
-ruff==0.6.3
+ruff==0.6.4
     # via -r constraints.in
 sentry-sdk==2.8.0
     # via -r constraints.in
