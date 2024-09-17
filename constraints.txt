@@ -98,13 +98,13 @@ plaster==1.1.2
     #   pyramid
 plaster-pastedeploy==1.0.1
     # via pyramid
-playwright==1.46.0
+playwright==1.47.0
     # via -r constraints.in
 pluggy==1.5.0
     # via pytest
 psycopg2==2.9.9
     # via -r constraints.in
-pyee==11.1.0
+pyee==12.0.0
     # via playwright
 pyproject-hooks==1.0.0
     # via build
@@ -121,7 +121,7 @@ pyramid-multiauth==1.0.2
     # via -r constraints.in
 pyramid-tm==2.5
     # via -r constraints.in
-pytest==8.3.2
+pytest==8.3.3
     # via
     #   -r constraints.in
     #   pytest-cache
@@ -163,7 +163,7 @@ rpds-py==0.17.1
     # via
     #   jsonschema
     #   referencing
-ruff==0.6.4
+ruff==0.6.5
     # via -r constraints.in
 sentry-sdk==2.8.0
     # via -r constraints.in
@@ -177,7 +177,7 @@ six==1.16.0
     #   rfc3339-validator
 soupsieve==2.5
     # via beautifulsoup4
-sqlalchemy==2.0.32
+sqlalchemy==2.0.34
     # via
     #   -r constraints.in
     #   sentry-sdk
