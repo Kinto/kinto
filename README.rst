@@ -4,7 +4,7 @@ Kinto
 |coc| |gitter| |readthedocs| |pypi| |ci| |main-coverage|
 
 .. |coc| image:: https://img.shields.io/badge/%E2%9D%A4-code%20of%20conduct-blue.svg
-    :target: https://github.com/Kinto/kinto/blob/main/CODE_OF_CONDUCT.md
+    :target: https://github.com/Kinto/kinto/blob/main/.github/CODE_OF_CONDUCT.md
     :alt: Code of conduct
 
 .. |gitter| image:: https://badges.gitter.im/Kinto/kinto.svg
