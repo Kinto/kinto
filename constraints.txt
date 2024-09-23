@@ -192,7 +192,7 @@ tomli==2.0.1
     #   coverage
     #   pyproject-hooks
     #   pytest
-transaction==4.0
+transaction==5.0
     # via
     #   -r constraints.in
     #   pyramid-mailer
