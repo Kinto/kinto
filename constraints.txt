@@ -163,7 +163,7 @@ rpds-py==0.17.1
     # via
     #   jsonschema
     #   referencing
-ruff==0.6.7
+ruff==0.6.8
     # via -r constraints.in
 sentry-sdk==2.8.0
     # via -r constraints.in
@@ -177,7 +177,7 @@ six==1.16.0
     #   rfc3339-validator
 soupsieve==2.5
     # via beautifulsoup4
-sqlalchemy==2.0.34
+sqlalchemy==2.0.35
     # via
     #   -r constraints.in
     #   sentry-sdk
