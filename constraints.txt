@@ -16,7 +16,7 @@ beautifulsoup4==4.12.3
     # via webtest
 bravado-core==6.1.1
     # via -r constraints.in
-build==1.2.2
+build==1.2.2.post1
     # via -r constraints.in
 certifi==2024.7.4
     # via
