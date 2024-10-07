@@ -1,12 +1,106 @@
 from unittest import mock
 
+import webtest
 from pyramid import testing
+from pyramid.config import Configurator
 from pyramid.exceptions import ConfigurationError
 
-from kinto.core import statsd
+import kinto
 from kinto.core.testing import skip_if_no_statsd, unittest
+from kinto.plugins import statsd
 
-from .support import BaseWebTest
+from ..support import BaseWebTest
+
+
+class StatsDConfigurationTest(unittest.TestCase):
+    def setUp(self):
+        settings = {
+            **kinto.core.DEFAULT_SETTINGS,
+            "statsd_url": "udp://host:8080",
+            "multiauth.policies": "basicauth",
+        }
+        self.config = Configurator(settings=settings)
+        self.config.registry.storage = {}
+        self.config.registry.cache = {}
+        self.config.registry.permission = {}
+
+        patch = mock.patch("kinto.plugins.statsd.load_from_config")
+        self.mocked = patch.start()
+        self.addCleanup(patch.stop)
+
+    def test_statsd_isnt_called_if_statsd_url_is_not_set(self):
+        self.config.add_settings({"statsd_url": None})
+        self.config.include("kinto.plugins.statsd")
+        self.mocked.assert_not_called()
+
+    def test_statsd_is_set_to_none_if_statsd_url_not_set(self):
+        self.config.add_settings({"statsd_url": None})
+        self.config.include("kinto.plugins.statsd")
+        self.assertEqual(self.config.registry.statsd, None)
+
+    def test_statsd_is_called_if_statsd_url_is_set(self):
+        # For some reasons, when using ``self.config.include("kinto.plugins.statsd")``
+        # the config object is recreated breaks ``assert_called_with(self.config)``.
+        statsd.includeme(self.config)
+        self.mocked.assert_called_with(self.config)
+
+    def test_statsd_is_expose_in_the_registry_if_url_is_set(self):
+        self.config.include("kinto.plugins.statsd")
+        self.assertEqual(self.config.registry.statsd, self.mocked.return_value)
+
+    def test_statsd_is_set_on_cache(self):
+        self.config.include("kinto.plugins.statsd")
+        c = self.config.registry.statsd
+        c.watch_execution_time.assert_any_call({}, prefix="backend")
+
+    def test_statsd_is_set_on_storage(self):
+        self.config.include("kinto.plugins.statsd")
+        c = self.config.registry.statsd
+        c.watch_execution_time.assert_any_call({}, prefix="backend")
+
+    def test_statsd_is_set_on_permission(self):
+        self.config.include("kinto.plugins.statsd")
+        c = self.config.registry.statsd
+        c.watch_execution_time.assert_any_call({}, prefix="backend")
+
+    def test_statsd_is_set_on_authentication(self):
+        self.config.include("kinto.plugins.statsd")
+        c = self.config.registry.statsd
+        c.watch_execution_time.assert_any_call(None, prefix="authentication")
+
+    def test_statsd_counts_nothing_on_anonymous_requests(self):
+        kinto.core.initialize(self.config, "0.0.1", "settings_prefix")
+        app = webtest.TestApp(self.config.make_wsgi_app())
+        app.get("/")
+        self.assertFalse(self.mocked.count.called)
+
+    def test_statsd_counts_views_and_methods(self):
+        kinto.core.initialize(self.config, "0.0.1", "settings_prefix")
+        app = webtest.TestApp(self.config.make_wsgi_app())
+        app.get("/v0/__heartbeat__")
+        self.mocked().count.assert_any_call("view.heartbeat.GET")
+
+    def test_statsd_counts_unknown_urls(self):
+        kinto.core.initialize(self.config, "0.0.1", "settings_prefix")
+        app = webtest.TestApp(self.config.make_wsgi_app())
+        app.get("/v0/coucou", status=404)
+        self.assertFalse(self.mocked.count.called)
+
+    @mock.patch("kinto.core.utils.hmac_digest")
+    def test_statsd_counts_unique_users(self, digest_mocked):
+        digest_mocked.return_value = "mat"
+        kinto.core.initialize(self.config, "0.0.1", "settings_prefix")
+        app = webtest.TestApp(self.config.make_wsgi_app())
+        headers = {"Authorization": "Basic bWF0Og=="}
+        app.get("/v0/", headers=headers)
+        self.mocked().count.assert_any_call("users", unique="basicauth.mat")
+
+    def test_statsd_counts_authentication_types(self):
+        kinto.core.initialize(self.config, "0.0.1", "settings_prefix")
+        app = webtest.TestApp(self.config.make_wsgi_app())
+        headers = {"Authorization": "Basic bWF0Og=="}
+        app.get("/v0/", headers=headers)
+        self.mocked().count.assert_any_call("authn_type.basicauth")
 
 
 class TestedClass:
@@ -69,14 +163,14 @@ class StatsdClientTest(unittest.TestCase):
             self.client.count("click", unique="menu")
             mocked_client.set.assert_called_with("click", "menu")
 
-    @mock.patch("kinto.core.statsd.statsd_module")
+    @mock.patch("kinto.plugins.statsd.statsd_module")
     def test_load_from_config(self, module_mock):
         config = testing.setUp()
         config.registry.settings = self.settings
         statsd.load_from_config(config)
         module_mock.StatsClient.assert_called_with("foo", 1234, prefix="prefix")
 
-    @mock.patch("kinto.core.statsd.statsd_module")
+    @mock.patch("kinto.plugins.statsd.statsd_module")
     def test_load_from_config_uses_project_name_if_defined(self, module_mock):
         config = testing.setUp()
         config.registry.settings = {**self.settings, "project_name": "projectname"}

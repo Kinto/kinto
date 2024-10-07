@@ -29,7 +29,7 @@ class PluginSetup(unittest.TestCase):
             "includes": "kinto.plugins.quotas",
         }
         config = testing.setUp(settings=settings)
-        with mock.patch("kinto.core.statsd.Client.timer") as mocked:
+        with mock.patch("kinto.plugins.statsd.Client.timer") as mocked:
             kinto_main(None, config=config)
             mocked.assert_called_with("plugins.quotas")
 

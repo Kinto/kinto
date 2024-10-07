@@ -293,89 +293,30 @@ class SentryTest(unittest.TestCase):
 
 
 class StatsDConfigurationTest(unittest.TestCase):
+    settings = {
+        **kinto.core.DEFAULT_SETTINGS,
+        "statsd_url": "udp://host:8080",
+        "multiauth.policies": "basicauth",
+    }
+
     def setUp(self):
-        settings = {
-            **kinto.core.DEFAULT_SETTINGS,
-            "statsd_url": "udp://host:8080",
-            "multiauth.policies": "basicauth",
-        }
-        self.config = Configurator(settings=settings)
+        patch = mock.patch("kinto.plugins.statsd.Client")
+        self.mocked = patch.start()
+        self.addCleanup(patch.stop)
+
+        self.config = Configurator(settings=self.settings)
         self.config.registry.storage = {}
         self.config.registry.cache = {}
         self.config.registry.permission = {}
 
-        patch = mock.patch("kinto.core.statsd.load_from_config")
-        self.mocked = patch.start()
-        self.addCleanup(patch.stop)
-
-    def test_statsd_isnt_called_if_statsd_url_is_not_set(self):
-        self.config.add_settings({"statsd_url": None})
-        initialization.setup_statsd(self.config)
-        self.mocked.assert_not_called()
-
-    def test_statsd_is_set_to_none_if_statsd_url_not_set(self):
-        self.config.add_settings({"statsd_url": None})
-        initialization.setup_statsd(self.config)
-        self.assertEqual(self.config.registry.statsd, None)
-
-    def test_statsd_is_called_if_statsd_url_is_set(self):
-        initialization.setup_statsd(self.config)
-        self.mocked.assert_called_with(self.config)
-        # See `tests/core/test_statsd.py` for instantiation tests.
-
-    def test_statsd_is_expose_in_the_registry_if_url_is_set(self):
-        initialization.setup_statsd(self.config)
-        self.assertEqual(self.config.registry.statsd, self.mocked.return_value)
-
-    def test_statsd_is_set_on_cache(self):
-        c = initialization.setup_statsd(self.config)
-        c.watch_execution_time.assert_any_call({}, prefix="backend")
-
-    def test_statsd_is_set_on_storage(self):
-        c = initialization.setup_statsd(self.config)
-        c.watch_execution_time.assert_any_call({}, prefix="backend")
-
-    def test_statsd_is_set_on_permission(self):
-        c = initialization.setup_statsd(self.config)
-        c.watch_execution_time.assert_any_call({}, prefix="backend")
-
-    def test_statsd_is_set_on_authentication(self):
-        c = initialization.setup_statsd(self.config)
-        c.watch_execution_time.assert_any_call(None, prefix="authentication")
-
-    def test_statsd_counts_nothing_on_anonymous_requests(self):
-        kinto.core.initialize(self.config, "0.0.1", "settings_prefix")
-        app = webtest.TestApp(self.config.make_wsgi_app())
-        app.get("/")
-        self.assertFalse(self.mocked.count.called)
-
-    def test_statsd_counts_views_and_methods(self):
-        kinto.core.initialize(self.config, "0.0.1", "settings_prefix")
-        app = webtest.TestApp(self.config.make_wsgi_app())
-        app.get("/v0/__heartbeat__")
-        self.mocked().count.assert_any_call("view.heartbeat.GET")
-
-    def test_statsd_counts_unknown_urls(self):
-        kinto.core.initialize(self.config, "0.0.1", "settings_prefix")
-        app = webtest.TestApp(self.config.make_wsgi_app())
-        app.get("/v0/coucou", status=404)
-        self.assertFalse(self.mocked.count.called)
-
-    @mock.patch("kinto.core.utils.hmac_digest")
-    def test_statsd_counts_unique_users(self, digest_mocked):
-        digest_mocked.return_value = "mat"
-        kinto.core.initialize(self.config, "0.0.1", "settings_prefix")
-        app = webtest.TestApp(self.config.make_wsgi_app())
-        headers = {"Authorization": "Basic bWF0Og=="}
-        app.get("/v0/", headers=headers)
-        self.mocked().count.assert_any_call("users", unique="basicauth.mat")
-
-    def test_statsd_counts_authentication_types(self):
-        kinto.core.initialize(self.config, "0.0.1", "settings_prefix")
-        app = webtest.TestApp(self.config.make_wsgi_app())
-        headers = {"Authorization": "Basic bWF0Og=="}
-        app.get("/v0/", headers=headers)
-        self.mocked().count.assert_any_call("authn_type.basicauth")
+    def test_statsd_is_instanciated_from_plugin(self):
+        with mock.patch("warnings.warn") as mocked_warnings:
+            initialization.setup_statsd(self.config)
+            mocked_warnings.assert_called_with(
+                "``setup_statsd()`` is now deprecated. Check release notes.",
+                DeprecationWarning,
+            )
+        self.mocked.assert_called_with("host", 8080, "kinto.core")
 
 
 class RequestsConfigurationTest(unittest.TestCase):

@@ -4,7 +4,6 @@ from unittest import mock
 
 from pyramid.config import Configurator
 
-from kinto.core import statsd
 from kinto.core.events import (
     ACTIONS,
     AfterResourceChanged,
@@ -14,7 +13,8 @@ from kinto.core.events import (
     notify_resource_event,
 )
 from kinto.core.storage.exceptions import BackendError
-from kinto.core.testing import unittest
+from kinto.core.testing import skip_if_no_statsd, unittest
+from kinto.plugins import statsd
 
 from ..support import BaseWebTest
 
@@ -491,7 +491,7 @@ def load_from_config(config, prefix):
     return ClassListener()
 
 
-@unittest.skipIf(not statsd.statsd_module, "statsd is not installed.")
+@skip_if_no_statsd
 class StatsDTest(BaseWebTest, unittest.TestCase):
     @classmethod
     def get_app_settings(cls, *args, **kwargs):

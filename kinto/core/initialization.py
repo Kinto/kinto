@@ -14,12 +14,11 @@ from pyramid.httpexceptions import (
     HTTPMethodNotAllowed,
     HTTPTemporaryRedirect,
 )
-from pyramid.interfaces import IAuthenticationPolicy
 from pyramid.renderers import JSON as JSONRenderer
 from pyramid.response import Response
 from pyramid.security import NO_PERMISSION_REQUIRED
 from pyramid.settings import asbool, aslist
-from pyramid_multiauth import MultiAuthenticationPolicy, MultiAuthPolicySelected
+from pyramid_multiauth import MultiAuthPolicySelected
 
 from kinto.core import cache, errors, permission, storage, utils
 from kinto.core.events import ACTIONS, ResourceChanged, ResourceRead
@@ -334,51 +333,11 @@ def setup_sentry(config):
 
 
 def setup_statsd(config):
-    settings = config.get_settings()
-    config.registry.statsd = None
-
-    if settings["statsd_url"]:
-        statsd_mod = settings["statsd_backend"]
-        statsd_mod = config.maybe_dotted(statsd_mod)
-        client = statsd_mod.load_from_config(config)
-
-        config.registry.statsd = client
-
-        client.watch_execution_time(config.registry.cache, prefix="backend")
-        client.watch_execution_time(config.registry.storage, prefix="backend")
-        client.watch_execution_time(config.registry.permission, prefix="backend")
-
-        # Commit so that configured policy can be queried.
-        config.commit()
-        policy = config.registry.queryUtility(IAuthenticationPolicy)
-        if isinstance(policy, MultiAuthenticationPolicy):
-            for name, subpolicy in policy.get_policies():
-                client.watch_execution_time(subpolicy, prefix="authentication", classname=name)
-        else:
-            client.watch_execution_time(policy, prefix="authentication")
-
-        def on_new_response(event):
-            request = event.request
-
-            # Count unique users.
-            user_id = request.prefixed_userid
-            if user_id:
-                # Get rid of colons in metric packet (see #1282).
-                user_id = user_id.replace(":", ".")
-                client.count("users", unique=user_id)
-
-            # Count authentication verifications.
-            if hasattr(request, "authn_type"):
-                client.count(f"authn_type.{request.authn_type}")
-
-            # Count view calls.
-            service = request.current_service
-            if service:
-                client.count(f"view.{service.name}.{request.method}")
-
-        config.add_subscriber(on_new_response, NewResponse)
-
-        return client
+    warnings.warn(
+        "``setup_statsd()`` is now deprecated. Check release notes.",
+        DeprecationWarning,
+    )
+    config.include("kinto.plugins.statsd")
 
 
 def install_middlewares(app, settings):
