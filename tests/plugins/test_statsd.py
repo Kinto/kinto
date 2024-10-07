@@ -36,36 +36,45 @@ class StatsDConfigurationTest(unittest.TestCase):
     def test_statsd_is_set_to_none_if_statsd_url_not_set(self):
         self.config.add_settings({"statsd_url": None})
         self.config.include("kinto.plugins.statsd")
-        self.assertEqual(self.config.registry.statsd, None)
+        self.assertEqual(self.config.registry.metrics, None)
 
     def test_statsd_is_called_if_statsd_url_is_set(self):
         # For some reasons, when using ``self.config.include("kinto.plugins.statsd")``
-        # the config object is recreated breaks ``assert_called_with(self.config)``.
+        # the config object is recreated and breaks ``assert_called_with(self.config)``.
         statsd.includeme(self.config)
         self.mocked.assert_called_with(self.config)
 
-    def test_statsd_is_expose_in_the_registry_if_url_is_set(self):
+    def test_metrics_attr_is_exposed_in_the_registry_if_url_is_set(self):
         self.config.include("kinto.plugins.statsd")
-        self.assertEqual(self.config.registry.statsd, self.mocked.return_value)
+        self.assertEqual(self.config.registry.metrics, self.mocked.return_value)
+
+    def test_statsd_attr_is_exposed_in_the_registry_if_url_is_set(self):
+        self.config.include("kinto.plugins.statsd")
+        with mock.patch("warnings.warn") as mocked_warnings:
+            self.config.registry.statsd.count("key")
+            mocked_warnings.assert_called_with(
+                "``config.registry.statsd`` is now deprecated. Check release notes.",
+                DeprecationWarning,
+            )
 
     def test_statsd_is_set_on_cache(self):
         self.config.include("kinto.plugins.statsd")
-        c = self.config.registry.statsd
+        c = self.config.registry.metrics
         c.watch_execution_time.assert_any_call({}, prefix="backend")
 
     def test_statsd_is_set_on_storage(self):
         self.config.include("kinto.plugins.statsd")
-        c = self.config.registry.statsd
+        c = self.config.registry.metrics
         c.watch_execution_time.assert_any_call({}, prefix="backend")
 
     def test_statsd_is_set_on_permission(self):
         self.config.include("kinto.plugins.statsd")
-        c = self.config.registry.statsd
+        c = self.config.registry.metrics
         c.watch_execution_time.assert_any_call({}, prefix="backend")
 
     def test_statsd_is_set_on_authentication(self):
         self.config.include("kinto.plugins.statsd")
-        c = self.config.registry.statsd
+        c = self.config.registry.metrics
         c.watch_execution_time.assert_any_call(None, prefix="authentication")
 
     def test_statsd_counts_nothing_on_anonymous_requests(self):
@@ -179,12 +188,12 @@ class StatsdClientTest(unittest.TestCase):
 
     def test_statsd_count_handle_unconfigured_statsd_client(self):
         request = mock.MagicMock()
-        request.registry.statsd = None
+        request.registry.metrics = None
         statsd.statsd_count(request, "toto")  # Doesn't raise
 
     def test_statsd_count_call_the_client_if_configured(self):
         request = mock.MagicMock()
-        request.registry.statsd = self.mocked_client
+        request.registry.metrics = self.mocked_client
         statsd.statsd_count(request, "toto")
         self.mocked_client.count.assert_called_with("toto")
 
@@ -201,13 +210,13 @@ class TimingTest(BaseWebTest, unittest.TestCase):
         return settings
 
     def test_statds_tracks_listeners_execution_duration(self):
-        statsd_client = self.app.app.registry.statsd._client
+        statsd_client = self.app.app.registry.metrics._client
         with mock.patch.object(statsd_client, "timing") as mocked:
             self.app.get("/", headers=self.headers)
             self.assertTrue(mocked.called)
 
     def test_statds_tracks_authentication_policies(self):
-        statsd_client = self.app.app.registry.statsd._client
+        statsd_client = self.app.app.registry.metrics._client
         with mock.patch.object(statsd_client, "timing") as mocked:
             self.app.get("/", headers=self.headers)
             timers = set(c[0][0] for c in mocked.call_args_list)

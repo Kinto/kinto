@@ -10,11 +10,11 @@ def includeme(config):
         url="https://kinto.readthedocs.io",
     )
 
-    # If StatsD is enabled, monitor execution time of listener.
+    # If metrics are enabled, monitor execution time of listener.
     listener = on_resource_changed
-    if config.registry.statsd:
+    if config.registry.metrics:
         key = "plugins.quotas"
-        listener = config.registry.statsd.timer(key)(on_resource_changed)
+        listener = config.registry.metrics.timer(key)(on_resource_changed)
 
     # Listen to every resources (except history)
     config.add_subscriber(

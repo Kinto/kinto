@@ -42,9 +42,9 @@ class Client:
 
 
 def statsd_count(request, count_key):
-    statsd = request.registry.statsd
-    if statsd:
-        statsd.count(count_key)
+    metrics = request.registry.metrics
+    if metrics:
+        metrics.count(count_key)
 
 
 def load_from_config(config):
@@ -67,9 +67,17 @@ def load_from_config(config):
     return Client(uri.hostname, uri.port, prefix)
 
 
+def deprecated_registry(self):
+    warnings.warn(
+        "``config.registry.statsd`` is now deprecated. Check release notes.",
+        DeprecationWarning,
+    )
+    return self.metrics
+
+
 def includeme(config):
     settings = config.get_settings()
-    config.registry.statsd = None
+    config.registry.metrics = None
 
     if not settings["statsd_url"]:
         return
@@ -77,8 +85,9 @@ def includeme(config):
     statsd_mod = settings["statsd_backend"]
     statsd_mod = config.maybe_dotted(statsd_mod)
     client = statsd_mod.load_from_config(config)
+    config.registry.metrics = client
 
-    config.registry.statsd = client
+    config.registry.__class__.statsd = property(deprecated_registry)
 
     client.watch_execution_time(config.registry.cache, prefix="backend")
     client.watch_execution_time(config.registry.storage, prefix="backend")

@@ -14,11 +14,11 @@ def includeme(config):
     # Activate end-points.
     config.scan("kinto.plugins.history.views")
 
-    # If StatsD is enabled, monitor execution time of listener.
+    # If metrics are enabled, monitor execution time of listener.
     listener = on_resource_changed
-    if config.registry.statsd:
+    if config.registry.metrics:
         key = "plugins.history"
-        listener = config.registry.statsd.timer(key)(on_resource_changed)
+        listener = config.registry.metrics.timer(key)(on_resource_changed)
 
     # Listen to every resources (except history)
     config.add_subscriber(

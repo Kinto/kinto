@@ -478,10 +478,10 @@ def setup_listeners(config):
             listener = listener_mod.load_from_config(config, prefix)
 
         # If StatsD is enabled, monitor execution time of listeners.
-        if getattr(config.registry, "statsd", None):
-            statsd_client = config.registry.statsd
+        if getattr(config.registry, "metrics", None):
+            metrics = config.registry.metrics
             key = f"listeners.{name}"
-            listener = statsd_client.timer(key)(listener.__call__)
+            listener = metrics.timer(key)(listener.__call__)
 
         # Optional filter by event action.
         actions_setting = prefix + "actions"

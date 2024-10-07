@@ -506,8 +506,9 @@ class StatsDTest(BaseWebTest, unittest.TestCase):
         return settings
 
     def test_statds_tracks_listeners_execution_duration(self):
-        statsd_client = self.app.app.registry.statsd._client
-        with mock.patch.object(statsd_client, "timing") as mocked:
+        # This test may break when introducing a generic interface for Prometheus.
+        metrics_client = self.app.app.registry.metrics._client
+        with mock.patch.object(metrics_client, "timing") as mocked:
             self.app.post_json(self.plural_url, {"data": {"name": "pouet"}}, headers=self.headers)
             timers = set(c[0][0] for c in mocked.call_args_list)
             self.assertIn("listeners.test", timers)
