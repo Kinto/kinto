@@ -66,7 +66,6 @@ DEFAULT_SETTINGS = {
         "kinto.core.initialization.setup_authentication",
         "kinto.core.initialization.setup_backoff",
         "kinto.core.initialization.setup_sentry",
-        "kinto.core.initialization.setup_statsd",
         "kinto.core.initialization.setup_listeners",
         "kinto.core.events.setup_transaction_hook",
     ),

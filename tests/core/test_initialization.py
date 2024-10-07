@@ -318,6 +318,11 @@ class StatsDConfigurationTest(unittest.TestCase):
             )
         self.mocked.assert_called_with("host", 8080, "kinto.core")
 
+    def test_statsd_is_included_by_default(self):
+        kinto.core.initialize(self.config, "0.0.1", "name")
+
+        self.mocked.assert_called_with("host", 8080, "kinto.core")
+
 
 class RequestsConfigurationTest(unittest.TestCase):
     def _get_app(self, settings={}):

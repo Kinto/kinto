@@ -613,3 +613,6 @@ def initialize(config, version=None, settings_prefix="", default_settings=None):
     # Include kinto.core views with the correct api version prefix.
     config.include("kinto.core", route_prefix=api_version)
     config.route_prefix = api_version
+
+    # While statsd is deprecated, we include its plugin by default.
+    config.include("kinto.plugins.statsd")
