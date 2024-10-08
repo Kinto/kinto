@@ -42,12 +42,6 @@ class StatsDService:
             return self._client.set(key, unique)
 
 
-def statsd_count(request, count_key):
-    metrics = request.registry.metrics
-    if metrics:
-        metrics.count(count_key)
-
-
 def load_from_config(config):
     # If this is called, it means that a ``statsd_url`` was specified in settings.
     # (see ``kinto.core.initialization``)
