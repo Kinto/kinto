@@ -23,8 +23,10 @@ class StatsDConfigurationTest(unittest.TestCase):
         self.config.registry.storage = {}
         self.config.registry.cache = {}
         self.config.registry.permission = {}
+        self.assertFalse(hasattr(self.config.registry, "statsd"))
+        self.assertFalse(hasattr(self.config.registry, "metrics"))
 
-        patch = mock.patch("kinto.plugins.statsd.load_from_config")
+        patch = mock.patch("kinto.plugins.statsd.Client")
         self.mocked = patch.start()
         self.addCleanup(patch.stop)
 
@@ -41,8 +43,9 @@ class StatsDConfigurationTest(unittest.TestCase):
     def test_statsd_is_called_if_statsd_url_is_set(self):
         # For some reasons, when using ``self.config.include("kinto.plugins.statsd")``
         # the config object is recreated and breaks ``assert_called_with(self.config)``.
-        statsd.includeme(self.config)
-        self.mocked.assert_called_with(self.config)
+        self.config.include("kinto.plugins.statsd")
+        self.mocked.assert_called_with("host", 8080, "kinto.core")
+        self.assertIsNotNone(self.config.registry.metrics)
 
     def test_metrics_attr_is_exposed_in_the_registry_if_url_is_set(self):
         self.config.include("kinto.plugins.statsd")
