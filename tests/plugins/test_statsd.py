@@ -28,25 +28,35 @@ class StatsDIncludeTest(unittest.TestCase):
         self.mocked = patch.start()
         self.addCleanup(patch.stop)
 
+        patch_watch = mock.patch("kinto.core.metrics.watch_execution_time")
+        self.mocked_watch = patch_watch.start()
+        self.addCleanup(patch_watch.stop)
+
     def test_statsd_is_set_on_cache(self):
-        self.config.include("kinto.plugins.statsd")
-        c = self.config.registry.metrics
-        c.watch_execution_time.assert_any_call({}, prefix="backend")
+        kinto.core.initialize(self.config, "0.0.1", "settings_prefix")
+        _app = webtest.TestApp(self.config.make_wsgi_app())
+
+        self.mocked_watch.assert_any_call(self.mocked(), {}, prefix="backend")
 
     def test_statsd_is_set_on_storage(self):
-        self.config.include("kinto.plugins.statsd")
-        c = self.config.registry.metrics
-        c.watch_execution_time.assert_any_call({}, prefix="backend")
+        kinto.core.initialize(self.config, "0.0.1", "settings_prefix")
+        _app = webtest.TestApp(self.config.make_wsgi_app())
+
+        self.mocked_watch.assert_any_call(self.mocked(), {}, prefix="backend")
 
     def test_statsd_is_set_on_permission(self):
-        self.config.include("kinto.plugins.statsd")
-        c = self.config.registry.metrics
-        c.watch_execution_time.assert_any_call({}, prefix="backend")
+        kinto.core.initialize(self.config, "0.0.1", "settings_prefix")
+        _app = webtest.TestApp(self.config.make_wsgi_app())
+
+        self.mocked_watch.assert_any_call(self.mocked(), {}, prefix="backend")
 
     def test_statsd_is_set_on_authentication(self):
-        self.config.include("kinto.plugins.statsd")
-        c = self.config.registry.metrics
-        c.watch_execution_time.assert_any_call(None, prefix="authentication")
+        kinto.core.initialize(self.config, "0.0.1", "settings_prefix")
+        _app = webtest.TestApp(self.config.make_wsgi_app())
+
+        self.mocked_watch.assert_any_call(
+            self.mocked(), mock.ANY, prefix="authentication", classname="basicauth"
+        )
 
     def test_statsd_counts_nothing_on_anonymous_requests(self):
         kinto.core.initialize(self.config, "0.0.1", "settings_prefix")
@@ -115,7 +125,7 @@ class StatsdClientTest(unittest.TestCase):
         self.test_object = TestedClass()
 
         with mock.patch.object(self.client, "_client") as mocked_client:
-            self.client.watch_execution_time(self.test_object, prefix="test")
+            kinto.core.metrics.watch_execution_time(self.client, self.test_object, prefix="test")
             self.mocked_client = mocked_client
 
     def test_public_methods_generates_statsd_calls(self):
