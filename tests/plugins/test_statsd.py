@@ -12,7 +12,7 @@ from kinto.plugins import statsd
 from ..support import BaseWebTest
 
 
-class StatsDConfigurationTest(unittest.TestCase):
+class StatsDIncludeTest(unittest.TestCase):
     def setUp(self):
         settings = {
             **kinto.core.DEFAULT_SETTINGS,
@@ -23,42 +23,10 @@ class StatsDConfigurationTest(unittest.TestCase):
         self.config.registry.storage = {}
         self.config.registry.cache = {}
         self.config.registry.permission = {}
-        self.assertFalse(hasattr(self.config.registry, "statsd"))
-        self.assertFalse(hasattr(self.config.registry, "metrics"))
 
-        patch = mock.patch("kinto.plugins.statsd.Client")
+        patch = mock.patch("kinto.plugins.statsd.StatsDService")
         self.mocked = patch.start()
         self.addCleanup(patch.stop)
-
-    def test_statsd_isnt_called_if_statsd_url_is_not_set(self):
-        self.config.add_settings({"statsd_url": None})
-        self.config.include("kinto.plugins.statsd")
-        self.mocked.assert_not_called()
-
-    def test_statsd_is_set_to_none_if_statsd_url_not_set(self):
-        self.config.add_settings({"statsd_url": None})
-        self.config.include("kinto.plugins.statsd")
-        self.assertEqual(self.config.registry.metrics, None)
-
-    def test_statsd_is_called_if_statsd_url_is_set(self):
-        # For some reasons, when using ``self.config.include("kinto.plugins.statsd")``
-        # the config object is recreated and breaks ``assert_called_with(self.config)``.
-        self.config.include("kinto.plugins.statsd")
-        self.mocked.assert_called_with("host", 8080, "kinto.core")
-        self.assertIsNotNone(self.config.registry.metrics)
-
-    def test_metrics_attr_is_exposed_in_the_registry_if_url_is_set(self):
-        self.config.include("kinto.plugins.statsd")
-        self.assertEqual(self.config.registry.metrics, self.mocked.return_value)
-
-    def test_statsd_attr_is_exposed_in_the_registry_if_url_is_set(self):
-        self.config.include("kinto.plugins.statsd")
-        with mock.patch("warnings.warn") as mocked_warnings:
-            self.config.registry.statsd.count("key")
-            mocked_warnings.assert_called_with(
-                "``config.registry.statsd`` is now deprecated. Check release notes.",
-                DeprecationWarning,
-            )
 
     def test_statsd_is_set_on_cache(self):
         self.config.include("kinto.plugins.statsd")
@@ -143,7 +111,7 @@ class StatsdClientTest(unittest.TestCase):
     settings = {"statsd_url": "udp://foo:1234", "statsd_prefix": "prefix", "project_name": ""}
 
     def setUp(self):
-        self.client = statsd.Client("localhost", 1234, "prefix")
+        self.client = statsd.StatsDService("localhost", 1234, "prefix")
         self.test_object = TestedClass()
 
         with mock.patch.object(self.client, "_client") as mocked_client:

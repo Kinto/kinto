@@ -300,7 +300,7 @@ class StatsDConfigurationTest(unittest.TestCase):
     }
 
     def setUp(self):
-        patch = mock.patch("kinto.plugins.statsd.Client")
+        patch = mock.patch("kinto.plugins.statsd.StatsDService")
         self.mocked = patch.start()
         self.addCleanup(patch.stop)
 
@@ -309,7 +309,7 @@ class StatsDConfigurationTest(unittest.TestCase):
         self.config.registry.cache = {}
         self.config.registry.permission = {}
 
-    def test_statsd_is_instanciated_from_plugin(self):
+    def test_setup_statsd_step_is_still_supported(self):
         with mock.patch("warnings.warn") as mocked_warnings:
             initialization.setup_statsd(self.config)
             mocked_warnings.assert_called_with(
@@ -322,6 +322,54 @@ class StatsDConfigurationTest(unittest.TestCase):
         kinto.core.initialize(self.config, "0.0.1", "name")
 
         self.mocked.assert_called_with("host", 8080, "kinto.core")
+
+    def test_statsd_isnt_included_if_statsd_url_is_not_set(self):
+        self.config.add_settings({"statsd_url": None})
+        kinto.core.initialize(self.config, "0.0.1", "name")
+
+        self.mocked.assert_not_called()
+
+
+class MetricsRegistryConfigurationTest(unittest.TestCase):
+    settings = kinto.core.DEFAULT_SETTINGS
+
+    def setUp(self):
+        self.config = Configurator(settings=self.settings)
+        self.config.registry.storage = {}
+        self.config.registry.cache = {}
+        self.config.registry.permission = {}
+
+        patch = mock.patch("kinto.plugins.statsd.StatsDService")
+        self.mocked = patch.start()
+        self.addCleanup(patch.stop)
+
+    def test_metrics_and_statsd_are_none_if_statsd_url_not_set(self):
+        self.config.add_settings({"statsd_url": None})
+
+        initialization.setup_metrics(self.config)
+
+        self.assertIsNone(self.config.registry.statsd)
+        self.assertIsNone(self.config.registry.metrics)
+
+    def test_metrics_attr_is_set_if_statsd_url_is_set(self):
+        self.config.add_settings({"statsd_url": "udp://host:8080"})
+
+        initialization.setup_metrics(self.config)
+
+        self.assertIsNotNone(self.config.registry.statsd)
+        self.assertIsNotNone(self.config.registry.metrics)
+
+    def test_statsd_attr_is_exposed_in_the_registry_if_url_is_set(self):
+        self.config.add_settings({"statsd_url": "udp://host:8080"})
+
+        initialization.setup_metrics(self.config)
+
+        with mock.patch("warnings.warn") as mocked_warnings:
+            self.config.registry.statsd.count("key")
+            mocked_warnings.assert_called_with(
+                "``config.registry.statsd`` is now deprecated. Check release notes.",
+                DeprecationWarning,
+            )
 
 
 class RequestsConfigurationTest(unittest.TestCase):

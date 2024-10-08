@@ -20,7 +20,7 @@ from pyramid.security import NO_PERMISSION_REQUIRED
 from pyramid.settings import asbool, aslist
 from pyramid_multiauth import MultiAuthPolicySelected
 
-from kinto.core import cache, errors, permission, storage, utils
+from kinto.core import cache, errors, metrics, permission, storage, utils
 from kinto.core.events import ACTIONS, ResourceChanged, ResourceRead
 
 
@@ -337,7 +337,7 @@ def setup_statsd(config):
         "``setup_statsd()`` is now deprecated. Check release notes.",
         DeprecationWarning,
     )
-    config.include("kinto.plugins.statsd")
+    setup_metrics(config)
 
 
 def install_middlewares(app, settings):
@@ -423,6 +423,29 @@ def setup_logging(config):
             summary_logger.info("", extra=request.log_context())
 
     config.add_subscriber(on_new_response, NewResponse)
+
+
+def setup_metrics(config):
+    settings = config.get_settings()
+
+    # This does not fully respect the Pyramid/ZCA patterns, but the rest of Kinto uses
+    # `registry.storage`, `registry.cache`, etc. Consistency seems more important.
+    config.registry.__class__.metrics = property(
+        lambda reg: reg.queryUtility(metrics.IMetricsService)
+    )
+
+    def deprecated_registry(self):
+        warnings.warn(
+            "``config.registry.statsd`` is now deprecated. Check release notes.",
+            DeprecationWarning,
+        )
+        return self.metrics
+
+    config.registry.__class__.statsd = property(deprecated_registry)
+
+    # While statsd is deprecated, we include its plugin by default for retro-compability.
+    if settings["statsd_url"]:
+        config.include("kinto.plugins.statsd")
 
 
 class EventActionFilter:
@@ -613,6 +636,3 @@ def initialize(config, version=None, settings_prefix="", default_settings=None):
     # Include kinto.core views with the correct api version prefix.
     config.include("kinto.core", route_prefix=api_version)
     config.route_prefix = api_version
-
-    # While statsd is deprecated, we include its plugin by default.
-    config.include("kinto.plugins.statsd")

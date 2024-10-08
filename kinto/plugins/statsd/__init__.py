@@ -1,13 +1,13 @@
 import types
-import warnings
 from urllib.parse import urlparse
 
 from pyramid.events import NewResponse
 from pyramid.exceptions import ConfigurationError
 from pyramid.interfaces import IAuthenticationPolicy
 from pyramid_multiauth import MultiAuthenticationPolicy
+from zope.interface import implementer
 
-from kinto.core import utils
+from kinto.core import metrics, utils
 
 
 try:
@@ -16,7 +16,8 @@ except ImportError:  # pragma: no cover
     statsd_module = None
 
 
-class Client:
+@implementer(metrics.IMetricsService)
+class StatsDService:
     def __init__(self, host, port, prefix):
         self._client = statsd_module.StatsClient(host, port, prefix=prefix)
 
@@ -64,31 +65,19 @@ def load_from_config(config):
     else:
         prefix = settings["statsd_prefix"]
 
-    return Client(uri.hostname, uri.port, prefix)
-
-
-def deprecated_registry(self):
-    warnings.warn(
-        "``config.registry.statsd`` is now deprecated. Check release notes.",
-        DeprecationWarning,
-    )
-    return self.metrics
+    return StatsDService(uri.hostname, uri.port, prefix)
 
 
 def includeme(config):
     settings = config.get_settings()
-    config.registry.metrics = None
-
-    if not settings["statsd_url"]:
-        return
 
     statsd_mod = settings["statsd_backend"]
     statsd_mod = config.maybe_dotted(statsd_mod)
     client = statsd_mod.load_from_config(config)
-    config.registry.metrics = client
 
-    config.registry.__class__.statsd = property(deprecated_registry)
+    config.registry.registerUtility(client, metrics.IMetricsService)
 
+    # TODO: move this elsewhere since it's not specific to StatsD.
     client.watch_execution_time(config.registry.cache, prefix="backend")
     client.watch_execution_time(config.registry.storage, prefix="backend")
     client.watch_execution_time(config.registry.permission, prefix="backend")
