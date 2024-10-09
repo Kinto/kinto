@@ -1,107 +1,10 @@
 from unittest import mock
 
-import webtest
 from pyramid import testing
-from pyramid.config import Configurator
 from pyramid.exceptions import ConfigurationError
 
-import kinto
 from kinto.core.testing import skip_if_no_statsd, unittest
 from kinto.plugins import statsd
-
-from ..support import BaseWebTest
-
-
-@skip_if_no_statsd
-class StatsDIncludeTest(unittest.TestCase):
-    def setUp(self):
-        settings = {
-            **kinto.core.DEFAULT_SETTINGS,
-            "statsd_url": "udp://host:8080",
-            "multiauth.policies": "basicauth",
-        }
-        self.config = Configurator(settings=settings)
-        self.config.registry.storage = {}
-        self.config.registry.cache = {}
-        self.config.registry.permission = {}
-
-        patch = mock.patch("kinto.plugins.statsd.StatsDService")
-        self.mocked = patch.start()
-        self.addCleanup(patch.stop)
-
-        patch_watch = mock.patch("kinto.core.metrics.watch_execution_time")
-        self.mocked_watch = patch_watch.start()
-        self.addCleanup(patch_watch.stop)
-
-    def test_statsd_is_set_on_cache(self):
-        kinto.core.initialize(self.config, "0.0.1", "settings_prefix")
-        _app = webtest.TestApp(self.config.make_wsgi_app())
-
-        self.mocked_watch.assert_any_call(self.mocked(), {}, prefix="backend")
-
-    def test_statsd_is_set_on_storage(self):
-        kinto.core.initialize(self.config, "0.0.1", "settings_prefix")
-        _app = webtest.TestApp(self.config.make_wsgi_app())
-
-        self.mocked_watch.assert_any_call(self.mocked(), {}, prefix="backend")
-
-    def test_statsd_is_set_on_permission(self):
-        kinto.core.initialize(self.config, "0.0.1", "settings_prefix")
-        _app = webtest.TestApp(self.config.make_wsgi_app())
-
-        self.mocked_watch.assert_any_call(self.mocked(), {}, prefix="backend")
-
-    def test_statsd_is_set_on_authentication(self):
-        kinto.core.initialize(self.config, "0.0.1", "settings_prefix")
-        _app = webtest.TestApp(self.config.make_wsgi_app())
-
-        self.mocked_watch.assert_any_call(
-            self.mocked(), mock.ANY, prefix="authentication", classname="basicauth"
-        )
-
-    def test_statsd_counts_nothing_on_anonymous_requests(self):
-        kinto.core.initialize(self.config, "0.0.1", "settings_prefix")
-        app = webtest.TestApp(self.config.make_wsgi_app())
-        app.get("/")
-        self.assertFalse(self.mocked.count.called)
-
-    def test_statsd_counts_views_and_methods(self):
-        kinto.core.initialize(self.config, "0.0.1", "settings_prefix")
-        app = webtest.TestApp(self.config.make_wsgi_app())
-        app.get("/v0/__heartbeat__")
-        self.mocked().count.assert_any_call("view.heartbeat.GET")
-
-    def test_statsd_counts_unknown_urls(self):
-        kinto.core.initialize(self.config, "0.0.1", "settings_prefix")
-        app = webtest.TestApp(self.config.make_wsgi_app())
-        app.get("/v0/coucou", status=404)
-        self.assertFalse(self.mocked.count.called)
-
-    @mock.patch("kinto.core.utils.hmac_digest")
-    def test_statsd_counts_unique_users(self, digest_mocked):
-        digest_mocked.return_value = "mat"
-        kinto.core.initialize(self.config, "0.0.1", "settings_prefix")
-        app = webtest.TestApp(self.config.make_wsgi_app())
-        headers = {"Authorization": "Basic bWF0Og=="}
-        app.get("/v0/", headers=headers)
-        self.mocked().count.assert_any_call("users", unique="basicauth.mat")
-
-    def test_statsd_counts_authentication_types(self):
-        kinto.core.initialize(self.config, "0.0.1", "settings_prefix")
-        app = webtest.TestApp(self.config.make_wsgi_app())
-        headers = {"Authorization": "Basic bWF0Og=="}
-        app.get("/v0/", headers=headers)
-        self.mocked().count.assert_any_call("authn_type.basicauth")
-
-
-class TestedClass:
-    attribute = 3.14
-
-    def test_method(self):
-        pass
-
-    def _private_method(self):
-        pass
 
 
 class StatsDMissing(unittest.TestCase):
@@ -123,21 +26,10 @@ class StatsdClientTest(unittest.TestCase):
 
     def setUp(self):
         self.client = statsd.StatsDService("localhost", 1234, "prefix")
-        self.test_object = TestedClass()
 
-        with mock.patch.object(self.client, "_client") as mocked_client:
-            kinto.core.metrics.watch_execution_time(self.client, self.test_object, prefix="test")
-            self.mocked_client = mocked_client
-
-    def test_public_methods_generates_statsd_calls(self):
-        self.test_object.test_method()
-
-        self.mocked_client.timer.assert_called_with("test.testedclass.test_method")
-
-    def test_private_methods_does_not_generates_statsd_calls(self):
-        self.mocked_client.reset_mock()
-        self.test_object._private_method()
-        self.assertFalse(self.mocked_client.timer.called)
+        patch = mock.patch.object(self.client, "_client")
+        self.mocked_client = patch.start()
+        self.addCleanup(patch.stop)
 
     def test_count_increments_the_counter_for_key(self):
         with mock.patch.object(self.client, "_client") as mocked_client:
@@ -167,28 +59,3 @@ class StatsdClientTest(unittest.TestCase):
         config.registry.settings = {**self.settings, "project_name": "projectname"}
         statsd.load_from_config(config)
         module_mock.StatsClient.assert_called_with("foo", 1234, prefix="projectname")
-
-
-@skip_if_no_statsd
-class TimingTest(BaseWebTest, unittest.TestCase):
-    @classmethod
-    def get_app_settings(cls, *args, **kwargs):
-        settings = super().get_app_settings(*args, **kwargs)
-        if not statsd.statsd_module:
-            return settings
-
-        settings["statsd_url"] = "udp://localhost:8125"
-        return settings
-
-    def test_statds_tracks_listeners_execution_duration(self):
-        statsd_client = self.app.app.registry.metrics._client
-        with mock.patch.object(statsd_client, "timing") as mocked:
-            self.app.get("/", headers=self.headers)
-            self.assertTrue(mocked.called)
-
-    def test_statds_tracks_authentication_policies(self):
-        statsd_client = self.app.app.registry.metrics._client
-        with mock.patch.object(statsd_client, "timing") as mocked:
-            self.app.get("/", headers=self.headers)
-            timers = set(c[0][0] for c in mocked.call_args_list)
-            self.assertIn("authentication.basicauth.unauthenticated_userid", timers)

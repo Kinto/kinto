@@ -76,6 +76,7 @@ class HelloViewTest(QuotaWebTest):
         self.assertIn("quotas", capabilities)
 
 
+@skip_if_no_statsd
 class MetricsTest(QuotaWebTest):
     @classmethod
     def get_app_settings(cls, extras=None):
@@ -87,7 +88,6 @@ class MetricsTest(QuotaWebTest):
         )
         return settings
 
-    @skip_if_no_statsd
     def test_a_statsd_timer_is_used_for_quotas_if_configured(self):
         with mock.patch("kinto.plugins.statsd.StatsDService.timer") as mocked:
             self.app.put("/buckets/test", headers=self.headers)

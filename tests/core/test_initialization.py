@@ -8,7 +8,7 @@ from pyramid.exceptions import ConfigurationError
 
 import kinto.core
 from kinto.core import initialization
-from kinto.core.testing import skip_if_no_statsd, unittest
+from kinto.core.testing import get_user_headers, skip_if_no_statsd, unittest
 
 
 class InitializationTest(unittest.TestCase):
@@ -293,7 +293,7 @@ class SentryTest(unittest.TestCase):
 
 
 @skip_if_no_statsd
-class StatsDConfigurationTest(unittest.TestCase):
+class MetricsConfigurationTest(unittest.TestCase):
     settings = {
         **kinto.core.DEFAULT_SETTINGS,
         "statsd_url": "udp://host:8080",
@@ -304,6 +304,10 @@ class StatsDConfigurationTest(unittest.TestCase):
         patch = mock.patch("kinto.plugins.statsd.StatsDService")
         self.mocked = patch.start()
         self.addCleanup(patch.stop)
+
+        patch_watch = mock.patch("kinto.core.metrics.watch_execution_time")
+        self.mocked_watch = patch_watch.start()
+        self.addCleanup(patch_watch.stop)
 
         self.config = Configurator(settings=self.settings)
         self.config.registry.storage = {}
@@ -330,19 +334,75 @@ class StatsDConfigurationTest(unittest.TestCase):
 
         self.mocked.assert_not_called()
 
+    #
+    # Backends.
+    #
 
-class MetricsRegistryConfigurationTest(unittest.TestCase):
-    settings = kinto.core.DEFAULT_SETTINGS
+    def test_statsd_is_set_on_cache(self):
+        kinto.core.initialize(self.config, "0.0.1", "settings_prefix")
+        _app = webtest.TestApp(self.config.make_wsgi_app())
 
-    def setUp(self):
-        self.config = Configurator(settings=self.settings)
-        self.config.registry.storage = {}
-        self.config.registry.cache = {}
-        self.config.registry.permission = {}
+        self.mocked_watch.assert_any_call(self.mocked(), {}, prefix="backend")
 
-        patch = mock.patch("kinto.plugins.statsd.StatsDService")
-        self.mocked = patch.start()
-        self.addCleanup(patch.stop)
+    def test_statsd_is_set_on_storage(self):
+        kinto.core.initialize(self.config, "0.0.1", "settings_prefix")
+        _app = webtest.TestApp(self.config.make_wsgi_app())
+
+        self.mocked_watch.assert_any_call(self.mocked(), {}, prefix="backend")
+
+    def test_statsd_is_set_on_permission(self):
+        kinto.core.initialize(self.config, "0.0.1", "settings_prefix")
+        _app = webtest.TestApp(self.config.make_wsgi_app())
+
+        self.mocked_watch.assert_any_call(self.mocked(), {}, prefix="backend")
+
+    #
+    # Authentication.
+    #
+
+    def test_statsd_is_set_on_authentication(self):
+        kinto.core.initialize(self.config, "0.0.1", "settings_prefix")
+        _app = webtest.TestApp(self.config.make_wsgi_app())
+
+        self.mocked_watch.assert_any_call(
+            self.mocked(), mock.ANY, prefix="authentication", classname="basicauth"
+        )
+
+    @mock.patch("kinto.core.utils.hmac_digest")
+    def test_statsd_counts_unique_users(self, digest_mocked):
+        digest_mocked.return_value = "mat"
+        kinto.core.initialize(self.config, "0.0.1", "settings_prefix")
+        app = webtest.TestApp(self.config.make_wsgi_app())
+        app.get("/v0/", headers=get_user_headers("bob"))
+        self.mocked().count.assert_any_call("users", unique="basicauth.mat")
+
+    def test_statsd_counts_authentication_types(self):
+        kinto.core.initialize(self.config, "0.0.1", "settings_prefix")
+        app = webtest.TestApp(self.config.make_wsgi_app())
+        app.get("/v0/", headers=get_user_headers("bob"))
+        self.mocked().count.assert_any_call("authn_type.basicauth")
+
+    #
+    # Endpoints.
+    #
+
+    def test_statsd_counts_nothing_on_anonymous_requests(self):
+        kinto.core.initialize(self.config, "0.0.1", "settings_prefix")
+        app = webtest.TestApp(self.config.make_wsgi_app())
+        app.get("/")
+        self.assertFalse(self.mocked.count.called)
+
+    def test_statsd_counts_views_and_methods(self):
+        kinto.core.initialize(self.config, "0.0.1", "settings_prefix")
+        app = webtest.TestApp(self.config.make_wsgi_app())
+        app.get("/v0/__heartbeat__")
+        self.mocked().count.assert_any_call("view.heartbeat.GET")
+
+    def test_statsd_counts_unknown_urls(self):
+        kinto.core.initialize(self.config, "0.0.1", "settings_prefix")
+        app = webtest.TestApp(self.config.make_wsgi_app())
+        app.get("/v0/coucou", status=404)
+        self.assertFalse(self.mocked.count.called)
 
     def test_metrics_and_statsd_are_none_if_statsd_url_not_set(self):
         self.config.add_settings({"statsd_url": None})
