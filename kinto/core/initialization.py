@@ -334,8 +334,10 @@ def setup_sentry(config):
 
 
 def setup_statsd(config):
+    # It would be pretty rare to find users that have a custom ``kinto.initialization_sequence`` setting.
+    # But just in case, warn that it will be removed in next major.
     warnings.warn(
-        "``setup_statsd()`` is now deprecated. Check release notes.",
+        "``setup_statsd()`` is now deprecated. Use ``kinto.core.initialization.setup_metrics()`` instead.",
         DeprecationWarning,
     )
     setup_metrics(config)
@@ -437,7 +439,7 @@ def setup_metrics(config):
 
     def deprecated_registry(self):
         warnings.warn(
-            "``config.registry.statsd`` is now deprecated. Check release notes.",
+            "``config.registry.statsd`` is now deprecated. Use ``config.registry.metrics`` instead.",
             DeprecationWarning,
         )
         return self.metrics

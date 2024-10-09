@@ -319,7 +319,7 @@ class MetricsConfigurationTest(unittest.TestCase):
         with mock.patch("warnings.warn") as mocked_warnings:
             initialization.setup_statsd(self.config)
             mocked_warnings.assert_called_with(
-                "``setup_statsd()`` is now deprecated. Check release notes.",
+                "``setup_statsd()`` is now deprecated. Use ``kinto.core.initialization.setup_metrics()`` instead.",
                 DeprecationWarning,
             )
         self.mocked.assert_called_with("host", 8080, "kinto.core")
@@ -438,7 +438,7 @@ class MetricsConfigurationTest(unittest.TestCase):
         with mock.patch("warnings.warn") as mocked_warnings:
             self.config.registry.statsd.count("key")
             mocked_warnings.assert_called_with(
-                "``config.registry.statsd`` is now deprecated. Check release notes.",
+                "``config.registry.statsd`` is now deprecated. Use ``config.registry.metrics`` instead.",
                 DeprecationWarning,
             )
 
