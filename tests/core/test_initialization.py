@@ -8,7 +8,7 @@ from pyramid.exceptions import ConfigurationError
 
 import kinto.core
 from kinto.core import initialization
-from kinto.core.testing import unittest
+from kinto.core.testing import skip_if_no_statsd, unittest
 
 
 class InitializationTest(unittest.TestCase):
@@ -292,6 +292,7 @@ class SentryTest(unittest.TestCase):
         assert len(mocked.call_args_list) > 0
 
 
+@skip_if_no_statsd
 class StatsDConfigurationTest(unittest.TestCase):
     settings = {
         **kinto.core.DEFAULT_SETTINGS,

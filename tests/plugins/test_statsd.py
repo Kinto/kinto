@@ -12,6 +12,7 @@ from kinto.plugins import statsd
 from ..support import BaseWebTest
 
 
+@skip_if_no_statsd
 class StatsDIncludeTest(unittest.TestCase):
     def setUp(self):
         settings = {
