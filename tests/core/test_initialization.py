@@ -2,6 +2,7 @@ import warnings
 from unittest import mock
 
 import webtest
+from pyramid.authentication import SessionAuthenticationPolicy
 from pyramid.config import Configurator
 from pyramid.events import NewRequest
 from pyramid.exceptions import ConfigurationError
@@ -360,13 +361,22 @@ class MetricsConfigurationTest(unittest.TestCase):
     # Authentication.
     #
 
-    def test_statsd_is_set_on_authentication(self):
+    def test_statsd_is_set_on_authentication_multiauth(self):
         kinto.core.initialize(self.config, "0.0.1", "settings_prefix")
         _app = webtest.TestApp(self.config.make_wsgi_app())
 
         self.mocked_watch.assert_any_call(
             self.mocked(), mock.ANY, prefix="authentication", classname="basicauth"
         )
+
+    def test_statsd_is_set_on_authentication_raw_auth(self):
+        authn_policy = SessionAuthenticationPolicy()
+        self.config.set_authentication_policy(authn_policy)
+
+        kinto.core.initialize(self.config, "0.0.1", "settings_prefix")
+        _app = webtest.TestApp(self.config.make_wsgi_app())
+
+        self.mocked_watch.assert_any_call(self.mocked(), mock.ANY, prefix="authentication")
 
     @mock.patch("kinto.core.utils.hmac_digest")
     def test_statsd_counts_unique_users(self, digest_mocked):
