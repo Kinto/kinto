@@ -37,3 +37,21 @@ def watch_execution_time(metrics_service, obj, prefix="", classname=None):
             statsd_key = f"{prefix}.{classname}.{name}"
             decorated_method = metrics_service.timer(statsd_key)(value)
             setattr(obj, name, decorated_method)
+
+
+def listener_with_timer(config, key, func):
+    """
+    Add a timer with the specified `key` on the specified `func`.
+    This is used to avoid evaluating `config.registry.metrics` during setup time
+    to avoid having to deal with initialization order and configuration committing.
+    """
+
+    def wrapped(*args, **kwargs):
+        metrics_service = config.registry.metrics
+        if not metrics_service:
+            return func(*args, **kwargs)
+        # If metrics are enabled, monitor execution time of listeners.
+        with metrics_service.timer(key):
+            return func(*args, **kwargs)
+
+    return wrapped

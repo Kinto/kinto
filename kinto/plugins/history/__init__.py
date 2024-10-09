@@ -1,4 +1,5 @@
 from kinto.authorization import PERMISSIONS_INHERITANCE_TREE
+from kinto.core import metrics
 from kinto.core.events import ResourceChanged
 
 from .listener import on_resource_changed
@@ -14,15 +15,13 @@ def includeme(config):
     # Activate end-points.
     config.scan("kinto.plugins.history.views")
 
-    # If metrics are enabled, monitor execution time of listener.
-    listener = on_resource_changed
-    if config.registry.metrics:
-        key = "plugins.history"
-        listener = config.registry.metrics.timer(key)(on_resource_changed)
+    wrapped_listener = metrics.listener_with_timer(config, "plugins.history", on_resource_changed)
 
     # Listen to every resources (except history)
     config.add_subscriber(
-        listener, ResourceChanged, for_resources=("bucket", "group", "collection", "record")
+        wrapped_listener,
+        ResourceChanged,
+        for_resources=("bucket", "group", "collection", "record"),
     )
 
     # Register the permission inheritance for history entries.

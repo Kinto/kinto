@@ -547,11 +547,9 @@ def setup_listeners(config):
             listener_mod = config.maybe_dotted(module_value)
             listener = listener_mod.load_from_config(config, prefix)
 
-        # If StatsD is enabled, monitor execution time of listeners.
-        if getattr(config.registry, "metrics", None):
-            metrics = config.registry.metrics
-            key = f"listeners.{name}"
-            listener = metrics.timer(key)(listener.__call__)
+        wrapped_listener = metrics.listener_with_timer(
+            config, f"listeners.{name}", listener.__call__
+        )
 
         # Optional filter by event action.
         actions_setting = prefix + "actions"
@@ -577,11 +575,11 @@ def setup_listeners(config):
         options = dict(for_actions=actions, for_resources=resource_names)
 
         if ACTIONS.READ in actions:
-            config.add_subscriber(listener, ResourceRead, **options)
+            config.add_subscriber(wrapped_listener, ResourceRead, **options)
             actions = [a for a in actions if a != ACTIONS.READ]
 
         if len(actions) > 0:
-            config.add_subscriber(listener, ResourceChanged, **options)
+            config.add_subscriber(wrapped_listener, ResourceChanged, **options)
 
 
 def load_default_settings(config, default_settings):
