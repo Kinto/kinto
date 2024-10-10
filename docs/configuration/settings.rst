@@ -429,7 +429,7 @@ Requires the ``statsd`` package.
 | kinto.statsd_prefix    | ``kinto``                              | The prefix to use when sending data to statsd.                           |
 +------------------------+----------------------------------------+--------------------------------------------------------------------------+
 | kinto.statsd_url       | ``None``                               | The fully qualified URL to use to connect to the statsd host. e.g.       |
-|                        |                                        | ``udp://localhost:8125``                                                 |
+|                        |                                        | ``udp://host:8125``                                                      |
 +------------------------+----------------------------------------+--------------------------------------------------------------------------+
 
 
@@ -437,8 +437,21 @@ StatsD metrics can be enabled with (disabled by default):
 
 .. code-block:: ini
 
-    kinto.statsd_url = udp://localhost:8125
+    kinto.statsd_url = udp://host:8125
     # kinto.statsd_prefix = kinto-prod
+
+
+StatsD can also be enabled at the *uWSGI* level:
+
+.. code-block:: ini
+
+    [uwsgi]
+
+    # ...
+
+    enable-metrics = true
+    plugin = dogstatsd
+    stats-push = dogstatsd:host:8125,kinto.{{ $deployment }}
 
 
 Monitoring with New Relic
