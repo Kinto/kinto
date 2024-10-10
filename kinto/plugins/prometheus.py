@@ -2,6 +2,10 @@ import functools
 from time import perf_counter as time_now
 
 from pyramid.exceptions import ConfigurationError
+from pyramid.response import Response
+from zope.interface import implementer
+
+from kinto.core import metrics
 
 
 try:
@@ -10,12 +14,20 @@ except ImportError:  # pragma: no cover
     prometheus_module = None
 
 
-from zope.interface import implementer
-
-from kinto.core import metrics
-
-
 _METRICS = {}
+_REGISTRY = None
+
+
+def get_registry():
+    global _REGISTRY
+
+    if _REGISTRY is None:
+        _REGISTRY = prometheus_module.CollectorRegistry()
+    return _REGISTRY
+
+
+def _fix_metric_name(s):
+    return s.replace("-", "_").replace(".", "_")
 
 
 def safe_wraps(wrapper, *args, **kwargs):
@@ -53,7 +65,7 @@ class Timer:
         return self
 
     def stop(self):
-        if self._start_time is None:
+        if self._start_time is None:  # pragma: nocover
             raise RuntimeError("Timer has not started.")
         dt_ms = 1000.0 * (time_now() - self._start_time)
         self.summary.observe(dt_ms)
@@ -62,30 +74,50 @@ class Timer:
 
 @implementer(metrics.IMetricsService)
 class PrometheusService:
-    def __init__(self):
-        pass
-
     def timer(self, key):
         global _METRICS
-        if self.key not in _METRICS:
-            _METRICS[self.key] = prometheus_module.Summary(key, f"Summary of {self.key}")
-        return Timer(_METRICS[self.key])
-
-    def count(self, key, count=None, unique=None):
-        global _METRICS
         if key not in _METRICS:
-            _METRICS[key] = prometheus_module.Counter(key, f"Counter of {key}")
-        _METRICS[key].inc(count)
+            _METRICS[key] = prometheus_module.Summary(
+                _fix_metric_name(key), f"Summary of {key}", registry=get_registry()
+            )
 
-        # TODO: notion of "uniqueness"
+        if not isinstance(_METRICS[key], prometheus_module.Summary):
+            raise RuntimeError(
+                f"Metric {key} already exists with different type ({_METRICS[key]})"
+            )
+
+        return Timer(_METRICS[key])
+
+    def count(self, key, count=1, unique=None):
+        global _METRICS
+
+        if key not in _METRICS:
+            _METRICS[key] = prometheus_module.Counter(
+                _fix_metric_name(key),
+                f"Counter of {key}",
+                labelnames=(_fix_metric_name(unique),) if unique else (),
+                registry=get_registry(),
+            )
+
+        if not isinstance(_METRICS[key], prometheus_module.Counter):
+            raise RuntimeError(
+                f"Metric {key} already exists with different type ({_METRICS[key]})"
+            )
+
+        m = _METRICS[key]
+        if unique is not None:
+            m = m.labels(_fix_metric_name(unique))
+
+        m.inc(count)
 
 
 def metrics_view(request):
-    request.response.headers["Content-Type"] = prometheus_module.CONTENT_TYPE_LATEST
-
-    registry = prometheus_module.CollectorRegistry()
+    registry = get_registry()
     data = prometheus_module.generate_latest(registry)
-    return [data]
+    resp = Response(body=data)
+    resp.headers["Content-Type"] = prometheus_module.CONTENT_TYPE_LATEST
+    resp.headers["Content-Length"] = str(len(data))
+    return resp
 
 
 def includeme(config):
@@ -101,5 +133,12 @@ def includeme(config):
         url="https://github.com/Kinto/kinto/",
     )
 
-    config.add_route("prometheus_metrics", "/__metrics__/")
+    config.add_route("prometheus_metrics", "/__metrics__")
     config.add_view(metrics_view, route_name="prometheus_metrics")
+
+    # TODO app info
+    # from prometheus_client import Info
+    # i = Info('my_build_version', 'Description of info')
+    # i.info({'version': '1.2.3', 'buildhost': 'foo@bar'})
+
+    config.registry.registerUtility(PrometheusService(), metrics.IMetricsService)
