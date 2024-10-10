@@ -21,7 +21,7 @@ from pyramid.security import NO_PERMISSION_REQUIRED
 from pyramid.settings import asbool, aslist
 from pyramid_multiauth import MultiAuthenticationPolicy, MultiAuthPolicySelected
 
-from kinto.core import cache, errors, permission, storage, utils
+from kinto.core import cache, errors, metrics, permission, storage, utils
 from kinto.core.events import ACTIONS, ResourceChanged, ResourceRead
 
 
@@ -334,51 +334,13 @@ def setup_sentry(config):
 
 
 def setup_statsd(config):
-    settings = config.get_settings()
-    config.registry.statsd = None
-
-    if settings["statsd_url"]:
-        statsd_mod = settings["statsd_backend"]
-        statsd_mod = config.maybe_dotted(statsd_mod)
-        client = statsd_mod.load_from_config(config)
-
-        config.registry.statsd = client
-
-        client.watch_execution_time(config.registry.cache, prefix="backend")
-        client.watch_execution_time(config.registry.storage, prefix="backend")
-        client.watch_execution_time(config.registry.permission, prefix="backend")
-
-        # Commit so that configured policy can be queried.
-        config.commit()
-        policy = config.registry.queryUtility(IAuthenticationPolicy)
-        if isinstance(policy, MultiAuthenticationPolicy):
-            for name, subpolicy in policy.get_policies():
-                client.watch_execution_time(subpolicy, prefix="authentication", classname=name)
-        else:
-            client.watch_execution_time(policy, prefix="authentication")
-
-        def on_new_response(event):
-            request = event.request
-
-            # Count unique users.
-            user_id = request.prefixed_userid
-            if user_id:
-                # Get rid of colons in metric packet (see #1282).
-                user_id = user_id.replace(":", ".")
-                client.count("users", unique=user_id)
-
-            # Count authentication verifications.
-            if hasattr(request, "authn_type"):
-                client.count(f"authn_type.{request.authn_type}")
-
-            # Count view calls.
-            service = request.current_service
-            if service:
-                client.count(f"view.{service.name}.{request.method}")
-
-        config.add_subscriber(on_new_response, NewResponse)
-
-        return client
+    # It would be pretty rare to find users that have a custom ``kinto.initialization_sequence`` setting.
+    # But just in case, warn that it will be removed in next major.
+    warnings.warn(
+        "``setup_statsd()`` is now deprecated. Use ``kinto.core.initialization.setup_metrics()`` instead.",
+        DeprecationWarning,
+    )
+    setup_metrics(config)
 
 
 def install_middlewares(app, settings):
@@ -466,6 +428,75 @@ def setup_logging(config):
     config.add_subscriber(on_new_response, NewResponse)
 
 
+def setup_metrics(config):
+    settings = config.get_settings()
+
+    # This does not fully respect the Pyramid/ZCA patterns, but the rest of Kinto uses
+    # `registry.storage`, `registry.cache`, etc. Consistency seems more important.
+    config.registry.__class__.metrics = property(
+        lambda reg: reg.queryUtility(metrics.IMetricsService)
+    )
+
+    def deprecated_registry(self):
+        warnings.warn(
+            "``config.registry.statsd`` is now deprecated. Use ``config.registry.metrics`` instead.",
+            DeprecationWarning,
+        )
+        return self.metrics
+
+    config.registry.__class__.statsd = property(deprecated_registry)
+
+    def on_app_created(event):
+        config = event.app
+        metrics_service = config.registry.metrics
+        if not metrics_service:
+            logger.warning("No metrics service registered.")
+            return
+
+        metrics.watch_execution_time(metrics_service, config.registry.cache, prefix="backend")
+        metrics.watch_execution_time(metrics_service, config.registry.storage, prefix="backend")
+        metrics.watch_execution_time(metrics_service, config.registry.permission, prefix="backend")
+
+        policy = config.registry.queryUtility(IAuthenticationPolicy)
+        if isinstance(policy, MultiAuthenticationPolicy):
+            for name, subpolicy in policy.get_policies():
+                metrics.watch_execution_time(
+                    metrics_service, subpolicy, prefix="authentication", classname=name
+                )
+        else:
+            metrics.watch_execution_time(metrics_service, policy, prefix="authentication")
+
+    config.add_subscriber(on_app_created, ApplicationCreated)
+
+    def on_new_response(event):
+        request = event.request
+        metrics_service = config.registry.metrics
+        if not metrics_service:
+            return
+
+        # Count unique users.
+        user_id = request.prefixed_userid
+        if user_id:
+            # Get rid of colons in metric packet (see #1282).
+            user_id = user_id.replace(":", ".")
+            metrics_service.count("users", unique=user_id)
+
+        # Count authentication verifications.
+        if hasattr(request, "authn_type"):
+            metrics_service.count(f"authn_type.{request.authn_type}")
+
+        # Count view calls.
+        service = request.current_service
+        if service:
+            metrics_service.count(f"view.{service.name}.{request.method}")
+
+    config.add_subscriber(on_new_response, NewResponse)
+
+    # While statsd is deprecated, we include its plugin by default for retro-compability.
+    if settings["statsd_url"]:
+        config.include("kinto.plugins.statsd")
+
+
 class EventActionFilter:
     def __init__(self, actions, config):
         actions = ACTIONS.from_string_list(actions)
@@ -518,11 +549,9 @@ def setup_listeners(config):
             listener_mod = config.maybe_dotted(module_value)
             listener = listener_mod.load_from_config(config, prefix)
 
-        # If StatsD is enabled, monitor execution time of listeners.
-        if getattr(config.registry, "statsd", None):
-            statsd_client = config.registry.statsd
-            key = f"listeners.{name}"
-            listener = statsd_client.timer(key)(listener.__call__)
+        wrapped_listener = metrics.listener_with_timer(
+            config, f"listeners.{name}", listener.__call__
+        )
 
         # Optional filter by event action.
         actions_setting = prefix + "actions"
@@ -548,11 +577,11 @@ def setup_listeners(config):
         options = dict(for_actions=actions, for_resources=resource_names)
 
         if ACTIONS.READ in actions:
-            config.add_subscriber(listener, ResourceRead, **options)
+            config.add_subscriber(wrapped_listener, ResourceRead, **options)
             actions = [a for a in actions if a != ACTIONS.READ]
 
         if len(actions) > 0:
-            config.add_subscriber(listener, ResourceChanged, **options)
+            config.add_subscriber(wrapped_listener, ResourceChanged, **options)
 
 
 def load_default_settings(config, default_settings):

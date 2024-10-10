@@ -3,28 +3,12 @@ import re
 import unittest
 from unittest import mock
 
-from pyramid import testing
-
-from kinto import main as kinto_main
 from kinto.core.testing import get_user_headers, skip_if_no_statsd
 
 from .. import support
 
 
 DATETIME_REGEX = r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}\+\d{2}:\d{2}$"
-
-
-class PluginSetup(unittest.TestCase):
-    @skip_if_no_statsd
-    def test_a_statsd_timer_is_used_for_history_if_configured(self):
-        settings = {
-            "statsd_url": "udp://127.0.0.1:8125",
-            "includes": "kinto.plugins.history",
-        }
-        config = testing.setUp(settings=settings)
-        with mock.patch("kinto.core.statsd.Client.timer") as mocked:
-            kinto_main(None, config=config)
-            mocked.assert_called_with("plugins.history")
 
 
 class HistoryWebTest(support.BaseWebTest, unittest.TestCase):
@@ -40,6 +24,24 @@ class HelloViewTest(HistoryWebTest):
         resp = self.app.get("/")
         capabilities = resp.json["capabilities"]
         self.assertIn("history", capabilities)
+
+
+@skip_if_no_statsd
+class MetricsTest(HistoryWebTest):
+    @classmethod
+    def get_app_settings(cls, extras=None):
+        settings = super().get_app_settings(extras)
+        settings.update(
+            **{
+                "statsd_url": "udp://127.0.0.1:8125",
+            }
+        )
+        return settings
+
+    def test_a_statsd_timer_is_used_for_history_if_configured(self):
+        with mock.patch("kinto.plugins.statsd.StatsDService.timer") as mocked:
+            self.app.put("/buckets/test", headers=self.headers)
+            mocked.assert_any_call("plugins.history")
 
 
 class HistoryViewTest(HistoryWebTest):

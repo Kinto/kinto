@@ -3,9 +3,7 @@ from unittest import mock
 
 import pytest
 import transaction
-from pyramid import testing
 
-from kinto import main as kinto_main
 from kinto.core.errors import ERRORS
 from kinto.core.storage import Sort
 from kinto.core.storage.exceptions import ObjectNotFoundError
@@ -19,19 +17,6 @@ from kinto.plugins.quotas.listener import (
 from kinto.plugins.quotas.utils import record_size
 
 from .. import support
-
-
-class PluginSetup(unittest.TestCase):
-    @skip_if_no_statsd
-    def test_a_statsd_timer_is_used_for_quotas_if_configured(self):
-        settings = {
-            "statsd_url": "udp://127.0.0.1:8125",
-            "includes": "kinto.plugins.quotas",
-        }
-        config = testing.setUp(settings=settings)
-        with mock.patch("kinto.core.statsd.Client.timer") as mocked:
-            kinto_main(None, config=config)
-            mocked.assert_called_with("plugins.quotas")
 
 
 class QuotaWebTest(support.BaseWebTest, unittest.TestCase):
@@ -89,6 +74,24 @@ class HelloViewTest(QuotaWebTest):
         resp = self.app.get("/")
         capabilities = resp.json["capabilities"]
         self.assertIn("quotas", capabilities)
+
+
+@skip_if_no_statsd
+class MetricsTest(QuotaWebTest):
+    @classmethod
+    def get_app_settings(cls, extras=None):
+        settings = super().get_app_settings(extras)
+        settings.update(
+            **{
+                "statsd_url": "udp://127.0.0.1:8125",
+            }
+        )
+        return settings
+
+    def test_a_statsd_timer_is_used_for_quotas_if_configured(self):
+        with mock.patch("kinto.plugins.statsd.StatsDService.timer") as mocked:
+            self.app.put("/buckets/test", headers=self.headers)
+            mocked.assert_any_call("plugins.quotas")
 
 
 class QuotaListenerTest(QuotaWebTest):

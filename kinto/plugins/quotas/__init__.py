@@ -1,3 +1,4 @@
+from kinto.core import metrics
 from kinto.core.events import ResourceChanged
 
 from .listener import on_resource_changed
@@ -10,13 +11,11 @@ def includeme(config):
         url="https://kinto.readthedocs.io",
     )
 
-    # If StatsD is enabled, monitor execution time of listener.
-    listener = on_resource_changed
-    if config.registry.statsd:
-        key = "plugins.quotas"
-        listener = config.registry.statsd.timer(key)(on_resource_changed)
+    wrapped_listener = metrics.listener_with_timer(config, "plugins.quotas", on_resource_changed)
 
     # Listen to every resources (except history)
     config.add_subscriber(
-        listener, ResourceChanged, for_resources=("bucket", "group", "collection", "record")
+        wrapped_listener,
+        ResourceChanged,
+        for_resources=("bucket", "group", "collection", "record"),
     )

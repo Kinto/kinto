@@ -4,7 +4,6 @@ from unittest import mock
 
 from pyramid.config import Configurator
 
-from kinto.core import statsd
 from kinto.core.events import (
     ACTIONS,
     AfterResourceChanged,
@@ -14,7 +13,8 @@ from kinto.core.events import (
     notify_resource_event,
 )
 from kinto.core.storage.exceptions import BackendError
-from kinto.core.testing import unittest
+from kinto.core.testing import skip_if_no_statsd, unittest
+from kinto.plugins import statsd
 
 from ..support import BaseWebTest
 
@@ -491,7 +491,7 @@ def load_from_config(config, prefix):
     return ClassListener()
 
 
-@unittest.skipIf(not statsd.statsd_module, "statsd is not installed.")
+@skip_if_no_statsd
 class StatsDTest(BaseWebTest, unittest.TestCase):
     @classmethod
     def get_app_settings(cls, *args, **kwargs):
@@ -506,8 +506,9 @@ class StatsDTest(BaseWebTest, unittest.TestCase):
         return settings
 
     def test_statds_tracks_listeners_execution_duration(self):
-        statsd_client = self.app.app.registry.statsd._client
-        with mock.patch.object(statsd_client, "timing") as mocked:
+        # This test may break when introducing a generic interface for Prometheus.
+        metrics_client = self.app.app.registry.metrics._client
+        with mock.patch.object(metrics_client, "timing") as mocked:
             self.app.post_json(self.plural_url, {"data": {"name": "pouet"}}, headers=self.headers)
             timers = set(c[0][0] for c in mocked.call_args_list)
             self.assertIn("listeners.test", timers)

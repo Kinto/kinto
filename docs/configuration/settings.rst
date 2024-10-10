@@ -304,18 +304,6 @@ hello view <api-utilities>`.
 Logging and Monitoring
 ======================
 
-+------------------------+----------------------------------------+--------------------------------------------------------------------------+
-| Setting name           | Default                                | What does it do?                                                         |
-+========================+========================================+==========================================================================+
-| kinto.statsd_backend   | ``kinto.core.statsd``                  | The Python **dotted** location of the StatsD module that should be used  |
-|                        |                                        | for monitoring. Useful to plug custom implementations like Datadog™.     |
-+------------------------+----------------------------------------+--------------------------------------------------------------------------+
-| kinto.statsd_prefix    | ``kinto``                              | The prefix to use when sending data to statsd.                           |
-+------------------------+----------------------------------------+--------------------------------------------------------------------------+
-| kinto.statsd_url       | ``None``                               | The fully qualified URL to use to connect to the statsd host. e.g.       |
-|                        |                                        | ``udp://localhost:8125``                                                 |
-+------------------------+----------------------------------------+--------------------------------------------------------------------------+
-
 Standard Logging
 ::::::::::::::::
 
@@ -425,17 +413,45 @@ Or the equivalent environment variables:
     The application sends an event on startup (mainly for setup check).
 
 
+.. _monitoring-with-statsd:
+
 Monitoring with StatsD
 ::::::::::::::::::::::
 
 Requires the ``statsd`` package.
 
-StatsD metrics can be enabled (disabled by default):
++------------------------+----------------------------------------+--------------------------------------------------------------------------+
+| Setting name           | Default                                | What does it do?                                                         |
++========================+========================================+==========================================================================+
+| kinto.statsd_backend   | ``kinto.core.statsd``                  | The Python **dotted** location of the StatsD module that should be used  |
+|                        |                                        | for monitoring. Useful to plug custom implementations like Datadog™.     |
++------------------------+----------------------------------------+--------------------------------------------------------------------------+
+| kinto.statsd_prefix    | ``kinto``                              | The prefix to use when sending data to statsd.                           |
++------------------------+----------------------------------------+--------------------------------------------------------------------------+
+| kinto.statsd_url       | ``None``                               | The fully qualified URL to use to connect to the statsd host. e.g.       |
+|                        |                                        | ``udp://host:8125``                                                      |
++------------------------+----------------------------------------+--------------------------------------------------------------------------+
+
+
+StatsD metrics can be enabled with (disabled by default):
 
 .. code-block:: ini
 
-    kinto.statsd_url = udp://localhost:8125
+    kinto.statsd_url = udp://host:8125
     # kinto.statsd_prefix = kinto-prod
+
+
+StatsD can also be enabled at the *uWSGI* level:
+
+.. code-block:: ini
+
+    [uwsgi]
+
+    # ...
+
+    enable-metrics = true
+    plugin = dogstatsd
+    stats-push = dogstatsd:host:8125,kinto.{{ $deployment }}
 
 
 Monitoring with New Relic
@@ -500,6 +516,9 @@ list of Python modules:
 +---------------------------------------+--------------------------------------------------------------------------+
 | ``kinto.plugins.quotas``              | It allows to limit storage per collection size, number of records, etc.  |
 |                                       | (:ref:`more details <api-quotas>`).                                      |
++---------------------------------------+--------------------------------------------------------------------------+
+| ``kinto.plugins.statsd``              | Send metrics about backend duration, authentication, endpoints hits, ..  |
+|                                       | (:ref:`more details <monitoring-with-statsd>`).                          |
 +---------------------------------------+--------------------------------------------------------------------------+
 
 

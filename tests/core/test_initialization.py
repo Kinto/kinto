@@ -2,13 +2,14 @@ import warnings
 from unittest import mock
 
 import webtest
+from pyramid.authentication import SessionAuthenticationPolicy
 from pyramid.config import Configurator
 from pyramid.events import NewRequest
 from pyramid.exceptions import ConfigurationError
 
 import kinto.core
 from kinto.core import initialization
-from kinto.core.testing import unittest
+from kinto.core.testing import get_user_headers, skip_if_no_statsd, unittest
 
 
 class InitializationTest(unittest.TestCase):
@@ -292,56 +293,108 @@ class SentryTest(unittest.TestCase):
         assert len(mocked.call_args_list) > 0
 
 
-class StatsDConfigurationTest(unittest.TestCase):
+@skip_if_no_statsd
+class MetricsConfigurationTest(unittest.TestCase):
+    settings = {
+        **kinto.core.DEFAULT_SETTINGS,
+        "statsd_url": "udp://host:8080",
+        "multiauth.policies": "basicauth",
+    }
+
     def setUp(self):
-        settings = {
-            **kinto.core.DEFAULT_SETTINGS,
-            "statsd_url": "udp://host:8080",
-            "multiauth.policies": "basicauth",
-        }
-        self.config = Configurator(settings=settings)
+        patch = mock.patch("kinto.plugins.statsd.StatsDService")
+        self.mocked = patch.start()
+        self.addCleanup(patch.stop)
+
+        patch_watch = mock.patch("kinto.core.metrics.watch_execution_time")
+        self.mocked_watch = patch_watch.start()
+        self.addCleanup(patch_watch.stop)
+
+        self.config = Configurator(settings=self.settings)
         self.config.registry.storage = {}
         self.config.registry.cache = {}
         self.config.registry.permission = {}
 
-        patch = mock.patch("kinto.core.statsd.load_from_config")
-        self.mocked = patch.start()
-        self.addCleanup(patch.stop)
+    def test_setup_statsd_step_is_still_supported(self):
+        with mock.patch("warnings.warn") as mocked_warnings:
+            initialization.setup_statsd(self.config)
+            mocked_warnings.assert_called_with(
+                "``setup_statsd()`` is now deprecated. Use ``kinto.core.initialization.setup_metrics()`` instead.",
+                DeprecationWarning,
+            )
+        self.mocked.assert_called_with("host", 8080, "kinto.core")
 
-    def test_statsd_isnt_called_if_statsd_url_is_not_set(self):
+    def test_statsd_is_included_by_default(self):
+        kinto.core.initialize(self.config, "0.0.1", "name")
+
+        self.mocked.assert_called_with("host", 8080, "kinto.core")
+
+    def test_statsd_isnt_included_if_statsd_url_is_not_set(self):
         self.config.add_settings({"statsd_url": None})
-        initialization.setup_statsd(self.config)
+        kinto.core.initialize(self.config, "0.0.1", "name")
+
         self.mocked.assert_not_called()
 
-    def test_statsd_is_set_to_none_if_statsd_url_not_set(self):
-        self.config.add_settings({"statsd_url": None})
-        initialization.setup_statsd(self.config)
-        self.assertEqual(self.config.registry.statsd, None)
-
-    def test_statsd_is_called_if_statsd_url_is_set(self):
-        initialization.setup_statsd(self.config)
-        self.mocked.assert_called_with(self.config)
-        # See `tests/core/test_statsd.py` for instantiation tests.
-
-    def test_statsd_is_expose_in_the_registry_if_url_is_set(self):
-        initialization.setup_statsd(self.config)
-        self.assertEqual(self.config.registry.statsd, self.mocked.return_value)
+    #
+    # Backends.
+    #
 
     def test_statsd_is_set_on_cache(self):
-        c = initialization.setup_statsd(self.config)
-        c.watch_execution_time.assert_any_call({}, prefix="backend")
+        kinto.core.initialize(self.config, "0.0.1", "settings_prefix")
+        _app = webtest.TestApp(self.config.make_wsgi_app())
+
+        self.mocked_watch.assert_any_call(self.mocked(), {}, prefix="backend")
 
     def test_statsd_is_set_on_storage(self):
-        c = initialization.setup_statsd(self.config)
-        c.watch_execution_time.assert_any_call({}, prefix="backend")
+        kinto.core.initialize(self.config, "0.0.1", "settings_prefix")
+        _app = webtest.TestApp(self.config.make_wsgi_app())
+
+        self.mocked_watch.assert_any_call(self.mocked(), {}, prefix="backend")
 
     def test_statsd_is_set_on_permission(self):
-        c = initialization.setup_statsd(self.config)
-        c.watch_execution_time.assert_any_call({}, prefix="backend")
+        kinto.core.initialize(self.config, "0.0.1", "settings_prefix")
+        _app = webtest.TestApp(self.config.make_wsgi_app())
 
-    def test_statsd_is_set_on_authentication(self):
-        c = initialization.setup_statsd(self.config)
-        c.watch_execution_time.assert_any_call(None, prefix="authentication")
+        self.mocked_watch.assert_any_call(self.mocked(), {}, prefix="backend")
+
+    #
+    # Authentication.
+    #
+
+    def test_statsd_is_set_on_authentication_multiauth(self):
+        kinto.core.initialize(self.config, "0.0.1", "settings_prefix")
+        _app = webtest.TestApp(self.config.make_wsgi_app())
+
+        self.mocked_watch.assert_any_call(
+            self.mocked(), mock.ANY, prefix="authentication", classname="basicauth"
+        )
+
+    def test_statsd_is_set_on_authentication_raw_auth(self):
+        authn_policy = SessionAuthenticationPolicy()
+        self.config.set_authentication_policy(authn_policy)
+
+        kinto.core.initialize(self.config, "0.0.1", "settings_prefix")
+        _app = webtest.TestApp(self.config.make_wsgi_app())
+
+        self.mocked_watch.assert_any_call(self.mocked(), mock.ANY, prefix="authentication")
+
+    @mock.patch("kinto.core.utils.hmac_digest")
+    def test_statsd_counts_unique_users(self, digest_mocked):
+        digest_mocked.return_value = "mat"
+        kinto.core.initialize(self.config, "0.0.1", "settings_prefix")
+        app = webtest.TestApp(self.config.make_wsgi_app())
+        app.get("/v0/", headers=get_user_headers("bob"))
+        self.mocked().count.assert_any_call("users", unique="basicauth.mat")
+
+    def test_statsd_counts_authentication_types(self):
+        kinto.core.initialize(self.config, "0.0.1", "settings_prefix")
+        app = webtest.TestApp(self.config.make_wsgi_app())
+        app.get("/v0/", headers=get_user_headers("bob"))
+        self.mocked().count.assert_any_call("authn_type.basicauth")
+
+    #
+    # Endpoints.
+    #
 
     def test_statsd_counts_nothing_on_anonymous_requests(self):
         kinto.core.initialize(self.config, "0.0.1", "settings_prefix")
@@ -361,21 +414,33 @@ class StatsDConfigurationTest(unittest.TestCase):
         app.get("/v0/coucou", status=404)
         self.assertFalse(self.mocked.count.called)
 
-    @mock.patch("kinto.core.utils.hmac_digest")
-    def test_statsd_counts_unique_users(self, digest_mocked):
-        digest_mocked.return_value = "mat"
-        kinto.core.initialize(self.config, "0.0.1", "settings_prefix")
-        app = webtest.TestApp(self.config.make_wsgi_app())
-        headers = {"Authorization": "Basic bWF0Og=="}
-        app.get("/v0/", headers=headers)
-        self.mocked().count.assert_any_call("users", unique="basicauth.mat")
+    def test_metrics_and_statsd_are_none_if_statsd_url_not_set(self):
+        self.config.add_settings({"statsd_url": None})
 
-    def test_statsd_counts_authentication_types(self):
-        kinto.core.initialize(self.config, "0.0.1", "settings_prefix")
-        app = webtest.TestApp(self.config.make_wsgi_app())
-        headers = {"Authorization": "Basic bWF0Og=="}
-        app.get("/v0/", headers=headers)
-        self.mocked().count.assert_any_call("authn_type.basicauth")
+        initialization.setup_metrics(self.config)
+
+        self.assertIsNone(self.config.registry.statsd)
+        self.assertIsNone(self.config.registry.metrics)
+
+    def test_metrics_attr_is_set_if_statsd_url_is_set(self):
+        self.config.add_settings({"statsd_url": "udp://host:8080"})
+
+        initialization.setup_metrics(self.config)
+
+        self.assertIsNotNone(self.config.registry.statsd)
+        self.assertIsNotNone(self.config.registry.metrics)
+
+    def test_statsd_attr_is_exposed_in_the_registry_if_url_is_set(self):
+        self.config.add_settings({"statsd_url": "udp://host:8080"})
+
+        initialization.setup_metrics(self.config)
+
+        with mock.patch("warnings.warn") as mocked_warnings:
+            self.config.registry.statsd.count("key")
+            mocked_warnings.assert_called_with(
+                "``config.registry.statsd`` is now deprecated. Use ``config.registry.metrics`` instead.",
+                DeprecationWarning,
+            )
 
 
 class RequestsConfigurationTest(unittest.TestCase):
