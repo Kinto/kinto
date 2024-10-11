@@ -91,11 +91,22 @@ class PrometheusService:
     def count(self, key, count=1, unique=None):
         global _METRICS
 
+        # Turn `unique` into a group and a value:
+        # eg. `method.basicauth.mat` -> `method_basicauth="mat"`
+        label_value = None
+        if unique:
+            if "." not in unique:
+                unique = f"group.{unique}"
+            label_name, label_value = unique.rsplit(".", 1)
+            label_names = (_fix_metric_name(label_name),)
+        else:
+            label_names = tuple()
+
         if key not in _METRICS:
             _METRICS[key] = prometheus_module.Counter(
                 _fix_metric_name(key),
                 f"Counter of {key}",
-                labelnames=(_fix_metric_name(unique),) if unique else (),
+                labelnames=label_names,
                 registry=get_registry(),
             )
 
@@ -105,8 +116,8 @@ class PrometheusService:
             )
 
         m = _METRICS[key]
-        if unique is not None:
-            m = m.labels(_fix_metric_name(unique))
+        if label_value is not None:
+            m = m.labels(label_value)
 
         m.inc(count)
 
