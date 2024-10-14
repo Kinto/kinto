@@ -493,7 +493,7 @@ Or the equivalent environment variables:
 .. _monitoring-with-prometheus:
 
 Monitoring with Prometheus
-::::::::::::::::::::::
+::::::::::::::::::::::::::
 
 Requires the ``prometheus-client`` package (installed with ``kinto[monitoring]``).
 
