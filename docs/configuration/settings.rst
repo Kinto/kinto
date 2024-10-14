@@ -413,12 +413,32 @@ Or the equivalent environment variables:
     The application sends an event on startup (mainly for setup check).
 
 
+.. _monitoring-with-prometheus:
+
+Monitoring with Prometheus
+::::::::::::::::::::::
+
+Requires the ``prometheus-client`` package (installed with ``kinto[monitoring]``).
+
+Prometheus metrics can be enabled with (disabled by default):
+
+.. code-block:: ini
+
+    kinto.includes = kinto.plugins.prometheus
+
+Metrics can then be crawled from the ``/__metrics__`` endpoint.
+
+
 .. _monitoring-with-statsd:
 
 Monitoring with StatsD
 ::::::::::::::::::::::
 
 Requires the ``statsd`` package.
+
+.. note::
+
+    Only one of *Prometheus* and *StatsD* can be enabled. It will take precedence and the other one will be ignored.
 
 +------------------------+----------------------------------------+--------------------------------------------------------------------------+
 | Setting name           | Default                                | What does it do?                                                         |
@@ -516,6 +536,9 @@ list of Python modules:
 +---------------------------------------+--------------------------------------------------------------------------+
 | ``kinto.plugins.quotas``              | It allows to limit storage per collection size, number of records, etc.  |
 |                                       | (:ref:`more details <api-quotas>`).                                      |
++---------------------------------------+--------------------------------------------------------------------------+
+| ``kinto.plugins.prometheus``          | Send metrics about backend duration, authentication, endpoints hits, ..  |
+|                                       | (:ref:`more details <monitoring-with-prometheus>`).                      |
 +---------------------------------------+--------------------------------------------------------------------------+
 | ``kinto.plugins.statsd``              | Send metrics about backend duration, authentication, endpoints hits, ..  |
 |                                       | (:ref:`more details <monitoring-with-statsd>`).                          |

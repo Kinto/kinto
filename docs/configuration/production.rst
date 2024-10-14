@@ -220,19 +220,14 @@ In the configuration of the CDN service, you should also:
 Monitoring
 ----------
 
-In order to enable monitoring features like *statsd*, install
+In order to enable monitoring features (eg. *Prometheus* or *StatsD*), install
 extra requirements:
 
 ::
 
     make install-monitoring
 
-And configure its URL:
-
-.. code-block :: ini
-
-    # StatsD
-    kinto.statsd_url = udp://carbon.server:8125
+See :ref:`settings section <monitoring-with-prometheus>` for the configuration aspects.
 
 Counters
 ::::::::
