@@ -34,6 +34,7 @@ class PrometheusWebTest(support.BaseWebTest, unittest.TestCase):
         return settings
 
 
+@skip_if_no_prometheus
 class ViewsTest(PrometheusWebTest):
     def test_prometheus_capability_if_enabled(self):
         resp = self.app.get("/")
