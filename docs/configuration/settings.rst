@@ -301,6 +301,83 @@ hello view <api-utilities>`.
    # kinto.http_host = production.server.com:7777
 
 
+.. _configuration-plugins:
+
+Plugins
+=======
+
+It is possible to extend the default Kinto behaviors by using "plugins".
+
+The list of plugins to load at startup can be specified in the settings, as a
+list of Python modules:
+
+.. code-block:: ini
+
+    kinto.includes = kinto.plugins.default_bucket
+                     kinto.plugins.history
+                     kinto.plugins.admin
+                     kinto-attachment
+                     custom-myplugin
+
++---------------------------------------+--------------------------------------------------------------------------+
+| Built-in plugins                      | What does it do?                                                         |
++=======================================+==========================================================================+
+| ``kinto.plugins.accounts``            | It allows users to sign-up and authenticate using username and password  |
+|                                       | (:ref:`more details <api-accounts>`).                                    |
++---------------------------------------+--------------------------------------------------------------------------+
+| ``kinto.plugins.admin``               | It is a Web admin UI to manage data from a Kinto server.                 |
+|                                       | (:ref:`more details <kinto-admin>`).                                     |
++---------------------------------------+--------------------------------------------------------------------------+
+| ``kinto.plugins.default_bucket``      | It enables a personal bucket ``default``, where collections are created  |
+|                                       | implicitly (:ref:`more details <buckets-default-id>`).                   |
++---------------------------------------+--------------------------------------------------------------------------+
+| ``kinto.plugins.flush``               | Adds an endpoint to completely remove all data from the database backend |
+|                                       | for testing/staging purposes. (:ref:`more details <api-flush>`).         |
++---------------------------------------+--------------------------------------------------------------------------+
+| ``kinto.plugins.history``             | It tracks every action performed on objects within a bucket              |
+|                                       | (:ref:`more details <api-history>`).                                     |
++---------------------------------------+--------------------------------------------------------------------------+
+| ``kinto.plugins.openid``              | It allows to authenticate users using OpenID Connect from Google,        |
+|                                       | Microsoft, Auth0, etc. (:ref:`more details <api-openid>`).               |
++---------------------------------------+--------------------------------------------------------------------------+
+| ``kinto.plugins.quotas``              | It allows to limit storage per collection size, number of records, etc.  |
+|                                       | (:ref:`more details <api-quotas>`).                                      |
++---------------------------------------+--------------------------------------------------------------------------+
+| ``kinto.plugins.prometheus``          | Send metrics about backend duration, authentication, endpoints hits, ..  |
+|                                       | (:ref:`more details <monitoring-with-prometheus>`).                      |
++---------------------------------------+--------------------------------------------------------------------------+
+| ``kinto.plugins.statsd``              | Send metrics about backend duration, authentication, endpoints hits, ..  |
+|                                       | (:ref:`more details <monitoring-with-statsd>`).                          |
++---------------------------------------+--------------------------------------------------------------------------+
+
+
+There are `many available packages`_ in Pyramid ecosystem, and it is straightforward to build one,
+since the specified module must just define an ``includeme(config)`` function.
+
+.. _many available packages: https://github.com/ITCase/awesome-pyramid
+
+See `our list of community plugins <https://github.com/Kinto/kinto/wiki/Plugins>`_.
+
+See also: :ref:`tutorial-write-plugin` for more in-depth informations on how
+to create your own plugin.
+
+
+Pluggable components
+::::::::::::::::::::
+
+:term:`Pluggable <pluggable>` components can be substituted from configuration files,
+as long as the replacement follows the original component API.
+
+.. code-block:: ini
+
+    kinto.logging_renderer = your_log_renderer.CustomRenderer
+
+This is the simplest way to extend *Kinto*, but will be limited to its
+existing components (cache, storage, log renderer, ...).
+
+In order to add extra features, including external packages is the way to go!
+
+
 Logging and Monitoring
 ======================
 
@@ -493,83 +570,6 @@ New Relic can be enabled (disabled by default):
 
     kinto.newrelic_config = /location/of/newrelic.ini
     kinto.newrelic_env = prod
-
-
-.. _configuration-plugins:
-
-Plugins
-=======
-
-It is possible to extend the default Kinto behaviors by using "plugins".
-
-The list of plugins to load at startup can be specified in the settings, as a
-list of Python modules:
-
-.. code-block:: ini
-
-    kinto.includes = kinto.plugins.default_bucket
-                     kinto.plugins.history
-                     kinto.plugins.admin
-                     kinto-attachment
-                     custom-myplugin
-
-+---------------------------------------+--------------------------------------------------------------------------+
-| Built-in plugins                      | What does it do?                                                         |
-+=======================================+==========================================================================+
-| ``kinto.plugins.accounts``            | It allows users to sign-up and authenticate using username and password  |
-|                                       | (:ref:`more details <api-accounts>`).                                    |
-+---------------------------------------+--------------------------------------------------------------------------+
-| ``kinto.plugins.admin``               | It is a Web admin UI to manage data from a Kinto server.                 |
-|                                       | (:ref:`more details <kinto-admin>`).                                     |
-+---------------------------------------+--------------------------------------------------------------------------+
-| ``kinto.plugins.default_bucket``      | It enables a personal bucket ``default``, where collections are created  |
-|                                       | implicitly (:ref:`more details <buckets-default-id>`).                   |
-+---------------------------------------+--------------------------------------------------------------------------+
-| ``kinto.plugins.flush``               | Adds an endpoint to completely remove all data from the database backend |
-|                                       | for testing/staging purposes. (:ref:`more details <api-flush>`).         |
-+---------------------------------------+--------------------------------------------------------------------------+
-| ``kinto.plugins.history``             | It tracks every action performed on objects within a bucket              |
-|                                       | (:ref:`more details <api-history>`).                                     |
-+---------------------------------------+--------------------------------------------------------------------------+
-| ``kinto.plugins.openid``              | It allows to authenticate users using OpenID Connect from Google,        |
-|                                       | Microsoft, Auth0, etc. (:ref:`more details <api-openid>`).               |
-+---------------------------------------+--------------------------------------------------------------------------+
-| ``kinto.plugins.quotas``              | It allows to limit storage per collection size, number of records, etc.  |
-|                                       | (:ref:`more details <api-quotas>`).                                      |
-+---------------------------------------+--------------------------------------------------------------------------+
-| ``kinto.plugins.prometheus``          | Send metrics about backend duration, authentication, endpoints hits, ..  |
-|                                       | (:ref:`more details <monitoring-with-prometheus>`).                      |
-+---------------------------------------+--------------------------------------------------------------------------+
-| ``kinto.plugins.statsd``              | Send metrics about backend duration, authentication, endpoints hits, ..  |
-|                                       | (:ref:`more details <monitoring-with-statsd>`).                          |
-+---------------------------------------+--------------------------------------------------------------------------+
-
-
-There are `many available packages`_ in Pyramid ecosystem, and it is straightforward to build one,
-since the specified module must just define an ``includeme(config)`` function.
-
-.. _many available packages: https://github.com/ITCase/awesome-pyramid
-
-See `our list of community plugins <https://github.com/Kinto/kinto/wiki/Plugins>`_.
-
-See also: :ref:`tutorial-write-plugin` for more in-depth informations on how
-to create your own plugin.
-
-
-Pluggable components
-::::::::::::::::::::
-
-:term:`Pluggable <pluggable>` components can be substituted from configuration files,
-as long as the replacement follows the original component API.
-
-.. code-block:: ini
-
-    kinto.logging_renderer = your_log_renderer.CustomRenderer
-
-This is the simplest way to extend *Kinto*, but will be limited to its
-existing components (cache, storage, log renderer, ...).
-
-In order to add extra features, including external packages is the way to go!
 
 
 .. _configuration-authentication:
