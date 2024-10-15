@@ -351,7 +351,7 @@ list of Python modules:
 +---------------------------------------+--------------------------------------------------------------------------+
 
 
-There are `many available packages`_ in Pyramid ecosystem, and it is straightforward to build one,
+There are `many available packages`_ in the Pyramid ecosystem, and it is straightforward to build one,
 since the specified module must just define an ``includeme(config)`` function.
 
 .. _many available packages: https://github.com/ITCase/awesome-pyramid
