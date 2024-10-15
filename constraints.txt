@@ -83,7 +83,7 @@ markupsafe==2.1.4
     # via werkzeug
 msgpack==1.0.7
     # via bravado-core
-newrelic==10.0.0
+newrelic==10.1.0
     # via -r constraints.in
 packaging==23.2
     # via
