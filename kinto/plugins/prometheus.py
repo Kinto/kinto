@@ -147,9 +147,4 @@ def includeme(config):
     config.add_route("prometheus_metrics", "/__metrics__")
     config.add_view(metrics_view, route_name="prometheus_metrics")
 
-    # TODO app info
-    # from prometheus_client import Info
-    # i = Info('my_build_version', 'Description of info')
-    # i.info({'version': '1.2.3', 'buildhost': 'foo@bar'})
-
     config.registry.registerUtility(PrometheusService(), metrics.IMetricsService)
