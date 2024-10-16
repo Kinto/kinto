@@ -25,6 +25,7 @@ psycopg2
 zope.sqlalchemy
 # monitoring
 newrelic
+prometheus-client
 sentry-sdk[sqlalchemy]
 statsd
 werkzeug

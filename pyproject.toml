@@ -81,6 +81,7 @@ monitoring = [
     "sentry-sdk[sqlalchemy]",
     "statsd",
     "werkzeug",
+    "prometheus-client",
 ]
 test = [
     "bravado",

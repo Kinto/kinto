@@ -13,7 +13,7 @@ from kinto.core.events import (
     notify_resource_event,
 )
 from kinto.core.storage.exceptions import BackendError
-from kinto.core.testing import skip_if_no_statsd, unittest
+from kinto.core.testing import skip_if_no_prometheus, skip_if_no_statsd, unittest
 from kinto.plugins import statsd
 
 from ..support import BaseWebTest
@@ -506,9 +506,26 @@ class StatsDTest(BaseWebTest, unittest.TestCase):
         return settings
 
     def test_statds_tracks_listeners_execution_duration(self):
-        # This test may break when introducing a generic interface for Prometheus.
         metrics_client = self.app.app.registry.metrics._client
         with mock.patch.object(metrics_client, "timing") as mocked:
             self.app.post_json(self.plural_url, {"data": {"name": "pouet"}}, headers=self.headers)
             timers = set(c[0][0] for c in mocked.call_args_list)
             self.assertIn("listeners.test", timers)
+
+
+@skip_if_no_prometheus
+class PrometheusTest(BaseWebTest, unittest.TestCase):
+    @classmethod
+    def get_app_settings(cls, *args, **kwargs):
+        settings = super().get_app_settings(*args, **kwargs)
+        settings["includes"] = "kinto.plugins.prometheus"
+        settings["event_listeners"] = "test"
+        this_module = "tests.core.resource.test_events"
+        settings["event_listeners.test.use"] = this_module
+        return settings
+
+    def test_prometheus_tracks_listeners_execution_duration(self):
+        self.app.post_json(self.plural_url, {"data": {"name": "pouet"}}, headers=self.headers)
+
+        resp = self.app.get("/__metrics__")
+        self.assertIn("listeners_test_count 1.0", resp.text)
