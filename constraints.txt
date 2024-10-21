@@ -44,8 +44,10 @@ execnet==2.0.2
     # via pytest-cache
 fqdn==1.5.1
     # via jsonschema
-greenlet==3.0.3
-    # via playwright
+greenlet==3.1.1
+    # via
+    #   playwright
+    #   sqlalchemy
 hupper==1.12
     # via pyramid
 idna==3.7
@@ -79,7 +81,7 @@ markupsafe==2.1.4
     # via werkzeug
 msgpack==1.0.7
     # via bravado-core
-newrelic==10.1.0
+newrelic==10.2.0
     # via -r constraints.in
 packaging==23.2
     # via
@@ -94,13 +96,13 @@ plaster==1.1.2
     #   pyramid
 plaster-pastedeploy==1.0.1
     # via pyramid
-playwright==1.47.0
+playwright==1.48.0
     # via -r constraints.in
 pluggy==1.5.0
     # via pytest
 prometheus-client==0.21.0
     # via -r constraints.in
-psycopg2==2.9.9
+psycopg2==2.9.10
     # via -r constraints.in
 pyee==12.0.0
     # via playwright
@@ -161,7 +163,7 @@ rpds-py==0.17.1
     # via
     #   jsonschema
     #   referencing
-ruff==0.6.9
+ruff==0.7.0
     # via -r constraints.in
 sentry-sdk==2.8.0
     # via -r constraints.in
