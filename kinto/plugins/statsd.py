@@ -23,8 +23,13 @@ class StatsDService:
     def count(self, key, count=1, unique=None):
         if unique is None:
             return self._client.incr(key, count=count)
+        if isinstance(unique, list):
+            # [("method", "get")] -> "method.get"
+            # [("endpoint", "/"), ("method", "get")] -> "endpoint./.method.get"
+            unique = ".".join(f"{label[0]}.{label[1]}" for label in unique)
         else:
-            return self._client.set(key, unique)
+            warnings.warn("`unique` parameter should be of type ``list[tuple[str, str]]``", DeprecationWarning)
+        return self._client.set(key, unique)
 
 
 def load_from_config(config):
