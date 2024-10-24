@@ -1,6 +1,6 @@
 import functools
-from time import perf_counter as time_now
 import warnings
+from time import perf_counter as time_now
 
 from pyramid.exceptions import ConfigurationError
 from pyramid.response import Response
@@ -96,7 +96,10 @@ class PrometheusService:
 
         if unique:
             if isinstance(unique, str):
-                warnings.warn("`unique` parameter should be of type ``list[tuple[str, str]]``", DeprecationWarning)
+                warnings.warn(
+                    "`unique` parameter should be of type ``list[tuple[str, str]]``",
+                    DeprecationWarning,
+                )
                 # Turn `unique` into a group and a value:
                 # "bob" -> "group.bob"
                 # "method.basicauth.mat" -> [("method_basicauth", "mat")]`

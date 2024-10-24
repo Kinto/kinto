@@ -1,3 +1,4 @@
+import warnings
 from urllib.parse import urlparse
 
 from pyramid.exceptions import ConfigurationError
@@ -28,7 +29,10 @@ class StatsDService:
             # [("endpoint", "/"), ("method", "get")] -> "endpoint./.method.get"
             unique = ".".join(f"{label[0]}.{label[1]}" for label in unique)
         else:
-            warnings.warn("`unique` parameter should be of type ``list[tuple[str, str]]``", DeprecationWarning)
+            warnings.warn(
+                "`unique` parameter should be of type ``list[tuple[str, str]]``",
+                DeprecationWarning,
+            )
         return self._client.set(key, unique)
 
 
