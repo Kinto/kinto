@@ -431,6 +431,9 @@ def setup_logging(config):
 def setup_metrics(config):
     settings = config.get_settings()
 
+    # Register a no-op metrics service by default.
+    config.registry.registerUtility(metrics.NoOpMetricsService(), metrics.IMetricsService)
+
     # This does not fully respect the Pyramid/ZCA patterns, but the rest of Kinto uses
     # `registry.storage`, `registry.cache`, etc. Consistency seems more important.
     config.registry.__class__.metrics = property(
@@ -449,9 +452,6 @@ def setup_metrics(config):
     def on_app_created(event):
         config = event.app
         metrics_service = config.registry.metrics
-        if not metrics_service:
-            logger.warning("No metrics service registered.")
-            return
 
         metrics.watch_execution_time(metrics_service, config.registry.cache, prefix="backend")
         metrics.watch_execution_time(metrics_service, config.registry.storage, prefix="backend")
@@ -471,8 +471,6 @@ def setup_metrics(config):
     def on_new_response(event):
         request = event.request
         metrics_service = config.registry.metrics
-        if not metrics_service:
-            return
 
         # Count unique users.
         user_id = request.prefixed_userid

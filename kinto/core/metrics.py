@@ -1,6 +1,6 @@
 import types
 
-from zope.interface import Interface
+from zope.interface import Interface, implementer
 
 from kinto.core import utils
 
@@ -21,6 +21,30 @@ class IMetricsService(Interface):
         Count occurrences. If `unique` is set, overwrites the counter value
         on each call.
         """
+
+
+class NoOpTimer:
+    def __call__(self, f):
+        @utils.safe_wraps(f)
+        def _wrapped(*args, **kwargs):
+            return f(*args, **kwargs)
+
+        return _wrapped
+
+    def __enter__(self):
+        pass
+
+    def __exit__(self, *args, **kwargs):
+        pass
+
+
+@implementer(IMetricsService)
+class NoOpMetricsService:
+    def timer(self, key):
+        return NoOpTimer()
+
+    def count(self, key, count=1, unique=None):
+        pass
 
 
 def watch_execution_time(metrics_service, obj, prefix="", classname=None):
@@ -49,6 +73,8 @@ def listener_with_timer(config, key, func):
     def wrapped(*args, **kwargs):
         metrics_service = config.registry.metrics
         if not metrics_service:
+            # This only happens if `kinto.core.initialization.setup_metrics` is
+            # not listed in the `initialization_sequence` setting.
             return func(*args, **kwargs)
         # If metrics are enabled, monitor execution time of listeners.
         with metrics_service.timer(key):
