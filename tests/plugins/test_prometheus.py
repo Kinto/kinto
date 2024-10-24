@@ -114,10 +114,10 @@ class ServiceTest(PrometheusWebTest):
         self.assertIn('http_home_status_total{code_get="200"} 1.0', resp.text)
 
     def test_count_with_legacy_string_generic_group(self):
-        self.app.app.registry.metrics.count("mushrooms", unique="boletus")
+        self.app.app.registry.metrics.count("champignons", unique="boletus")
 
         resp = self.app.get("/__metrics__")
-        self.assertIn('mushrooms_total{group="boletus"} 1.0', resp.text)
+        self.assertIn('champignons_total{group="boletus"} 1.0', resp.text)
 
     def test_count_with_legacy_string_basic_group(self):
         self.app.app.registry.metrics.count("mushrooms", unique="species.boletus")
