@@ -1,4 +1,5 @@
 import collections.abc as collections_abc
+import functools
 import hashlib
 import hmac
 import os
@@ -541,3 +542,10 @@ def apply_json_patch(obj, ops):
         raise ValueError(e)
 
     return result
+
+
+def safe_wraps(wrapper, *args, **kwargs):
+    """Safely wraps partial functions."""
+    while isinstance(wrapper, functools.partial):
+        wrapper = wrapper.func
+    return functools.wraps(wrapper, *args, **kwargs)
