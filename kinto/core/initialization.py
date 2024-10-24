@@ -479,6 +479,16 @@ def setup_metrics(config):
             auth, user_id = user_id.split(":")
             metrics_service.count("users", unique=[("auth", auth), ("userid", user_id)])
 
+        # Count served requests.
+        metrics_service.count(
+            "request_summary",
+            unique=[
+                ("method", request.method.lower()),
+                ("endpoint", utils.strip_uri_prefix(request.path)),
+                ("status", str(request.response.status_code)),
+            ],
+        )
+
         # Count authentication verifications.
         if hasattr(request, "authn_type"):
             metrics_service.count(f"authn_type.{request.authn_type}")
