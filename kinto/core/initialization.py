@@ -478,8 +478,18 @@ def setup_metrics(config):
         user_id = request.prefixed_userid
         if user_id:
             # Get rid of colons in metric packet (see #1282).
-            user_id = user_id.replace(":", ".")
-            metrics_service.count("users", unique=user_id)
+            auth, user_id = user_id.split(":")
+            metrics_service.count("users", unique=[("auth", auth), ("userid", user_id)])
+
+        # Count served requests.
+        metrics_service.count(
+            "request_summary",
+            [
+                ("method", request.method.lower()),
+                ("endpoint", utils.strip_uri_prefix(request.path)),
+                ("status", str(request.response.status_code)),
+            ],
+        )
 
         # Count authentication verifications.
         if hasattr(request, "authn_type"):
