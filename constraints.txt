@@ -226,7 +226,7 @@ webob==1.8.8
     #   webtest
 webtest==3.0.0
     # via -r constraints.in
-werkzeug==3.0.4
+werkzeug==3.0.6
     # via -r constraints.in
 zope-deprecation==5.0
     # via pyramid
