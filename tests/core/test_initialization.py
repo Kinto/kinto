@@ -421,13 +421,12 @@ class MetricsConfigurationTest(unittest.TestCase):
         app.get("/v0/coucou", status=404)
         self.assertFalse(self.mocked.count.called)
 
-    def test_metrics_and_statsd_are_none_if_statsd_url_not_set(self):
+    def test_statsd_is_noop_service_if_statsd_url_not_set(self):
         self.config.add_settings({"statsd_url": None})
 
         initialization.setup_metrics(self.config)
 
-        self.assertIsNone(self.config.registry.statsd)
-        self.assertIsNone(self.config.registry.metrics)
+        self.assertEqual(self.config.registry.statsd.__class__.__name__, "NoOpMetricsService")
 
     def test_metrics_attr_is_set_if_statsd_url_is_set(self):
         self.config.add_settings({"statsd_url": "udp://host:8080"})
