@@ -613,19 +613,18 @@ class StorageErrorTest(BaseWebTest, unittest.TestCase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.error = storage_exceptions.BackendError(ValueError())
-        self.storage_error_patcher = mock.patch(
-            "kinto.core.storage.memory.Storage.create", side_effect=self.error
-        )
 
     def test_backend_errors_are_served_as_503(self):
         body = {"data": MINIMALIST_OBJECT}
-        with self.storage_error_patcher:
+        with mock.patch.object(self.app.app.registry.storage, "create", side_effect=self.error):
             self.app.post_json(self.plural_url, body, headers=self.headers, status=503)
 
     def test_backend_errors_original_error_is_logged(self):
         body = {"data": MINIMALIST_OBJECT}
         with mock.patch("kinto.core.views.errors.logger.critical") as mocked:
-            with self.storage_error_patcher:
+            with mock.patch.object(
+                self.app.app.registry.storage, "create", side_effect=self.error
+            ):
                 self.app.post_json(self.plural_url, body, headers=self.headers, status=503)
                 self.assertTrue(mocked.called)
                 self.assertEqual(type(mocked.call_args[0][0]), ValueError)
