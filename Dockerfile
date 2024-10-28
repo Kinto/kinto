@@ -1,5 +1,5 @@
 # Mozilla Kinto server
-FROM python:3.10-bullseye as python-builder
+FROM python:3.10-bullseye AS python-builder
 RUN python -m venv /opt/venv
 ARG KINTO_VERSION=1
 ENV SETUPTOOLS_SCM_PRETEND_VERSION_FOR_KINTO=${KINTO_VERSION} \
@@ -36,4 +36,4 @@ WORKDIR /app
 USER app
 
 # Run database migrations and start the kinto server
-CMD kinto migrate --ini $KINTO_INI && kinto start --ini $KINTO_INI --port $PORT
+CMD ["sh", "-c", "kinto migrate --ini $KINTO_INI && kinto start --ini $KINTO_INI --port $PORT"]
