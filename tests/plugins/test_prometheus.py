@@ -78,6 +78,18 @@ class ServiceTest(PrometheusWebTest):
         resp = self.app.get("/__metrics__")
         self.assertIn("TYPE func_latency_partial summary", resp.text)
 
+    def test_observe_a_single_value(self):
+        self.app.app.registry.metrics.observe("price", 111)
+
+        resp = self.app.get("/__metrics__")
+        self.assertIn("price_sum 111", resp.text)
+
+    def test_observe_a_single_value_with_labels(self):
+        self.app.app.registry.metrics.observe("size", 3.14, labels=[("endpoint", "/buckets")])
+
+        resp = self.app.get("/__metrics__")
+        self.assertIn('size_sum{endpoint="/buckets"} 3.14', resp.text)
+
     def test_count_by_key(self):
         self.app.app.registry.metrics.count("key")
 
@@ -106,6 +118,10 @@ class ServiceTest(PrometheusWebTest):
         self.app.app.registry.metrics.timer("timer")
         with self.assertRaises(RuntimeError):
             self.app.app.registry.metrics.count("timer")
+
+        self.app.app.registry.metrics.count("observer")
+        with self.assertRaises(RuntimeError):
+            self.app.app.registry.metrics.observe("observer", 42)
 
     def test_metrics_names_and_labels_are_transformed(self):
         self.app.app.registry.metrics.count("http.home.status", unique=[("code.get", "200")])

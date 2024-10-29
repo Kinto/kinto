@@ -82,6 +82,28 @@ class PrometheusService:
 
         return Timer(_METRICS[key])
 
+    def observe(self, key, value, labels=[]):
+        global _METRICS
+
+        if key not in _METRICS:
+            _METRICS[key] = prometheus_module.Summary(
+                _fix_metric_name(key),
+                f"Summary of {key}",
+                labelnames=[label_name for label_name, _ in labels],
+                registry=get_registry(),
+            )
+
+        if not isinstance(_METRICS[key], prometheus_module.Summary):
+            raise RuntimeError(
+                f"Metric {key} already exists with different type ({_METRICS[key]})"
+            )
+
+        m = _METRICS[key]
+        if labels:
+            m = m.labels(*(label_value for _, label_value in labels))
+
+        m.observe(value)
+
     def count(self, key, count=1, unique=None):
         global _METRICS
 

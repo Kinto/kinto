@@ -420,6 +420,16 @@ class MetricsConfigurationTest(unittest.TestCase):
             unique=[("method", "get"), ("endpoint", "/__heartbeat__"), ("status", "200")],
         )
 
+    def test_statsd_observe_request_size(self):
+        kinto.core.initialize(self.config, "0.0.1", "settings_prefix")
+        app = webtest.TestApp(self.config.make_wsgi_app())
+        app.get("/v0/__heartbeat__")
+        self.mocked().observe.assert_any_call(
+            "request_size",
+            len("{}"),
+            labels=[("endpoint", "/__heartbeat__")],
+        )
+
     def test_statsd_counts_views_and_methods(self):
         kinto.core.initialize(self.config, "0.0.1", "settings_prefix")
         app = webtest.TestApp(self.config.make_wsgi_app())

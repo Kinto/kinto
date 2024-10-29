@@ -489,6 +489,13 @@ def setup_metrics(config):
             ],
         )
 
+        # Observe response size.
+        metrics_service.observe(
+            "request_size",
+            len(request.response.body or b""),
+            labels=[("endpoint", utils.strip_uri_prefix(request.path))],
+        )
+
         # Count authentication verifications.
         if hasattr(request, "authn_type"):
             metrics_service.count(f"authn_type.{request.authn_type}")

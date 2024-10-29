@@ -21,6 +21,9 @@ class StatsDService:
     def timer(self, key):
         return self._client.timer(key)
 
+    def observe(self, key, value, labels=[]):
+        return self._client.gauge(key, value)
+
     def count(self, key, count=1, unique=None):
         if unique is None:
             return self._client.incr(key, count=count)

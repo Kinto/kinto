@@ -16,6 +16,11 @@ class IMetricsService(Interface):
         Watch execution time.
         """
 
+    def observe(self, key, value, labels=[]):
+        """
+        Observe a give `value` for the specified `key`.
+        """
+
     def count(key, count=1, unique=None):
         """
         Count occurrences. If `unique` is set, overwrites the counter value
