@@ -489,6 +489,18 @@ def setup_metrics(config):
             ],
         )
 
+        try:
+            current = utils.msec_time()
+            duration = current - request._received_at
+            metrics_service.observe(
+                "request_duration",
+                duration,
+                labels=[("endpoint", utils.strip_uri_prefix(request.path))],
+            )
+        except AttributeError:  # pragma: no cover
+            # Logging was not setup in this Kinto app (unlikely but possible)
+            pass
+
         # Observe response size.
         metrics_service.observe(
             "request_size",
