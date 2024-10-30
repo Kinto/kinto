@@ -172,4 +172,15 @@ def includeme(config):
     config.add_route("prometheus_metrics", "/__metrics__")
     config.add_view(metrics_view, route_name="prometheus_metrics")
 
+    # Reinitialize the registry on initialization.
+    # This is mainly useful in tests, where we plugins is included
+    # several times with different settings.
+    registry = get_registry()
+    for collector in _METRICS.values():
+        try:
+            registry.unregister(collector)
+        except KeyError:  # pragma: no cover
+            pass
+    _METRICS.clear()
+
     config.registry.registerUtility(PrometheusService(), metrics.IMetricsService)
