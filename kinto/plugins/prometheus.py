@@ -1,4 +1,3 @@
-import functools
 import warnings
 from time import perf_counter as time_now
 
@@ -7,6 +6,7 @@ from pyramid.response import Response
 from zope.interface import implementer
 
 from kinto.core import metrics
+from kinto.core.utils import safe_wraps
 
 
 try:
@@ -29,13 +29,6 @@ def get_registry():
 
 def _fix_metric_name(s):
     return s.replace("-", "_").replace(".", "_")
-
-
-def safe_wraps(wrapper, *args, **kwargs):
-    """Safely wraps partial functions."""
-    while isinstance(wrapper, functools.partial):
-        wrapper = wrapper.func
-    return functools.wraps(wrapper, *args, **kwargs)
 
 
 class Timer:

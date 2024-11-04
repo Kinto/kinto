@@ -269,7 +269,14 @@ class SentryTest(unittest.TestCase):
 
     @unittest.skipIf(initialization.sentry_sdk is None, "sentry is not installed.")
     def test_message_is_sent_on_startup(self):
-        config = Configurator(settings={**kinto.core.DEFAULT_SETTINGS})
+        config = Configurator(
+            settings={
+                **kinto.core.DEFAULT_SETTINGS,
+                "storage_backend": "kinto.core.storage.memory",
+                "cache_backend": "kinto.core.cache.memory",
+                "permission_backend": "kinto.core.permission.memory",
+            }
+        )
         config.add_settings(
             {
                 "sentry_dsn": "https://notempty",
@@ -416,13 +423,12 @@ class MetricsConfigurationTest(unittest.TestCase):
         app.get("/v0/coucou", status=404)
         self.assertFalse(self.mocked.count.called)
 
-    def test_metrics_and_statsd_are_none_if_statsd_url_not_set(self):
+    def test_statsd_is_noop_service_if_statsd_url_not_set(self):
         self.config.add_settings({"statsd_url": None})
 
         initialization.setup_metrics(self.config)
 
-        self.assertIsNone(self.config.registry.statsd)
-        self.assertIsNone(self.config.registry.metrics)
+        self.assertEqual(self.config.registry.statsd.__class__.__name__, "NoOpMetricsService")
 
     def test_metrics_attr_is_set_if_statsd_url_is_set(self):
         self.config.add_settings({"statsd_url": "udp://host:8080"})
@@ -446,18 +452,19 @@ class MetricsConfigurationTest(unittest.TestCase):
 
 
 class RequestsConfigurationTest(unittest.TestCase):
+    app_settings = {
+        "storage_backend": "kinto.core.storage.memory",
+        "cache_backend": "kinto.core.cache.memory",
+        "permission_backend": "kinto.core.permission.memory",
+    }
+
     def _get_app(self, settings={}):
-        app_settings = {
-            "storage_backend": "kinto.core.storage.memory",
-            "cache_backend": "kinto.core.cache.memory",
-        }
-        app_settings.update(**settings)
-        config = Configurator(settings=app_settings)
+        config = Configurator(settings={**self.app_settings, **settings})
         kinto.core.initialize(config, "0.0.1", "name")
         return webtest.TestApp(config.make_wsgi_app())
 
     def test_requests_have_a_bound_data_attribute(self):
-        config = Configurator()
+        config = Configurator(settings={**self.app_settings})
         kinto.core.initialize(config, "0.0.1", "name")
 
         def on_new_request(event):
@@ -470,7 +477,7 @@ class RequestsConfigurationTest(unittest.TestCase):
         app.get("/v0/")
 
     def test_subrequests_share_parent_bound_data(self):
-        config = Configurator()
+        config = Configurator(settings={**self.app_settings})
         kinto.core.initialize(config, "0.0.1", "name")
 
         bound_datas = set()
@@ -534,6 +541,8 @@ class PluginsTest(unittest.TestCase):
         config = Configurator(settings={**kinto.core.DEFAULT_SETTINGS})
         config.add_settings(
             {
+                "storage_backend": "kinto.core.storage.memory",
+                "cache_backend": "kinto.core.cache.memory",
                 "permission_backend": "kinto.core.permission.memory",
                 "includes": "tests.core.testplugin",
                 "multiauth.policies": "basicauth",
