@@ -472,6 +472,13 @@ def setup_metrics(config):
         request = event.request
         metrics_service = config.registry.metrics
 
+        try:
+            endpoint = utils.strip_uri_prefix(request.path)
+        except UnicodeDecodeError as e:
+            # This `on_new_response` callback is also called when a HTTP 400
+            # is returned because of an invalid UTF-8 path. We still want metrics.
+            endpoint = str(e)
+
         # Count unique users.
         user_id = request.prefixed_userid
         if user_id:
@@ -499,7 +506,7 @@ def setup_metrics(config):
             "request_summary",
             unique=[
                 ("method", request.method.lower()),
-                ("endpoint", utils.strip_uri_prefix(request.path)),
+                ("endpoint", endpoint),
                 ("status", str(request.response.status_code)),
             ]
             + metrics_matchdict_labels,
@@ -511,8 +518,7 @@ def setup_metrics(config):
             metrics_service.observe(
                 "request_duration",
                 duration,
-                labels=[("endpoint", utils.strip_uri_prefix(request.path))]
-                + metrics_matchdict_labels,
+                labels=[("endpoint", endpoint)] + metrics_matchdict_labels,
             )
         except AttributeError:  # pragma: no cover
             # Logging was not setup in this Kinto app (unlikely but possible)
@@ -522,7 +528,7 @@ def setup_metrics(config):
         metrics_service.observe(
             "request_size",
             len(request.response.body or b""),
-            labels=[("endpoint", utils.strip_uri_prefix(request.path))] + metrics_matchdict_labels,
+            labels=[("endpoint", endpoint)] + metrics_matchdict_labels,
         )
 
         # Count authentication verifications.
