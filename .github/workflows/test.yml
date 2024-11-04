@@ -32,10 +32,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        pyenv: [py38, py39, py310, py311, py312, py312-raw]
+        pyenv: [py39, py310, py311, py312, py312-raw]
         include:
-          - pyenv: py38
-            python-version: "3.8"
           - pyenv: py39
             python-version: "3.9"
           - pyenv: py310

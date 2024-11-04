@@ -20,6 +20,8 @@ class IMetricsService(Interface):
         """
         Count occurrences. If `unique` is set, overwrites the counter value
         on each call.
+
+        `unique` should be of type ``list[tuple[str,str]]``.
         """
 
 

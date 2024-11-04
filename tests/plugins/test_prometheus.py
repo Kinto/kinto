@@ -91,18 +91,12 @@ class ServiceTest(PrometheusWebTest):
         self.assertIn("bigstep_total 2.0", resp.text)
 
     def test_count_by_key_grouped(self):
-        self.app.app.registry.metrics.count("http", unique="status.500")
-        self.app.app.registry.metrics.count("http", unique="status.200")
+        self.app.app.registry.metrics.count("http", unique=[("status", "500")])
+        self.app.app.registry.metrics.count("http", unique=[("status", "200")])
 
         resp = self.app.get("/__metrics__")
         self.assertIn('http_total{status="500"} 1.0', resp.text)
         self.assertIn('http_total{status="200"} 1.0', resp.text)
-
-    def test_count_with_generic_group(self):
-        self.app.app.registry.metrics.count("mushrooms", unique="boletus")
-
-        resp = self.app.get("/__metrics__")
-        self.assertIn('mushrooms_total{group="boletus"} 1.0', resp.text)
 
     def test_metrics_cant_be_mixed(self):
         self.app.app.registry.metrics.count("counter")
@@ -114,7 +108,19 @@ class ServiceTest(PrometheusWebTest):
             self.app.app.registry.metrics.count("timer")
 
     def test_metrics_names_and_labels_are_transformed(self):
-        self.app.app.registry.metrics.count("http.home.status", unique="code.get.200")
+        self.app.app.registry.metrics.count("http.home.status", unique=[("code.get", "200")])
 
         resp = self.app.get("/__metrics__")
         self.assertIn('http_home_status_total{code_get="200"} 1.0', resp.text)
+
+    def test_count_with_legacy_string_generic_group(self):
+        self.app.app.registry.metrics.count("champignons", unique="boletus")
+
+        resp = self.app.get("/__metrics__")
+        self.assertIn('champignons_total{group="boletus"} 1.0', resp.text)
+
+    def test_count_with_legacy_string_basic_group(self):
+        self.app.app.registry.metrics.count("mushrooms", unique="species.boletus")
+
+        resp = self.app.get("/__metrics__")
+        self.assertIn('mushrooms_total{species="boletus"} 1.0', resp.text)

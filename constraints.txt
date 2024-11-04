@@ -163,7 +163,7 @@ rpds-py==0.17.1
     # via
     #   jsonschema
     #   referencing
-ruff==0.7.0
+ruff==0.7.1
     # via -r constraints.in
 sentry-sdk==2.8.0
     # via -r constraints.in
@@ -177,7 +177,7 @@ six==1.16.0
     #   rfc3339-validator
 soupsieve==2.5
     # via beautifulsoup4
-sqlalchemy==2.0.35
+sqlalchemy==2.0.36
     # via
     #   -r constraints.in
     #   sentry-sdk
@@ -214,7 +214,7 @@ venusian==3.1.0
     # via
     #   cornice
     #   pyramid
-waitress==3.0.0
+waitress==3.0.1
     # via
     #   -r constraints.in
     #   webtest
@@ -226,7 +226,7 @@ webob==1.8.8
     #   webtest
 webtest==3.0.0
     # via -r constraints.in
-werkzeug==3.0.4
+werkzeug==3.0.6
     # via -r constraints.in
 zope-deprecation==5.0
     # via pyramid

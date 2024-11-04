@@ -391,7 +391,9 @@ class MetricsConfigurationTest(unittest.TestCase):
         kinto.core.initialize(self.config, "0.0.1", "settings_prefix")
         app = webtest.TestApp(self.config.make_wsgi_app())
         app.get("/v0/", headers=get_user_headers("bob"))
-        self.mocked().count.assert_any_call("users", unique="basicauth.mat")
+        self.mocked().count.assert_any_call(
+            "users", unique=[("auth", "basicauth"), ("userid", "mat")]
+        )
 
     def test_statsd_counts_authentication_types(self):
         kinto.core.initialize(self.config, "0.0.1", "settings_prefix")
