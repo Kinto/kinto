@@ -173,7 +173,7 @@ def includeme(config):
     config.add_view(metrics_view, route_name="prometheus_metrics")
 
     # Reinitialize the registry on initialization.
-    # This is mainly useful in tests, where we plugins is included
+    # This is mainly useful in tests, where the plugin is included
     # several times with different settings.
     registry = get_registry()
     for collector in _METRICS.values():
