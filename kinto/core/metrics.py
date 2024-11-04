@@ -50,6 +50,9 @@ class NoOpMetricsService:
     def timer(self, key):
         return NoOpTimer()
 
+    def observe(self, key, value, labels=[]):
+        pass
+
     def count(self, key, count=1, unique=None):
         pass
 
