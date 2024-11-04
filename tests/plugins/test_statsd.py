@@ -31,6 +31,11 @@ class StatsdClientTest(unittest.TestCase):
         self.mocked_client = patch.start()
         self.addCleanup(patch.stop)
 
+    def test_observe_a_single_value(self):
+        with mock.patch.object(self.client, "_client") as mocked_client:
+            self.client.observe("size", 3.14)
+            mocked_client.gauge.assert_called_with("size", 3.14)
+
     def test_count_increments_the_counter_for_key(self):
         with mock.patch.object(self.client, "_client") as mocked_client:
             self.client.count("click")

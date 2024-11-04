@@ -96,6 +96,7 @@ DEFAULT_SETTINGS = {
     "statsd_backend": "kinto.core.statsd",
     "statsd_prefix": "kinto.core",
     "statsd_url": None,
+    "metrics_matchdict_fields": [],
     "storage_backend": "",
     "storage_url": "",
     "storage_max_fetch_size": 10000,

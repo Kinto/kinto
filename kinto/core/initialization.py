@@ -472,12 +472,64 @@ def setup_metrics(config):
         request = event.request
         metrics_service = config.registry.metrics
 
+        try:
+            endpoint = utils.strip_uri_prefix(request.path)
+        except UnicodeDecodeError as e:
+            # This `on_new_response` callback is also called when a HTTP 400
+            # is returned because of an invalid UTF-8 path. We still want metrics.
+            endpoint = str(e)
+
         # Count unique users.
         user_id = request.prefixed_userid
         if user_id:
             # Get rid of colons in metric packet (see #1282).
             auth, user_id = user_id.split(":")
             metrics_service.count("users", unique=[("auth", auth), ("userid", user_id)])
+
+        # Add extra labels to metrics, based on fields extracted from the request matchdict.
+        metrics_matchdict_fields = aslist(settings["metrics_matchdict_fields"])
+        # Turn the `id` field of object endpoints into `{resource}_id` (eg. `mushroom_id`, `bucket_id`)
+        enhanced_matchdict = dict(request.matchdict or {})
+        try:
+            enhanced_matchdict[request.current_resource_name + "_id"] = enhanced_matchdict.get(
+                "id", ""
+            )
+        except AttributeError:
+            # Not on a resource.
+            pass
+        metrics_matchdict_labels = [
+            (field, enhanced_matchdict.get(field, "")) for field in metrics_matchdict_fields
+        ]
+
+        # Count served requests.
+        metrics_service.count(
+            "request_summary",
+            unique=[
+                ("method", request.method.lower()),
+                ("endpoint", endpoint),
+                ("status", str(request.response.status_code)),
+            ]
+            + metrics_matchdict_labels,
+        )
+
+        try:
+            current = utils.msec_time()
+            duration = current - request._received_at
+            metrics_service.observe(
+                "request_duration",
+                duration,
+                labels=[("endpoint", endpoint)] + metrics_matchdict_labels,
+            )
+        except AttributeError:  # pragma: no cover
+            # Logging was not setup in this Kinto app (unlikely but possible)
+            pass
+
+        # Observe response size.
+        metrics_service.observe(
+            "request_size",
+            len(request.response.body or b""),
+            labels=[("endpoint", endpoint)] + metrics_matchdict_labels,
+        )
 
         # Count authentication verifications.
         if hasattr(request, "authn_type"):

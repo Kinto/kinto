@@ -82,6 +82,28 @@ class PrometheusService:
 
         return Timer(_METRICS[key])
 
+    def observe(self, key, value, labels=[]):
+        global _METRICS
+
+        if key not in _METRICS:
+            _METRICS[key] = prometheus_module.Summary(
+                _fix_metric_name(key),
+                f"Summary of {key}",
+                labelnames=[label_name for label_name, _ in labels],
+                registry=get_registry(),
+            )
+
+        if not isinstance(_METRICS[key], prometheus_module.Summary):
+            raise RuntimeError(
+                f"Metric {key} already exists with different type ({_METRICS[key]})"
+            )
+
+        m = _METRICS[key]
+        if labels:
+            m = m.labels(*(label_value for _, label_value in labels))
+
+        m.observe(value)
+
     def count(self, key, count=1, unique=None):
         global _METRICS
 
@@ -149,5 +171,16 @@ def includeme(config):
 
     config.add_route("prometheus_metrics", "/__metrics__")
     config.add_view(metrics_view, route_name="prometheus_metrics")
+
+    # Reinitialize the registry on initialization.
+    # This is mainly useful in tests, where the plugin is included
+    # several times with different settings.
+    registry = get_registry()
+    for collector in _METRICS.values():
+        try:
+            registry.unregister(collector)
+        except KeyError:  # pragma: no cover
+            pass
+    _METRICS.clear()
 
     config.registry.registerUtility(PrometheusService(), metrics.IMetricsService)
