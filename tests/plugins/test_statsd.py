@@ -46,6 +46,16 @@ class StatsdClientTest(unittest.TestCase):
             self.client.count("click", unique="menu")
             mocked_client.set.assert_called_with("click", "menu")
 
+    def test_count_turns_tuples_into_set_key(self):
+        with mock.patch.object(self.client, "_client") as mocked_client:
+            self.client.count("click", unique=[("component", "menu")])
+            mocked_client.set.assert_called_with("click", "component.menu")
+
+    def test_count_turns_multiple_tuples_into_one_set_key(self):
+        with mock.patch.object(self.client, "_client") as mocked_client:
+            self.client.count("click", unique=[("component", "menu"), ("sound", "off")])
+            mocked_client.set.assert_called_with("click", "component.menu.sound.off")
+
     @mock.patch("kinto.plugins.statsd.statsd_module")
     def test_load_from_config(self, module_mock):
         config = testing.setUp()
