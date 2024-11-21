@@ -44,9 +44,16 @@ class CORSOriginHeadersTest(BaseWebTest, unittest.TestCase):
         response = self.app.delete(self.get_item_url(), headers=self.headers)
         self.assertIn("Access-Control-Allow-Origin", response.headers)
 
+    def test_present_on_specified_domain(self):
+        with mock.patch.dict(
+            self.app.app.registry.settings, [("cors_origins", ["foo.bar", "notmyidea.org"])]
+        ):
+            response = self.app.get("/unknown", headers=self.headers, status=404)
+            self.assertEqual(response.headers["Access-Control-Allow-Origin"], "notmyidea.org")
+
     def test_present_on_unknown_url(self):
         response = self.app.get("/unknown", headers=self.headers, status=404)
-        self.assertEqual(response.headers["Access-Control-Allow-Origin"], "notmyidea.org")
+        self.assertEqual(response.headers["Access-Control-Allow-Origin"], "*")
 
     def test_not_present_on_unknown_url_if_setting_does_not_match(self):
         with mock.patch.dict(self.app.app.registry.settings, [("cors_origins", "daybed.io")]):
