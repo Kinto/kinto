@@ -10,7 +10,7 @@ attrs==23.2.0
     # via
     #   jsonschema
     #   referencing
-bcrypt==4.2.0
+bcrypt==4.2.1
     # via -r constraints.in
 beautifulsoup4==4.12.3
     # via webtest
@@ -81,7 +81,7 @@ markupsafe==2.1.4
     # via werkzeug
 msgpack==1.0.7
     # via bravado-core
-newrelic==10.2.0
+newrelic==10.3.0
     # via -r constraints.in
 packaging==23.2
     # via
@@ -96,7 +96,7 @@ plaster==1.1.2
     #   pyramid
 plaster-pastedeploy==1.0.1
     # via pyramid
-playwright==1.48.0
+playwright==1.49.0
     # via -r constraints.in
 pluggy==1.5.0
     # via pytest
@@ -119,7 +119,7 @@ pyramid-mailer==0.15.1
     # via -r constraints.in
 pyramid-multiauth==1.0.2
     # via -r constraints.in
-pyramid-tm==2.5
+pyramid-tm==2.6
     # via -r constraints.in
 pytest==8.3.3
     # via
@@ -163,7 +163,7 @@ rpds-py==0.17.1
     # via
     #   jsonschema
     #   referencing
-ruff==0.7.3
+ruff==0.8.0
     # via -r constraints.in
 sentry-sdk==2.8.0
     # via -r constraints.in
@@ -214,7 +214,7 @@ venusian==3.1.0
     # via
     #   cornice
     #   pyramid
-waitress==3.0.1
+waitress==3.0.2
     # via
     #   -r constraints.in
     #   webtest
