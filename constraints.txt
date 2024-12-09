@@ -81,7 +81,7 @@ markupsafe==2.1.4
     # via werkzeug
 msgpack==1.0.7
     # via bravado-core
-newrelic==10.3.0
+newrelic==10.3.1
     # via -r constraints.in
 packaging==23.2
     # via
@@ -100,7 +100,7 @@ playwright==1.49.0
     # via -r constraints.in
 pluggy==1.5.0
     # via pytest
-prometheus-client==0.21.0
+prometheus-client==0.21.1
     # via -r constraints.in
 psycopg2==2.9.10
     # via -r constraints.in
@@ -121,7 +121,7 @@ pyramid-multiauth==1.0.2
     # via -r constraints.in
 pyramid-tm==2.6
     # via -r constraints.in
-pytest==8.3.3
+pytest==8.3.4
     # via
     #   -r constraints.in
     #   pytest-cache
@@ -163,7 +163,7 @@ rpds-py==0.17.1
     # via
     #   jsonschema
     #   referencing
-ruff==0.8.0
+ruff==0.8.2
     # via -r constraints.in
 sentry-sdk==2.8.0
     # via -r constraints.in
