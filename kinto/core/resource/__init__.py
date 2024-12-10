@@ -665,7 +665,7 @@ class Resource:
         obj = self._get_object_or_404(self.object_id)
         self._raise_412_if_modified(obj)
 
-        # Retreive the last_modified information from a querystring if present.
+        # Retrieve the last_modified information from a querystring if present.
         last_modified = self.request.validated["querystring"].get("last_modified")
 
         # If less or equal than current object. Ignore it.
@@ -1060,7 +1060,8 @@ class Resource:
         """Extracts filters from QueryString parameters."""
 
         def is_valid_timestamp(value):
-            return isinstance(value, int) or re.match(r'^"?\d+"?$', str(value))
+            # Is either integer, or integer as string, or integer between 2 quotes.
+            return isinstance(value, int) or re.match(r'^(\d+)$|^("\d+")$', str(value))
 
         queryparams = self.request.validated["querystring"]
 

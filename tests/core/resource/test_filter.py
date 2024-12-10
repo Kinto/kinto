@@ -92,6 +92,10 @@ class FilteringTest(BaseTest):
         self.validated["querystring"] = {"lt_last_modified": bad_value}
         self.assertRaises(httpexceptions.HTTPBadRequest, self.resource.plural_get)
 
+    def test_filter_raises_error_if_last_modified_value_has_malformed_quotes(self):
+        self.validated["querystring"] = {"last_modified": '123"'}
+        self.assertRaises(httpexceptions.HTTPBadRequest, self.resource.plural_get)
+
     def test_filter_works_with_since_none(self):
         self.validated["querystring"] = {"_since": None}
         result = self.resource.plural_get()
