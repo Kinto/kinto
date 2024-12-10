@@ -1,6 +1,7 @@
 import logging
 import random
 import re
+import urllib.parse
 import warnings
 from datetime import datetime
 from secrets import token_hex
@@ -474,6 +475,7 @@ def setup_metrics(config):
 
         try:
             endpoint = utils.strip_uri_prefix(request.path)
+            endpoint = urllib.parse.quote_plus(endpoint, safe="/?&=-_")
         except UnicodeDecodeError as e:
             # This `on_new_response` callback is also called when a HTTP 400
             # is returned because of an invalid UTF-8 path. We still want metrics.
@@ -507,7 +509,7 @@ def setup_metrics(config):
             unique=[
                 ("method", request.method.lower()),
                 ("endpoint", endpoint),
-                ("status", str(request.response.status_code)),
+                ("status", str(event.response.status_code)),
             ]
             + metrics_matchdict_labels,
         )
@@ -527,7 +529,7 @@ def setup_metrics(config):
         # Observe response size.
         metrics_service.observe(
             "request_size",
-            len(request.response.body or b""),
+            len(event.response.body or b""),
             labels=[("endpoint", endpoint)] + metrics_matchdict_labels,
         )
 

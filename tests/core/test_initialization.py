@@ -420,6 +420,25 @@ class MetricsConfigurationTest(unittest.TestCase):
             unique=[("method", "get"), ("endpoint", "/__heartbeat__"), ("status", "200")],
         )
 
+    def test_statsd_sanitizes_url_in_metrics(self):
+        kinto.core.initialize(self.config, "0.0.1", "settings_prefix")
+        app = webtest.TestApp(self.config.make_wsgi_app())
+        app.get(
+            "/v0/changeset'%7C%22%3F%3E%3C!DOCTYPE%22http://xh3E'),'/l')%20from%20dual)%7C'",
+            status=404,
+        )
+        self.mocked().count.assert_any_call(
+            "request_summary",
+            unique=[
+                ("method", "get"),
+                (
+                    "endpoint",
+                    "/changeset%27%257C%2522%253F%253E%253C%21DOCTYPE%2522http%3A//xh3E%27%29%2C%27/l%27%29%2520from%2520dual%29%257C%27",
+                ),
+                ("status", "404"),
+            ],
+        )
+
     def test_statsd_observe_request_size(self):
         kinto.core.initialize(self.config, "0.0.1", "settings_prefix")
         app = webtest.TestApp(self.config.make_wsgi_app())

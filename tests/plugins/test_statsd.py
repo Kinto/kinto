@@ -61,6 +61,11 @@ class StatsdClientTest(unittest.TestCase):
             self.client.count("click", unique=[("component", "menu"), ("sound", "off")])
             mocked_client.set.assert_called_with("click", "component.menu.sound.off")
 
+    def test_values_are_sanitized(self):
+        with mock.patch.object(self.client, "_client") as mocked_client:
+            self.client.count("click", unique=[("user", "account:boss")])
+            mocked_client.set.assert_called_with("click", "user.accountboss")
+
     @mock.patch("kinto.plugins.statsd.statsd_module")
     def test_load_from_config(self, module_mock):
         config = testing.setUp()
