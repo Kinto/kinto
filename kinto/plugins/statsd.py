@@ -13,6 +13,14 @@ except ImportError:  # pragma: no cover
     statsd_module = None
 
 
+def sanitize(value):
+    """
+    Telegraf does not support ':' in values.
+    See https://github.com/influxdata/telegraf/issues/4495
+    """
+    return value.replace(":", "") if isinstance(value, str) else value
+
+
 @implementer(metrics.IMetricsService)
 class StatsDService:
     def __init__(self, host, port, prefix):
@@ -22,7 +30,7 @@ class StatsDService:
         return self._client.timer(key)
 
     def observe(self, key, value, labels=[]):
-        return self._client.gauge(key, value)
+        return self._client.gauge(key, sanitize(value))
 
     def count(self, key, count=1, unique=None):
         if unique is None:
@@ -30,7 +38,7 @@ class StatsDService:
         if isinstance(unique, list):
             # [("method", "get")] -> "method.get"
             # [("endpoint", "/"), ("method", "get")] -> "endpoint./.method.get"
-            unique = ".".join(f"{label[0]}.{label[1]}" for label in unique)
+            unique = ".".join(f"{label[0]}.{sanitize(label[1])}" for label in unique)
         else:
             warnings.warn(
                 "`unique` parameter should be of type ``list[tuple[str, str]]``",
