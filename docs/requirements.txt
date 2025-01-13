@@ -9,4 +9,4 @@ webtest==3.0.2
 cornice==6.1.0
 pyramid==2.0.2
 python-rapidjson==1.20
-SQLAlchemy==2.0.36
+SQLAlchemy==2.0.37
