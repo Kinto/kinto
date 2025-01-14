@@ -262,8 +262,9 @@ def reapply_cors(request, response):
             settings = request.registry.settings
             allowed_origins = set(aslist(settings["cors_origins"]))
             required_origins = {"*", origin}
-            if allowed_origins.intersection(required_origins):
-                response.headers["Access-Control-Allow-Origin"] = origin
+            matches = allowed_origins.intersection(required_origins)
+            if matches:
+                response.headers["Access-Control-Allow-Origin"] = matches.pop()
 
         # Import service here because kinto.core import utils
         from kinto.core import Service
