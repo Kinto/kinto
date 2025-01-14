@@ -83,8 +83,7 @@ def includeme(config):
     if "basicauth" in auth_policies and policy in auth_policies:
         if auth_policies.index("basicauth") < auth_policies.index(policy):
             error_msg = (
-                "'basicauth' should not be mentioned before '%s' "
-                "in 'multiauth.policies' setting."
+                "'basicauth' should not be mentioned before '%s' in 'multiauth.policies' setting."
             ) % policy
             raise ConfigurationError(error_msg)
 

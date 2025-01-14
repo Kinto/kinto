@@ -97,7 +97,7 @@ class ResourceChangedTest(BaseEventTest, unittest.TestCase):
         self.app.post_json(self.plural_url, self.body, headers=self.headers, status=201)
         self.assertEqual(
             repr(self.events[0]),
-            "<ResourceChanged action=create " "uri={}>".format(self.plural_url),
+            "<ResourceChanged action=create uri={}>".format(self.plural_url),
         )
 
     def test_post_sends_create_action(self):

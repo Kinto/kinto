@@ -53,7 +53,7 @@ def page_not_found(response, request):
 
     if not request.path.startswith(f"/{request.registry.route_prefix}"):
         errno = ERRORS.VERSION_NOT_AVAILABLE
-        error_msg = "The requested API version is not available " "on this server."
+        error_msg = "The requested API version is not available on this server."
     elif trailing_slash_redirection_enabled:
         redirect = None
 
@@ -80,8 +80,7 @@ def page_not_found(response, request):
 def service_unavailable(response, request):
     if response.content_type != "application/json":
         error_msg = (
-            "Service temporary unavailable "
-            "due to overloading or maintenance, please retry later."
+            "Service temporary unavailable due to overloading or maintenance, please retry later."
         )
         response = http_error(response, errno=ERRORS.BACKEND, message=error_msg)
 

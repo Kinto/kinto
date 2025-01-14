@@ -110,10 +110,8 @@ DEFAULT_SETTINGS = {
     "trailing_slash_redirect_ttl_seconds": 3600,
     "multiauth.groupfinder": "kinto.core.authorization.groupfinder",
     "multiauth.policies": "",
-    "multiauth.policy.basicauth.use": (
-        "kinto.core.authentication." "BasicAuthAuthenticationPolicy"
-    ),
-    "multiauth.authorization_policy": ("kinto.core.authorization." "AuthorizationPolicy"),
+    "multiauth.policy.basicauth.use": "kinto.core.authentication.BasicAuthAuthenticationPolicy",
+    "multiauth.authorization_policy": "kinto.core.authorization.AuthorizationPolicy",
 }
 
 

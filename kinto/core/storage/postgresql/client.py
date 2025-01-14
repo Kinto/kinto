@@ -95,14 +95,14 @@ def create_from_config(config, prefix="", with_transaction=True):
     url = filtered_settings[prefix + "url"]
     existing_client = _CLIENTS[transaction_per_request].get(url)
     if existing_client:
-        msg = "Reuse existing PostgreSQL connection. " f"Parameters {prefix}* will be ignored."
+        msg = f"Reuse existing PostgreSQL connection. Parameters {prefix}* will be ignored."
         warnings.warn(msg)
         return existing_client
 
     # Initialize SQLAlchemy engine from filtered_settings.
     poolclass_key = prefix + "poolclass"
     filtered_settings.setdefault(
-        poolclass_key, ("kinto.core.storage.postgresql." "pool.QueuePoolWithMaxBacklog")
+        poolclass_key, ("kinto.core.storage.postgresql.pool.QueuePoolWithMaxBacklog")
     )
     filtered_settings[poolclass_key] = config.maybe_dotted(filtered_settings[poolclass_key])
     engine = sqlalchemy.engine_from_config(filtered_settings, prefix=prefix, url=url)

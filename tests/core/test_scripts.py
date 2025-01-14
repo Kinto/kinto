@@ -28,10 +28,10 @@ class InitSchemaTest(unittest.TestCase):
             self.registry.settings = {"readonly": "true"}
             scripts.migrate({"registry": self.registry})
             mocked.error.assert_any_call(
-                "Cannot migrate the storage backend " "while in readonly mode."
+                "Cannot migrate the storage backend while in readonly mode."
             )
             mocked.error.assert_any_call(
-                "Cannot migrate the permission " "backend while in readonly mode."
+                "Cannot migrate the permission backend while in readonly mode."
             )
 
     def test_migrate_in_dry_run_mode(self):

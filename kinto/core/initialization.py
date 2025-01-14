@@ -213,7 +213,7 @@ def setup_deprecation(config):
 
 def _end_of_life_tween_factory(handler, registry):
     """Pyramid tween to handle service end of life."""
-    deprecation_msg = "The service you are trying to connect no longer exists" " at this location."
+    deprecation_msg = "The service you are trying to connect no longer exists at this location."
 
     def eos_tween(request):
         eos_date = registry.settings["eos"]

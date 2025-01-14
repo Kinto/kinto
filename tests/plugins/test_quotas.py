@@ -1106,13 +1106,13 @@ class QuotasScriptsTest(unittest.TestCase):
         )
 
         mocked_logger.info.assert_any_call(
-            "Bucket bucket-1, collection collection-1. " "Final size: 1 records, 78 bytes."
+            "Bucket bucket-1, collection collection-1. Final size: 1 records, 78 bytes."
         )
         mocked_logger.info.assert_any_call(
-            "Bucket bucket-1, collection collection-2. " "Final size: 1 records, 79 bytes."
+            "Bucket bucket-1, collection collection-2. Final size: 1 records, 79 bytes."
         )
         mocked_logger.info.assert_any_call(
-            "Bucket bucket-1. Final size: " "2 collections, 2 records, 193 bytes."
+            "Bucket bucket-1. Final size: 2 collections, 2 records, 193 bytes."
         )
 
     def test_rebuild_quotas_doesnt_update_if_dry_run(self):
@@ -1135,8 +1135,8 @@ class QuotasScriptsTest(unittest.TestCase):
         assert not self.storage.update.called
 
         mocked.info.assert_any_call(
-            "Bucket bucket-1, collection collection-1. " "Final size: 1 records, 78 bytes."
+            "Bucket bucket-1, collection collection-1. Final size: 1 records, 78 bytes."
         )
         mocked.info.assert_any_call(
-            "Bucket bucket-1. Final size: 1 collections, " "1 records, 114 bytes."
+            "Bucket bucket-1. Final size: 1 collections, 1 records, 114 bytes."
         )

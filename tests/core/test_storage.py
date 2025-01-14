@@ -219,8 +219,8 @@ class PostgreSQLStorageTest(StorageTest, unittest.TestCase):
     def test_warns_if_configured_pool_size_differs_for_same_backend_type(self):
         self.backend.load_from_config(self._get_config())
         settings = {**self.settings, "storage_pool_size": 1}
-        msg = "Reuse existing PostgreSQL connection. Parameters storage_* " "will be ignored."
-        with mock.patch("kinto.core.storage.postgresql.client." "warnings.warn") as mocked:
+        msg = "Reuse existing PostgreSQL connection. Parameters storage_* will be ignored."
+        with mock.patch("kinto.core.storage.postgresql.client.warnings.warn") as mocked:
             self.backend.load_from_config(self._get_config(settings=settings))
             mocked.assert_any_call(msg)
 

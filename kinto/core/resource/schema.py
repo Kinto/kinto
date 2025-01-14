@@ -37,8 +37,7 @@ class URL(URL):
 
     def __init__(self, *args, **kwargs):
         message = (
-            "`kinto.core.resource.schema.URL` is deprecated, "
-            "use `kinto.core.schema.URL` instead."
+            "`kinto.core.resource.schema.URL` is deprecated, use `kinto.core.schema.URL` instead."
         )
         warnings.warn(message, DeprecationWarning)
         super().__init__(*args, **kwargs)

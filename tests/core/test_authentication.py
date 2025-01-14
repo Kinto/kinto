@@ -25,7 +25,7 @@ class AuthenticationPoliciesTest(BaseWebTest, unittest.TestCase):
             {
                 "multiauth.policies": "dummy",
                 "multiauth.policy.dummy.use": (
-                    "pyramid.authentication." "RepozeWho1AuthenticationPolicy"
+                    "pyramid.authentication.RepozeWho1AuthenticationPolicy"
                 ),
             }
         )
@@ -42,7 +42,7 @@ class AuthenticationPoliciesTest(BaseWebTest, unittest.TestCase):
             {
                 "multiauth.policies": "dummy",
                 "multiauth.policy.dummy.use": (
-                    "kinto.core.authentication." "BasicAuthAuthenticationPolicy"
+                    "kinto.core.authentication.BasicAuthAuthenticationPolicy"
                 ),
             }
         )
@@ -58,7 +58,7 @@ class AuthenticationPoliciesTest(BaseWebTest, unittest.TestCase):
         app.get(self.plural_url, headers=self.headers, status=401)
 
     def test_principals_are_fetched_from_permission_backend(self):
-        patch = mock.patch(("tests.core.support." "AllowAuthorizationPolicy.permits"))
+        patch = mock.patch(("tests.core.support.AllowAuthorizationPolicy.permits"))
         self.addCleanup(patch.stop)
         mocked = patch.start()
 

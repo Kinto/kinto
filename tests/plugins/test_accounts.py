@@ -32,7 +32,7 @@ class AccountsWebTest(support.BaseWebTest, unittest.TestCase):
         # XXX: this should be a default setting.
         extras.setdefault(
             "multiauth.policy.account.use",
-            "kinto.plugins.accounts.authentication." "AccountsAuthenticationPolicy",
+            "kinto.plugins.accounts.authentication.AccountsAuthenticationPolicy",
         )
         extras.setdefault("account_cache_ttl_seconds", "30")
         return super().get_app_settings(extras)
@@ -865,7 +865,7 @@ class CreateUserTest(unittest.TestCase):
             self.registry.settings["readonly"] = "true"
             code = scripts.create_user({"registry": self.registry})
             assert code == 51
-            mocked.error.assert_called_once_with("Cannot create a user with " "a readonly server.")
+            mocked.error.assert_called_once_with("Cannot create a user with a readonly server.")
 
     def test_create_user_when_not_included_displays_an_error(self):
         with mock.patch("kinto.plugins.accounts.scripts.logger") as mocked:
@@ -873,7 +873,7 @@ class CreateUserTest(unittest.TestCase):
             code = scripts.create_user({"registry": self.registry})
             assert code == 52
             mocked.error.assert_called_once_with(
-                "Cannot create a user when the accounts " "plugin is not installed."
+                "Cannot create a user when the accounts plugin is not installed."
             )
 
     def test_create_user_with_an_invalid_username_and_password_confirmation_recovers(self):
