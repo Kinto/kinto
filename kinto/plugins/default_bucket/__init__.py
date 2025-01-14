@@ -187,6 +187,5 @@ def includeme(config):
         "default_bucket",
         description="The default bucket is an alias for a personal"
         " bucket where collections are created implicitly.",
-        url="https://kinto.readthedocs.io/en/latest/api/1.x/"
-        "buckets.html#personal-bucket-default",
+        url="https://kinto.readthedocs.io/en/latest/api/1.x/buckets.html#personal-bucket-default",
     )

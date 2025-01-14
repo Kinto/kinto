@@ -7,7 +7,7 @@ from .listener import on_resource_changed
 def includeme(config):
     config.add_api_capability(
         "quotas",
-        description="Quotas Management on buckets " "and collections.",
+        description="Quotas Management on buckets and collections.",
         url="https://kinto.readthedocs.io",
     )
 

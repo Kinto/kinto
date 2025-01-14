@@ -479,7 +479,7 @@ class DefaultBucketTest(HistoryWebTest):
     @classmethod
     def get_app_settings(cls, extras=None):
         settings = super().get_app_settings(extras)
-        settings["includes"] = "kinto.plugins.default_bucket " "kinto.plugins.history"
+        settings["includes"] = "kinto.plugins.default_bucket kinto.plugins.history"
         return settings
 
     def setUp(self):
@@ -539,13 +539,13 @@ class PermissionsTest(HistoryWebTest):
         self.julia_headers = get_user_headers("julia")
 
         self.alice_principal = (
-            "basicauth:d5b0026601f1b251974e09548d44155e16" "812e3c64ff7ae053fe3542e2ca1570"
+            "basicauth:d5b0026601f1b251974e09548d44155e16812e3c64ff7ae053fe3542e2ca1570"
         )
         self.bob_principal = (
-            "basicauth:c031ced27503f788b102ca54269a062ec737" "94bb075154c74a0d4311e74ca8b6"
+            "basicauth:c031ced27503f788b102ca54269a062ec73794bb075154c74a0d4311e74ca8b6"
         )
         self.julia_principal = (
-            "basicauth:d8bab8d9fe0510fcaf9b5ad5942c027fc" "2fdf80b6dc59cc3c48d12a2fcb18f1c"
+            "basicauth:d8bab8d9fe0510fcaf9b5ad5942c027fc2fdf80b6dc59cc3c48d12a2fcb18f1c"
         )
 
         bucket = {"permissions": {"read": [self.alice_principal]}}
@@ -638,7 +638,7 @@ class ExcludeResourcesTest(HistoryWebTest):
     def get_app_settings(cls, extras=None):
         settings = super().get_app_settings(extras)
         settings["history.exclude_resources"] = (
-            "/buckets/a " "/buckets/b/collections/a " "/buckets/b/groups/a"
+            "/buckets/a /buckets/b/collections/a /buckets/b/groups/a"
         )
         return settings
 

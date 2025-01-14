@@ -246,7 +246,7 @@ class Permission(PermissionBase, MigratorMixin):
 
         query = f"""
         WITH required_perms AS (
-          VALUES {','.join(perm_values)}
+          VALUES {",".join(perm_values)}
         )
         SELECT principal
           FROM required_perms JOIN access_control_entries
@@ -292,14 +292,14 @@ class Permission(PermissionBase, MigratorMixin):
                 object_id_condition = "object_id LIKE pattern"
             else:
                 object_id_condition = (
-                    "object_id LIKE pattern " "AND object_id NOT LIKE pattern || '/%'"
+                    "object_id LIKE pattern AND object_id NOT LIKE pattern || '/%'"
                 )
             query = f"""
             WITH required_perms AS (
-              VALUES {','.join(perm_values)}
+              VALUES {",".join(perm_values)}
             ),
             user_principals AS (
-              VALUES {','.join(principals_values)}
+              VALUES {",".join(principals_values)}
             ),
             potential_objects AS (
               SELECT object_id, permission, required_perms.column1 AS pattern
@@ -341,7 +341,7 @@ class Permission(PermissionBase, MigratorMixin):
 
         query = f"""
         WITH required_perms AS (
-          VALUES {','.join(perms_values)}
+          VALUES {",".join(perms_values)}
         ),
         allowed_principals AS (
           SELECT principal
@@ -349,7 +349,7 @@ class Permission(PermissionBase, MigratorMixin):
               ON (object_id = column1 AND permission = column2)
         ),
         required_principals AS (
-          VALUES {','.join(principals_values)}
+          VALUES {",".join(principals_values)}
         )
         SELECT COUNT(*) AS matched
           FROM required_principals JOIN allowed_principals
@@ -412,7 +412,7 @@ class Permission(PermissionBase, MigratorMixin):
         if not new_aces:
             query = f"""
             WITH specified_perms AS (
-              VALUES {','.join(specified_perms)}
+              VALUES {",".join(specified_perms)}
             )
             DELETE FROM access_control_entries
              USING specified_perms
@@ -422,7 +422,7 @@ class Permission(PermissionBase, MigratorMixin):
         else:
             query = f"""
             WITH specified_perms AS (
-              VALUES {','.join(specified_perms)}
+              VALUES {",".join(specified_perms)}
             ),
             delete_specified AS (
               DELETE FROM access_control_entries
@@ -435,7 +435,7 @@ class Permission(PermissionBase, MigratorMixin):
               UNION SELECT :object_id
             ),
             new_aces AS (
-              VALUES {','.join(new_aces)}
+              VALUES {",".join(new_aces)}
             )
             INSERT INTO access_control_entries(object_id, permission, principal)
               SELECT DISTINCT d.object_id, n.column1, n.column2

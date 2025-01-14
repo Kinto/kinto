@@ -161,8 +161,7 @@ def main(args=None):
         if not backend:
             while True:
                 prompt = (
-                    "Select the backend you would like to use: "
-                    "(1 - postgresql, default - memory) "
+                    "Select the backend you would like to use: (1 - postgresql, default - memory) "
                 )
                 answer = input(prompt).strip()
                 try:
