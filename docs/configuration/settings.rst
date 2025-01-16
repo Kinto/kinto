@@ -503,6 +503,8 @@ Prometheus metrics can be enabled with (disabled by default):
 
     kinto.includes = kinto.plugins.prometheus
 
+    # kinto.prometheus_prefix = kinto-prod
+
 Metrics can then be crawled from the ``/__metrics__`` endpoint.
 
 
