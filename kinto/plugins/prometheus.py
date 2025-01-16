@@ -28,7 +28,7 @@ def get_registry():
 
 
 def _fix_metric_name(s):
-    return s.replace("-", "_").replace(".", "_")
+    return s.replace("-", "_").replace(".", "_").replace(" ", "_")
 
 
 class Timer:
@@ -68,8 +68,20 @@ class Timer:
 
 @implementer(metrics.IMetricsService)
 class PrometheusService:
+    def __init__(self, prefix=""):
+        prefix_clean = ""
+        if prefix:
+            # In GCP Console, the metrics are grouped by the first
+            # word before the first underscore. Here we make sure the specified
+            # prefix is not mixed up with metrics names.
+            # (eg. `remote-settings` -> `remotesettings_`, `kinto_` -> `kinto_`)
+            prefix_clean = _fix_metric_name(prefix).replace("_", "") + "_"
+        self.prefix = prefix_clean.lower()
+
     def timer(self, key):
         global _METRICS
+        key = self.prefix + key
+
         if key not in _METRICS:
             _METRICS[key] = prometheus_module.Summary(
                 _fix_metric_name(key), f"Summary of {key}", registry=get_registry()
@@ -84,6 +96,7 @@ class PrometheusService:
 
     def observe(self, key, value, labels=[]):
         global _METRICS
+        key = self.prefix + key
 
         if key not in _METRICS:
             _METRICS[key] = prometheus_module.Summary(
@@ -106,6 +119,7 @@ class PrometheusService:
 
     def count(self, key, count=1, unique=None):
         global _METRICS
+        key = self.prefix + key
 
         labels = []
 
@@ -183,4 +197,7 @@ def includeme(config):
             pass
     _METRICS.clear()
 
-    config.registry.registerUtility(PrometheusService(), metrics.IMetricsService)
+    settings = config.get_settings()
+    prefix = settings.get("prometheus_prefix", settings["project_name"])
+
+    config.registry.registerUtility(PrometheusService(prefix=prefix), metrics.IMetricsService)

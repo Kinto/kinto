@@ -31,6 +31,7 @@ class PrometheusWebTest(support.BaseWebTest, unittest.TestCase):
     def get_app_settings(cls, extras=None):
         settings = super().get_app_settings(extras)
         settings["includes"] = "kinto.plugins.prometheus"
+        settings["project_name"] = "kinto PROD"
         return settings
 
 
@@ -59,7 +60,7 @@ class ServiceTest(PrometheusWebTest):
             self.assertEqual(my_func(1, 1), 2)
 
         resp = self.app.get("/__metrics__")
-        self.assertIn("TYPE func_latency_context summary", resp.text)
+        self.assertIn("TYPE kintoprod_func_latency_context summary", resp.text)
 
     def test_timer_can_be_used_as_decorator(self):
         decorated = self.app.app.registry.metrics.timer("func.latency.decorator")(my_func)
@@ -67,7 +68,7 @@ class ServiceTest(PrometheusWebTest):
         self.assertEqual(decorated(1, 1), 2)
 
         resp = self.app.get("/__metrics__")
-        self.assertIn("TYPE func_latency_decorator summary", resp.text)
+        self.assertIn("TYPE kintoprod_func_latency_decorator summary", resp.text)
 
     def test_timer_can_be_used_as_decorator_on_partial_function(self):
         partial = functools.partial(my_func, 3)
@@ -76,39 +77,39 @@ class ServiceTest(PrometheusWebTest):
         self.assertEqual(decorated(3), 6)
 
         resp = self.app.get("/__metrics__")
-        self.assertIn("TYPE func_latency_partial summary", resp.text)
+        self.assertIn("TYPE kintoprod_func_latency_partial summary", resp.text)
 
     def test_observe_a_single_value(self):
         self.app.app.registry.metrics.observe("price", 111)
 
         resp = self.app.get("/__metrics__")
-        self.assertIn("price_sum 111", resp.text)
+        self.assertIn("kintoprod_price_sum 111", resp.text)
 
     def test_observe_a_single_value_with_labels(self):
         self.app.app.registry.metrics.observe("size", 3.14, labels=[("endpoint", "/buckets")])
 
         resp = self.app.get("/__metrics__")
-        self.assertIn('size_sum{endpoint="/buckets"} 3.14', resp.text)
+        self.assertIn('kintoprod_size_sum{endpoint="/buckets"} 3.14', resp.text)
 
     def test_count_by_key(self):
         self.app.app.registry.metrics.count("key")
 
         resp = self.app.get("/__metrics__")
-        self.assertIn("key_total 1.0", resp.text)
+        self.assertIn("kintoprod_key_total 1.0", resp.text)
 
     def test_count_by_key_value(self):
         self.app.app.registry.metrics.count("bigstep", count=2)
 
         resp = self.app.get("/__metrics__")
-        self.assertIn("bigstep_total 2.0", resp.text)
+        self.assertIn("kintoprod_bigstep_total 2.0", resp.text)
 
     def test_count_by_key_grouped(self):
         self.app.app.registry.metrics.count("http", unique=[("status", "500")])
         self.app.app.registry.metrics.count("http", unique=[("status", "200")])
 
         resp = self.app.get("/__metrics__")
-        self.assertIn('http_total{status="500"} 1.0', resp.text)
-        self.assertIn('http_total{status="200"} 1.0', resp.text)
+        self.assertIn('kintoprod_http_total{status="500"} 1.0', resp.text)
+        self.assertIn('kintoprod_http_total{status="200"} 1.0', resp.text)
 
     def test_metrics_cant_be_mixed(self):
         self.app.app.registry.metrics.count("counter")
@@ -127,16 +128,16 @@ class ServiceTest(PrometheusWebTest):
         self.app.app.registry.metrics.count("http.home.status", unique=[("code.get", "200")])
 
         resp = self.app.get("/__metrics__")
-        self.assertIn('http_home_status_total{code_get="200"} 1.0', resp.text)
+        self.assertIn('kintoprod_http_home_status_total{code_get="200"} 1.0', resp.text)
 
     def test_count_with_legacy_string_generic_group(self):
         self.app.app.registry.metrics.count("champignons", unique="boletus")
 
         resp = self.app.get("/__metrics__")
-        self.assertIn('champignons_total{group="boletus"} 1.0', resp.text)
+        self.assertIn('kintoprod_champignons_total{group="boletus"} 1.0', resp.text)
 
     def test_count_with_legacy_string_basic_group(self):
         self.app.app.registry.metrics.count("mushrooms", unique="species.boletus")
 
         resp = self.app.get("/__metrics__")
-        self.assertIn('mushrooms_total{species="boletus"} 1.0', resp.text)
+        self.assertIn('kintoprod_mushrooms_total{species="boletus"} 1.0', resp.text)
