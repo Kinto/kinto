@@ -141,3 +141,19 @@ class ServiceTest(PrometheusWebTest):
 
         resp = self.app.get("/__metrics__")
         self.assertIn('kintoprod_mushrooms_total{species="boletus"} 1.0', resp.text)
+
+
+@skip_if_no_prometheus
+class PrometheusNoPrefixTest(PrometheusWebTest):
+    @classmethod
+    def get_app_settings(cls, extras=None):
+        settings = super().get_app_settings(extras)
+        settings["project_name"] = "Some Project"
+        settings["prometheus_prefix"] = ""
+        return settings
+
+    def test_metrics_have_no_prefix(self):
+        self.app.app.registry.metrics.observe("price", 111)
+
+        resp = self.app.get("/__metrics__")
+        self.assertIn("TYPE price summary", resp.text)
