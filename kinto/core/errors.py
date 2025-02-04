@@ -140,13 +140,15 @@ def json_error_handler(request):
     """
     errors = request.errors
     sorted_errors = sorted(errors, key=lambda x: str(x["name"]))
+    for error in sorted_errors:
+        # Decode in place.
+        if isinstance(error["description"], bytes):
+            error["description"] = error["description"].decode("utf-8")
+
     # In Cornice, we call error handler if at least one error was set.
     error = sorted_errors[0]
     name = error["name"]
     description = error["description"]
-
-    if isinstance(description, bytes):
-        description = error["description"].decode("utf-8")
 
     if name is not None:
         if str(name) in description:
@@ -162,7 +164,7 @@ def json_error_handler(request):
         errno=ERRORS.INVALID_PARAMETERS.value,
         error="Invalid parameters",
         message=message,
-        details=errors,
+        details=sorted_errors,
     )
     response.status = errors.status
     response = reapply_cors(request, response)

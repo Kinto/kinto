@@ -22,6 +22,13 @@ class BucketViewTest(BaseWebTest, unittest.TestCase):
         resp = self.app.put_json(self.record_url, MINIMALIST_BUCKET, headers=self.headers)
         self.record = resp.json["data"]
 
+    def test_invalid_accept_header_on_plural_endpoints_returns_406(self):
+        headers = {**self.headers, "Accept": "text/plain"}
+        resp = self.app.post(self.collection_url, "", headers=headers, status=406)
+        self.assertEqual(resp.json["code"], 406)
+        message = "Accept header should be one of ['application/json']"
+        self.assertEqual(resp.json["message"], message)
+
     def test_buckets_are_global_to_every_users(self):
         self.app.patch_json(
             self.record_url, {"permissions": {"read": [Authenticated]}}, headers=self.headers
