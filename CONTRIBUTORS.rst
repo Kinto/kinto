@@ -17,6 +17,7 @@ Contributors
 * Balthazar Rouberol <br@imap.cc>
 * Boris Feld <lothiraldan@gmail.com>
 * Brady Dufresne <dufresnebrady@gmail.com>
+* Can Berk Güder <cbguder@mozilla.com>
 * Castro
 * Chirag B. Jadwani <chirag.jadwani@gmail.com>
 * Christophe Gragnic <cgragnic@protonmail.com>
