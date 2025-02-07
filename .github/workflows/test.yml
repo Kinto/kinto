@@ -161,11 +161,11 @@ jobs:
         run: |
           psql -c "CREATE DATABASE testdb ENCODING 'UTF8' TEMPLATE template0;" -U postgres -h localhost
 
-      - run: mkdir ${DOCKER_CACHE}
+      - run: mkdir "${DOCKER_CACHE}"
 
       - name: Compute cache key
         # Create hash of hashes of checked in files not in Dockerignore
-        run: echo "CACHE_KEY=$(git ls-tree --full-tree -r HEAD | grep -v -f .dockerignore | awk '{print $3}' | git hash-object --stdin)" >> $GITHUB_ENV
+        run: echo "CACHE_KEY=$(git ls-tree --full-tree -r HEAD | grep -v -f .dockerignore | awk '{print $3}' | git hash-object --stdin)" >> "$GITHUB_ENV"
 
       - uses: actions/cache@v4
         with:
@@ -193,9 +193,9 @@ jobs:
         run: |
           docker run --net=host --detach --rm \
             -p 8888:8888 \
-            -v `pwd`/tests/functional.ini:/etc/functional.ini \
+            -v $(pwd)/tests/functional.ini:/etc/functional.ini \
             -e KINTO_INI=/etc/functional.ini \
-            ${{ env.TEST_TAG }} && sleep 5
+            "${{ env.TEST_TAG }}" && sleep 5
 
       - name: Functional Tests
         run: |
