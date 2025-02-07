@@ -16,6 +16,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Actions Lint
+        uses: raven-actions/actionlint@v2
+
       - uses: actions/setup-python@v5
 
       - name: make lint
