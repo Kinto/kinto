@@ -3,19 +3,24 @@
 # You can obtain one at http://mozilla.org/MPL/2.0/.
 import re
 
-from cornice.validators._colander import body_validator as colander_body_validator
-from cornice.validators._colander import headers_validator as colander_headers_validator
-from cornice.validators._colander import path_validator as colander_path_validator
-from cornice.validators._colander import querystring_validator as colander_querystring_validator
-from cornice.validators._colander import validator as colander_validator
-from cornice.validators._marshmallow import body_validator as marshmallow_body_validator
-from cornice.validators._marshmallow import headers_validator as marshmallow_headers_validator
-from cornice.validators._marshmallow import path_validator as marshmallow_path_validator
-from cornice.validators._marshmallow import (
+from webob.multidict import MultiDict
+
+from kinto.core.cornice.validators._colander import body_validator as colander_body_validator
+from kinto.core.cornice.validators._colander import headers_validator as colander_headers_validator
+from kinto.core.cornice.validators._colander import path_validator as colander_path_validator
+from kinto.core.cornice.validators._colander import (
+    querystring_validator as colander_querystring_validator,
+)
+from kinto.core.cornice.validators._colander import validator as colander_validator
+from kinto.core.cornice.validators._marshmallow import body_validator as marshmallow_body_validator
+from kinto.core.cornice.validators._marshmallow import (
+    headers_validator as marshmallow_headers_validator,
+)
+from kinto.core.cornice.validators._marshmallow import path_validator as marshmallow_path_validator
+from kinto.core.cornice.validators._marshmallow import (
     querystring_validator as marshmallow_querystring_validator,
 )
-from cornice.validators._marshmallow import validator as marshmallow_validator
-from webob.multidict import MultiDict
+from kinto.core.cornice.validators._marshmallow import validator as marshmallow_validator
 
 
 __all__ = [

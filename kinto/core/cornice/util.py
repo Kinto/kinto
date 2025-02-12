@@ -71,7 +71,7 @@ def match_content_type_header(func, context, request):
 
 def extract_json_data(request):
     warnings.warn("Use ``cornice.validators.extract_cstruct()`` instead", DeprecationWarning)
-    from cornice.validators import extract_cstruct
+    from kinto.core.cornice.validators import extract_cstruct
 
     return extract_cstruct(request)["body"]
 
@@ -127,7 +127,7 @@ def current_service(request):
     """Return the Cornice service matching the specified request.
 
     :returns: the service or None if unmatched.
-    :rtype: cornice.Service
+    :rtype: kinto.core.cornice.Service
     """
     if request.matched_route:
         services = request.registry.cornice_services

@@ -1,6 +1,6 @@
 from pyramid.security import NO_PERMISSION_REQUIRED
 
-from cornice_swagger.swagger import CorniceSwagger
+from kinto.core.cornice_swagger.swagger import CorniceSwagger
 
 
 __author__ = """Josip Delic"""

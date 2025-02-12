@@ -108,7 +108,8 @@ def validator(request, schema=None, deserializer=None, **kwargs):
         :func:`cornice.validators.extract_cstruct`
     """
     import colander
-    from cornice.validators import extract_cstruct
+
+    from kinto.core.cornice.validators import extract_cstruct
 
     if deserializer is None:
         deserializer = extract_cstruct

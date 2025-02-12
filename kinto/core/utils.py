@@ -290,7 +290,7 @@ def current_service(request):
     """Return the Cornice service matching the specified request.
 
     :returns: the service or None if unmatched.
-    :rtype: cornice.Service
+    :rtype: kinto.core.cornice.Service
     """
     if request.matched_route:
         services = request.registry.cornice_services

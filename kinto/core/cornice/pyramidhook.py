@@ -5,22 +5,6 @@ import copy
 import functools
 import itertools
 
-from cornice.cors import (
-    CORS_PARAMETERS,
-    apply_cors_post_request,
-    get_cors_preflight_view,
-    get_cors_validator,
-)
-from cornice.errors import Errors
-from cornice.service import decorate_view
-from cornice.util import (
-    content_type_matches,
-    current_service,
-    is_string,
-    match_accept_header,
-    match_content_type_header,
-    to_list,
-)
 from pyramid.exceptions import PredicateMismatch
 from pyramid.httpexceptions import (
     HTTPException,
@@ -29,6 +13,23 @@ from pyramid.httpexceptions import (
     HTTPUnsupportedMediaType,
 )
 from pyramid.security import NO_PERMISSION_REQUIRED
+
+from kinto.core.cornice.cors import (
+    CORS_PARAMETERS,
+    apply_cors_post_request,
+    get_cors_preflight_view,
+    get_cors_validator,
+)
+from kinto.core.cornice.errors import Errors
+from kinto.core.cornice.service import decorate_view
+from kinto.core.cornice.util import (
+    content_type_matches,
+    current_service,
+    is_string,
+    match_accept_header,
+    match_content_type_header,
+    to_list,
+)
 
 
 def get_fallback_view(service):

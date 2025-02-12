@@ -5,7 +5,7 @@ object schemas by converting types and node validators.
 
 import colander
 
-from cornice_swagger.converters.exceptions import NoSuchConverter
+from kinto.core.cornice_swagger.converters.exceptions import NoSuchConverter
 
 
 def convert_length_validator_factory(max_key, min_key):

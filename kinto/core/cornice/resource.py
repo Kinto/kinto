@@ -6,7 +6,8 @@ import functools
 import warnings
 
 import venusian
-from cornice import Service
+
+from kinto.core.cornice import Service
 
 
 def resource(depth=2, **kw):

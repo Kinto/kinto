@@ -5,13 +5,15 @@ import warnings
 from collections import OrderedDict
 
 import colander
-from cornice import Service
-from cornice.util import to_list
 from pyramid.threadlocal import get_current_registry
 
-from cornice_swagger.converters import ParameterConversionDispatcher as ParameterConverter
-from cornice_swagger.converters import TypeConversionDispatcher as TypeConverter
-from cornice_swagger.util import body_schema_transformer, merge_dicts, trim
+from kinto.core.cornice import Service
+from kinto.core.cornice.util import to_list
+from kinto.core.cornice_swagger.converters import (
+    ParameterConversionDispatcher as ParameterConverter,
+)
+from kinto.core.cornice_swagger.converters import TypeConversionDispatcher as TypeConverter
+from kinto.core.cornice_swagger.util import body_schema_transformer, merge_dicts, trim
 
 
 class CorniceSwaggerException(Exception):
@@ -287,15 +289,15 @@ class CorniceSwagger(object):
 
     definitions = DefinitionHandler
     """Default :class:`cornice_swagger.swagger.DefinitionHandler` class to use when
-    handling OpenAPI schema definitions from cornice payload schemas."""
+    handling OpenAPI schema definitions from kinto.core.cornice payload schemas."""
 
     parameters = ParameterHandler
     """Default :class:`cornice_swagger.swagger.ParameterHandler` class to use when
-    handling OpenAPI operation parameters from cornice request schemas."""
+    handling OpenAPI operation parameters from kinto.core.cornice request schemas."""
 
     responses = ResponseHandler
     """Default :class:`cornice_swagger.swagger.ResponseHandler` class to use when
-    handling OpenAPI responses from cornice_swagger defined responses."""
+    handling OpenAPI responses from kinto.core.cornice_swagger defined responses."""
 
     schema_transformers = [body_schema_transformer]
     """List of request schema transformers that should be applied to a request
@@ -494,7 +496,7 @@ class CorniceSwagger(object):
 
     def _build_paths(self):
         """
-        Build the Swagger "paths" and "tags" attributes from cornice service
+        Build the Swagger "paths" and "tags" attributes from kinto.core.cornice service
         definitions.
         """
         paths = {}
@@ -593,7 +595,7 @@ class CorniceSwagger(object):
             if route_intr:
                 path = route_intr["pattern"]
             else:
-                msg = "Route `{}` is not found by " "pyramid introspector".format(route_name)
+                msg = "Route `{}` is not found by pyramid introspector".format(route_name)
                 raise ValueError(msg)
 
         # handle traverse and subpath as regular parameters

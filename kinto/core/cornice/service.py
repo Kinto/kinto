@@ -4,14 +4,15 @@
 import functools
 
 import venusian
-from cornice.util import func_name, is_string, to_list
-from cornice.validators import (
-    DEFAULT_FILTERS,
-    DEFAULT_VALIDATORS,
-)
 from pyramid.exceptions import ConfigurationError
 from pyramid.interfaces import IRendererFactory
 from pyramid.response import Response
+
+from kinto.core.cornice.util import func_name, is_string, to_list
+from kinto.core.cornice.validators import (
+    DEFAULT_FILTERS,
+    DEFAULT_VALIDATORS,
+)
 
 
 SERVICES = []

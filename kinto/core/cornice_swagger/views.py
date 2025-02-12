@@ -2,20 +2,17 @@ import importlib
 from string import Template
 
 import cornice
+import cornice_swagger
 import pkg_resources
 from pyramid.response import Response
-
-import cornice_swagger
 
 
 # hardcode for now since that will work for vast majority of users
 # maybe later add minified resources for behind firewall support?
-ui_css_url = "https://cdnjs.cloudflare.com/ajax/libs/" "swagger-ui/3.23.11/swagger-ui.css"
-ui_js_bundle_url = (
-    "https://cdnjs.cloudflare.com/ajax/libs/" "swagger-ui/3.23.11/swagger-ui-bundle.js"
-)
+ui_css_url = "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/3.23.11/swagger-ui.css"
+ui_js_bundle_url = "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/3.23.11/swagger-ui-bundle.js"
 ui_js_standalone_url = (
-    "https://cdnjs.cloudflare.com/ajax/libs/" "swagger-ui/3.23.11/swagger-ui-standalone-preset.js"
+    "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/3.23.11/swagger-ui-standalone-preset.js"
 )
 
 

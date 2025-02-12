@@ -4,21 +4,21 @@
 import logging
 from functools import partial
 
-import pkg_resources
-from cornice.errors import Errors  # NOQA
-from cornice.pyramidhook import (
+from pyramid.events import NewRequest
+from pyramid.httpexceptions import HTTPForbidden, HTTPNotFound
+from pyramid.security import NO_PERMISSION_REQUIRED
+from pyramid.settings import asbool, aslist
+
+from kinto.core.cornice.errors import Errors  # NOQA
+from kinto.core.cornice.pyramidhook import (
     handle_exceptions,
     register_resource_views,
     register_service_views,
     wrap_request,
 )
-from cornice.renderer import CorniceRenderer
-from cornice.service import Service  # NOQA
-from cornice.util import ContentTypePredicate, current_service
-from pyramid.events import NewRequest
-from pyramid.httpexceptions import HTTPForbidden, HTTPNotFound
-from pyramid.security import NO_PERMISSION_REQUIRED
-from pyramid.settings import asbool, aslist
+from kinto.core.cornice.renderer import CorniceRenderer
+from kinto.core.cornice.service import Service  # NOQA
+from kinto.core.cornice.util import ContentTypePredicate, current_service
 
 
 logger = logging.getLogger("cornice")

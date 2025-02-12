@@ -1,5 +1,6 @@
 import colander
-from cornice.validators import colander_body_validator
+
+from kinto.core.cornice.validators import colander_body_validator
 
 
 def trim(docstring):
