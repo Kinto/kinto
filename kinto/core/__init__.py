@@ -186,10 +186,10 @@ def includeme(config):
     config.add_request_method(events.notify_resource_event, name="notify_resource_event")
 
     # Setup cornice.
-    config.include("cornice")
+    config.include("kinto.core.cornice")
 
     # Setup cornice api documentation
-    config.include("cornice_swagger")
+    config.include("kinto.core.cornice_swagger")
 
     # Per-request transaction.
     config.include("pyramid_tm")
