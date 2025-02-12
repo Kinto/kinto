@@ -83,6 +83,7 @@ monitoring = [
 ]
 test = [
     "bravado",
+    "flex",
     "pytest",
     "pytest-cache",
     "pytest-cov",
