@@ -20,7 +20,6 @@ RUN cp -r /kinto-admin/kinto/plugins/admin/build kinto/plugins/admin/
 RUN pip install ".[postgresql,memcached,monitoring]" -c constraints.txt && pip install kinto-attachment kinto-emailer httpie
 
 FROM python:3.10-slim-bullseye
-RUN apt-get update && apt-get install -y --no-install-recommends libpq-dev
 RUN groupadd --gid 10001 app && \
     useradd --uid 10001 --gid 10001 --home /app --create-home app
 

@@ -21,7 +21,7 @@ python-rapidjson
 python-memcached
 # postgresql
 SQLAlchemy < 3
-psycopg2
+psycopg2-binary
 zope.sqlalchemy
 # monitoring
 newrelic
