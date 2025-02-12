@@ -22,8 +22,6 @@ from pyramid.settings import asbool, aslist
 
 
 logger = logging.getLogger("cornice")
-# Module version, as defined in PEP-0396.
-__version__ = pkg_resources.get_distribution(__package__).version
 
 
 def set_localizer_for_languages(event, available_languages, default_locale_name):

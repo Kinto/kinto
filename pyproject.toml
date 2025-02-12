@@ -22,7 +22,6 @@ authors = [
 dependencies = [
     "bcrypt",
     "colander",
-    "cornice",
     "cornice_swagger",
     "dockerflow",
     "jsonschema",

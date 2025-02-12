@@ -31,9 +31,7 @@ colander==2.0
 colorama==0.4.6
     # via logging-color-formatter
 cornice==6.0.1
-    # via
-    #   -r constraints.in
-    #   cornice-swagger
+    # via cornice-swagger
 cornice-swagger==1.0.1
     # via -r constraints.in
 coverage==7.6.4
@@ -45,9 +43,7 @@ execnet==2.0.2
 fqdn==1.5.1
     # via jsonschema
 greenlet==3.1.1
-    # via
-    #   playwright
-    #   sqlalchemy
+    # via playwright
 hupper==1.12
     # via pyramid
 idna==3.7
