@@ -344,6 +344,12 @@ class PermissionTest:
         )
         self.assertEqual(sorted(per_object_ids.keys()), ["/url/a", "/url/a/id/1", "/url/a/id/2"])
 
+    def test_accessible_objects_with_user_principle(self):
+        self.permission.add_user_principal("user1", "group")
+        self.permission.add_principal_to_ace("id1", "write", "user1")
+        per_object_ids = self.permission.get_accessible_objects(["user1"])
+        self.assertEqual(sorted(per_object_ids.keys()), ["id1"])
+
     #
     # get_object_permissions()
     #

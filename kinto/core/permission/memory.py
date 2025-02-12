@@ -98,8 +98,9 @@ class Permission(PermissionBase):
         candidates = []
         if bound_permissions is None:
             for key, value in self._store.items():
-                _, object_id, permission = key.split(":", 2)
-                candidates.append((object_id, permission, value))
+                if key.startswith("permission:"):
+                    _, object_id, permission = key.split(":", 2)
+                    candidates.append((object_id, permission, value))
         else:
             for pattern, perm in bound_permissions:
                 id_match = ".*" if with_children else "[^/]+"
