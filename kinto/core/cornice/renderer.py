@@ -3,19 +3,19 @@ from pyramid.renderers import JSON
 from pyramid.response import Response
 
 
-def bytes_adapter(obj, request):
-    """Convert bytes objects to strings for json error renderer."""
-    if isinstance(obj, bytes):
-        return obj.decode("utf8")
-    return obj
-
-
 class JSONError(exc.HTTPError):
     def __init__(self, serializer, serializer_kw, errors, status=400):
         body = {"status": "error", "errors": errors}
         Response.__init__(self, serializer(body, **serializer_kw))
         self.status = status
         self.content_type = "application/json"
+
+
+def bytes_adapter(obj, request):
+    """Convert bytes objects to strings for json error renderer."""
+    if isinstance(obj, bytes):
+        return obj.decode("utf8")
+    return obj
 
 
 class CorniceRenderer(JSON):
@@ -34,8 +34,7 @@ class CorniceRenderer(JSON):
     acceptable = ("application/json", "text/plain")
 
     def __init__(self, *args, **kwargs):
-        """Adds a `bytes` adapter by default."""
-        super(CorniceRenderer, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.add_adapter(bytes, bytes_adapter)
 
     def render_errors(self, request):
