@@ -5,7 +5,7 @@ from flex.core import validate
 from pyramid import testing
 
 from kinto.core.cornice import Service
-from kinto.core.cornice.service import clear_services
+from kinto.core.cornice.service import clear_services, get_services
 from kinto.core.cornice.validators import colander_validator
 from kinto.core.cornice_swagger import CorniceSwagger
 
