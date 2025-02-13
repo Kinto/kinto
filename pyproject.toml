@@ -22,8 +22,6 @@ authors = [
 dependencies = [
     "bcrypt",
     "colander",
-    "cornice",
-    "cornice_swagger",
     "dockerflow",
     "jsonschema",
     "jsonpatch",
@@ -105,6 +103,10 @@ strip-extras = true
 
 [tool.coverage.run]
 branch = true
+omit = [
+    "kinto/core/cornice/*",
+    "kinto/core/cornice_swagger/*",
+]
 
 [tool.ruff]
 line-length = 99

@@ -109,7 +109,7 @@ nitpick_ignore = [
     ("py:class", "str"),
     ("py:class", "tuple"),
     ("py:class", "Exception"),
-    ("py:class", "cornice.Service"),
+    ("py:class", "kinto.core.cornice.Service"),
     # Member autodoc fails with those:
     # kinto.core.resource.schema
     ("py:class", "Integer"),
@@ -163,7 +163,6 @@ def setup(app):
 
 intersphinx_mapping = {
     "colander": ("https://colander.readthedocs.io/en/latest/", None),
-    "cornice": ("https://cornice.readthedocs.io/en/latest/", None),
     "pyramid": ("https://pyramid.readthedocs.io/en/latest/", None),
 }
 

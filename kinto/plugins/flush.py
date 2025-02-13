@@ -1,6 +1,6 @@
-from cornice import Service
 from pyramid.security import NO_PERMISSION_REQUIRED
 
+from kinto.core import Service
 from kinto.events import ServerFlushed
 
 

@@ -3,10 +3,10 @@ import urllib.parse
 
 import colander
 import requests
-from cornice.validators import colander_validator
 from pyramid import httpexceptions
 
 from kinto.core import Service
+from kinto.core.cornice.validators import colander_validator
 from kinto.core.errors import ERRORS, raise_invalid
 from kinto.core.resource.schema import ErrorResponseSchema
 from kinto.core.schema import URL

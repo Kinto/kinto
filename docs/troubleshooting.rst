@@ -104,7 +104,7 @@ You might get some error like::
     File "./kinto/__init__.py", line 4, in <module>
       import kinto.core
     File "./kinto/core/__init__.py", line 5, in <module>
-      from cornice import Service as CorniceService
+      from kinto.core.cornice import Service as CorniceService
   ImportError: No module named cornice
   unable to load app 0 (mountpoint='') (callable not found or import error)
 
