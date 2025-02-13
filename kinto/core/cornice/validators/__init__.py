@@ -5,35 +5,11 @@ import re
 
 from webob.multidict import MultiDict
 
-from kinto.core.cornice.validators._colander import body_validator as colander_body_validator
-from kinto.core.cornice.validators._colander import headers_validator as colander_headers_validator
-from kinto.core.cornice.validators._colander import path_validator as colander_path_validator
-from kinto.core.cornice.validators._colander import (
-    querystring_validator as colander_querystring_validator,
-)
 from kinto.core.cornice.validators._colander import validator as colander_validator
-from kinto.core.cornice.validators._marshmallow import body_validator as marshmallow_body_validator
-from kinto.core.cornice.validators._marshmallow import (
-    headers_validator as marshmallow_headers_validator,
-)
-from kinto.core.cornice.validators._marshmallow import path_validator as marshmallow_path_validator
-from kinto.core.cornice.validators._marshmallow import (
-    querystring_validator as marshmallow_querystring_validator,
-)
-from kinto.core.cornice.validators._marshmallow import validator as marshmallow_validator
 
 
 __all__ = [
     "colander_validator",
-    "colander_body_validator",
-    "colander_headers_validator",
-    "colander_path_validator",
-    "colander_querystring_validator",
-    "marshmallow_validator",
-    "marshmallow_body_validator",
-    "marshmallow_headers_validator",
-    "marshmallow_path_validator",
-    "marshmallow_querystring_validator",
     "extract_cstruct",
     "DEFAULT_VALIDATORS",
     "DEFAULT_FILTERS",
@@ -41,7 +17,6 @@ __all__ = [
 
 
 DEFAULT_VALIDATORS = []
-DEFAULT_FILTERS = []
 
 
 def extract_cstruct(request):
