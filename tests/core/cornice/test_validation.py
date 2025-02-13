@@ -10,6 +10,7 @@ from pyramid.request import Request
 from webtest import TestApp
 
 from kinto.core.cornice.errors import Errors
+from kinto.core.cornice.service import clear_services
 from kinto.core.cornice.validators import (
     colander_validator,
     extract_cstruct,
@@ -20,6 +21,10 @@ from .validationapp import main
 
 
 class TestServiceDefinition(LoggingCatcher, TestCase):
+    def tearDown(self):
+        clear_services()
+        return super().tearDown()
+
     def test_validation(self):
         app = TestApp(main({}))
         app.get("/service", status=400)
@@ -356,6 +361,10 @@ class TestServiceDefinition(LoggingCatcher, TestCase):
 
 
 class TestErrorMessageTranslationColander(TestCase):
+    def tearDown(self):
+        clear_services()
+        return super().tearDown()
+
     def post(self, settings={}, headers={}):
         app = TestApp(main({}, **settings))
         return app.post_json(

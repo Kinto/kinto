@@ -1,5 +1,4 @@
 import unittest
-from unittest import mock
 
 from flex.core import validate
 
@@ -7,7 +6,7 @@ from kinto.core.cornice.service import Service
 from kinto.core.cornice.validators import colander_validator
 from kinto.core.cornice_swagger.swagger import CorniceSwagger, CorniceSwaggerException
 
-from .support import BodySchema, GetRequestSchema, HeaderSchema, PutRequestSchema, response_schemas
+from .support import GetRequestSchema, PutRequestSchema, response_schemas
 
 
 class CorniceSwaggerGeneratorTest(unittest.TestCase):

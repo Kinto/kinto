@@ -1,13 +1,18 @@
 import unittest
 from unittest import mock
 
-from kinto.core.cornice.service import get_services
+from kinto.core.cornice.service import clear_services, get_services
 from kinto.core.openapi import OpenAPI
 
 from .support import BaseWebTest
 
 
 class OpenAPITest(BaseWebTest, unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        clear_services()
+        super().setUpClass()
+
     def setUp(self):
         super(OpenAPITest, self).setUp()
         self.request = mock.MagicMock()
