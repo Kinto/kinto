@@ -45,7 +45,9 @@ execnet==2.0.2
 fqdn==1.5.1
     # via jsonschema
 greenlet==3.1.1
-    # via playwright
+    # via
+    #   playwright
+    #   sqlalchemy
 hupper==1.12
     # via pyramid
 idna==3.7
@@ -175,7 +177,7 @@ six==1.16.0
     #   rfc3339-validator
 soupsieve==2.5
     # via beautifulsoup4
-sqlalchemy==2.0.37
+sqlalchemy==2.0.38
     # via
     #   -r constraints.in
     #   sentry-sdk
