@@ -25,17 +25,9 @@ certifi==2024.7.4
 charset-normalizer==3.3.2
     # via requests
 colander==2.0
-    # via
-    #   -r constraints.in
-    #   cornice-swagger
+    # via -r constraints.in
 colorama==0.4.6
     # via logging-color-formatter
-cornice==6.0.1
-    # via
-    #   -r constraints.in
-    #   cornice-swagger
-cornice-swagger==1.0.1
-    # via -r constraints.in
 coverage==7.6.4
     # via pytest-cov
 dockerflow==2024.4.2
@@ -45,9 +37,7 @@ execnet==2.0.2
 fqdn==1.5.1
     # via jsonschema
 greenlet==3.1.1
-    # via
-    #   playwright
-    #   sqlalchemy
+    # via playwright
 hupper==1.12
     # via pyramid
 idna==3.7
@@ -111,7 +101,6 @@ pyproject-hooks==1.0.0
 pyramid==2.0.2
     # via
     #   -r constraints.in
-    #   cornice
     #   pyramid-mailer
     #   pyramid-multiauth
     #   pyramid-tm
@@ -172,7 +161,6 @@ simplejson==3.19.2
 six==1.16.0
     # via
     #   bravado-core
-    #   cornice-swagger
     #   python-dateutil
     #   rfc3339-validator
 soupsieve==2.5
@@ -211,9 +199,7 @@ urllib3==2.2.2
     #   requests
     #   sentry-sdk
 venusian==3.1.0
-    # via
-    #   cornice
-    #   pyramid
+    # via pyramid
 waitress==3.0.2
     # via
     #   -r constraints.in

@@ -4,11 +4,11 @@ import logging
 import tempfile
 
 import pkg_resources
-from cornice import Service as CorniceService
 from dockerflow import logging as dockerflow_logging
 from pyramid.settings import aslist
 
 from kinto.core import errors, events
+from kinto.core.cornice import Service as CorniceService
 from kinto.core.initialization import (  # NOQA
     initialize,
     install_middlewares,
@@ -186,10 +186,10 @@ def includeme(config):
     config.add_request_method(events.notify_resource_event, name="notify_resource_event")
 
     # Setup cornice.
-    config.include("cornice")
+    config.include("kinto.core.cornice")
 
     # Setup cornice api documentation
-    config.include("cornice_swagger")
+    config.include("kinto.core.cornice_swagger")
 
     # Per-request transaction.
     config.include("pyramid_tm")
