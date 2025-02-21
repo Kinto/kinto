@@ -544,6 +544,7 @@ def setup_metrics(config):
 
     config.add_subscriber(on_new_response, NewResponse)
 
+
 class EventActionFilter:
     def __init__(self, actions, config):
         actions = ACTIONS.from_string_list(actions)
