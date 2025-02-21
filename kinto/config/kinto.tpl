@@ -36,7 +36,6 @@ kinto.includes = kinto.plugins.default_bucket
                  kinto.plugins.admin
                  kinto.plugins.accounts
 #                kinto.plugins.history
-#                kinto.plugins.quotas
 
 # Backends
 # https://kinto.readthedocs.io/en/latest/configuration/settings.html#storage

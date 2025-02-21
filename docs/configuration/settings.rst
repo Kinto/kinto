@@ -340,9 +340,6 @@ list of Python modules:
 | ``kinto.plugins.openid``              | It allows to authenticate users using OpenID Connect from Google,        |
 |                                       | Microsoft, Auth0, etc. (:ref:`more details <api-openid>`).               |
 +---------------------------------------+--------------------------------------------------------------------------+
-| ``kinto.plugins.quotas``              | It allows to limit storage per collection size, number of records, etc.  |
-|                                       | (:ref:`more details <api-quotas>`).                                      |
-+---------------------------------------+--------------------------------------------------------------------------+
 | ``kinto.plugins.prometheus``          | Send metrics about backend duration, authentication, endpoints hits, ..  |
 |                                       | (:ref:`more details <monitoring-with-prometheus>`).                      |
 +---------------------------------------+--------------------------------------------------------------------------+

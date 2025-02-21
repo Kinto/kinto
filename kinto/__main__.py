@@ -33,7 +33,6 @@ def main(args=None):
         "migrate",
         "flush-cache",
         "version",
-        "rebuild-quotas",
         "create-user",
     )
     subparsers = parser.add_subparsers(
@@ -102,16 +101,6 @@ def main(args=None):
                 "--dry-run",
                 action="store_true",
                 help="Simulate the migration operations and show information",
-                dest="dry_run",
-                required=False,
-                default=False,
-            )
-
-        elif command == "rebuild-quotas":
-            subparser.add_argument(
-                "--dry-run",
-                action="store_true",
-                help="Simulate the rebuild operation and show information",
                 dest="dry_run",
                 required=False,
                 default=False,
@@ -213,11 +202,6 @@ def main(args=None):
     elif which_command == "flush-cache":
         env = bootstrap(config_file, options={"command": "flush-cache"})
         core_scripts.flush_cache(env)
-
-    elif which_command == "rebuild-quotas":
-        dry_run = parsed_args["dry_run"]
-        env = bootstrap(config_file, options={"command": "rebuild-quotas"})
-        return kinto_scripts.rebuild_quotas(env, dry_run=dry_run)
 
     elif which_command == "create-user":
         username = parsed_args["username"]
