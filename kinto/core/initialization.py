@@ -544,11 +544,6 @@ def setup_metrics(config):
 
     config.add_subscriber(on_new_response, NewResponse)
 
-    # While statsd is deprecated, we include its plugin by default for retro-compability.
-    if settings["statsd_url"]:
-        config.include("kinto.plugins.statsd")
-
-
 class EventActionFilter:
     def __init__(self, actions, config):
         actions = ACTIONS.from_string_list(actions)

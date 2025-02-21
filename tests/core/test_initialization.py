@@ -331,13 +331,7 @@ class MetricsConfigurationTest(unittest.TestCase):
             )
         self.mocked.assert_called_with("host", 8080, "kinto.core")
 
-    def test_statsd_is_included_by_default(self):
-        kinto.core.initialize(self.config, "0.0.1", "name")
-
-        self.mocked.assert_called_with("host", 8080, "kinto.core")
-
-    def test_statsd_isnt_included_if_statsd_url_is_not_set(self):
-        self.config.add_settings({"statsd_url": None})
+    def test_statsd_isnt_included_by_default(self):
         kinto.core.initialize(self.config, "0.0.1", "name")
 
         self.mocked.assert_not_called()
