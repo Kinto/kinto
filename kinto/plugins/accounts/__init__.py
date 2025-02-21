@@ -6,19 +6,12 @@ from pyramid.exceptions import ConfigurationError
 from kinto.authorization import PERMISSIONS_INHERITANCE_TREE
 
 from .authentication import AccountsAuthenticationPolicy as AccountsPolicy
-from .utils import (
-    ACCOUNT_CACHE_KEY,
-    ACCOUNT_POLICY_NAME,
-    ACCOUNT_RESET_PASSWORD_CACHE_KEY,
-    ACCOUNT_VALIDATION_CACHE_KEY,
-)
+from .utils import ACCOUNT_CACHE_KEY, ACCOUNT_POLICY_NAME
 
 
 __all__ = [
     "ACCOUNT_CACHE_KEY",
     "ACCOUNT_POLICY_NAME",
-    "ACCOUNT_RESET_PASSWORD_CACHE_KEY",
-    "ACCOUNT_VALIDATION_CACHE_KEY",
     "AccountsPolicy",
 ]
 
@@ -27,16 +20,13 @@ DOCS_URL = "https://kinto.readthedocs.io/en/stable/api/1.x/accounts.html"
 
 def includeme(config):
     settings = config.get_settings()
-    validation_enabled = settings.get("account_validation", False)
     config.add_api_capability(
         "accounts",
         description="Manage user accounts.",
         url="https://kinto.readthedocs.io/en/latest/api/1.x/accounts.html",
-        validation_enabled=validation_enabled,
+        validation_enabled=False,
     )
     kwargs = {}
-    if not validation_enabled:
-        kwargs["ignore"] = "kinto.plugins.accounts.views.validation"
     config.scan("kinto.plugins.accounts.views", **kwargs)
 
     PERMISSIONS_INHERITANCE_TREE["root"].update({"account:create": {}})
@@ -44,13 +34,6 @@ def includeme(config):
         "write": {"account": ["write"]},
         "read": {"account": ["write", "read"]},
     }
-
-    if validation_enabled:
-        # Valid mailers other than the default are `debug` and `testing`
-        # according to
-        # https://docs.pylonsproject.org/projects/pyramid_mailer/en/latest/#debugging
-        mailer = settings.get("mail.mailer", "")
-        config.include("pyramid_mailer" + (f".{mailer}" if mailer else ""))
 
     # Check that the account policy is mentioned in config if included.
     accountClass = "AccountsPolicy"

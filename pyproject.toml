@@ -28,7 +28,6 @@ dependencies = [
     "logging-color-formatter",
     "python-dateutil",
     "pyramid",
-    "pyramid_mailer",
     "pyramid_multiauth",
     "transaction",
     "pyramid_tm",

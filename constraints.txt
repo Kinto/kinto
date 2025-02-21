@@ -101,11 +101,8 @@ pyproject-hooks==1.0.0
 pyramid==2.0.2
     # via
     #   -r constraints.in
-    #   pyramid-mailer
     #   pyramid-multiauth
     #   pyramid-tm
-pyramid-mailer==0.15.1
-    # via -r constraints.in
 pyramid-multiauth==1.0.2
     # via -r constraints.in
 pyramid-tm==2.6
@@ -138,8 +135,6 @@ referencing==0.32.1
     # via
     #   jsonschema
     #   jsonschema-specifications
-repoze-sendmail==4.4.1
-    # via pyramid-mailer
 requests==2.32.3
     # via
     #   -r constraints.in
@@ -177,9 +172,7 @@ swagger-spec-validator==3.0.3
 transaction==5.0
     # via
     #   -r constraints.in
-    #   pyramid-mailer
     #   pyramid-tm
-    #   repoze-sendmail
     #   zope-sqlalchemy
 translationstring==1.4
     # via
@@ -219,7 +212,6 @@ zope-deprecation==5.0
 zope-interface==6.1
     # via
     #   pyramid
-    #   repoze-sendmail
     #   transaction
     #   zope-sqlalchemy
 zope-sqlalchemy==3.1

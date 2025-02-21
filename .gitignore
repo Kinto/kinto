@@ -16,7 +16,6 @@ build/
 kinto/plugins/admin/build
 kinto/plugins/admin/kinto-admin-*
 .pytest_cache/
-mail/
 .history/
 .vscode/
 .ruff_cache/

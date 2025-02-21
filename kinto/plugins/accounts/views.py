@@ -1,6 +1,3 @@
-import re
-import uuid
-
 import colander
 from pyramid import httpexceptions
 from pyramid.authorization import Authenticated, Everyone
@@ -8,22 +5,12 @@ from pyramid.decorator import reify
 from pyramid.events import subscriber
 from pyramid.settings import aslist
 
-from kinto.core import resource
+from kinto.core import resource, utils
 from kinto.core.errors import http_error, raise_invalid
 from kinto.core.events import ACTIONS, ResourceChanged
 from kinto.views import NameGenerator
 
-from ..mails import Emailer
-from ..utils import (
-    ACCOUNT_POLICY_NAME,
-    cache_validation_key,
-    delete_cached_account,
-    get_cached_validation_key,
-    hash_password,
-)
-
-
-DEFAULT_EMAIL_REGEXP = "^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$"
+from .utils import ACCOUNT_CACHE_KEY, ACCOUNT_POLICY_NAME, hash_password
 
 
 def _extract_posted_body_id(request):
@@ -63,13 +50,6 @@ class Account(resource.Resource):
         )
         # Shortcut to check if current is anonymous (before get_parent_id()).
         context.is_anonymous = Authenticated not in request.effective_principals
-        # Is the "accounts validation" setting set?
-        context.validation_enabled = settings.get("account_validation", False)
-        # Account validation requires the user id to be an email.
-        validation_email_regexp = settings.get(
-            "account_validation.email_regexp", DEFAULT_EMAIL_REGEXP
-        )
-        context.validation_email_regexp = re.compile(validation_email_regexp)
 
         super().__init__(request, context)
 
@@ -122,26 +102,6 @@ class Account(resource.Resource):
             error_details = {"name": "data.id", "description": "Accounts must have an ID."}
             raise_invalid(self.request, **error_details)
 
-        # Account validation requires that the record ID is an email address.
-        # TODO: this might be better suited for a schema. Do we have a way to
-        # dynamically change the schema according to the settings?
-        if self.context.validation_enabled and old is None:
-            email_regexp = self.context.validation_email_regexp
-            # Account validation requires that the record ID is an email address.
-            user_email = new[self.model.id_field]
-            if not email_regexp.match(user_email):
-                error_details = {
-                    "name": "data.id",
-                    "description": f"Account validation is enabled, and user id should match {email_regexp}",
-                }
-                raise_invalid(self.request, **error_details)
-
-            activation_key = str(uuid.uuid4())
-            new["validated"] = False
-
-            # Store the activation key in the cache to be used in the `validate` endpoint.
-            cache_validation_key(activation_key, new["id"], self.request.registry)
-
         # Administrators can reach other accounts and anonymous have no
         # selected_userid. So do not try to enforce.
         if self.context.is_administrator or self.context.is_anonymous:
@@ -164,28 +124,13 @@ class Account(resource.Resource):
 )
 def on_account_changed(event):
     request = event.request
+    cache = request.registry.cache
+    settings = request.registry.settings
+    hmac_secret = settings["userid_hmac_secret"]
 
     for obj in event.impacted_objects:
         # Extract username and password from current user
         username = obj["old"]["id"]
+        cache_key = utils.hmac_digest(hmac_secret, ACCOUNT_CACHE_KEY.format(username))
         # Delete cache
-        delete_cached_account(username, request.registry)
-
-
-# Send activation code by email on account creation if account validation is enabled.
-@subscriber(ResourceChanged, for_resources=("account",), for_actions=(ACTIONS.CREATE,))
-def on_account_created(event):
-    request = event.request
-    settings = request.registry.settings
-    if not settings.get("account_validation", False):
-        return
-
-    for impacted_object in event.impacted_objects:
-        account = impacted_object["new"]
-        user_email = account["id"]
-        activation_key = get_cached_validation_key(user_email, request.registry)
-        if activation_key is None:
-            continue
-
-        # Send an email to the user with the link to activate their account.
-        Emailer(request, account).send_activation(activation_key)
+        cache.delete(cache_key)
