@@ -409,16 +409,13 @@ It should now be possible to search for it:
 Going further
 -------------
 
-This plugins implements the basic functionnality. In order to make it a first-class
+This plugins implements the basic functionality. In order to make it a first-class
 plugin, it would require:
 
 * Check that user has ``read`` permission on the collection before searching
 * Create the index when the collection is created
 * Create a mapping if the collection has a JSON schema
 * Delete the index when the bucket or collection are deleted
-
-If you feel like doing it, we would be very glad to help you!
-
 
 More documentation
 ------------------

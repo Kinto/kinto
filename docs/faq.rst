@@ -3,58 +3,45 @@
 FAQ
 ===
 
+.. _compare-solutions:
+
 How does Kinto compare to other solutions?
 -------------------------------------------
 
-Before we started building our own data storage service, we took a look at what
-was already out there. Our initial intent was to use and possibly extend
-an existing community project rather than reinventing the wheel.
+*Kinto* was built in 2016. Back then, there were very few alternatives, and projects like `CouchDB <https://github.com/apache/couchdb>`_
+did not have the fine-grained permissions we were looking for.
 
-However, since none of the existing solutions we tried was a perfect fit for the
-problems we needed to solve, notably regarding fine-grained permissions, we started
-our own stack using the experience we gained from building Firefox Sync.
+Over the years, many great (and better!) alternatives were created with more features for complex applications (e.g., built-in push notifications, or extensive analytics).
 
-What follows is a comparison table showing how Kinto stacks up compared to some
-other projects in this space.
+.. list-table:: :header-rows: 1
 
+    * * Project
+      * Description
+    * * `RemoteStorage <https://remotestorage.io>`_
+      * A free and open standard that enables users to host their own data and grant apps permission to access it. The ``remotestorage.js`` library and various server implementations allow for decentralized, user-centric data storage.
+    * * `Supabase <https://supabase.com>`_
+      * An open-source Firebase alternative built on PostgreSQL. It offers authentication, storage, real-time subscriptions, and APIs.
+    * * `Appwrite <https://appwrite.io>`_
+      * A self-hosted backend server providing authentication, databases, file storage, and more. Designed for web, mobile, and Flutter applications.
+    * * `Nhost <https://nhost.io>`_
+      * A full-stack serverless platform with a GraphQL API on top of PostgreSQL, including integrated authentication and storage.
+    * * `Parse Platform <https://parseplatform.org>`_
+      * The open-source version of the popular Parse backend. Offers user management, push notifications, and real-time data with Parse Server.
+    * * `Hasura <https://hasura.io>`_
+      * A GraphQL engine that provides real-time APIs and can be self-hosted. Works well alongside existing PostgreSQL databases.
+    * * `Directus <https://directus.io>`_
+      * A headless CMS that wraps any SQL database with a dynamic API and administration app. Fully open-source and self-hostable.
+    * * `FeathersJS <https://feathersjs.com>`_
+      * A lightweight, open-source REST and real-time API framework for Node.js. Can integrate with various databases and authentication providers.
+    * * `Kuzzle <https://kuzzle.io/>`_
+      * An open-source backend solution tailored for real-time applications and IoT. Provides multi-protocol support (including REST, MQTT, and WebSocket), an administration console, and plugin system.
 
-===========================  ======  =============  ========  =======  ======= ==============  =======  =========
-Project                      Kinto   Parse Server   Firebase  CouchDB  Kuzzle  Remote-Storage  Hoodie   BrowserFS
----------------------------  ------  -------------  --------  -------  ------- --------------  -------  ---------
-Offline-first client         ✔       ✔              ✔         ✔        ✔       ✔               ✔
-Fine-grained permissions     ✔       ✔              ✔                  ~                       [#]_
-Easy query mechanism         ✔       ✔              ✔         [#]_     ✔       [#]_            ✔
-Conflict resolution          ✔       ✔              ✔         ✔        ✔       ✔ [#]_          ✔
-Validation                   ✔       ✔              ✔         ✔        ✔                       ✔
-Revision history             ✔                                ✔                                ✔
-File storage                 ✔       ✔                        ✔                ✔               ✔        ✔
-Batch/bulk operations        ✔       ✔                        ✔        ✔                       ✔
-Changes stream               ✔       ✔              ✔         ✔        ✔                       ✔
-Pluggable authentication     ✔       ✔                        ✔                [#]_            ✔        ✔
-Pluggable storage / cache    ✔       ✔                                         ✔
-Self-hostable                ✔       ✔                        ✔        ✔       ✔               ✔        ✔
-Decentralised discovery      [#]_                                              ✔
-Open source                  ✔       ✔                        ✔        ✔       ✔               ✔        ✔
-Language                     Python  Node.js                  Erlang   Node.js Node.js [#]_    Node.js  Node.js
-===========================  ======  =============  ========  =======  ======= ==============  =======  =========
+.. note::
 
-.. [#] Currently, user plugin in Hoodie auto-approves users, but they are working on it.
-.. [#] CouchDB uses Map/Reduce as a query mechanism, which isn't easy to
-       understand for newcomers.
-.. [#] Remote Storage allows "ls" on a folder, but items are not sorted or
-       paginated.
-.. [#] Kinto uses the same mechanisms as Remote storage for conflict handling.
-.. [#] Remote Storage supports OAuth2.0 implicit grant flow.
-.. [#] Support for decentralised discovery
-       `is planned <https://github.com/Kinto/kinto/issues/125>`_ but not
-       implemented yet.
-.. [#] Remote Storage doesn't define any default implementation (as it is
-       a procol) but makes it easy to start with JavaScript and Node.js.
-
-You can also read `a longer explanation of our choices and motivations behind the
-creation of Kinto 
-<https://mozilla-services.github.io/servicedenuages.fr/en/generic-storage-ecosystem>`_
-on our blog.
+    You can read `a longer explanation of our choices and motivations behind the
+    creation of Kinto
+    <https://mozilla-services.github.io/servicedenuages.fr/en/generic-storage-ecosystem>`_
+    on our blog.
 
 Why the name «Kinto»?
 ---------------------
@@ -83,16 +70,9 @@ Is there a package for my Operating System?
 -------------------------------------------
 
 No, but it's a great idea. Maintaining packages for several platforms is time-consuming
-and we're a small team.
+and we're a very small team.
 
 Currently we make sure it's :ref:`easy to run with Docker or Python pip <install>`.
-
-We also have a :ref:`single-click deployment <deploy-an-instance>` on some cloud providers.
-
-.. important::
-
-    If you'd like to help us out by maintaining packages for your favourite OS,
-    we'd be delighted to collaborate with you!
 
 
 Why did you chose to use Python rather than X?
@@ -151,13 +131,7 @@ unique :term:`user id` from them.
 
 See also:
 
-* :ref:`How to implement a custom authentication <tutorial-github>`
 * :ref:`Kinto API documentation about authentication <authentication>`
-
-.. note::
-
-    We'd be delighted to add more built-in authentication methods into Kinto.
-    Please reach out if you're interested!
 
 
 How to disable the permissions system (for development)?
@@ -196,20 +170,6 @@ provided conflict resolution strategies are:
 
 Then there is, of course, a `convenient helper to handle conflict one by one
 <https://kintojs.readthedocs.io/en/latest/api/#resolving-conflicts-manually>`_.
-
-
-Would you recommend Redis or PostgreSQL?
-----------------------------------------
-
-You can use both of them:
-
-* *Redis* is usually easier to install and run than PostgreSQL. But you will have a
-  database running in memory which means your data should be smaller than your server RAM.
-  *Redis* is great for the ``cache`` backend.
-
-* *PostgreSQL* is the recommended backend for ``storage`` and ``permission`` in production.
-  Mainly because data integrity is guaranteed, thanks to «per-request» transactions.
-  It's also usually easier to backup and export data out of a PostgreSQL database.
 
 
 Why PostgreSQL to store arbitrary JSON?

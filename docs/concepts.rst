@@ -121,7 +121,7 @@ Technical Architecture
 Every concept of bucket, group, collection or record is a REST
 *resource* and behaves according to the conventions of a resource.
 
-*Kinto* relies on `Cornice <https://cornice.readthedocs.io>`_ and `Pyramid <https://pyramid.readthedocs.io>`_
+*Kinto* relies on `Pyramid <https://pyramid.readthedocs.io>`_
 to implement the endpoints and HTTP request/response handling.
 
 .. image:: images/architecture.svg

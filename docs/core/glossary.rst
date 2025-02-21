@@ -23,9 +23,6 @@ Glossary
         «Extensible» means that the component behaviour can be overriden via
         lines of code. It differs from «:term:`pluggable`».
 
-    Firefox Accounts
-        :term:`Identity Provider` run by Mozilla (https://accounts.firefox.com).
-
     Identity Provider
         An identity provider (abbreviated IdP) is a service in charge of managing
         identity information, and providing authentication endpoints (login forms,

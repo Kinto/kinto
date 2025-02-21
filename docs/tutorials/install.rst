@@ -4,56 +4,10 @@ Install Kinto
 #############
 
 To get the most out of the :ref:`tutorials <tutorials>`, it helps to
-have a Kinto server running. You can use the Mozilla demo server, or
-set up your own instance.
+have a Kinto server running.
 
 .. contents::
     :local:
-
-.. _run-kinto-mozilla-demo:
-
-Mozilla demo server
-===================
-
-A Kinto instance is running at https://demo.kinto-storage.org/v1/
-
-It should be enough to get started, but the records are flushed every
-day at 7:00 AM UTC.
-
-
-.. _deploy-an-instance:
-
-Deploying on cloud providers
-============================
-
-You want to get started with a working online Kinto server right now? You've
-got a few different options:
-
-.. |heroku-button| image:: ../images/heroku-button.png
-   :target: https://dashboard.heroku.com/new?button-url=https%3A%2F%2Fgithub.com%2FKinto%2Fkinto-heroku&template=https%3A%2F%2Fgithub.com%2FKinto%2Fkinto-heroku>
-   :alt: Deploy on Heroku
-
-.. |scalingo-button| image:: ../images/scalingo-button.svg
-   :target: https://my.scalingo.com/deploy?source=https://github.com/Kinto/kinto-scalingo
-   :alt: Deploy on Scalingo
-
-.. |alwaysdata-button| image:: ../images/alwaysdata-button.svg
-   :target: https://kinto.github.io/kinto-alwaysdata/
-   :alt: Deploy on alwaysdata
-
-+----------------+--------------------------------------------------------------------------------+------------------------+
-| Provider       | What you get / Plan                                                            | Link / Install button  |
-+================+================================================================================+========================+
-| Heroku         | Free plan for up to 10.000 rows on PostgreSQL.                                 |  |heroku-button|       |
-+----------------+--------------------------------------------------------------------------------+------------------------+
-| Scalingo       | 1 month free trial with 512MB RAM, 512MB                                       |  |scalingo-button|     |
-|                | storage and a PostgreSQL database.                                             |                        |
-+----------------+--------------------------------------------------------------------------------+------------------------+
-| alwaysdata     | Open an account and deploy Kinto on it.                                        |  |alwaysdata-button|   |
-|                | 10 MB of free storage.                                                         |                        |
-|                | `Install from Marketplace <https://www.alwaysdata.com/en/marketplace/kinto/>`_ |                        |
-+----------------+--------------------------------------------------------------------------------+------------------------+
-
 
 .. _run-kinto-docker:
 
@@ -139,7 +93,7 @@ Now you can:
 - Stop the containers with ``docker-compose stop``.
 - Start the containers with ``docker-compose up -d`` (``-d`` is for background/daemon).
 - Connect to PostgreSQL service with ``docker-compose exec --user postgres db psql``.
-- Install a plugin into kinto with ``docker-compose exec web pip3 install kinto-pusher``.
+- Install a plugin into kinto with ``docker-compose exec web pip3 install kinto-emailer``.
 - Inspect the kinto config file with ``docker-compose exec web cat /etc/kinto/kinto.ini``.
 
 If you want to change the settings, you need to mount a custom settings file
