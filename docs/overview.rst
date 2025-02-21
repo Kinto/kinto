@@ -168,10 +168,6 @@ Key features
    :alt: indexing by Vectors Market from the Noun Project
    :width: 50px
 
-.. |logo-quotas| image:: images/logo-quotas.svg
-   :alt: Mobile Cloud by Thays Malcher from the Noun Project
-   :width: 50px
-
 .. |logo-demos| image:: images/logo-demos.svg
    :alt: https://thenounproject.com/search/?q=tutorial&i=24313
    :width: 50px
@@ -192,10 +188,6 @@ Key features
 | |logo-attachment|                             | |logo-signature|                                    |
 | `File attachments on records                  | `Digital signature and review                       |
 | <https://github.com/Kinto/kinto-attachment>`_ | workflows <https://github.com/Kinto/kinto-signer>`_ |
-+-----------------------------------------------+-----------------------------------------------------+
-| |logo-quotas|                                 | |logo-indexing|                                     |
-| :ref:`Storage quotas                          | `Records indexing                                   |
-| <api-quotas>`                                 | <https://github.com/Kinto/kinto-algolia>`_          |
 +-----------------------------------------------+-----------------------------------------------------+
 
 **Learn from examples**

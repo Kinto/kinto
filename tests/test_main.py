@@ -146,25 +146,6 @@ class TestMain(unittest.TestCase):
             assert res == 0
             assert mocked_migrate.call_count == 1
 
-    def test_cli_rebuild_quotas_run_rebuild_quotas_script(self):
-        with mock.patch("kinto.__main__.kinto_scripts.rebuild_quotas") as reb_quo:
-            reb_quo.return_value = mock.sentinel.reb_quo_code
-            res = main(
-                [
-                    "init",
-                    "--ini",
-                    TEMP_KINTO_INI,
-                    "--backend",
-                    "memory",
-                    "--cache-backend",
-                    "memory",
-                ]
-            )
-            assert res == 0
-            res = main(["rebuild-quotas", "--ini", TEMP_KINTO_INI])
-            assert res == mock.sentinel.reb_quo_code
-            assert reb_quo.call_count == 1
-
     def test_cli_start_runs_pserve(self):
         with mock.patch("kinto.__main__.pserve.main") as mocked_pserve:
             res = main(

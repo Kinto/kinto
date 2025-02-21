@@ -12,7 +12,7 @@ A set of «sub commands» are available.
 
 ::
 
-    usage: kinto [-h] {init,start,migrate,version,rebuild-quotas} ...
+    usage: kinto [-h] {init,start,migrate,version} ...
 
     Kinto Command-Line Interface
 
@@ -22,7 +22,7 @@ A set of «sub commands» are available.
     subcommands:
       Main Kinto CLI commands
 
-      {init,start,migrate,version,rebuild-quotas}
+      {init,start,migrate,version}
                             Choose and run with --help
 
 
@@ -81,34 +81,6 @@ Starts Kinto locally using a simple HTTP server.
 .. note::
 
     This **not** recommended for production. :ref:`See more details <run-production>`.
-
-
-Rebuild quotas
---------------
-
-Recalculate the amount of storage taken up by buckets and collections
-and update quota records to match reality. This can be useful if
-you've been bitten by `bug #1226
-<https://github.com/Kinto/kinto/issues/1226>`_. However, this isn't
-intended to be a reoccurring maintenance task -- if your quota records
-are regularly becoming inaccurate, please file a bug!
-
-::
-
-    usage: kinto rebuild-quotas [-h] [--ini INI_FILE] [-q] [-v] [--dry-run]
-
-    optional arguments:
-      -h, --help      show this help message and exit
-      --ini INI_FILE  Application configuration file
-      -q, --quiet     Show only critical errors.
-      -v, --debug     Show all messages, including debug messages.
-      --dry-run       Simulate the rebuild operation and show information
-
-For example:
-
-::
-
-    kinto rebuild-quotas --ini=config/postgresql.ini
 
 Flush Cache
 -----------
