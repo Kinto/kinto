@@ -105,6 +105,17 @@ class ErrorViewTest(FormattedErrorMixin, BaseWebTest, unittest.TestCase):
             response = self.app.get(self.sample_url, headers=self.headers, status=403)
         self.assertFormattedError(response, 403, ERRORS.FORBIDDEN, "Forbidden", "Customized.")
 
+    def test_403_can_have_other_content_type_than_json(self):
+        custom_403_text = http_error(httpexceptions.HTTPForbidden(), errno=ERRORS.FORBIDDEN)
+        custom_403_text.content_type = "text/plain"
+
+        with mock.patch(
+            "tests.core.testapp.views.Mushroom._extract_filters", side_effect=custom_403_text
+        ):
+            response = self.app.get(self.sample_url, headers=self.headers, status=403)
+
+        self.assertIn('"message":"This user cannot access', response.text)
+
     def test_405_is_valid_formatted_error(self):
         response = self.app.patch(self.sample_url, headers=self.headers, status=405)
         self.assertFormattedError(
