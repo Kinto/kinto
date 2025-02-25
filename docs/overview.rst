@@ -155,22 +155,18 @@ Key features
    :alt: https://thenounproject.com/search/?q=attachment&i=169265
    :width: 50px
 
-.. |logo-quotas| image:: images/logo-quotas.svg
-   :alt: Mobile Cloud by Thays Malcher from the Noun Project
-   :width: 50px
-
 +-----------------------------------------------+-----------------------------------------------------+
 | |logo-javascript|                             | |logo-python|                                       |
 | `JavaScript Offline and HTTP API client       | `Python HTTP API client                             |
 | <https://github.com/Kinto/kinto.js/>`_        | <https://github.com/Kinto/kinto-http.py>`_          |
 +-----------------------------------------------+-----------------------------------------------------+
-| |logo-quotas|                                 | |logo-admin|                                        |
-| :ref:`Storage quotas                          | :ref:`Web Admin UI                                  |
-| <api-quotas>`                                 | <kinto-admin>`                                      |
+| |logo-history|                                | |logo-admin|                                        |
+| :ref:`History of changes and authorship       | :ref:`Web Admin UI                                  |
+| <api-history>`                                | <kinto-admin>`                                      |
 +-----------------------------------------------+-----------------------------------------------------+
-| |logo-history|                                | |logo-attachment|                                   |
-| :ref:`History of changes and authorship       | `File attachments on records                        |
-| <api-history>`                                | <https://github.com/Kinto/kinto-attachment>`_       |
+| |logo-attachment|                             |                                                     |
+| `File attachments on records                  |                                                     |
+| <https://github.com/Kinto/kinto-attachment>`_ |                                                     |
 +-----------------------------------------------+-----------------------------------------------------+
 
 
