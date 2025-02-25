@@ -22,6 +22,8 @@ def authorization_required(response, request):
     """
     if Authenticated not in request.effective_principals:
         if response.content_type != "application/json":
+            # This is always the case when `HTTPForbidden` is raised by Pyramid
+            # on protected views with unauthenticated requests.
             error_msg = "Please authenticate yourself to use this endpoint."
             response = http_error(
                 httpexceptions.HTTPUnauthorized(),

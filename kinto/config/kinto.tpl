@@ -103,18 +103,6 @@ kinto.account_create_principals = system.Everyone
 kinto.account_write_principals = account:admin
 # Allow administrators to create buckets
 kinto.bucket_create_principals = account:admin
-# Enable the "account_validation" option.
-# kinto.account_validation = true
-# Set the sender for the validation email.
-# kinto.account_validation.email_sender = "admin@example.com"
-# Set the regular expression used to validate a proper email address.
-# kinto.account_validation.email_regexp = "^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$"
-
-# Mail configuration (needed for the account validation option), see https://docs.pylonsproject.org/projects/pyramid_mailer/en/latest/#configuration
-# mail.host = localhost
-# mail.port = 25
-# mail.username = someusername
-# mail.password = somepassword
 
 # Notifications
 # https://kinto.readthedocs.io/en/latest/configuration/settings.html#notifications
