@@ -69,7 +69,7 @@ for the configured provider ``name``.
 JavaScript example
 ------------------
 
-Let's go through a simple OpenID login example using the `JavaScript kinto client <https://github.com/Kinto/kinto-http.js>`_.
+Let's go through a simple OpenID login example using the `JavaScript kinto client <https://github.com/Kinto/kinto.js>`_.
 
 When the user clicks a login button, it initiates the login process by redirecting the browser to the
 Identity Provider, which itself redirects it to the application page once successful.

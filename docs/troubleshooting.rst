@@ -9,7 +9,7 @@ That said, we have included solutions (or at least explanations) for
 some common problems below.
 
 If you do not find a solution to your problem here, please
-:ref:`ask for help <communication_channels>`!
+:ref:`open an issue <community>`!
 
 
 Module object has no attribute 'register_json'

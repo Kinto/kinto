@@ -21,7 +21,7 @@ class _QueueWithMaxBacklog(Queue):
         with self.mutex:
             self.cur_backlog += 1
             try:
-                if self.max_backlog >= 0:
+                if self.max_backlog >= 0:  # pragma: no branch
                     if self.cur_backlog > self.max_backlog:
                         block = False
                         timeout = None

@@ -94,7 +94,7 @@ Backends
 Kinto relies on three types of backends: storage, cache and permission. The
 settings names have a different prefix for each.
 
-For each of them, the supported services are currently PostgreSQL, Redis, and Memory.
+For each of them, the supported services are currently PostgreSQL, and Memory.
 Memcached is also available as a cache backend.
 
 Storage
@@ -107,7 +107,7 @@ Storage
 |                              |                               |                                                                          |
 +------------------------------+-------------------------------+--------------------------------------------------------------------------+
 | kinto.storage_url            | ``''``                        | The URL to use to authenticate to the storage backend. e.g.              |
-|                              |                               | ``redis://localhost:6378/1`` or ``postgresql://user:pass@database/db``   |
+|                              |                               | ``postgresql://user:pass@database/db``                                   |
 +------------------------------+-------------------------------+--------------------------------------------------------------------------+
 | kinto.storage_max_fetch_size | ``10000``                     | The maximum number of items that can be returned by one request to the   |
 |                              |                               | storage backend. If no pagination is enabled, this is the maximum number |
@@ -340,9 +340,6 @@ list of Python modules:
 | ``kinto.plugins.openid``              | It allows to authenticate users using OpenID Connect from Google,        |
 |                                       | Microsoft, Auth0, etc. (:ref:`more details <api-openid>`).               |
 +---------------------------------------+--------------------------------------------------------------------------+
-| ``kinto.plugins.quotas``              | It allows to limit storage per collection size, number of records, etc.  |
-|                                       | (:ref:`more details <api-quotas>`).                                      |
-+---------------------------------------+--------------------------------------------------------------------------+
 | ``kinto.plugins.prometheus``          | Send metrics about backend duration, authentication, endpoints hits, ..  |
 |                                       | (:ref:`more details <monitoring-with-prometheus>`).                      |
 +---------------------------------------+--------------------------------------------------------------------------+
@@ -355,8 +352,6 @@ There are `many available packages`_ in the Pyramid ecosystem, and it is straigh
 since the specified module must just define an ``includeme(config)`` function.
 
 .. _many available packages: https://github.com/ITCase/awesome-pyramid
-
-See `our list of community plugins <https://github.com/Kinto/kinto/wiki/Plugins>`_.
 
 See also: :ref:`tutorial-write-plugin` for more in-depth informations on how
 to create your own plugin.
@@ -895,17 +890,6 @@ Even if it was convenient to get started, we decided to get rid of it because it
     kinto.default_bucket_hmac_secret = bucket-id-random-salt-garam
     multiauth.policy.basicauth.use = kinto.core.authentication.BasicAuthAuthenticationPolicy
 
-.. _settings-kinto-auth-plugins:
-
-Other Kinto plugins
-:::::::::::::::::::
-
-* `Kinto LDAP <https://github.com/Kinto/kinto-ldap>`_: Validate Basic Auth provided user login and password with an LDAP server.
-* `Kinto Facebook <https://github.com/Kinto/kinto-facebook>`_:  Authentication using Facebook OAuth2 bearer tokens.
-* `Kinto Portier <https://github.com/Kinto/kinto-portier>`_: Authentication using an email address.
-* `Kinto Hawk <https://github.com/Kinto/kinto-hawk>`_: Authentication using... Hawk.
-* `Kinto Fxa <https://github.com/Kinto/kinto-fxa>`_: Authentication using Firefox Accounts OAuth2 bearer tokens.
-
 .. _settings-custom-auth:
 
 Custom Authentication
@@ -936,11 +920,6 @@ to highly complex.
 
     *Kinto* relies on `pyramid multiauth <https://github.com/mozilla-services/pyramid_multiauth>`_ to initialise authentication.
 
-.. seealso::
-
-    Check out our tutorial about :ref:`implementing a custom authentication <tutorial-github>`
-
-
 .. _configuring-notifications:
 
 Notifications
@@ -949,21 +928,14 @@ Notifications
 *Kinto* has a notification system, and the event listeners are configured using
 the *event_handlers* setting, which takes a list of aliases.
 
-In the example below, the Redis listener is activated and will send events
-data in the ``queue`` Redis list.
-
-.. note::
-
-    Install the `kinto-redis package <https://github.com/Kinto/kinto-redis>`_ first.
+In the example below, a custom listener is activated and will send events data:
 
 .. code-block:: ini
 
-    kinto.event_listeners = redis
+    kinto.event_listeners = mylistener
 
-    kinto.event_listeners.redis.use = kinto_redis.listeners
-    kinto.event_listeners.redis.url = redis://localhost:6379/0
-    kinto.event_listeners.redis.pool_size = 5
-    kinto.event_listeners.redis.listname = queue
+    kinto.event_listeners.mylistener.use = mylistener.listeners
+    kinto.event_listeners.mylistener.param = 42
 
 Filtering
 :::::::::
@@ -974,17 +946,8 @@ for every kinds of objects.
 
 .. code-block:: ini
 
-    kinto.event_listeners.redis.actions = create
-    kinto.event_listeners.redis.resources = bucket collection
-
-Third-party
-:::::::::::
-
-Enabling push notifications to clients consists in enabling an event listener
-that will be in charge of forwarding events data to remote clients.
-
-A Kinto plugin was made using the *Pusher* (commercial) service.
-See :ref:`tutorial-notifications-websockets`.
+    kinto.event_listeners.mylistener.actions = create
+    kinto.event_listeners.mylistener.resources = bucket collection
 
 
 Cross Origin requests (CORS)
