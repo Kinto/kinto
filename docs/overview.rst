@@ -34,6 +34,12 @@ The backend can often be universal, generic and resuable. We envision mutualisat
 of services and self-hosting: the backend is deployed, secured and scaled
 only once for several applications.
 
+.. warning::
+
+   *Kinto* was started in 2016 and is very stable. However the landscape of generic backend
+   solutions has evolved greatly since then.
+   Check out :ref:`a list of great alternatives <compare-solutions>` that have a lot more features
+   and most important, a bigger community.
 
 .. _use-cases:
 
@@ -67,9 +73,6 @@ rather than complex SQL or map-reduce queries. It is meant to be minimalist and 
 
 Permissions can be set on the stored objects, making it possible to share data between users.
 
-We provide a demo server to start immediately, a one-click installer on Heroku for long
-term hosting and a Docker image to even run it yourself. (:doc:`Let me start now! <tutorials/install>`)
-
 The JavaScript and Python development kits (SDK) provide basic abstractions to store
 and retrieve data from your applications. Our JavaScript client for browsers leverages IndexedDB
 to work completely offline and synchronise data when online.
@@ -77,7 +80,7 @@ to work completely offline and synchronise data when online.
 It's even possible for data to be encrypted on the client to keep user data safe on the server.
 
 The ecosystem of plugins provide advanced features like history tracking, specific authentication,
-push notifications, file attachments...
+file attachments...
 
 
 Key features
@@ -140,10 +143,6 @@ Key features
    :alt:
    :width: 50px
 
-.. |logo-offline| image:: images/logo-offline.svg
-   :alt: https://thenounproject.com/search/?q=offline&i=90580
-   :width: 50px
-
 .. |logo-admin| image:: images/logo-admin.svg
    :alt: control panel by Gregor Črešnar from the Noun Project
    :width: 50px
@@ -152,53 +151,23 @@ Key features
    :alt: restore by Francesco Terzini from the Noun Project
    :width: 50px
 
-.. |logo-livesync| image:: images/logo-livesync.svg
-   :alt: https://thenounproject.com/search/?q=refresh&i=110628
-   :width: 50px
-
 .. |logo-attachment| image:: images/logo-attachment.svg
    :alt: https://thenounproject.com/search/?q=attachment&i=169265
    :width: 50px
 
-.. |logo-signature| image:: images/logo-signature.svg
-   :alt: approved by Gregor Črešnar from the Noun Project
-   :width: 50px
-
-.. |logo-indexing| image:: images/logo-indexing.svg
-   :alt: indexing by Vectors Market from the Noun Project
-   :width: 50px
-
-.. |logo-demos| image:: images/logo-demos.svg
-   :alt: https://thenounproject.com/search/?q=tutorial&i=24313
-   :width: 50px
-
 +-----------------------------------------------+-----------------------------------------------------+
 | |logo-javascript|                             | |logo-python|                                       |
-| `JavaScript HTTP API client                   | `Python HTTP API client                             |
-| <https://github.com/Kinto/kinto-http.js/>`_   | <https://github.com/Kinto/kinto.py>`_               |
+| `JavaScript Offline and HTTP API client       | `Python HTTP API client                             |
+| <https://github.com/Kinto/kinto.js/>`_        | <https://github.com/Kinto/kinto-http.py>`_          |
 +-----------------------------------------------+-----------------------------------------------------+
-| |logo-offline|                                | |logo-admin|                                        |
-| `Offline-first JavaScript client              | :ref:`Web Admin UI                                  |
-| <https://kintojs.readthedocs.io>`_            | <kinto-admin>`                                      |
+| |logo-history|                                | |logo-admin|                                        |
+| :ref:`History of changes and authorship       | :ref:`Web Admin UI                                  |
+| <api-history>`                                | <kinto-admin>`                                      |
 +-----------------------------------------------+-----------------------------------------------------+
-| |logo-history|                                | |logo-livesync|                                     |
-| :ref:`History of changes and authorship       | Live :ref:`Push notifications                       |
-| <api-history>`                                | <tutorials>`                                        |
+| |logo-attachment|                             |                                                     |
+| `File attachments on records                  |                                                     |
+| <https://github.com/Kinto/kinto-attachment>`_ |                                                     |
 +-----------------------------------------------+-----------------------------------------------------+
-| |logo-attachment|                             | |logo-signature|                                    |
-| `File attachments on records                  | `Digital signature and review                       |
-| <https://github.com/Kinto/kinto-attachment>`_ | workflows <https://github.com/Kinto/kinto-signer>`_ |
-+-----------------------------------------------+-----------------------------------------------------+
-
-**Learn from examples**
-
-|logo-demos| Check out :ref:`the list of example applications <app-examples>`,
-or our :ref:`tutorials <tutorials>`!
-
-**Elsewhere**
-
-- `kinto-http-java <https://github.com/intesens/kinto-http-java>`_: A Java HTTP Client
-- `ember-kinto <https://github.com/ptgamr/ember-kinto>`_: Offline first Ember Data adapter
 
 
 .. _overview-synchronisation:
@@ -235,11 +204,6 @@ Notifications
 
 *Kinto* can execute some code when a particular event occurs.
 For example, when a record is created or updated in a particular collection.
-
-It can send a notification to clients using `WebSockets <https://en.wikipedia.org/wiki/WebSocket>`_
-or fill a queue of messages in `Redis <http://redis.io/>`_ or execute any custom code of your choice,
-like for sending emails or pinging a third-party. For example, at Mozilla, Push notifications are sent to millions of clients using `kinto-megaphone <https://github.com/Kinto/kinto-megaphone>`_.
-
 
 See :ref:`our tutorials <tutorials>` for more in-depth information on
 these topics.

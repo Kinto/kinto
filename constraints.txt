@@ -37,7 +37,9 @@ execnet==2.0.2
 fqdn==1.5.1
     # via jsonschema
 greenlet==3.1.1
-    # via playwright
+    # via
+    #   playwright
+    #   sqlalchemy
 hupper==1.12
     # via pyramid
 idna==3.7
@@ -152,7 +154,7 @@ rpds-py==0.17.1
     # via
     #   jsonschema
     #   referencing
-ruff==0.9.6
+ruff==0.9.7
     # via -r constraints.in
 sentry-sdk==2.8.0
     # via -r constraints.in

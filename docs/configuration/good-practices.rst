@@ -181,26 +181,6 @@ Using Amazon RDS
 * Use Route53 for loadbalancing
 
 
-Authentication service
-======================
-
-Each request contains an ``Authorization`` header that needs to be verified by the authentication service.
-
-In the case of Mozilla, *Kinto* is plugged with the *Firefox Accounts* OAuth service.
-
-
-Fail safe
----------
-
-With the *Firefox Accounts* policy, token verifications are cached for an amount of time.
-
-.. code-block:: ini
-
-    fxa-oauth.cache_ttl_seconds = 300  # 5 minutes
-
-If the remote service is down, the cache will allow the authentication of known token for a while. However new tokens will generate a 401 or 503 error response.
-
-
 Scheduled down time
 ===================
 
@@ -257,10 +237,10 @@ always remains the same.
 At the database level
 ----------------------
 
-PostgreSQL and Redis have sharding support built-in.
+PostgreSQL has sharding support built-in.
 
 The right database node is chosen based on some elements of the data query
-(most probably bucket or collection id) and partionning is then performed
+(most probably bucket or collection id) and partioning is then performed
 automatically.
 
 As an example, see `pgPool <http://www.pgpool.net/mediawiki/index.php/Main_Page>`_

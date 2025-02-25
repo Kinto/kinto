@@ -32,7 +32,7 @@ Let's start by giving all authenticated users read access to the bucket.
 .. code-block:: shell
 
     $ echo '{"permissions": {"read": ["system.Authenticated"]}}' | \
-        http PUT https://demo.kinto-storage.org/v1/buckets/servicedenuages-blog \
+        http PUT http://localhost:8888/v1/buckets/servicedenuages-blog \
         --auth julia:s3cr3t
 
 .. code-block:: http
@@ -68,7 +68,7 @@ buckets: ``articles`` and ``comments``.
 
 .. code-block:: shell
 
-    $ http PUT https://demo.kinto-storage.org/v1/buckets/servicedenuages-blog/collections/articles \
+    $ http PUT http://localhost:8888/v1/buckets/servicedenuages-blog/collections/articles \
         --auth julia:s3cr3t
 
 .. code-block:: http
@@ -97,7 +97,7 @@ buckets: ``articles`` and ``comments``.
 
 .. code-block:: shell
 
-    $ http PUT https://demo.kinto-storage.org/v1/buckets/servicedenuages-blog/collections/comments \
+    $ http PUT http://localhost:8888/v1/buckets/servicedenuages-blog/collections/comments \
         --auth julia:s3cr3t
 
 .. code-block:: http
@@ -132,7 +132,7 @@ Let's verify that. Create an article:
 .. code-block:: shell
 
     $ echo '{"data":{"title": "My article", "content": "my content", "published_at": "Thu Jul 16 16:44:15 CEST 2015"}}' | \
-        http POST https://demo.kinto-storage.org/v1/buckets/servicedenuages-blog/collections/articles/records \
+        http POST http://localhost:8888/v1/buckets/servicedenuages-blog/collections/articles/records \
         --auth julia:s3cr3t
 
 .. code-block:: http
@@ -165,7 +165,7 @@ Indeed, using another user like *natim*, we can read the article:
 
 .. code-block:: shell
 
-    $ http GET https://demo.kinto-storage.org/v1/buckets/servicedenuages-blog/collections/articles/records/b8c4cc34-f184-4b4d-8cad-e135a3f0308c \
+    $ http GET http://localhost:8888/v1/buckets/servicedenuages-blog/collections/articles/records/b8c4cc34-f184-4b4d-8cad-e135a3f0308c \
         --auth natim:wh1sp3r
 
 .. code-block:: http
@@ -201,7 +201,7 @@ permissions of the ``comments`` collections:
 .. code-block:: shell
 
     $ echo '{"permissions": {"record:create": ["system.Authenticated"]}}' | \
-        http PATCH https://demo.kinto-storage.org/v1/buckets/servicedenuages-blog/collections/comments \
+        http PATCH http://localhost:8888/v1/buckets/servicedenuages-blog/collections/comments \
         --auth julia:s3cr3t
 
 .. code-block:: http
@@ -236,7 +236,7 @@ Now every authenticated user, like *natim* here, can add a comment.
 .. code-block:: shell
 
     $ echo '{"data":{"article_id": "b8c4cc34-f184-4b4d-8cad-e135a3f0308c", "comment": "my comment", "author": "*natim*"}}' | \
-        http POST https://demo.kinto-storage.org/v1/buckets/servicedenuages-blog/collections/comments/records \
+        http POST http://localhost:8888/v1/buckets/servicedenuages-blog/collections/comments/records \
         --auth natim:wh1sp3r
 
 .. code-block:: http
@@ -276,7 +276,7 @@ We will create a new group called ``writers`` with *natim* as one of the members
 .. code-block:: shell
 
     $ echo '{"data": {"members": ["account:natim"]}}' | \
-        http PUT https://demo.kinto-storage.org/v1/buckets/servicedenuages-blog/groups/writers \
+        http PUT http://localhost:8888/v1/buckets/servicedenuages-blog/groups/writers \
         --auth julia:s3cr3t
 
 .. code-block:: http
@@ -311,7 +311,7 @@ Now we grant the `write` permission on the blog bucket to the ``writers`` group.
 .. code-block:: shell
 
     $ echo '{"permissions": {"write": ["/buckets/servicedenuages-blog/groups/writers"]}}' | \
-        http PATCH https://demo.kinto-storage.org/v1/buckets/servicedenuages-blog \
+        http PATCH http://localhost:8888/v1/buckets/servicedenuages-blog \
         --auth julia:s3cr3t
 
 .. code-block:: http
@@ -347,7 +347,7 @@ Now *natim* can write new articles!
 .. code-block:: shell
 
     $ echo '{"data":{"title": "natim article", "content": "natims content", "published_at": "Thu Jul 16 16:59:16 CEST 2015"}}' | \
-        http POST https://demo.kinto-storage.org/v1/buckets/servicedenuages-blog/collections/articles/records \
+        http POST http://localhost:8888/v1/buckets/servicedenuages-blog/collections/articles/records \
         --auth natim:wh1sp3r
 
 .. code-block:: http
@@ -383,7 +383,7 @@ One can fetch the list of articles.
 
 .. code-block:: shell
 
-    $ http GET https://demo.kinto-storage.org/v1/buckets/servicedenuages-blog/collections/articles/records
+    $ http GET http://localhost:8888/v1/buckets/servicedenuages-blog/collections/articles/records
 
 .. code-block:: http
 
@@ -420,7 +420,7 @@ Or the list of comments.
 
 .. code-block:: shell
 
-    $ http GET https://demo.kinto-storage.org/v1/buckets/servicedenuages-blog/collections/comments/records
+    $ http GET http://localhost:8888/v1/buckets/servicedenuages-blog/collections/comments/records
 
 .. code-block:: http
 

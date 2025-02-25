@@ -6,16 +6,6 @@ Community
 
 You can check out Kinto on GitHub at https://github.com/Kinto/kinto/.
 
-.. _communication_channels:
-
-Communication channels
-======================
-
-* Questions tagged ``kinto`` on `Stack Overflow <http://stackoverflow.com/questions/tagged/kinto>`_.
-* Our `Gitter community <https://gitter.im/Kinto/kinto>`_
-* `The Kinto mailing list <https://mail.mozilla.org/listinfo/kinto>`_.
-* Some `#Kinto <https://twitter.com/search?q=%23Kinto>`_ mentions on Twitter :)
-
 .. _how-to-contribute:
 
 How to contribute
@@ -204,7 +194,7 @@ Before we merge a pull request, we check that it meets these guidelines:
 Hack core libraries
 -------------------
 
-If you want to run *Kinto* with some core libraries under development (like *Cornice*),
+If you want to run *Kinto* with some core libraries under development,
 just install them from your local folder using ``pip``.
 
 For example:
@@ -212,9 +202,9 @@ For example:
 ::
 
     cd ..
-    git clone https://github.com/mozilla-services/cornice.git
+    git clone https://github.com/Kinto/kinto-attachment.git
     cd kinto/
-    .venv/bin/pip install -e ../cornice/
+    .venv/bin/pip install -e ../kinto-attachment/
 
 
 Functional Tests
@@ -293,4 +283,3 @@ Step 3
 
 - Check that the version in ReadTheDocs was published
 - Check that a Pypi package was published
-- Tweet about it!
