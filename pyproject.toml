@@ -50,7 +50,7 @@ main = "kinto:main"
 include = ["kinto*"]
 
 [tool.setuptools.package-data]
-"*" = ["*.tpl", "*.sql", "plugins/admin/build/**", "VERSION"]
+"*" = ["*.tpl", "*.sql", "*.json", "plugins/admin/build/**", "VERSION"]
 
 [tool.setuptools.dynamic]
 readme = {file = ["README.rst", "CONTRIBUTORS.rst"]}

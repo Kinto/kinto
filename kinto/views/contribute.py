@@ -1,8 +1,15 @@
+import json
+import os
+
 import colander
 from pyramid.security import NO_PERMISSION_REQUIRED
 
 from kinto.core import Service
 
+
+HERE = os.path.dirname(__file__)
+ORIGIN = os.path.dirname(HERE)  # package root.
+_CONTRIBUTE_INFO = None
 
 contribute = Service(
     name="contribute.json", description="Open-source information", path="/contribute.json"
@@ -25,15 +32,8 @@ contribute_responses = {
     response_schemas=contribute_responses,
 )
 def contribute_get(request):
-    return {
-        "name": "kinto",
-        "description": "A minimalist JSON storage service.",
-        "repository": {"url": "https://github.com/Kinto/kinto", "license": "Apache License (2.0)"},
-        "participate": {
-            "docs": "https://kinto.readthedocs.io/",
-            "mailing-list": "kinto@mozilla.org",
-            "irc": "irc://irc.freenode.net/#kinto",
-        },
-        "keywords": ["JSON", "Python", "Offline", "Sync", "Storage"],
-        "urls": {"dev": "https://demo.kinto-storage.org/v1/"},
-    }
+    global _CONTRIBUTE_INFO
+    if _CONTRIBUTE_INFO is None:
+        with open(os.path.join(ORIGIN, "contribute.json")) as f:
+            _CONTRIBUTE_INFO = json.load(f)
+    return _CONTRIBUTE_INFO
