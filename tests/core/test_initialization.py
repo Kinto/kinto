@@ -322,15 +322,6 @@ class MetricsConfigurationTest(unittest.TestCase):
         self.config.registry.cache = {}
         self.config.registry.permission = {}
 
-    def test_setup_statsd_step_is_still_supported(self):
-        with mock.patch("warnings.warn") as mocked_warnings:
-            initialization.setup_statsd(self.config)
-            mocked_warnings.assert_called_with(
-                "``setup_statsd()`` is now deprecated. Use ``kinto.core.initialization.setup_metrics()`` instead.",
-                DeprecationWarning,
-            )
-        self.mocked.assert_called_with("host", 8080, "kinto.core")
-
     def test_statsd_isnt_included_by_default(self):
         kinto.core.initialize(self.config, "0.0.1", "name")
 

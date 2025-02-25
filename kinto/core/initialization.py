@@ -334,16 +334,6 @@ def setup_sentry(config):
         config.add_subscriber(on_app_created, ApplicationCreated)
 
 
-def setup_statsd(config):
-    # It would be pretty rare to find users that have a custom ``kinto.initialization_sequence`` setting.
-    # But just in case, warn that it will be removed in next major.
-    warnings.warn(
-        "``setup_statsd()`` is now deprecated. Use ``kinto.core.initialization.setup_metrics()`` instead.",
-        DeprecationWarning,
-    )
-    setup_metrics(config)
-
-
 def install_middlewares(app, settings):
     "Install a set of middlewares defined in the ini file on the given app."
     # Setup new-relic.
