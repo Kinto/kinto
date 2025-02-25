@@ -36,7 +36,7 @@ The currently authenticated *user ID* can be obtained on the :ref:`root URL <api
 
 .. code-block:: bash
 
-    $ http GET https://demo.kinto-storage.org/v1/ --auth admin:s3cr3t
+    $ http GET http://localhost:8888/v1/ --auth admin:s3cr3t
 
 .. code-block:: http
     :emphasize-lines: 6
@@ -44,7 +44,7 @@ The currently authenticated *user ID* can be obtained on the :ref:`root URL <api
     HTTP/1.1 200 OK
 
     {
-        "url": "https://demo.kinto-storage.org/v1/",
+        "url": "http://localhost:8888/v1/",
         "user": {
             "bucket": "4399ed6c-802e-3278-5d01-44f261f0bab4",
             "id": "account:admin",
@@ -76,7 +76,7 @@ In order to know which authentication methods are supported by a *Kinto* server,
 
 .. code-block:: shell
 
-    $ http https://demo.kinto-storage.org/v1/
+    $ http http://localhost:8888/v1/
 
 .. code-block:: http
 

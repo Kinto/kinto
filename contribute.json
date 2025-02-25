@@ -16,9 +16,6 @@
     "list": "https://github.com/Kinto/kinto/issues",
     "report": "https://github.com/Kinto/kinto/issues/new"
   },
-  "urls": {
-    "dev": "https://demo.kinto-storage.org/v1/"
-  },
   "keywords": [
     "JSON",
     "Python",

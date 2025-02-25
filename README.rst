@@ -32,7 +32,6 @@ Kinto is a minimalist JSON storage service with synchronisation and sharing abil
 * `Tutorial <https://kinto.readthedocs.io/en/latest/tutorials/first-steps.html>`_
 * `Issue tracker <https://github.com/Kinto/kinto/issues>`_
 * `Contributing <https://kinto.readthedocs.io/en/latest/community.html#how-to-contribute>`_
-* `Try our daily flushed instance at: https://demo.kinto-storage.org/v1/ <https://demo.kinto-storage.org/v1/>`_
 * `Docker Hub <https://hub.docker.com/r/kinto/kinto-server>`_
 
 Requirements

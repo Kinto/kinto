@@ -283,7 +283,7 @@ itself, using the same :ref:`PATCH <record-patch>` and :ref:`PUT
     .. sourcecode:: bash
 
         $ echo '{"permissions": {"read": ["system.Authenticated"]}}' | \
-          http PATCH https://demo.kinto-storage.org/v1/buckets/default/collections/tasks \
+          http PATCH http://localhost:8888/v1/buckets/default/collections/tasks \
           --auth bob:p4ssw0rd
 
     .. sourcecode:: http
@@ -295,7 +295,7 @@ itself, using the same :ref:`PATCH <record-patch>` and :ref:`PUT
         Connection: keep-alive
         Content-Length: 52
         Content-Type: application/json; charset=utf-8
-        Host: demo.kinto-storage.org
+        Host: localhost:8888
         User-Agent: HTTPie/0.8.0
 
         {
@@ -347,7 +347,7 @@ itself, using the same :ref:`PATCH <record-patch>` and :ref:`PUT
     .. sourcecode:: bash
 
         $ echo '{"permissions": {"write": ["groups:writers"]}}' | \
-          http PUT https://demo.kinto-storage.org/v1/buckets/default/collections/tasks \
+          http PUT http://localhost:8888/v1/buckets/default/collections/tasks \
           --auth bob:p4ssw0rd
 
     .. sourcecode:: http
@@ -359,7 +359,7 @@ itself, using the same :ref:`PATCH <record-patch>` and :ref:`PUT
         Connection: keep-alive
         Content-Length: 57
         Content-Type: application/json; charset=utf-8
-        Host: demo.kinto-storage.org
+        Host: localhost:8888
         User-Agent: HTTPie/0.8.0
 
         {
@@ -414,7 +414,7 @@ List every permissions
 
     .. sourcecode:: bash
 
-        $ http GET https://demo.kinto-storage.org/v1/permissions --auth bob:p4ssw0rd
+        $ http GET http://localhost:8888/v1/permissions --auth bob:p4ssw0rd
 
     .. sourcecode:: http
 
