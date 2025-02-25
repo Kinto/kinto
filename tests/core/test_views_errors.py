@@ -105,6 +105,16 @@ class ErrorViewTest(FormattedErrorMixin, BaseWebTest, unittest.TestCase):
             response = self.app.get(self.sample_url, headers=self.headers, status=403)
         self.assertFormattedError(response, 403, ERRORS.FORBIDDEN, "Forbidden", "Customized.")
 
+    def test_403_can_be_thrown_on_public_views(self):
+        json_403 = http_error(
+            httpexceptions.HTTPForbidden(), errno=ERRORS.FORBIDDEN, message="custom authz check"
+        )
+        with mock.patch("kinto.core.views.hello.get_eos", side_effect=json_403):
+            response = self.app.get("/", status=403)
+        self.assertFormattedError(
+            response, 403, ERRORS.FORBIDDEN, "Forbidden", "custom authz check"
+        )
+
     def test_405_is_valid_formatted_error(self):
         response = self.app.patch(self.sample_url, headers=self.headers, status=405)
         self.assertFormattedError(
