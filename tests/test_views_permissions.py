@@ -83,7 +83,7 @@ class PermissionsUnauthenticatedViewTest(BaseWebTest, unittest.TestCase):
 
     def test_permissions_can_be_paginated(self):
         """Verify that pagination doesn't squash same IDs"""
-        # kinto_http.js uses this sort of request when listing permissions
+        # kinto.js uses this sort of request when listing permissions
         real_permissions = self.app.get("/permissions", headers=self.everyone_headers).json["data"]
 
         def sort_by_uri(records):
