@@ -31,11 +31,8 @@ class MetricsTest(HistoryWebTest):
     @classmethod
     def get_app_settings(cls, extras=None):
         settings = super().get_app_settings(extras)
-        settings.update(
-            **{
-                "statsd_url": "udp://127.0.0.1:8125",
-            }
-        )
+        settings["includes"] += " kinto.plugins.statsd"
+        settings["statsd_url"] = "udp://127.0.0.1:8125"
         return settings
 
     def test_a_statsd_timer_is_used_for_history_if_configured(self):
