@@ -68,9 +68,9 @@ One way to interact and explore an API is through interactive documentation.
 SwaggerUI is a resource that allows testing and visualizing the behavior
 of an OpenAPI described interface.
 
-You can try the instance running on https://demo.kinto-storage.org/v1/ from you browser
+You can try the instance running on https://your-domain/v1/ from you browser
 accessing this
-`Swagger UI example <http://petstore.swagger.io/?url=https://demo.kinto-storage.org/v1/__api__>`_
+`Swagger UI example <http://petstore.swagger.io/?url=https://your-domain/v1/__api__>`_
 
 Automated client generation
 ===========================
