@@ -10,7 +10,7 @@ attrs==23.2.0
     # via
     #   jsonschema
     #   referencing
-bcrypt==4.2.1
+bcrypt==4.3.0
     # via -r constraints.in
 beautifulsoup4==4.12.3
     # via webtest
@@ -109,7 +109,7 @@ pyramid-multiauth==1.0.2
     # via -r constraints.in
 pyramid-tm==2.6
     # via -r constraints.in
-pytest==8.3.4
+pytest==8.3.5
     # via
     #   -r constraints.in
     #   pytest-cache
@@ -149,7 +149,7 @@ rpds-py==0.17.1
     # via
     #   jsonschema
     #   referencing
-ruff==0.9.7
+ruff==0.9.9
     # via -r constraints.in
 sentry-sdk==2.8.0
     # via -r constraints.in
