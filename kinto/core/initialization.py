@@ -334,16 +334,6 @@ def setup_sentry(config):
         config.add_subscriber(on_app_created, ApplicationCreated)
 
 
-def setup_statsd(config):
-    # It would be pretty rare to find users that have a custom ``kinto.initialization_sequence`` setting.
-    # But just in case, warn that it will be removed in next major.
-    warnings.warn(
-        "``setup_statsd()`` is now deprecated. Use ``kinto.core.initialization.setup_metrics()`` instead.",
-        DeprecationWarning,
-    )
-    setup_metrics(config)
-
-
 def install_middlewares(app, settings):
     "Install a set of middlewares defined in the ini file on the given app."
     # Setup new-relic.
@@ -543,10 +533,6 @@ def setup_metrics(config):
             metrics_service.count(f"view.{service.name}.{request.method}")
 
     config.add_subscriber(on_new_response, NewResponse)
-
-    # While statsd is deprecated, we include its plugin by default for retro-compability.
-    if settings["statsd_url"]:
-        config.include("kinto.plugins.statsd")
 
 
 class EventActionFilter:

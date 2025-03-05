@@ -129,6 +129,12 @@ class InitializationTest(unittest.TestCase):
         prefix_used = config.registry.settings["settings_prefix"]
         self.assertEqual(prefix_used, "abc")
 
+    def test_statsd_plugin_isnt_included_by_default(self):
+        config = Configurator()
+        with mock.patch("kinto.plugins.statsd.StatsDService") as mocked:
+            kinto.core.initialize(config, "0.0.1", "prefix")
+        mocked.assert_not_called()
+
 
 class ProjectSettingsTest(unittest.TestCase):
     def settings(self, provided):
@@ -304,6 +310,7 @@ class SentryTest(unittest.TestCase):
 class MetricsConfigurationTest(unittest.TestCase):
     settings = {
         **kinto.core.DEFAULT_SETTINGS,
+        "includes": "kinto.plugins.statsd",
         "statsd_url": "udp://host:8080",
         "multiauth.policies": "basicauth",
     }
@@ -321,26 +328,6 @@ class MetricsConfigurationTest(unittest.TestCase):
         self.config.registry.storage = {}
         self.config.registry.cache = {}
         self.config.registry.permission = {}
-
-    def test_setup_statsd_step_is_still_supported(self):
-        with mock.patch("warnings.warn") as mocked_warnings:
-            initialization.setup_statsd(self.config)
-            mocked_warnings.assert_called_with(
-                "``setup_statsd()`` is now deprecated. Use ``kinto.core.initialization.setup_metrics()`` instead.",
-                DeprecationWarning,
-            )
-        self.mocked.assert_called_with("host", 8080, "kinto.core")
-
-    def test_statsd_is_included_by_default(self):
-        kinto.core.initialize(self.config, "0.0.1", "name")
-
-        self.mocked.assert_called_with("host", 8080, "kinto.core")
-
-    def test_statsd_isnt_included_if_statsd_url_is_not_set(self):
-        self.config.add_settings({"statsd_url": None})
-        kinto.core.initialize(self.config, "0.0.1", "name")
-
-        self.mocked.assert_not_called()
 
     #
     # Backends.

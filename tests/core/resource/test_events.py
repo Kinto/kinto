@@ -499,6 +499,7 @@ class StatsDTest(BaseWebTest, unittest.TestCase):
         if not statsd.statsd_module:
             return settings
 
+        settings["includes"] = "kinto.plugins.statsd"
         settings["statsd_url"] = "udp://localhost:8125"
         this_module = "tests.core.resource.test_events"
         settings["event_listeners"] = "test"
