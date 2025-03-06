@@ -158,6 +158,7 @@ class StreamHandlerWithRequestID(logging.StreamHandler):
     Defining a custom handler seems to be the only way to bypass the fact that
     ``logging.config.fileConfig()`` does not load filters from ``.ini`` files.
     """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         filter_ = dockerflow_logging.RequestIdLogFilter()

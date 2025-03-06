@@ -4,9 +4,9 @@ import re
 import urllib.parse
 import warnings
 from datetime import datetime
-from secrets import token_hex
 
 from dateutil import parser as dateparser
+from dockerflow.logging import get_or_generate_request_id, request_id_context
 from pyramid.events import ApplicationCreated, NewRequest, NewResponse
 from pyramid.exceptions import ConfigurationError
 from pyramid.httpexceptions import (
@@ -350,7 +350,6 @@ def install_middlewares(app, settings):
 
     return app
 
-from dockerflow.logging import get_or_generate_request_id, request_id_context
 
 def setup_logging(config):
     """Setup structured logging, and emit `request.summary` event on each
