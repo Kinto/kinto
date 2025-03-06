@@ -258,7 +258,7 @@ qualname = kinto
 propagate = 0
 
 [handler_console]
-class = StreamHandler
+class = kinto.core.StreamHandlerWithRequestID
 args = (sys.stderr,)
 level = NOTSET
 formatter = color

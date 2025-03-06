@@ -151,6 +151,19 @@ class JsonLogFormatter(dockerflow_logging.JsonLogFormatter):
         self.logger_name = logger_name
 
 
+class StreamHandlerWithRequestID(logging.StreamHandler):
+    """
+    A custom StreamHandler that adds the Dockerflow's `RequestIdLogFilter`.
+
+    Defining a custom handler seems to be the only way to bypass the fact that
+    ``logging.config.fileConfig()`` does not load filters from ``.ini`` files.
+    """
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        filter_ = dockerflow_logging.RequestIdLogFilter()
+        self.addFilter(filter_)
+
+
 def get_user_info(request):
     # Default user info (shown in hello view for example).
     user_info = {"id": request.prefixed_userid, "principals": request.prefixed_principals}
