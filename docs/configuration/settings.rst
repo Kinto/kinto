@@ -456,6 +456,19 @@ Example output:
     {"Pid": 19240, "Type": "root", "Timestamp": 1489067817834153984, "Severity": 4, "Hostname": "pluo", "Logger": "%", "EnvVersion": "2.0", "Fields": {"perm": "read", "userid": "ldap:john@corp.com", "message": "Permission not granted.", "uri": "/buckets/123"}}
 
 
+Request IDs
+:::::::::::
+
+In order to add requests IDs to log messages, set the provided handler:
+
+.. code-block:: ini
+
+    [handler_console]
+    class = kinto.core.StreamHandlerWithRequestID
+
+It will read the value from the ``X-Request-Id`` request header if present, or generate a random string when the request is received otherwise.
+
+
 .. _handling-exceptions-with-sentry:
 
 Handling exceptions with Sentry
