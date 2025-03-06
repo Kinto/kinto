@@ -245,7 +245,7 @@ keys = root, kinto
 keys = console
 
 [formatters]
-keys = color
+keys = color, json
 
 [logger_root]
 level = INFO
@@ -265,3 +265,6 @@ formatter = color
 
 [formatter_color]
 class = logging_color_formatter.ColorFormatter
+
+[formatter_json]
+class = kinto.core.JsonLogFormatter
