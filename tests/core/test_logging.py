@@ -1,11 +1,18 @@
+import io
 import json
 import logging
 import unittest
 from unittest import mock
 
+from dockerflow.logging import request_id_context
 from pyramid import testing
 
-from kinto.core import DEFAULT_SETTINGS, JsonLogFormatter, initialization
+from kinto.core import (
+    DEFAULT_SETTINGS,
+    JsonLogFormatter,
+    StreamHandlerWithRequestID,
+    initialization,
+)
 
 from .support import BaseWebTest
 
@@ -162,3 +169,20 @@ class JsonFormatterTest(unittest.TestCase):
         self.assertEqual(logged["Type"], "app.log")
         # See https://github.com/mozilla/mozilla-cloud-services-logger/issues/2
         self.assertEqual(logged["Fields"]["msg"], "coucou")
+
+
+class RequestIdFilter(BaseWebTest, unittest.TestCase):
+    def test_stream_logs_rid_field(self):
+        log_buffer = io.StringIO()  # In-memory log capture
+        stream_handler = StreamHandlerWithRequestID(log_buffer)
+        stream_handler.setFormatter(JsonLogFormatter())
+        logger = logging.getLogger(__name__)
+        logger.addHandler(stream_handler)
+
+        request_id_context.set("abc")  # As done in `kinto.core.initalization`.
+        logger.error("Some message")
+
+        captured = log_buffer.getvalue()
+
+        logged = json.loads(captured)
+        self.assertEqual(logged["Fields"]["rid"], "abc")

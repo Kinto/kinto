@@ -4,9 +4,9 @@ import re
 import urllib.parse
 import warnings
 from datetime import datetime
-from secrets import token_hex
 
 from dateutil import parser as dateparser
+from dockerflow.logging import get_or_generate_request_id, request_id_context
 from pyramid.events import ApplicationCreated, NewRequest, NewResponse
 from pyramid.exceptions import ConfigurationError
 from pyramid.httpexceptions import (
@@ -374,12 +374,15 @@ def setup_logging(config):
                 message="Invalid URL path.",
             )
 
+        rid = get_or_generate_request_id(headers=request.headers)
+        request_id_context.set(rid)
+
         request.log_context(
             agent=request.headers.get("User-Agent"),
             path=request_path,
             method=request.method,
             lang=request.headers.get("Accept-Language"),
-            rid=request.headers.get("X-Request-Id", token_hex(16)),
+            rid=rid,
             errno=0,
         )
         qs = dict(errors.request_GET(request))
