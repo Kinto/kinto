@@ -245,7 +245,7 @@ keys = root, kinto
 keys = console
 
 [formatters]
-keys = color
+keys = color, json
 
 [logger_root]
 level = INFO
@@ -258,10 +258,13 @@ qualname = kinto
 propagate = 0
 
 [handler_console]
-class = StreamHandler
+class = kinto.core.StreamHandlerWithRequestID
 args = (sys.stderr,)
 level = NOTSET
 formatter = color
 
 [formatter_color]
 class = logging_color_formatter.ColorFormatter
+
+[formatter_json]
+class = kinto.core.JsonLogFormatter
