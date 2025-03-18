@@ -8,4 +8,4 @@ mock==5.2.0
 webtest==3.0.4
 pyramid==2.0.2
 python-rapidjson==1.20
-SQLAlchemy==2.0.38
+SQLAlchemy==2.0.39
