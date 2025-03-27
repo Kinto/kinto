@@ -670,6 +670,38 @@ class ExcludeResourcesTest(HistoryWebTest):
         assert len(entries) == 0  # nothing.
 
 
+class ExcludeUserIdTest(HistoryWebTest):
+    joan_headers = get_user_headers("joan")
+    joan_principal = "basicauth:64942e918f6481e3101f3a22a87a3206480923ccc0d4387cff9cb1ae0af21217"
+
+    @classmethod
+    def get_app_settings(cls, extras=None):
+        settings = super().get_app_settings(extras)
+        settings["history.exclude_user_ids"] = cls.joan_principal
+        return settings
+
+    def setUp(self):
+        self.app.put_json("/buckets/bid", headers=self.headers)
+        self.app.put_json(
+            "/buckets/bid/collections/cid",
+            {"permissions": {"write": ["system.Authenticated"]}},
+            headers=self.headers,
+        )
+
+    def test_entries_exclude_joan(self):
+        resp = self.app.get("/buckets/bid/history", headers=self.headers)
+        entries = resp.json["data"]
+        self.assertEqual(len(entries), 2)  # creations
+
+        self.app.post("/buckets/bid/collections/cid/records", headers=self.headers)
+        self.app.post("/buckets/bid/collections/cid/records", headers=self.joan_headers)
+
+        resp = self.app.get("/buckets/bid/history", headers=self.headers)
+        entries = resp.json["data"]
+        self.assertEqual(len(entries), 3)  # not 4
+        self.assertEqual(set(e["user_id"] for e in entries), {self.principal})
+
+
 class DisabledExplicitPermissionsTest(HistoryWebTest, unittest.TestCase):
     @classmethod
     def get_app_settings(cls, extras=None):
