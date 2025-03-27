@@ -1,8 +1,12 @@
+import logging
 from datetime import datetime, timezone
 
 from pyramid.settings import asbool, aslist
 
 from kinto.core.utils import instance_uri
+
+
+logger = logging.getLogger(__name__)
 
 
 def on_resource_changed(event):
@@ -14,14 +18,20 @@ def on_resource_changed(event):
     payload = event.payload
     resource_name = payload["resource_name"]
     event_uri = payload["uri"]
-
-    bucket_id = None
-    bucket_uri = None
-    collection_uri = None
+    user_id = payload["user_id"]
 
     storage = event.request.registry.storage
     permission = event.request.registry.permission
     settings = event.request.registry.settings
+
+    excluded_user_ids = aslist(settings.get("history.exclude_user_ids", ""))
+    if user_id in excluded_user_ids:
+        logger.info(f"History entries for user {user_id!r} are disabled in config")
+        return
+
+    bucket_id = None
+    bucket_uri = None
+    collection_uri = None
 
     excluded_resources = aslist(settings.get("history.exclude_resources", ""))
 
@@ -38,6 +48,7 @@ def on_resource_changed(event):
         bucket_uri = instance_uri(event.request, "bucket", id=bucket_id)
 
         if bucket_uri in excluded_resources:
+            logger.info(f"History entries for bucket {bucket_uri!r} are disabled in config")
             continue
 
         if "collection_id" in payload:
@@ -46,6 +57,9 @@ def on_resource_changed(event):
                 event.request, "collection", bucket_id=bucket_id, id=collection_id
             )
             if collection_uri in excluded_resources:
+                logger.info(
+                    f"History entries for collection {collection_uri!r} are disabled in config"
+                )
                 continue
 
         # On POST .../records, the URI does not contain the newly created
@@ -59,6 +73,7 @@ def on_resource_changed(event):
         uri = "/".join(parts)
 
         if uri in excluded_resources:
+            logger.info(f"History entries for record {uri!r} are disabled in config")
             continue
 
         targets.append((uri, target))
