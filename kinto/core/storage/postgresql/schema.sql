@@ -47,7 +47,8 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_objects_parent_id_resource_name_last_modif
     ON objects(parent_id, resource_name, last_modified DESC);
 CREATE INDEX IF NOT EXISTS idx_objects_last_modified_epoch
     ON objects(as_epoch(last_modified));
-
+CREATE INDEX IF NOT EXISTS idx_objects_resource_name_parent_id_deleted
+    ON objects(resource_name, parent_id, deleted);
 
 CREATE TABLE IF NOT EXISTS timestamps (
   parent_id TEXT NOT NULL COLLATE "C",
