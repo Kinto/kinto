@@ -783,6 +783,39 @@ class TimestampsTest:
         after = self.storage.resource_timestamp(**self.storage_kw)
         self.assertTrue(before < after)
 
+    def test_all_timestamps_by_parent_id(self):
+        self.storage.create(obj={"id": "main"}, resource_name="bucket", parent_id="")
+        self.storage.create(obj={"id": "cid1"}, resource_name="collection", parent_id="/main")
+        self.storage.create(obj={"id": "cid2"}, resource_name="collection", parent_id="/main")
+        self.storage.create(obj={}, resource_name="record", parent_id="/main/cid2")
+        self.storage.create(obj={}, resource_name="record", parent_id="/main/cid2")
+
+        self.assertEqual(
+            {
+                "": self.storage.resource_timestamp(resource_name="bucket", parent_id=""),
+            },
+            self.storage.all_resources_timestamps(resource_name="bucket"),
+        )
+        self.assertEqual(
+            {
+                "/main": self.storage.resource_timestamp(
+                    resource_name="collection", parent_id="/main"
+                ),
+            },
+            self.storage.all_resources_timestamps(resource_name="collection"),
+        )
+        self.assertEqual(
+            {
+                "/main/cid1": self.storage.resource_timestamp(
+                    resource_name="record", parent_id="/main/cid1"
+                ),
+                "/main/cid2": self.storage.resource_timestamp(
+                    resource_name="record", parent_id="/main/cid2"
+                ),
+            },
+            self.storage.all_resources_timestamps(resource_name="record"),
+        )
+
     @skip_if_ci
     def test_timestamps_are_unique(self):  # pragma: no cover
         obtained = []
