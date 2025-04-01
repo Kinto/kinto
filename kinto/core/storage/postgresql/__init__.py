@@ -268,6 +268,7 @@ class Storage(StorageBase, MigratorMixin):
         SELECT parent_id, MAX(as_epoch(last_modified)) AS last_modified
           FROM existing_timestamps
           GROUP BY parent_id
+          ORDER BY last_modified DESC
         """
         with self.client.connect(readonly=True) as conn:
             result = conn.execute(sa.text(query), dict(resource_name=resource_name))
