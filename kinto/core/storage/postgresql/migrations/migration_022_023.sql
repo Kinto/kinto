@@ -9,8 +9,7 @@ CREATE TABLE IF NOT EXISTS objects_partitioned
     CONSTRAINT objects_pkey PRIMARY KEY (id, parent_id, resource_name)
 ) PARTITION BY LIST(resource_name);
 
-CREATE TABLE objects_default PARTITION OF objects_partitioned 
-    FOR VALUES IN ('', 'account', 'bucket', 'collection', 'group');
+CREATE TABLE objects_default PARTITION OF objects_partitioned DEFAULT;
 CREATE TABLE objects_record PARTITION OF objects_partitioned 
     FOR VALUES IN ('record');
 CREATE TABLE objects_history PARTITION OF objects_partitioned
