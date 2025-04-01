@@ -153,6 +153,10 @@ class Storage(MemoryBasedStorage):
             raise exceptions.ReadonlyError(message=error_msg)
         return self.bump_and_store_timestamp(resource_name, parent_id)
 
+    @synchronized
+    def all_resources_timestamps(self, resource_name):
+        return {k: v[resource_name] for k, v in self._timestamps.items() if resource_name in v}
+
     def bump_and_store_timestamp(
         self, resource_name, parent_id, obj=None, modified_field=None, last_modified=None
     ):

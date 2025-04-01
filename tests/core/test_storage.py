@@ -66,6 +66,7 @@ class StorageBaseTest(unittest.TestCase):
             (self.storage.initialize_schema,),
             (self.storage.flush,),
             (self.storage.resource_timestamp, "", ""),
+            (self.storage.all_resources_timestamps, ""),
             (self.storage.create, "", "", {}),
             (self.storage.get, "", "", ""),
             (self.storage.update, "", "", "", {}),

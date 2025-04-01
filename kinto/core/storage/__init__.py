@@ -87,6 +87,21 @@ class StorageBase:
         """
         raise NotImplementedError
 
+    def all_resources_timestamps(self, resource_name):
+        """Get the highest timestamp of every objects in this `resource_name` for
+        each `parent_id`.
+
+        .. note::
+
+            This should take deleted objects into account.
+
+        :param str resource_name: the resource name.
+
+        :returns: the latest timestamp of the resource by `parent_id`.
+        :rtype: dict[str, int]
+        """
+        raise NotImplementedError
+
     def create(
         self,
         resource_name,
