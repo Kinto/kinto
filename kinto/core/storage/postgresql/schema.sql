@@ -22,27 +22,24 @@ IMMUTABLE;
 --
 -- Actual objects
 --
-CREATE TABLE IF NOT EXISTS objects (
-    -- These are all IDs stored as text, and not human language.
-    -- Therefore, we store them in the C collation. This lets Postgres
-    -- use the index on parent_id for prefix matching (parent_id LIKE
-    -- '/buckets/abc/%').
-    id TEXT COLLATE "C" NOT NULL,
-    parent_id TEXT COLLATE "C" NOT NULL,
-    resource_name TEXT COLLATE "C" NOT NULL,
+CREATE TABLE IF NOT EXISTS objects
+(
+    id text NOT NULL,
+    parent_id text NOT NULL,
+    resource_name text NOT NULL,
+    last_modified timestamp without time zone NOT NULL,
+    data jsonb NOT NULL DEFAULT '{}'::jsonb,
+    deleted boolean NOT NULL DEFAULT false,
+    CONSTRAINT objects_pkey PRIMARY KEY (id, parent_id, resource_name)
+) PARTITION BY LIST(resource_name);
 
-    -- Timestamp is relevant because adequate semantically.
-    -- Since the HTTP API manipulates integers, it could make sense
-    -- to replace the timestamp columns type by integer.
-    last_modified TIMESTAMP NOT NULL,
+CREATE TABLE objects_default PARTITION OF objects
+    FOR VALUES IN ('', 'account', 'bucket', 'collection', 'group');
+CREATE TABLE objects_record PARTITION OF objects
+    FOR VALUES IN ('record');
+CREATE TABLE objects_history PARTITION OF objects
+    FOR VALUES IN ('history');
 
-    -- JSONB, 2x faster than JSON.
-    data JSONB NOT NULL DEFAULT '{}'::JSONB,
-
-    deleted BOOLEAN NOT NULL,
-
-    PRIMARY KEY (id, parent_id, resource_name)
-);
 CREATE UNIQUE INDEX IF NOT EXISTS idx_objects_parent_id_resource_name_last_modified
     ON objects(parent_id, resource_name, last_modified DESC);
 CREATE INDEX IF NOT EXISTS idx_objects_last_modified_epoch
@@ -132,4 +129,4 @@ INSERT INTO metadata (name, value) VALUES ('created_at', NOW()::TEXT);
 
 -- Set storage schema version.
 -- Should match ``kinto.core.storage.postgresql.PostgreSQL.schema_version``
-INSERT INTO metadata (name, value) VALUES ('storage_schema_version', '22');
+INSERT INTO metadata (name, value) VALUES ('storage_schema_version', '23');
