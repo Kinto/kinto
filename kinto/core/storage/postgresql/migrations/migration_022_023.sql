@@ -19,11 +19,6 @@ INSERT INTO objects_partitioned(id, parent_id, resource_name, last_modified, dat
 SELECT id, parent_id, resource_name, last_modified, data, deleted
 FROM objects;
 
-ALTER TABLE objects_partitioned OWNER to kinto;
-REVOKE ALL ON TABLE objects_partitioned FROM kinto_ro;
-GRANT ALL ON TABLE objects_partitioned TO kinto;
-GRANT SELECT ON TABLE objects_partitioned TO kinto_ro;
-
 ALTER TABLE objects RENAME TO objects_old;
 ALTER TABLE objects_partitioned RENAME TO objects;
 
