@@ -702,6 +702,106 @@ class ExcludeUserIdTest(HistoryWebTest):
         self.assertEqual(set(e["user_id"] for e in entries), {self.principal})
 
 
+class TrimHistoryTest(HistoryWebTest):
+    @classmethod
+    def get_app_settings(cls, extras=None):
+        settings = super().get_app_settings(extras)
+        settings["history.auto_trim_max_count"] = "5"
+        return settings
+
+    def test_history_length_is_limited_by_uri(self):
+        for i in range(6):
+            self.app.put_json("/buckets/bid", {"data": {"i": i}}, headers=self.headers)
+            self.app.put(f"/buckets/bid/collections/cid-{i}", headers=self.headers)
+
+        resp = self.app.get("/buckets/bid/history", headers=self.headers)
+        by_uri = {}
+        for entry in resp.json["data"]:
+            by_uri.setdefault(entry["uri"], []).append(entry)
+
+        self.assertEqual(
+            {
+                "/buckets/bid": 5,
+                "/buckets/bid/collections/cid-0": 1,
+                "/buckets/bid/collections/cid-1": 1,
+                "/buckets/bid/collections/cid-2": 1,
+                "/buckets/bid/collections/cid-3": 1,
+                "/buckets/bid/collections/cid-4": 1,
+                "/buckets/bid/collections/cid-5": 1,
+            },
+            {uri: len(entries) for uri, entries in by_uri.items()},
+        )
+
+
+class TrimUserIdTest(HistoryWebTest):
+    joan_headers = get_user_headers("joan")
+    joan_principal = "basicauth:64942e918f6481e3101f3a22a87a3206480923ccc0d4387cff9cb1ae0af21217"
+
+    @classmethod
+    def get_app_settings(cls, extras=None):
+        settings = super().get_app_settings(extras)
+        settings["history.auto_trim_user_ids"] = cls.joan_principal
+        settings["history.auto_trim_max_count"] = "5"
+        return settings
+
+    def setUp(self):
+        self.app.put_json(
+            "/buckets/bid",
+            {"permissions": {"write": ["system.Authenticated"]}},
+            headers=self.headers,
+        )
+        self.app.put_json(
+            "/buckets/bid/collections/cid",
+            headers=self.headers,
+        )
+
+    def test_joan_entries_are_limited_to_5_by_object(self):
+        for i in range(6):
+            for headers in (self.headers, self.joan_headers):
+                self.app.put(f"/buckets/bid/groups/gid-{i}", headers=headers)
+                self.app.patch_json(
+                    f"/buckets/bid/groups/gid-{i}", {"data": {"attr": i}}, headers=headers
+                )
+        for i in range(10):
+            for headers in (self.headers, self.joan_headers):
+                self.app.put_json(
+                    "/buckets/bid/groups/gid-1",
+                    {
+                        "data": {
+                            "members": [f"member-{i}"],
+                        }
+                    },
+                    headers=headers,
+                )
+
+        resp = self.app.get("/buckets/bid/history", headers=self.headers)
+
+        # Check that history is trimmed.
+        by_user_id = {}
+        for entry in resp.json["data"]:
+            by_user_id.setdefault(entry["user_id"], {}).setdefault(entry["uri"], []).append(entry)
+        # Trimmed by URI
+        self.assertEqual(
+            {
+                "/buckets/bid/groups/gid-0": 2,
+                "/buckets/bid/groups/gid-1": 5,
+                "/buckets/bid/groups/gid-2": 2,
+                "/buckets/bid/groups/gid-3": 2,
+                "/buckets/bid/groups/gid-4": 2,
+                "/buckets/bid/groups/gid-5": 2,
+            },
+            {uri: len(by_uri) for uri, by_uri in by_user_id[self.joan_principal].items()},
+        )
+        # Still sorted by last_modified desc.
+        for by_uri in by_user_id.values():
+            for entries in by_uri.values():
+                self.assertListEqual(
+                    entries, sorted(entries, key=lambda e: e["last_modified"], reverse=True)
+                )
+        # This user is not trimmed.
+        self.assertEqual(max(len(by_uri) for by_uri in by_user_id[self.principal].values()), 12)
+
+
 class DisabledExplicitPermissionsTest(HistoryWebTest, unittest.TestCase):
     @classmethod
     def get_app_settings(cls, extras=None):

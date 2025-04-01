@@ -3,7 +3,8 @@ from datetime import datetime, timezone
 
 from pyramid.settings import asbool, aslist
 
-from kinto.core.utils import instance_uri
+from kinto.core.storage import Filter, Sort
+from kinto.core.utils import COMPARISON, instance_uri
 
 
 logger = logging.getLogger(__name__)
@@ -28,6 +29,11 @@ def on_resource_changed(event):
     if user_id in excluded_user_ids:
         logger.info(f"History entries for user {user_id!r} are disabled in config")
         return
+
+    trim_history_max = int(settings.get("history.auto_trim_max_count", "-1"))
+    is_trim_enabled = trim_history_max > 0
+    trim_user_ids = aslist(settings.get("history.auto_trim_user_ids", ""))
+    is_trim_by_user_enabled = len(trim_user_ids) > 0
 
     bucket_id = None
     bucket_uri = None
@@ -123,6 +129,33 @@ def on_resource_changed(event):
         # the bucket URI (c.f. views.py).
         # Note: this will be rolledback if the transaction is rolledback.
         entry = storage.create(parent_id=bucket_uri, resource_name="history", obj=attrs)
+
+        # We trim history by resource.
+        if is_trim_enabled and (not is_trim_by_user_enabled or user_id in trim_user_ids):
+            filters = [
+                Filter("uri", uri, COMPARISON.EQ),
+            ]
+            if is_trim_by_user_enabled:
+                filters.append(Filter("user_id", user_id, COMPARISON.EQ))
+
+            # Identify the oldest entry to keep.
+            previous_entries = storage.list_all(
+                parent_id=bucket_uri,
+                resource_name="history",
+                filters=filters,
+                sorting=[Sort("last_modified", -1)],
+                limit=trim_history_max + 1,
+            )
+            # And delete all older ones.
+            if len(previous_entries) > trim_history_max:
+                trim_before_timestamp = previous_entries[-1]["last_modified"]
+                deleted = storage.delete_all(
+                    parent_id=bucket_uri,
+                    resource_name="history",
+                    filters=filters
+                    + [Filter("last_modified", trim_before_timestamp, COMPARISON.MAX)],
+                )
+                logger.debug(f"Trimmed {len(deleted)} old history entries.")
 
         # Without explicit permissions, the ACLs on the history entries will
         # fully depend on the inherited permission tree (eg. bucket:read, bucket:write).
