@@ -288,13 +288,26 @@ class Storage(MemoryBasedStorage):
         modified_field=DEFAULT_MODIFIED_FIELD,
     ):
         parent_id_match = re.compile(parent_id.replace("*", ".*"))
-        by_parent_id = {
+
+        timestamps_by_parent_id = {
+            pid: resources
+            for pid, resources in self._timestamps.items()
+            if parent_id_match.match(pid)
+        }
+        if resource_name is not None:
+            for pid, resources in timestamps_by_parent_id.items():
+                del self._timestamps[pid][resource_name]
+        else:
+            for pid, resources in timestamps_by_parent_id.items():
+                del self._timestamps[pid]
+
+        num_deleted = 0
+        tombstones_by_parent_id = {
             pid: resources
             for pid, resources in self._cemetery.items()
             if parent_id_match.match(pid)
         }
-        num_deleted = 0
-        for pid, resources in by_parent_id.items():
+        for pid, resources in tombstones_by_parent_id.items():
             if resource_name is not None:
                 resources = {resource_name: resources[resource_name]}
             for resource, resource_objects in resources.items():
