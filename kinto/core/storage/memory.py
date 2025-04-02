@@ -289,7 +289,6 @@ class Storage(MemoryBasedStorage):
     ):
         parent_id_match = re.compile(parent_id.replace("*", ".*"))
 
-        num_deleted = 0
         timestamps_by_parent_id = {
             pid: resources
             for pid, resources in self._timestamps.items()
@@ -300,9 +299,9 @@ class Storage(MemoryBasedStorage):
                 del self._timestamps[pid][resource_name]
         else:
             for pid, resources in timestamps_by_parent_id.items():
-                num_deleted += len(resources)
                 del self._timestamps[pid]
 
+        num_deleted = 0
         tombstones_by_parent_id = {
             pid: resources
             for pid, resources in self._cemetery.items()
