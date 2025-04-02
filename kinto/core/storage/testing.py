@@ -1296,6 +1296,9 @@ class DeletedObjectsTest:
         self.create_object(parent_id="/abc/a", resource_name="c")
         self.create_object(parent_id="/efg", resource_name="c")
 
+        all_timestamps = self.storage.all_resources_timestamps(resource_name="c")
+        self.assertEqual(set(all_timestamps.keys()), {"/abc/a", "/efg"})
+
         before1 = self.storage.resource_timestamp(parent_id="/abc/a", resource_name="c")
         # Different parent_id with object.
         before2 = self.storage.resource_timestamp(parent_id="/efg", resource_name="c")
@@ -1304,6 +1307,9 @@ class DeletedObjectsTest:
 
         self.storage.delete_all(parent_id="/abc/*", resource_name=None, with_deleted=False)
         self.storage.purge_deleted(parent_id="/abc/*", resource_name=None)
+
+        all_timestamps = self.storage.all_resources_timestamps(resource_name="c")
+        self.assertEqual(set(all_timestamps.keys()), {"/efg", "/ijk"})
 
         after1 = self.storage.resource_timestamp(parent_id="/abc/a", resource_name="c")
         after2 = self.storage.resource_timestamp(parent_id="/efg", resource_name="c")
