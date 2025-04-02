@@ -1,8 +1,13 @@
+import logging
 from datetime import datetime, timezone
 
 from pyramid.settings import asbool, aslist
 
-from kinto.core.utils import instance_uri
+from kinto.core.storage import Filter, Sort
+from kinto.core.utils import COMPARISON, instance_uri
+
+
+logger = logging.getLogger(__name__)
 
 
 def on_resource_changed(event):
@@ -14,14 +19,25 @@ def on_resource_changed(event):
     payload = event.payload
     resource_name = payload["resource_name"]
     event_uri = payload["uri"]
-
-    bucket_id = None
-    bucket_uri = None
-    collection_uri = None
+    user_id = payload["user_id"]
 
     storage = event.request.registry.storage
     permission = event.request.registry.permission
     settings = event.request.registry.settings
+
+    excluded_user_ids = aslist(settings.get("history.exclude_user_ids", ""))
+    if user_id in excluded_user_ids:
+        logger.info(f"History entries for user {user_id!r} are disabled in config")
+        return
+
+    trim_history_max = int(settings.get("history.auto_trim_max_count", "-1"))
+    is_trim_enabled = trim_history_max > 0
+    trim_user_ids = aslist(settings.get("history.auto_trim_user_ids", ""))
+    is_trim_by_user_enabled = len(trim_user_ids) > 0
+
+    bucket_id = None
+    bucket_uri = None
+    collection_uri = None
 
     excluded_resources = aslist(settings.get("history.exclude_resources", ""))
 
@@ -38,6 +54,7 @@ def on_resource_changed(event):
         bucket_uri = instance_uri(event.request, "bucket", id=bucket_id)
 
         if bucket_uri in excluded_resources:
+            logger.info(f"History entries for bucket {bucket_uri!r} are disabled in config")
             continue
 
         if "collection_id" in payload:
@@ -46,6 +63,9 @@ def on_resource_changed(event):
                 event.request, "collection", bucket_id=bucket_id, id=collection_id
             )
             if collection_uri in excluded_resources:
+                logger.info(
+                    f"History entries for collection {collection_uri!r} are disabled in config"
+                )
                 continue
 
         # On POST .../records, the URI does not contain the newly created
@@ -59,6 +79,7 @@ def on_resource_changed(event):
         uri = "/".join(parts)
 
         if uri in excluded_resources:
+            logger.info(f"History entries for record {uri!r} are disabled in config")
             continue
 
         targets.append((uri, target))
@@ -108,6 +129,40 @@ def on_resource_changed(event):
         # the bucket URI (c.f. views.py).
         # Note: this will be rolledback if the transaction is rolledback.
         entry = storage.create(parent_id=bucket_uri, resource_name="history", obj=attrs)
+
+        # If enabled, we trim history by resource.
+        # This means that we will only keep the last `auto_trim_max_count` history entries
+        # for this same type of object (eg. `collection`, `record`).
+        #
+        # If trim by user is enabled, we only trim if the user matches the config
+        # and we only delete the history entries of this user.
+        # This means that if a user touches X different types of objects, we will keep
+        # ``(X * auto_trim_max_count)`` entries.
+        if is_trim_enabled and (not is_trim_by_user_enabled or user_id in trim_user_ids):
+            filters = [
+                Filter("resource_name", resource_name, COMPARISON.EQ),
+            ]
+            if is_trim_by_user_enabled:
+                filters.append(Filter("user_id", user_id, COMPARISON.EQ))
+
+            # Identify the oldest entry to keep.
+            previous_entries = storage.list_all(
+                parent_id=bucket_uri,
+                resource_name="history",
+                filters=filters,
+                sorting=[Sort("last_modified", -1)],
+                limit=trim_history_max + 1,
+            )
+            # And delete all older ones.
+            if len(previous_entries) > trim_history_max:
+                trim_before_timestamp = previous_entries[-1]["last_modified"]
+                deleted = storage.delete_all(
+                    parent_id=bucket_uri,
+                    resource_name="history",
+                    filters=filters
+                    + [Filter("last_modified", trim_before_timestamp, COMPARISON.MAX)],
+                )
+                logger.debug(f"Trimmed {len(deleted)} old history entries.")
 
         # Without explicit permissions, the ACLs on the history entries will
         # fully depend on the inherited permission tree (eg. bucket:read, bucket:write).

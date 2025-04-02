@@ -670,6 +670,152 @@ class ExcludeResourcesTest(HistoryWebTest):
         assert len(entries) == 0  # nothing.
 
 
+class ExcludeUserIdTest(HistoryWebTest):
+    joan_headers = get_user_headers("joan")
+    joan_principal = "basicauth:64942e918f6481e3101f3a22a87a3206480923ccc0d4387cff9cb1ae0af21217"
+
+    @classmethod
+    def get_app_settings(cls, extras=None):
+        settings = super().get_app_settings(extras)
+        settings["history.exclude_user_ids"] = cls.joan_principal
+        return settings
+
+    def setUp(self):
+        self.app.put_json("/buckets/bid", headers=self.headers)
+        self.app.put_json(
+            "/buckets/bid/collections/cid",
+            {"permissions": {"write": ["system.Authenticated"]}},
+            headers=self.headers,
+        )
+
+    def test_entries_exclude_joan(self):
+        resp = self.app.get("/buckets/bid/history", headers=self.headers)
+        entries = resp.json["data"]
+        self.assertEqual(len(entries), 2)  # creations
+
+        self.app.post("/buckets/bid/collections/cid/records", headers=self.headers)
+        self.app.post("/buckets/bid/collections/cid/records", headers=self.joan_headers)
+
+        resp = self.app.get("/buckets/bid/history", headers=self.headers)
+        entries = resp.json["data"]
+        self.assertEqual(len(entries), 3)  # not 4
+        self.assertEqual(set(e["user_id"] for e in entries), {self.principal})
+
+
+class TrimHistoryTest(HistoryWebTest):
+    @classmethod
+    def get_app_settings(cls, extras=None):
+        settings = super().get_app_settings(extras)
+        settings["history.auto_trim_max_count"] = "5"
+        return settings
+
+    def test_history_length_is_limited_by_resource(self):
+        for i in range(10):
+            self.app.put_json("/buckets/bid", {"data": {"i": i}}, headers=self.headers)
+            self.app.put(f"/buckets/bid/collections/cid-{i}", headers=self.headers)
+
+        resp = self.app.get("/buckets/bid/history", headers=self.headers)
+        by_uri = {}
+        for entry in resp.json["data"]:
+            by_uri.setdefault(entry["uri"], []).append(entry)
+
+        self.assertEqual(
+            {
+                "/buckets/bid": 5,
+                "/buckets/bid/collections/cid-5": 1,
+                "/buckets/bid/collections/cid-6": 1,
+                "/buckets/bid/collections/cid-7": 1,
+                "/buckets/bid/collections/cid-8": 1,
+                "/buckets/bid/collections/cid-9": 1,
+            },
+            {uri: len(entries) for uri, entries in by_uri.items()},
+        )
+
+
+class TrimUserIdTest(HistoryWebTest):
+    joan_headers = get_user_headers("joan")
+    joan_principal = "basicauth:64942e918f6481e3101f3a22a87a3206480923ccc0d4387cff9cb1ae0af21217"
+
+    @classmethod
+    def get_app_settings(cls, extras=None):
+        settings = super().get_app_settings(extras)
+        settings["history.auto_trim_user_ids"] = cls.joan_principal
+        settings["history.auto_trim_max_count"] = "5"
+        return settings
+
+    def setUp(self):
+        self.app.put_json(
+            "/buckets/bid",
+            {"permissions": {"write": ["system.Authenticated"]}},
+            headers=self.headers,
+        )
+        self.app.put_json(
+            "/buckets/bid/collections/cid",
+            headers=self.headers,
+        )
+
+    def test_unlisted_user_entries_are_not_limited(self):
+        for i in range(10):
+            self.app.put(f"/buckets/bid/groups/gid-{i}", headers=self.headers)
+
+        resp = self.app.get(f"/buckets/bid/history?user_id={self.principal}", headers=self.headers)
+
+        self.assertEqual(len(resp.json["data"]), 12)  # bucket + collection + 10 groups
+
+    def test_listed_user_entries_are_limited(self):
+        for i in range(10):
+            self.app.put(f"/buckets/bid/groups/gid-{i}", headers=self.joan_headers)
+
+        resp = self.app.get(
+            f"/buckets/bid/history?user_id={self.joan_principal}", headers=self.joan_headers
+        )
+
+        self.assertEqual(len(resp.json["data"]), 5)
+
+    def test_trim_is_by_user_and_by_resource_name(self):
+        for headers in (self.headers, self.joan_headers):
+            for i in range(10):
+                self.app.patch_json(
+                    "/buckets/bid/collections/cid", {"data": {"attr": i}}, headers=headers
+                )
+
+        for headers in (self.headers, self.joan_headers):
+            for i in range(3):
+                # Delete all records in it.
+                self.app.delete("/buckets/bid/collections/cid/records", headers=headers)
+                for j in range(10):
+                    # Recreate new ones with different ids
+                    self.app.put(
+                        f"/buckets/bid/collections/cid/records/rid-{i * 10 + j}", headers=headers
+                    )
+
+        resp = self.app.get("/buckets/bid/history", headers=self.headers)
+
+        by_user_id = {}
+        for entry in resp.json["data"]:
+            by_user_id.setdefault(entry["user_id"], {}).setdefault(entry["uri"], []).append(entry)
+        self.assertEqual(
+            {
+                "/buckets/bid/collections/cid": 5,  # Out of 10 on the collection
+                "/buckets/bid/collections/cid/records/rid-29": 1,
+                "/buckets/bid/collections/cid/records/rid-28": 1,
+                "/buckets/bid/collections/cid/records/rid-27": 1,
+                "/buckets/bid/collections/cid/records/rid-26": 1,
+                "/buckets/bid/collections/cid/records/rid-25": 1,
+            },
+            {k: len(v) for k, v in by_user_id[self.joan_principal].items()},
+        )
+        # Other is not trimmed.
+        self.assertEqual(
+            max(len(by_uri) for by_uri in by_user_id[self.principal].values()),
+            11,  # 1 creation + 10 patch
+        )
+        self.assertEqual(
+            len(by_user_id[self.principal].keys()),
+            32,  # 1 bucket + 1 collection + 30 records
+        )
+
+
 class DisabledExplicitPermissionsTest(HistoryWebTest, unittest.TestCase):
     @classmethod
     def get_app_settings(cls, extras=None):
