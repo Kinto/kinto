@@ -130,10 +130,17 @@ def on_resource_changed(event):
         # Note: this will be rolledback if the transaction is rolledback.
         entry = storage.create(parent_id=bucket_uri, resource_name="history", obj=attrs)
 
-        # We trim history by resource.
+        # If enabled, we trim history by resource.
+        # This means that we will only keep the last `auto_trim_max_count` history entries
+        # for this same type of object (eg. `collection`, `record`).
+        #
+        # If trim by user is enabled, we only trim if the user matches the config
+        # and we only delete the history entries of this user.
+        # This means that if a user touches X different types of objects, we will keep
+        # ``(X * auto_trim_max_count)`` entries.
         if is_trim_enabled and (not is_trim_by_user_enabled or user_id in trim_user_ids):
             filters = [
-                Filter("uri", uri, COMPARISON.EQ),
+                Filter("resource_name", resource_name, COMPARISON.EQ),
             ]
             if is_trim_by_user_enabled:
                 filters.append(Filter("user_id", user_id, COMPARISON.EQ))

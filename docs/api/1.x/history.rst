@@ -202,13 +202,13 @@ Or certain users:
 
     kinto.history.exclude_user_ids = account:quicksuggest
 
-In order to limit the size of the history length of each object:
+In order to limit the size of the history length of each resource:
 
 .. code-block:: ini
 
     kinto.history.auto_trim_max_count = 100
 
-In order to limit the size of the history length of each object only for certain users:
+In order to limit the size of the history length of each resource only for certain users:
 
 .. code-block:: ini
 
