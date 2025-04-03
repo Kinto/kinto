@@ -34,10 +34,6 @@ CREATE TABLE IF NOT EXISTS objects
 ) PARTITION BY LIST(resource_name);
 
 CREATE TABLE objects_default PARTITION OF objects DEFAULT;
-CREATE TABLE objects_record PARTITION OF objects
-    FOR VALUES IN ('record');
-CREATE TABLE objects_history PARTITION OF objects
-    FOR VALUES IN ('history');
 
 CREATE UNIQUE INDEX IF NOT EXISTS idx_objects_parent_id_resource_name_last_modified
     ON objects(parent_id, resource_name, last_modified DESC);

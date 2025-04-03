@@ -10,10 +10,6 @@ CREATE TABLE IF NOT EXISTS objects_partitioned
 ) PARTITION BY LIST(resource_name);
 
 CREATE TABLE objects_default PARTITION OF objects_partitioned DEFAULT;
-CREATE TABLE objects_record PARTITION OF objects_partitioned 
-    FOR VALUES IN ('record');
-CREATE TABLE objects_history PARTITION OF objects_partitioned
-    FOR VALUES IN ('history');
 
 INSERT INTO objects_partitioned(id, parent_id, resource_name, last_modified, data, deleted)
 SELECT id, parent_id, resource_name, last_modified, data, deleted
