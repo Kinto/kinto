@@ -73,7 +73,7 @@ markupsafe==2.1.4
     # via werkzeug
 msgpack==1.0.7
     # via bravado-core
-newrelic==10.8.0
+newrelic==10.8.1
     # via -r constraints.in
 packaging==23.2
     # via
@@ -116,7 +116,7 @@ pytest==8.3.5
     #   pytest-cov
 pytest-cache==1.0
     # via -r constraints.in
-pytest-cov==6.0.0
+pytest-cov==6.1.1
     # via -r constraints.in
 python-dateutil==2.9.0.post0
     # via
@@ -149,7 +149,7 @@ rpds-py==0.17.1
     # via
     #   jsonschema
     #   referencing
-ruff==0.11.2
+ruff==0.11.4
     # via -r constraints.in
 sentry-sdk==2.8.0
     # via -r constraints.in
@@ -162,7 +162,7 @@ six==1.16.0
     #   rfc3339-validator
 soupsieve==2.5
     # via beautifulsoup4
-sqlalchemy==2.0.39
+sqlalchemy==2.0.40
     # via
     #   -r constraints.in
     #   sentry-sdk
