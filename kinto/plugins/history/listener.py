@@ -162,7 +162,15 @@ def on_resource_changed(event):
                     filters=filters
                     + [Filter("last_modified", trim_before_timestamp, COMPARISON.MAX)],
                 )
-                logger.debug(f"Trimmed {len(deleted)} old history entries.")
+                logger.info(f"Trimmed {len(deleted)} old history entries.")
+            else:
+                logger.info(
+                    "No old history to trim for {user_id!r} on {resource_name!r} in {bucket_uri!r}."
+                )
+        else:
+            logger.info(
+                f"Trimming of old history entries is not enabled{f' for {user_id!r}.' if is_trim_enabled else '.'}"
+            )
 
         # Without explicit permissions, the ACLs on the history entries will
         # fully depend on the inherited permission tree (eg. bucket:read, bucket:write).
