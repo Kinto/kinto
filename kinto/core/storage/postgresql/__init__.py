@@ -598,6 +598,7 @@ class Storage(StorageBase, MigratorMixin):
         resource_name,
         parent_id,
         before=None,
+        max_retained=None,
         id_field=DEFAULT_ID_FIELD,
         modified_field=DEFAULT_MODIFIED_FIELD,
     ):
@@ -608,9 +609,39 @@ class Storage(StorageBase, MigratorMixin):
               {resource_name_filter}
               {conditions_filter}
         """
+
+        if max_retained is not None:
+            if before is not None:
+                raise ValueError("`before` and `max_retained` are exclusive arguments. Pick one.")
+
+            delete_tombstones = """
+            WITH ranked AS (
+                SELECT
+                    id AS objid,
+                    parent_id,
+                    resource_name,
+                    ROW_NUMBER() OVER (
+                        PARTITION BY parent_id, resource_name
+                        ORDER BY last_modified DESC
+                    ) AS rn
+                FROM objects
+            )
+            DELETE FROM objects
+            WHERE id IN (
+                SELECT objid
+                FROM ranked
+                WHERE
+                    {parent_id_filter}
+                    {resource_name_filter}
+                    AND rn > :max_retained
+            )
+            """
+
         id_field = id_field or self.id_field
         modified_field = modified_field or self.modified_field
-        placeholders = dict(parent_id=parent_id, resource_name=resource_name)
+        placeholders = dict(
+            parent_id=parent_id, resource_name=resource_name, max_retained=max_retained
+        )
         # Safe strings
         safeholders = defaultdict(str)
         # Handle parent_id as a regex only if it contains *

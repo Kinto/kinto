@@ -33,6 +33,7 @@ def main(args=None):
         "flush-cache",
         "version",
         "create-user",
+        "purge-deleted",
     )
     subparsers = parser.add_subparsers(
         title="subcommands",
@@ -128,6 +129,18 @@ def main(args=None):
             subparser.add_argument(
                 "-p", "--password", help="Superuser password", required=False, default=None
             )
+        elif command == "purge-deleted":
+            subparser.add_argument(
+                "resources",  # No '--' → positional
+                nargs="+",  # Accepts one or more
+                help="List of resources (e.g. record bucket group)",
+                default=["record"],
+            )
+            subparser.add_argument(
+                "max-retained",
+                help="The maximum number of tombstones to keep per resource and per parent",
+                type=int,
+            )
 
     # Parse command-line arguments
     parsed_args = vars(parser.parse_args(args))
@@ -207,6 +220,12 @@ def main(args=None):
         password = parsed_args["password"]
         env = bootstrap(config_file, options={"command": "create-user"})
         return accounts_scripts.create_user(env, username=username, password=password)
+
+    elif which_command == "purge-deleted":
+        env = bootstrap(config_file)
+        return core_scripts.purge_deleted(
+            env, parsed_args["resources"], parsed_args["max-retained"]
+        )
 
     elif which_command == "start":
         pserve_argv = ["pserve"]

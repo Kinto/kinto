@@ -96,3 +96,23 @@ For example:
 ::
 
     kinto flush-cache --ini kinto.ini
+
+
+Purge Deleted
+-------------
+
+Delete tombstones from the database, and keep a certain number of them per collection.
+
+This is **not** recommended in production, unless you really know what you are doing.
+
+It will break partial synchronization on clients that didn't have the chance to apply these deletions locally.
+
+::
+
+    usage: kinto purge-deleted [-h] [--ini INI_FILE] [-q] [-v] resources [resources ...] max-retained
+
+For example:
+
+::
+
+    kinto --ini=config/postgresql.ini purge-deleted bucket,collection,record 10000

@@ -45,3 +45,20 @@ class InitSchemaTest(unittest.TestCase):
         scripts.flush_cache({"registry": self.registry})
         reg = self.registry
         reg.cache.flush.assert_called_with()
+
+
+class PurgeDeletedTest(unittest.TestCase):
+    def setUp(self):
+        self.registry = mock.MagicMock()
+
+    def test_purge_deleted(self):
+        code = scripts.purge_deleted(
+            {"registry": self.registry}, resource_names=["A", "B"], max_retained=42
+        )
+        assert code == 0
+        self.registry.storage.purge_deleted.assert_any_call(
+            parent_id="*", resource_name="A", max_retained=42
+        )
+        self.registry.storage.purge_deleted.assert_any_call(
+            parent_id="*", resource_name="B", max_retained=42
+        )

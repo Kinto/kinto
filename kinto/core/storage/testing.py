@@ -1342,6 +1342,60 @@ class DeletedObjectsTest:
         count = self.storage.count_all(**self.storage_kw)
         self.assertEqual(count, 0)
 
+    def test_purge_deleted_does_not_support_before_and_max_retained(self):
+        self.assertRaises(
+            ValueError,
+            self.storage.purge_deleted,
+            resource_name="r",
+            parent_id="p",
+            before=42,
+            max_retained=1,
+        )
+
+    def test_purge_deleted_remove_with_max_count_per_collection(self):
+        cid1_kw = dict(parent_id="cid1", resource_name="one")
+        for i in range(5):
+            record = self.create_object(**cid1_kw)
+            self.storage.delete(object_id=record["id"], **cid1_kw)
+        cid2_kw = dict(parent_id="cid2", resource_name="one")
+        for i in range(4):
+            record = self.create_object(**cid2_kw)
+            self.storage.delete(object_id=record["id"], **cid2_kw)
+        cid1_other_kw = dict(parent_id="cid1", resource_name="other")
+        for i in range(5):
+            record = self.create_object(**cid1_other_kw)
+            self.storage.delete(object_id=record["id"], **cid1_other_kw)
+
+        # Consistency checks first.
+        objects_c1_before = self.storage.list_all(include_deleted=True, **cid1_kw)
+        self.assertEqual(len(objects_c1_before), 5)
+        objects_c2_before = self.storage.list_all(include_deleted=True, **cid2_kw)
+        self.assertEqual(len(objects_c2_before), 4)
+        objects_c1_other_before = self.storage.list_all(include_deleted=True, **cid1_other_kw)
+        self.assertEqual(len(objects_c1_other_before), 5)
+
+        num_removed = self.storage.purge_deleted(
+            resource_name="one", parent_id="*", max_retained=3
+        )
+
+        self.assertEqual(num_removed, 3)  # 2 for one/cid1, 1 for one/cid2, 0 for other/cid1
+
+        # It kept 3 tombstones for each resource/parent.
+        objects = self.storage.list_all(include_deleted=True, **cid1_kw)
+        self.assertEqual(len(objects), 3)
+        self.assertEqual(
+            min(obj["last_modified"] for obj in objects), objects_c1_before[2]["last_modified"]
+        )
+
+        objects = self.storage.list_all(include_deleted=True, **cid2_kw)
+        self.assertEqual(len(objects), 3)
+        self.assertNotEqual(
+            min(obj["last_modified"] for obj in objects), objects_c2_before[2]["last_modified"]
+        )
+
+        objects = self.storage.list_all(include_deleted=True, **cid1_other_kw)
+        self.assertEqual(len(objects), 5)
+
     #
     # Sorting
     #

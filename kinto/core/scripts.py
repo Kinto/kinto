@@ -28,6 +28,21 @@ def migrate(env, dry_run=False):
                 getattr(registry, backend).initialize_schema(dry_run=dry_run)
 
 
+def purge_deleted(env, resource_names, max_retained):
+    logger.info("Keep only %r tombstones per parent and resource." % max_retained)
+
+    registry = env["registry"]
+
+    count = 0
+    for resource_name in resource_names:
+        count += registry.storage.purge_deleted(
+            resource_name=resource_name, parent_id="*", max_retained=max_retained
+        )
+
+    logger.info("%s tombstone(s) deleted." % count)
+    return 0
+
+
 def flush_cache(env):
     registry = env["registry"]
     registry.cache.flush()
