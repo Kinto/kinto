@@ -33,6 +33,7 @@ def main(args=None):
         "flush-cache",
         "version",
         "create-user",
+        "purge-deleted",
     )
     subparsers = parser.add_subparsers(
         title="subcommands",
@@ -128,6 +129,17 @@ def main(args=None):
             subparser.add_argument(
                 "-p", "--password", help="Superuser password", required=False, default=None
             )
+        elif command == "purge-deleted":
+            subparser.add_argument(
+                "--timestamp", help="The maximum timestamp (exclusive).", type=int, default=None
+            )
+            subparser.add_argument(
+                "--max-count",
+                help="The maximum number of tombstones to keep per collection",
+                type=int,
+                dest="max_count",
+                default=None,
+            )
 
     # Parse command-line arguments
     parsed_args = vars(parser.parse_args(args))
@@ -207,6 +219,10 @@ def main(args=None):
         password = parsed_args["password"]
         env = bootstrap(config_file, options={"command": "create-user"})
         return accounts_scripts.create_user(env, username=username, password=password)
+
+    elif which_command == "purge-deleted":
+        env = bootstrap(config_file)
+        return core_scripts.purge_deleted(env, parsed_args["timestamp"], parsed_args["max_count"])
 
     elif which_command == "start":
         pserve_argv = ["pserve"]

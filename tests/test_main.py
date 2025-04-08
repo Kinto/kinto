@@ -312,3 +312,17 @@ class TestMain(unittest.TestCase):
             res = main(["flush-cache", "--ini", TEMP_KINTO_INI])
             assert res == 0
             assert mocked_cache_script.call_count == 1
+
+    def test_cli_purge_deleted_runs_purge_deleted_script(self):
+        with mock.patch("kinto.__main__.scripts.purge_deleted") as purge_deleted:
+            purge_deleted.return_value = mock.sentinel.purge_deleted
+            main(["--ini", TEMP_KINTO_INI, "init", "--backend", "memory"])
+            res = main(["--ini", TEMP_KINTO_INI, "purge-deleted"])
+            assert res == mock.sentinel.purge_deleted
+            assert purge_deleted.call_count == 1
+
+    def test_cli_purge_deleted_fails_if_wrong_timestamp(self):
+        with mock.patch("kinto.__main__.scripts.purge_deleted"):
+            main(["--ini", TEMP_KINTO_INI, "init", "--backend", "memory"])
+            with self.assertRaises(SystemExit):
+                main(["--ini", TEMP_KINTO_INI, "purge-deleted", "--timestamp", "abc"])
