@@ -1,4 +1,12 @@
+# Standard library imports
+# (none)
+
+# Third-party imports
 import kinto_http
+
+# Local application imports
+# (none)
+
 
 try:
     # Initialize Kinto client
