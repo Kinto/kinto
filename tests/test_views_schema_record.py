@@ -1,5 +1,8 @@
 from kinto.core.testing import unittest
+
 from .support import BaseWebTest
+
+
 # from kinto.schema_validation import validate_schema
 
 
