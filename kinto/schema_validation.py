@@ -1,4 +1,4 @@
-# Imports 
+# Imports
 import colander
 from jsonschema import Draft7Validator as DraftValidator
 from jsonschema import RefResolutionError, SchemaError, ValidationError
