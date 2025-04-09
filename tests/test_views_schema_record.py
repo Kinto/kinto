@@ -271,7 +271,9 @@ class InternalRequiredProperties(BaseWebTestWithSchema, unittest.TestCase):
     def test_record_can_be_validated_with_id_and_last_modified(self):
         self.app.post_json(
             RECORDS_URL,
-            {"data": {"id": "abc", "last_modified": 1234}},  # Make sure 'id' and 'last_modified' are included
+            {
+                "data": {"id": "abc", "last_modified": 1234}
+            },  # Make sure 'id' and 'last_modified' are included
             headers=self.headers,
         )
 
