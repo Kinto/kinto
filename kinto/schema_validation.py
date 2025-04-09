@@ -67,15 +67,6 @@ def validate_schema(data, schema, id_field, ignore_fields=None):
     if id_field not in schema.get("properties", {}):
         ignore_fields += (id_field,)
 
-    required_fields = [f for f in schema.get("required", []) if f not in ignore_fields]
-    # jsonschema doesn't accept 'required': [] yet.
-    # See https://github.com/Julian/jsonschema/issues/337.
-    # In the meantime, strip out 'required' if no other fields are required.
-    if required_fields:
-        schema = {**schema, "required": required_fields}
-    else:
-        schema = {f: v for f, v in schema.items() if f != "required"}
-
     data = {f: v for f, v in data.items() if f not in ignore_fields}
 
     try:
@@ -88,8 +79,6 @@ def validate_schema(data, schema, id_field, ignore_fields=None):
         else:
             field = e.schema_path[-1]
         e.field = field
-        raise e
-    except RefResolutionError as e:
         raise e
 
 
