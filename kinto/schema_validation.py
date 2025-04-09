@@ -89,7 +89,6 @@ def validate_schema(data, schema, id_field, ignore_fields=None):
             field = e.schema_path[-1]
         e.field = field
         raise e
-    
     except RefResolutionError as e:
         raise e
 
