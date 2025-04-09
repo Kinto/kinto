@@ -1,14 +1,12 @@
 import colander
 from jsonschema import Draft7Validator as DraftValidator
-from jsonschema import SchemaError, ValidationError
+from jsonschema import RefResolutionError, SchemaError, ValidationError
 from jsonschema.validators import validator_for
 from pyramid.settings import asbool
 
 from kinto.core import utils
+from kinto.core.errors import raise_invalid
 from kinto.views import object_exists_or_404
-
-
-# from kinto.core.errors import raise_invalid
 
 
 class JSONSchemaMapping(colander.SchemaNode):
@@ -61,26 +59,26 @@ def validate(data, schema):
     return _schema_cache[cache_key].validate(data)
 
 
-# def validate_schema(data, schema, id_field, ignore_fields=None):
-#     if ignore_fields is None:
-#         ignore_fields = []
-#     # Only ignore the `id` field if the schema does not explicitly mention it.
-#     if id_field not in schema.get("properties", {}):
-#         ignore_fields += (id_field,)
+def validate_schema(data, schema, id_field, ignore_fields=None):
+    if ignore_fields is None:
+        ignore_fields = []
+    # Only ignore the `id` field if the schema does not explicitly mention it.
+    if id_field not in schema.get("properties", {}):
+        ignore_fields += (id_field,)
 
-#     data = {f: v for f, v in data.items() if f not in ignore_fields}
+    data = {f: v for f, v in data.items() if f not in ignore_fields}
 
-#     try:
-#         validate(data, schema)
-#     except ValidationError as e:
-#         if e.path:
-#             field = e.path[-1]
-#         elif e.validator_value:
-#             field = e.validator_value[-1]
-#         else:
-#             field = e.schema_path[-1]
-#         e.field = field
-#         raise e
+    try:
+        validate(data, schema)
+    except ValidationError as e:
+        if e.path:
+            field = e.path[-1]
+        elif e.validator_value:
+            field = e.validator_value[-1]
+        else:
+            field = e.schema_path[-1]
+        e.field = field
+        raise e
 
 
 def validate_from_bucket_schema_or_400(data, resource_name, request, id_field, ignore_fields):
@@ -112,10 +110,10 @@ def validate_from_bucket_schema_or_400(data, resource_name, request, id_field, i
         return
 
     # Validate or fail with 400.
-    # schema = bucket[metadata_field]
-    # try:
-    #     validate_schema(data, schema, ignore_fields=ignore_fields, id_field=id_field)
-    # except ValidationError as e:
-    #     raise_invalid(request, name=e.field, description=e.message)
-    # except RefResolutionError as e:
-    #     raise_invalid(request, name="schema", description=str(e))
+    schema = bucket[metadata_field]
+    try:
+        validate_schema(data, schema, ignore_fields=ignore_fields, id_field=id_field)
+    except ValidationError as e:
+        raise_invalid(request, name=e.field, description=e.message)
+    except RefResolutionError as e:
+        raise_invalid(request, name="schema", description=str(e))

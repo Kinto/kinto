@@ -3,9 +3,6 @@ from kinto.core.testing import unittest
 from .support import BaseWebTest
 
 
-# from kinto.schema_validation import validate_schema
-
-
 BUCKET_URL = "/buckets/blog"
 COLLECTION_URL = "/buckets/blog/collections/articles"
 RECORDS_URL = "/buckets/blog/collections/articles/records"
