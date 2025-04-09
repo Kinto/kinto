@@ -7,7 +7,7 @@ from kinto.schema_validation import (
     RefResolutionError,
     ValidationError,
     validate_from_bucket_schema_or_400,
-    validate_schema,
+    # validate_schema,
 )
 from kinto.views import object_exists_or_404
 
@@ -68,15 +68,15 @@ class Record(resource.Resource):
 
         # The schema defined on the collection will be validated first.
         if "schema" in self._collection:
-            schema = self._collection["schema"]
-            try:
-                validate_schema(
-                    new, schema, ignore_fields=ignored_fields, id_field=self.model.id_field
-                )
-            except ValidationError as e:
-                raise_invalid(self.request, name=e.field, description=e.message)
-            except RefResolutionError as e:
-                raise_invalid(self.request, name="schema", description=str(e))
+            # schema = self._collection["schema"]
+            # try:
+            #     validate_schema(
+            #         new, schema, ignore_fields=ignored_fields, id_field=self.model.id_field
+            #     )
+            # except ValidationError as e:
+            #     raise_invalid(self.request, name=e.field, description=e.message)
+            # except RefResolutionError as e:
+            #     raise_invalid(self.request, name="schema", description=str(e))
 
             # Assign the schema version to the record.
             schema_timestamp = self._collection[self.model.modified_field]
