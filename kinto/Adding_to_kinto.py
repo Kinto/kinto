@@ -7,7 +7,10 @@ try:
     # Define the bucket, collection, and record
     bucket_name = "blog"
     collection_name = "posts"
-    record_data = {"title": "Testing Initial Run", "content": "This is the content of my testing post."}
+    record_data = {
+        "title": "Testing Initial Run",
+        "content": "This is the content of my testing post."
+    }
 
     # Ensure the bucket exists (try fetching it first)
     try:
@@ -23,7 +26,6 @@ try:
 
     # Add a new post to the collection
     new_post = client.create_record(data=record_data, bucket=bucket_name, collection=collection_name)
-
     print("New post created:", new_post)
 
 except kinto_http.KintoException as e:
