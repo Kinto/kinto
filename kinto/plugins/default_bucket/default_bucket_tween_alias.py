@@ -8,9 +8,9 @@ def default_bucket_tween_alias(handler, registry):
 
         if not userid:
             # Reject unauthenticated requests
-            return Response(json={"message": "No userid"}) # Skip if unauthenticated3
+            return Response(json={"message": "No userid"})  # Skip if unauthenticated3
 
-        request.prefixed_userid = f'account:{userid}'
+        request.prefixed_userid = f"account:{userid}"
         # Authentication complete
         path = request.path
         if not path.endswith("buckets/default"):
@@ -21,4 +21,5 @@ def default_bucket_tween_alias(handler, registry):
                 new_path = path.replace(f"/buckets/{next_segment}", "/buckets/default")
                 request.environ["PATH_INFO"] = new_path
         return handler(request)
+
     return tween
