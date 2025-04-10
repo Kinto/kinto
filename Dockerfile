@@ -29,7 +29,7 @@ ENV KINTO_INI=/etc/kinto/kinto.ini \
     PORT=8888 \
     PATH="/opt/venv/bin:$PATH"
 
-RUN kinto init --ini $KINTO_INI --host 0.0.0.0 --backend=memory --cache-backend=memory
+RUN kinto init --ini $KINTO_INI --host 0.0.0.0 --backend=postgresql --cache-backend=postgresql
 
 WORKDIR /app
 USER app

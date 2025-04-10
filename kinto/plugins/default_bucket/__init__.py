@@ -1,10 +1,13 @@
 import uuid
 
+import pyramid
 from pyramid import httpexceptions
 from pyramid.authorization import Authenticated
 from pyramid.security import NO_PERMISSION_REQUIRED
 from pyramid.settings import asbool
+from pyramid.tweens import MAIN
 
+import kinto
 from kinto.authorization import RouteFactory
 from kinto.core import get_user_info as core_get_user_info
 from kinto.core.errors import raise_invalid
@@ -108,6 +111,7 @@ def resource_create_object(request, resource_cls, uri):
 
 
 def default_bucket(request):
+     # Only care about GET requests
     if request.method.lower() == "options":
         path = request.path.replace("default", "unknown")
         subrequest = build_request(request, {"method": "OPTIONS", "path": path})
@@ -182,6 +186,9 @@ def includeme(config):
     config.add_request_method(default_bucket_id, reify=True)
     # Override kinto.core default user info
     config.add_request_method(get_user_info)
+    config.add_request_method(create_bucket)
+    
+    config.add_tween("kinto.plugins.default_bucket.default_bucket_tween_alias.default_bucket_tween_alias", over=pyramid.tweens.EXCVIEW)
 
     config.add_api_capability(
         "default_bucket",
@@ -189,3 +196,4 @@ def includeme(config):
         " bucket where collections are created implicitly.",
         url="https://kinto.readthedocs.io/en/latest/api/1.x/buckets.html#personal-bucket-default",
     )
+
