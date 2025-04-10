@@ -77,13 +77,9 @@ class MissingSchemaTest(BaseWebTestWithSchema, unittest.TestCase):
 
     def test_accepts_any_kind_of_record(self):
         record = {"title": "Troll"}
-        self.app.post_json(
-            RECORDS_URL, {"data": record}, headers=self.headers, status=201
-        )
+        self.app.post_json(RECORDS_URL, {"data": record}, headers=self.headers, status=201)
         record = {"author": {"age": 32, "status": "captain"}}
-        self.app.post_json(
-            RECORDS_URL, {"data": record}, headers=self.headers, status=201
-        )
+        self.app.post_json(RECORDS_URL, {"data": record}, headers=self.headers, status=201)
 
 
 class InvalidSchemaTest(BaseWebTestWithSchema, unittest.TestCase):
@@ -100,20 +96,14 @@ class InvalidSchemaTest(BaseWebTestWithSchema, unittest.TestCase):
 
     def test_extra_unknown_required_property(self):
         schema = {**SCHEMA, "required": ["unknown"]}
-        self.app.put_json(
-            COLLECTION_URL, {"data": {"schema": schema}}, headers=self.headers
-        )
+        self.app.put_json(COLLECTION_URL, {"data": {"schema": schema}}, headers=self.headers)
 
         record = {"title": "bug 1243"}
-        r = self.app.post_json(
-            RECORDS_URL, {"data": record}, headers=self.headers, status=400
-        )
+        r = self.app.post_json(RECORDS_URL, {"data": record}, headers=self.headers, status=400)
         self.assertEqual("'unknown' is a required property", r.json["message"])
 
         # With bug Kinto/kinto#1243, the second call would crash.
-        self.app.post_json(
-            RECORDS_URL, {"data": record}, headers=self.headers, status=400
-        )
+        self.app.post_json(RECORDS_URL, {"data": record}, headers=self.headers, status=400)
 
 
 class RecordsValidationTest(BaseWebTestWithSchema, unittest.TestCase):
@@ -131,9 +121,7 @@ class RecordsValidationTest(BaseWebTestWithSchema, unittest.TestCase):
         self.app.post_json(RECORDS_URL, {"data": {}}, headers=self.headers, status=400)
 
     def test_records_are_valid_if_match_schema(self):
-        self.app.post_json(
-            RECORDS_URL, {"data": VALID_RECORD}, headers=self.headers, status=201
-        )
+        self.app.post_json(RECORDS_URL, {"data": VALID_RECORD}, headers=self.headers, status=201)
 
     def test_records_are_invalid_if_do_not_match_schema(self):
         self.app.post_json(
@@ -192,9 +180,7 @@ class RecordsValidationTest(BaseWebTestWithSchema, unittest.TestCase):
             headers=self.headers,
             status=400,
         )
-        self.assertIn(
-            "size in body: 'hi!' is not of type 'number'", resp.json["message"]
-        )
+        self.assertIn("size in body: 'hi!' is not of type 'number'", resp.json["message"])
         self.assertEqual(resp.json["details"][0]["name"], "size")
 
     def test_records_of_other_bucket_are_not_impacted(self):
@@ -249,9 +235,7 @@ class ExtraPropertiesValidationTest(BaseWebTestWithSchema, unittest.TestCase):
     def test_records_are_validated_on_patch(self):
         record_id = "5443d83f-852a-481a-8e9d-5aa804b05b08"
         record_url = "{}/{}".format(RECORDS_URL, record_id)
-        resp = self.app.put_json(
-            record_url, {"data": VALID_RECORD}, headers=self.headers
-        )
+        resp = self.app.put_json(record_url, {"data": VALID_RECORD}, headers=self.headers)
         record = resp.json["data"]
         assert "schema" in record
         record["title"] = "hey"
@@ -274,9 +258,7 @@ class InternalRequiredProperties(BaseWebTestWithSchema, unittest.TestCase):
         super().setUp()
         # See bug Kinto/kinto#1244
         schema = {**SCHEMA, "required": ["id", "schema", "last_modified"]}
-        self.app.put_json(
-            COLLECTION_URL, {"data": {"schema": schema}}, headers=self.headers
-        )
+        self.app.put_json(COLLECTION_URL, {"data": {"schema": schema}}, headers=self.headers)
 
     def test_record_validation_can_reject_records(self):
         self.app.post_json(
@@ -295,30 +277,22 @@ class ValidateIDField(BaseWebTestWithSchema, unittest.TestCase):
             "type": "object",
             "properties": {"id": {"type": "string", "pattern": "^[0-7]$"}},
         }
-        self.app.put_json(
-            COLLECTION_URL, {"data": {"schema": schema}}, headers=self.headers
-        )
+        self.app.put_json(COLLECTION_URL, {"data": {"schema": schema}}, headers=self.headers)
 
     def test_record_id_is_accepted_if_valid(self):
         self.app.post_json(RECORDS_URL, {"data": {"id": "1"}}, headers=self.headers)
 
     def test_record_id_is_rejected_if_does_not_match(self):
-        self.app.post_json(
-            RECORDS_URL, {"data": {"id": "a"}}, headers=self.headers, status=400
-        )
+        self.app.post_json(RECORDS_URL, {"data": {"id": "a"}}, headers=self.headers, status=400)
 
 
 class BucketRecordSchema(BaseWebTestWithSchema, unittest.TestCase):
     def setUp(self):
         super().setUp()
-        self.app.put_json(
-            BUCKET_URL, {"data": {"record:schema": SCHEMA}}, headers=self.headers
-        )
+        self.app.put_json(BUCKET_URL, {"data": {"record:schema": SCHEMA}}, headers=self.headers)
 
     def test_records_are_valid_if_match_schema(self):
-        self.app.post_json(
-            RECORDS_URL, {"data": VALID_RECORD}, headers=self.headers, status=201
-        )
+        self.app.post_json(RECORDS_URL, {"data": VALID_RECORD}, headers=self.headers, status=201)
 
     def test_records_are_validated_on_batch(self):
         resp = self.app.post_json(
@@ -347,9 +321,7 @@ class BucketRecordSchema(BaseWebTestWithSchema, unittest.TestCase):
 class BothBucketAndCollectionSchemas(BaseWebTestWithSchema, unittest.TestCase):
     def setUp(self):
         super().setUp()
-        self.app.put_json(
-            COLLECTION_URL, {"data": {"schema": SCHEMA}}, headers=self.headers
-        )
+        self.app.put_json(COLLECTION_URL, {"data": {"schema": SCHEMA}}, headers=self.headers)
         other_schema = {"type": "object", "properties": {"filters": {"type": "string"}}}
         self.app.put_json(
             BUCKET_URL, {"data": {"record:schema": other_schema}}, headers=self.headers
@@ -394,9 +366,7 @@ class RecordsUnresolvableTest(BaseWebTestWithSchema, unittest.TestCase):
         self.collection = resp.json["data"]
 
     def test_unresolvable_errors_handled(self):
-        self.app.post_json(
-            RECORDS_URL, {"data": {"title": "b"}}, headers=self.headers, status=400
-        )
+        self.app.post_json(RECORDS_URL, {"data": {"title": "b"}}, headers=self.headers, status=400)
 
 
 class BucketUnresolvableRecordSchema(BaseWebTestWithSchema, unittest.TestCase):
@@ -409,17 +379,13 @@ class BucketUnresolvableRecordSchema(BaseWebTestWithSchema, unittest.TestCase):
         )
 
     def test_records_are_valid_if_match_schema(self):
-        self.app.post_json(
-            RECORDS_URL, {"data": {"title": "b"}}, headers=self.headers, status=400
-        )
+        self.app.post_json(RECORDS_URL, {"data": {"title": "b"}}, headers=self.headers, status=400)
 
 
 class RecordsWithLargeNumbers(BaseWebTestWithSchema, unittest.TestCase):
     def setUp(self):
         super().setUp()
-        self.app.put_json(
-            COLLECTION_URL, {"data": {"schema": SCHEMA}}, headers=self.headers
-        )
+        self.app.put_json(COLLECTION_URL, {"data": {"schema": SCHEMA}}, headers=self.headers)
 
     def test_record_with_number_less_than_64_bits(self):
         size = 2**63
