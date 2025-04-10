@@ -1,6 +1,10 @@
+import logging
+import os
+import shutil
 import warnings
 from time import perf_counter as time_now
 
+from pyramid.events import ApplicationCreated
 from pyramid.exceptions import ConfigurationError
 from pyramid.response import Response
 from zope.interface import implementer
@@ -15,15 +19,25 @@ except ImportError:  # pragma: no cover
     prometheus_module = None
 
 
+logger = logging.getLogger(__name__)
+
 _METRICS = {}
 _REGISTRY = None
+
+
+PROMETHEUS_MULTIPROC_DIR = os.getenv("PROMETHEUS_MULTIPROC_DIR")
 
 
 def get_registry():
     global _REGISTRY
 
     if _REGISTRY is None:
-        _REGISTRY = prometheus_module.CollectorRegistry()
+        if PROMETHEUS_MULTIPROC_DIR:  # pragma: no cover
+            # Ref: https://prometheus.github.io/client_python/multiprocess/
+            _REGISTRY = prometheus_module.CollectorRegistry()
+            prometheus_module.multiprocess.MultiProcessCollector(_REGISTRY)
+        else:
+            _REGISTRY = prometheus_module.REGISTRY
     return _REGISTRY
 
 
@@ -170,6 +184,12 @@ def metrics_view(request):
     return resp
 
 
+def _reset_multiproc_folder_content(path):
+    if os.path.exists(path):
+        shutil.rmtree(path)
+    os.mkdir(path)
+
+
 def includeme(config):
     if prometheus_module is None:
         error_msg = (
@@ -190,6 +210,13 @@ def includeme(config):
     # This is mainly useful in tests, where the plugin is included
     # several times with different settings.
     registry = get_registry()
+
+    # Empty multiproc folder content on startup.
+    if PROMETHEUS_MULTIPROC_DIR:  # pragma: no cover
+        config.add_subscriber(_reset_multiproc_folder_content, ApplicationCreated)
+    else:
+        logger.warning("Prometheus metrics will run in single-process mode only.")
+
     for collector in _METRICS.values():
         try:
             registry.unregister(collector)
