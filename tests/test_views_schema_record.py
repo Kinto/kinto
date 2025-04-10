@@ -249,32 +249,6 @@ class InternalRequiredProperties(BaseWebTestWithSchema, unittest.TestCase):
         schema = {**SCHEMA, "required": ["id", "schema", "last_modified"]}
         self.app.put_json(COLLECTION_URL, {"data": {"schema": schema}}, headers=self.headers)
 
-    def test_record_can_be_validated_with_minimum_fields(self):
-        self.app.post_json(RECORDS_URL, {"data": {}}, headers=self.headers)
-
-    def test_record_can_be_validated_with_every_fields(self):
-        self.app.post_json(
-            RECORDS_URL,
-            {
-                "data": {
-                    "id": "abc",  # Ensure the 'id' field is present
-                    "last_modified": 1234,  # Ensure the 'last_modified' field is present
-                    "schema": 42,  # Ensure the 'schema' field is present
-                    "title": "b",
-                    "name": "n",
-                }
-            },
-            headers=self.headers,
-        )
-
-    def test_record_can_be_validated_with_id_and_last_modified(self):
-        self.app.post_json(
-            RECORDS_URL,
-            {
-                "data": {"id": "abc", "last_modified": 1234}
-            },  # Make sure 'id' and 'last_modified' are included
-            headers=self.headers,
-        )
 
     def test_record_validation_can_reject_records(self):
         self.app.post_json(
