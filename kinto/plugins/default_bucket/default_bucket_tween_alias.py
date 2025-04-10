@@ -1,5 +1,3 @@
-from pyramid.request import Request
-from pyramid.httpexceptions import HTTPForbidden
 from pyramid.response import Response
 
 
@@ -7,7 +5,7 @@ def default_bucket_tween_alias(handler, registry):
     def tween(request):
         # Manually Authenticating the user
         userid = request.authenticated_userid
-        
+
         if not userid:
             # Reject unauthenticated requests
             return Response(json={"message": "No userid"}) # Skip if unauthenticated3

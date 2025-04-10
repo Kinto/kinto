@@ -1,13 +1,11 @@
 import uuid
 
-import pyramid
 from pyramid import httpexceptions
 from pyramid.authorization import Authenticated
 from pyramid.security import NO_PERMISSION_REQUIRED
 from pyramid.settings import asbool
-from pyramid.tweens import MAIN
+from pyramid.tweens import EXCVIEW
 
-import kinto
 from kinto.authorization import RouteFactory
 from kinto.core import get_user_info as core_get_user_info
 from kinto.core.errors import raise_invalid
@@ -187,8 +185,8 @@ def includeme(config):
     # Override kinto.core default user info
     config.add_request_method(get_user_info)
     config.add_request_method(create_bucket)
-    
-    config.add_tween("kinto.plugins.default_bucket.default_bucket_tween_alias.default_bucket_tween_alias", over=pyramid.tweens.EXCVIEW)
+
+    config.add_tween("kinto.plugins.default_bucket.default_bucket_tween_alias.default_bucket_tween_alias", over=EXCVIEW)
 
     config.add_api_capability(
         "default_bucket",
