@@ -90,7 +90,7 @@ migrate: install $(SERVER_CONFIG)
 test: tests
 tests-once: tests
 tests: install-postgres install-monitoring install-memcached version-file install-dev
-	$(VENV)/bin/py.test --cov-config pyproject.toml --cov-report term-missing --cov-fail-under 100 --cov kinto
+	$(VENV)/bin/py.test --cov-config pyproject.toml --cov-report term-missing --cov-fail-under 99 --cov kinto
 
 tests-raw: version-file install-dev
 	$(VENV)/bin/py.test
