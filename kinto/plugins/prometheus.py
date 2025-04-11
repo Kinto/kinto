@@ -1,3 +1,4 @@
+import functools
 import logging
 import os
 import shutil
@@ -33,9 +34,11 @@ def get_registry():
 
     if _REGISTRY is None:
         if PROMETHEUS_MULTIPROC_DIR:  # pragma: no cover
+            from prometheus_client import multiprocess
+
             # Ref: https://prometheus.github.io/client_python/multiprocess/
             _REGISTRY = prometheus_module.CollectorRegistry()
-            prometheus_module.multiprocess.MultiProcessCollector(_REGISTRY)
+            multiprocess.MultiProcessCollector(_REGISTRY)
         else:
             _REGISTRY = prometheus_module.REGISTRY
     return _REGISTRY
@@ -184,7 +187,7 @@ def metrics_view(request):
     return resp
 
 
-def _reset_multiproc_folder_content(path):  # pragma: no cover
+def _reset_multiproc_folder_content(path, _evt):
     if os.path.exists(path):
         shutil.rmtree(path)
     os.mkdir(path)
@@ -213,7 +216,10 @@ def includeme(config):
 
     # Empty multiproc folder content on startup.
     if PROMETHEUS_MULTIPROC_DIR:  # pragma: no cover
-        config.add_subscriber(_reset_multiproc_folder_content, ApplicationCreated)
+        config.add_subscriber(
+            functools.partial(_reset_multiproc_folder_content, PROMETHEUS_MULTIPROC_DIR),
+            ApplicationCreated,
+        )
     else:
         logger.warning("Prometheus metrics will run in single-process mode only.")
 
