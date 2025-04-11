@@ -288,6 +288,9 @@ class Storage(MemoryBasedStorage):
         id_field=DEFAULT_ID_FIELD,
         modified_field=DEFAULT_MODIFIED_FIELD,
     ):
+        if max_retained is not None and before is not None:
+            raise ValueError("`before` and `max_retained` are exclusive arguments. Pick one.")
+
         parent_id_match = re.compile(parent_id.replace("*", ".*"))
 
         timestamps_by_parent_id = {
@@ -328,10 +331,6 @@ class Storage(MemoryBasedStorage):
                             if i < max_retained
                         }
                 else:
-                    if max_retained is not None:
-                        raise ValueError(
-                            "`before` and `max_retained` are exclusive arguments. Pick one."
-                        )
                     kept = {
                         key: value
                         for key, value in resource_objects.items()
