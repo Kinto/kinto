@@ -188,7 +188,7 @@ def metrics_view(request):
 
 
 def _reset_multiproc_folder_content(path, _evt):
-    if os.path.exists(path):
+    if os.path.exists(path):  # pragma: no cover
         shutil.rmtree(path)
     os.mkdir(path)
 
