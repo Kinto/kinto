@@ -1,0 +1,5 @@
+include *.txt *.ini *.cfg *.rst
+recursive-include kinto_project_2 *.ico *.png *.css *.gif *.jpg *.pt *.txt *.mak *.mako *.js *.html *.xml *.jinja2
+recursive-include tests *
+recursive-exclude * __pycache__
+recursive-exclude * *.py[co]

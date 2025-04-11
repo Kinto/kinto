@@ -2,6 +2,7 @@ import unittest
 from unittest import mock
 from uuid import UUID
 
+import requests
 from pyramid.httpexceptions import HTTPBadRequest
 
 from kinto.core.errors import ERRORS, http_error
@@ -9,7 +10,7 @@ from kinto.core.storage import exceptions as storage_exceptions
 from kinto.core.testing import FormattedErrorMixin, get_user_headers
 from kinto.core.utils import hmac_digest
 
-from ..support import MINIMALIST_RECORD, BaseWebTest
+from ..support import MINIMALIST_RECORD, BaseWebTest  
 
 
 class DefaultBucketWebTest(BaseWebTest, unittest.TestCase):
@@ -292,6 +293,30 @@ class DefaultBucketViewTest(FormattedErrorMixin, DefaultBucketWebTest):
         resp = self.app.get(records_url, headers=self.headers, status=307)
         assert resp.headers["Location"].endswith("/buckets/default/collections/foo/records/bar")
 
+    # Mock handler to return a dummy response for successful request
+    def test_unauthenticated_user_is_rejected(self):
+        # Simulate a request without authentication
+        self.app.authorization = None
+        response = self.app.get("/buckets/default", status=401)
+        assert response.json["message"] == "Please authenticate yourself to use this endpoint."
+
+    def test_path_stays_same_if_already_default(self):
+        # Authenticated request to the default bucket
+        self.app.authorization = (
+            "Basic",
+            ("admin", "adminpass"),
+        )  # or use your actual test credentials
+        response = self.app.get("/buckets/default", status=200)
+        assert "/buckets/default" in response.request.url
+
+    def test_bucket_id_is_rewritten_to_default(self):
+        settings = self.app.app.registry.settings
+        default_bucket_hmac_secret = settings["default_bucket_hmac_secret"]
+        bucket_id = hmac_digest(default_bucket_hmac_secret, self.principal)[:32]
+
+        response = self.app.get(f"/buckets/{bucket_id}", headers=self.headers)
+        assert "buckets/default" in response.request.url
+
 
 class HelloViewTest(DefaultBucketWebTest):
     def test_returns_bucket_id_and_url_if_authenticated(self):
@@ -308,6 +333,8 @@ class HelloViewTest(DefaultBucketWebTest):
         self.assertIn("default_bucket", capabilities)
 
 
+
+
 _events = []
 
 
@@ -316,32 +343,6 @@ def load_from_config(config, prefix):
         _events.append(event)
 
     return listener
-
-
-# kinto.plugins.default_bucket.default_bucket_tween_alias
-# Mock handler to return a dummy response for successful request
-def test_unauthenticated_user_is_rejected(self):
-    # Simulate a request without authentication
-    self.app.authorization = None
-    response = self.app.get("/buckets/user123", status=200)
-    assert response.json["message"] == "No userid"
-
-
-def test_path_stays_same_if_already_default(self):
-    # Authenticated request to the default bucket
-    self.app.authorization = (
-        "Basic",
-        ("admin", "adminpass"),
-    )  # or use your actual test credentials
-    response = self.app.get("/buckets/default", status=200)
-    assert "/buckets/default" in response.request.url
-
-
-def test_bucket_id_is_rewritten_to_default(self):
-    self.app.authorization = ("Basic", ("admin", ""))
-    # Assuming admin's default bucket id is "admin"
-    response = self.app.get("/buckets/admin", status=200)
-    assert "/buckets/default" in response.request.url
 
 
 class EventsTest(DefaultBucketWebTest):
