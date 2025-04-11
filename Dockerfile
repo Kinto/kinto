@@ -27,7 +27,8 @@ COPY --from=python-builder /opt/venv /opt/venv
 
 ENV KINTO_INI=/etc/kinto/kinto.ini \
     PORT=8888 \
-    PATH="/opt/venv/bin:$PATH"
+    PATH="/opt/venv/bin:$PATH" \
+    PROMETHEUS_MULTIPROC_DIR="/tmp/metrics"
 
 RUN kinto init --ini $KINTO_INI --host 0.0.0.0 --backend=memory --cache-backend=memory
 

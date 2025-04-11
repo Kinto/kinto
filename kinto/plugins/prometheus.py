@@ -1,3 +1,6 @@
+import logging
+import os
+import shutil
 import warnings
 from time import perf_counter as time_now
 
@@ -15,15 +18,29 @@ except ImportError:  # pragma: no cover
     prometheus_module = None
 
 
+logger = logging.getLogger(__name__)
+
 _METRICS = {}
 _REGISTRY = None
+
+
+PROMETHEUS_MULTIPROC_DIR = os.getenv("PROMETHEUS_MULTIPROC_DIR")
 
 
 def get_registry():
     global _REGISTRY
 
     if _REGISTRY is None:
-        _REGISTRY = prometheus_module.CollectorRegistry()
+        if PROMETHEUS_MULTIPROC_DIR:  # pragma: no cover
+            from prometheus_client import multiprocess
+
+            _reset_multiproc_folder_content()
+            # Ref: https://prometheus.github.io/client_python/multiprocess/
+            _REGISTRY = prometheus_module.CollectorRegistry()
+            multiprocess.MultiProcessCollector(_REGISTRY)
+        else:
+            _REGISTRY = prometheus_module.REGISTRY
+            logger.warning("Prometheus metrics will run in single-process mode only.")
     return _REGISTRY
 
 
@@ -170,6 +187,12 @@ def metrics_view(request):
     return resp
 
 
+def _reset_multiproc_folder_content():  # pragma: no cover
+    if os.path.exists(PROMETHEUS_MULTIPROC_DIR):
+        shutil.rmtree(PROMETHEUS_MULTIPROC_DIR)
+    os.mkdir(PROMETHEUS_MULTIPROC_DIR)
+
+
 def includeme(config):
     if prometheus_module is None:
         error_msg = (
@@ -190,6 +213,7 @@ def includeme(config):
     # This is mainly useful in tests, where the plugin is included
     # several times with different settings.
     registry = get_registry()
+
     for collector in _METRICS.values():
         try:
             registry.unregister(collector)
