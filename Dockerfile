@@ -35,7 +35,5 @@ RUN kinto init --ini $KINTO_INI --host 0.0.0.0 --backend=memory --cache-backend=
 WORKDIR /app
 USER app
 
-RUN mkdir -p $PROMETHEUS_MULTIPROC_DIR
-
 # Run database migrations and start the kinto server
 CMD ["sh", "-c", "kinto migrate --ini $KINTO_INI && kinto start --ini $KINTO_INI --port $PORT"]
