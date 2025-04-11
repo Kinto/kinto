@@ -1,7 +1,3 @@
-from pyramid.response import Response
-from pyramid.authorization import Authenticated
-
-
 def default_bucket_tween_alias(handler, registry):
     def tween(request):
         # Manually Authenticating the user
