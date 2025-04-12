@@ -1,5 +1,6 @@
-import pytest
 import psycopg2
+import pytest
+
 
 def test_microsecond_precision():
     # Connect to PostgreSQL database
@@ -13,7 +14,7 @@ def test_microsecond_precision():
         ('1', '/buckets/test', 'resource1', '2025-04-12 16:21:28.123456', '{}'::JSONB, false),
         ('2', '/buckets/test', 'resource1', '2025-04-12 16:21:28.123457', '{}'::JSONB, false);
     """)
-    
+
     # Query the records
     cursor.execute("""
         SELECT id, last_modified, as_epoch_micro(last_modified)
@@ -21,14 +22,14 @@ def test_microsecond_precision():
         WHERE parent_id = '/buckets/test' AND resource_name = 'resource1'
         ORDER BY last_modified DESC;
     """)
-    
+
     # Fetch all rows
     rows = cursor.fetchall()
-    
+
     # Test that the microsecond precision is correctly applied
     assert len(rows) == 2
     assert rows[0][2] != rows[1][2]  # Ensure the epoch microseconds are different
-    
+
     # Close the cursor and connection
     cursor.close()
     conn.close()
