@@ -9,7 +9,7 @@ def default_bucket_tween_alias(handler, registry):
 
         # Authentication complete
         path = request.path
-        if not "buckets/default" in path:
+        if "buckets/default" not in path:
             original_bucket_id = request.default_bucket_id
             path_segments = path.rstrip("/").split("/")
             last_segment = path_segments[-1] if path_segments else ""
