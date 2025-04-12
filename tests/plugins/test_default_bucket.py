@@ -24,6 +24,21 @@ class DefaultBucketViewTest(FormattedErrorMixin, DefaultBucketWebTest):
     bucket_url = "/buckets/default"
     collection_url = "/buckets/default/collections/tasks"
 
+    def test_unauthenticated_bucket_access_raises_json_401(self):
+        # If this test runs individual it seems to work and the user remains unauthenticated however,
+        # if this test runs through class the DefaultBucketViewTest(FormattedErrorMixin, DefaultBucketWebTest) clas then
+        # it does not work because the user is automatically authenticated. To fix this issue the line below is added
+        # it ensures that the user is not automatically authenticated.
+        self.app.authorization = None
+        resp = self.app.get(self.bucket_url, status=401)
+        # Assert status code
+        self.assertEqual(resp.status_code, 401)
+        # Assert the message is as expected
+        self.assertIn("message", resp.json)
+        self.assertEqual(
+            resp.json["message"], "Please authenticate yourself to use this endpoint."
+        )
+
     def test_default_bucket_exists_and_has_user_id(self):
         bucket = self.app.get(self.bucket_url, headers=self.headers)
         result = bucket.json
@@ -94,12 +109,6 @@ class DefaultBucketViewTest(FormattedErrorMixin, DefaultBucketWebTest):
         )
         record_id = "{}/records/{}".format(self.collection_url, resp.json["data"]["id"])
         resp = self.app.get(record_id, headers=get_user_headers("alice"), status=404)
-
-    def test_unauthenticated_bucket_access_raises_json_401(self):
-        resp = self.app.get(self.bucket_url, status=401)
-        self.assertEqual(
-            resp.json["message"], "Please authenticate yourself to use this endpoint."
-        )
 
     def test_bucket_id_is_an_uuid_with_dashes(self):
         bucket = self.app.get(self.bucket_url, headers=self.headers)
