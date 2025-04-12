@@ -4,7 +4,9 @@ import pytest
 
 def test_microsecond_precision():
     # Connect to PostgreSQL database
-    conn = psycopg2.connect(dbname="your_db", user="your_user", password="your_password", host="localhost", port="5432")
+    conn = psycopg2.connect(
+        dbname="your_db", user="your_user", password="your_password", host="localhost", port="5432"
+    )
     cursor = conn.cursor()
 
     # Insert test records
@@ -33,6 +35,7 @@ def test_microsecond_precision():
     # Close the cursor and connection
     cursor.close()
     conn.close()
+
 
 # Run the test
 pytest.main()
