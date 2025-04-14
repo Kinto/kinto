@@ -312,3 +312,37 @@ class TestMain(unittest.TestCase):
             res = main(["flush-cache", "--ini", TEMP_KINTO_INI])
             assert res == 0
             assert mocked_cache_script.call_count == 1
+
+    def test_cli_purge_deleted_runs_purge_deleted_script(self):
+        with mock.patch("kinto.core.scripts.purge_deleted") as purge_deleted:
+            purge_deleted.return_value = mock.sentinel.purge_deleted
+            main(
+                [
+                    "init",
+                    "--ini",
+                    TEMP_KINTO_INI,
+                    "--backend",
+                    "memory",
+                    "--cache-backend",
+                    "memory",
+                ]
+            )
+            res = main(["purge-deleted", "--ini", TEMP_KINTO_INI, "record,bucket", "42"])
+            assert res == mock.sentinel.purge_deleted
+            assert purge_deleted.call_count == 1
+
+    def test_cli_purge_deleted_fails_if_no_max_retained(self):
+        with mock.patch("kinto.core.scripts.purge_deleted"):
+            main(
+                [
+                    "init",
+                    "--ini",
+                    TEMP_KINTO_INI,
+                    "--backend",
+                    "memory",
+                    "--cache-backend",
+                    "memory",
+                ]
+            )
+            with self.assertRaises(SystemExit):
+                main(["purge-deleted", "--ini", TEMP_KINTO_INI, "record,bucket"])

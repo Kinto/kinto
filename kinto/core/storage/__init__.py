@@ -264,6 +264,7 @@ class StorageBase:
         resource_name,
         parent_id,
         before=None,
+        max_retained=None,
         id_field=DEFAULT_ID_FIELD,
         modified_field=DEFAULT_MODIFIED_FIELD,
     ):
@@ -273,7 +274,8 @@ class StorageBase:
         :param str resource_name: the resource name.
         :param str parent_id: the resource parent.
 
-        :param int before: Optionnal timestamp to limit deletion (exclusive)
+        :param int before: Optional timestamp to limit deletion (exclusive).
+        :param int max_count: Optional maximum of tombstones to keep per collection.
 
         :returns: The number of deleted objects.
         :rtype: int
