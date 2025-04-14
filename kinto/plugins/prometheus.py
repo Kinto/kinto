@@ -188,9 +188,8 @@ def metrics_view(request):
 
 
 def _reset_multiproc_folder_content():  # pragma: no cover
-    if os.path.exists(PROMETHEUS_MULTIPROC_DIR):
-        shutil.rmtree(PROMETHEUS_MULTIPROC_DIR)
-    os.mkdir(PROMETHEUS_MULTIPROC_DIR)
+    shutil.rmtree(PROMETHEUS_MULTIPROC_DIR, ignore_errors=True)
+    os.makedirs(PROMETHEUS_MULTIPROC_DIR, exist_ok=True)
 
 
 def includeme(config):
