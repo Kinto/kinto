@@ -362,7 +362,7 @@ def setup_logging(config):
     def on_new_request(event):
         request = event.request
         # Save the time the request was received by the server.
-        event.request._received_at = utils.msec_time()
+        event.request._received_at = datetime.now().timestamp() * 1_000_000
 
         try:
             # Pyramid fails if the URL contains invalid UTF-8 characters.
@@ -399,7 +399,7 @@ def setup_logging(config):
         request = event.request
 
         # Compute the request processing time in msec (-1 if unknown)
-        current = utils.msec_time()
+        current = datetime.now().timestamp() * 1_000_000
         duration = current - getattr(request, "_received_at", current - 1)
         isotimestamp = datetime.fromtimestamp(current / 1000).isoformat()
 
@@ -508,7 +508,7 @@ def setup_metrics(config):
         )
 
         try:
-            current = utils.msec_time()
+            current = datetime.now().timestamp() * 1_000_000
             duration = current - request._received_at
             metrics_service.observe(
                 "request_duration",
