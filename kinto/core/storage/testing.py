@@ -829,7 +829,7 @@ class TimestampsTest:
         current = obj["last_modified"]
 
         # Patch the clock to return a time in the past, before the big bang
-        with mock.patch("kinto.core.utils.msec_time()") as time_mocked:
+        with mock.patch("kinto.core.utils.msec_time") as time_mocked:
             time_mocked.return_value = -1
 
             obj = self.create_object()

@@ -361,7 +361,7 @@ def setup_logging(config):
 
     def on_new_request(event):
         request = event.request
-        # Save the time the request is received by the server.
+        # Save the time the request was received by the server.
         event.request._received_at = utils.msec_time()
 
         try:
