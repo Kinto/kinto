@@ -3,8 +3,8 @@ DROP TRIGGER IF EXISTS tgr_objects_last_modified ON objects;
 CREATE OR REPLACE FUNCTION bump_timestamp()
 RETURNS trigger AS $$
 DECLARE
-    previous BIGINT;
-    current BIGINT;
+    previous NUMERIC;
+    current NUMERIC;
 BEGIN
     previous := NULL;
     WITH existing_timestamps AS (
