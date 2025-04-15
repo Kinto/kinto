@@ -2,8 +2,8 @@ import numbers
 import operator
 import re
 from collections import abc, defaultdict
-from datetime import datetime
 
+from kinto.core import utils
 from kinto.core.decorators import deprecate_kwargs, synchronized
 from kinto.core.storage import (
     DEFAULT_DELETED_FIELD,
@@ -108,7 +108,7 @@ class MemoryBasedStorage(StorageBase):
 
         else:
             # Not specified, use a new one.
-            current = datetime.now().timestamp() * 1_000_000
+            current = utils.msec_time()
             # If two ops in the same msec, bump it.
             if current <= resource_timestamp:
                 current = resource_timestamp + 1

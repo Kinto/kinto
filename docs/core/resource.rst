@@ -17,7 +17,6 @@ Full example
 
     from kinto.core import resource
     from kinto.core import utils
-    from datetime import datetime
 
 
     class BookmarkSchema(resource.ResourceSchema):
@@ -220,7 +219,7 @@ or at the resource level:
 
     class MsecId(generators.Generator):
         def __call__(self):
-            return '%s' % datetime.now().timestamp() * 1_000_000
+            return '%s' % utils.msec_time()
 
 
     @resource.register()
