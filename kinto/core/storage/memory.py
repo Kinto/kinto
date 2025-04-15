@@ -4,7 +4,6 @@ import re
 from collections import abc, defaultdict
 from datetime import datetime
 
-from kinto.core import utils
 from kinto.core.decorators import deprecate_kwargs, synchronized
 from kinto.core.storage import (
     DEFAULT_DELETED_FIELD,
