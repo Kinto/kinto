@@ -49,8 +49,8 @@ def _fix_metric_name(s):
 
 
 class Timer:
-    def __init__(self, summary):
-        self.summary = summary
+    def __init__(self, histogram):
+        self.histogram = histogram
         self._start_time = None
 
     def __call__(self, f):
@@ -61,7 +61,7 @@ class Timer:
                 return f(*args, **kwargs)
             finally:
                 dt_ms = 1000.0 * (time_now() - start_time)
-                self.summary.observe(dt_ms)
+                self.histogram.observe(dt_ms)
 
         return _wrapped
 
@@ -79,7 +79,7 @@ class Timer:
         if self._start_time is None:  # pragma: nocover
             raise RuntimeError("Timer has not started.")
         dt_ms = 1000.0 * (time_now() - self._start_time)
-        self.summary.observe(dt_ms)
+        self.histogram.observe(dt_ms)
         return self
 
 
@@ -100,11 +100,11 @@ class PrometheusService:
         key = self.prefix + key
 
         if key not in _METRICS:
-            _METRICS[key] = prometheus_module.Summary(
-                _fix_metric_name(key), f"Summary of {key}", registry=get_registry()
+            _METRICS[key] = prometheus_module.Histogram(
+                _fix_metric_name(key), f"Histogram of {key}", registry=get_registry()
             )
 
-        if not isinstance(_METRICS[key], prometheus_module.Summary):
+        if not isinstance(_METRICS[key], prometheus_module.Histogram):
             raise RuntimeError(
                 f"Metric {key} already exists with different type ({_METRICS[key]})"
             )
