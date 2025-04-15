@@ -219,7 +219,7 @@ or at the resource level:
 
     class MsecId(generators.Generator):
         def __call__(self):
-            return '%s' % utils.msec_time()
+            return '%s' % utils.usec_time()
 
 
     @resource.register()
