@@ -1,7 +1,6 @@
 import logging
 import random
 import re
-import urllib.parse
 import warnings
 from datetime import datetime
 
@@ -466,14 +465,6 @@ def setup_metrics(config):
         request = event.request
         metrics_service = config.registry.metrics
 
-        try:
-            endpoint = utils.strip_uri_prefix(request.path)
-            endpoint = urllib.parse.quote_plus(endpoint, safe="/?&=-_")
-        except UnicodeDecodeError as e:
-            # This `on_new_response` callback is also called when a HTTP 400
-            # is returned because of an invalid UTF-8 path. We still want metrics.
-            endpoint = str(e)
-
         # Count unique users.
         user_id = request.prefixed_userid
         if user_id:
@@ -496,13 +487,27 @@ def setup_metrics(config):
             (field, enhanced_matchdict.get(field, "")) for field in metrics_matchdict_fields
         ]
 
+        status = event.response.status_code
+
+        service = request.current_service
+        if service:
+            # Use the service name as endpoint if available.
+            endpoint = service.name
+        elif route := request.matched_route:
+            # Use the route name as endpoint if we're not on a Cornice service.
+            endpoint = route.name
+        else:
+            endpoint = (
+                "unnamed" if status != 404 else "unknown"
+            )  # Do not multiply cardinality for unknown endpoints.
+
         # Count served requests.
         metrics_service.count(
             "request_summary",
             unique=[
                 ("method", request.method.lower()),
                 ("endpoint", endpoint),
-                ("status", str(event.response.status_code)),
+                ("status", str(status)),
             ]
             + metrics_matchdict_labels,
         )
@@ -513,7 +518,8 @@ def setup_metrics(config):
             metrics_service.observe(
                 "request_duration",
                 duration,
-                labels=[("endpoint", endpoint)] + metrics_matchdict_labels,
+                labels=[("endpoint", endpoint), ("method", request.method.lower())]
+                + metrics_matchdict_labels,
             )
         except AttributeError:  # pragma: no cover
             # Logging was not setup in this Kinto app (unlikely but possible)
@@ -527,13 +533,11 @@ def setup_metrics(config):
         )
 
         # Count authentication verifications.
-        if hasattr(request, "authn_type"):
-            metrics_service.count(f"authn_type.{request.authn_type}")
-
-        # Count view calls.
-        service = request.current_service
-        if service:
-            metrics_service.count(f"view.{service.name}.{request.method}")
+        try:
+            metrics_service.count("authentication", unique=[("type", request.authn_type)])
+        except AttributeError:
+            # Not authenticated
+            pass
 
     config.add_subscriber(on_new_response, NewResponse)
 

@@ -386,7 +386,7 @@ class MetricsConfigurationTest(unittest.TestCase):
         kinto.core.initialize(self.config, "0.0.1", "settings_prefix")
         app = webtest.TestApp(self.config.make_wsgi_app())
         app.get("/v0/", headers=get_user_headers("bob"))
-        self.mocked().count.assert_any_call("authn_type.basicauth")
+        self.mocked().count.assert_any_call("authentication", unique=[("type", "basicauth")])
 
     #
     # Endpoints.
@@ -404,7 +404,7 @@ class MetricsConfigurationTest(unittest.TestCase):
         app.get("/v0/__heartbeat__")
         self.mocked().count.assert_any_call(
             "request_summary",
-            unique=[("method", "get"), ("endpoint", "/__heartbeat__"), ("status", "200")],
+            unique=[("method", "get"), ("endpoint", "heartbeat"), ("status", "200")],
         )
 
     def test_statsd_sanitizes_url_in_metrics(self):
@@ -420,7 +420,7 @@ class MetricsConfigurationTest(unittest.TestCase):
                 ("method", "get"),
                 (
                     "endpoint",
-                    "/changeset%27%257C%2522%253F%253E%253C%21DOCTYPE%2522http%3A//xh3E%27%29%2C%27/l%27%29%2520from%2520dual%29%257C%27",
+                    "unknown",
                 ),
                 ("status", "404"),
             ],
@@ -433,7 +433,7 @@ class MetricsConfigurationTest(unittest.TestCase):
         self.mocked().observe.assert_any_call(
             "request_size",
             len("{}"),
-            labels=[("endpoint", "/__heartbeat__")],
+            labels=[("endpoint", "heartbeat")],
         )
 
     def test_statsd_observe_request_duration(self):
@@ -443,14 +443,8 @@ class MetricsConfigurationTest(unittest.TestCase):
         self.mocked().observe.assert_any_call(
             "request_duration",
             mock.ANY,
-            labels=[("endpoint", "/__heartbeat__")],
+            labels=[("endpoint", "heartbeat"), ("method", "get")],
         )
-
-    def test_statsd_counts_views_and_methods(self):
-        kinto.core.initialize(self.config, "0.0.1", "settings_prefix")
-        app = webtest.TestApp(self.config.make_wsgi_app())
-        app.get("/v0/__heartbeat__")
-        self.mocked().count.assert_any_call("view.heartbeat.GET")
 
     def test_statsd_counts_unknown_urls(self):
         kinto.core.initialize(self.config, "0.0.1", "settings_prefix")
