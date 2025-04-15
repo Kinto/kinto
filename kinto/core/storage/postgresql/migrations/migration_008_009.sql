@@ -1,6 +1,6 @@
 CREATE OR REPLACE FUNCTION from_epoch(epoch BIGINT) RETURNS TIMESTAMP AS $$
 BEGIN
-    RETURN TIMESTAMP WITH TIME ZONE 'epoch' + epoch * INTERVAL '1 millisecond';
+    RETURN TIMESTAMP WITH TIME ZONE 'epoch' + epoch * INTERVAL '1 microsecond';
 END;
 $$ LANGUAGE plpgsql
 IMMUTABLE;
