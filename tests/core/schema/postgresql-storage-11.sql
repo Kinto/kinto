@@ -5,16 +5,16 @@ SET client_min_messages TO ERROR;
 --
 -- Convert timestamps to milliseconds epoch integer
 --
-CREATE OR REPLACE FUNCTION as_epoch(ts TIMESTAMP) RETURNS BIGINT AS $$
+CREATE OR REPLACE FUNCTION as_epoch(ts TIMESTAMP) RETURNS NUMERIC AS $$
 BEGIN
-    RETURN (EXTRACT(EPOCH FROM ts) * 1000)::BIGINT;
+    RETURN EXTRACT(EPOCH FROM ts) * 1000000
 END;
 $$ LANGUAGE plpgsql
 IMMUTABLE;
 
 CREATE OR REPLACE FUNCTION from_epoch(epoch BIGINT) RETURNS TIMESTAMP AS $$
 BEGIN
-    RETURN TIMESTAMP WITH TIME ZONE 'epoch' + epoch * INTERVAL '1 millisecond';
+    RETURN TIMESTAMP WITH TIME ZONE 'epoch' + epoch * INTERVAL '1 microsecond';
 END;
 $$ LANGUAGE plpgsql
 IMMUTABLE;
@@ -191,7 +191,7 @@ BEGIN
     --
     current := clock_timestamp();
     IF previous IS NOT NULL AND previous >= current THEN
-        current := previous + INTERVAL '1 milliseconds';
+        current := previous + INTERVAL '1 microsecond';
     END IF;
 
 

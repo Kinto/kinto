@@ -23,9 +23,9 @@ INSERT INTO metadata (name, value) VALUES ('created_at', NOW()::TEXT);
 --
 -- Convert timestamps to integer
 --
-CREATE OR REPLACE FUNCTION as_epoch(ts TIMESTAMP) RETURNS BIGINT AS $$
+CREATE OR REPLACE FUNCTION as_epoch(ts TIMESTAMP) RETURNS NUMERIC AS $$
 BEGIN
-    RETURN (EXTRACT(EPOCH FROM ts) * 1000)::BIGINT;
+    RETURN EXTRACT(EPOCH FROM ts) * 1000000
 END;
 $$ LANGUAGE plpgsql
 IMMUTABLE;
@@ -114,7 +114,7 @@ BEGIN
     current := localtimestamp;
 
     IF previous >= current THEN
-        current := previous + INTERVAL '1 milliseconds';
+        current := previous + INTERVAL '1 microsecond';
     END IF;
 
     NEW.last_modified := current;
