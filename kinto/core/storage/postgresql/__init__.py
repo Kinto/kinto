@@ -197,17 +197,17 @@ class Storage(StorageBase, MigratorMixin):
         WITH existing_timestamps AS (
           -- Timestamp of latest object.
           (
-            SELECT last_modified, as_epoch(last_modified) AS last_epoch
+            SELECT last_modified, as_epoch_micro(last_modified) AS last_epoch
             FROM objects
             WHERE parent_id = :parent_id
               AND resource_name = :resource_name
-            ORDER BY as_epoch(last_modified) DESC
+            ORDER BY as_epoch_micro(last_modified) DESC
             LIMIT 1
           )
           -- Timestamp of empty resource.
           UNION
           (
-            SELECT last_modified, as_epoch(last_modified) AS last_epoch
+            SELECT last_modified, as_epoch_micro(last_modified) AS last_epoch
             FROM timestamps
             WHERE parent_id = :parent_id
               AND resource_name = :resource_name
@@ -221,7 +221,7 @@ class Storage(StorageBase, MigratorMixin):
         INSERT INTO timestamps (parent_id, resource_name, last_modified)
         VALUES (:parent_id, :resource_name, COALESCE(:last_modified, clock_timestamp()::timestamp))
         ON CONFLICT (parent_id, resource_name) DO NOTHING
-        RETURNING as_epoch(last_modified) AS last_epoch
+        RETURNING as_epoch_micro(last_modified) AS last_epoch
         """
 
         placeholders = dict(parent_id=parent_id, resource_name=resource_name)
@@ -298,7 +298,7 @@ class Storage(StorageBase, MigratorMixin):
             data = (:data)::JSONB,
             deleted = FALSE
         WHERE objects.deleted = TRUE
-        RETURNING id, data, as_epoch(last_modified) AS last_modified;
+        RETURNING id, data, as_epoch_micro(last_modified) AS last_modified;
         """
 
         safe_holders = {}
