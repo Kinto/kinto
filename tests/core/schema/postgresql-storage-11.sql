@@ -80,7 +80,7 @@ BEGIN
   ) THEN
 
   CREATE INDEX idx_records_last_modified_epoch
-    ON records(as_epoch(last_modified));
+    ON records(as_epoch_micro(last_modified));
 
   END IF;
 END$$;
@@ -122,7 +122,7 @@ BEGIN
   ) THEN
 
   CREATE INDEX idx_deleted_last_modified_epoch
-    ON deleted(as_epoch(last_modified));
+    ON deleted(as_epoch_micro(last_modified));
 
   END IF;
 END$$;

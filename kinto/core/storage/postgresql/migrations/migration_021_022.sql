@@ -14,7 +14,7 @@ BEGIN
         FROM objects
         WHERE parent_id = NEW.parent_id
           AND resource_name = NEW.resource_name
-        ORDER BY as_epoch(last_modified) DESC
+        ORDER BY as_epoch_micro(last_modified) DESC
         LIMIT 1
       )
       -- Timestamp when resource was empty.

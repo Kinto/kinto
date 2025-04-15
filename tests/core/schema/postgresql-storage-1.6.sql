@@ -48,7 +48,7 @@ CREATE INDEX idx_records_resource_name ON records(resource_name);
 DROP INDEX IF EXISTS idx_records_last_modified;
 CREATE INDEX idx_records_last_modified ON records(last_modified);
 DROP INDEX IF EXISTS idx_records_last_modified_epoch;
-CREATE INDEX idx_records_last_modified_epoch ON records(as_epoch(last_modified));
+CREATE INDEX idx_records_last_modified_epoch ON records(as_epoch_micro(last_modified));
 DROP INDEX IF EXISTS idx_records_id;
 CREATE INDEX idx_records_id ON records(id);
 
@@ -72,7 +72,7 @@ CREATE INDEX idx_deleted_resource_name ON deleted(resource_name);
 DROP INDEX IF EXISTS idx_deleted_last_modified;
 CREATE INDEX idx_deleted_last_modified ON deleted(last_modified);
 DROP INDEX IF EXISTS idx_deleted_last_modified_epoch;
-CREATE INDEX idx_deleted_last_modified_epoch ON deleted(as_epoch(last_modified));
+CREATE INDEX idx_deleted_last_modified_epoch ON deleted(as_epoch_micro(last_modified));
 
 --
 -- Helpers

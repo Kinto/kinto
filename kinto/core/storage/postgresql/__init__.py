@@ -329,7 +329,7 @@ class Storage(StorageBase, MigratorMixin):
         modified_field=DEFAULT_MODIFIED_FIELD,
     ):
         query = """
-        SELECT as_epoch(last_modified) AS last_modified, data
+        SELECT as_epoch_micro(last_modified) AS last_modified, data
           FROM objects
          WHERE id = :object_id
            AND parent_id = :parent_id
@@ -375,7 +375,7 @@ class Storage(StorageBase, MigratorMixin):
             deleted = FALSE,
             last_modified = GREATEST(from_epoch(:last_modified),
                                      EXCLUDED.last_modified)
-        RETURNING as_epoch(last_modified) AS last_modified;
+        RETURNING as_epoch_micro(last_modified) AS last_modified;
         """
         placeholders = dict(
             object_id=object_id,
@@ -415,7 +415,7 @@ class Storage(StorageBase, MigratorMixin):
                AND parent_id = :parent_id
                AND resource_name = :resource_name
                AND NOT deleted
-            RETURNING as_epoch(last_modified) AS last_modified;
+            RETURNING as_epoch_micro(last_modified) AS last_modified;
             """
         else:
             query = """
@@ -424,7 +424,7 @@ class Storage(StorageBase, MigratorMixin):
                AND parent_id = :parent_id
                AND resource_name = :resource_name
                AND NOT deleted
-            RETURNING as_epoch(last_modified) AS last_modified;
+            RETURNING as_epoch_micro(last_modified) AS last_modified;
             """
         deleted_data = json.dumps(dict([(deleted_field, True)]))
         placeholders = dict(
@@ -482,7 +482,7 @@ class Storage(StorageBase, MigratorMixin):
              WHERE objects.id = matching_objects.id
                AND objects.parent_id = matching_objects.parent_id
                AND objects.resource_name = matching_objects.resource_name
-            RETURNING objects.id, as_epoch(last_modified) AS last_modified;
+            RETURNING objects.id, as_epoch_micro(last_modified) AS last_modified;
             """
         else:
             query = """
@@ -504,7 +504,7 @@ class Storage(StorageBase, MigratorMixin):
             WHERE objects.id = matching_objects.id
               AND objects.parent_id = matching_objects.parent_id
               AND objects.resource_name = matching_objects.resource_name
-            RETURNING objects.id, as_epoch(last_modified) AS last_modified;
+            RETURNING objects.id, as_epoch_micro(last_modified) AS last_modified;
             """
 
         id_field = id_field or self.id_field
@@ -596,7 +596,7 @@ class Storage(StorageBase, MigratorMixin):
             safeholders["resource_name_filter"] = "AND resource_name = :resource_name"  # NOQA
 
         if before is not None:
-            safeholders["conditions_filter"] = "AND as_epoch(last_modified) < :before"
+            safeholders["conditions_filter"] = "AND as_epoch_micro(last_modified) < :before"
             placeholders["before"] = before
 
         with self.client.connect() as conn:
@@ -628,7 +628,7 @@ class Storage(StorageBase, MigratorMixin):
         deleted_field=DEFAULT_DELETED_FIELD,
     ):
         query = """
-            SELECT id, as_epoch(last_modified) AS last_modified, data
+            SELECT id, as_epoch_micro(last_modified) AS last_modified, data
             FROM objects
             WHERE {parent_id_filter}
             AND resource_name = :resource_name
@@ -779,7 +779,7 @@ class Storage(StorageBase, MigratorMixin):
                 if isinstance(value, int):
                     value = str(value)
             elif filtr.field == modified_field:
-                sql_field = "as_epoch(last_modified)"
+                sql_field = "as_epoch_micro(last_modified)"
             else:
                 column_name = "data"
                 # Subfields: ``person.name`` becomes ``data->person->>name``
