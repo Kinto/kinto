@@ -1,7 +1,6 @@
 from kinto.core.testing import unittest
 
 from .support import BaseWebTest
-from kinto.core.resource.schema import QuerySchema
 
 
 BUCKET_URL = "/buckets/blog"
@@ -215,14 +214,14 @@ class RecordsValidationTest(BaseWebTestWithSchema, unittest.TestCase):
     def test_deserialize_json_list(self):
         # Simulates ?in_tags=["a", "b", "c"]
         pass
-        #assert result['in_tags'] == ['a', 'b', 'c']
+        # assert result['in_tags'] == ['a', 'b', 'c']
 
     def test_deserialize_comma_separated(self):
         # Simulates ?in_tags=a,b,c
         pass
 
     def test_deserialize_invalid_json(self):
-       pass
+        pass
 
 
 class ExtraPropertiesValidationTest(BaseWebTestWithSchema, unittest.TestCase):

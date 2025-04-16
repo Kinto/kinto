@@ -1,5 +1,4 @@
 import collections.abc as collections_abc
-import json
 import functools
 import hashlib
 import hmac
@@ -546,9 +545,10 @@ def apply_json_patch(obj, ops):
 
     return result
 
+
 def is_json(value):
     try:
-        parsed = json.loads(value)
+        _ = json.loads(value)
         return True
     except (ValueError, TypeError):
         return False
