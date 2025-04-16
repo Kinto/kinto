@@ -108,7 +108,7 @@ class MemoryBasedStorage(StorageBase):
 
         else:
             # Not specified, use a new one.
-            current = utils.msec_time()
+            current = utils.usec_time()
             # If two ops in the same msec, bump it.
             if current <= resource_timestamp:
                 current = resource_timestamp + 1

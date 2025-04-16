@@ -2,7 +2,7 @@ import logging
 
 from kinto.core.cache import CacheBase
 from kinto.core.decorators import synchronized
-from kinto.core.utils import msec_time
+from kinto.core.utils import usec_time
 
 
 logger = logging.getLogger(__name__)
@@ -33,7 +33,7 @@ class Cache(CacheBase):
         self._quota = 0
 
     def _clean_expired(self):
-        current = msec_time()
+        current = usec_time()
         expired = [k for k, v in self._ttl.items() if current >= v]
         for expired_item_key in expired:
             self.delete(expired_item_key[len(self.prefix) :])
@@ -51,12 +51,12 @@ class Cache(CacheBase):
     def ttl(self, key):
         ttl = self._ttl.get(self.prefix + key)
         if ttl is not None:
-            return (ttl - msec_time()) / 1000.0
+            return (ttl - usec_time()) / 1000.0
         return -1
 
     @synchronized
     def expire(self, key, ttl):
-        self._ttl[self.prefix + key] = msec_time() + int(ttl * 1000.0)
+        self._ttl[self.prefix + key] = usec_time() + int(ttl * 1000.0)
 
     @synchronized
     def set(self, key, value, ttl):
@@ -67,7 +67,7 @@ class Cache(CacheBase):
         self.expire(key, ttl)
         item_key = self.prefix + key
         self._store[item_key] = value
-        self._created_at[item_key] = msec_time()
+        self._created_at[item_key] = usec_time()
         self._quota += size_of(item_key, value)
 
     @synchronized
