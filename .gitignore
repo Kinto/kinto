@@ -20,5 +20,3 @@ Data*.fs*
 coverage
 test
 *.sqlite
-Dockerfile
-scripts/pull-kinto-admin.sh

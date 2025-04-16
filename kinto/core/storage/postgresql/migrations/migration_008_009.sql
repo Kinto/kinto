@@ -1,6 +1,6 @@
-CREATE OR REPLACE FUNCTION from_epoch(epoch NUMERIC) RETURNS TIMESTAMP AS $$
+CREATE OR REPLACE FUNCTION from_epoch(epoch BIGINT) RETURNS TIMESTAMP AS $$
 BEGIN
-    RETURN TIMESTAMP WITH TIME ZONE 'epoch' + epoch * INTERVAL '1 microsecond';
+    RETURN TIMESTAMP WITH TIME ZONE 'epoch' + epoch * INTERVAL '1 millisecond';
 END;
 $$ LANGUAGE plpgsql
 IMMUTABLE;
@@ -27,7 +27,7 @@ BEGIN
     IF NEW.last_modified IS NULL THEN
         current := clock_timestamp();
         IF previous >= current THEN
-            current := previous + INTERVAL '1 microsecond';
+            current := previous + INTERVAL '1 milliseconds';
         END IF;
         NEW.last_modified := current;
     END IF;

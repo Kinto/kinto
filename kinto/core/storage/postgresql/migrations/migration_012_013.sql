@@ -28,7 +28,7 @@ BEGIN
     --
     current := clock_timestamp();
     IF previous IS NOT NULL AND previous >= current THEN
-        current := previous + INTERVAL '1 microsecond';
+        current := previous + INTERVAL '1 milliseconds';
     END IF;
 
     IF NEW.last_modified IS NULL OR
