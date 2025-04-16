@@ -32,8 +32,7 @@ class StatsDService:
             # [("method", "get")] -> "method.get"
             key = f"{key}." + ".".join(f"{label[0]}.{sanitize(label[1])}" for label in labels)
         if value:
-            if not isinstance(value, timedelta):
-                value = timedelta(seconds=value)
+            value = timedelta(seconds=value)
             return self._client.timing(key, value)
         return self._client.timer(key)
 
