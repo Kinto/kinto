@@ -815,12 +815,12 @@ class TimestampsTest:
         self.assertEqual(first, second)
 
     def test_the_timestamp_are_based_on_real_time_milliseconds(self):
-        before = utils.msec_time()
+        before = utils.msec_time() * 1000
         time.sleep(0.002)  # 2 msec
         obj = self.create_object()
         now = obj["last_modified"]
         time.sleep(0.002)  # 2 msec
-        after = utils.msec_time()
+        after = utils.msec_time() * 1000
         self.assertTrue(before < now < after, f"{before} < {now} < {after}")
 
     def test_timestamp_are_always_incremented_above_existing_value(self):
