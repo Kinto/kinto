@@ -818,7 +818,7 @@ class TimestampsTest:
         before = utils.msec_time() * 1000
         time.sleep(0.002)  # 2 msec
         obj = self.create_object()
-        now = int(obj["last_modified"] // 1000)
+        now = int(obj["last_modified"])
         time.sleep(0.002)  # 2 msec
         after = utils.msec_time() * 1000
         self.assertTrue(before < now < after, f"{before} < {now} < {after}")
