@@ -9,7 +9,7 @@ may be reused across the `kinto.core` here.
 
 import colander
 
-from kinto.core.utils import usec_time, native_value, strip_whitespace
+from kinto.core.utils import native_value, strip_whitespace, usec_time
 
 
 class TimeStamp(colander.SchemaNode):
