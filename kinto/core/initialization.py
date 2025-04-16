@@ -515,9 +515,9 @@ def setup_metrics(config):
         try:
             current = utils.msec_time()
             duration = current - request._received_at
-            metrics_service.observe(
+            metrics_service.timer(
                 "request_duration",
-                duration,
+                value=duration,
                 labels=[("endpoint", endpoint), ("method", request.method.lower())]
                 + metrics_matchdict_labels,
             )

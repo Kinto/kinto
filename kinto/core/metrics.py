@@ -47,7 +47,7 @@ class NoOpTimer:
 
 @implementer(IMetricsService)
 class NoOpMetricsService:
-    def timer(self, key):
+    def timer(self, key, value=None, labels=[]):
         return NoOpTimer()
 
     def observe(self, key, value, labels=[]):

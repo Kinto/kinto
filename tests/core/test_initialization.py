@@ -440,9 +440,9 @@ class MetricsConfigurationTest(unittest.TestCase):
         kinto.core.initialize(self.config, "0.0.1", "settings_prefix")
         app = webtest.TestApp(self.config.make_wsgi_app())
         app.get("/v0/__heartbeat__")
-        self.mocked().observe.assert_any_call(
+        self.mocked().timer.assert_any_call(
             "request_duration",
-            mock.ANY,
+            value=mock.ANY,
             labels=[("endpoint", "heartbeat"), ("method", "get")],
         )
 
