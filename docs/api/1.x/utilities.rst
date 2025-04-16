@@ -25,6 +25,11 @@ The returned value is a JSON mapping containing:
   - ``readonly``: Only requests with read operations are allowed.
 
 - ``capabilities``: a mapping used by clients to detect optional features of the API.
+- ``config``: attributes of the configuration file used by the server.
+
+  - ``path``: path on the server
+  - ``hash``: SHA256 hash of the file
+  - ``modified``: datetime of the file
 
   - Example:
 
