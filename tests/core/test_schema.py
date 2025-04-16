@@ -8,7 +8,7 @@ from kinto.core.testing import unittest
 
 class TimeStampTest(unittest.TestCase):
     def setUp(self):
-        patch = mock.patch("kinto.core.schema.usec_time")
+        patch = mock.patch("kinto.core.schema.msec_time")
         self.time_mocked = patch.start()
         self.time_mocked.return_value = 666
         self.addCleanup(patch.stop)

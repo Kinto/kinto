@@ -815,7 +815,7 @@ class TimestampsTest:
         self.assertEqual(first, second)
 
     def test_the_timestamp_are_based_on_real_time_milliseconds(self):
-        before = utils.usec_time()
+        before = utils.msec_time()
         time.sleep(0.002)  # 2 msec
         obj = self.create_object()
         now = int(obj["last_modified"])
@@ -825,7 +825,7 @@ class TimestampsTest:
             now *= 1000
         # now is in milliseconds
         time.sleep(0.002)  # 2 msec
-        after = utils.usec_time()
+        after = utils.msec_time()
         self.assertTrue(before < now < after, f"{before} < {now} < {after}")
 
     def test_timestamp_are_always_incremented_above_existing_value(self):
@@ -834,7 +834,7 @@ class TimestampsTest:
         current = obj["last_modified"]
 
         # Patch the clock to return a time in the past, before the big bang
-        with mock.patch("kinto.core.utils.usec_time") as time_mocked:
+        with mock.patch("kinto.core.utils.msec_time") as time_mocked:
             time_mocked.return_value = -1
 
             obj = self.create_object()

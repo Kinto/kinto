@@ -9,7 +9,7 @@ may be reused across the `kinto.core` here.
 
 import colander
 
-from kinto.core.utils import native_value, strip_whitespace, usec_time
+from kinto.core.utils import native_value, strip_whitespace, msec_time
 
 
 class TimeStamp(colander.SchemaNode):
@@ -36,7 +36,7 @@ class TimeStamp(colander.SchemaNode):
 
     def deserialize(self, cstruct=colander.null):
         if cstruct is colander.null and self.auto_now:
-            cstruct = usec_time()
+            cstruct = msec_time()
         return super(TimeStamp, self).deserialize(cstruct)
 
 

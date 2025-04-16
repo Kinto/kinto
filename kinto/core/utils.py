@@ -69,7 +69,7 @@ def msec_time():
     return int(time.time() * 1000.0)  # floor
 
 
-def usec_time():
+def msec_time():
     """Returns the current time in microseconds since epoch."""
     return int(time.time() * 1000000.0)
 
