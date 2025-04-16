@@ -1,4 +1,5 @@
 import collections.abc as collections_abc
+import json
 import functools
 import hashlib
 import hmac
@@ -544,6 +545,13 @@ def apply_json_patch(obj, ops):
         raise ValueError(e)
 
     return result
+
+def is_json(value):
+    try:
+        parsed = json.loads(value)
+        return True
+    except (ValueError, TypeError):
+        return False
 
 
 def safe_wraps(wrapper, *args, **kwargs):
