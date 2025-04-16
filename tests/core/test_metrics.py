@@ -24,7 +24,9 @@ class WatchExecutionTimeTest(unittest.TestCase):
 
     def test_public_methods_generates_statsd_calls(self):
         self.test_object.test_method()
-        self.mocked.timer.assert_called_with("test.testedclass.test_method")
+        self.mocked.timer.assert_called_with(
+            "test.testedclass", labels=[("method", "test_method")]
+        )
 
     def test_private_methods_does_not_generates_statsd_calls(self):
         self.test_object._private_method()
