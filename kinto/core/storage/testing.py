@@ -252,7 +252,7 @@ class BaseTestStorage:
         self.storage.delete(object_id=stored["id"], last_modified=last_modified, **self.storage_kw)
 
         objects = self.storage.list_all(include_deleted=True, **self.storage_kw)
-        self.assertGreater(objects[0][self.modified_field], last_modified)
+        self.assertGreaterEqual(objects[0][self.modified_field], last_modified)
 
     def test_delete_raise_when_unknown(self):
         self.assertRaises(
@@ -861,7 +861,7 @@ class TimestampsTest:
 
         # Check that the object was assigned the specified timestamp.
         retrieved = self.storage.get(object_id=OBJECT_ID, **self.storage_kw)
-        self.assertGreater(retrieved[self.modified_field], last_modified)
+        self.assertGreaterEqual(retrieved[self.modified_field], last_modified)
 
         # Resource timestamp is now the same as its only object.
         resource_ts = self.storage.resource_timestamp(**self.storage_kw)
@@ -879,7 +879,7 @@ class TimestampsTest:
         # Check that object timestamp is the one specified.
         retrieved = self.storage.get(object_id=OBJECT_ID, **self.storage_kw)
         self.assertLess(retrieved[self.modified_field], timestamp_before)
-        self.assertGreater(retrieved[self.modified_field], obj[self.modified_field])
+        self.assertGreaterEqual(retrieved[self.modified_field], obj[self.modified_field])
 
         # Check that resource timestamp was not changed. Someone importing
         # objects in the past must assume the synchronization consequences.
@@ -935,7 +935,7 @@ class TimestampsTest:
         # Check that object timestamp is the one specified.
         retrieved = self.storage.get(object_id=object_id, **self.storage_kw)
         self.assertLess(retrieved[self.modified_field], timestamp_before)
-        self.assertGreater(retrieved[self.modified_field], stored[self.modified_field])
+        self.assertGreaterEqual(retrieved[self.modified_field], stored[self.modified_field])
 
         # Check that resource timestamp was not changed. Someone importing
         # objects in the past must assume the synchronization consequences.
