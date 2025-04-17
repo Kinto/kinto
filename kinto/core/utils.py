@@ -546,14 +546,6 @@ def apply_json_patch(obj, ops):
     return result
 
 
-def is_json(value):
-    try:
-        _ = json.loads(value)
-        return True
-    except (ValueError, TypeError):
-        return False
-
-
 def safe_wraps(wrapper, *args, **kwargs):
     """Safely wraps partial functions."""
     while isinstance(wrapper, functools.partial):

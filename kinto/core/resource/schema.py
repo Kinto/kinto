@@ -1,4 +1,3 @@
-import json
 import warnings
 
 import colander
@@ -13,7 +12,7 @@ from kinto.core.schema import (
     QueryField,
     TimeStamp,
 )
-from kinto.core.utils import is_json, native_value
+from kinto.core.utils import native_value
 
 
 POSTGRESQL_MAX_INTEGER_VALUE = 2**63
@@ -240,18 +239,8 @@ class QuerySchema(colander.MappingSchema):
 
             # Deserialize lists used on in_ and exclude_ filters
             elif k.startswith("in_") or k.startswith("exclude_"):
-                # Check if the value is in JSON format (e.g., ["a", "b", "c"])
-                if is_json(v):
-                    parsed_val = json.loads(v)  # Parse JSON string into a Python list
-                else:
-                    # Default to comma-separated deserialization
-                    parsed_val = FieldList().deserialize(v)
-
-                # Convert each value to its native type
-                values[k] = [native_value(item) for item in parsed_val]
-
-                # as_list = FieldList().deserialize(v)
-                # values[k] = [native_value(v) for v in as_list]
+                as_list = FieldList().deserialize(v)
+                values[k] = [native_value(v) for v in as_list]
             else:
                 values[k] = native_value(v)
 

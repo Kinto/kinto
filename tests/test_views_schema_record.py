@@ -211,18 +211,6 @@ class RecordsValidationTest(BaseWebTestWithSchema, unittest.TestCase):
         )
         self.assertEqual(len(resp.json["data"]), 1)
 
-    def test_deserialize_json_list(self):
-        # Simulates ?in_tags=["a", "b", "c"]
-        pass
-        # assert result['in_tags'] == ['a', 'b', 'c']
-
-    def test_deserialize_comma_separated(self):
-        # Simulates ?in_tags=a,b,c
-        pass
-
-    def test_deserialize_invalid_json(self):
-        pass
-
 
 class ExtraPropertiesValidationTest(BaseWebTestWithSchema, unittest.TestCase):
     def setUp(self):
