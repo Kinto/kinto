@@ -81,6 +81,7 @@ def config_attributes():
     The path is only known from `app.wsgi`, so we have to read
     the environment variable again.
     """
+    # WARNING: this default value should be the same as `app.wsgi`
     ini_path = os.environ.get("KINTO_INI", os.path.join(".", "config", "kinto.ini"))
     if not os.path.exists(ini_path):
         logger.error(f"Could not find config file at {ini_path}")
