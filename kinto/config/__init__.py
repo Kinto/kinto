@@ -79,7 +79,8 @@ def config_attributes():
     """
     Returns a hash of the config `.ini` file content.
     The path is only known from `app.wsgi`, so we have to read
-    the environment variable again.
+    the environment variable again. Since tests are not run through
+    WSGI, then the variable is not set.
     """
     # WARNING: this default value should be the same as `app.wsgi`
     ini_path = os.environ.get("KINTO_INI", os.path.join(".", "config", "kinto.ini"))
