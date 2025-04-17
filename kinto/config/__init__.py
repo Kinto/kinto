@@ -74,7 +74,7 @@ def init(config_file, backend, cache_backend, host="127.0.0.1"):
     render_template("kinto.tpl", config_file, **values)
 
 
-@lru_cache()
+@lru_cache(maxsize=1)
 def config_attributes():
     """
     Returns a hash of the config `.ini` file content.
@@ -83,6 +83,7 @@ def config_attributes():
     """
     ini_path = os.environ.get("KINTO_INI", os.path.join(".", "config", "kinto.ini"))
     if not os.path.exists(ini_path):
+        logger.error(f"Could not find config file at {ini_path}")
         return None
     return {
         "path": ini_path,

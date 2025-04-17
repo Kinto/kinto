@@ -3,6 +3,7 @@ from unittest import mock
 
 from pyramid import testing
 
+from kinto.config import config_attributes
 from kinto.core.testing import unittest
 
 from .support import BaseWebTest
@@ -77,6 +78,7 @@ class HelloViewTest(BaseWebTest, unittest.TestCase):
         self.assertTrue(response.json["http_api_version"])
 
     def test_return_config_file_info(self):
+        config_attributes.cache_clear()
         before = os.getenv("KINTO_INI", None)
         os.environ["KINTO_INI"] = "tests/test_configuration/test.ini"
 
