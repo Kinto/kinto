@@ -1,7 +1,9 @@
+import os
 from unittest import mock
 
 from pyramid import testing
 
+from kinto.config import config_attributes
 from kinto.core.testing import unittest
 
 from .support import BaseWebTest
@@ -74,6 +76,22 @@ class HelloViewTest(BaseWebTest, unittest.TestCase):
             response = self.app.get("/")
 
         self.assertTrue(response.json["http_api_version"])
+
+    def test_return_config_file_info(self):
+        config_attributes.cache_clear()
+        before = os.getenv("KINTO_INI", None)
+        os.environ["KINTO_INI"] = "tests/test_configuration/test.ini"
+
+        response = self.app.get("/")
+
+        self.assertEqual(response.json["config"]["hash"], mock.ANY)
+        self.assertEqual(response.json["config"]["modified"], mock.ANY)
+        self.assertEqual(response.json["config"]["path"], mock.ANY)
+
+        if before is None:
+            del os.environ["KINTO_INI"]
+        else:
+            os.environ["KINTO_INI"] = before
 
 
 class APICapabilitiesTest(BaseWebTest, unittest.TestCase):

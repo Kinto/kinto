@@ -2,6 +2,7 @@ import colander
 from pyramid.authorization import Authenticated
 from pyramid.security import NO_PERMISSION_REQUIRED
 
+from kinto.config import config_attributes
 from kinto.core import Service
 
 
@@ -26,14 +27,17 @@ hello_response_schemas = {
 def get_hello(request):
     """Return information regarding the current instance."""
     settings = request.registry.settings
+
     project_name = settings["project_name"]
     project_version = settings["project_version"]
+
     data = dict(
         project_name=project_name,
         project_version=project_version,
         http_api_version=settings["http_api_version"],
         project_docs=settings["project_docs"],
         url=request.route_url(hello.name),
+        config=config_attributes(),
     )
 
     eos = get_eos(request)

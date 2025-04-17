@@ -11,6 +11,12 @@ API
 Changelog
 ---------
 
+1.23 (2025-04-16)
+'''''''''''''''''
+
+- Added ``config`` field to the root URL endpoint
+
+
 1.22 (2019-03-20)
 '''''''''''''''''
 
