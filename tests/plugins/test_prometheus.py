@@ -60,7 +60,7 @@ class ServiceTest(PrometheusWebTest):
             self.assertEqual(my_func(1, 1), 2)
 
         resp = self.app.get("/__metrics__")
-        self.assertIn("TYPE kintoprod_func_latency_context summary", resp.text)
+        self.assertIn("TYPE kintoprod_func_latency_context histogram", resp.text)
 
     def test_timer_can_be_used_as_decorator(self):
         decorated = self.app.app.registry.metrics.timer("func.latency.decorator")(my_func)
@@ -68,7 +68,7 @@ class ServiceTest(PrometheusWebTest):
         self.assertEqual(decorated(1, 1), 2)
 
         resp = self.app.get("/__metrics__")
-        self.assertIn("TYPE kintoprod_func_latency_decorator summary", resp.text)
+        self.assertIn("TYPE kintoprod_func_latency_decorator histogram", resp.text)
 
     def test_timer_can_be_used_as_decorator_on_partial_function(self):
         partial = functools.partial(my_func, 3)
@@ -77,7 +77,7 @@ class ServiceTest(PrometheusWebTest):
         self.assertEqual(decorated(3), 6)
 
         resp = self.app.get("/__metrics__")
-        self.assertIn("TYPE kintoprod_func_latency_partial summary", resp.text)
+        self.assertIn("TYPE kintoprod_func_latency_partial histogram", resp.text)
 
     def test_observe_a_single_value(self):
         self.app.app.registry.metrics.observe("price", 111)

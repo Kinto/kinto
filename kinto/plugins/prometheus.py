@@ -49,9 +49,26 @@ def _fix_metric_name(s):
 
 
 class Timer:
-    def __init__(self, summary):
-        self.summary = summary
+    """
+    A decorator to time the execution of a function. It will use the
+    `prometheus_client.Histogram` to record the time taken by the function
+    in milliseconds. The histogram is passed as an argument to the
+    constructor.
+
+    Main limitation: it does not support `labels` on the decorator.
+    """
+
+    def __init__(self, histogram):
+        self.histogram = histogram
         self._start_time = None
+
+    def set_labels(self, labels):
+        if not labels:
+            return
+        self.histogram = self.histogram.labels(*(label_value for _, label_value in labels))
+
+    def observe(self, value):
+        return self.histogram.observe(value)
 
     def __call__(self, f):
         @safe_wraps(f)
@@ -61,7 +78,7 @@ class Timer:
                 return f(*args, **kwargs)
             finally:
                 dt_ms = 1000.0 * (time_now() - start_time)
-                self.summary.observe(dt_ms)
+                self.histogram.observe(dt_ms)
 
         return _wrapped
 
@@ -79,7 +96,7 @@ class Timer:
         if self._start_time is None:  # pragma: nocover
             raise RuntimeError("Timer has not started.")
         dt_ms = 1000.0 * (time_now() - self._start_time)
-        self.summary.observe(dt_ms)
+        self.histogram.observe(dt_ms)
         return self
 
 
@@ -95,21 +112,34 @@ class PrometheusService:
             prefix_clean = _fix_metric_name(prefix).replace("_", "") + "_"
         self.prefix = prefix_clean.lower()
 
-    def timer(self, key):
+    def timer(self, key, value=None, labels=[]):
         global _METRICS
         key = self.prefix + key
 
         if key not in _METRICS:
-            _METRICS[key] = prometheus_module.Summary(
-                _fix_metric_name(key), f"Summary of {key}", registry=get_registry()
+            _METRICS[key] = prometheus_module.Histogram(
+                _fix_metric_name(key),
+                f"Histogram of {key}",
+                registry=get_registry(),
+                labelnames=[label_name for label_name, _ in labels],
             )
 
-        if not isinstance(_METRICS[key], prometheus_module.Summary):
+        if not isinstance(_METRICS[key], prometheus_module.Histogram):
             raise RuntimeError(
                 f"Metric {key} already exists with different type ({_METRICS[key]})"
             )
 
-        return Timer(_METRICS[key])
+        timer = Timer(_METRICS[key])
+        timer.set_labels(labels)
+
+        if value is not None:
+            # We are timing something.
+            return timer.observe(value)
+
+        # We are not timing anything, just returning the timer object
+        # (eg. to be used as decorator or context manager).
+        # Note that in this case, the labels values will be the same for all calls.
+        return timer
 
     def observe(self, key, value, labels=[]):
         global _METRICS

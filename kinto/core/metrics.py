@@ -47,7 +47,7 @@ class NoOpTimer:
 
 @implementer(IMetricsService)
 class NoOpMetricsService:
-    def timer(self, key):
+    def timer(self, key, value=None, labels=[]):
         return NoOpTimer()
 
     def observe(self, key, value, labels=[]):
@@ -65,11 +65,12 @@ def watch_execution_time(metrics_service, obj, prefix="", classname=None):
     classname = classname or utils.classname(obj)
     members = dir(obj)
     for name in members:
-        value = getattr(obj, name)
-        is_method = isinstance(value, types.MethodType)
+        method = getattr(obj, name)
+        is_method = isinstance(method, types.MethodType)
         if not name.startswith("_") and is_method:
-            statsd_key = f"{prefix}.{classname}.{name}"
-            decorated_method = metrics_service.timer(statsd_key)(value)
+            statsd_key = f"{prefix}.{classname}"
+            labels = [("method", name)]
+            decorated_method = metrics_service.timer(statsd_key, labels=labels)(method)
             setattr(obj, name, decorated_method)
 
 

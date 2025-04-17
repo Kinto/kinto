@@ -1,4 +1,5 @@
 import warnings
+from datetime import timedelta
 from urllib.parse import urlparse
 
 from pyramid.exceptions import ConfigurationError
@@ -26,7 +27,13 @@ class StatsDService:
     def __init__(self, host, port, prefix):
         self._client = statsd_module.StatsClient(host, port, prefix=prefix)
 
-    def timer(self, key):
+    def timer(self, key, value=None, labels=[]):
+        if labels:
+            # [("method", "get")] -> "method.get"
+            key = f"{key}." + ".".join(f"{label[0]}.{sanitize(label[1])}" for label in labels)
+        if value:
+            value = timedelta(seconds=value)
+            return self._client.timing(key, value)
         return self._client.timer(key)
 
     def observe(self, key, value, labels=[]):
