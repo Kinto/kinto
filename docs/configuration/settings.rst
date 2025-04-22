@@ -512,7 +512,12 @@ Prometheus metrics can be enabled with (disabled by default):
     kinto.includes = kinto.plugins.prometheus
 
     # kinto.prometheus_prefix = kinto-prod
-    # kinto.prometheus_created_metrics_enabled = true
+
+    # Expose metrics created time (default: true)
+    # kinto.prometheus_created_metrics_enabled = false
+
+    # Exclude certain labels to reduce cardinality (default: none)
+    # kinto.prometheus_exclude_labels = record_id group_id
 
 Metrics can then be crawled from the ``/__metrics__`` endpoint.
 
