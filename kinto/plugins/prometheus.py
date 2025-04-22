@@ -6,6 +6,7 @@ from time import perf_counter as time_now
 
 from pyramid.exceptions import ConfigurationError
 from pyramid.response import Response
+from pyramid.settings import asbool
 from zope.interface import implementer
 
 from kinto.core import metrics
@@ -229,6 +230,11 @@ def includeme(config):
         )
         raise ConfigurationError(error_msg)
 
+    settings = config.get_settings()
+
+    if not asbool(settings.get("prometheus_created_metrics_enabled", True)):
+        prometheus_module.disable_created_metrics()
+
     config.add_api_capability(
         "prometheus",
         description="Prometheus metrics.",
@@ -250,7 +256,6 @@ def includeme(config):
             pass
     _METRICS.clear()
 
-    settings = config.get_settings()
     prefix = settings.get("prometheus_prefix", settings["project_name"])
 
     config.registry.registerUtility(PrometheusService(prefix=prefix), metrics.IMetricsService)
