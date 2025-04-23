@@ -433,7 +433,7 @@ class MetricsConfigurationTest(unittest.TestCase):
         self.mocked().observe.assert_any_call(
             "request_size",
             len("{}"),
-            labels=[("endpoint", "heartbeat")],
+            labels=[("method", "get"), ("endpoint", "heartbeat"), ("status", "200")],
         )
 
     def test_statsd_observe_request_duration(self):
@@ -443,7 +443,7 @@ class MetricsConfigurationTest(unittest.TestCase):
         self.mocked().timer.assert_any_call(
             "request_duration",
             value=mock.ANY,
-            labels=[("endpoint", "heartbeat"), ("method", "get")],
+            labels=[("method", "get"), ("endpoint", "heartbeat"), ("status", "200")],
         )
 
     def test_statsd_counts_unknown_urls(self):

@@ -507,16 +507,14 @@ def setup_metrics(config):
                 "unnamed" if status != 404 else "unknown"
             )  # Do not multiply cardinality for unknown endpoints.
 
+        request_labels = [
+            ("method", request.method.lower()),
+            ("endpoint", endpoint),
+            ("status", str(status)),
+        ] + metrics_matchdict_labels
+
         # Count served requests.
-        metrics_service.count(
-            "request_summary",
-            unique=[
-                ("method", request.method.lower()),
-                ("endpoint", endpoint),
-                ("status", str(status)),
-            ]
-            + metrics_matchdict_labels,
-        )
+        metrics_service.count("request_summary", unique=request_labels)
 
         try:
             current = utils.msec_time()
@@ -524,8 +522,7 @@ def setup_metrics(config):
             metrics_service.timer(
                 "request_duration",
                 value=duration,
-                labels=[("endpoint", endpoint), ("method", request.method.lower())]
-                + metrics_matchdict_labels,
+                labels=request_labels,
             )
         except AttributeError:  # pragma: no cover
             # Logging was not setup in this Kinto app (unlikely but possible)
@@ -533,9 +530,7 @@ def setup_metrics(config):
 
         # Observe response size.
         metrics_service.observe(
-            "request_size",
-            len(event.response.body or b""),
-            labels=[("endpoint", endpoint)] + metrics_matchdict_labels,
+            "request_size", len(event.response.body or b""), labels=request_labels
         )
 
         # Count authentication verifications.

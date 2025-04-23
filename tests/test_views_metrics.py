@@ -33,11 +33,11 @@ class ViewsMetricsTest(BaseWebTest, unittest.TestCase):
         resp = self.app.get("/__metrics__")
 
         self.assertIn(
-            'request_size_sum{bucket_id="beers",collection_id="",endpoint="bucket-object",group_id="",record_id=""}',
+            'request_size_sum{bucket_id="beers",collection_id="",endpoint="bucket-object",group_id="",method="put",record_id="",status="201"}',
             resp.text,
         )
         self.assertIn(
-            'request_size_sum{bucket_id="beers",collection_id="",endpoint="group-object",group_id="amateurs",record_id=""}',
+            'request_size_sum{bucket_id="beers",collection_id="",endpoint="group-object",group_id="amateurs",method="put",record_id="",status="201"}',
             resp.text,
         )
         self.assertIn(
@@ -45,7 +45,7 @@ class ViewsMetricsTest(BaseWebTest, unittest.TestCase):
             resp.text,
         )
         self.assertIn(
-            'request_duration_sum{bucket_id="beers",collection_id="barley",endpoint="record-object",group_id="",method="put",record_id="abc"}',
+            'request_duration_sum{bucket_id="beers",collection_id="barley",endpoint="record-object",group_id="",method="put",record_id="abc",status="201"}',
             resp.text,
         )
 
