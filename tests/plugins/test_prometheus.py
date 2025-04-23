@@ -196,10 +196,10 @@ class PrometheusExcludedLabelsTest(PrometheusWebTest):
         self.assertNotIn("group_id=", resp.text)
         self.assertNotIn("record_id=", resp.text)
         self.assertIn(
-            'kintoprod_request_size_count{bucket_id="bid",collection_id="",endpoint="group-object"}',
+            'kintoprod_request_size_count{bucket_id="bid",collection_id="",endpoint="group-object",method="put",status="201"}',
             resp.text,
         )
         self.assertIn(
-            'kintoprod_request_size_count{bucket_id="bid",collection_id="cid",endpoint="record-object"}',
+            'kintoprod_request_size_count{bucket_id="bid",collection_id="cid",endpoint="record-object",method="put",status="201"}',
             resp.text,
         )

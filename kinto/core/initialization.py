@@ -472,10 +472,18 @@ def setup_metrics(config):
             auth, user_id = user_id.split(":")
             metrics_service.count("users", unique=[("auth", auth), ("userid", user_id)])
 
+        status = event.response.status_code
+
+        if status >= 400:
+            # Prevent random values of 404 responses to become label values.
+            request_matchdict = {}
+        else:
+            request_matchdict = dict(request.matchdict or {})
+
         # Add extra labels to metrics, based on fields extracted from the request matchdict.
         metrics_matchdict_fields = aslist(settings["metrics_matchdict_fields"])
         # Turn the `id` field of object endpoints into `{resource}_id` (eg. `mushroom_id`, `bucket_id`)
-        enhanced_matchdict = dict(request.matchdict or {})
+        enhanced_matchdict = request_matchdict
         try:
             enhanced_matchdict[request.current_resource_name + "_id"] = enhanced_matchdict.get(
                 "id", ""
@@ -486,8 +494,6 @@ def setup_metrics(config):
         metrics_matchdict_labels = [
             (field, enhanced_matchdict.get(field, "")) for field in metrics_matchdict_fields
         ]
-
-        status = event.response.status_code
 
         service = request.current_service
         if service:
@@ -501,16 +507,14 @@ def setup_metrics(config):
                 "unnamed" if status != 404 else "unknown"
             )  # Do not multiply cardinality for unknown endpoints.
 
+        request_labels = [
+            ("method", request.method.lower()),
+            ("endpoint", endpoint),
+            ("status", str(status)),
+        ] + metrics_matchdict_labels
+
         # Count served requests.
-        metrics_service.count(
-            "request_summary",
-            unique=[
-                ("method", request.method.lower()),
-                ("endpoint", endpoint),
-                ("status", str(status)),
-            ]
-            + metrics_matchdict_labels,
-        )
+        metrics_service.count("request_summary", unique=request_labels)
 
         try:
             current = utils.msec_time()
@@ -518,8 +522,7 @@ def setup_metrics(config):
             metrics_service.timer(
                 "request_duration",
                 value=duration,
-                labels=[("endpoint", endpoint), ("method", request.method.lower())]
-                + metrics_matchdict_labels,
+                labels=request_labels,
             )
         except AttributeError:  # pragma: no cover
             # Logging was not setup in this Kinto app (unlikely but possible)
@@ -527,9 +530,7 @@ def setup_metrics(config):
 
         # Observe response size.
         metrics_service.observe(
-            "request_size",
-            len(event.response.body or b""),
-            labels=[("endpoint", endpoint)] + metrics_matchdict_labels,
+            "request_size", len(event.response.body or b""), labels=request_labels
         )
 
         # Count authentication verifications.
