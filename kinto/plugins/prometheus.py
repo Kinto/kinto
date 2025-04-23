@@ -6,6 +6,7 @@ from time import perf_counter as time_now
 
 from pyramid.exceptions import ConfigurationError
 from pyramid.response import Response
+from pyramid.settings import asbool, aslist
 from zope.interface import implementer
 
 from kinto.core import metrics
@@ -102,7 +103,7 @@ class Timer:
 
 @implementer(metrics.IMetricsService)
 class PrometheusService:
-    def __init__(self, prefix=""):
+    def __init__(self, prefix="", exclude_labels=None):
         prefix_clean = ""
         if prefix:
             # In GCP Console, the metrics are grouped by the first
@@ -111,10 +112,19 @@ class PrometheusService:
             # (eg. `remote-settings` -> `remotesettings_`, `kinto_` -> `kinto_`)
             prefix_clean = _fix_metric_name(prefix).replace("_", "") + "_"
         self.prefix = prefix_clean.lower()
+        self.exclude_labels = exclude_labels or []
+
+    def _exclude_labels(self, labels):
+        return [
+            (label_name, label_value)
+            for label_name, label_value in labels
+            if label_name not in self.exclude_labels
+        ]
 
     def timer(self, key, value=None, labels=[]):
         global _METRICS
         key = self.prefix + key
+        labels = self._exclude_labels(labels)
 
         if key not in _METRICS:
             _METRICS[key] = prometheus_module.Histogram(
@@ -144,6 +154,7 @@ class PrometheusService:
     def observe(self, key, value, labels=[]):
         global _METRICS
         key = self.prefix + key
+        labels = self._exclude_labels(labels)
 
         if key not in _METRICS:
             _METRICS[key] = prometheus_module.Summary(
@@ -184,6 +195,7 @@ class PrometheusService:
                 label_name, label_value = unique.rsplit(".", 1)
                 unique = [(label_name, label_value)]
 
+            unique = self._exclude_labels(unique)
             labels = [
                 (_fix_metric_name(label_name), label_value) for label_name, label_value in unique
             ]
@@ -229,6 +241,11 @@ def includeme(config):
         )
         raise ConfigurationError(error_msg)
 
+    settings = config.get_settings()
+
+    if not asbool(settings.get("prometheus_created_metrics_enabled", True)):
+        prometheus_module.disable_created_metrics()
+
     config.add_api_capability(
         "prometheus",
         description="Prometheus metrics.",
@@ -250,7 +267,13 @@ def includeme(config):
             pass
     _METRICS.clear()
 
-    settings = config.get_settings()
     prefix = settings.get("prometheus_prefix", settings["project_name"])
 
-    config.registry.registerUtility(PrometheusService(prefix=prefix), metrics.IMetricsService)
+    # If we want to reduce the metrics cardinality, we can exclude certain
+    # labels (eg. records_id). This way all metrics will be grouped by the
+    # remaining labels.
+    exclude_labels = aslist(settings.get("prometheus_exclude_labels", ""))
+
+    config.registry.registerUtility(
+        PrometheusService(prefix=prefix, exclude_labels=exclude_labels), metrics.IMetricsService
+    )
