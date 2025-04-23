@@ -1,6 +1,9 @@
 import codecs
 import logging
 import os
+from datetime import datetime
+from functools import lru_cache
+from hashlib import sha256
 from time import strftime
 
 from kinto import __version__
@@ -69,3 +72,23 @@ def init(config_file, backend, cache_backend, host="127.0.0.1"):
     values.update(cache_backend_to_values[cache_backend])
 
     render_template("kinto.tpl", config_file, **values)
+
+
+@lru_cache(maxsize=1)
+def config_attributes():
+    """
+    Returns a hash of the config `.ini` file content.
+    The path is only known from `app.wsgi`, so we have to read
+    the environment variable again. Since tests are not run through
+    WSGI, then the variable is not set.
+    """
+    # WARNING: this default value should be the same as `app.wsgi`
+    ini_path = os.environ.get("KINTO_INI", os.path.join(".", "config", "kinto.ini"))
+    if not os.path.exists(ini_path):
+        logger.error(f"Could not find config file at {ini_path}")
+        return None
+    return {
+        "path": ini_path,
+        "hash": sha256(open(ini_path, "rb").read()).hexdigest(),
+        "modified": datetime.fromtimestamp(os.path.getmtime(ini_path)).isoformat(),
+    }
