@@ -472,10 +472,18 @@ def setup_metrics(config):
             auth, user_id = user_id.split(":")
             metrics_service.count("users", unique=[("auth", auth), ("userid", user_id)])
 
+        status = event.response.status_code
+
+        if status >= 400:
+            # Prevent random values of 404 responses to become label values.
+            request_matchdict = {}
+        else:
+            request_matchdict = dict(request.matchdict or {})
+
         # Add extra labels to metrics, based on fields extracted from the request matchdict.
         metrics_matchdict_fields = aslist(settings["metrics_matchdict_fields"])
         # Turn the `id` field of object endpoints into `{resource}_id` (eg. `mushroom_id`, `bucket_id`)
-        enhanced_matchdict = dict(request.matchdict or {})
+        enhanced_matchdict = request_matchdict
         try:
             enhanced_matchdict[request.current_resource_name + "_id"] = enhanced_matchdict.get(
                 "id", ""
@@ -486,8 +494,6 @@ def setup_metrics(config):
         metrics_matchdict_labels = [
             (field, enhanced_matchdict.get(field, "")) for field in metrics_matchdict_fields
         ]
-
-        status = event.response.status_code
 
         service = request.current_service
         if service:

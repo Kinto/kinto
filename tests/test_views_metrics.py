@@ -31,7 +31,7 @@ class ViewsMetricsTest(BaseWebTest, unittest.TestCase):
         self.app.get("/buckets/beers/collections/barley/records", headers=self.headers)
 
         resp = self.app.get("/__metrics__")
-        print(resp.text)
+
         self.assertIn(
             'request_size_sum{bucket_id="beers",collection_id="",endpoint="bucket-object",group_id="",record_id=""}',
             resp.text,
@@ -59,5 +59,15 @@ class ViewsMetricsTest(BaseWebTest, unittest.TestCase):
         )
         self.assertIn(
             'request_summary_total{bucket_id="beers",collection_id="barley",endpoint="record-plural",group_id="",method="get",record_id="",status="200"}',
+            resp.text,
+        )
+
+    def test_4xx_do_not_have_matchdict_labels_values(self):
+        self.app.get("/buckets/water", headers=self.headers, status=403)
+
+        resp = self.app.get("/__metrics__")
+
+        self.assertIn(
+            'request_summary_total{bucket_id="",collection_id="",endpoint="bucket-object",group_id="",method="get",record_id="",status="403"}',
             resp.text,
         )
