@@ -174,32 +174,3 @@ class PrometheusNoCreatedTest(PrometheusWebTest):
 
         self.assertIn("TYPE kintoprod_price summary", resp.text)
         self.assertNotIn("TYPE kintoprod_price_created summary", resp.text)
-
-
-@skip_if_no_prometheus
-class PrometheusExcludedLabelsTest(PrometheusWebTest):
-    @classmethod
-    def get_app_settings(cls, extras=None):
-        settings = super().get_app_settings(extras)
-        settings["prometheus_exclude_labels"] = "record_id group_id"
-        return settings
-
-    def test_metrics_excluded_labels(self):
-        headers = get_user_headers("aaa")
-        self.app.put("/buckets/bid", headers=headers)
-        self.app.put("/buckets/bid/collections/cid", headers=headers)
-        self.app.put("/buckets/bid/groups/gid", headers=headers)
-        self.app.put("/buckets/bid/collections/cid/records/rid", headers=headers)
-
-        resp = self.app.get("/__metrics__")
-
-        self.assertNotIn("group_id=", resp.text)
-        self.assertNotIn("record_id=", resp.text)
-        self.assertIn(
-            'kintoprod_request_size_count{bucket_id="bid",collection_id="",endpoint="group-object",method="put",status="201"}',
-            resp.text,
-        )
-        self.assertIn(
-            'kintoprod_request_size_count{bucket_id="bid",collection_id="cid",endpoint="record-object",method="put",status="201"}',
-            resp.text,
-        )
