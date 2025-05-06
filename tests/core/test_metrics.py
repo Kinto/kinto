@@ -25,7 +25,7 @@ class WatchExecutionTimeTest(unittest.TestCase):
     def test_public_methods_generates_statsd_calls(self):
         self.test_object.test_method()
         self.mocked.timer.assert_called_with(
-            "test.testedclass", labels=[("method", "test_method")]
+            "test.testedclass.seconds", labels=[("method", "test_method")]
         )
 
     def test_private_methods_does_not_generates_statsd_calls(self):
@@ -48,4 +48,4 @@ class ListenerWithTimerTest(unittest.TestCase):
         wrapped = metrics.listener_with_timer(self.config, "key", self.func)
 
         self.assertEqual(wrapped(42), 42)
-        self.config.registry.metrics.timer.assert_called_with("key")
+        self.config.registry.metrics.timer.assert_called_with("key.seconds")

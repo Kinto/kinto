@@ -53,7 +53,7 @@ class Timer:
     """
     A decorator to time the execution of a function. It will use the
     `prometheus_client.Histogram` to record the time taken by the function
-    in milliseconds. The histogram is passed as an argument to the
+    in seconds. The histogram is passed as an argument to the
     constructor.
 
     Main limitation: it does not support `labels` on the decorator.
@@ -78,8 +78,8 @@ class Timer:
             try:
                 return f(*args, **kwargs)
             finally:
-                dt_ms = 1000.0 * (time_now() - start_time)
-                self.histogram.observe(dt_ms)
+                dt_sec = time_now() - start_time
+                self.histogram.observe(dt_sec)
 
         return _wrapped
 
@@ -96,8 +96,8 @@ class Timer:
     def stop(self):
         if self._start_time is None:  # pragma: nocover
             raise RuntimeError("Timer has not started.")
-        dt_ms = 1000.0 * (time_now() - self._start_time)
-        self.histogram.observe(dt_ms)
+        dt_sec = time_now() - self._start_time
+        self.histogram.observe(dt_sec)
         return self
 
 

@@ -13,7 +13,7 @@ class IMetricsService(Interface):
 
     def timer(key):
         """
-        Watch execution time.
+        Watch execution time in seconds.
         """
 
     def observe(self, key, value, labels=[]):
@@ -68,9 +68,9 @@ def watch_execution_time(metrics_service, obj, prefix="", classname=None):
         method = getattr(obj, name)
         is_method = isinstance(method, types.MethodType)
         if not name.startswith("_") and is_method:
-            statsd_key = f"{prefix}.{classname}"
+            metric_name = f"{prefix}.{classname}.seconds"
             labels = [("method", name)]
-            decorated_method = metrics_service.timer(statsd_key, labels=labels)(method)
+            decorated_method = metrics_service.timer(metric_name, labels=labels)(method)
             setattr(obj, name, decorated_method)
 
 
@@ -88,7 +88,7 @@ def listener_with_timer(config, key, func):
             # not listed in the `initialization_sequence` setting.
             return func(*args, **kwargs)
         # If metrics are enabled, monitor execution time of listeners.
-        with metrics_service.timer(key):
+        with metrics_service.timer(key + ".seconds" if not key.endswith(".seconds") else key):
             return func(*args, **kwargs)
 
     return wrapped

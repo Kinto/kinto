@@ -511,7 +511,7 @@ class StatsDTest(BaseWebTest, unittest.TestCase):
         with mock.patch.object(metrics_client, "timing") as mocked:
             self.app.post_json(self.plural_url, {"data": {"name": "pouet"}}, headers=self.headers)
             timers = set(c[0][0] for c in mocked.call_args_list)
-            self.assertIn("listeners.test", timers)
+            self.assertIn("listeners.test.seconds", timers)
 
 
 @skip_if_no_prometheus
@@ -529,4 +529,4 @@ class PrometheusTest(BaseWebTest, unittest.TestCase):
         self.app.post_json(self.plural_url, {"data": {"name": "pouet"}}, headers=self.headers)
 
         resp = self.app.get("/__metrics__")
-        self.assertIn("listeners_test_count 1.0", resp.text)
+        self.assertIn("listeners_test_seconds_count 1.0", resp.text)
