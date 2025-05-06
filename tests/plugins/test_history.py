@@ -38,7 +38,7 @@ class MetricsTest(HistoryWebTest):
     def test_a_statsd_timer_is_used_for_history_if_configured(self):
         with mock.patch("kinto.plugins.statsd.StatsDService.timer") as mocked:
             self.app.put("/buckets/test", headers=self.headers)
-            mocked.assert_any_call("plugins.history")
+            mocked.assert_any_call("plugins.history.seconds")
 
 
 class HistoryViewTest(HistoryWebTest):
