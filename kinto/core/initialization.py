@@ -510,17 +510,16 @@ def setup_metrics(config):
         request_labels = [
             ("method", request.method.lower()),
             ("endpoint", endpoint),
-            ("status", str(status)),
         ] + metrics_matchdict_labels
 
         # Count served requests.
-        metrics_service.count("request_summary", unique=request_labels)
+        metrics_service.count("request_summary", unique=request_labels + [("status", str(status))])
 
         try:
             current = utils.msec_time()
             duration = current - request._received_at
             metrics_service.timer(
-                "request_duration",
+                "request_duration_seconds",
                 value=duration,
                 labels=request_labels,
             )
