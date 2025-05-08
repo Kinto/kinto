@@ -101,7 +101,7 @@ class Timer:
         return self
 
 
-class NoOpHistogram:
+class NoOpHistogram:  # pragma: no cover
     def observe(self, value):
         pass
 
@@ -111,7 +111,7 @@ class NoOpHistogram:
 
 @implementer(metrics.IMetricsService)
 class PrometheusService:
-    def __init__(self, prefix="", disabled_metrics=[]):
+    def __init__(self, prefix="", disabled_metrics=[], histogram_buckets=None):
         prefix_clean = ""
         if prefix:
             # In GCP Console, the metrics are grouped by the first
@@ -121,6 +121,7 @@ class PrometheusService:
             prefix_clean = _fix_metric_name(prefix).replace("_", "") + "_"
         self.prefix = prefix_clean.lower()
         self.disabled_metrics = [m.replace(self.prefix, "") for m in disabled_metrics]
+        self.histogram_buckets = histogram_buckets
 
     def timer(self, key, value=None, labels=[]):
         global _METRICS
@@ -136,6 +137,7 @@ class PrometheusService:
                 f"Histogram of {key}",
                 registry=get_registry(),
                 labelnames=[label_name for label_name, _ in labels],
+                buckets=self.histogram_buckets,
             )
 
         if not isinstance(_METRICS[key], prometheus_module.Histogram):
@@ -258,7 +260,19 @@ def includeme(config):
     prefix = settings.get("prometheus_prefix", settings["project_name"])
     disabled_metrics = aslist(settings.get("prometheus_disabled_metrics", ""))
 
-    metrics_impl = PrometheusService(prefix=prefix, disabled_metrics=disabled_metrics)
+    # Default buckets for histogram metrics are (.005, .01, .025, .05, .075, .1, .25, .5, .75, 1.0, 2.5, 5.0, 7.5, 10.0, INF)
+    # we reduce it from 16 to 8 values by default here, and let the user override it if needed.
+    histogram_buckets_values = aslist(
+        settings.get(
+            "prometheus_histogram_buckets", "0.01 0.05 0.1 0.5 1.0 3.0 6.0 Inf"
+        )  # Note: Inf is added by default.
+    )
+    histogram_buckets = [float(x) for x in histogram_buckets_values]
+    # Note: we don't need to check for INF or list size, it's done in the prometheus_client library.
+
+    metrics_impl = PrometheusService(
+        prefix=prefix, disabled_metrics=disabled_metrics, histogram_buckets=histogram_buckets
+    )
 
     config.add_api_capability(
         "prometheus",

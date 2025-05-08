@@ -525,6 +525,9 @@ Prometheus metrics can be enabled with (disabled by default):
     #                          backend_permission_seconds
     #                          backend_cache_seconds
 
+    # Control duration buckets in seconds (global for all histograms)
+    # kinto.prometheus_histogram_buckets = 0.005 0.1 1 Inf
+
 Metrics can then be crawled from the ``/__metrics__`` endpoint.
 
 

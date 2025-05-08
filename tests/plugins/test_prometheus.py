@@ -182,7 +182,7 @@ class PrometheusDisabledMetricsTest(PrometheusWebTest):
     def get_app_settings(cls, extras=None):
         settings = super().get_app_settings(extras)
         settings["prometheus_disabled_metrics"] = (
-            "kintoprod_price kintoprod_key func_latency_partial"
+            "kintoprod_price kintoprod_key func_latency"
         )
         return settings
 
@@ -190,13 +190,32 @@ class PrometheusDisabledMetricsTest(PrometheusWebTest):
         self.app.app.registry.metrics.observe("price", 111)
         self.app.app.registry.metrics.count("key")
         self.app.app.registry.metrics.observe("size", 3.14, labels=[("endpoint", "/buckets")])
-        partial = functools.partial(my_func, 3)
-        self.app.app.registry.metrics.timer("func.latency.partial")(partial)
-        partial(34)  # Call the partial function to trigger the timer and NoOpHistogram
+        decorated = self.app.app.registry.metrics.timer("func.latency")(my_func)
+        decorated(1, 34)  # Call the function to trigger the timer and NoOpHistogram
 
         resp = self.app.get("/__metrics__")
 
         self.assertIn("TYPE kintoprod_size summary", resp.text)
         self.assertNotIn("TYPE kintoprod_key counter", resp.text)
         self.assertNotIn("TYPE kintoprod_price summary", resp.text)
-        self.assertNotIn("TYPE kintoprod_func_latency_partial histogram", resp.text)
+        self.assertNotIn("TYPE kintoprod_func_latency histogram", resp.text)
+
+
+@skip_if_no_prometheus
+class PrometheusCustomTest(PrometheusWebTest):
+    @classmethod
+    def get_app_settings(cls, extras=None):
+        settings = super().get_app_settings(extras)
+        settings["prometheus_histogram_buckets"] = "0.1 1 Inf"
+        return settings
+
+    def test_duration_metrics_only_contain_specified_buckets(self):
+        self.app.app.registry.metrics.timer("func")(my_func)
+        my_func(1, 34)
+
+        resp = self.app.get("/__metrics__")
+
+        self.assertEqual(resp.text.count("kintoprod_func_bucket"), 3)
+        self.assertIn('kintoprod_func_bucket{le="0.1"}', resp.text)
+        self.assertIn('kintoprod_func_bucket{le="1.0"}', resp.text)
+        self.assertIn('kintoprod_func_bucket{le="+Inf"}', resp.text)
