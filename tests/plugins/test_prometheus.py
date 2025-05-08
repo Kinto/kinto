@@ -174,3 +174,29 @@ class PrometheusNoCreatedTest(PrometheusWebTest):
 
         self.assertIn("TYPE kintoprod_price summary", resp.text)
         self.assertNotIn("TYPE kintoprod_price_created summary", resp.text)
+
+
+@skip_if_no_prometheus
+class PrometheusDisabledMetricsTest(PrometheusWebTest):
+    @classmethod
+    def get_app_settings(cls, extras=None):
+        settings = super().get_app_settings(extras)
+        settings["prometheus_disabled_metrics"] = (
+            "kintoprod_price kintoprod_key func_latency_partial"
+        )
+        return settings
+
+    def test_disabled_etrics_not_in_response(self):
+        self.app.app.registry.metrics.observe("price", 111)
+        self.app.app.registry.metrics.count("key")
+        self.app.app.registry.metrics.observe("size", 3.14, labels=[("endpoint", "/buckets")])
+        partial = functools.partial(my_func, 3)
+        self.app.app.registry.metrics.timer("func.latency.partial")(partial)
+        partial(34)  # Call the partial function to trigger the timer and NoOpHistogram
+
+        resp = self.app.get("/__metrics__")
+
+        self.assertIn("TYPE kintoprod_size summary", resp.text)
+        self.assertNotIn("TYPE kintoprod_key counter", resp.text)
+        self.assertNotIn("TYPE kintoprod_price summary", resp.text)
+        self.assertNotIn("TYPE kintoprod_func_latency_partial histogram", resp.text)

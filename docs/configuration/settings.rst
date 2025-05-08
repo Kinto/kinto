@@ -519,6 +519,12 @@ Prometheus metrics can be enabled with (disabled by default):
     # Control cardinality when URL fields become labels (default: bucket_id collection_id group_id record_id)
     # kinto.metrics_matchdict_fields = bucket_id collection_id
 
+    # Disable default metrics that are not useful in your use-case
+    # kinto.disabled_metrics = request_duration_seconds
+    #                          authentication_basicauth_seconds
+    #                          backend_permission_seconds
+    #                          backend_cache_seconds
+
 Metrics can then be crawled from the ``/__metrics__`` endpoint.
 
 
