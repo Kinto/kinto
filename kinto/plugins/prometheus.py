@@ -235,10 +235,14 @@ def includeme(config):
     if not asbool(settings.get("prometheus_created_metrics_enabled", True)):
         prometheus_module.disable_created_metrics()
 
+    prefix = settings.get("prometheus_prefix", settings["project_name"])
+    metrics_impl = PrometheusService(prefix=prefix)
+
     config.add_api_capability(
         "prometheus",
         description="Prometheus metrics.",
         url="https://github.com/Kinto/kinto/",
+        prefix=metrics_impl.prefix,
     )
 
     config.add_route("prometheus_metrics", "/__metrics__")
@@ -256,6 +260,4 @@ def includeme(config):
             pass
     _METRICS.clear()
 
-    prefix = settings.get("prometheus_prefix", settings["project_name"])
-
-    config.registry.registerUtility(PrometheusService(prefix=prefix), metrics.IMetricsService)
+    config.registry.registerUtility(metrics_impl, metrics.IMetricsService)
