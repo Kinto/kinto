@@ -119,7 +119,7 @@ need-kinto-running:
 
 runkinto: install-dev
 	$(VENV)/bin/kinto migrate --ini tests/functional.ini
-	$(VENV)/bin/kinto start --ini tests/functional.ini
+	PROMETHEUS_MULTIPROC_DIR=/tmp/metrics KINTO_INI=tests/functional.ini $(VENV)/bin/uwsgi --http :8888 --ini tests/functional.ini
 
 functional: install-dev need-kinto-running
 	$(VENV)/bin/py.test tests/functional.py

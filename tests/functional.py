@@ -65,6 +65,17 @@ class FunctionalTest(unittest.TestCase):
         resp.raise_for_status()
         self.assertEqual(resp.json()["http_api_version"], HTTP_API_VERSION)
 
+    def test_prometheus_metrics_are_unique(self):
+        self.session.post(self.server_url, "{collection_url}")
+
+        resp = self.session.get(
+            urljoin(self.server_url, "/__metrics__"), headers={"Accept": "text/plain"}
+        )
+        resp.raise_for_status()
+
+        metrics = resp.text.splitlines()
+        self.assertEqual(len(metrics), len(set(metrics)))
+
     def test_user_default_bucket_tutorial(self):
         collection_id = "tasks-%s" % uuid.uuid4()
         collection_url = urljoin(
