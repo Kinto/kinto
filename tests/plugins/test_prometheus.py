@@ -27,6 +27,10 @@ class PrometheusMissing(unittest.TestCase):
 
 
 class PrometheusWebTest(support.BaseWebTest, unittest.TestCase):
+    def setUp(self):
+        super().setUp()
+        prometheus.reset_registry()
+
     @classmethod
     def get_app_settings(cls, extras=None):
         settings = super().get_app_settings(extras)
