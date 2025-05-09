@@ -271,7 +271,7 @@ def includeme(config):
     disabled_metrics = aslist(settings.get("prometheus_disabled_metrics", ""))
 
     # Default buckets for histogram metrics are (.005, .01, .025, .05, .075, .1, .25, .5, .75, 1.0, 2.5, 5.0, 7.5, 10.0, INF)
-    # we reduce it from 16 to 8 values by default here, and let the user override it if needed.
+    # we reduce it from 15 to 8 values by default here, and let the user override it if needed.
     histogram_buckets_values = aslist(
         settings.get(
             "prometheus_histogram_buckets", "0.01 0.05 0.1 0.5 1.0 3.0 6.0 Inf"
