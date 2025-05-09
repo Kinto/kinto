@@ -92,6 +92,7 @@ dev = [
     "build",
     "ruff",
     "twine",
+    "uwsgi",
 ]
 
 [tool.pip-tools]

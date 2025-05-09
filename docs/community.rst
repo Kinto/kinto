@@ -244,13 +244,7 @@ In another terminal, run the end-to-end tests with:
 Cleaning your environment
 -------------------------
 
-There are three levels of cleaning your environment:
-
- - ``make clean`` will remove ``*.pyc`` files and ``__pycache__`` directory.
- - ``make distclean`` will also remove ``*.egg-info`` files and ``*.egg``,
-   ``build`` and ``dist`` directories.
- - ``make maintainer-clean`` will also remove the ``.venv`` directory.
-
+ - ``make clean``
 
 How to release
 ==============

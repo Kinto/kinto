@@ -27,6 +27,10 @@ class PrometheusMissing(unittest.TestCase):
 
 
 class PrometheusWebTest(support.BaseWebTest, unittest.TestCase):
+    def setUp(self):
+        super().setUp()
+        prometheus.reset_registry()
+
     @classmethod
     def get_app_settings(cls, extras=None):
         settings = super().get_app_settings(extras)
@@ -181,9 +185,7 @@ class PrometheusDisabledMetricsTest(PrometheusWebTest):
     @classmethod
     def get_app_settings(cls, extras=None):
         settings = super().get_app_settings(extras)
-        settings["prometheus_disabled_metrics"] = (
-            "kintoprod_price kintoprod_key func_latency"
-        )
+        settings["prometheus_disabled_metrics"] = "kintoprod_price kintoprod_key func_latency"
         return settings
 
     def test_disabled_etrics_not_in_response(self):

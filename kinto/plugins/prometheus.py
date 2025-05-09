@@ -135,7 +135,6 @@ class PrometheusService:
             _METRICS[key] = prometheus_module.Histogram(
                 key,
                 f"Histogram of {key}",
-                registry=get_registry(),
                 labelnames=[label_name for label_name, _ in labels],
                 buckets=self.histogram_buckets,
             )
@@ -170,7 +169,6 @@ class PrometheusService:
                 key,
                 f"Summary of {key}",
                 labelnames=[label_name for label_name, _ in labels],
-                registry=get_registry(),
             )
 
         if not isinstance(_METRICS[key], prometheus_module.Summary):
@@ -216,7 +214,6 @@ class PrometheusService:
                 key,
                 f"Counter of {key}",
                 labelnames=[label_name for label_name, _ in labels],
-                registry=get_registry(),
             )
 
         if not isinstance(_METRICS[key], prometheus_module.Counter):
@@ -245,6 +242,19 @@ def _reset_multiproc_folder_content():  # pragma: no cover
     os.makedirs(PROMETHEUS_MULTIPROC_DIR, exist_ok=True)
 
 
+def reset_registry():
+    # This is mainly useful in tests, where the plugin is included
+    # several times with different settings.
+    registry = get_registry()
+
+    for collector in _METRICS.values():
+        try:
+            registry.unregister(collector)
+        except KeyError:  # pragma: no cover
+            pass
+    _METRICS.clear()
+
+
 def includeme(config):
     if prometheus_module is None:
         error_msg = (
@@ -270,6 +280,8 @@ def includeme(config):
     histogram_buckets = [float(x) for x in histogram_buckets_values]
     # Note: we don't need to check for INF or list size, it's done in the prometheus_client library.
 
+    get_registry()  # Initialize the registry.
+
     metrics_impl = PrometheusService(
         prefix=prefix, disabled_metrics=disabled_metrics, histogram_buckets=histogram_buckets
     )
@@ -284,17 +296,5 @@ def includeme(config):
 
     config.add_route("prometheus_metrics", "/__metrics__")
     config.add_view(metrics_view, route_name="prometheus_metrics")
-
-    # Reinitialize the registry on initialization.
-    # This is mainly useful in tests, where the plugin is included
-    # several times with different settings.
-    registry = get_registry()
-
-    for collector in _METRICS.values():
-        try:
-            registry.unregister(collector)
-        except KeyError:  # pragma: no cover
-            pass
-    _METRICS.clear()
 
     config.registry.registerUtility(metrics_impl, metrics.IMetricsService)
