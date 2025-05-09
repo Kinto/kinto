@@ -220,6 +220,19 @@ def _reset_multiproc_folder_content():  # pragma: no cover
     os.makedirs(PROMETHEUS_MULTIPROC_DIR, exist_ok=True)
 
 
+def reset_registry():
+    # This is mainly useful in tests, where the plugin is included
+    # several times with different settings.
+    registry = get_registry()
+
+    for collector in _METRICS.values():
+        try:
+            registry.unregister(collector)
+        except KeyError:  # pragma: no cover
+            pass
+    _METRICS.clear()
+
+
 def includeme(config):
     if prometheus_module is None:
         error_msg = (
@@ -232,6 +245,8 @@ def includeme(config):
     if not asbool(settings.get("prometheus_created_metrics_enabled", True)):
         prometheus_module.disable_created_metrics()
 
+    get_registry()  # Initialize the registry.
+
     config.add_api_capability(
         "prometheus",
         description="Prometheus metrics.",
@@ -240,19 +255,5 @@ def includeme(config):
 
     config.add_route("prometheus_metrics", "/__metrics__")
     config.add_view(metrics_view, route_name="prometheus_metrics")
-
-    # Reinitialize the registry on initialization.
-    # This is mainly useful in tests, where the plugin is included
-    # several times with different settings.
-    registry = get_registry()
-
-    for collector in _METRICS.values():
-        try:
-            registry.unregister(collector)
-        except KeyError:  # pragma: no cover
-            pass
-    _METRICS.clear()
-
     prefix = settings.get("prometheus_prefix", settings["project_name"])
-
     config.registry.registerUtility(PrometheusService(prefix=prefix), metrics.IMetricsService)
