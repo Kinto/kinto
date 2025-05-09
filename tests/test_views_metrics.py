@@ -33,22 +33,21 @@ class ViewsMetricsTest(BaseWebTest, unittest.TestCase):
         resp = self.app.get("/__metrics__")
 
         self.assertIn(
-            'request_size_sum{bucket_id="beers",collection_id="",endpoint="bucket-object",group_id="",method="put",record_id="",status="201"}',
+            'request_size_sum{bucket_id="beers",collection_id="",endpoint="bucket-object",group_id="",method="put",record_id=""}',
             resp.text,
         )
         self.assertIn(
-            'request_size_sum{bucket_id="beers",collection_id="",endpoint="group-object",group_id="amateurs",method="put",record_id="",status="201"}',
+            'request_size_sum{bucket_id="beers",collection_id="",endpoint="group-object",group_id="amateurs",method="put",record_id=""}',
+            resp.text,
+        )
+        self.assertIn(
+            'request_duration_seconds_sum{bucket_id="beers",collection_id="barley",endpoint="record-object",group_id="",method="put",record_id="abc"}',
             resp.text,
         )
         self.assertIn(
             'request_summary_total{bucket_id="beers",collection_id="barley",endpoint="collection-object",group_id="",method="put",record_id="",status="201"}',
             resp.text,
         )
-        self.assertIn(
-            'request_duration_sum{bucket_id="beers",collection_id="barley",endpoint="record-object",group_id="",method="put",record_id="abc",status="201"}',
-            resp.text,
-        )
-
         self.assertIn(
             'request_summary_total{bucket_id="",collection_id="",endpoint="bucket-plural",group_id="",method="get",record_id="",status="200"}',
             resp.text,

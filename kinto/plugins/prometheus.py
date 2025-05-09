@@ -121,7 +121,6 @@ class PrometheusService:
             _METRICS[key] = prometheus_module.Histogram(
                 _fix_metric_name(key),
                 f"Histogram of {key}",
-                registry=get_registry(),
                 labelnames=[label_name for label_name, _ in labels],
             )
 
@@ -151,7 +150,6 @@ class PrometheusService:
                 _fix_metric_name(key),
                 f"Summary of {key}",
                 labelnames=[label_name for label_name, _ in labels],
-                registry=get_registry(),
             )
 
         if not isinstance(_METRICS[key], prometheus_module.Summary):
@@ -194,7 +192,6 @@ class PrometheusService:
                 _fix_metric_name(key),
                 f"Counter of {key}",
                 labelnames=[label_name for label_name, _ in labels],
-                registry=get_registry(),
             )
 
         if not isinstance(_METRICS[key], prometheus_module.Counter):

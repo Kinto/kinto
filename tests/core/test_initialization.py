@@ -433,7 +433,7 @@ class MetricsConfigurationTest(unittest.TestCase):
         self.mocked().observe.assert_any_call(
             "request_size",
             len("{}"),
-            labels=[("method", "get"), ("endpoint", "heartbeat"), ("status", "200")],
+            labels=[("method", "get"), ("endpoint", "heartbeat")],
         )
 
     def test_statsd_observe_request_duration(self):
@@ -441,9 +441,9 @@ class MetricsConfigurationTest(unittest.TestCase):
         app = webtest.TestApp(self.config.make_wsgi_app())
         app.get("/v0/__heartbeat__")
         self.mocked().timer.assert_any_call(
-            "request_duration",
+            "request_duration_seconds",
             value=mock.ANY,
-            labels=[("method", "get"), ("endpoint", "heartbeat"), ("status", "200")],
+            labels=[("method", "get"), ("endpoint", "heartbeat")],
         )
 
     def test_statsd_counts_unknown_urls(self):
