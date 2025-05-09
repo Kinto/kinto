@@ -6,7 +6,7 @@ from time import perf_counter as time_now
 
 from pyramid.exceptions import ConfigurationError
 from pyramid.response import Response
-from pyramid.settings import asbool
+from pyramid.settings import asbool, aslist
 from zope.interface import implementer
 
 from kinto.core import metrics
@@ -101,9 +101,17 @@ class Timer:
         return self
 
 
+class NoOpHistogram:  # pragma: no cover
+    def observe(self, value):
+        pass
+
+    def labels(self, *args):
+        return self
+
+
 @implementer(metrics.IMetricsService)
 class PrometheusService:
-    def __init__(self, prefix=""):
+    def __init__(self, prefix="", disabled_metrics=[], histogram_buckets=None):
         prefix_clean = ""
         if prefix:
             # In GCP Console, the metrics are grouped by the first
@@ -112,16 +120,23 @@ class PrometheusService:
             # (eg. `remote-settings` -> `remotesettings_`, `kinto_` -> `kinto_`)
             prefix_clean = _fix_metric_name(prefix).replace("_", "") + "_"
         self.prefix = prefix_clean.lower()
+        self.disabled_metrics = [m.replace(self.prefix, "") for m in disabled_metrics]
+        self.histogram_buckets = histogram_buckets
 
     def timer(self, key, value=None, labels=[]):
         global _METRICS
-        key = self.prefix + key
 
+        key = _fix_metric_name(key)
+        if key in self.disabled_metrics:
+            return Timer(histogram=NoOpHistogram())
+
+        key = self.prefix + key
         if key not in _METRICS:
             _METRICS[key] = prometheus_module.Histogram(
-                _fix_metric_name(key),
+                key,
                 f"Histogram of {key}",
                 labelnames=[label_name for label_name, _ in labels],
+                buckets=self.histogram_buckets,
             )
 
         if not isinstance(_METRICS[key], prometheus_module.Histogram):
@@ -129,7 +144,7 @@ class PrometheusService:
                 f"Metric {key} already exists with different type ({_METRICS[key]})"
             )
 
-        timer = Timer(_METRICS[key])
+        timer = Timer(histogram=_METRICS[key])
         timer.set_labels(labels)
 
         if value is not None:
@@ -143,11 +158,15 @@ class PrometheusService:
 
     def observe(self, key, value, labels=[]):
         global _METRICS
-        key = self.prefix + key
 
+        key = _fix_metric_name(key)
+        if key in self.disabled_metrics:
+            return
+
+        key = self.prefix + key
         if key not in _METRICS:
             _METRICS[key] = prometheus_module.Summary(
-                _fix_metric_name(key),
+                key,
                 f"Summary of {key}",
                 labelnames=[label_name for label_name, _ in labels],
             )
@@ -165,10 +184,12 @@ class PrometheusService:
 
     def count(self, key, count=1, unique=None):
         global _METRICS
-        key = self.prefix + key
+
+        key = _fix_metric_name(key)
+        if key in self.disabled_metrics:
+            return
 
         labels = []
-
         if unique:
             if isinstance(unique, str):
                 warnings.warn(
@@ -187,9 +208,10 @@ class PrometheusService:
                 (_fix_metric_name(label_name), label_value) for label_name, label_value in unique
             ]
 
+        key = self.prefix + key
         if key not in _METRICS:
             _METRICS[key] = prometheus_module.Counter(
-                _fix_metric_name(key),
+                key,
                 f"Counter of {key}",
                 labelnames=[label_name for label_name, _ in labels],
             )
@@ -245,15 +267,34 @@ def includeme(config):
     if not asbool(settings.get("prometheus_created_metrics_enabled", True)):
         prometheus_module.disable_created_metrics()
 
+    prefix = settings.get("prometheus_prefix", settings["project_name"])
+    disabled_metrics = aslist(settings.get("prometheus_disabled_metrics", ""))
+
+    # Default buckets for histogram metrics are (.005, .01, .025, .05, .075, .1, .25, .5, .75, 1.0, 2.5, 5.0, 7.5, 10.0, INF)
+    # we reduce it from 15 to 8 values by default here, and let the user override it if needed.
+    histogram_buckets_values = aslist(
+        settings.get(
+            "prometheus_histogram_buckets", "0.01 0.05 0.1 0.5 1.0 3.0 6.0 Inf"
+        )  # Note: Inf is added by default.
+    )
+    histogram_buckets = [float(x) for x in histogram_buckets_values]
+    # Note: we don't need to check for INF or list size, it's done in the prometheus_client library.
+
     get_registry()  # Initialize the registry.
+
+    metrics_impl = PrometheusService(
+        prefix=prefix, disabled_metrics=disabled_metrics, histogram_buckets=histogram_buckets
+    )
 
     config.add_api_capability(
         "prometheus",
         description="Prometheus metrics.",
         url="https://github.com/Kinto/kinto/",
+        prefix=metrics_impl.prefix,
+        disabled_metrics=disabled_metrics,
     )
 
     config.add_route("prometheus_metrics", "/__metrics__")
     config.add_view(metrics_view, route_name="prometheus_metrics")
-    prefix = settings.get("prometheus_prefix", settings["project_name"])
-    config.registry.registerUtility(PrometheusService(prefix=prefix), metrics.IMetricsService)
+
+    config.registry.registerUtility(metrics_impl, metrics.IMetricsService)
