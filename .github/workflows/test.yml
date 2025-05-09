@@ -190,6 +190,8 @@ jobs:
           context: .
 
       - name: Run container
+        env:
+          PROMETHEUS_MULTIPROC_DIR: /tmp/metrics
         run: |
           docker run --net=host --detach --rm \
             -p 8888:8888 \

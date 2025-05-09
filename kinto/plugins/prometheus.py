@@ -245,6 +245,8 @@ def includeme(config):
     if not asbool(settings.get("prometheus_created_metrics_enabled", True)):
         prometheus_module.disable_created_metrics()
 
+    get_registry()  # Initialize the registry.
+
     config.add_api_capability(
         "prometheus",
         description="Prometheus metrics.",
