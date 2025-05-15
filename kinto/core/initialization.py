@@ -517,7 +517,7 @@ def setup_metrics(config):
 
         try:
             current = utils.msec_time()
-            duration = current - request._received_at
+            duration = (current - request._received_at) / 1000
             metrics_service.timer(
                 "request_duration_seconds",
                 value=duration,
