@@ -73,7 +73,7 @@ markupsafe==2.1.4
     # via werkzeug
 msgpack==1.0.7
     # via bravado-core
-newrelic==10.11.0
+newrelic==10.12.0
     # via -r constraints.in
 packaging==23.2
     # via
@@ -92,7 +92,7 @@ playwright==1.52.0
     # via -r constraints.in
 pluggy==1.5.0
     # via pytest
-prometheus-client==0.21.1
+prometheus-client==0.22.0
     # via -r constraints.in
 psycopg2-binary==2.9.10
     # via -r constraints.in
@@ -149,7 +149,7 @@ rpds-py==0.17.1
     # via
     #   jsonschema
     #   referencing
-ruff==0.11.9
+ruff==0.11.10
     # via -r constraints.in
 sentry-sdk==2.8.0
     # via -r constraints.in
