@@ -32,7 +32,7 @@ def admin_home_view(request):
     allow_local_only = "; ".join(
         (
             "default-src 'self'",
-            "img-src data: 'self'",
+            "img-src data: *",
             "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
             "style-src 'self' 'unsafe-inline'",
         )
