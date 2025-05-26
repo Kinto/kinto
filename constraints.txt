@@ -60,7 +60,7 @@ jsonpointer==2.4
     #   jsonschema
 jsonref==1.1.0
     # via bravado-core
-jsonschema==4.23.0
+jsonschema==4.24.0
     # via
     #   -r constraints.in
     #   bravado-core
@@ -149,7 +149,7 @@ rpds-py==0.17.1
     # via
     #   jsonschema
     #   referencing
-ruff==0.11.10
+ruff==0.11.11
     # via -r constraints.in
 sentry-sdk==2.8.0
     # via -r constraints.in
@@ -162,7 +162,7 @@ six==1.16.0
     #   rfc3339-validator
 soupsieve==2.5
     # via beautifulsoup4
-sqlalchemy==2.0.40
+sqlalchemy==2.0.41
     # via
     #   -r constraints.in
     #   sentry-sdk
