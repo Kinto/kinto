@@ -102,7 +102,7 @@ The current implementation supports extensions as follows:
   `Cornice Swagger documentation <https://cornices.github.io/cornice.ext.swagger/>`_.
 
 - If the plugin changes the possible responses for a Resource, you can
-  document it by subclassing :class:`kinto.core.resource.schema.ResourceReponses` and
+  document it by subclassing :class:`kinto.core.resource.schema.ResourceResponses` and
   changing the ``responses`` attribute on your Resource ``ViewSet``.
 
 - If the plugin adds an authentication method, you may declare it using

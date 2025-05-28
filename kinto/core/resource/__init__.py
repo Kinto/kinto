@@ -319,7 +319,7 @@ class Resource:
     #
 
     def plural_head(self):
-        """Model ``HEAD`` endpoint: empty reponse with a ``Total-Objects`` header.
+        """Model ``HEAD`` endpoint: empty response with a ``Total-Objects`` header.
 
         :raises: :exc:`~pyramid:pyramid.httpexceptions.HTTPNotModified` if
             ``If-None-Match`` header is provided and collection not
