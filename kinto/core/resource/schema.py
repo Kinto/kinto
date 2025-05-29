@@ -21,7 +21,7 @@ positive_big_integer = colander.Range(min=0, max=POSTGRESQL_MAX_INTEGER_VALUE)
 
 
 class TimeStamp(TimeStamp):
-    """This schema is deprecated, you shoud use `kinto.core.schema.TimeStamp` instead."""
+    """This schema is deprecated, you should use `kinto.core.schema.TimeStamp` instead."""
 
     def __init__(self, *args, **kwargs):
         message = (
@@ -33,7 +33,7 @@ class TimeStamp(TimeStamp):
 
 
 class URL(URL):
-    """This schema is deprecated, you shoud use `kinto.core.schema.URL` instead."""
+    """This schema is deprecated, you should use `kinto.core.schema.URL` instead."""
 
     def __init__(self, *args, **kwargs):
         message = (
@@ -422,7 +422,7 @@ class PluralResponseSchema(colander.MappingSchema):
         return datalist
 
 
-class ResourceReponses:
+class ResourceResponses:
     """Class that wraps and handles Resource responses."""
 
     default_schemas = {
@@ -448,7 +448,7 @@ class ResourceReponses:
     }
     default_get_schemas = {
         "304": NotModifiedResponseSchema(
-            description="Reponse has not changed since value in If-None-Match header"
+            description="Response has not changed since value in If-None-Match header"
         )
     }
     default_post_schemas = {

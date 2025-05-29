@@ -53,7 +53,7 @@ Precondition errors
 As detailed in the :ref:`timestamps  <server-timestamps>` section, it is
 possible to add concurrency control using ``ETag`` request headers.
 
-When a the provided preconditions are not met, a |status-412| error response
+When the provided preconditions are not met, a |status-412| error response
 is returned.
 
 Additional information about the record currently stored on the server will be

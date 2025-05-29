@@ -16,7 +16,7 @@ from .schema import (
     PluralGetQuerySchema,
     PluralQuerySchema,
     RequestSchema,
-    ResourceReponses,
+    ResourceResponses,
 )
 
 
@@ -64,7 +64,7 @@ class ViewSet:
 
     factory = authorization.RouteFactory
 
-    responses = ResourceReponses()
+    responses = ResourceResponses()
 
     service_arguments = {"description": "Set of {resource_name}"}
 

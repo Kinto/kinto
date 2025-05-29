@@ -370,9 +370,9 @@ class PluralQuerySchemaTest(unittest.TestCase):
         self.assertRaises(colander.Invalid, self.schema.deserialize, querystring)
 
 
-class ResourceReponsesTest(unittest.TestCase):
+class ResourceResponsesTest(unittest.TestCase):
     def setUp(self):
-        self.handler = schema.ResourceReponses()
+        self.handler = schema.ResourceResponses()
         self.resource = colander.MappingSchema(title="fake")
         self.obj = schema.ObjectSchema().bind(data=self.resource)
 

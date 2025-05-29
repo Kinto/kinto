@@ -422,7 +422,7 @@ def follow_subrequest(request, subrequest, **kwargs):
     """Run a subrequest (e.g. batch), and follow the redirection if any.
 
     :rtype: tuple
-    :returns: the reponse and the redirection request (or `subrequest`
+    :returns: the response and the redirection request (or `subrequest`
               if no redirection happened.)
     """
     try:
