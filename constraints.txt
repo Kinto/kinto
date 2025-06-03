@@ -92,12 +92,14 @@ playwright==1.52.0
     # via -r constraints.in
 pluggy==1.5.0
     # via pytest
-prometheus-client==0.22.0
+prometheus-client==0.22.1
     # via -r constraints.in
 psycopg2-binary==2.9.10
     # via -r constraints.in
 pyee==13.0.0
     # via playwright
+pygments==2.19.1
+    # via pytest
 pyproject-hooks==1.0.0
     # via build
 pyramid==2.0.2
@@ -109,7 +111,7 @@ pyramid-multiauth==1.0.2
     # via -r constraints.in
 pyramid-tm==2.6
     # via -r constraints.in
-pytest==8.3.5
+pytest==8.4.0
     # via
     #   -r constraints.in
     #   pytest-cache
@@ -149,7 +151,7 @@ rpds-py==0.17.1
     # via
     #   jsonschema
     #   referencing
-ruff==0.11.11
+ruff==0.11.12
     # via -r constraints.in
 sentry-sdk==2.8.0
     # via -r constraints.in
