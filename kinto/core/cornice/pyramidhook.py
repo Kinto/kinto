@@ -7,7 +7,6 @@ import itertools
 
 from pyramid.exceptions import PredicateMismatch
 from pyramid.httpexceptions import (
-    HTTPException,
     HTTPMethodNotAllowed,
     HTTPNotAcceptable,
     HTTPUnsupportedMediaType,
@@ -25,7 +24,6 @@ from kinto.core.cornice.service import decorate_view
 from kinto.core.cornice.util import (
     content_type_matches,
     current_service,
-    is_string,
     match_accept_header,
     match_content_type_header,
     to_list,
@@ -107,30 +105,11 @@ def get_fallback_view(service):
 
 def apply_filters(request, response):
     if request.matched_route is not None:
-        # do some sanity checking on the response using filters
+        # do some sanity checking on the response
         service = current_service(request)
         if service is not None:
-            kwargs, ob = getattr(request, "cornice_args", ({}, None))
-            for _filter in kwargs.get("filters", []):
-                if is_string(_filter) and ob is not None:
-                    _filter = getattr(ob, _filter)
-                try:
-                    response = _filter(response, request)
-                except TypeError:
-                    response = _filter(response)
-            if service.cors_enabled:
-                apply_cors_post_request(service, request, response)
-
+            apply_cors_post_request(service, request, response)
     return response
-
-
-def handle_exceptions(exc, request):
-    # At this stage, the checks done by the validators had been removed because
-    # a new response started (the exception), so we need to do that again.
-    if not isinstance(exc, HTTPException):
-        raise
-    request.info["cors_checked"] = False
-    return apply_filters(request, exc)
 
 
 def add_nosniff_header(request, response):
@@ -184,7 +163,7 @@ def register_service_views(config, service):
 
     # before doing anything else, register a view for the OPTIONS method
     # if we need to
-    if service.cors_enabled and "OPTIONS" not in service.defined_methods:
+    if "OPTIONS" not in service.defined_methods:
         service.add_view(
             "options", view=get_cors_preflight_view(service), permission=NO_PERMISSION_REQUIRED
         )
@@ -195,7 +174,6 @@ def register_service_views(config, service):
 
     # Cornice-specific arguments that pyramid does not know about
     cornice_parameters = (
-        "filters",
         "validators",
         "schema",
         "klass",
@@ -237,9 +215,7 @@ def register_service_views(config, service):
                 args[item] = copy.deepcopy(args[item])
 
         args["request_method"] = method
-
-        if service.cors_enabled:
-            args["validators"].insert(0, cors_validator)
+        args["validators"].insert(0, cors_validator)
 
         decorated_view = decorate_view(view, dict(args), method, route_args)
 
@@ -357,17 +333,3 @@ def _mungle_view_args(args, predicate_list):
         else:
             # otherwise argument value is just a scalar
             args[kind] = value
-
-
-def register_resource_views(config, resource):
-    """Register a resource and it's views.
-
-    :param config:
-        The pyramid configuration object that will be populated.
-    :param resource:
-        The resource class containing the definitions
-    """
-    services = resource._services
-
-    for service in services.values():
-        config.add_cornice_service(service)
