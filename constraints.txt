@@ -73,7 +73,7 @@ markupsafe==2.1.4
     # via werkzeug
 msgpack==1.0.7
     # via bravado-core
-newrelic==10.12.0
+newrelic==10.13.0
     # via -r constraints.in
 packaging==23.2
     # via
@@ -91,7 +91,9 @@ plaster-pastedeploy==1.0.1
 playwright==1.52.0
     # via -r constraints.in
 pluggy==1.5.0
-    # via pytest
+    # via
+    #   pytest
+    #   pytest-cov
 prometheus-client==0.22.1
     # via -r constraints.in
 psycopg2-binary==2.9.10
@@ -118,7 +120,7 @@ pytest==8.4.0
     #   pytest-cov
 pytest-cache==1.0
     # via -r constraints.in
-pytest-cov==6.1.1
+pytest-cov==6.2.1
     # via -r constraints.in
 python-dateutil==2.9.0.post0
     # via
