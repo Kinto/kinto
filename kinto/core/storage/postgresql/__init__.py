@@ -884,6 +884,14 @@ class Storage(StorageBase, MigratorMixin):
                 operator = "IS NOT NULL" if filtr.value else "IS NULL"
                 cond = f"{sql_field} {operator}"
 
+            elif filtr.operator == COMPARISON.CONTAINS:
+                value_holder = f"{prefix}_value_{i}"
+                holders[value_holder] = value
+                # In case the field is not a sequence, we ignore the object.
+                is_json_sequence = f"jsonb_typeof({sql_field}) = 'array'"
+                sql_operator = operators[filtr.operator]
+                cond = f"{is_json_sequence} AND {sql_field} {sql_operator} :{value_holder}"
+
             elif filtr.operator == COMPARISON.CONTAINS_ANY:
                 value_holder = f"{prefix}_value_{i}"
                 holders[value_holder] = value

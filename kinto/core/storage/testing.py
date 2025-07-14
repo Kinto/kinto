@@ -491,6 +491,14 @@ class BaseTestStorage:
         objects = self.storage.list_all(filters=filters, **self.storage_kw)
         self.assertEqual(len(objects), 0)
 
+    def test_list_all_contains_ignores_object_if_field_is_not_array(self):
+        self.create_object({"code": "black"})
+        self.create_object({"fib": ["a", "b", "c"]})
+
+        filters = [Filter("fib", ["a"], utils.COMPARISON.CONTAINS)]
+        objects = self.storage.list_all(filters=filters, **self.storage_kw)
+        self.assertEqual(len(objects), 1)
+
     def test_list_all_can_filter_on_array_with_contains_any_and_unsupported_type(self):
         self.create_object({"code": "black"})
         self.create_object({"fib": [2, 3, 5]})

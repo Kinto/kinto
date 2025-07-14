@@ -339,6 +339,10 @@ class FilteringTest(BaseTest):
         values = result["data"]
         assert len(values) == 0
 
+    def test_contains_returns_400_if_field_is_id_or_last_modified(self):
+        self.validated["querystring"] = {"contains_id": "foo"}
+        self.assertRaises(httpexceptions.HTTPBadRequest, self.resource.plural_get)
+
 
 class SubobjectFilteringTest(BaseTest):
     def setUp(self):
