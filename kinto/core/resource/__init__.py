@@ -1135,6 +1135,14 @@ class Resource:
             if field == self.model.modified_field and not is_valid_timestamp(value):
                 raise_invalid(self.request, **error_details)
 
+            if field in (self.model.modified_field, self.model.id_field) and operator in (
+                COMPARISON.CONTAINS,
+                COMPARISON.CONTAINS_ANY,
+            ):
+                error_msg = f"Field '{field}' is not an array"
+                error_details["description"] = error_msg
+                raise_invalid(self.request, **error_details)
+
             filters.append(Filter(field, value, operator))
 
         # If a plural endpoint is reached, and if the user does not have the
