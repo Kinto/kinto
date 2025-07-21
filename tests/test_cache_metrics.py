@@ -36,3 +36,10 @@ class CacheMetricsTest(BaseWebTest, unittest.TestCase):
         # We should see exactly 1 miss and 1 hit.
         self.assertIn("kinto_cache_misses_total 1.0", resp.text)
         self.assertIn("kinto_cache_hits_total 2.0", resp.text)
+
+    def test_get_return_value_unchanged(self):
+        payload = {"foo": "bar"}
+        self.cache.set("key", payload, ttl=30)
+        # Wrapper must not alter the return value
+        result = self.cache.get("key")
+        self.assertEqual(result, payload)
