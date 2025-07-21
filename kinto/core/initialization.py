@@ -22,7 +22,6 @@ from pyramid.settings import asbool, aslist
 from pyramid_multiauth import MultiAuthenticationPolicy, MultiAuthPolicySelected
 
 from kinto.core import cache, errors, metrics, permission, storage, utils
-from kinto.core.cache import CacheBase
 from kinto.core.events import ACTIONS, ResourceChanged, ResourceRead
 
 
@@ -461,7 +460,7 @@ def setup_metrics(config):
             metrics.watch_execution_time(metrics_service, policy, prefix="authentication")
 
         cache_backend = config.registry.cache
-        if isinstance(cache_backend, CacheBase):
+        if isinstance(cache_backend, cache.CacheBase):
             cache_backend.get = metrics.cache_get_with_hit_miss(metrics_service, cache_backend.get)
 
     config.add_subscriber(on_app_created, ApplicationCreated)
