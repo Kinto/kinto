@@ -33,7 +33,7 @@ class CacheMetricsTest(BaseWebTest, unittest.TestCase):
         # Fetch the raw Prometheus metrics.
         resp = self.app.get("/__metrics__")
 
-        # We should see exactly 1 miss and 1 hit.
+        # We should see 1 miss and 2 hits.
         self.assertIn("kinto_cache_misses_total 1.0", resp.text)
         self.assertIn("kinto_cache_hits_total 2.0", resp.text)
 
