@@ -92,16 +92,3 @@ def listener_with_timer(config, key, func):
             return func(*args, **kwargs)
 
     return wrapped
-
-
-def cache_get_with_hit_miss(metrics_service, original_get):
-    """
-    Wrap cache.get() to count cache hits/misses.
-    """
-
-    def wrapped(key, *args, **kwargs):
-        result = original_get(key, *args, **kwargs)
-        metrics_service.count("cache_misses" if result is None else "cache_hits")
-        return result
-
-    return wrapped

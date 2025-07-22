@@ -459,9 +459,10 @@ def setup_metrics(config):
         else:
             metrics.watch_execution_time(metrics_service, policy, prefix="authentication")
 
+        # Set cache metrics backend
         cache_backend = config.registry.cache
         if isinstance(cache_backend, cache.CacheBase):
-            cache_backend.get = metrics.cache_get_with_hit_miss(metrics_service, cache_backend.get)
+            cache_backend.set_metrics_backend(cache.CacheMetricsBackend(metrics_service))
 
     config.add_subscriber(on_app_created, ApplicationCreated)
 

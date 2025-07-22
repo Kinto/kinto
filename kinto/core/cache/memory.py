@@ -1,7 +1,8 @@
 import logging
 
-from kinto.core.cache import CacheBase
+from kinto.core.cache import CacheBase, CacheMetricsBackend
 from kinto.core.decorators import synchronized
+from kinto.core.metrics import NoOpMetricsService
 from kinto.core.utils import msec_time
 
 
@@ -73,7 +74,12 @@ class Cache(CacheBase):
     @synchronized
     def get(self, key):
         self._clean_expired()
-        return self._store.get(self.prefix + key)
+        value = self._store.get(self.prefix + key)
+        if value is None:
+            self.metrics_backend.count_miss()
+            return None
+        self.metrics_backend.count_hit()
+        return value
 
     @synchronized
     def delete(self, key):
@@ -87,9 +93,11 @@ class Cache(CacheBase):
 
 def load_from_config(config):
     settings = config.get_settings()
+    default_metrics_backend = CacheMetricsBackend(NoOpMetricsService())
     return Cache(
         cache_prefix=settings["cache_prefix"],
         cache_max_size_bytes=settings["cache_max_size_bytes"],
+        metrics_backend=default_metrics_backend,
     )
 
 
