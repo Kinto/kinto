@@ -1,7 +1,7 @@
 import logging
 import os
 
-from kinto.core.cache import CacheBase, CacheMetricsBackend
+from kinto.core.cache import CacheBase
 from kinto.core.metrics import NoOpMetricsService
 from kinto.core.storage.postgresql.client import create_from_config
 from kinto.core.utils import json
@@ -177,9 +177,8 @@ class Cache(CacheBase):
 def load_from_config(config):
     settings = config.get_settings()
     client = create_from_config(config, prefix="cache_", with_transaction=False)
-    default_metrics_backend = CacheMetricsBackend(NoOpMetricsService())
     return Cache(
         client=client,
         cache_prefix=settings["cache_prefix"],
-        metrics_backend=default_metrics_backend,
+        metrics_backend=NoOpMetricsService(),
     )

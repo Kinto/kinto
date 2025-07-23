@@ -462,7 +462,7 @@ def setup_metrics(config):
         # Set cache metrics backend
         cache_backend = config.registry.cache
         if isinstance(cache_backend, cache.CacheBase):
-            cache_backend.set_metrics_backend(cache.CacheMetricsBackend(metrics_service))
+            cache_backend.set_metrics_backend(metrics_service)
 
     config.add_subscriber(on_app_created, ApplicationCreated)
 

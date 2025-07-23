@@ -77,11 +77,11 @@ class CacheBase:
         raise NotImplementedError
 
     def set_metrics_backend(self, metrics_backend):
-        """Set metrics backend on the cache object.
+        """Set a metrics backend via the `CacheMetricsBackend` adapter.
 
-        :param CacheMetricsBackend metrics_backend: Used to track cache-related metrics like hits and misses.
+        :param metrics_backend: A metrics backend implementing the IMetricsService interface.
         """
-        self.metrics_backend = metrics_backend
+        self.metrics_backend = CacheMetricsBackend(metrics_backend)
 
 
 class CacheMetricsBackend:
@@ -89,7 +89,7 @@ class CacheMetricsBackend:
     A simple adapter for tracking cache-related metrics.
     """
 
-    def __init__(self, metrics_backend):
+    def __init__(self, metrics_backend, *args, **kwargs):
         """Initialize with a given metrics backend.
 
         :param metrics_backend: A metrics backend implementing the IMetricsService interface.

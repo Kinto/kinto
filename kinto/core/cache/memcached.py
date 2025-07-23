@@ -5,7 +5,7 @@ from time import time
 
 from pyramid.settings import aslist
 
-from kinto.core.cache import CacheBase, CacheMetricsBackend
+from kinto.core.cache import CacheBase
 from kinto.core.metrics import NoOpMetricsService
 from kinto.core.storage import exceptions
 from kinto.core.utils import json, memcache
@@ -110,7 +110,6 @@ class Cache(CacheBase):
 def load_from_config(config):
     settings = config.get_settings()
     client = create_from_config(config, prefix="cache_")
-    default_metrics_backend = CacheMetricsBackend(NoOpMetricsService())
     return Cache(
-        client, cache_prefix=settings["cache_prefix"], metrics_backend=default_metrics_backend
+        client, cache_prefix=settings["cache_prefix"], metrics_backend=NoOpMetricsService()
     )
