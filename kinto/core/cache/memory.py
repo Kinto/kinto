@@ -2,7 +2,6 @@ import logging
 
 from kinto.core.cache import CacheBase
 from kinto.core.decorators import synchronized
-from kinto.core.metrics import NoOpMetricsService
 from kinto.core.utils import msec_time
 
 
@@ -96,7 +95,6 @@ def load_from_config(config):
     return Cache(
         cache_prefix=settings["cache_prefix"],
         cache_max_size_bytes=settings["cache_max_size_bytes"],
-        metrics_backend=NoOpMetricsService(),
     )
 
 

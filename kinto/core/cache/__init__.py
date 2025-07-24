@@ -98,11 +98,13 @@ class CacheMetricsBackend:
 
     def count_hit(self):
         """Increment the cache hit counter."""
-        self._backend.count(key=_CACHE_HIT_METRIC_KEY)
+        if self._backend:
+            self._backend.count(key=_CACHE_HIT_METRIC_KEY)
 
     def count_miss(self):
         """Increment the cache miss counter."""
-        self._backend.count(key=_CACHE_MISS_METRIC_KEY)
+        if self._backend:
+            self._backend.count(key=_CACHE_MISS_METRIC_KEY)
 
 
 def heartbeat(backend):

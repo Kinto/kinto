@@ -228,7 +228,9 @@ def _end_of_life_tween_factory(handler, registry):
         else:
             code = "hard-eol"
             request.response = errors.http_error(
-                HTTPGone(), errno=errors.ERRORS.SERVICE_DEPRECATED, message=deprecation_msg
+                HTTPGone(),
+                errno=errors.ERRORS.SERVICE_DEPRECATED,
+                message=deprecation_msg,
             )
 
         errors.send_alert(request, eos_message, url=eos_url, code=code)

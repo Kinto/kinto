@@ -2,7 +2,6 @@ import logging
 import os
 
 from kinto.core.cache import CacheBase
-from kinto.core.metrics import NoOpMetricsService
 from kinto.core.storage.postgresql.client import create_from_config
 from kinto.core.utils import json
 from kinto.core.utils import sqlalchemy as sa
@@ -160,9 +159,8 @@ class Cache(CacheBase):
                 self.metrics_backend.count_hit()
                 value = result.fetchone().value
                 return json.loads(value)
-            else:
-                self.metrics_backend.count_miss()
-                return None
+            self.metrics_backend.count_miss()
+            return None
 
     def delete(self, key):
         query = "DELETE FROM cache WHERE key = :key RETURNING value;"
@@ -177,8 +175,4 @@ class Cache(CacheBase):
 def load_from_config(config):
     settings = config.get_settings()
     client = create_from_config(config, prefix="cache_", with_transaction=False)
-    return Cache(
-        client=client,
-        cache_prefix=settings["cache_prefix"],
-        metrics_backend=NoOpMetricsService(),
-    )
+    return Cache(client=client, cache_prefix=settings["cache_prefix"])
