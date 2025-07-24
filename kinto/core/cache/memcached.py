@@ -68,7 +68,9 @@ class Cache(CacheBase):
     def _get(self, key):
         value = self._client.get(self.prefix + key)
         if not value:
+            self.metrics_backend.count_miss()
             return None, 0
+        self.metrics_backend.count_hit()
         data = json.loads(value)
         return data["value"], data["ttl"]
 
