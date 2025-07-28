@@ -228,7 +228,9 @@ def _end_of_life_tween_factory(handler, registry):
         else:
             code = "hard-eol"
             request.response = errors.http_error(
-                HTTPGone(), errno=errors.ERRORS.SERVICE_DEPRECATED, message=deprecation_msg
+                HTTPGone(),
+                errno=errors.ERRORS.SERVICE_DEPRECATED,
+                message=deprecation_msg,
             )
 
         errors.send_alert(request, eos_message, url=eos_url, code=code)
@@ -458,6 +460,11 @@ def setup_metrics(config):
                 )
         else:
             metrics.watch_execution_time(metrics_service, policy, prefix="authentication")
+
+        # Set cache metrics backend
+        cache_backend = config.registry.cache
+        if isinstance(cache_backend, cache.CacheBase):
+            cache_backend.set_metrics_backend(metrics_service)
 
     config.add_subscriber(on_app_created, ApplicationCreated)
 

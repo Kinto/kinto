@@ -36,3 +36,9 @@ interface:
 
 .. autoclass:: kinto.core.cache.CacheBase
     :members:
+
+Cache Metrics Adapter
+=====================
+
+.. autoclass:: kinto.core.cache.CacheMetricsBackend
+    :members:

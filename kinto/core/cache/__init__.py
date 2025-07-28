@@ -10,10 +10,15 @@ _HEARTBEAT_KEY = "__heartbeat__"
 _HEARTBEAT_TTL_SECONDS = 3600
 
 
+_CACHE_HIT_METRIC_KEY = "cache_hits"
+_CACHE_MISS_METRIC_KEY = "cache_misses"
+
+
 class CacheBase:
     def __init__(self, *args, **kwargs):
         self.prefix = kwargs["cache_prefix"]
         self.max_size_bytes = kwargs.get("cache_max_size_bytes")
+        self.set_metrics_backend(kwargs.get("metrics_backend"))
 
     def initialize_schema(self, dry_run=False):
         """Create every necessary objects (like tables or indices) in the
@@ -70,6 +75,36 @@ class CacheBase:
         :param str key: key
         """
         raise NotImplementedError
+
+    def set_metrics_backend(self, metrics_backend):
+        """Set a metrics backend via the `CacheMetricsBackend` adapter.
+
+        :param metrics_backend: A metrics backend implementing the IMetricsService interface.
+        """
+        self.metrics_backend = CacheMetricsBackend(metrics_backend)
+
+
+class CacheMetricsBackend:
+    """
+    A simple adapter for tracking cache-related metrics.
+    """
+
+    def __init__(self, metrics_backend, *args, **kwargs):
+        """Initialize with a given metrics backend.
+
+        :param metrics_backend: A metrics backend implementing the IMetricsService interface.
+        """
+        self._backend = metrics_backend
+
+    def count_hit(self):
+        """Increment the cache hit counter."""
+        if self._backend:
+            self._backend.count(key=_CACHE_HIT_METRIC_KEY)
+
+    def count_miss(self):
+        """Increment the cache miss counter."""
+        if self._backend:
+            self._backend.count(key=_CACHE_MISS_METRIC_KEY)
 
 
 def heartbeat(backend):

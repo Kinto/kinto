@@ -156,8 +156,11 @@ class Cache(CacheBase):
             conn.execute(sa.text(purge))
             result = conn.execute(sa.text(query), dict(key=self.prefix + key))
             if result.rowcount > 0:
+                self.metrics_backend.count_hit()
                 value = result.fetchone().value
                 return json.loads(value)
+            self.metrics_backend.count_miss()
+            return None
 
     def delete(self, key):
         query = "DELETE FROM cache WHERE key = :key RETURNING value;"

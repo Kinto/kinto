@@ -73,7 +73,12 @@ class Cache(CacheBase):
     @synchronized
     def get(self, key):
         self._clean_expired()
-        return self._store.get(self.prefix + key)
+        value = self._store.get(self.prefix + key)
+        if value is None:
+            self.metrics_backend.count_miss()
+            return None
+        self.metrics_backend.count_hit()
+        return value
 
     @synchronized
     def delete(self, key):
