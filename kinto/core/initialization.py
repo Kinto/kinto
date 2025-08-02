@@ -475,8 +475,9 @@ def setup_metrics(config):
         # Count unique users.
         user_id = request.prefixed_userid
         if user_id:
-            # Get rid of colons in metric packet (see #1282).
-            auth, user_id = user_id.split(":")
+            auth, user_id = user_id.split(":", 1)
+            # Get rid of colons in metric packet (see #1282 and  #3571).
+            user_id = user_id.replace(":", ".")
             metrics_service.count("users", unique=[("auth", auth), ("userid", user_id)])
 
         status = event.response.status_code
