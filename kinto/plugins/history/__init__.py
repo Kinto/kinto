@@ -26,7 +26,7 @@ def uri_to_dict(uri):
     if len(parts) == 7:
         _, _buckets, bid, _collections, cid, _records, rid = parts
         return {"bucket": bid, "collection": cid, "record": rid}
-    raise ValueError(f"Invalid URI: {uri}")
+    raise ValueError(f"Invalid URI: {uri}")  # pragma: no cover
 
 
 def includeme(config):
