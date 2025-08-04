@@ -382,6 +382,16 @@ class MetricsConfigurationTest(unittest.TestCase):
             "users", unique=[("auth", "basicauth"), ("userid", "mat")]
         )
 
+    @mock.patch("kinto.core.utils.hmac_digest")
+    def test_statsd_counts_unique_users_with_colons(self, digest_mocked):
+        digest_mocked.return_value = "user:with:colons"
+        kinto.core.initialize(self.config, "0.0.1", "settings_prefix")
+        app = webtest.TestApp(self.config.make_wsgi_app())
+        app.get("/v0/", headers=get_user_headers("user:with:colons"))
+        self.mocked().count.assert_any_call(
+            "users", unique=[("auth", "basicauth"), ("userid", "user.with.colons")]
+        )
+
     def test_statsd_counts_authentication_types(self):
         kinto.core.initialize(self.config, "0.0.1", "settings_prefix")
         app = webtest.TestApp(self.config.make_wsgi_app())
