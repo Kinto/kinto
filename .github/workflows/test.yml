@@ -203,6 +203,11 @@ jobs:
         run: |
           make functional
 
+      - name: Show logs
+        if: failure()
+        run: |
+          docker logs "$(docker ps -q --filter ancestor=${{ env.TEST_TAG }})"
+
   kinto-admin:
     name: Kinto Admin
     needs: [lint, functional]
