@@ -635,7 +635,10 @@ class ExcludeResourcesTest(HistoryWebTest):
     def get_app_settings(cls, extras=None):
         settings = super().get_app_settings(extras)
         settings["history.exclude_resources"] = (
-            "/buckets/a /buckets/b/collections/a /buckets/b/groups/a"
+            "/buckets/a "
+            "/buckets/b/collections/a "
+            "/buckets/b/collections/a/records/1 "
+            "/buckets/b/groups/a"
         )
         return settings
 
@@ -649,6 +652,17 @@ class ExcludeResourcesTest(HistoryWebTest):
         self.app.put_json("/buckets/b/collections/a/records/1", headers=self.headers)
         self.app.put_json("/buckets/b/collections/b", headers=self.headers)
         self.app.put_json("/buckets/b/collections/b/records/1", headers=self.headers)
+
+    def test_history_capabilities_lists_excluded_resources(self):
+        resp = self.app.get("/", headers=self.headers)
+        capabilities = resp.json["capabilities"]
+        assert "excluded_resources" in capabilities["history"]
+        assert capabilities["history"]["excluded_resources"] == [
+            {"bucket": "a"},
+            {"bucket": "b", "collection": "a"},
+            {"bucket": "b", "collection": "a", "record": "1"},
+            {"bucket": "b", "group": "a"},
+        ]
 
     def test_whole_buckets_can_be_excluded(self):
         resp = self.app.get("/buckets/a/history", headers=self.headers)
