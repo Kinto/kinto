@@ -1,7 +1,6 @@
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this file,
 # You can obtain one at http://mozilla.org/MPL/2.0/.
-import warnings
 
 
 __all__ = [
@@ -67,18 +66,6 @@ def match_content_type_header(func, context, request):
     supported_contenttypes = to_list(func(request))
     request.info["supported_contenttypes"] = supported_contenttypes
     return content_type_matches(request, supported_contenttypes)
-
-
-def extract_json_data(request):
-    warnings.warn("Use ``cornice.validators.extract_cstruct()`` instead", DeprecationWarning)
-    from kinto.core.cornice.validators import extract_cstruct
-
-    return extract_cstruct(request)["body"]
-
-
-def extract_form_urlencoded_data(request):
-    warnings.warn("Use ``cornice.validators.extract_cstruct()`` instead", DeprecationWarning)
-    return request.POST
 
 
 def content_type_matches(request, content_types):
