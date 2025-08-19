@@ -544,8 +544,9 @@ def setup_metrics(config):
         try:
             metrics_service.count("authentication", unique=[("type", request.authn_type)])
         except AttributeError:
-            # Not authenticated
-            pass
+            if utils.endpoint_requires_authentication(request):
+                # Authentication failed.
+                metrics_service.count("authentication_failure")
 
     config.add_subscriber(on_new_response, NewResponse)
 
