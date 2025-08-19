@@ -551,3 +551,15 @@ def safe_wraps(wrapper, *args, **kwargs):
     while isinstance(wrapper, functools.partial):
         wrapper = wrapper.func
     return functools.wraps(wrapper, *args, **kwargs)
+
+
+def endpoint_requires_authentication(request):
+    """Check if the current endpoint requires authentication by examining the view."""
+    # Get the current view info
+    view_callable = request.registry.introspector.get('views', request.matched_route.name)
+    if view_callable:
+        # Check if the view has NO_PERMISSION_REQUIRED
+        for view_info in view_callable:
+            if view_info.get('permission') == '__no_permission_required__':
+                return False
+    return True
