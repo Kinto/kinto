@@ -201,7 +201,7 @@ jobs:
 
       - name: Show logs on failure
         if: failure()
-        run: docker logs $(docker ps -q --filter ancestor=${{ env.TEST_TAG }})
+        run: docker logs "$(docker ps -q --filter ancestor=${{ env.TEST_TAG }})"
 
       - name: Functional Tests
         run: |
