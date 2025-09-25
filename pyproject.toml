@@ -82,6 +82,7 @@ monitoring = [
 ]
 test = [
     "bravado",
+    "flex",
     "pytest",
     "pytest-cache",
     "pytest-cov",
@@ -103,10 +104,6 @@ strip-extras = true
 
 [tool.coverage.run]
 branch = true
-omit = [
-    "kinto/core/cornice/*",
-    "kinto/core/cornice_swagger/*",
-]
 
 [tool.ruff]
 line-length = 99
