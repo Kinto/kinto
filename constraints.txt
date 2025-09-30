@@ -220,7 +220,7 @@ zope-interface==6.1
     #   pyramid
     #   transaction
     #   zope-sqlalchemy
-zope-sqlalchemy==3.1
+zope-sqlalchemy==4.0
     # via -r constraints.in
 
 # The following packages are considered to be unsafe in a requirements file:
