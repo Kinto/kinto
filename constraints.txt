@@ -28,7 +28,7 @@ colander==2.0
     # via -r constraints.in
 colorama==0.4.6
     # via logging-color-formatter
-coverage==7.6.4
+coverage==7.10.7
     # via pytest-cov
 dockerflow==2024.4.2
     # via -r constraints.in
@@ -120,7 +120,7 @@ pytest==8.4.1
     #   pytest-cov
 pytest-cache==1.0
     # via -r constraints.in
-pytest-cov==6.2.1
+pytest-cov==7.0.0
     # via -r constraints.in
 python-dateutil==2.9.0.post0
     # via
