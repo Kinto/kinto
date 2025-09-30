@@ -10,7 +10,7 @@ attrs==23.2.0
     # via
     #   jsonschema
     #   referencing
-bcrypt==4.3.0
+bcrypt==5.0.0
     # via -r constraints.in
 beautifulsoup4==4.12.3
     # via webtest
