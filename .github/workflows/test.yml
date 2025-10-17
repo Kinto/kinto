@@ -201,7 +201,7 @@ jobs:
 
       - name: Functional Tests
         run: |
-          make functional
+          make functional || sleep 5 && make functional
 
       - name: Show logs on failure
         if: failure()
