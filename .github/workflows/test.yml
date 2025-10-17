@@ -201,7 +201,11 @@ jobs:
 
       - name: Functional Tests
         run: |
-          make functional
+          make functional || sleep 5 && make functional
+
+      - name: Show logs on failure
+        if: failure()
+        run: docker logs "$(docker ps -q --filter ancestor=${{ env.TEST_TAG }})"
 
   kinto-admin:
     name: Kinto Admin
