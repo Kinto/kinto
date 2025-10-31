@@ -385,6 +385,28 @@ class StorageBase:
         warnings.warn(message, DeprecationWarning)
         return self.resource_timestamp(resource_name=collection_id, parent_id=parent_id)
 
+    def trim_objects(
+        self,
+        resource_name: str,
+        parent_id: str,
+        filters: list,
+        max_objects: int,
+        id_field: str = DEFAULT_ID_FIELD,
+        modified_field: str = DEFAULT_MODIFIED_FIELD,
+    ) -> int:
+        """
+        Trim the last N objects in the specified resource matching the filters.
+
+        :param str resource_name: the resource name.
+        :param str parent_id: the resource parent.
+        :param list filters: list of :class:`kinto.core.storage.Filter` to filter objects.
+        :param int max_objects: maximum number of objects to keep.
+        :param str id_field: the id field name.
+        :param str modified_field: the modified field name.
+        :returns: the number of deleted objects.
+        :rtype: int"""
+        raise NotImplementedError
+
 
 def heartbeat(backend):
     def ping(request):

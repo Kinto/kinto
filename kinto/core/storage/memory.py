@@ -10,6 +10,7 @@ from kinto.core.storage import (
     DEFAULT_ID_FIELD,
     DEFAULT_MODIFIED_FIELD,
     MISSING,
+    Sort,
     StorageBase,
     exceptions,
 )
@@ -437,6 +438,36 @@ class Storage(MemoryBasedStorage):
             for r in objects
         ]
         return deleted
+
+    @synchronized
+    def trim_objects(
+        self,
+        resource_name: str,
+        parent_id: str,
+        filters: list,
+        max_objects: int,
+        id_field: str = DEFAULT_ID_FIELD,
+        modified_field: str = DEFAULT_MODIFIED_FIELD,
+    ) -> int:
+        objects = _get_objects_by_parent_id(self._store, parent_id, resource_name, with_meta=True)
+        objects, _ = self.extract_object_set(
+            objects=objects,
+            filters=filters,
+            sorting=[Sort(modified_field, -1)],
+            id_field=id_field,
+            deleted_field=DEFAULT_DELETED_FIELD,
+        )
+
+        to_delete = objects[max_objects:]
+        for r in to_delete:
+            self.delete(
+                resource_name,
+                parent_id,
+                r[id_field],
+                id_field=id_field,
+                modified_field=modified_field,
+            )
+        return len(to_delete)
 
 
 def extract_object_set(
