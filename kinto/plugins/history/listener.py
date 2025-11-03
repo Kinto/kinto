@@ -3,7 +3,7 @@ from datetime import datetime, timezone
 
 from pyramid.settings import asbool, aslist
 
-from kinto.core.storage import Filter, Sort
+from kinto.core.storage import Filter
 from kinto.core.utils import COMPARISON, instance_uri
 
 
@@ -145,27 +145,17 @@ def on_resource_changed(event):
             if is_trim_by_user_enabled:
                 filters.append(Filter("user_id", user_id, COMPARISON.EQ))
 
-            # Identify the oldest entry to keep.
-            previous_entries = storage.list_all(
+            count_deleted = storage.trim_objects(
                 parent_id=bucket_uri,
                 resource_name="history",
                 filters=filters,
-                sorting=[Sort("last_modified", -1)],
-                limit=trim_history_max + 1,
+                max_objects=trim_history_max,
             )
-            # And delete all older ones.
-            if len(previous_entries) > trim_history_max:
-                trim_before_timestamp = previous_entries[-1]["last_modified"]
-                deleted = storage.delete_all(
-                    parent_id=bucket_uri,
-                    resource_name="history",
-                    filters=filters
-                    + [Filter("last_modified", trim_before_timestamp, COMPARISON.MAX)],
-                )
-                logger.info(f"Trimmed {len(deleted)} old history entries.")
+            if count_deleted > 0:
+                logger.info(f"Trimmed {count_deleted} old history entries.")
             else:
                 logger.info(
-                    "No old history to trim for {user_id!r} on {resource_name!r} in {bucket_uri!r}."
+                    f"No old history to trim for {user_id!r} on {resource_name!r} in {bucket_uri!r}."
                 )
         else:
             logger.info(

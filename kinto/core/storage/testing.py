@@ -1765,6 +1765,22 @@ class SerializationTest:
         )
 
 
+class TrimObjectsTest:
+    def test_trims_n_of_same_resource(self):
+        for i in range(20):
+            self.create_object({"num": i, "group": "a" if i % 2 == 0 else "b"})
+
+        num_removed = self.storage.trim_objects(
+            resource_name=self.storage_kw["resource_name"],
+            parent_id=self.storage_kw["parent_id"],
+            filters=[Filter("group", "a", utils.COMPARISON.EQ)],
+            max_objects=3,
+        )
+        self.assertEqual(num_removed, 20 / 2 - 3)  # it kept all 'b' and the 3 latest of 'a'
+        count = self.storage.count_all(**self.storage_kw)
+        self.assertEqual(count, 20 - num_removed)
+
+
 class DeprecatedCoreNotionsTest:
     def setUp(self):
         super().setUp()
@@ -1834,6 +1850,7 @@ class StorageTest(
     SerializationTest,
     DeprecatedCoreNotionsTest,
     BaseTestStorage,
+    TrimObjectsTest,
 ):
     """Compound of all storage tests."""
 

@@ -79,7 +79,7 @@ class Storage(StorageBase, MigratorMixin):
 
     # MigratorMixin attributes.
     name = "storage"
-    schema_version = 23
+    schema_version = 24
     schema_file = os.path.join(HERE, "schema.sql")
     migrations_directory = os.path.join(HERE, "migrations")
 
@@ -753,6 +753,45 @@ class Storage(StorageBase, MigratorMixin):
         )
         return rows[0].total_count
 
+    def trim_objects(
+        self,
+        resource_name: str,
+        parent_id: str,
+        filters: list,
+        max_objects: int,
+        id_field: str = DEFAULT_ID_FIELD,
+        modified_field: str = DEFAULT_MODIFIED_FIELD,
+    ) -> int:
+        query = """
+            WITH to_delete AS (
+                SELECT {id_field}
+                FROM objects
+                WHERE parent_id = :parent_id
+                  AND resource_name = :resource_name
+                  {conditions_filter}
+                ORDER BY {modified_field} DESC
+                OFFSET :max_objects
+            )
+            DELETE FROM objects o
+            USING to_delete d
+            WHERE o.id = d.id
+            RETURNING 1;
+        """
+
+        placeholders = dict(
+            parent_id=parent_id, resource_name=resource_name, max_objects=max_objects
+        )
+        safe_sql, holders = self._format_conditions(filters, id_field, modified_field)
+        placeholders.update(**holders)
+
+        safeholders = dict(id_field=id_field, modified_field=modified_field)
+        safeholders["conditions_filter"] = f"AND {safe_sql}"
+
+        with self.client.connect() as conn:
+            result = conn.execute(sa.text(query.format_map(safeholders)), placeholders)
+            # Using RETURNING so rowcount reflects the number deleted
+            return result.rowcount
+
     def _get_rows(
         self,
         query,
@@ -1040,7 +1079,7 @@ class Storage(StorageBase, MigratorMixin):
             if sort.field == id_field:
                 sql_field = "id"
             elif sort.field == modified_field:
-                sql_field = "last_modified"
+                sql_field = "objects.last_modified"
             else:
                 # Subfields: ``person.name`` becomes ``data->person->name``
                 subfields = sort.field.split(".")
