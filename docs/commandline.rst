@@ -115,4 +115,4 @@ For example:
 
 ::
 
-    kinto --ini=config/postgresql.ini purge-deleted bucket,collection,record 10000
+    kinto purge-deleted --ini=config/postgresql.ini bucket collection record 10000
