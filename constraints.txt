@@ -115,7 +115,7 @@ pyramid-multiauth==1.0.2
     # via -r constraints.in
 pyramid-tm==2.6
     # via -r constraints.in
-pytest==8.4.2
+pytest==9.0.0
     # via
     #   -r constraints.in
     #   pytest-cache
