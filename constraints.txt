@@ -75,7 +75,7 @@ markupsafe==2.1.4
     # via werkzeug
 msgpack==1.0.7
     # via bravado-core
-newrelic==11.0.1
+newrelic==11.1.0
     # via -r constraints.in
 packaging==23.2
     # via
@@ -157,7 +157,7 @@ rpds-py==0.17.1
     # via
     #   jsonschema
     #   referencing
-ruff==0.14.3
+ruff==0.14.4
     # via -r constraints.in
 sentry-sdk==2.8.0
     # via -r constraints.in
