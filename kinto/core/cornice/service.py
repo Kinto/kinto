@@ -10,7 +10,6 @@ from pyramid.response import Response
 
 from kinto.core.cornice.util import func_name, is_string, to_list
 from kinto.core.cornice.validators import (
-    DEFAULT_FILTERS,
     DEFAULT_VALIDATORS,
 )
 
@@ -64,10 +63,6 @@ class Service(object):
         A list of callables to pass the request into before passing it to the
         associated view.
 
-    :param filters:
-        A list of callables to pass the response into before returning it to
-        the client.
-
     :param accept:
         A list of ``Accept`` header values accepted for this service
         (or method if overwritten when defining a method).
@@ -107,10 +102,6 @@ class Service(object):
     There are also a number of parameters that are related to the support of
     CORS (Cross Origin Resource Sharing). You can read the CORS specification
     at http://www.w3.org/TR/cors/
-
-    :param cors_enabled:
-        To use if you especially want to disable CORS support for a particular
-        service / method.
 
     :param cors_origins:
         The list of origins for CORS. You can use wildcards here if needed,
@@ -153,10 +144,9 @@ class Service(object):
 
     renderer = "cornicejson"
     default_validators = DEFAULT_VALIDATORS
-    default_filters = DEFAULT_FILTERS
 
     mandatory_arguments = ("renderer",)
-    list_arguments = ("validators", "filters", "cors_headers", "cors_origins")
+    list_arguments = ("validators", "cors_headers", "cors_origins")
 
     def __repr__(self):
         return "<Service %s at %s>" % (self.name, self.pyramid_route or self.path)
@@ -180,14 +170,13 @@ class Service(object):
 
         self.description = description
         self.cors_expose_all_headers = True
-        self._cors_enabled = None
 
         if cors_policy:
             for key, value in cors_policy.items():
                 kw.setdefault("cors_" + key, value)
 
         for key in self.list_arguments:
-            # default_{validators,filters} and {filters,validators} don't
+            # default_validators and validators don't
             # have to be mutables, so we need to create a new list from them
             extra = to_list(kw.get(key, []))
             kw[key] = []
@@ -264,10 +253,10 @@ class Service(object):
             "error_handler", getattr(self, "error_handler", self.default_error_handler)
         )
 
-        # exclude some validators or filters
+        # exclude some validators
         if "exclude" in conf:
             for item in to_list(conf.pop("exclude")):
-                for container in arguments["validators"], arguments["filters"]:
+                for container in (arguments["validators"],):
                     if item in container:
                         container.remove(item)
 
@@ -457,30 +446,6 @@ class Service(object):
         """
         return self.filter_argumentlist(method, "content_type", filter_callables)
 
-    def get_validators(self, method):
-        """return a list of validators for the given method.
-
-        :param method: the method to get the validators for.
-        """
-        validators = []
-        for meth, view, args in self.definitions:
-            if meth.upper() == method.upper() and "validators" in args:
-                for validator in args["validators"]:
-                    if validator not in validators:
-                        validators.append(validator)
-        return validators
-
-    @property
-    def cors_enabled(self):
-        if self._cors_enabled is False:
-            return False
-
-        return bool(self.cors_origins or self._cors_enabled)
-
-    @cors_enabled.setter
-    def cors_enabled(self, value):
-        self._cors_enabled = value
-
     def cors_supported_headers_for(self, method=None):
         """Return an iterable of supported headers for this service.
 
@@ -489,13 +454,12 @@ class Service(object):
         """
         headers = set()
         for meth, _, args in self.definitions:
-            if args.get("cors_enabled", True):
-                exposed_headers = args.get("cors_headers", ())
-                if method is not None:
-                    if meth.upper() == method.upper():
-                        return set(exposed_headers)
-                else:
-                    headers |= set(exposed_headers)
+            exposed_headers = args.get("cors_headers", ())
+            if method is not None:
+                if meth.upper() == method.upper():
+                    return set(exposed_headers)
+            else:
+                headers |= set(exposed_headers)
         return headers
 
     @property
@@ -503,7 +467,7 @@ class Service(object):
         """Return an iterable of methods supported by CORS"""
         methods = []
         for meth, _, args in self.definitions:
-            if args.get("cors_enabled", True) and meth not in methods:
+            if meth not in methods:
                 methods.append(meth)
         return methods
 

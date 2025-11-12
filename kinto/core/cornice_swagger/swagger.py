@@ -1,6 +1,5 @@
 """Cornice Swagger 2.0 documentor"""
 
-import inspect
 import warnings
 from collections import OrderedDict
 
@@ -13,7 +12,7 @@ from kinto.core.cornice_swagger.converters import (
     ParameterConversionDispatcher as ParameterConverter,
 )
 from kinto.core.cornice_swagger.converters import TypeConversionDispatcher as TypeConverter
-from kinto.core.cornice_swagger.util import body_schema_transformer, merge_dicts, trim
+from kinto.core.cornice_swagger.util import merge_dicts, trim
 
 
 class CorniceSwaggerException(Exception):
@@ -299,10 +298,6 @@ class CorniceSwagger(object):
     """Default :class:`cornice_swagger.swagger.ResponseHandler` class to use when
     handling OpenAPI responses from kinto.core.cornice_swagger defined responses."""
 
-    schema_transformers = [body_schema_transformer]
-    """List of request schema transformers that should be applied to a request
-    schema to make it comply with a cornice default request schema."""
-
     type_converter = TypeConverter
     """Default :class:`cornice_swagger.converters.schema.TypeConversionDispatcher`
     class used for converting colander schema Types to Swagger Types."""
@@ -372,7 +367,7 @@ class CorniceSwagger(object):
         """
         :param services:
             List of cornice services to document. You may use
-            cornice.service.get_services() to get it.
+            kinto.core.cornice.service.get_services() to get it.
         :param def_ref_depth:
             How depth swagger object schemas should be split into
             swaggger definitions with JSON pointers. Default (0) is no split.
@@ -658,15 +653,9 @@ class CorniceSwagger(object):
             op["consumes"] = consumes
 
         # Get parameters from view schema
-        is_colander = self._is_colander_schema(args)
-        if is_colander:
-            schema = self._extract_transform_colander_schema(args)
-            parameters = self.parameters.from_schema(schema)
-        else:
-            # Bail out for now
-            parameters = None
-        if parameters:
-            op["parameters"] = parameters
+        schema = args.get("schema", colander.MappingSchema())
+        parameters = self.parameters.from_schema(schema)
+        op["parameters"] = parameters
 
         # Get summary from docstring
         if isinstance(view, str):
@@ -697,29 +686,3 @@ class CorniceSwagger(object):
             op["security"] = args["api_security"]
 
         return op
-
-    def _is_colander_schema(self, args):
-        schema = args.get("schema")
-        return isinstance(schema, colander.Schema) or (
-            inspect.isclass(schema) and issubclass(schema, colander.MappingSchema)
-        )
-
-    def _extract_transform_colander_schema(self, args):
-        """
-        Extract schema from view args and transform it using
-        the pipeline of schema transformers
-
-        :param args:
-            Arguments from the view decorator.
-
-        :rtype: colander.MappingSchema()
-        :returns: View schema cloned and transformed
-        """
-
-        schema = args.get("schema", colander.MappingSchema())
-        if not isinstance(schema, colander.Schema):
-            schema = schema()
-        schema = schema.clone()
-        for transformer in self.schema_transformers:
-            schema = transformer(schema, args)
-        return schema
