@@ -868,6 +868,14 @@ class DisabledExplicitPermissionsTest(HistoryWebTest, unittest.TestCase):
 
 
 class SnapshotViewTest(HistoryWebTest):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.alice_headers = {**cls.headers, **get_user_headers("alice")}
+        cls.alice_principal = (
+            "basicauth:d5b0026601f1b251974e09548d44155e16812e3c64ff7ae053fe3542e2ca1570"
+        )
+
     def setUp(self):
         super().setUp()
         self.bucket_id = "bid"
@@ -1039,3 +1047,54 @@ class SnapshotViewTest(HistoryWebTest):
         snap_by_id = self.get_snapshot_by_rid(ts)
 
         assert snap_by_id == live
+
+    def test_snapshot_not_accessible_by_anyone(self):
+        self.app.get(
+            f"{self.bucket_uri}/snapshot/collections/{self.collection_id}@1234",
+            status=401,
+        )
+
+        self.app.get(
+            f"{self.bucket_uri}/snapshot/collections/{self.collection_id}@1234",
+            headers=self.alice_headers,
+            status=403,
+        )
+
+    def test_snapshot_accessible_by_buckets_readers(self):
+        self.app.patch_json(
+            self.bucket_uri,
+            {"permissions": {"read": [self.alice_principal]}},
+            headers=self.headers,
+        )
+
+        self.app.get(
+            f"{self.bucket_uri}/snapshot/collections/{self.collection_id}@1234",
+            headers=self.alice_headers,
+            status=200,
+        )
+
+    def test_snapshot_accessible_by_collection_readers(self):
+        self.app.patch_json(
+            self.collection_uri,
+            {"permissions": {"read": [self.alice_principal]}},
+            headers=self.headers,
+        )
+
+        self.app.get(
+            f"{self.bucket_uri}/snapshot/collections/{self.collection_id}@1234",
+            headers=self.alice_headers,
+            status=200,
+        )
+
+    def test_snapshot_publicly_accessible_if_collection_public(self):
+        self.bucket_uri = f"/buckets/{self.bucket_id}"
+        self.app.patch_json(
+            self.bucket_uri,
+            {"permissions": {"read": ["system.Everyone"]}},
+            headers=self.headers,
+        )
+
+        self.app.get(
+            f"{self.bucket_uri}/snapshot/collections/{self.collection_id}@1234",
+            status=200,
+        )

@@ -1,4 +1,5 @@
 import colander
+from pyramid.httpexceptions import HTTPForbidden
 
 from kinto.core import Service, resource, utils
 from kinto.core.resource.viewset import ViewSet
@@ -89,14 +90,25 @@ def timestamp_validator(request, **kwargs):
 def get_snapshot(request):
     """Reconstructs the collection as it was at the given timestamp."""
 
-    # TODO: check that user has read permission on the whole collection.
-
     bucket_id = request.matchdict["bucket_id"]
     collection_id = request.matchdict["collection_id"]
     timestamp = int(request.matchdict["timestamp"])
 
     bucket_uri = instance_uri(request, "bucket", id=bucket_id)
     collection_uri = instance_uri(request, "collection", bucket_id=bucket_id, id=collection_id)
+
+    # Check that user has read permission on the collection.
+    # This is manual code, because we are outside the normal resource system.
+    if not request.registry.permission.check_permission(
+        request.prefixed_principals,
+        [
+            (bucket_uri, "read"),
+            (bucket_uri, "write"),
+            (collection_uri, "read"),
+            (collection_uri, "write"),
+        ],
+    ):
+        raise HTTPForbidden()
 
     # List all the records that have changed since the given timestamp.
     all_records = request.registry.storage.list_all(
