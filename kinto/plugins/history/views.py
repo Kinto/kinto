@@ -2,6 +2,7 @@ import colander
 from pyramid.httpexceptions import HTTPForbidden
 
 from kinto.core import Service, resource, utils
+from kinto.core.resource.schema import ErrorResponseSchema
 from kinto.core.resource.viewset import ViewSet
 from kinto.core.storage import Filter, Sort
 from kinto.core.utils import instance_uri
@@ -86,10 +87,33 @@ def timestamp_validator(request, **kwargs):
         request.errors.add("path", "timestamp", "Invalid timestamp %r" % timestamp)
 
 
-@snapshot.get(validators=(timestamp_validator,))
+class SnapshotPathSchema(colander.MappingSchema):
+    bucket_id = colander.SchemaNode(colander.String())
+    collection_id = colander.SchemaNode(colander.String())
+    timestamp = colander.SchemaNode(colander.Integer())
+
+
+class SnapshotSchema(colander.MappingSchema):
+    path = SnapshotPathSchema()
+
+
+snapshot_response_schemas = {
+    "401": ErrorResponseSchema(description="The collection is not publicly readable."),
+    "403": ErrorResponseSchema(description="No permission to read this collection."),
+    "200": colander.SchemaNode(
+        colander.Mapping(),
+        description="Returns the records at the given timestamp.",
+    ),
+}
+
+
+@snapshot.get(
+    schema=SnapshotSchema(),
+    validators=(timestamp_validator,),
+    response_schemas=snapshot_response_schemas,
+)
 def get_snapshot(request):
     """Reconstructs the collection as it was at the given timestamp."""
-
     bucket_id = request.matchdict["bucket_id"]
     collection_id = request.matchdict["collection_id"]
     timestamp = int(request.matchdict["timestamp"])
