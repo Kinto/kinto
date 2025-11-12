@@ -167,6 +167,56 @@ Purge  history
 Using the same querystring parameters as the GET endpoint, the deletion can be partial.
 
 
+.. _history-snapshot:
+
+Collection Snapshot
+===================
+
+.. http:get:: /buckets/(bucket_id)/snapshot/collections/(collection_id)@(timestamp)
+
+    :synopsis: Return the state of the collection at timestamp `timestamp`.
+
+    **Optional authentication**
+
+    **Example Request**
+
+    .. sourcecode:: bash
+
+        $ http GET http://localhost:8888/v1/buckets/blog/snapshot/collections/articles@1469006098757 --auth="bob:p4ssw0rd" --verbose
+
+    .. sourcecode:: http
+
+        GET /v1/buckets/blog/snapshot/collections/articles@1469006098757 HTTP/1.1
+        Accept: */*
+        Accept-Encoding: gzip, deflate
+        Authorization: Basic dG9rZW46Ym9iLXRva2Vu
+        Connection: keep-alive
+        Host: localhost:8888
+
+  **Example Response**
+
+  .. sourcecode:: http
+
+        HTTP/1.1 200 OK
+        Access-Control-Expose-Headers: Content-Length, Expires, Alert, Retry-After, Last-Modified, Total-Objects, ETag, Pragma, Cache-Control, Backoff, Next-Page
+        Cache-Control: no-cache, no-store
+        Content-Length: 1906
+        Content-Type: application/json; charset=UTF-8
+        Date: Wed, 20 Jul 2016 09:15:02 GMT
+        Etag: "1469006098757"
+        Last-Modified: Wed, 20 Jul 2016 09:14:58 GMT
+        Server: waitress
+
+        {
+            "data": [
+                {
+                    "id": "b3b76c56-b6df-4195-8189-d79da4a128e1",
+                    "last_modified": 1469006316529,
+                    "title": "Original title"
+                }
+            ]
+        }
+
 Conflict resolution
 ===================
 

@@ -865,3 +865,177 @@ class DisabledExplicitPermissionsTest(HistoryWebTest, unittest.TestCase):
             [(entry["action"], entry["resource_name"]) for entry in resp.json["data"]],
             [("create", "record"), ("create", "collection"), ("create", "bucket")],
         )
+
+
+class SnapshotViewTest(HistoryWebTest):
+    def setUp(self):
+        super().setUp()
+        self.bucket_id = "bid"
+        self.bucket_uri = f"/buckets/{self.bucket_id}"
+        self.app.put(self.bucket_uri, headers=self.headers)
+
+        self.collection_id = "cid"
+        self.collection_uri = f"{self.bucket_uri}/collections/{self.collection_id}"
+        resp = self.app.put(self.collection_uri, headers=self.headers)
+        self.collection = resp.json["data"]
+
+        self.record_uri = f"{self.collection_uri}/records/rid1"
+        body = {"data": {"foo": 1, "name": "seed"}}
+        resp = self.app.put_json(self.record_uri, body, headers=self.headers)
+        self.record = resp.json["data"]
+
+    def get_snapshot_by_rid(self, ts):
+        resp = self.app.get(
+            f"{self.bucket_uri}/snapshot/collections/{self.collection_id}@{ts}",
+            headers=self.headers,
+        )
+        return {r["id"]: r for r in resp.json["data"]}
+
+    def test_only_get_is_allowed_on_snapshot(self):
+        url = f"{self.bucket_uri}/snapshot/collections/{self.collection_id}@1234"
+        self.app.put(url, headers=self.headers, status=405)
+        self.app.patch(url, headers=self.headers, status=405)
+        self.app.post_json(url, {"data": {}}, headers=self.headers, status=405)
+        self.app.delete(url, headers=self.headers, status=405)
+
+    def test_invalid_timestamp_non_integer_is_400(self):
+        url = f"{self.bucket_uri}/snapshot/collections/{self.collection_id}@abc"
+        self.app.get(url, headers=self.headers, status=400)
+
+    def test_invalid_timestamp_negative_is_400(self):
+        url = f"{self.bucket_uri}/snapshot/collections/{self.collection_id}@-42"
+        self.app.get(url, headers=self.headers, status=400)
+
+    def test_snapshot_includes_unchanged_records_at_or_before_timestamp(self):
+        # Take ts equal to the record last_modified: should include it.
+        ts = self.record["last_modified"]
+
+        snap_by_id = self.get_snapshot_by_rid(ts)
+
+        assert snap_by_id == {self.record["id"]: self.record}
+
+    def test_snapshot_is_sorted_by_last_modified_desc(self):
+        self.app.put_json(
+            f"{self.collection_uri}/records/a", {"data": {"foo": 10}}, headers=self.headers
+        )
+        resp = self.app.put_json(
+            f"{self.collection_uri}/records/b", {"data": {"foo": 11}}, headers=self.headers
+        )
+        ts = resp.json["data"]["last_modified"]
+
+        # Update 'a' after ts to force it through history path; 'b' unchanged
+        self.app.patch_json(
+            f"{self.collection_uri}/records/a", {"data": {"foo": 20}}, headers=self.headers
+        )
+
+        resp = self.app.get(
+            f"{self.bucket_uri}/snapshot/collections/{self.collection_id}@{ts}",
+            headers=self.headers,
+        )
+
+        assert [r["last_modified"] for r in resp.json["data"]] == sorted(
+            [r["last_modified"] for r in resp.json["data"]], reverse=True
+        )
+
+    def test_snapshot_excludes_records_created_after_timestamp(self):
+        ts = self.record["last_modified"]  # snapshot barrier
+        # Create a record strictly after snapshot ts
+        self.app.put_json(
+            f"{self.collection_uri}/records/rid2", {"data": {"foo": 99}}, headers=self.headers
+        )
+
+        snap_by_id = self.get_snapshot_by_rid(ts)
+
+        assert "rid1" in snap_by_id
+        assert "rid2" not in snap_by_id
+
+    def test_snapshot_rolls_back_updates_after_timestamp(self):
+        ts = self.record["last_modified"]  # snapshot barrier
+        # Now update after ts
+        self.app.patch_json(
+            f"{self.collection_uri}/records/rid1", {"data": {"foo": 2}}, headers=self.headers
+        )
+
+        snap_by_id = self.get_snapshot_by_rid(ts)
+
+        assert "rid1" in snap_by_id
+        assert snap_by_id["rid1"]["foo"] == 1  # rolled back via history
+
+    def test_snapshot_restores_deleted_records_if_deleted_after_timestamp(self):
+        ts = self.record["last_modified"]  # snapshot barrier
+        self.app.delete(f"{self.collection_uri}/records/rid1", headers=self.headers)
+
+        snap_by_id = self.get_snapshot_by_rid(ts)
+
+        assert "rid1" in snap_by_id
+        assert snap_by_id["rid1"]["foo"] == 1
+
+    def test_snapshot_excludes_records_deleted_before_or_at_timestamp(self):
+        resp = self.app.delete(f"{self.collection_uri}/records/rid1", headers=self.headers)
+        ts_after_delete = resp.json["data"]["last_modified"]  # snapshot barrier
+
+        # Record was already deleted at/before ts_after_delete → not present
+        snap_by_id = self.get_snapshot_by_rid(ts_after_delete)
+
+        assert "rid1" not in snap_by_id
+
+    def test_snapshot_handles_multiple_updates_picks_most_recent_pre_timestamp(self):
+        # Create a record and update it several times, taking ts between updates
+        resp = self.app.put_json(
+            f"{self.collection_uri}/records/rid3", {"data": {"version": 1}}, headers=self.headers
+        )
+        ts1 = resp.json["data"]["last_modified"]  # after version=1
+
+        self.app.patch_json(
+            f"{self.collection_uri}/records/rid3", {"data": {"version": 2}}, headers=self.headers
+        )
+        resp = self.app.patch_json(
+            f"{self.collection_uri}/records/rid3", {"data": {"version": 3}}, headers=self.headers
+        )
+        ts2 = resp.json["data"]["last_modified"]  # after version=3
+        self.app.patch_json(
+            f"{self.collection_uri}/records/rid3", {"data": {"version": 4}}, headers=self.headers
+        )
+
+        # Snapshot at ts1 → should see version=1
+        snap_by_id = self.get_snapshot_by_rid(ts1)
+
+        assert snap_by_id["rid3"]["version"] == 1
+
+        # Snapshot at ts2 → should see version=3 (most recent strictly <= ts2)
+        snap_by_id = self.get_snapshot_by_rid(ts2)
+
+        assert snap_by_id["rid3"]["version"] == 3
+
+    def test_snapshot_skips_new_records_with_no_history_when_created_after_timestamp(self):
+        ts = self.record["last_modified"]  # snapshot barrier
+        # Create new record after ts (no pre-ts history)
+        self.app.put_json(
+            f"{self.collection_uri}/records/fresh", {"data": {"foo": 42}}, headers=self.headers
+        )
+
+        snap_by_id = self.get_snapshot_by_rid(ts)
+
+        assert "fresh" not in snap_by_id
+
+    def test_snapshot_skips_tombstones_present_at_or_before_timestamp(self):
+        # Create a record, then delete it, then snapshot after the delete
+        self.app.put_json(
+            f"{self.collection_uri}/records/gone", {"data": {"foo": 42}}, headers=self.headers
+        )
+        resp = self.app.delete(f"{self.collection_uri}/records/gone", headers=self.headers)
+        ts_after_delete = resp.json["data"]["last_modified"]  # snapshot barrier
+
+        # Snapshot should not include the tombstone or the record
+        snap_by_id = self.get_snapshot_by_rid(ts_after_delete)
+
+        assert "gone" not in snap_by_id
+
+    def test_snapshot_when_no_records_changed_since_timestamp(self):
+        ts = self.record["last_modified"]  # snapshot barrier
+        resp = self.app.get(f"{self.collection_uri}/records", headers=self.headers)
+        live = {r["id"]: r for r in resp.json["data"]}
+
+        snap_by_id = self.get_snapshot_by_rid(ts)
+
+        assert snap_by_id == live
