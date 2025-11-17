@@ -90,7 +90,7 @@ plaster==1.1.2
     #   pyramid
 plaster-pastedeploy==1.0.1
     # via pyramid
-playwright==1.55.0
+playwright==1.56.0
     # via -r constraints.in
 pluggy==1.5.0
     # via
@@ -115,7 +115,7 @@ pyramid-multiauth==1.0.2
     # via -r constraints.in
 pyramid-tm==2.6
     # via -r constraints.in
-pytest==9.0.0
+pytest==9.0.1
     # via
     #   -r constraints.in
     #   pytest-cache
@@ -157,7 +157,7 @@ rpds-py==0.17.1
     # via
     #   jsonschema
     #   referencing
-ruff==0.14.4
+ruff==0.14.5
     # via -r constraints.in
 sentry-sdk==2.8.0
     # via -r constraints.in
