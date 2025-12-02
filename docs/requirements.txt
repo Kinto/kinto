@@ -1,4 +1,4 @@
-Sphinx==8.2.3
+Sphinx==9.0.1
 sphinx_rtd_theme==3.0.2
 docutils==0.20.1
 sphinxcontrib-httpdomain==1.8.1
