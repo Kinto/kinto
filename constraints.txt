@@ -157,7 +157,7 @@ rpds-py==0.17.1
     # via
     #   jsonschema
     #   referencing
-ruff==0.14.6
+ruff==0.14.7
     # via -r constraints.in
 sentry-sdk==2.8.0
     # via -r constraints.in
@@ -224,7 +224,7 @@ zope-interface==6.1
     #   pyramid
     #   transaction
     #   zope-sqlalchemy
-zope-sqlalchemy==4.0
+zope-sqlalchemy==4.1
     # via -r constraints.in
 
 # The following packages are considered to be unsafe in a requirements file:
