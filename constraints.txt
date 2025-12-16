@@ -75,7 +75,7 @@ markupsafe==2.1.4
     # via werkzeug
 msgpack==1.0.7
     # via bravado-core
-newrelic==11.1.0
+newrelic==11.2.0
     # via -r constraints.in
 packaging==23.2
     # via
@@ -90,7 +90,7 @@ plaster==1.1.2
     #   pyramid
 plaster-pastedeploy==1.0.1
     # via pyramid
-playwright==1.56.0
+playwright==1.57.0
     # via -r constraints.in
 pluggy==1.5.0
     # via
@@ -157,7 +157,7 @@ rpds-py==0.17.1
     # via
     #   jsonschema
     #   referencing
-ruff==0.14.8
+ruff==0.14.9
     # via -r constraints.in
 sentry-sdk==2.8.0
     # via -r constraints.in
