@@ -263,3 +263,9 @@ In order to limit the size of the history length of each resource only for certa
 .. code-block:: ini
 
     kinto.history.auto_trim_user_ids = account:quicksuggest
+
+Entries will be trimmed by groups of 100 by default. Adjust using this setting:
+
+.. code-block:: ini
+
+    kinto.history.auto_trim_threshold = 0
