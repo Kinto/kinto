@@ -635,6 +635,7 @@ class Storage(StorageBase, MigratorMixin):
                     {resource_name_filter}
                     AND rn > :max_retained
             )
+            RETURNING 1
             """
 
         id_field = id_field or self.id_field
@@ -660,7 +661,7 @@ class Storage(StorageBase, MigratorMixin):
             safeholders["conditions_filter"] = "AND as_epoch(last_modified) < :before"
             placeholders["before"] = before
 
-        with self.client.connect() as conn:
+        with self.client.connect(force_commit=True) as conn:
             result = conn.execute(sa.text(delete_tombstones.format_map(safeholders)), placeholders)
             deleted = result.rowcount
 
