@@ -721,6 +721,7 @@ class TrimHistoryTest(HistoryWebTest):
     def get_app_settings(cls, extras=None):
         settings = super().get_app_settings(extras)
         settings["history.auto_trim_max_count"] = "5"
+        settings["history.auto_trim_threshold"] = "0"
         return settings
 
     def test_history_length_is_limited_by_resource(self):
@@ -755,6 +756,7 @@ class TrimUserIdTest(HistoryWebTest):
         settings = super().get_app_settings(extras)
         settings["history.auto_trim_user_ids"] = cls.joan_principal
         settings["history.auto_trim_max_count"] = "5"
+        settings["history.auto_trim_threshold"] = "0"
         return settings
 
     def setUp(self):

@@ -1,4 +1,5 @@
 import logging
+import time
 from datetime import datetime, timezone
 
 from pyramid.settings import asbool, aslist
@@ -34,6 +35,7 @@ def on_resource_changed(event):
     is_trim_enabled = trim_history_max > 0
     trim_user_ids = aslist(settings.get("history.auto_trim_user_ids", ""))
     is_trim_by_user_enabled = len(trim_user_ids) > 0
+    trim_history_threshold = int(settings.get("history.auto_trim_threshold", "100"))
 
     bucket_id = None
     bucket_uri = None
@@ -145,14 +147,23 @@ def on_resource_changed(event):
             if is_trim_by_user_enabled:
                 filters.append(Filter("user_id", user_id, COMPARISON.EQ))
 
-            count_deleted = storage.trim_objects(
+            before_time = time.time()
+            history_objs_count = storage.count_all(
                 parent_id=bucket_uri,
                 resource_name="history",
                 filters=filters,
-                max_objects=trim_history_max,
             )
-            if count_deleted > 0:
-                logger.info(f"Trimmed {count_deleted} old history entries.")
+            if history_objs_count > trim_history_max + trim_history_threshold:
+                count_deleted = storage.trim_objects(
+                    parent_id=bucket_uri,
+                    resource_name="history",
+                    filters=filters,
+                    max_objects=trim_history_max,
+                )
+                logger.info(
+                    f"Trimmed {count_deleted} old history entries, in %.3f seconds."
+                    % (time.time() - before_time)
+                )
             else:
                 logger.info(
                     f"No old history to trim for {user_id!r} on {resource_name!r} in {bucket_uri!r}."
