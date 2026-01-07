@@ -60,7 +60,7 @@ jsonpointer==2.4
     #   jsonschema
 jsonref==1.1.0
     # via bravado-core
-jsonschema==4.25.1
+jsonschema==4.26.0
     # via
     #   -r constraints.in
     #   bravado-core
@@ -153,7 +153,7 @@ rfc3986-validator==0.1.1
     # via jsonschema
 rfc3987-syntax==1.1.0
     # via jsonschema
-rpds-py==0.17.1
+rpds-py==0.30.0
     # via
     #   jsonschema
     #   referencing
