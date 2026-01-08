@@ -308,7 +308,8 @@ class TestRenameCollection(unittest.TestCase):
 
         # Get the original record details before rename
         orig_rec = self.registry.storage.get("record", src, "r1")
-        orig_modified = orig_rec.get("last_modified")
+        # Verify original has timestamp
+        self.assertIn("last_modified", orig_rec)
 
         res = rename_collection(self.env, src, dst)
         self.assertEqual(res, 0)
