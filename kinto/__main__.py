@@ -256,7 +256,11 @@ def main(args=None):
     elif which_command == "rename":
         env = bootstrap(config_file)
         core_scripts.rename_collection(
-            env, parsed_args["src"], parsed_args["dst"], dry_run=parsed_args["dry_run"], force=parsed_args["force"]
+            env,
+            parsed_args["src"],
+            parsed_args["dst"],
+            dry_run=parsed_args["dry_run"],
+            force=parsed_args["force"],
         )
         return 0
 

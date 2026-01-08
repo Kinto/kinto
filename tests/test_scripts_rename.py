@@ -42,22 +42,20 @@ class TestRenameCollection(unittest.TestCase):
         self.assertEqual(coll["id"], "recipes")
 
         # Record moved
-        rec = self.registry.storage.get(
-            "record", "/buckets/chefclub-v2/collections/recipes", "r1"
-        )
+        rec = self.registry.storage.get("record", "/buckets/chefclub-v2/collections/recipes", "r1")
         self.assertEqual(rec["id"], "r1")
         self.assertEqual(rec["data"], "a")
 
         # Permissions moved
-        perms_coll = self.registry.permission.get_objects_permissions([
-            "/buckets/chefclub-v2/collections/recipes"
-        ])[0]
+        perms_coll = self.registry.permission.get_objects_permissions(
+            ["/buckets/chefclub-v2/collections/recipes"]
+        )[0]
         self.assertIn("read", perms_coll)
         self.assertEqual(perms_coll["read"], {"group:chefs"})
 
-        perms_rec = self.registry.permission.get_objects_permissions([
-            "/buckets/chefclub-v2/collections/recipes/records/r1"
-        ])[0]
+        perms_rec = self.registry.permission.get_objects_permissions(
+            ["/buckets/chefclub-v2/collections/recipes/records/r1"]
+        )[0]
         self.assertIn("read", perms_rec)
         self.assertEqual(perms_rec["read"], {"user:alice"})
 
@@ -66,18 +64,14 @@ class TestRenameCollection(unittest.TestCase):
             self.registry.storage.get("collection", "/buckets/chefclub", "recipes")
 
         with self.assertRaises(Exception):
-            self.registry.storage.get(
-                "record", "/buckets/chefclub/collections/recipes", "r1"
-            )
+            self.registry.storage.get("record", "/buckets/chefclub/collections/recipes", "r1")
 
     def test_rename_preserves_tombstones(self):
         # Create another record and delete it so it becomes a tombstone.
         self.registry.storage.create(
             "record", "/buckets/chefclub/collections/recipes", {"id": "r2", "data": "b"}
         )
-        self.registry.storage.delete(
-            "record", "/buckets/chefclub/collections/recipes", "r2"
-        )
+        self.registry.storage.delete("record", "/buckets/chefclub/collections/recipes", "r2")
 
         src = "/buckets/chefclub/collections/recipes"
         dst = "/buckets/chefclub-v2/collections/recipes2"
@@ -108,9 +102,7 @@ class TestRenameCollection(unittest.TestCase):
             self.registry.storage.get(
                 "record", "/buckets/chefclub-v2/collections/recipes", "willbe"
             )
-        rec = self.registry.storage.get(
-            "record", "/buckets/chefclub-v2/collections/recipes", "r1"
-        )
+        rec = self.registry.storage.get("record", "/buckets/chefclub-v2/collections/recipes", "r1")
         self.assertEqual(rec["data"], "a")
 
     def test_rename_dry_run_does_not_modify(self):
