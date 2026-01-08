@@ -174,8 +174,8 @@ jobs:
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-        with:
-          install: true
+        env:          
+          BUILDX_BUILDER: mybuilder
 
       - name: Build container
         uses: docker/build-push-action@v6
