@@ -287,9 +287,7 @@ class TestRenameCollection(unittest.TestCase):
             )
 
         # New record should be there
-        rec = self.registry.storage.get(
-            "record", "/buckets/chefclub-v2/collections/recipes", "r1"
-        )
+        rec = self.registry.storage.get("record", "/buckets/chefclub-v2/collections/recipes", "r1")
         self.assertEqual(rec["id"], "r1")
 
         # Old destination permissions should be overwritten with source permissions
@@ -308,7 +306,8 @@ class TestRenameCollection(unittest.TestCase):
 
         # Get the original record details before rename
         orig_rec = self.registry.storage.get("record", src, "r1")
-        orig_modified = orig_rec.get("last_modified")
+        # Verify original has timestamp
+        self.assertIn("last_modified", orig_rec)
 
         res = rename_collection(self.env, src, dst)
         self.assertEqual(res, 0)
@@ -331,11 +330,7 @@ class TestRenameCollection(unittest.TestCase):
 
         def mock_delete(resource_name, parent_id, obj_id, **kwargs):
             # Make record deletions fail for source cleanup (lines 124-125, 129-130)
-            if (
-                resource_name == "record"
-                and parent_id == src
-                and obj_id == "r1"
-            ):
+            if resource_name == "record" and parent_id == src and obj_id == "r1":
                 # Record deletion during source cleanup - let it fail
                 call_count["record"] += 1
                 if call_count["record"] > 1:  # Let the first one succeed, fail subsequent ones
