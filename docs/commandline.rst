@@ -12,7 +12,7 @@ A set of «sub commands» are available.
 
 ::
 
-    usage: kinto [-h] {init,start,migrate,version} ...
+    usage: kinto [-h] {init,start,migrate,version,rename} ...
 
     Kinto Command-Line Interface
 
@@ -22,7 +22,7 @@ A set of «sub commands» are available.
     subcommands:
       Main Kinto CLI commands
 
-      {init,start,migrate,version}
+      {init,start,migrate,version,rename}
                             Choose and run with --help
 
 
@@ -116,3 +116,71 @@ For example:
 ::
 
     kinto purge-deleted --ini=config/postgresql.ini bucket collection record 10000
+
+
+Rename Collection
+-----------------
+
+Move and/or rename a collection to a different location, optionally in a different bucket.
+
+This command copies the collection object, all its records (including deleted ones),
+and all associated permissions to a new location, then removes the original.
+
+.. warning::
+
+    Ensure you have a backup before running this command in production.
+    The source collection will be deleted after the move completes.
+
+::
+
+    usage: kinto rename [-h] [--ini INI_FILE] [-q] [-v] [--dry-run] [--force] SRC DST
+
+    positional arguments:
+      SRC               Source collection path (e.g. /buckets/old/collections/data)
+      DST               Destination collection path (e.g. /buckets/new/collections/data)
+
+    optional arguments:
+      -h, --help        show this help message and exit
+      --dry-run         Preview the operation without making changes
+      --force           Overwrite destination if it already exists
+      -q, --quiet       Show only critical errors
+      -v, --debug       Show all messages, including debug messages
+
+Examples:
+
+Rename a collection within the same bucket:
+
+::
+
+    kinto rename --ini config/kinto.ini \
+      /buckets/mybucket/collections/articles \
+      /buckets/mybucket/collections/blog-posts
+
+Move a collection to a different bucket:
+
+::
+
+    kinto rename --ini config/kinto.ini \
+      /buckets/v1/collections/items \
+      /buckets/v2/collections/items
+
+Preview changes without modifying data:
+
+::
+
+    kinto rename --ini config/kinto.ini --dry-run \
+      /buckets/old/collections/data \
+      /buckets/new/collections/data
+
+Overwrite an existing destination collection:
+
+::
+
+    kinto rename --ini config/kinto.ini --force \
+      /buckets/source/collections/items \
+      /buckets/dest/collections/items
+
+.. note::
+
+    The destination bucket must exist before running this command.
+    All records, tombstones, and permissions associated with the collection are moved.

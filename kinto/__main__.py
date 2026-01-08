@@ -34,6 +34,7 @@ def main(args=None):
         "version",
         "create-user",
         "purge-deleted",
+        "rename",
     )
     subparsers = parser.add_subparsers(
         title="subcommands",
@@ -141,6 +142,31 @@ def main(args=None):
                 help="The maximum number of tombstones to keep per resource and per parent",
                 type=int,
             )
+        elif command == "rename":
+            subparser.add_argument(
+                "src",
+                help="Source collection path, e.g. /buckets/chefclub/collections/recipes",
+            )
+            subparser.add_argument(
+                "dst",
+                help="Destination collection path, e.g. /buckets/chefclub-v2/collections/recipes",
+            )
+            subparser.add_argument(
+                "--dry-run",
+                action="store_true",
+                dest="dry_run",
+                help="Show what would be done without making changes",
+                required=False,
+                default=False,
+            )
+            subparser.add_argument(
+                "--force",
+                action="store_true",
+                dest="force",
+                help="Overwrite the destination if it exists",
+                required=False,
+                default=False,
+            )
 
     # Parse command-line arguments
     parsed_args = vars(parser.parse_args(args))
@@ -226,6 +252,13 @@ def main(args=None):
         return core_scripts.purge_deleted(
             env, parsed_args["resources"], parsed_args["max-retained"]
         )
+
+    elif which_command == "rename":
+        env = bootstrap(config_file)
+        core_scripts.rename_collection(
+            env, parsed_args["src"], parsed_args["dst"], dry_run=parsed_args["dry_run"], force=parsed_args["force"]
+        )
+        return 0
 
     elif which_command == "start":
         pserve_argv = ["pserve"]

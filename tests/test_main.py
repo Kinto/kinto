@@ -346,3 +346,23 @@ class TestMain(unittest.TestCase):
             )
             with self.assertRaises(SystemExit):
                 main(["purge-deleted", "--ini", TEMP_KINTO_INI, "record,bucket"])
+
+    def test_cli_rename_runs_rename_script(self):
+        src = "/buckets/chefclub/collections/recipes"
+        dst = "/buckets/chefclub-v2/collections/recipes"
+        with mock.patch("kinto.__main__.core_scripts.rename_collection") as mocked_rename:
+            res = main(
+                [
+                    "init",
+                    "--ini",
+                    TEMP_KINTO_INI,
+                    "--backend",
+                    "memory",
+                    "--cache-backend",
+                    "memory",
+                ]
+            )
+            assert res == 0
+            res = main(["rename", "--ini", TEMP_KINTO_INI, src, dst])
+            assert res == 0
+            assert mocked_rename.call_count == 1

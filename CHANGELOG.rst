@@ -8,6 +8,10 @@ This document describes changes between each past release.
 
 Since 16.4.0, the `changelog in our documentation <https://docs.kinto-storage.org/en/stable/changelog.html>`_ is automatically generated from our `Github releases <https://github.com/Kinto/kinto/releases>`_
 
+**New features**
+
+- Add ``kinto rename`` command to move and rename collections between buckets (#1888)
+
 
 16.3.0 (2024-01-12)
 -------------------
