@@ -529,3 +529,90 @@ class TestRenameCollection(unittest.TestCase):
         perms_after = self.registry.permission.get_objects_permissions([dst_rec_uri])
         self.assertEqual(len(perms_after), 1)
         self.assertEqual(perms_before[0], perms_after[0])
+
+    def test_rename_force_cleanup_destination_permissions(self):
+        """Test that destination permissions are removed during force cleanup (line 132-133)."""
+        # Create destination collection with permissions
+        self.registry.storage.create("collection", "/buckets/chefclub-v2", {"id": "recipes"})
+        self.registry.permission.replace_object_permissions(
+            "/buckets/chefclub-v2/collections/recipes", {"admin": {"user:old"}}
+        )
+
+        src = "/buckets/chefclub/collections/recipes"
+        dst = "/buckets/chefclub-v2/collections/recipes"
+
+        # Rename with force - should delete dest permissions
+        res = rename_collection(self.env, src, dst, force=True)
+        self.assertEqual(res, 0)
+
+        # Verify operation completed successfully
+        coll = self.registry.storage.get("collection", "/buckets/chefclub-v2", "recipes")
+        self.assertEqual(coll["id"], "recipes")
+
+    def test_rename_with_collection_permissions_when_empty(self):
+        """Test when collection has no permissions to copy (line 143-144 false branch)."""
+        # Create a collection at source without permissions
+        self.registry.storage.create("bucket", "", {"id": "empty-perms"})
+        self.registry.storage.create("collection", "/buckets/empty-perms", {"id": "nocoll"})
+
+        src = "/buckets/empty-perms/collections/nocoll"
+        dst = "/buckets/chefclub-v2/collections/nocoll"
+
+        # Should complete successfully even with no perms
+        res = rename_collection(self.env, src, dst)
+        self.assertEqual(res, 0)
+
+        # Destination collection should exist
+        coll = self.registry.storage.get("collection", "/buckets/chefclub-v2", "nocoll")
+        self.assertEqual(coll["id"], "nocoll")
+
+    def test_rename_with_record_permissions_when_empty(self):
+        """Test when record has no permissions to copy (line 171-172 false branch)."""
+        # Add a record without permissions
+        self.registry.storage.create("bucket", "", {"id": "noperms"})
+        self.registry.storage.create("collection", "/buckets/noperms", {"id": "coll"})
+        self.registry.storage.create(
+            "record", "/buckets/noperms/collections/coll", {"id": "rec_noperm"}
+        )
+
+        src = "/buckets/noperms/collections/coll"
+        dst = "/buckets/chefclub-v2/collections/coll_noperm"
+
+        # Should complete successfully
+        res = rename_collection(self.env, src, dst)
+        self.assertEqual(res, 0)
+
+        # Record should be at destination
+        rec = self.registry.storage.get("record", dst, "rec_noperm")
+        self.assertEqual(rec["id"], "rec_noperm")
+
+    def test_rename_source_collection_delete_exception_covered(self):
+        """Test exception when deleting source collection (lines 187-188)."""
+        src = "/buckets/chefclub/collections/recipes"
+        dst = "/buckets/chefclub-v2/collections/recipes"
+
+        # Mock storage to fail only when deleting source collection
+        original_delete = self.registry.storage.delete
+        delete_calls = []
+
+        def mock_delete_fail_src_coll(resource_name, parent_id, obj_id, **kwargs):
+            if (
+                resource_name == "collection"
+                and parent_id == "/buckets/chefclub"
+                and obj_id == "recipes"
+            ):
+                delete_calls.append(f"{resource_name}:{obj_id}")
+                if len(delete_calls) == 1:
+                    raise Exception("Source collection delete failed")
+            return original_delete(resource_name, parent_id, obj_id, **kwargs)
+
+        with mock.patch.object(
+            self.registry.storage, "delete", side_effect=mock_delete_fail_src_coll
+        ):
+            # Should succeed - exception is caught
+            res = rename_collection(self.env, src, dst)
+            self.assertEqual(res, 0)
+
+        # Destination should have all data
+        rec = self.registry.storage.get("record", dst, "r1")
+        self.assertEqual(rec["id"], "r1")
