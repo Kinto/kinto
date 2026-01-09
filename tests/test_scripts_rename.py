@@ -616,3 +616,61 @@ class TestRenameCollection(unittest.TestCase):
         # Destination should have all data
         rec = self.registry.storage.get("record", dst, "r1")
         self.assertEqual(rec["id"], "r1")
+
+    def test_rename_force_destination_permission_cleanup(self):
+        """Test destination permission cleanup during force (line 132->136)."""
+        # Create destination with existing permissions
+        self.registry.storage.create("collection", "/buckets/chefclub-v2", {"id": "recipes"})
+        self.registry.permission.replace_object_permissions(
+            "/buckets/chefclub-v2/collections/recipes", {"admin": {"user:existing"}}
+        )
+
+        src = "/buckets/chefclub/collections/recipes"
+        dst = "/buckets/chefclub-v2/collections/recipes"
+
+        # Force rename - must execute the if permission: block at line 132
+        res = rename_collection(self.env, src, dst, force=True)
+        self.assertEqual(res, 0)
+
+        # Verify rename succeeded
+        dst_coll = self.registry.storage.get("collection", "/buckets/chefclub-v2", "recipes")
+        self.assertIsNotNone(dst_coll)
+
+    def test_rename_copy_existing_collection_permissions(self):
+        """Test copying collection permissions (line 140-147)."""
+        # Explicitly set collection permissions
+        self.registry.permission.replace_object_permissions(
+            "/buckets/chefclub/collections/recipes", {"write": {"user:chef"}}
+        )
+
+        src = "/buckets/chefclub/collections/recipes"
+        dst = "/buckets/chefclub-v2/collections/recipes2"
+
+        res = rename_collection(self.env, src, dst)
+        self.assertEqual(res, 0)
+
+        # Verify collection permissions were copied
+        dst_perms = self.registry.permission.get_objects_permissions([dst])
+        self.assertEqual(len(dst_perms), 1)
+        self.assertIn("write", dst_perms[0])
+        self.assertEqual(dst_perms[0]["write"], {"user:chef"})
+
+    def test_rename_copy_existing_record_permissions(self):
+        """Test copying record permissions when they exist (line 169-172)."""
+        # Ensure record has permissions
+        self.registry.permission.replace_object_permissions(
+            "/buckets/chefclub/collections/recipes/records/r1", {"read": {"user:viewer"}}
+        )
+
+        src = "/buckets/chefclub/collections/recipes"
+        dst = "/buckets/chefclub-v2/collections/recipes2"
+
+        res = rename_collection(self.env, src, dst)
+        self.assertEqual(res, 0)
+
+        # Verify record permissions were copied
+        dst_rec_uri = f"{dst}/records/r1"
+        dst_perms = self.registry.permission.get_objects_permissions([dst_rec_uri])
+        self.assertEqual(len(dst_perms), 1)
+        self.assertIn("read", dst_perms[0])
+        self.assertEqual(dst_perms[0]["read"], {"user:viewer"})
