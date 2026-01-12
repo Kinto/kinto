@@ -1,5 +1,5 @@
 Sphinx==8.2.3
-sphinx_rtd_theme==3.0.2
+sphinx_rtd_theme==3.1.0
 docutils==0.20.1
 sphinxcontrib-httpdomain==1.8.1
 sphinx-github-changelog==1.7.1
