@@ -96,7 +96,7 @@ pluggy==1.5.0
     # via
     #   pytest
     #   pytest-cov
-prometheus-client==0.24.0
+prometheus-client==0.24.1
     # via -r constraints.in
 psycopg2-binary==2.9.11
     # via -r constraints.in
@@ -157,7 +157,7 @@ rpds-py==0.30.0
     # via
     #   jsonschema
     #   referencing
-ruff==0.14.11
+ruff==0.14.13
     # via -r constraints.in
 sentry-sdk==2.8.0
     # via -r constraints.in
