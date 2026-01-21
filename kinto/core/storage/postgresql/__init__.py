@@ -249,26 +249,11 @@ class Storage(StorageBase, MigratorMixin):
 
     def all_resources_timestamps(self, resource_name):
         query = """
-        WITH existing_timestamps AS (
-          -- Timestamp of latest object by parent_id.
-          (
-            SELECT DISTINCT ON (parent_id) parent_id, last_modified
+        SELECT parent_id, as_epoch(MAX(last_modified)) AS last_modified
             FROM objects
             WHERE resource_name = :resource_name
-            ORDER BY parent_id, last_modified DESC
-          )
-          -- Timestamp of resources without sub-objects.
-          UNION ALL
-          (
-            SELECT parent_id, last_modified
-            FROM timestamps
-            WHERE resource_name = :resource_name
-          )
-        )
-        SELECT parent_id, as_epoch(MAX(last_modified)) AS last_modified
-          FROM existing_timestamps
-          GROUP BY parent_id
-          ORDER BY last_modified DESC
+            GROUP BY parent_id
+            order by last_modified desc
         """
         with self.client.connect(readonly=True) as conn:
             result = conn.execute(sa.text(query), dict(resource_name=resource_name))
