@@ -4,12 +4,9 @@
 import fnmatch
 import functools
 
-from pyramid.settings import asbool
-
 
 CORS_PARAMETERS = (
     "cors_headers",
-    "cors_enabled",
     "cors_origins",
     "cors_credentials",
     "cors_max_age",
@@ -95,11 +92,7 @@ def ensure_origin(service, request, response=None, **kwargs):
         origin = request.headers.get("Origin")
 
         if not origin:
-            always_cors = asbool(request.registry.settings.get("cornice.always_cors"))
-            # With this setting, if the service origins has "*", then
-            # always return CORS headers.
-            origins = getattr(service, "cors_origins", [])
-            if always_cors and "*" in origins:
+            if "*" in service.cors_origins:
                 origin = "*"
 
         if origin:
