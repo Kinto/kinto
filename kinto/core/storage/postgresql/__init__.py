@@ -252,10 +252,10 @@ class Storage(StorageBase, MigratorMixin):
         WITH existing_timestamps AS (
           -- Timestamp of latest object by parent_id.
           (
-            SELECT DISTINCT ON (parent_id) parent_id, last_modified
+            SELECT parent_id, MAX(last_modified) AS last_modified
             FROM objects
             WHERE resource_name = :resource_name
-            ORDER BY parent_id, last_modified DESC
+            GROUP BY parent_id
           )
           -- Timestamp of resources without sub-objects.
           UNION ALL
