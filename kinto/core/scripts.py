@@ -133,7 +133,7 @@ def rename_collection(env, src, dst, dry_run=False, force=False):
             permission.delete_object_permissions(dst_collection_uri, f"{dst_collection_uri}/*")
 
     # Create collection at destination (preserve metadata and timestamps)
-    new_collection = {k: v for k, v in collection_obj.items()}
+    new_collection_obj = {k: v for k, v in collection_obj.items()}
     new_collection["id"] = dst_collection
     storage.create("collection", dst_bucket_uri, new_collection)
 
