@@ -3,7 +3,6 @@ kinto.core.scripts: utilities to build admin scripts for kinto-based services
 """
 
 import logging
-import re
 
 from pyramid.settings import asbool
 
@@ -12,6 +11,8 @@ from kinto.core.storage import (
     DEFAULT_ID_FIELD,
     DEFAULT_MODIFIED_FIELD,
 )
+from kinto.core.storage.exceptions import ObjectNotFoundError
+from kinto.core.utils import _parse_collection_path
 
 
 logger = logging.getLogger(__name__)
@@ -50,17 +51,6 @@ def purge_deleted(env, resource_names, max_retained):
     return 0
 
 
-def _parse_collection_path(path):
-    """Return (bucket_id, collection_id) if path is a collection URI.
-
-    Expected format: /buckets/{bucket_id}/collections/{collection_id}
-    """
-    m = re.match(r"^/buckets/([^/]+)/collections/([^/]+)$", path)
-    if not m:
-        raise ValueError("Invalid collection path: %r" % path)
-    return m.group(1), m.group(2)
-
-
 def rename_collection(env, src, dst, dry_run=False, force=False):
     """Rename a collection from ``src`` to ``dst``.
 
@@ -86,15 +76,15 @@ def rename_collection(env, src, dst, dry_run=False, force=False):
 
     # Ensure source collection exists
     try:
-        collection_obj = storage.get("collection", src_bucket_uri, src_collection)
-    except Exception:
+        src_collection_obj = storage.get("collection", src_bucket_uri, src_collection)
+    except ObjectNotFoundError:
         logger.error("Source collection does not exist: %s", src)
         raise
 
     # Ensure destination bucket exists
     try:
         storage.get("bucket", "", dst_bucket)
-    except Exception:
+    except ObjectNotFoundError:
         logger.error("Destination bucket does not exist: %s", dst_bucket)
         raise
 
@@ -102,7 +92,7 @@ def rename_collection(env, src, dst, dry_run=False, force=False):
     dest_exists = True
     try:
         storage.get("collection", dst_bucket_uri, dst_collection)
-    except Exception:
+    except ObjectNotFoundError:
         dest_exists = False
 
     if dest_exists and not force:
@@ -111,7 +101,10 @@ def rename_collection(env, src, dst, dry_run=False, force=False):
 
     # Dry-run: just print what would be done
     if dry_run:
-        logger.info("[dry-run] would rename %s -> %s", src, dst)
+        records = storage.list_all("record", src_collection_uri, include_deleted=True)
+        record_count = len(records)
+        tombstone_count = sum(1 for r in records if r.get(DEFAULT_DELETED_FIELD))
+        logger.info("[dry-run] would rename %s -> %s (%d records, %d tombstones)", src, dst, record_count, tombstone_count)
         return 0
 
     # If force and destination exists, delete it first.
@@ -121,30 +114,36 @@ def rename_collection(env, src, dst, dry_run=False, force=False):
         for r in records:
             try:
                 storage.delete("record", dst_collection_uri, r[DEFAULT_ID_FIELD])
-            except Exception:
-                pass
+            except Exception as e:
+                # Log errors during cleanup; record might already be deleted or have permission issues
+                logger.warning("Failed to delete destination record %s: %s", r[DEFAULT_ID_FIELD], e)
         # Delete collection itself
         try:
             storage.delete("collection", dst_bucket_uri, dst_collection)
-        except Exception:
-            pass
+        except Exception as e:
+            # Log errors during cleanup; collection might already be deleted
+            logger.warning("Failed to delete destination collection %s: %s", dst_collection, e)
         # Remove destination permissions
         if permission:
             permission.delete_object_permissions(dst_collection_uri, f"{dst_collection_uri}/*")
 
     # Create collection at destination (preserve metadata and timestamps)
-    new_collection = {k: v for k, v in collection_obj.items()}
-    new_collection["id"] = dst_collection
-    storage.create("collection", dst_bucket_uri, new_collection)
+    new_collection_obj = {k: v for k, v in src_collection_obj.items()}
+    new_collection_obj["id"] = dst_collection
+    storage.create("collection", dst_bucket_uri, new_collection_obj)
 
     # Copy permissions for collection
     if permission:
         perms = permission.get_objects_permissions([src_collection_uri])
         if perms:
-            permission.replace_object_permissions(dst_collection_uri, perms[0])
+            collection_perms = perms[0]
+            permission.replace_object_permissions(dst_collection_uri, collection_perms)
 
     # Copy records
     records = storage.list_all("record", src_collection_uri, include_deleted=True)
+    record_count = len(records)
+    tombstone_count = sum(1 for r in records if r.get(DEFAULT_DELETED_FIELD))
+    logger.info("Moving %d records (%d tombstones) from %s to %s", record_count, tombstone_count, src, dst)
     for r in records:
         obj_id = r[DEFAULT_ID_FIELD]
         src_obj_uri = f"{src_collection_uri}/records/{obj_id}"
@@ -169,7 +168,8 @@ def rename_collection(env, src, dst, dry_run=False, force=False):
         if permission:
             perms = permission.get_objects_permissions([src_obj_uri])
             if perms:
-                permission.replace_object_permissions(dst_obj_uri, perms[0])
+                record_perms = perms[0]
+                permission.replace_object_permissions(dst_obj_uri, record_perms)
 
     # Remove source permissions
     if permission:
@@ -180,14 +180,16 @@ def rename_collection(env, src, dst, dry_run=False, force=False):
         obj_id = r[DEFAULT_ID_FIELD]
         try:
             storage.delete("record", src_collection_uri, obj_id)
-        except Exception:
-            pass
+        except Exception as e:
+            # Log errors during cleanup; record might already be deleted
+            logger.warning("Failed to delete source record %s: %s", obj_id, e)
     try:
         storage.delete("collection", src_bucket_uri, src_collection)
-    except Exception:
-        pass
+    except Exception as e:
+        # Log errors during cleanup; collection might already be deleted
+        logger.warning("Failed to delete source collection %s: %s", src_collection, e)
 
-    logger.info("Renamed %s -> %s", src, dst)
+    logger.info("Renamed %s -> %s (%d records, %d tombstones)", src, dst, record_count, tombstone_count)
     return 0
 
 

@@ -546,6 +546,17 @@ def apply_json_patch(obj, ops):
     return result
 
 
+def _parse_collection_path(path):
+    """Return (bucket_id, collection_id) if path is a collection URI.
+
+    Expected format: /buckets/{bucket_id}/collections/{collection_id}
+    """
+    m = re.match(r"^/buckets/([^/]+)/collections/([^/]+)$", path)
+    if not m:
+        raise ValueError("Invalid collection path: %r" % path)
+    return m.group(1), m.group(2)
+
+
 def safe_wraps(wrapper, *args, **kwargs):
     """Safely wraps partial functions."""
     while isinstance(wrapper, functools.partial):
