@@ -30,7 +30,7 @@ colorama==0.4.6
     # via logging-color-formatter
 coverage==7.10.7
     # via pytest-cov
-dockerflow==2024.4.2
+dockerflow==2026.1.26
     # via -r constraints.in
 execnet==2.0.2
     # via pytest-cache
