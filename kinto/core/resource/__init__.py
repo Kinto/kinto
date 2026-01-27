@@ -16,6 +16,7 @@ from pyramid.httpexceptions import (
     HTTPServiceUnavailable,
 )
 from pyramid.settings import asbool
+from urllib.parse import urlparse, parse_qs, urlencode, urlunparse
 
 from kinto.core import Service
 from kinto.core.errors import ERRORS, http_error, raise_invalid, request_GET, send_alert
@@ -318,6 +319,42 @@ class Resource:
     # End-points
     #
 
+    def _build_offset_next_url(self,limit,current_offset):
+        """Build next page URL for offset-based pagination.
+
+            Args:
+                limit (int): Number of records per page
+                current_offset (int): Current starting position
+
+            Returns:
+                str: URL for the next page with updated offset
+            """
+        # Calculate next offset
+        next_offset=current_offset+limit
+        # Get current request URL
+        current_url=self.request.url
+        # Parse URL and update query parameters
+
+        parsed=urlparse(current_url)
+        query_params=parse_qs(parsed.query)
+
+        # Update offset parameter
+        query_params['_offset']=[str(next_offset)]
+
+
+        # Ensure limit is preserved
+        if '_limit' not in query_params:
+            query_params['_limit'] = [str(limit)]
+
+        # Remove token-based pagination parameters to avoid conflicts
+        query_params.pop('_token',None)
+        query_params.pop('__token__',None)
+
+        # Rebuild URL with updated query parameters
+        new_query=urlencode(query_params,doseq=True)
+        new_url=urlunparse(parsed._replace(query=new_query))
+        return new_url
+
     def plural_head(self):
         """Model ``HEAD`` endpoint: empty response with a ``Total-Objects`` header.
 
@@ -394,12 +431,21 @@ class Resource:
             include_deleted=include_deleted,
         )
 
-        offset = offset + len(objects)
+        current_offset = self._extract_offset() if "_offset" in self.request.validated["querystring"] else 0
+        used_offset_pagination = (pagination_rules == [] and "_offset" in self.request.validated["querystring"])
 
-        if limit and len(objects) == limit + 1:
-            lastobject = objects[-2]
-            next_page = self._next_page_url(sorting, limit, lastobject, offset)
-            headers["Next-Page"] = next_page
+        if used_offset_pagination and current_offset > 0:
+            # Apply manual offset slicing
+            objects = objects[current_offset:]
+        offset = offset + len(objects)
+        if used_offset_pagination:
+            if limit and len(objects) == limit + 1:
+                next_url = self._build_offset_next_url(limit, current_offset)
+        else:
+            if limit and len(objects) == limit + 1:
+                    lastobject = objects[-2]
+                    next_page = self._next_page_url(sorting, limit, lastobject, offset)
+                    headers["Next-Page"] = next_page
 
         if partial_fields:
             objects = [dict_subset(obj, partial_fields) for obj in objects]
@@ -407,7 +453,23 @@ class Resource:
         # See bigger explanation above about the use of limits. The need for slicing
         # here is because we might have asked for 1 more object just to see if there's
         # a next page. But we have to honor the limit in our returned response.
-        return self.postprocess(objects[:limit])
+        result_objects = objects[:limit]
+        if used_offset_pagination:
+            response_data = {
+                'data': result_objects,
+                'pagination': {
+                    'limit': limit,
+                    'offset': current_offset,
+                    'total': None,
+                    'has_more': (len(objects) == limit + 1)
+
+                }
+            }
+            if (len(objects) == limit + 1):
+                response_data['next'] = next_url
+            return response_data
+        else:
+            return self.postprocess(result_objects)
 
     def plural_post(self):
         """Model ``POST`` endpoint: create an object.
@@ -1056,6 +1118,27 @@ class Resource:
 
         return limit
 
+    def _extract_offset(self):
+        """Extract and validate _offset parameter from query string.
+
+        Returns(int): The offset value (defaults to 0 if not provided)
+        """
+        offset=self.request.validated["querystring"].get("_offset",0)
+        try:
+            # Validate and convert to integer
+            offset=int(offset)
+        except (ValueError,TypeError):
+            offset=0
+        # Ensure offset is non-negative
+        if offset<0:
+            offset=0
+        # Apply maximum offset limit to prevent performance issues
+        max_offset=self.request.registry.settings.get("storage_max_offset",10000)
+        if offset>max_offset:
+            offset=max_offset
+        return offset
+
+
     def _extract_filters(self):
         """Extracts filters from QueryString parameters."""
 
@@ -1211,10 +1294,23 @@ class Resource:
         return self._build_pagination_rules(next_sorting, last_object, rules)
 
     def _extract_pagination_rules_from_token(self, limit, sorting):
-        """Get pagination params."""
+        """Get pagination params with support for both token and offset pagination.
+
+            If _offset parameter is provided, use offset-based pagination.
+            Otherwise, fall back to existing token-based pagination.
+        """
+
+
         token = self.request.validated["querystring"].get("_token", None)
+        # Initialize defaults
         filters = []
         offset = 0
+        # Check if offset pagination is requested
+        if self.request.validated["querystring"].get("_offset"):
+            # Use offset-based pagination
+            offset = self._extract_offset()
+            return filters, offset
+        token = self.request.validated["querystring"].get("_token", None)
         if token:
             error_msg = None
             try:
