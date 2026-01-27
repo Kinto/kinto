@@ -105,6 +105,11 @@ class CollectionExpiresTest(BaseWebTest, unittest.TestCase):
         self.assertIn("Cache-Control", r.headers)
         self.assertNotIn("max-age", r.headers["Cache-Control"])
 
+    def test_expires_and_cache_control_are_not_set_if_not_in_metadata(self):
+        self.app.put_json(self.collection_url, {"data": {}}, headers=self.headers)
+        r = self.app.get(self.records_url)
+        self.assertNotIn("Expires", r.headers)
+
     def test_expires_and_cache_control_are_set_on_records(self):
         r = self.app.get(self.records_url)
         self.assertIn("Expires", r.headers)
@@ -138,3 +143,16 @@ class CollectionExpiresTest(BaseWebTest, unittest.TestCase):
         r = app.get(self.records_url)
         self.assertIn("Expires", r.headers)
         self.assertEqual(r.headers["Cache-Control"], "max-age=3600")
+
+    def test_cache_control_on_collection_cannot_be_less_than_setting(self):
+        app = self.make_app(
+            settings={
+                "kinto.record_cache_expires_seconds": 10,
+                "kinto.record_read_principals": "system.Everyone",
+            }
+        )
+        app.put_json("/buckets/blog", MINIMALIST_BUCKET, headers=self.headers)
+        app.put_json(self.collection_url, {"data": {"cache_expires": 0}}, headers=self.headers)
+        r = app.get(self.records_url)
+        self.assertIn("Expires", r.headers)
+        self.assertEqual(r.headers["Cache-Control"], "max-age=10")

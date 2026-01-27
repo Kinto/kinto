@@ -1,4 +1,3 @@
-from pyramid.authorization import Authenticated
 from pyramid.settings import asbool
 
 from kinto.core import resource, utils
@@ -93,17 +92,7 @@ class Record(resource.Resource):
 
         return new
 
-    def plural_get(self):
-        result = super().plural_get()
-        self._handle_cache_expires(self.request.response)
-        return result
-
-    def get(self):
-        result = super().get()
-        self._handle_cache_expires(self.request.response)
-        return result
-
-    def _handle_cache_expires(self, response):
+    def _add_cache_header(self, response):
         """If the parent collection defines a ``cache_expires`` attribute,
         then cache-control response headers are sent.
 
@@ -112,22 +101,28 @@ class Record(resource.Resource):
             Those headers are also sent if the
             ``kinto.record_cache_expires_seconds`` setting is defined.
         """
-        is_anonymous = Authenticated not in self.request.effective_principals
+        super()._add_cache_header(response)
+
+        is_anonymous = self.request.prefixed_userid is None
         if not is_anonymous:
             return
 
-        cache_expires = self._collection.get("cache_expires")
-        if cache_expires is None:
-            by_collection = f"{self.bucket_id}.{self.collection_id}.record_cache_expires_seconds"
-            by_bucket = f"{self.bucket_id}.record_cache_expires_seconds"
-            by_collection_legacy = (
-                f"{self.bucket_id}_{self.collection_id}_record_cache_expires_seconds"
-            )
-            by_bucket_legacy = f"{self.bucket_id}_record_cache_expires_seconds"
-            settings = self.request.registry.settings
-            for s in (by_collection, by_bucket, by_collection_legacy, by_bucket_legacy):
-                cache_expires = settings.get(s)
-                if cache_expires is not None:
-                    break
+        by_resource = "record_cache_expires_seconds"
+        by_collection = f"{self.bucket_id}.{self.collection_id}.record_cache_expires_seconds"
+        by_bucket = f"{self.bucket_id}.record_cache_expires_seconds"
+        by_collection_legacy = (
+            f"{self.bucket_id}_{self.collection_id}_record_cache_expires_seconds"
+        )
+        by_bucket_legacy = f"{self.bucket_id}_record_cache_expires_seconds"
+        settings = self.request.registry.settings
+        for s in (by_collection, by_bucket, by_resource, by_collection_legacy, by_bucket_legacy):
+            cache_expires = settings.get(s)
+            if cache_expires is not None:
+                break
+
+        metadata_cache_expires = self._collection.get("cache_expires")
+        if metadata_cache_expires is not None:
+            cache_expires = max(int(cache_expires or -1), int(metadata_cache_expires))
+
         if cache_expires is not None:
             response.cache_expires(seconds=int(cache_expires))
