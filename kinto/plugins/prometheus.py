@@ -230,7 +230,18 @@ class PrometheusService:
 
 def metrics_view(request):
     registry = get_registry()
-    data = prometheus_module.generate_latest(registry)
+    try:
+        data = prometheus_module.generate_latest(registry)
+    except FileNotFoundError as exc:  # pragma: no cover
+        # Prevent endpoint to fail loudly.
+        # This can happen if PROMETHEUS_MULTIPROC_DIR is set
+        # but the folder has been removed in the meantime
+        # (worker churn, short-lived containers, etc.).
+        # Let swallow the error and return an empty response.
+        # If metrics fail permanently, it will be obvious in
+        # the monitoring system anyway.
+        logger.warning("Prometheus metrics generation failed: %s", exc)
+        data = b""
     resp = Response(body=data)
     resp.headers["Content-Type"] = prometheus_module.CONTENT_TYPE_LATEST
     resp.headers["Content-Length"] = str(len(data))
