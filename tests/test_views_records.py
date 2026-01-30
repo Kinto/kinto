@@ -333,6 +333,15 @@ class RecordsViewPatchTest(BaseWebTest, unittest.TestCase):
         json = [{"op": "add", "path": "/permissions/destroy/me"}]
         self.app.patch_json(self.record_url, json, headers=self.patch_headers, status=400)
 
+    def test_post_raises_400_if_data_is_not_a_dict(self):
+        # Regression test for https://github.com/Kinto/kinto/issues/3606
+        # Sending data as a string instead of a dict should return 400, not 500.
+        body = {"data": ""}
+        resp = self.app.post_json(
+            self.collection_url, body, headers=self.headers, status=400
+        )
+        self.assertIn("data", resp.json["message"])
+
 
 class RecordsViewFilterTest(BaseWebTest, unittest.TestCase):
     collection_url = "/buckets/beers/collections/barley/records"
