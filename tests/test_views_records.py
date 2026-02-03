@@ -337,9 +337,7 @@ class RecordsViewPatchTest(BaseWebTest, unittest.TestCase):
         # Regression test for https://github.com/Kinto/kinto/issues/3606
         # Sending data as a string instead of a dict should return 400, not 500.
         body = {"data": ""}
-        resp = self.app.post_json(
-            self.collection_url, body, headers=self.headers, status=400
-        )
+        resp = self.app.post_json(self.collection_url, body, headers=self.headers, status=400)
         self.assertIn("data", resp.json["message"])
 
 
