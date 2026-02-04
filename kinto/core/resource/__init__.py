@@ -262,7 +262,7 @@ class Resource:
                 _id = self.request.json["data"][self.model.id_field]
                 self._raise_400_if_invalid_id(_id)
                 return _id
-            except (KeyError, ValueError):
+            except (KeyError, TypeError, ValueError):
                 return None
         return self.request.matchdict.get("id")
 
