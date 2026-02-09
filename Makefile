@@ -42,9 +42,12 @@ install-postgres: $(INSTALL_STAMP) $(DEV_STAMP) ## install postgresql support
 install-memcached: $(INSTALL_STAMP) $(DEV_STAMP) ## install memcached support
 	$(VENV)/bin/pip install -Ue ".[memcached]" -c constraints.txt
 
+install-redis: $(INSTALL_STAMP) $(DEV_STAMP) ## install redis support
+	$(VENV)/bin/pip install -Ue ".[redis]" -c constraints.txt
+
 install-dev: $(INSTALL_STAMP) $(DEV_STAMP) ## install dependencies and everything needed to run tests
 $(DEV_STAMP): $(PYTHON) constraints.txt
-	$(VENV)/bin/pip install -Ue ".[dev,test,monitoring,postgresql,memcached]" -c constraints.txt
+	$(VENV)/bin/pip install -Ue ".[dev,test,monitoring,postgresql,memcached,redis]" -c constraints.txt
 	touch $(DEV_STAMP)
 
 install-docs: $(DOC_STAMP) ## install dependencies to build the docs
@@ -87,8 +90,10 @@ tests-raw: version-file install-dev
 .PHONY: test-deps
 test-deps:
 	docker pull memcached
+	docker pull redis
 	docker pull postgres
 	docker run -p 11211:11211 --name kinto-memcached -d memcached || echo "cannot start memcached, already exists?"
+	docker run -p 6379:6379 --name kinto-redis -d redis || echo "cannot start redis, already exists?"
 	docker run -p 5432:5432 --name kinto-postgres -e POSTGRES_PASSWORD=postgres -d postgres  || echo "cannot start postgres, already exists?"
 	sleep 2
 	PGPASSWORD=postgres psql -c "CREATE DATABASE testdb ENCODING 'UTF8' TEMPLATE template0;" -U postgres -h localhost
@@ -131,6 +136,7 @@ clean: ## remove built files and start fresh
 	rm -fr kinto/plugins/admin/build/ kinto/plugins/admin/node_modules/
 	docker rm -f kinto-memcached || echo ""
 	docker rm -f kinto-postgres || echo ""
+	docker rm -f kinto-redis || echo ""
 
 docs: install-docs ## build the docs
 	$(VENV)/bin/sphinx-build -a -W -n -b html -d $(SPHINX_BUILDDIR)/doctrees docs $(SPHINX_BUILDDIR)/html

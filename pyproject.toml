@@ -62,12 +62,13 @@ requires = ["setuptools>=64", "setuptools_scm>=8"]
 build-backend = "setuptools.build_meta"
 
 [project.optional-dependencies]
-redis = [
-    "kinto_redis",
-]
 memcached = [
     "python-memcached",
 ]
+redis = [
+    "redis",
+]
+
 postgresql = [
     "SQLAlchemy < 3",
     "psycopg2-binary",

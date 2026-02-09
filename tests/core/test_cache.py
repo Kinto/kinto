@@ -2,13 +2,16 @@ import time
 import unittest
 from unittest import mock
 
+from pyramid.config import Configurator
+
 from kinto.core.cache import CacheBase
 from kinto.core.cache import memcached as memcached_backend
 from kinto.core.cache import memory as memory_backend
 from kinto.core.cache import postgresql as postgresql_backend
+from kinto.core.cache import redis as redis_backend
 from kinto.core.cache.testing import CacheTest
-from kinto.core.testing import skip_if_no_memcached, skip_if_no_postgresql
-from kinto.core.utils import memcache, sqlalchemy
+from kinto.core.testing import skip_if_no_memcached, skip_if_no_postgresql, skip_if_no_redis
+from kinto.core.utils import memcache, redis, sqlalchemy
 
 
 class CacheBaseTest(unittest.TestCase):
@@ -106,6 +109,44 @@ class MemcachedCacheTest(CacheTest, unittest.TestCase):
         time.sleep(1.1)
         retrieved = self.cache.get("foobar")
         self.assertIsNone(retrieved)
+
+
+@skip_if_no_redis
+class RedisCacheTest(CacheTest, unittest.TestCase):
+    backend = redis_backend
+    settings = {"cache_prefix": "", "cache_url": ""}
+
+    def setUp(self):
+        super().setUp()
+        self.client_error_patcher = mock.patch.object(
+            self.cache._client, "execute_command", side_effect=redis.exceptions.ConnectionError
+        )
+
+    def test_set_with_ttl_expires_the_value(self):
+        self.cache.set("foobar", "toto", 0.1)
+        time.sleep(0.2)
+        retrieved = self.cache.get("foobar")
+        self.assertIsNone(retrieved)
+
+    def test_expire_expires_the_value(self):
+        self.cache.set("foobar", "toto", 42)
+        self.cache.expire("foobar", 0.1)
+        time.sleep(0.2)
+        retrieved = self.cache.get("foobar")
+        self.assertIsNone(retrieved)
+
+    def test_pool_options(self):
+        config = Configurator(
+            settings={
+                "cache_url": "",
+                "cache_prefix": "",
+                "cache_pool_size": "111",
+                "cache_pool_timeout": "3.14",
+            }
+        )
+        backend = redis_backend.load_from_config(config)
+        self.assertEqual(backend._client.connection_pool.max_connections, 111)
+        self.assertEqual(backend._client.connection_pool.timeout, 3.14)
 
 
 @skip_if_no_postgresql

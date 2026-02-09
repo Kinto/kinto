@@ -17,7 +17,7 @@ COPY constraints.txt pyproject.toml ./
 RUN pip install --upgrade pip && pip install -r constraints.txt
 COPY kinto/ kinto/
 RUN cp -r /kinto-admin/kinto/plugins/admin/build kinto/plugins/admin/
-RUN pip install ".[postgresql,memcached,monitoring]" -c constraints.txt && pip install kinto-attachment kinto-emailer httpie
+RUN pip install ".[postgresql,memcached,redis,monitoring]" -c constraints.txt && pip install kinto-attachment kinto-emailer httpie
 
 FROM python:3.10-slim-bullseye
 RUN groupadd --gid 10001 app && \

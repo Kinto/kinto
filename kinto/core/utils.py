@@ -33,6 +33,11 @@ try:
 except ImportError:  # pragma: no cover
     memcache = None
 
+try:
+    import redis
+except ImportError:  # pragma: no cover
+    redis = None
+
 
 class json:
     def dumps(v, **kw):
