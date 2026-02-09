@@ -2,11 +2,9 @@ import logging
 from functools import wraps
 from urllib.parse import urlparse
 
-import redis
-
 from kinto.core.cache import CacheBase
 from kinto.core.storage import exceptions
-from kinto.core.utils import json
+from kinto.core.utils import json, redis
 
 
 logger = logging.getLogger(__name__)
