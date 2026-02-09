@@ -38,4 +38,4 @@ webtest
 # dev
 build
 ruff
-setuptools<82.0
+setuptools<83.0

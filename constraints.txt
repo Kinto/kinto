@@ -37,7 +37,9 @@ execnet==2.0.2
 fqdn==1.5.1
     # via jsonschema
 greenlet==3.1.1
-    # via playwright
+    # via
+    #   playwright
+    #   sqlalchemy
 hupper==1.12
     # via pyramid
 idna==3.7
@@ -228,7 +230,7 @@ zope-sqlalchemy==4.1
     # via -r constraints.in
 
 # The following packages are considered to be unsafe in a requirements file:
-setuptools==81.0.0
+setuptools==82.0.0
     # via
     #   -r constraints.in
     #   pyramid
