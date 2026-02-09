@@ -37,7 +37,9 @@ execnet==2.0.2
 fqdn==1.5.1
     # via jsonschema
 greenlet==3.1.1
-    # via playwright
+    # via
+    #   playwright
+    #   sqlalchemy
 hupper==1.12
     # via pyramid
 idna==3.7
@@ -137,7 +139,7 @@ pyyaml==6.0.1
     # via
     #   bravado-core
     #   swagger-spec-validator
-redis==7.1.0
+redis==7.1.1
     # via -r constraints.in
 referencing==0.32.1
     # via
@@ -157,7 +159,7 @@ rpds-py==0.30.0
     # via
     #   jsonschema
     #   referencing
-ruff==0.14.14
+ruff==0.15.0
     # via -r constraints.in
 sentry-sdk==2.8.0
     # via -r constraints.in
