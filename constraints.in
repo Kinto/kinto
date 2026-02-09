@@ -16,6 +16,8 @@ python-rapidjson
 # optional dependencies
 # memcached
 python-memcached
+# redis
+redis
 # postgresql
 SQLAlchemy < 3
 psycopg2-binary

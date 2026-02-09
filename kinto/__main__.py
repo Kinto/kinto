@@ -83,7 +83,7 @@ def main(args=None):
             )
             subparser.add_argument(
                 "--cache-backend",
-                help="{memory,postgresql,memcached}",
+                help="{memory,postgresql,memcached,redis}",
                 dest="cache-backend",
                 required=False,
                 default=None,
@@ -176,13 +176,14 @@ def main(args=None):
             while True:
                 prompt = (
                     "Select the cache backend you would like to use: "
-                    "(1 - postgresql, 2 - memcached, default - memory) "
+                    "(1 - postgresql, 2 - memcached, 3 - redis, default - memory) "
                 )
                 answer = input(prompt).strip()
                 try:
                     cache_backends = {
                         "1": "postgresql",
                         "2": "memcached",
+                        "3": "redis",
                         "": "memory",
                     }
                     cache_backend = cache_backends[answer]
@@ -205,6 +206,11 @@ def main(args=None):
                 import memcache  # NOQA
             except ImportError:
                 subprocess.check_call([sys.executable, "-m", "pip", "install", "kinto[memcached]"])
+        elif cache_backend == "redis":
+            try:
+                import redis  # NOQA
+            except ImportError:
+                subprocess.check_call([sys.executable, "-m", "pip", "install", "kinto[redis]"])
 
     elif which_command == "migrate":
         dry_run = parsed_args["dry_run"]

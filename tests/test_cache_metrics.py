@@ -2,7 +2,12 @@
 
 import unittest
 
-from kinto.core.testing import skip_if_no_memcached, skip_if_no_postgresql, skip_if_no_prometheus
+from kinto.core.testing import (
+    skip_if_no_memcached,
+    skip_if_no_postgresql,
+    skip_if_no_prometheus,
+    skip_if_no_redis,
+)
 
 from .support import BaseWebTest
 
@@ -54,6 +59,17 @@ class MemcachedCacheMetricsTest(BaseCacheMetricsTest, unittest.TestCase):
         # Switch to Memcached backend
         settings["cache_backend"] = "kinto.core.cache.memcached"
         settings["cache_hosts"] = "127.0.0.1:11211"
+        return settings
+
+
+@skip_if_no_redis
+class RedisCacheMetricsTest(BaseCacheMetricsTest, unittest.TestCase):
+    """Run cache metrics tests with Redis cache backend."""
+
+    @classmethod
+    def get_app_settings(cls, extras=None):
+        settings = super().get_app_settings(extras)
+        settings["cache_backend"] = "kinto.core.cache.redis"
         return settings
 
 

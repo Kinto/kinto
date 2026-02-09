@@ -190,6 +190,16 @@ You would need to install the memcached dependencies: ``pip install kinto[memcac
     kinto.cache_backend = kinto.core.cache.memcached
     kinto.cache_hosts = 127.0.0.1:11211 127.0.0.2:11211
 
+For **Redis**
+
+You would need to install the Redis dependencies: ``pip install kinto[redis]``
+
+.. code-block:: ini
+
+    kinto.cache_backend = kinto.core.cache.redis
+    # kinto.cache_url = redis://127.0.0.1:6379/0
+
+
 Permissions
 :::::::::::
 

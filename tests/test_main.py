@@ -110,6 +110,24 @@ class TestMain(unittest.TestCase):
                     assert res == 0
                     assert mocked_pip.call_count == 1
 
+    def test_cli_init_installs_redis_dependencies_if_needed(self):
+        realimport = builtins.__import__
+
+        def redis_missing(name, *args, **kwargs):
+            if name == "redis":
+                raise ImportError()
+            else:
+                return realimport(name, *args, **kwargs)
+
+        with mock.patch("builtins.__import__", side_effect=redis_missing):
+            with mock.patch(
+                "kinto.__main__.subprocess.check_call", return_value=None
+            ) as mocked_pip:
+                with mock.patch("kinto.__main__.input", create=True, return_value="3"):
+                    res = main(["init", "--ini", TEMP_KINTO_INI, "--backend", "memory"])
+                    assert res == 0
+                    assert mocked_pip.call_count == 1
+
     def test_main_takes_sys_argv_by_default(self):
         testargs = [
             "prog",

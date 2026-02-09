@@ -27,6 +27,10 @@ Memcached
 
 .. autoclass:: kinto.core.cache.memcached.Cache
 
+Redis
+=====
+
+.. autoclass:: kinto.core.cache.redis.Cache
 
 API
 ===

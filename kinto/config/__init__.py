@@ -54,6 +54,7 @@ cache_backend_to_values = {
         "cache_backend": "kinto.core.cache.memcached",
         "cache_url": "127.0.0.1:11211 127.0.0.2:11211",
     },
+    "redis": {"cache_backend": "kinto.core.cache.redis", "cache_url": "redis://127.0.0.1/0"},
     "memory": {"cache_backend": "kinto.core.cache.memory", "cache_url": ""},
 }
 

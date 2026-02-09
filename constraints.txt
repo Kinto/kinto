@@ -37,9 +37,7 @@ execnet==2.0.2
 fqdn==1.5.1
     # via jsonschema
 greenlet==3.1.1
-    # via
-    #   playwright
-    #   sqlalchemy
+    # via playwright
 hupper==1.12
     # via pyramid
 idna==3.7
@@ -139,6 +137,8 @@ pyyaml==6.0.1
     # via
     #   bravado-core
     #   swagger-spec-validator
+redis==7.1.0
+    # via -r constraints.in
 referencing==0.32.1
     # via
     #   jsonschema
