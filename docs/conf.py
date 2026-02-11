@@ -13,8 +13,7 @@
 import datetime
 import os
 import sys
-
-import pkg_resources
+from importlib.metadata import version as get_version
 
 
 # abspath because this could be __main__, in which case it may not
@@ -74,7 +73,7 @@ copyright = "2015-%s — Mozilla Services" % datetime.datetime.now().year
 #
 # The short X.Y version.
 # The full version, including alpha/beta/rc tags.
-version = pkg_resources.get_distribution("kinto").version
+version = get_version("kinto")
 release = ".".join(version.split(".")[:2])
 
 # List of patterns, relative to source directory, that match files and

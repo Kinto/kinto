@@ -34,13 +34,13 @@ just add some extra initialization code:
 .. code-block:: python
     :emphasize-lines: 3,6,7,13
 
-    import pkg_resources
+    from importlib.metadata import version
 
     import kinto.core
     from pyramid.config import Configurator
 
     # Module version, as defined in PEP-0396.
-    __version__ = pkg_resources.get_distribution(__package__).version
+    __version__ = version(__package__)
 
 
     def main(global_config, **settings):

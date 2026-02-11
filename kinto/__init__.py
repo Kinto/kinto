@@ -1,6 +1,6 @@
 import logging
+from importlib.metadata import version
 
-import pkg_resources
 from pyramid.authorization import Authenticated, Everyone
 from pyramid.config import Configurator
 from pyramid.settings import asbool
@@ -11,7 +11,7 @@ from kinto.core import utils
 
 
 # Module version, as defined in PEP-0396.
-__version__ = pkg_resources.get_distribution(__package__).version
+__version__ = version(__package__)
 
 # Implemented HTTP API Version
 HTTP_API_VERSION = "1.23"

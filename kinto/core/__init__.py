@@ -2,8 +2,8 @@
 
 import logging
 import tempfile
+from importlib.metadata import version as get_version
 
-import pkg_resources
 from dockerflow import logging as dockerflow_logging
 from pyramid.settings import aslist
 
@@ -29,7 +29,7 @@ logger = logging.getLogger(__name__)
 __all__ = ["initialize", "load_default_settings", "Service"]
 
 # Module version, as defined in PEP-0396.
-__version__ = pkg_resources.get_distribution("kinto").version  # FIXME?
+__version__ = get_version("kinto")
 
 DEFAULT_SETTINGS = {
     "backoff": None,
