@@ -1,9 +1,9 @@
 import importlib
+import importlib.resources
 from string import Template
 
 import cornice
 import cornice_swagger
-import pkg_resources
 from pyramid.response import Response
 
 
@@ -33,8 +33,10 @@ def swagger_ui_template_view(request):
     package, callable = script_generator.split(":")
     imported_package = importlib.import_module(package)
     script_callable = getattr(imported_package, callable)
-    template = pkg_resources.resource_string("cornice_swagger", "templates/index.html").decode(
-        "utf8"
+    template = (
+        importlib.resources.files("cornice_swagger")
+        .joinpath("templates/index.html")
+        .read_text(encoding="utf-8")
     )
 
     html = Template(template).safe_substitute(
@@ -70,9 +72,11 @@ def swagger_ui_script_template(request, **kwargs):
     into index template
     """
     swagger_spec_url = request.route_url("cornice_swagger.open_api_path")
-    template = pkg_resources.resource_string(
-        "cornice_swagger", "templates/index_script_template.html"
-    ).decode("utf8")
+    template = (
+        importlib.resources.files("cornice_swagger")
+        .joinpath("templates/index_script_template.html")
+        .read_text(encoding="utf-8")
+    )
     return Template(template).safe_substitute(
         swagger_spec_url=swagger_spec_url,
     )
