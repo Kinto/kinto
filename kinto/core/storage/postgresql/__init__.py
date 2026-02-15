@@ -83,19 +83,59 @@ class Storage(StorageBase, MigratorMixin):
 
     This index is **not created automatically** because it can take significant
     time on large tables. Create it manually using ``CONCURRENTLY`` to avoid
-    blocking reads and writes::
+    blocking reads and writes.
+
+    **Recommended index** (scoped to records only)::
+
+        CREATE INDEX CONCURRENTLY idx_objects_data_gin
+            ON objects USING gin (data jsonb_path_ops)
+            WHERE resource_name = 'record' AND NOT deleted;
+
+    This is the smallest and most efficient option. The
+    ``resource_name = 'record'`` partial condition excludes bucket, collection,
+    and group metadata objects (which are never filtered by JSONB fields),
+    keeping the index focused on actual record data. This works because
+    psycopg2 performs client-side parameter interpolation, so PostgreSQL's
+    planner sees ``resource_name = 'record'`` as a literal and can match it
+    against the partial index condition.
+
+    .. note::
+
+        If you switch to a driver that uses server-side parameter binding
+        (e.g. psycopg3 defaults), the planner may not be able to prove the
+        partial condition is satisfied. In that case, fall back to the
+        basic index below.
+
+    **Basic index** (driver-independent)::
 
         CREATE INDEX CONCURRENTLY idx_objects_data_gin
             ON objects USING gin (data jsonb_path_ops)
             WHERE NOT deleted;
 
-    The ``jsonb_path_ops`` operator class is ~60% smaller than the default
-    GIN class and supports the ``@>`` containment operator used by Kinto's
-    filter queries.
+    Slightly larger (includes non-record objects) but works regardless of
+    driver parameter binding behavior. The ``WHERE NOT deleted`` condition
+    matches the literal ``AND NOT deleted`` clause present in ``list_all``,
+    ``count_all``, and ``delete_all`` queries.
 
-    The partial condition ``WHERE NOT deleted`` matches the literal
-    ``AND NOT deleted`` clause present in ``list_all``, ``count_all``, and
-    ``delete_all`` queries, allowing PostgreSQL's planner to use the index.
+    **Composite index** (single index scan, no BitmapAnd)::
+
+        CREATE EXTENSION IF NOT EXISTS btree_gin;
+
+        CREATE INDEX CONCURRENTLY idx_objects_data_gin
+            ON objects USING gin (parent_id, resource_name, data jsonb_path_ops)
+            WHERE NOT deleted;
+
+    The ``btree_gin`` extension (ships with PostgreSQL, just needs
+    ``CREATE EXTENSION``) allows including B-tree-compatible columns in a GIN
+    index. This lets PostgreSQL satisfy ``parent_id``, ``resource_name``, and
+    ``data @>`` conditions in a single index scan, instead of combining
+    separate GIN and B-tree scans via BitmapAnd. Trade-off: the index is
+    larger (includes ``parent_id`` and ``resource_name`` values) and has
+    higher write overhead.
+
+    All three options use the ``jsonb_path_ops`` operator class, which is ~60%
+    smaller than the default GIN class and supports the ``@>`` containment
+    operator used by Kinto's filter queries.
 
     **What this index accelerates:**
 
@@ -110,7 +150,7 @@ class Storage(StorageBase, MigratorMixin):
     - ``contains_any_`` filters (uses ``&&`` array overlap operator)
     - Sorting on JSONB fields (requires B-tree expression indexes)
 
-    **Approximate index sizes:**
+    **Approximate index sizes** (for the recommended index):
 
     - 1M records, 200B avg JSON: ~300-500 MB
     - 1M records, 1KB avg JSON: ~800 MB - 1.5 GB
