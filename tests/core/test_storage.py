@@ -445,6 +445,39 @@ class FormatConditionsContainmentTest(unittest.TestCase):
         sql, holders = storage._format_conditions(filters, "id", "last_modified")
         self.assertNotIn("data @>", sql)
 
+    def test_contains_uses_top_level_containment(self):
+        """CONTAINS on data fields should use top-level data @> for GIN."""
+        storage = self._get_storage()
+        filters = [Filter("colors", ["red"], COMPARISON.CONTAINS)]
+        sql, holders = storage._format_conditions(filters, "id", "last_modified")
+        self.assertIn("data @>", sql)
+        value = holders["filters_value_0"]
+        self.assertEqual(json.loads(value), {"colors": ["red"]})
+
+    def test_contains_nested_field_uses_top_level_containment(self):
+        storage = self._get_storage()
+        filters = [Filter("meta.tags", ["important"], COMPARISON.CONTAINS)]
+        sql, holders = storage._format_conditions(filters, "id", "last_modified")
+        self.assertIn("data @>", sql)
+        value = holders["filters_value_0"]
+        self.assertEqual(json.loads(value), {"meta": {"tags": ["important"]}})
+
+    def test_contains_multiple_values_uses_top_level_containment(self):
+        storage = self._get_storage()
+        filters = [Filter("colors", ["red", "blue"], COMPARISON.CONTAINS)]
+        sql, holders = storage._format_conditions(filters, "id", "last_modified")
+        self.assertIn("data @>", sql)
+        value = holders["filters_value_0"]
+        self.assertEqual(json.loads(value), {"colors": ["red", "blue"]})
+
+    def test_contains_any_does_not_use_containment(self):
+        """CONTAINS_ANY uses && operator which cannot use GIN."""
+        storage = self._get_storage()
+        filters = [Filter("colors", ["red"], COMPARISON.CONTAINS_ANY)]
+        sql, holders = storage._format_conditions(filters, "id", "last_modified")
+        self.assertNotIn("data @>", sql)
+        self.assertIn("&&", sql)
+
 
 class FormatSortingNormalizationTest(unittest.TestCase):
     """Test that _format_sorting uses the same JSONB accessor expression format

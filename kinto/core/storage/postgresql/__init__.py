@@ -75,6 +75,46 @@ class Storage(StorageBase, MigratorMixin):
         recommended to allow load balancing, replication or limit the number
         of connections used in a multi-process deployment.
 
+    **Optional: GIN index for JSONB queries**
+
+    For large collections (100K+ records), equality filters (``?field=value``)
+    and array containment filters (``?contains_field=value``) can be
+    accelerated by adding a GIN index on the JSONB ``data`` column.
+
+    This index is **not created automatically** because it can take significant
+    time on large tables. Create it manually using ``CONCURRENTLY`` to avoid
+    blocking reads and writes::
+
+        CREATE INDEX CONCURRENTLY idx_objects_data_gin
+            ON objects USING gin (data jsonb_path_ops)
+            WHERE NOT deleted;
+
+    The ``jsonb_path_ops`` operator class is ~60% smaller than the default
+    GIN class and supports the ``@>`` containment operator used by Kinto's
+    filter queries.
+
+    The partial condition ``WHERE NOT deleted`` matches the literal
+    ``AND NOT deleted`` clause present in ``list_all``, ``count_all``, and
+    ``delete_all`` queries, allowing PostgreSQL's planner to use the index.
+
+    **What this index accelerates:**
+
+    - Equality filters: ``?status=active`` → ``data @> '{"status": "active"}'``
+    - Nested field equality: ``?person.name=Alice`` → ``data @> '{"person": {"name": "Alice"}}'``
+    - Array contains: ``?contains_colors=red`` → ``data @> '{"colors": ["red"]}'``
+
+    **What this index does NOT accelerate:**
+
+    - Range filters (``min_``, ``max_``, ``gt_``, ``lt_``)
+    - LIKE/text search filters
+    - ``contains_any_`` filters (uses ``&&`` array overlap operator)
+    - Sorting on JSONB fields (requires B-tree expression indexes)
+
+    **Approximate index sizes:**
+
+    - 1M records, 200B avg JSON: ~300-500 MB
+    - 1M records, 1KB avg JSON: ~800 MB - 1.5 GB
+
     """  # NOQA
 
     # MigratorMixin attributes.
@@ -926,11 +966,25 @@ class Storage(StorageBase, MigratorMixin):
 
             elif filtr.operator == COMPARISON.CONTAINS:
                 value_holder = f"{prefix}_value_{i}"
-                holders[value_holder] = value
-                # In case the field is not a sequence, we ignore the object.
-                is_json_sequence = f"jsonb_typeof({sql_field}) = 'array'"
-                sql_operator = operators[filtr.operator]
-                cond = f"{is_json_sequence} AND {sql_field} {sql_operator} :{value_holder}"
+                # Use top-level containment (data @> '{"field": [values]}')
+                # instead of sub-expression containment (data->'field' @> '[values]').
+                # This allows a GIN index on data to accelerate the query.
+                # Top-level containment is semantically equivalent and already
+                # returns false when the field is not an array, so no
+                # jsonb_typeof guard is needed.
+                is_data_field = filtr.field not in (id_field, modified_field)
+                if is_data_field:
+                    subfields = filtr.field.split(".")
+                    containment_obj = filtr.value
+                    for subfield in reversed(subfields):
+                        containment_obj = {subfield: containment_obj}
+                    holders[value_holder] = json.dumps(containment_obj)
+                    cond = f"data @> :{value_holder}"
+                else:
+                    holders[value_holder] = value
+                    is_json_sequence = f"jsonb_typeof({sql_field}) = 'array'"
+                    sql_operator = operators[filtr.operator]
+                    cond = f"{is_json_sequence} AND {sql_field} {sql_operator} :{value_holder}"
 
             elif filtr.operator == COMPARISON.CONTAINS_ANY:
                 value_holder = f"{prefix}_value_{i}"
