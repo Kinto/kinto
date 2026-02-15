@@ -290,6 +290,108 @@ class PostgreSQLStorageTest(StorageTest, unittest.TestCase):
         config = self._get_config(settings=settings)
         self.backend.load_from_config(config)  # does not raise
 
+    def test_last_modified_filters_use_index(self):
+        """Verify that last_modified filters use the composite index for range scans."""
+        # Create some test objects
+        for i in range(5):
+            self.create_object({"number": i})
+
+        # Query with last_modified filter (this is what pagination does)
+        results = self.storage.list_all(**self.storage_kw)
+        self.assertEqual(len(results), 5)
+
+        if len(results) > 0:
+            last_modified = results[0]["last_modified"]
+
+            # Execute an EXPLAIN query to check index usage
+            # Disable seq scan so the planner must use an index if one is usable
+            # (with few rows, PostgreSQL may prefer a seq scan by default)
+            with self.storage.client.connect() as conn:
+                conn.execute(sa.text("SET LOCAL enable_seqscan = off"))
+                query = sa.text(
+                    """
+                    EXPLAIN (FORMAT JSON)
+                    SELECT id, as_epoch(last_modified) AS last_modified, data
+                    FROM objects
+                    WHERE parent_id = :parent_id
+                      AND resource_name = :resource_name
+                      AND last_modified < from_epoch(:last_modified)
+                    ORDER BY last_modified DESC
+                    LIMIT 1
+                """
+                )
+                result = conn.execute(
+                    query,
+                    {
+                        "parent_id": self.storage_kw["parent_id"],
+                        "resource_name": self.storage_kw["resource_name"],
+                        "last_modified": last_modified,
+                    },
+                )
+                explain_output = result.scalar()
+
+                # Verify that the composite index is used
+                # The exact plan structure may vary, but we should see index usage
+                self.assertIn("Index", str(explain_output))
+
+    def test_resource_timestamp_uses_index(self):
+        """Verify that resource_timestamp ORDER BY uses the index."""
+        # Create test objects
+        for i in range(3):
+            self.create_object({"number": i})
+
+        # Call resource_timestamp (this uses ORDER BY last_modified DESC)
+        timestamp = self.storage.resource_timestamp(**self.storage_kw)
+        self.assertIsNotNone(timestamp)
+
+        # Execute EXPLAIN to verify index usage
+        # Disable seq scan so the planner must use an index if one is usable
+        # (with few rows, PostgreSQL may prefer a seq scan by default)
+        with self.storage.client.connect() as conn:
+            conn.execute(sa.text("SET LOCAL enable_seqscan = off"))
+            query = sa.text(
+                """
+                EXPLAIN (FORMAT JSON)
+                SELECT last_modified, as_epoch(last_modified) AS last_epoch
+                FROM objects
+                WHERE parent_id = :parent_id
+                  AND resource_name = :resource_name
+                ORDER BY last_modified DESC
+                LIMIT 1
+            """
+            )
+            result = conn.execute(
+                query,
+                {
+                    "parent_id": self.storage_kw["parent_id"],
+                    "resource_name": self.storage_kw["resource_name"],
+                },
+            )
+            explain_output = result.scalar()
+
+            # Verify index scan is used
+            self.assertIn("Index", str(explain_output))
+
+    def test_pagination_with_modified_field_filter(self):
+        """Functional test: pagination with last_modified filters works correctly."""
+        # Create objects with different timestamps
+        objects = []
+        for i in range(10):
+            obj = self.create_object({"number": i})
+            objects.append(obj)
+
+        # Get objects with pagination using last_modified filter
+        # This simulates what happens during actual pagination
+        before = objects[5]["last_modified"]
+        filters = [Filter("last_modified", before, COMPARISON.LT)]
+
+        results = self.storage.list_all(filters=filters, **self.storage_kw)
+
+        # Should get the first 5 objects (created before object #5)
+        self.assertEqual(len(results), 5)
+        for obj in results:
+            self.assertLess(obj["last_modified"], before)
+
 
 class PaginatedTest(unittest.TestCase):
     def setUp(self):

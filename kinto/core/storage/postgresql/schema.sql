@@ -84,7 +84,7 @@ BEGIN
         FROM objects
         WHERE parent_id = NEW.parent_id
           AND resource_name = NEW.resource_name
-        ORDER BY as_epoch(last_modified) DESC
+        ORDER BY last_modified DESC
         LIMIT 1
       )
       -- Timestamp when resource was empty.
@@ -140,4 +140,4 @@ INSERT INTO metadata (name, value) VALUES ('created_at', NOW()::TEXT);
 
 -- Set storage schema version.
 -- Should match ``kinto.core.storage.postgresql.PostgreSQL.schema_version``
-INSERT INTO metadata (name, value) VALUES ('storage_schema_version', '25');
+INSERT INTO metadata (name, value) VALUES ('storage_schema_version', '26');
