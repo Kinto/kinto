@@ -478,6 +478,85 @@ class FormatConditionsContainmentTest(unittest.TestCase):
         self.assertNotIn("data @>", sql)
         self.assertIn("&&", sql)
 
+    def test_contains_on_id_field_falls_back_to_subexpression(self):
+        """CONTAINS on id/modified fields uses the old sub-expression path."""
+        storage = self._get_storage()
+        filters = [Filter("id", ["a"], COMPARISON.CONTAINS)]
+        sql, holders = storage._format_conditions(filters, "id", "last_modified")
+        self.assertNotIn("data @>", sql)
+        self.assertIn("jsonb_typeof", sql)
+
+    def test_eq_with_json_null_uses_containment(self):
+        """EQ with None (JSON null) should use containment since None is scalar."""
+        storage = self._get_storage()
+        filters = [Filter("salary", None, COMPARISON.EQ)]
+        sql, holders = storage._format_conditions(filters, "id", "last_modified")
+        self.assertIn("data @>", sql)
+        value = holders["filters_value_0"]
+        self.assertEqual(json.loads(value), {"salary": None})
+
+    def test_eq_with_empty_string_uses_containment(self):
+        storage = self._get_storage()
+        filters = [Filter("phone", "", COMPARISON.EQ)]
+        sql, holders = storage._format_conditions(filters, "id", "last_modified")
+        self.assertIn("data @>", sql)
+        value = holders["filters_value_0"]
+        self.assertEqual(json.loads(value), {"phone": ""})
+
+    def test_eq_with_zero_uses_containment(self):
+        storage = self._get_storage()
+        filters = [Filter("count", 0, COMPARISON.EQ)]
+        sql, holders = storage._format_conditions(filters, "id", "last_modified")
+        self.assertIn("data @>", sql)
+        value = holders["filters_value_0"]
+        self.assertEqual(json.loads(value), {"count": 0})
+
+    def test_eq_with_false_uses_containment(self):
+        storage = self._get_storage()
+        filters = [Filter("active", False, COMPARISON.EQ)]
+        sql, holders = storage._format_conditions(filters, "id", "last_modified")
+        self.assertIn("data @>", sql)
+        value = holders["filters_value_0"]
+        self.assertEqual(json.loads(value), {"active": False})
+
+    def test_eq_with_deeply_nested_field_uses_containment(self):
+        storage = self._get_storage()
+        filters = [Filter("a.b.c", "x", COMPARISON.EQ)]
+        sql, holders = storage._format_conditions(filters, "id", "last_modified")
+        self.assertIn("data @>", sql)
+        value = holders["filters_value_0"]
+        self.assertEqual(json.loads(value), {"a": {"b": {"c": "x"}}})
+
+    def test_contains_with_numeric_array_uses_containment(self):
+        storage = self._get_storage()
+        filters = [Filter("fib", [2, 3], COMPARISON.CONTAINS)]
+        sql, holders = storage._format_conditions(filters, "id", "last_modified")
+        self.assertIn("data @>", sql)
+        value = holders["filters_value_0"]
+        self.assertEqual(json.loads(value), {"fib": [2, 3]})
+
+    def test_contains_with_object_elements_uses_containment(self):
+        storage = self._get_storage()
+        filters = [Filter("items", [{"id": 1}], COMPARISON.CONTAINS)]
+        sql, holders = storage._format_conditions(filters, "id", "last_modified")
+        self.assertIn("data @>", sql)
+        value = holders["filters_value_0"]
+        self.assertEqual(json.loads(value), {"items": [{"id": 1}]})
+
+    def test_eq_empty_array_does_not_use_containment(self):
+        """Empty array EQ must use exact match, not containment."""
+        storage = self._get_storage()
+        filters = [Filter("orders", [], COMPARISON.EQ)]
+        sql, holders = storage._format_conditions(filters, "id", "last_modified")
+        self.assertNotIn("data @>", sql)
+
+    def test_eq_empty_object_does_not_use_containment(self):
+        """Empty object EQ must use exact match, not containment."""
+        storage = self._get_storage()
+        filters = [Filter("attributes", {}, COMPARISON.EQ)]
+        sql, holders = storage._format_conditions(filters, "id", "last_modified")
+        self.assertNotIn("data @>", sql)
+
 
 class FormatSortingNormalizationTest(unittest.TestCase):
     """Test that _format_sorting uses the same JSONB accessor expression format
