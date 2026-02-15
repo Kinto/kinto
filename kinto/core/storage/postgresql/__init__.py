@@ -949,10 +949,27 @@ class Storage(StorageBase, MigratorMixin):
             elif value != MISSING:
                 # Safely escape value. MISSINGs get handled below.
                 value_holder = f"{prefix}_value_{i}"
-                holders[value_holder] = value
 
-                sql_operator = operators.setdefault(filtr.operator, filtr.operator.value)
-                cond = f"{sql_field} {sql_operator} :{value_holder}"
+                # Use JSONB containment (@>) for EQ on data fields with scalar
+                # values. This is semantically equivalent to the arrow extraction
+                # form (data->'field' = 'value'::jsonb) for scalars, but can be
+                # accelerated by a GIN index on the data column.
+                # We restrict this to scalars because @> uses superset semantics
+                # for arrays/objects (e.g. [1,2,3] @> [1] is true), which differs
+                # from the exact equality that EQ should provide.
+                is_data_field = filtr.field not in (id_field, modified_field)
+                is_scalar_value = isinstance(filtr.value, (str, int, float, bool, type(None)))
+                if is_data_field and filtr.operator == COMPARISON.EQ and is_scalar_value:
+                    subfields = filtr.field.split(".")
+                    containment_obj = filtr.value
+                    for subfield in reversed(subfields):
+                        containment_obj = {subfield: containment_obj}
+                    holders[value_holder] = json.dumps(containment_obj)
+                    cond = f"data @> :{value_holder}"
+                else:
+                    holders[value_holder] = value
+                    sql_operator = operators.setdefault(filtr.operator, filtr.operator.value)
+                    cond = f"{sql_field} {sql_operator} :{value_holder}"
 
             # If the field is missing, column_name will produce
             # NULL. NULL has strange properties with comparisons
@@ -1083,13 +1100,16 @@ class Storage(StorageBase, MigratorMixin):
                 sql_field = "objects.last_modified"
             else:
                 # Subfields: ``person.name`` becomes ``data->person->name``
+                # Use the same format as _format_conditions (without
+                # parentheses around placeholders) so that the expression
+                # text matches any expression indexes that may exist.
                 subfields = sort.field.split(".")
                 sql_field = "data"
                 for j, subfield in enumerate(subfields):
                     # Safely escape field name
                     field_holder = f"sort_field_{i}_{j}"
                     holders[field_holder] = subfield
-                    sql_field += f"->(:{field_holder})"
+                    sql_field += f"->:{field_holder}"
 
             sql_direction = "ASC" if sort.direction > 0 else "DESC"
             sql_sort = f"{sql_field} {sql_direction}"

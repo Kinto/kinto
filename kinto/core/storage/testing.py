@@ -393,6 +393,29 @@ class BaseTestStorage:
         objects = self.storage.list_all(filters=filters, **self.storage_kw)
         self.assertEqual(len(objects), 2)
 
+    def test_list_all_can_filter_with_exact_array_equality(self):
+        """EQ on an array field must match exactly, not as a superset."""
+        self.create_object({"colors": ["red", "green", "blue"]})
+        self.create_object({"colors": ["red", "green"]})
+        self.create_object({"colors": ["red"]})
+
+        # Exact match: only the object with exactly ["red", "green"] should match
+        filters = [Filter("colors", ["red", "green"], utils.COMPARISON.EQ)]
+        objects = self.storage.list_all(filters=filters, **self.storage_kw)
+        self.assertEqual(len(objects), 1)
+        self.assertEqual(objects[0]["colors"], ["red", "green"])
+
+    def test_list_all_can_filter_with_exact_object_equality(self):
+        """EQ on an object field must match exactly, not as a superset."""
+        self.create_object({"meta": {"a": 1, "b": 2}})
+        self.create_object({"meta": {"a": 1}})
+        self.create_object({"meta": {"a": 1, "b": 2, "c": 3}})
+
+        filters = [Filter("meta", {"a": 1, "b": 2}, utils.COMPARISON.EQ)]
+        objects = self.storage.list_all(filters=filters, **self.storage_kw)
+        self.assertEqual(len(objects), 1)
+        self.assertEqual(objects[0]["meta"], {"a": 1, "b": 2})
+
     def test_list_all_can_filter_on_array_that_contains_values(self):
         self.create_object({"colors": ["red", "green", "blue"]})
         self.create_object({"colors": ["gray", "blue"]})

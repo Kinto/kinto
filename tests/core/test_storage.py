@@ -16,7 +16,7 @@ from kinto.core.storage import (
 from kinto.core.storage.testing import StorageTest
 from kinto.core.storage.utils import paginated
 from kinto.core.testing import skip_if_no_postgresql, unittest
-from kinto.core.utils import COMPARISON
+from kinto.core.utils import COMPARISON, json
 from kinto.core.utils import sqlalchemy as sa
 
 
@@ -350,3 +350,141 @@ class PaginatedTest(unittest.TestCase):
                 pagination_rules=[[Filter("id", "object-01", COMPARISON.LT)]],
             ),
         ]
+
+
+class FormatConditionsContainmentTest(unittest.TestCase):
+    """Test that _format_conditions uses JSONB containment (@>) for EQ filters
+    on scalar values, enabling GIN index usage."""
+
+    def _get_storage(self):
+        storage = postgresql.Storage(client=mock.Mock(), max_fetch_size=10000)
+        return storage
+
+    def test_eq_string_uses_containment(self):
+        storage = self._get_storage()
+        filters = [Filter("status", "active", COMPARISON.EQ)]
+        sql, holders = storage._format_conditions(filters, "id", "last_modified")
+        self.assertIn("data @>", sql)
+        # Value should be a JSON containment object
+        value = holders["filters_value_0"]
+        self.assertEqual(json.loads(value), {"status": "active"})
+
+    def test_eq_integer_uses_containment(self):
+        storage = self._get_storage()
+        filters = [Filter("count", 42, COMPARISON.EQ)]
+        sql, holders = storage._format_conditions(filters, "id", "last_modified")
+        self.assertIn("data @>", sql)
+        value = holders["filters_value_0"]
+        self.assertEqual(json.loads(value), {"count": 42})
+
+    def test_eq_float_uses_containment(self):
+        storage = self._get_storage()
+        filters = [Filter("score", 3.14, COMPARISON.EQ)]
+        sql, holders = storage._format_conditions(filters, "id", "last_modified")
+        self.assertIn("data @>", sql)
+        value = holders["filters_value_0"]
+        self.assertEqual(json.loads(value), {"score": 3.14})
+
+    def test_eq_boolean_uses_containment(self):
+        storage = self._get_storage()
+        filters = [Filter("archived", True, COMPARISON.EQ)]
+        sql, holders = storage._format_conditions(filters, "id", "last_modified")
+        self.assertIn("data @>", sql)
+        value = holders["filters_value_0"]
+        self.assertEqual(json.loads(value), {"archived": True})
+
+    def test_eq_none_uses_containment(self):
+        storage = self._get_storage()
+        filters = [Filter("deleted_at", None, COMPARISON.EQ)]
+        sql, holders = storage._format_conditions(filters, "id", "last_modified")
+        self.assertIn("data @>", sql)
+        value = holders["filters_value_0"]
+        self.assertEqual(json.loads(value), {"deleted_at": None})
+
+    def test_eq_nested_field_uses_containment(self):
+        storage = self._get_storage()
+        filters = [Filter("person.name", "Alice", COMPARISON.EQ)]
+        sql, holders = storage._format_conditions(filters, "id", "last_modified")
+        self.assertIn("data @>", sql)
+        value = holders["filters_value_0"]
+        self.assertEqual(json.loads(value), {"person": {"name": "Alice"}})
+
+    def test_eq_array_value_does_not_use_containment(self):
+        """Arrays must use exact equality, not containment (superset match)."""
+        storage = self._get_storage()
+        filters = [Filter("tags", ["red", "blue"], COMPARISON.EQ)]
+        sql, holders = storage._format_conditions(filters, "id", "last_modified")
+        self.assertNotIn("data @>", sql)
+        self.assertIn("=", sql)
+
+    def test_eq_object_value_does_not_use_containment(self):
+        """Objects must use exact equality, not containment (superset match)."""
+        storage = self._get_storage()
+        filters = [Filter("metadata", {"key": "val"}, COMPARISON.EQ)]
+        sql, holders = storage._format_conditions(filters, "id", "last_modified")
+        self.assertNotIn("data @>", sql)
+        self.assertIn("=", sql)
+
+    def test_non_eq_operators_do_not_use_containment(self):
+        """GT, LT, NOT, etc. should not use containment."""
+        storage = self._get_storage()
+        for op in (COMPARISON.GT, COMPARISON.LT, COMPARISON.NOT, COMPARISON.MIN, COMPARISON.MAX):
+            filters = [Filter("count", 10, op)]
+            sql, holders = storage._format_conditions(filters, "id", "last_modified")
+            self.assertNotIn("data @>", sql, f"Operator {op} should not use containment")
+
+    def test_eq_on_id_field_does_not_use_containment(self):
+        storage = self._get_storage()
+        filters = [Filter("id", "abc", COMPARISON.EQ)]
+        sql, holders = storage._format_conditions(filters, "id", "last_modified")
+        self.assertNotIn("data @>", sql)
+
+    def test_eq_on_modified_field_does_not_use_containment(self):
+        storage = self._get_storage()
+        filters = [Filter("last_modified", 1234567890, COMPARISON.EQ)]
+        sql, holders = storage._format_conditions(filters, "id", "last_modified")
+        self.assertNotIn("data @>", sql)
+
+
+class FormatSortingNormalizationTest(unittest.TestCase):
+    """Test that _format_sorting uses the same JSONB accessor expression format
+    as _format_conditions (without parentheses around placeholders)."""
+
+    def _get_storage(self):
+        return postgresql.Storage(client=mock.Mock(), max_fetch_size=10000)
+
+    def test_sorting_uses_arrow_without_parentheses(self):
+        storage = self._get_storage()
+        sorting = [Sort("status", 1)]
+        sql, holders = storage._format_sorting(sorting, "id", "last_modified")
+        # Should be ->:sort_field_0_0 not ->(sort_field_0_0)
+        self.assertIn("->:sort_field_0_0", sql)
+        self.assertNotIn("->(:", sql)
+
+    def test_sorting_nested_field_uses_arrow_without_parentheses(self):
+        storage = self._get_storage()
+        sorting = [Sort("person.name", 1)]
+        sql, holders = storage._format_sorting(sorting, "id", "last_modified")
+        self.assertIn("->:sort_field_0_0->:sort_field_0_1", sql)
+        self.assertNotIn("->(:", sql)
+
+    def test_sorting_format_matches_conditions_format(self):
+        """The JSONB accessor expression in sorting should use the same format
+        as in conditions, so expression indexes can be shared."""
+        storage = self._get_storage()
+
+        # Get expression format from _format_conditions (non-LIKE, non-EQ-scalar
+        # to force arrow path — use GT which always uses arrows)
+        filters = [Filter("status", 10, COMPARISON.GT)]
+        cond_sql, cond_holders = storage._format_conditions(filters, "id", "last_modified")
+
+        # Get expression format from _format_sorting
+        sorting = [Sort("status", 1)]
+        sort_sql, sort_holders = storage._format_sorting(sorting, "id", "last_modified")
+
+        # Extract the data accessor pattern from each
+        # conditions: data->:filters_field_0_0
+        # sorting: data->:sort_field_0_0
+        # The format should be the same: data->:<placeholder>
+        self.assertIn("data->:", cond_sql)
+        self.assertIn("data->:", sort_sql)
