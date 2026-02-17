@@ -22,6 +22,19 @@ logger = logging.getLogger(__name__)
 HERE = os.path.dirname(__file__)
 
 
+def _build_containment_json(field, value):
+    """Build a JSON string for top-level JSONB containment (``@>``).
+
+    Wraps *value* in nested objects matching the dotted *field* path.
+    For example, ``_build_containment_json("person.name", "Alice")``
+    returns ``'{"person": {"name": "Alice"}}'``.
+    """
+    obj = value
+    for subfield in reversed(field.split(".")):
+        obj = {subfield: obj}
+    return json.dumps(obj)
+
+
 class Storage(StorageBase, MigratorMixin):
     """Storage backend using PostgreSQL.
 
@@ -98,13 +111,6 @@ class Storage(StorageBase, MigratorMixin):
     psycopg2 performs client-side parameter interpolation, so PostgreSQL's
     planner sees ``resource_name = 'record'`` as a literal and can match it
     against the partial index condition.
-
-    .. note::
-
-        If you switch to a driver that uses server-side parameter binding
-        (e.g. psycopg3 defaults), the planner may not be able to prove the
-        partial condition is satisfied. In that case, fall back to the
-        basic index below.
 
     **Basic index** (driver-independent)::
 
@@ -1014,11 +1020,7 @@ class Storage(StorageBase, MigratorMixin):
                 # jsonb_typeof guard is needed.
                 is_data_field = filtr.field not in (id_field, modified_field)
                 if is_data_field:
-                    subfields = filtr.field.split(".")
-                    containment_obj = filtr.value
-                    for subfield in reversed(subfields):
-                        containment_obj = {subfield: containment_obj}
-                    holders[value_holder] = json.dumps(containment_obj)
+                    holders[value_holder] = _build_containment_json(filtr.field, filtr.value)
                     cond = f"data @> :{value_holder}"
                 else:
                     holders[value_holder] = value
@@ -1054,11 +1056,7 @@ class Storage(StorageBase, MigratorMixin):
                 is_data_field = filtr.field not in (id_field, modified_field)
                 is_scalar_value = isinstance(filtr.value, (str, int, float, bool, type(None)))
                 if is_data_field and filtr.operator == COMPARISON.EQ and is_scalar_value:
-                    subfields = filtr.field.split(".")
-                    containment_obj = filtr.value
-                    for subfield in reversed(subfields):
-                        containment_obj = {subfield: containment_obj}
-                    holders[value_holder] = json.dumps(containment_obj)
+                    holders[value_holder] = _build_containment_json(filtr.field, filtr.value)
                     cond = f"data @> :{value_holder}"
                 else:
                     holders[value_holder] = value
