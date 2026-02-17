@@ -874,15 +874,12 @@ class Storage(StorageBase, MigratorMixin):
         for i, filtr in enumerate(filters):
             value = filtr.value
             is_like_query = filtr.operator == COMPARISON.LIKE
-            is_modified_field = False  # Track if this is a modified_field comparison
-
             if filtr.field == id_field:
                 sql_field = "id"
                 if isinstance(value, int):
                     value = str(value)
             elif filtr.field == modified_field:
                 sql_field = "last_modified"
-                is_modified_field = True
             else:
                 column_name = "data"
                 # Subfields: ``person.name`` becomes ``data->person->>name``
@@ -955,11 +952,14 @@ class Storage(StorageBase, MigratorMixin):
 
                 sql_operator = operators.setdefault(filtr.operator, filtr.operator.value)
 
-                if is_modified_field and filtr.operator not in (COMPARISON.IN, COMPARISON.EXCLUDE):
+                if filtr.field == modified_field and filtr.operator not in (
+                    COMPARISON.IN,
+                    COMPARISON.EXCLUDE,
+                ):
                     # Wrap placeholder in from_epoch() so PostgreSQL can use the index
                     rhs = f"from_epoch(:{value_holder})"
                     cond = f"{sql_field} {sql_operator} {rhs}"
-                elif is_modified_field:
+                elif filtr.field == modified_field:
                     # For IN/EXCLUDE on last_modified (extremely unlikely), fall back
                     # to wrapping the column in as_epoch() to avoid unnest() complexity
                     cond = f"as_epoch({sql_field}) {sql_operator} :{value_holder}"

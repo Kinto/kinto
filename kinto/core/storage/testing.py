@@ -639,9 +639,7 @@ class BaseTestStorage:
 
     def test_list_all_can_filter_with_list_of_values_on_last_modified(self):
         object1 = self.create_object({"code": "a"})
-        time.sleep(0.001)
         object2 = self.create_object({"code": "b"})
-        time.sleep(0.001)
         self.create_object({"code": "c"})
         # Test IN operator on last_modified (fallback path)
         filters = [
