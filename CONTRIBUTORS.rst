@@ -84,6 +84,7 @@ Contributors
 * Ricardo <@rkleine>
 * Rodolphe Quiédeville <rodolphe@quiedeville.org>
 * Sahil Dua <sahildua2305@gmail.com>
+* Sambhav Kothari <sambhavs.email@gmail.com>
 * Sebastian Rodriguez <srodrigu85@gmail.com>
 * Sergey Maranchuk <https://github.com/slav0nic/>
 * Stanisław Wasiutyński <https://github.com/stanley>

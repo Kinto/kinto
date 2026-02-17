@@ -1404,6 +1404,96 @@ class DeletedObjectsTest:
         objects = self.storage.list_all(include_deleted=True, **cid1_other_kw)
         self.assertEqual(len(objects), 5)
 
+    def test_purge_deleted_with_before_only_deletes_tombstones(self):
+        # Create live records
+        live1 = self.create_object()
+        live2 = self.create_object()
+
+        # Create tombstones
+        deleted1 = self.create_object()
+        self.storage.delete(object_id=deleted1["id"], **self.storage_kw)
+        deleted2 = self.create_object()
+        self.storage.delete(object_id=deleted2["id"], **self.storage_kw)
+
+        # Verify we have 2 live + 2 deleted
+        all_objects = self.storage.list_all(include_deleted=True, **self.storage_kw)
+        self.assertEqual(len(all_objects), 4)
+        live_objects = self.storage.list_all(include_deleted=False, **self.storage_kw)
+        self.assertEqual(len(live_objects), 2)
+
+        # Purge tombstones older than the most recent deletion
+        before_timestamp = max(deleted1["last_modified"], deleted2["last_modified"])
+        num_removed = self.storage.purge_deleted(before=before_timestamp, **self.storage_kw)
+
+        # Should only remove one tombstone (the older one)
+        self.assertEqual(num_removed, 1)
+
+        # Verify live records are still there
+        live_objects_after = self.storage.list_all(include_deleted=False, **self.storage_kw)
+        self.assertEqual(len(live_objects_after), 2)
+        live_ids = {obj["id"] for obj in live_objects_after}
+        self.assertEqual(live_ids, {live1["id"], live2["id"]})
+
+        # Verify one tombstone remains
+        all_objects_after = self.storage.list_all(include_deleted=True, **self.storage_kw)
+        self.assertEqual(len(all_objects_after), 3)  # 2 live + 1 tombstone
+
+    def test_purge_deleted_with_max_retained_only_affects_tombstones(self):
+        # Create live records
+        for _ in range(3):
+            self.create_object()
+
+        # Create tombstones
+        for _ in range(5):
+            obj = self.create_object()
+            self.storage.delete(object_id=obj["id"], **self.storage_kw)
+
+        # Verify we have 3 live + 5 deleted
+        all_objects = self.storage.list_all(include_deleted=True, **self.storage_kw)
+        self.assertEqual(len(all_objects), 8)
+        live_objects = self.storage.list_all(include_deleted=False, **self.storage_kw)
+        self.assertEqual(len(live_objects), 3)
+
+        # Purge tombstones, keeping only 2 most recent
+        num_removed = self.storage.purge_deleted(max_retained=2, **self.storage_kw)
+
+        # Should remove 3 tombstones (5 total - 2 retained)
+        self.assertEqual(num_removed, 3)
+
+        # Verify all live records are still there
+        live_objects_after = self.storage.list_all(include_deleted=False, **self.storage_kw)
+        self.assertEqual(len(live_objects_after), 3)
+
+        # Verify only 2 tombstones remain
+        all_objects_after = self.storage.list_all(include_deleted=True, **self.storage_kw)
+        self.assertEqual(len(all_objects_after), 5)  # 3 live + 2 tombstones
+
+    def test_purge_deleted_without_before_only_deletes_tombstones(self):
+        # Create mix of live and deleted objects
+        live1 = self.create_object()
+
+        deleted1 = self.create_object()
+        self.storage.delete(object_id=deleted1["id"], **self.storage_kw)
+
+        live2 = self.create_object()
+
+        deleted2 = self.create_object()
+        self.storage.delete(object_id=deleted2["id"], **self.storage_kw)
+
+        # Verify we have 2 live + 2 deleted
+        all_objects = self.storage.list_all(include_deleted=True, **self.storage_kw)
+        self.assertEqual(len(all_objects), 4)
+
+        # Purge all tombstones
+        num_removed = self.storage.purge_deleted(**self.storage_kw)
+        self.assertEqual(num_removed, 2)
+
+        # Verify only live records remain
+        all_objects_after = self.storage.list_all(include_deleted=True, **self.storage_kw)
+        self.assertEqual(len(all_objects_after), 2)
+        live_ids = {obj["id"] for obj in all_objects_after}
+        self.assertEqual(live_ids, {live1["id"], live2["id"]})
+
     #
     # Sorting
     #

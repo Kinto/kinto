@@ -607,6 +607,7 @@ class Storage(StorageBase, MigratorMixin):
         FROM objects
         WHERE {parent_id_filter}
               {resource_name_filter}
+              AND deleted
               {conditions_filter}
         """
 
@@ -625,6 +626,7 @@ class Storage(StorageBase, MigratorMixin):
                         ORDER BY last_modified DESC
                     ) AS rn
                 FROM objects
+                WHERE deleted
             )
             DELETE FROM objects
             WHERE id IN (
