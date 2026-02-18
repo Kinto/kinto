@@ -637,6 +637,21 @@ class BaseTestStorage:
         objects = self.storage.list_all(filters=filters, **self.storage_kw)
         self.assertEqual(len(objects), 2)
 
+    def test_list_all_can_filter_with_list_of_values_on_last_modified(self):
+        object1 = self.create_object({"code": "a"})
+        object2 = self.create_object({"code": "b"})
+        self.create_object({"code": "c"})
+        # Test IN operator on last_modified (fallback path)
+        filters = [
+            Filter(
+                "last_modified",
+                [object1["last_modified"], object2["last_modified"]],
+                utils.COMPARISON.IN,
+            )
+        ]
+        objects = self.storage.list_all(filters=filters, **self.storage_kw)
+        self.assertEqual(len(objects), 2)
+
     def test_list_all_returns_empty_when_including_list_of_empty_values(self):
         self.create_object({"code": "a"})
         self.create_object({"code": "b"})
@@ -650,6 +665,24 @@ class BaseTestStorage:
         filters = [Filter("code", ("a", "b"), utils.COMPARISON.EXCLUDE)]
         objects = self.storage.list_all(filters=filters, **self.storage_kw)
         self.assertEqual(len(objects), 1)
+
+    def test_list_all_can_filter_with_excluded_last_modified_values(self):
+        object1 = self.create_object({"code": "a"})
+        time.sleep(0.001)
+        object2 = self.create_object({"code": "b"})
+        time.sleep(0.001)
+        object3 = self.create_object({"code": "c"})
+        # Test EXCLUDE operator on last_modified (fallback path)
+        filters = [
+            Filter(
+                "last_modified",
+                (object1["last_modified"], object2["last_modified"]),
+                utils.COMPARISON.EXCLUDE,
+            )
+        ]
+        objects = self.storage.list_all(filters=filters, **self.storage_kw)
+        self.assertEqual(len(objects), 1)
+        self.assertEqual(objects[0]["id"], object3["id"])
 
     def test_list_all_can_filter_a_list_of_integer_values(self):
         for code in [1, 2, 3]:
