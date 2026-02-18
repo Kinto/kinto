@@ -359,6 +359,7 @@ class StorageBase:
         resource_name,
         parent_id,
         filters=None,
+        include_deleted=False,
         id_field=DEFAULT_ID_FIELD,
         modified_field=DEFAULT_MODIFIED_FIELD,
         deleted_field=DEFAULT_DELETED_FIELD,
@@ -375,6 +376,8 @@ class StorageBase:
             comparison (see `kinto.core.utils.COMPARISON`). All filters
             are combined using *AND*.
         :type filters: list of :class:`kinto.core.storage.Filter`
+        :param include_deleted: Optionnally include the deleted objects that match the filters.
+        :type include_deleted: bool
         :returns: the total number of matching objects in the resource (deleted ones excluded).
         :rtype: int
         """

@@ -1270,6 +1270,8 @@ class DeletedObjectsTest:
         self.storage.delete_all(limit=1, **self.storage_kw)
         count = self.storage.count_all(**self.storage_kw)
         self.assertEqual(count, 1)
+        count_deleted = self.storage.count_all(include_deleted=True, **self.storage_kw)
+        self.assertEqual(count_deleted, 1)
 
     def test_delete_all_supports_sorting(self):
         for i in range(5):
