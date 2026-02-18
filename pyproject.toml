@@ -93,7 +93,7 @@ dev = [
     "build",
     "ruff",
     "twine",
-    "uwsgi",
+    "granian",
 ]
 
 [tool.pip-tools]

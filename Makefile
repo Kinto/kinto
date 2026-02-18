@@ -118,7 +118,7 @@ need-kinto-running:
 .PHONY: runkinto
 runkinto: install-dev ## run a kinto server
 	$(VENV)/bin/kinto migrate --ini tests/functional.ini
-	PROMETHEUS_MULTIPROC_DIR=/tmp/metrics KINTO_INI=tests/functional.ini $(VENV)/bin/uwsgi --http :8888 --ini tests/functional.ini
+	PROMETHEUS_MULTIPROC_DIR=/tmp/metrics KINTO_INI=tests/functional.ini $(VENV)/bin/granian --interface wsgi --port 8888 app:application
 
 .PHONY: functional
 functional: install-dev need-kinto-running ## run functional tests against a real kinto
