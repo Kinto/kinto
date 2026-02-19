@@ -10,10 +10,6 @@ COMMIT := $(shell git log --pretty=format:'%H' -n 1)
 
 .IGNORE: clean
 
-DEV_STAMP = $(VENV)/.dev_env_installed.stamp
-DOC_STAMP = $(VENV)/.doc_env_installed.stamp
-INSTALL_STAMP = $(VENV)/.install.stamp
-OBJECTS = .venv .coverage .pytest_cache/ .ruff_cache/ $(INSTALL_STAMP) $(DEV_STAMP) $(DOC_STAMP)
 .DEFAULT_GOAL := help
 
 help:
@@ -24,39 +20,27 @@ help:
 .PHONY: all
 all: install
 
-install: $(INSTALL_STAMP) ## install dependencies and prepare environment
-$(INSTALL_STAMP): $(PYTHON) constraints.txt pyproject.toml
-	$(VENV)/bin/pip install -U pip
-	$(VENV)/bin/pip install -Ue . -c constraints.txt
-	touch $(INSTALL_STAMP)
+install: ## install dependencies and prepare environment
+	uv sync
 
-$(PYTHON):
-	python3 -m venv $(VENV)
+install-monitoring: ## enable monitoring features like Prometheus and Newrelic
+	uv sync --extra monitoring
 
-install-monitoring: $(INSTALL_STAMP) $(DEV_STAMP)  ## enable monitoring features like Prometheus and Newrelic
-	$(VENV)/bin/pip install -Ue ".[monitoring]" -c constraints.txt
+install-postgres: ## install postgresql support
+	uv sync --extra postgresql
 
-install-postgres: $(INSTALL_STAMP) $(DEV_STAMP) ## install postgresql support
-	$(VENV)/bin/pip install -Ue ".[postgresql]" -c constraints.txt
+install-memcached: ## install memcached support
+	uv sync --extra memcached
 
-install-memcached: $(INSTALL_STAMP) $(DEV_STAMP) ## install memcached support
-	$(VENV)/bin/pip install -Ue ".[memcached]" -c constraints.txt
+install-redis: ## install redis support
+	uv sync --extra redis
 
-install-redis: $(INSTALL_STAMP) $(DEV_STAMP) ## install redis support
-	$(VENV)/bin/pip install -Ue ".[redis]" -c constraints.txt
+install-dev: ## install dependencies and everything needed to run tests
+	uv sync --all-extras
 
-install-dev: $(INSTALL_STAMP) $(DEV_STAMP) ## install dependencies and everything needed to run tests
-$(DEV_STAMP): $(PYTHON) constraints.txt
-	$(VENV)/bin/pip install -Ue ".[dev,test,monitoring,postgresql,memcached,redis]" -c constraints.txt
-	touch $(DEV_STAMP)
-
-install-docs: $(DOC_STAMP) ## install dependencies to build the docs
-$(DOC_STAMP): $(PYTHON) docs/requirements.txt
-	$(VENV)/bin/pip install -r docs/requirements.txt
-	touch $(DOC_STAMP)
-
-constraints.txt: constraints.in
-	pip-compile -o constraints.txt constraints.in
+install-docs: ## install dependencies to build the docs
+	uv sync
+	uv pip install -r docs/requirements.txt
 
 pull-kinto-admin: kinto/plugins/admin/build ## pull the Kinto admin UI plugin
 kinto/plugins/admin/build:
@@ -130,7 +114,7 @@ browser-test: need-kinto-running ## run browser tests against a real kinto
 	$(VENV)/bin/py.test tests/browser.py
 
 clean: ## remove built files and start fresh
-	rm -fr $(OBJECTS)
+	rm -fr .venv .coverage .pytest_cache/ .ruff_cache/
 	find . -name '__pycache__' -type d | xargs rm -fr
 	rm -fr docs/_build/
 	rm -fr kinto/plugins/admin/build/ kinto/plugins/admin/node_modules/

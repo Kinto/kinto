@@ -19,7 +19,7 @@ jobs:
       - name: Actions Lint
         uses: raven-actions/actionlint@v2
 
-      - uses: actions/setup-python@v6
+      - uses: astral-sh/setup-uv@v5
 
       - name: make lint
         run: make lint
@@ -80,11 +80,10 @@ jobs:
       - uses: actions/checkout@v6
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v6
+        uses: astral-sh/setup-uv@v5
         with:
           python-version: ${{ matrix.python-version }}
-          cache: pip
-          cache-dependency-path: pyproject.toml
+          enable-cache: true
 
       - name: Create database
         env:
@@ -109,23 +108,19 @@ jobs:
           COVERALLS_FLAG_NAME: ${{ matrix.pyenv }}
           COVERALLS_PARALLEL: true
         run: |
-          pip install tomli coveralls
-          coveralls --service=github
+          uv pip install tomli coveralls
+          .venv/bin/coveralls --service=github
 
   finish:
     name: Coveralls Finished
     needs: unit-test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/setup-python@v6
-        with:
-          python-version: "3.x"
-      - name: Install coveralls
-        run: pip install tomli coveralls
+      - uses: astral-sh/setup-uv@v5
       - name: Coveralls Finished
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: coveralls --service=github --finish
+        run: uvx --with tomli coveralls --service=github --finish
 
   functional:
     name: Functional
@@ -151,12 +146,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - uses: actions/setup-python@v6
-
-      - name: Print environment
-        run: |
-          python --version
-          pip --version
+      - uses: astral-sh/setup-uv@v5
 
       - name: Install dependencies
         run: |
@@ -220,18 +210,11 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - uses: actions/setup-python@v6
+      - uses: astral-sh/setup-uv@v5
 
       - uses: actions/setup-node@v6
         with:
           node-version: "18.x"
-
-      - name: Print environment
-        run: |
-          python --version
-          pip --version
-          node --version
-          npm --version
 
       - name: geckodriver/firefox
         run: |
@@ -261,12 +244,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - uses: actions/setup-python@v6
-
-      - name: Print environment
-        run: |
-          python --version
-          pip --version
+      - uses: astral-sh/setup-uv@v5
 
       - name: make docs
         run: make docs

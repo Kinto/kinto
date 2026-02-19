@@ -34,7 +34,10 @@ dependencies = [
     "requests",
     "waitress",
     "python-rapidjson",
+    # pyramid still requires setuptools<82.0
+    "setuptools<82.0",
 ]
+requires-python = ">=3.10"
 
 [project.urls]
 Repository = "https://github.com/Kinto/kinto"
@@ -58,8 +61,8 @@ readme = {file = ["README.rst", "CONTRIBUTORS.rst"]}
 # can be empty if no extra settings are needed, presence enables setuptools_scm
 
 [build-system]
-requires = ["setuptools>=64", "setuptools_scm>=8"]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling", "uv-dynamic-versioning"]
+build-backend = "hatchling.build"
 
 [project.optional-dependencies]
 memcached = [
@@ -68,7 +71,6 @@ memcached = [
 redis = [
     "redis",
 ]
-
 postgresql = [
     "SQLAlchemy < 3",
     "psycopg2-binary",
@@ -95,12 +97,17 @@ dev = [
     "twine",
     "granian",
 ]
+container = [
+    "kinto-attachment",
+    "kinto-emailer",
+    "httpie",
+]
 
-[tool.pip-tools]
-# Pip does not support installing in editable mode with hashes.
-generate-hashes = false
-# Pip does not support extras in constraints.
-strip-extras = true
+[tool.hatch.version]
+source = "uv-dynamic-versioning"
+
+[tool.uv-dynamic-versioning]
+fallback-version = "0.0.0"
 
 [tool.coverage.run]
 branch = true

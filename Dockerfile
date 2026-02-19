@@ -1,39 +1,63 @@
-# Mozilla Kinto server
+############################
+# Builder stage
+############################
 FROM python:3.10-bullseye AS python-builder
-RUN python -m venv /opt/venv
-ARG KINTO_VERSION=1
-ENV SETUPTOOLS_SCM_PRETEND_VERSION_FOR_KINTO=${KINTO_VERSION} \
-    PATH="/opt/venv/bin:$PATH"
-# At this stage we only fetch and build all dependencies.
 
-# Pull kinto-admin before building kinto so we can cache it
+# Install uv
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+
+ENV UV_CACHE_DIR=/opt/uv-cache \
+    UV_PROJECT_ENVIRONMENT=/opt/venv
+
+WORKDIR /build
+
+# Copy dependency metadata first for better layer caching
+COPY pyproject.toml uv.lock LICENSE ./
+
+# Copy project source
+COPY kinto/ kinto/
+
+# Build kinto-admin
 WORKDIR /kinto-admin
 COPY kinto/plugins/admin kinto/plugins/admin
 COPY scripts/pull-kinto-admin.sh .
 RUN bash pull-kinto-admin.sh
+# Copy built admin into project
+RUN cp -r /kinto-admin/kinto/plugins/admin/build /build/kinto/plugins/admin/
+WORKDIR /build
 
-WORKDIR /pkg-kinto
-COPY constraints.txt pyproject.toml ./
-RUN pip install --upgrade pip && pip install -r constraints.txt
-COPY kinto/ kinto/
-RUN cp -r /kinto-admin/kinto/plugins/admin/build kinto/plugins/admin/
-RUN pip install ".[postgresql,memcached,redis,monitoring]" -c constraints.txt && pip install kinto-attachment kinto-emailer httpie
+# Install dependencies into /opt/venv
+RUN --mount=type=cache,target=/opt/uv-cache \
+    uv sync --locked --no-dev \
+        --link-mode=copy \
+        --extra postgresql \
+        --extra memcached \
+        --extra redis \
+        --extra monitoring \
+        --extra container \
+        --no-editable
 
+############################
+# Runtime stage
+############################
 FROM python:3.10-slim-bullseye
+
 RUN groupadd --gid 10001 app && \
     useradd --uid 10001 --gid 10001 --home /app --create-home app
 
+# Copy virtualenv from builder
 COPY --from=python-builder /opt/venv /opt/venv
 
-ENV KINTO_INI=/etc/kinto/kinto.ini \
+ENV PATH="/opt/venv/bin:$PATH" \
+    KINTO_INI=/etc/kinto/kinto.ini \
     PORT=8888 \
-    PATH="/opt/venv/bin:$PATH" \
-    PROMETHEUS_MULTIPROC_DIR="/tmp/metrics"
+    PROMETHEUS_MULTIPROC_DIR=/tmp/metrics
 
-RUN kinto init --ini $KINTO_INI --host 0.0.0.0 --backend=memory --cache-backend=memory
+# Provide a default config at build time
+RUN mkdir -p /etc/kinto && chown -R app:app /etc/kinto
+RUN kinto init --ini /etc/kinto/kinto.ini --backend=memory --cache-backend=memory
 
 WORKDIR /app
 USER app
-
-# Run database migrations and start the kinto server
-CMD ["sh", "-c", "kinto migrate --ini $KINTO_INI && kinto start --ini $KINTO_INI --port $PORT"]
+# Migrate and start the server
+CMD sh -c "kinto migrate --ini $KINTO_INI && kinto start --ini $KINTO_INI --port $PORT"

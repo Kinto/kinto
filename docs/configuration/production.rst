@@ -44,9 +44,9 @@ See also `install a server or use port <http://superuser.com/questions/296873/in
 Install PostgreSQL Python Dependencies
 --------------------------------------
 
-Kinto PostgreSQL backends rely on specific Python packages (like `SQLAlchemy <http://www.sqlalchemy.org/>`_ and `psycopg2 <http://initd.org/psycopg/>`_), which can be installed with a single *pip* command ::
+Kinto PostgreSQL backends rely on specific Python packages (like `SQLAlchemy <http://www.sqlalchemy.org/>`_ and `psycopg2 <http://initd.org/psycopg/>`_), which can be installed with::
 
-    $ pip install -U kinto[postgresql]
+    $ uv pip install kinto[postgresql]
 
 
 Run a PostgreSQL server
@@ -372,7 +372,7 @@ Running with Granian
 
 ::
 
-    pip install granian
+    uv pip install granian
 
 To run the application using Granian, an **app.py** file must be picked up.
 It is available in the *Kinto* Python package or can be downloaded from GitHub::
@@ -427,17 +427,9 @@ Upgrading Kinto
 First, make the potential changes to the configuration file, as described in
 the release notes.
 
-If installed as Python package, make sure the virtualenv is activated:
+If installed as Python package, upgrade Kinto using::
 
-::
-
-    source env/bin/activate
-
-Now upgrade Kinto (and its dependencies) using the following command:
-
-::
-
-    pip install --upgrade kinto
+    uv pip install --upgrade kinto
 
 Since there might be some database schema changes, do not forget to run the migration with:
 
