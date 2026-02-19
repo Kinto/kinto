@@ -327,22 +327,16 @@ run the Kinto application:
 Using nginx
 -----------
 
-nginx can act as a *reverse proxy* in front of `uWSGI <https://uwsgi-docs.readthedocs.io>`_
-(or any other wsgi server like `Gunicorn <http://gunicorn.org>`_ or `Circus <https://circus.readthedocs.io>`_).
+nginx can act as a *reverse proxy* in front of `Granian <https://github.com/emmett-framework/granian>`_
+(or any other wsgi server like `Gunicorn <http://gunicorn.org>`_ or `uWSGI <https://uwsgi-docs.readthedocs.io>`_).
 
-Download the ``uwsgi_params`` file:
-
-::
-
-    wget https://raw.githubusercontent.com/nginx/nginx/master/conf/uwsgi_params
-
-
-Configure nginx to listen to a uwsgi running:
+Configure nginx to listen to Granian (or other wsgi server) and to forward requests to it.
+For example, if Granian is listening on port 8000, the nginx configuration file should look like so:
 
 ::
 
     upstream kinto {
-        server unix:///var/uwsgi/kinto.sock;
+        server 127.0.0.1:8000;
     }
 
     server {
@@ -354,8 +348,10 @@ Configure nginx to listen to a uwsgi running:
         client_max_body_size 75M;   # adjust to taste
 
         location / {
-            uwsgi_pass  kinto;
-            include     /path/to/uwsgi_params; # the uwsgi_params file previously downloaded
+            proxy_pass http://kinto;
+            proxy_set_header Host $host;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
         }
     }
 
@@ -371,52 +367,22 @@ It is also wise to restrict the private URLs (like for ``__heartbeat__``):
     }
 
 
-Running with uWSGI
-------------------
+Running with Granian
+--------------------
 
 ::
 
-    pip install uwsgi
+    pip install granian
 
-To run the application using uWSGI, an **app.wsgi** file must be picked up.
+To run the application using Granian, an **app.py** file must be picked up.
 It is available in the *Kinto* Python package or can be downloaded from GitHub::
 
-    wget https://raw.githubusercontent.com/Kinto/kinto/main/app.wsgi
+    wget https://raw.githubusercontent.com/Kinto/kinto/main/app.py
 
-uWSGI can be configured from the main ``.ini`` file. Just run it with::
+Then, run the application with:
 
-    uwsgi --ini config/kinto.ini
+    KINTO_INI=/path/to/production.ini granian --interface wsgi --port 8000 app:application
 
-uWSGI configuration can be tweaked in the ini file in the dedicated
-``[uwsgi]`` section.
-
-Here's an example, where ``app.wsgi`` is in the current folder, a ``.venv`` folder
-contains the installed app and ``/var/uwsgi`` is writable for the ``kinto`` user:
-
-.. code-block :: ini
-    :emphasize-lines: 2-6
-
-    [uwsgi]
-    wsgi-file = app.wsgi
-    virtualenv = .venv
-    socket = /var/uwsgi/kinto.sock
-    uid = kinto
-    gid = kinto
-    enable-threads = true
-    chmod-socket = 666
-    processes = 3
-    master = true
-    module = kinto
-    harakiri = 120
-    lazy = true
-    lazy-apps = true
-    single-interpreter = true
-    buffer-size = 65535
-    post-buffering = 65535
-    plugin = python
-
-To use a different ini file, the ``KINTO_INI`` environment variable
-should be present with a path to it.
 
 .. _production-cache-server:
 
@@ -442,8 +408,7 @@ The sample *Nginx* configuration file shown above will look like so:
         location / {
             proxy_cache my_zone;
 
-            uwsgi_pass  kinto;
-            include     /path/to/uwsgi_params; # the uwsgi_params file previously downloaded
+            proxy_pass http://kinto;
         }
     }
 
@@ -480,11 +445,7 @@ Since there might be some database schema changes, do not forget to run the migr
 
     kinto migrate
 
-Once done, restart the server. For example, with uwsgi:
-
-::
-
-    killall -HUP uwsgi
+Once done, restart the server. 
 
 
 Using backoff

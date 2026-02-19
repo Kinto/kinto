@@ -290,6 +290,26 @@ class PostgreSQLStorageTest(StorageTest, unittest.TestCase):
         config = self._get_config(settings=settings)
         self.backend.load_from_config(config)  # does not raise
 
+    def test_pagination_with_modified_field_filter(self):
+        """Functional test: pagination with last_modified filters works correctly."""
+        # Create objects with different timestamps
+        objects = []
+        for i in range(10):
+            obj = self.create_object({"number": i})
+            objects.append(obj)
+
+        # Get objects with pagination using last_modified filter
+        # This simulates what happens during actual pagination
+        before = objects[5]["last_modified"]
+        filters = [Filter("last_modified", before, COMPARISON.LT)]
+
+        results = self.storage.list_all(filters=filters, **self.storage_kw)
+
+        # Should get the first 5 objects (created before object #5)
+        self.assertEqual(len(results), 5)
+        for obj in results:
+            self.assertLess(obj["last_modified"], before)
+
 
 class PaginatedTest(unittest.TestCase):
     def setUp(self):

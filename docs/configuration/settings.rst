@@ -287,7 +287,7 @@ Scheme, host, and port
 By default, Kinto relies on WSGI for underlying details like host, port, or
 request scheme. Tuning these settings may be necessary when the application
 runs behind proxies or load balancers, but most implementations
-(such as uWSGI) provide adequate values automatically.
+(such as uWSGI or Granian) provide adequate values automatically.
 
 That said, if ever these items need to be controlled at the application layer,
 the following settings are available:

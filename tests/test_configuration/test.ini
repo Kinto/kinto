@@ -207,25 +207,6 @@ kinto.bucket_create_principals = account:admin
 # kinto.plural_bucket_post_enabled = false
 # kinto.object_record_delete_enabled = false
 
-# [uwsgi]
-# wsgi-file = app.wsgi
-# enable-threads = true
-# socket = /var/run/uwsgi/kinto.sock
-# chmod-socket = 666
-# processes =  3
-# master = true
-# module = kinto
-# harakiri = 120
-# uid = kinto
-# gid = kinto
-# virtualenv = .venv
-# lazy = true
-# lazy-apps = true
-# single-interpreter = true
-# buffer-size = 65535
-# post-buffering = 65535
-# plugin = python
-
 # Logging and Monitoring
 #
 # https://kinto.readthedocs.io/en/latest/configuration/settings.html#logging-and-monitoring
