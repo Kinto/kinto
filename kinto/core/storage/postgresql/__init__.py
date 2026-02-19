@@ -819,6 +819,7 @@ class Storage(StorageBase, MigratorMixin):
         resource_name,
         parent_id,
         filters=None,
+        include_deleted=False,
         id_field=DEFAULT_ID_FIELD,
         modified_field=DEFAULT_MODIFIED_FIELD,
         deleted_field=DEFAULT_DELETED_FIELD,
@@ -828,7 +829,7 @@ class Storage(StorageBase, MigratorMixin):
             FROM objects
             WHERE {parent_id_filter}
             AND resource_name = :resource_name
-            AND NOT deleted
+            {conditions_deleted}
             {conditions_filter}
         """
         rows = self._get_rows(
@@ -836,6 +837,7 @@ class Storage(StorageBase, MigratorMixin):
             resource_name,
             parent_id,
             filters=filters,
+            include_deleted=include_deleted,
             id_field=id_field,
             modified_field=modified_field,
             deleted_field=deleted_field,
