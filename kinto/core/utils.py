@@ -29,7 +29,7 @@ except ImportError:  # pragma: no cover
     sqlalchemy = None
 
 try:
-    import memcache
+    import pymemcache as memcache
 except ImportError:  # pragma: no cover
     memcache = None
 

@@ -63,7 +63,7 @@ build-backend = "setuptools.build_meta"
 
 [project.optional-dependencies]
 memcached = [
-    "python-memcached",
+    "pymemcache",
 ]
 redis = [
     "redis",

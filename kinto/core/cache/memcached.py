@@ -34,7 +34,9 @@ def create_from_config(config, prefix=""):
     """Memcached client instantiation from settings."""
     settings = config.get_settings()
     hosts = aslist(settings[prefix + "hosts"])
-    return memcache.Client(hosts)
+    connect_timeout = int(settings.get(prefix + "cache_pool_connect_timeout", 1))
+    timeout = int(settings.get(prefix + "cache_pool_timeout", connect_timeout))
+    return memcache.client.hash.HashClient(hosts, ignore_exc=True, connect_timeout=connect_timeout, timeout=timeout)
 
 
 class Cache(CacheBase):
@@ -47,6 +49,8 @@ class Cache(CacheBase):
     *(Optional)* Instance location URI can be customized::
 
         kinto.cache_hosts = 127.0.0.1:11211 127.0.0.1:11212
+        kinto.cache_pool_connect_timeout = 1
+        kinto.cache_pool_timeout = 1
 
     :noindex:
 
