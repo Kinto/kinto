@@ -5,7 +5,7 @@ Counters Endpoint
 #################
 
 
-The Counters endpoint exposes the number of objects per resource in storage. You can enable it including ``kinto.plugins.counters``
+The Counters endpoint exposes the number of objects per resource in storage. You can enable it by including ``kinto.plugins.counters``
 to your configuration file.
 
 
