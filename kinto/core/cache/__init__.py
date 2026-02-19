@@ -119,11 +119,14 @@ def heartbeat(backend):
         # No specific case for readonly mode because the cache should
         # continue to work in that mode.
         try:
+            expected = "alive"
+            backend.set(_HEARTBEAT_KEY, expected, _HEARTBEAT_TTL_SECONDS)
+
             if random.SystemRandom().random() < _HEARTBEAT_DELETE_RATE:
                 backend.delete(_HEARTBEAT_KEY)
-                return backend.get(_HEARTBEAT_KEY) is None
-            backend.set(_HEARTBEAT_KEY, "alive", _HEARTBEAT_TTL_SECONDS)
-            return backend.get(_HEARTBEAT_KEY) == "alive"
+                expected = None
+
+            return backend.get(_HEARTBEAT_KEY) == expected
         except Exception:
             logger.exception("Heartbeat Failure")
             return False
