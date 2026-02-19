@@ -16,7 +16,7 @@ from kinto.core.storage import (
 from kinto.core.storage.testing import StorageTest
 from kinto.core.storage.utils import paginated
 from kinto.core.testing import skip_if_no_postgresql, unittest
-from kinto.core.utils import COMPARISON
+from kinto.core.utils import COMPARISON, json
 from kinto.core.utils import sqlalchemy as sa
 
 
@@ -370,3 +370,244 @@ class PaginatedTest(unittest.TestCase):
                 pagination_rules=[[Filter("id", "object-01", COMPARISON.LT)]],
             ),
         ]
+
+
+class FormatConditionsEQContainmentTest(unittest.TestCase):
+    """Test that _format_conditions uses JSONB containment (@>) for EQ filters
+    on scalar values, enabling GIN index usage."""
+
+    def _get_storage(self):
+        return postgresql.Storage(client=mock.Mock(), max_fetch_size=10000)
+
+    def test_eq_string_uses_containment(self):
+        storage = self._get_storage()
+        filters = [Filter("status", "active", COMPARISON.EQ)]
+        sql, holders = storage._format_conditions(filters, "id", "last_modified")
+        self.assertIn("data @>", sql)
+        value = holders["filters_value_0"]
+        self.assertEqual(json.loads(value), {"status": "active"})
+
+    def test_eq_integer_uses_containment(self):
+        storage = self._get_storage()
+        filters = [Filter("count", 42, COMPARISON.EQ)]
+        sql, holders = storage._format_conditions(filters, "id", "last_modified")
+        self.assertIn("data @>", sql)
+        value = holders["filters_value_0"]
+        self.assertEqual(json.loads(value), {"count": 42})
+
+    def test_eq_float_uses_containment(self):
+        storage = self._get_storage()
+        filters = [Filter("score", 3.14, COMPARISON.EQ)]
+        sql, holders = storage._format_conditions(filters, "id", "last_modified")
+        self.assertIn("data @>", sql)
+        value = holders["filters_value_0"]
+        self.assertEqual(json.loads(value), {"score": 3.14})
+
+    def test_eq_boolean_uses_containment(self):
+        storage = self._get_storage()
+        for value, field in [(True, "archived"), (False, "active")]:
+            filters = [Filter(field, value, COMPARISON.EQ)]
+            sql, holders = storage._format_conditions(filters, "id", "last_modified")
+            self.assertIn("data @>", sql, f"Failed for {value}")
+            holder_value = holders["filters_value_0"]
+            self.assertEqual(json.loads(holder_value), {field: value})
+
+    def test_eq_none_uses_containment(self):
+        storage = self._get_storage()
+        filters = [Filter("deleted_at", None, COMPARISON.EQ)]
+        sql, holders = storage._format_conditions(filters, "id", "last_modified")
+        self.assertIn("data @>", sql)
+        value = holders["filters_value_0"]
+        self.assertEqual(json.loads(value), {"deleted_at": None})
+
+    def test_eq_nested_field_uses_containment(self):
+        storage = self._get_storage()
+        filters = [Filter("person.name", "Alice", COMPARISON.EQ)]
+        sql, holders = storage._format_conditions(filters, "id", "last_modified")
+        self.assertIn("data @>", sql)
+        value = holders["filters_value_0"]
+        self.assertEqual(json.loads(value), {"person": {"name": "Alice"}})
+
+    def test_eq_deeply_nested_field_uses_containment(self):
+        storage = self._get_storage()
+        filters = [Filter("a.b.c", "x", COMPARISON.EQ)]
+        sql, holders = storage._format_conditions(filters, "id", "last_modified")
+        self.assertIn("data @>", sql)
+        value = holders["filters_value_0"]
+        self.assertEqual(json.loads(value), {"a": {"b": {"c": "x"}}})
+
+    def test_eq_empty_string_uses_containment(self):
+        storage = self._get_storage()
+        filters = [Filter("phone", "", COMPARISON.EQ)]
+        sql, holders = storage._format_conditions(filters, "id", "last_modified")
+        self.assertIn("data @>", sql)
+        value = holders["filters_value_0"]
+        self.assertEqual(json.loads(value), {"phone": ""})
+
+    def test_eq_zero_uses_containment(self):
+        storage = self._get_storage()
+        filters = [Filter("count", 0, COMPARISON.EQ)]
+        sql, holders = storage._format_conditions(filters, "id", "last_modified")
+        self.assertIn("data @>", sql)
+        value = holders["filters_value_0"]
+        self.assertEqual(json.loads(value), {"count": 0})
+
+    def test_eq_array_value_does_not_use_containment(self):
+        """Arrays must use exact equality, not containment (superset match)."""
+        storage = self._get_storage()
+        filters = [Filter("tags", ["red", "blue"], COMPARISON.EQ)]
+        sql, holders = storage._format_conditions(filters, "id", "last_modified")
+        self.assertNotIn("data @>", sql)
+        self.assertIn("=", sql)
+
+    def test_eq_object_value_does_not_use_containment(self):
+        """Objects must use exact equality, not containment (superset match)."""
+        storage = self._get_storage()
+        filters = [Filter("metadata", {"key": "val"}, COMPARISON.EQ)]
+        sql, holders = storage._format_conditions(filters, "id", "last_modified")
+        self.assertNotIn("data @>", sql)
+        self.assertIn("=", sql)
+
+    def test_eq_empty_array_does_not_use_containment(self):
+        """Empty array EQ must use exact match, not containment."""
+        storage = self._get_storage()
+        filters = [Filter("orders", [], COMPARISON.EQ)]
+        sql, holders = storage._format_conditions(filters, "id", "last_modified")
+        self.assertNotIn("data @>", sql)
+
+    def test_eq_empty_object_does_not_use_containment(self):
+        """Empty object EQ must use exact match, not containment."""
+        storage = self._get_storage()
+        filters = [Filter("attributes", {}, COMPARISON.EQ)]
+        sql, holders = storage._format_conditions(filters, "id", "last_modified")
+        self.assertNotIn("data @>", sql)
+
+    def test_non_eq_operators_do_not_use_containment(self):
+        """GT, LT, NOT, etc. should not use containment."""
+        storage = self._get_storage()
+        for op in (COMPARISON.GT, COMPARISON.LT, COMPARISON.NOT, COMPARISON.MIN, COMPARISON.MAX):
+            filters = [Filter("count", 10, op)]
+            sql, holders = storage._format_conditions(filters, "id", "last_modified")
+            self.assertNotIn("data @>", sql, f"Operator {op} should not use containment")
+
+    def test_eq_on_id_field_does_not_use_containment(self):
+        storage = self._get_storage()
+        filters = [Filter("id", "abc", COMPARISON.EQ)]
+        sql, holders = storage._format_conditions(filters, "id", "last_modified")
+        self.assertNotIn("data @>", sql)
+
+    def test_eq_on_modified_field_does_not_use_containment(self):
+        storage = self._get_storage()
+        filters = [Filter("last_modified", 1234567890, COMPARISON.EQ)]
+        sql, holders = storage._format_conditions(filters, "id", "last_modified")
+        self.assertNotIn("data @>", sql)
+
+
+class FormatConditionsContainsContainmentTest(unittest.TestCase):
+    """Test that _format_conditions uses top-level JSONB containment (@>) for
+    CONTAINS filters on data fields, enabling GIN index usage."""
+
+    def _get_storage(self):
+        return postgresql.Storage(client=mock.Mock(), max_fetch_size=10000)
+
+    def test_contains_uses_top_level_containment(self):
+        """CONTAINS on data fields should use top-level data @> for GIN."""
+        storage = self._get_storage()
+        filters = [Filter("colors", ["red"], COMPARISON.CONTAINS)]
+        sql, holders = storage._format_conditions(filters, "id", "last_modified")
+        self.assertIn("data @>", sql)
+        value = holders["filters_value_0"]
+        self.assertEqual(json.loads(value), {"colors": ["red"]})
+
+    def test_contains_nested_field_uses_top_level_containment(self):
+        storage = self._get_storage()
+        filters = [Filter("meta.tags", ["important"], COMPARISON.CONTAINS)]
+        sql, holders = storage._format_conditions(filters, "id", "last_modified")
+        self.assertIn("data @>", sql)
+        value = holders["filters_value_0"]
+        self.assertEqual(json.loads(value), {"meta": {"tags": ["important"]}})
+
+    def test_contains_multiple_values_uses_top_level_containment(self):
+        storage = self._get_storage()
+        filters = [Filter("colors", ["red", "blue"], COMPARISON.CONTAINS)]
+        sql, holders = storage._format_conditions(filters, "id", "last_modified")
+        self.assertIn("data @>", sql)
+        value = holders["filters_value_0"]
+        self.assertEqual(json.loads(value), {"colors": ["red", "blue"]})
+
+    def test_contains_with_numeric_array_uses_containment(self):
+        storage = self._get_storage()
+        filters = [Filter("fib", [2, 3], COMPARISON.CONTAINS)]
+        sql, holders = storage._format_conditions(filters, "id", "last_modified")
+        self.assertIn("data @>", sql)
+        value = holders["filters_value_0"]
+        self.assertEqual(json.loads(value), {"fib": [2, 3]})
+
+    def test_contains_with_object_elements_uses_containment(self):
+        storage = self._get_storage()
+        filters = [Filter("items", [{"id": 1}], COMPARISON.CONTAINS)]
+        sql, holders = storage._format_conditions(filters, "id", "last_modified")
+        self.assertIn("data @>", sql)
+        value = holders["filters_value_0"]
+        self.assertEqual(json.loads(value), {"items": [{"id": 1}]})
+
+    def test_contains_any_does_not_use_containment(self):
+        """CONTAINS_ANY uses && operator which cannot use GIN."""
+        storage = self._get_storage()
+        filters = [Filter("colors", ["red"], COMPARISON.CONTAINS_ANY)]
+        sql, holders = storage._format_conditions(filters, "id", "last_modified")
+        self.assertNotIn("data @>", sql)
+        self.assertIn("&&", sql)
+
+    def test_contains_on_id_field_falls_back_to_subexpression(self):
+        """CONTAINS on id/modified fields uses the old sub-expression path."""
+        storage = self._get_storage()
+        filters = [Filter("id", ["a"], COMPARISON.CONTAINS)]
+        sql, holders = storage._format_conditions(filters, "id", "last_modified")
+        self.assertNotIn("data @>", sql)
+
+
+class FormatSortingNormalizationTest(unittest.TestCase):
+    """Test that _format_sorting uses the same JSONB accessor expression format
+    as _format_conditions (without parentheses around placeholders)."""
+
+    def _get_storage(self):
+        return postgresql.Storage(client=mock.Mock(), max_fetch_size=10000)
+
+    def test_sorting_uses_arrow_without_parentheses(self):
+        storage = self._get_storage()
+        sorting = [Sort("status", 1)]
+        sql, holders = storage._format_sorting(sorting, "id", "last_modified")
+        self.assertIn("->:sort_field_0_0", sql)
+        self.assertNotIn("->(:", sql)
+        self.assertEqual(holders["sort_field_0_0"], "status")
+
+    def test_sorting_nested_field_uses_arrow_without_parentheses(self):
+        storage = self._get_storage()
+        sorting = [Sort("person.name", 1)]
+        sql, holders = storage._format_sorting(sorting, "id", "last_modified")
+        self.assertIn("->:sort_field_0_0->:sort_field_0_1", sql)
+        self.assertNotIn("->(:", sql)
+        self.assertEqual(holders["sort_field_0_0"], "person")
+        self.assertEqual(holders["sort_field_0_1"], "name")
+
+    def test_sorting_format_matches_conditions_format(self):
+        """The JSONB accessor expression in sorting should use the same format
+        as in conditions, so expression indexes can be shared."""
+        storage = self._get_storage()
+
+        # Get expression format from _format_conditions (non-LIKE, non-EQ-scalar
+        # to force arrow path — use GT which always uses arrows)
+        filters = [Filter("status", 10, COMPARISON.GT)]
+        cond_sql, cond_holders = storage._format_conditions(filters, "id", "last_modified")
+
+        # Get expression format from _format_sorting
+        sorting = [Sort("status", 1)]
+        sort_sql, sort_holders = storage._format_sorting(sorting, "id", "last_modified")
+
+        # Extract the data accessor pattern from each
+        # conditions: data->:filters_field_0_0
+        # sorting: data->:sort_field_0_0
+        # The format should be the same: data->:<placeholder>
+        self.assertIn("data->:", cond_sql)
+        self.assertIn("data->:", sort_sql)

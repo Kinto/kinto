@@ -22,6 +22,19 @@ logger = logging.getLogger(__name__)
 HERE = os.path.dirname(__file__)
 
 
+def _build_containment_json(field, value):
+    """Build a JSON string for top-level JSONB containment (``@>``).
+
+    Wraps *value* in nested objects matching the dotted *field* path.
+    For example, ``_build_containment_json("person.name", "Alice")``
+    returns ``'{"person": {"name": "Alice"}}'``.
+    """
+    obj = value
+    for subfield in reversed(field.split(".")):
+        obj = {subfield: obj}
+    return json.dumps(obj)
+
+
 class Storage(StorageBase, MigratorMixin):
     """Storage backend using PostgreSQL.
 
@@ -74,6 +87,79 @@ class Storage(StorageBase, MigratorMixin):
         Using a `dedicated connection pool <http://pgpool.net>`_ is still
         recommended to allow load balancing, replication or limit the number
         of connections used in a multi-process deployment.
+
+    **Optional: GIN index for JSONB queries**
+
+    For large collections (100K+ records), equality filters (``?field=value``)
+    and array containment filters (``?contains_field=value``) can be
+    accelerated by adding a GIN index on the JSONB ``data`` column.
+
+    This index is **not created automatically** because it can take significant
+    time on large tables. Create it manually using ``CONCURRENTLY`` to avoid
+    blocking reads and writes.
+
+    **Recommended index** (scoped to records only)::
+
+        CREATE INDEX CONCURRENTLY idx_objects_data_gin
+            ON objects USING gin (data jsonb_path_ops)
+            WHERE resource_name = 'record' AND NOT deleted;
+
+    This is the smallest and most efficient option. The
+    ``resource_name = 'record'`` partial condition excludes bucket, collection,
+    and group metadata objects (which are never filtered by JSONB fields),
+    keeping the index focused on actual record data. This works because
+    psycopg2 performs client-side parameter interpolation, so PostgreSQL's
+    planner sees ``resource_name = 'record'`` as a literal and can match it
+    against the partial index condition.
+
+    **Basic index** (driver-independent)::
+
+        CREATE INDEX CONCURRENTLY idx_objects_data_gin
+            ON objects USING gin (data jsonb_path_ops)
+            WHERE NOT deleted;
+
+    Slightly larger (includes non-record objects) but works regardless of
+    driver parameter binding behavior. The ``WHERE NOT deleted`` condition
+    matches the literal ``AND NOT deleted`` clause present in ``list_all``,
+    ``count_all``, and ``delete_all`` queries.
+
+    **Composite index** (single index scan, no BitmapAnd)::
+
+        CREATE EXTENSION IF NOT EXISTS btree_gin;
+
+        CREATE INDEX CONCURRENTLY idx_objects_data_gin
+            ON objects USING gin (parent_id, resource_name, data jsonb_path_ops)
+            WHERE NOT deleted;
+
+    The ``btree_gin`` extension (ships with PostgreSQL, just needs
+    ``CREATE EXTENSION``) allows including B-tree-compatible columns in a GIN
+    index. This lets PostgreSQL satisfy ``parent_id``, ``resource_name``, and
+    ``data @>`` conditions in a single index scan, instead of combining
+    separate GIN and B-tree scans via BitmapAnd. Trade-off: the index is
+    larger (includes ``parent_id`` and ``resource_name`` values) and has
+    higher write overhead.
+
+    All three options use the ``jsonb_path_ops`` operator class, which is ~60%
+    smaller than the default GIN class and supports the ``@>`` containment
+    operator used by Kinto's filter queries.
+
+    **What this index accelerates:**
+
+    - Equality filters: ``?status=active`` → ``data @> '{"status": "active"}'``
+    - Nested field equality: ``?person.name=Alice`` → ``data @> '{"person": {"name": "Alice"}}'``
+    - Array contains: ``?contains_colors=red`` → ``data @> '{"colors": ["red"]}'``
+
+    **What this index does NOT accelerate:**
+
+    - Range filters (``min_``, ``max_``, ``gt_``, ``lt_``)
+    - LIKE/text search filters
+    - ``contains_any_`` filters (uses ``&&`` array overlap operator)
+    - Sorting on JSONB fields (requires B-tree expression indexes)
+
+    **Approximate index sizes** (for the recommended index):
+
+    - 1M records, 200B avg JSON: ~300-500 MB
+    - 1M records, 1KB avg JSON: ~800 MB - 1.5 GB
 
     """  # NOQA
 
@@ -927,11 +1013,21 @@ class Storage(StorageBase, MigratorMixin):
 
             elif filtr.operator == COMPARISON.CONTAINS:
                 value_holder = f"{prefix}_value_{i}"
-                holders[value_holder] = value
-                # In case the field is not a sequence, we ignore the object.
-                is_json_sequence = f"jsonb_typeof({sql_field}) = 'array'"
-                sql_operator = operators[filtr.operator]
-                cond = f"{is_json_sequence} AND {sql_field} {sql_operator} :{value_holder}"
+                # Use top-level containment (data @> '{"field": [values]}')
+                # instead of sub-expression containment (data->'field' @> '[values]').
+                # This allows a GIN index on data to accelerate the query.
+                # Top-level containment is semantically equivalent and already
+                # returns false when the field is not an array, so no
+                # jsonb_typeof guard is needed.
+                is_data_field = filtr.field not in (id_field, modified_field)
+                if is_data_field:
+                    holders[value_holder] = _build_containment_json(filtr.field, filtr.value)
+                    cond = f"data @> :{value_holder}"
+                else:
+                    holders[value_holder] = value
+                    is_json_sequence = f"jsonb_typeof({sql_field}) = 'array'"
+                    sql_operator = operators[filtr.operator]
+                    cond = f"{is_json_sequence} AND {sql_field} {sql_operator} :{value_holder}"
 
             elif filtr.operator == COMPARISON.CONTAINS_ANY:
                 value_holder = f"{prefix}_value_{i}"
@@ -950,23 +1046,36 @@ class Storage(StorageBase, MigratorMixin):
             elif value != MISSING:
                 # Safely escape value. MISSINGs get handled below.
                 value_holder = f"{prefix}_value_{i}"
-                holders[value_holder] = value
 
-                sql_operator = operators.setdefault(filtr.operator, filtr.operator.value)
-
-                if filtr.field == modified_field and filtr.operator not in (
-                    COMPARISON.IN,
-                    COMPARISON.EXCLUDE,
-                ):
-                    # Wrap placeholder in from_epoch() so PostgreSQL can use the index
-                    rhs = f"from_epoch(:{value_holder})"
-                    cond = f"{sql_field} {sql_operator} {rhs}"
-                elif filtr.field == modified_field:
-                    # For IN/EXCLUDE on last_modified (extremely unlikely), fall back
-                    # to wrapping the column in as_epoch() to avoid unnest() complexity
-                    cond = f"as_epoch({sql_field}) {sql_operator} :{value_holder}"
+                # Use JSONB containment (@>) for EQ on data fields with scalar
+                # values. This is semantically equivalent to the arrow extraction
+                # form (data->'field' = 'value'::jsonb) for scalars, but can be
+                # accelerated by a GIN index on the data column.
+                # We restrict this to scalars because @> uses superset semantics
+                # for arrays/objects (e.g. [1,2,3] @> [1] is true), which differs
+                # from the exact equality that EQ should provide.
+                is_data_field = filtr.field not in (id_field, modified_field)
+                is_scalar_value = isinstance(filtr.value, (str, int, float, bool, type(None)))
+                if is_data_field and filtr.operator == COMPARISON.EQ and is_scalar_value:
+                    holders[value_holder] = _build_containment_json(filtr.field, filtr.value)
+                    cond = f"data @> :{value_holder}"
                 else:
-                    cond = f"{sql_field} {sql_operator} :{value_holder}"
+                    holders[value_holder] = value
+                    sql_operator = operators.setdefault(filtr.operator, filtr.operator.value)
+
+                    if filtr.field == modified_field and filtr.operator not in (
+                        COMPARISON.IN,
+                        COMPARISON.EXCLUDE,
+                    ):
+                        # Wrap placeholder in from_epoch() so PostgreSQL can use the index
+                        rhs = f"from_epoch(:{value_holder})"
+                        cond = f"{sql_field} {sql_operator} {rhs}"
+                    elif filtr.field == modified_field:
+                        # For IN/EXCLUDE on last_modified (extremely unlikely), fall back
+                        # to wrapping the column in as_epoch() to avoid unnest() complexity
+                        cond = f"as_epoch({sql_field}) {sql_operator} :{value_holder}"
+                    else:
+                        cond = f"{sql_field} {sql_operator} :{value_holder}"
 
             # If the field is missing, column_name will produce
             # NULL. NULL has strange properties with comparisons
@@ -1097,13 +1206,16 @@ class Storage(StorageBase, MigratorMixin):
                 sql_field = "objects.last_modified"
             else:
                 # Subfields: ``person.name`` becomes ``data->person->name``
+                # Use the same format as _format_conditions (without
+                # parentheses around placeholders) so that the expression
+                # text matches any expression indexes that may exist.
                 subfields = sort.field.split(".")
                 sql_field = "data"
                 for j, subfield in enumerate(subfields):
                     # Safely escape field name
                     field_holder = f"sort_field_{i}_{j}"
                     holders[field_holder] = subfield
-                    sql_field += f"->(:{field_holder})"
+                    sql_field += f"->:{field_holder}"
 
             sql_direction = "ASC" if sort.direction > 0 else "DESC"
             sql_sort = f"{sql_field} {sql_direction}"
