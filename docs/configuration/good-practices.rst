@@ -28,7 +28,7 @@ High-availability
 
 * At least two nodes (e.g. Linux boxes)
 * A load balancer, that spreads requests across the nodes (e.g. HAProxy)
-* Each node runs several WSGI process workers (e.g. uWSGI)
+* Each node runs several WSGI process workers (e.g. uWSGI or Granian)
 * Each node runs a HTTP reverse proxy that spreads requests across the workers (e.g. Nginx)
 
 Vertical scaling:
@@ -177,7 +177,7 @@ Using Amazon RDS
 
 * Consistency/Availability/Durability are handled by Postgresql RDS
 * Use Elasticcache for Redis
-* Use a EC2 Instance with uWSGI and Nginx deployed
+* Use a EC2 Instance with Granian and Nginx deployed
 * Use Route53 for loadbalancing
 
 
