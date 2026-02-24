@@ -45,9 +45,14 @@ class ListenerSetupTest(unittest.TestCase):
         settings = {"event_listeners": "tests.core.listeners"}
         settings.update(**extra_settings)
         config = testing.setUp(settings=settings)
+        initialization.setup_metrics(config)
         config.commit()
         initialization.setup_listeners(config)
         return config
+
+    def test_listener_module_path_used_directly(self):
+        self.make_app()
+        self.assertTrue(self.demo_mocked.called)
 
     def test_listener_module_is_specified_via_settings(self):
         self.make_app(
