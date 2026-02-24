@@ -64,6 +64,11 @@ readme = {file = ["README.rst", "CONTRIBUTORS.rst"]}
 requires = ["hatchling", "uv-dynamic-versioning"]
 build-backend = "hatchling.build"
 
+[dependency-groups]
+dev = [
+    "pytest-xdist>=3.8.0",
+]
+
 [project.optional-dependencies]
 memcached = [
     "python-memcached",
