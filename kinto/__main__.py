@@ -198,19 +198,17 @@ def main(args=None):
             try:
                 import psycopg2  # NOQA
             except ImportError:
-                subprocess.check_call(
-                    [sys.executable, "-m", "pip", "install", "kinto[postgresql]"]
-                )
+                subprocess.check_call(["uv", "pip", "install", "kinto[postgresql]"])
         elif cache_backend == "memcached":
             try:
                 import memcache  # NOQA
             except ImportError:
-                subprocess.check_call([sys.executable, "-m", "pip", "install", "kinto[memcached]"])
+                subprocess.check_call(["uv", "pip", "install", "kinto[memcached]"])
         elif cache_backend == "redis":
             try:
                 import redis  # NOQA
             except ImportError:
-                subprocess.check_call([sys.executable, "-m", "pip", "install", "kinto[redis]"])
+                subprocess.check_call(["uv", "pip", "install", "kinto[redis]"])
 
     elif which_command == "migrate":
         dry_run = parsed_args["dry_run"]
