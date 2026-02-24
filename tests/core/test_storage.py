@@ -138,6 +138,7 @@ class MemoryStorageTest(StorageTest, unittest.TestCase):
         )
 
 
+@pytest.mark.xdist_group("postgres")
 @skip_if_no_postgresql
 class PostgreSQLStorageTest(StorageTest, unittest.TestCase):
     backend = postgresql

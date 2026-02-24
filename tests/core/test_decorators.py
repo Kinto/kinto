@@ -7,6 +7,11 @@ from pyramid.response import Response
 from kinto.core.decorators import cache_forever
 
 
+# Tests rely on module-level cached state from cache_forever decorator;
+# they must run sequentially in the same worker.
+pytestmark = pytest.mark.xdist_group("decorators")
+
+
 @cache_forever
 def demo1(request):
     request.mock()

@@ -1,6 +1,8 @@
 import unittest
 from unittest import mock
 
+import pytest
+
 from kinto.core.permission import PermissionBase
 from kinto.core.permission import memory as memory_backend
 from kinto.core.permission import postgresql as postgresql_backend
@@ -47,6 +49,7 @@ class MemoryPermissionTest(PermissionTest, unittest.TestCase):
         pass
 
 
+@pytest.mark.xdist_group("postgres")
 @skip_if_no_postgresql
 class PostgreSQLPermissionTest(PermissionTest, unittest.TestCase):
     backend = postgresql_backend

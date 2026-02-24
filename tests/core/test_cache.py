@@ -2,6 +2,7 @@ import time
 import unittest
 from unittest import mock
 
+import pytest
 from pyramid.config import Configurator
 
 from kinto.core.cache import CacheBase
@@ -86,6 +87,7 @@ class MemoryCacheTest(CacheTest, unittest.TestCase):
         assert self.cache.get("foobar") == "tata"
 
 
+@pytest.mark.xdist_group("memcached")
 @skip_if_no_memcached
 class MemcachedCacheTest(CacheTest, unittest.TestCase):
     backend = memcached_backend
@@ -111,6 +113,7 @@ class MemcachedCacheTest(CacheTest, unittest.TestCase):
         self.assertIsNone(retrieved)
 
 
+@pytest.mark.xdist_group("redis")
 @skip_if_no_redis
 class RedisCacheTest(CacheTest, unittest.TestCase):
     backend = redis_backend
@@ -149,6 +152,7 @@ class RedisCacheTest(CacheTest, unittest.TestCase):
         self.assertEqual(backend._client.connection_pool.timeout, 3.14)
 
 
+@pytest.mark.xdist_group("postgres")
 @skip_if_no_postgresql
 class PostgreSQLCacheTest(CacheTest, unittest.TestCase):
     backend = postgresql_backend
