@@ -29,6 +29,7 @@ Full detailed API documentation:
    batch
    openapi
    flush
+   counters
    timestamps
    backoff
    errors

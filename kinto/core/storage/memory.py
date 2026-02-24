@@ -65,7 +65,15 @@ class MemoryBasedStorage(StorageBase):
         return obj
 
     def extract_object_set(
-        self, objects, filters, sorting, id_field, deleted_field, pagination_rules=None, limit=None
+        self,
+        objects,
+        filters,
+        sorting,
+        include_deleted=False,
+        id_field=DEFAULT_ID_FIELD,
+        deleted_field=DEFAULT_DELETED_FIELD,
+        pagination_rules=None,
+        limit=None,
     ):
         """Take the list of objects and handle filtering, sorting and
         pagination.
@@ -75,6 +83,7 @@ class MemoryBasedStorage(StorageBase):
             objects,
             filters=filters,
             sorting=sorting,
+            include_deleted=include_deleted,
             id_field=id_field,
             deleted_field=deleted_field,
             pagination_rules=pagination_rules,
@@ -385,15 +394,20 @@ class Storage(MemoryBasedStorage):
         resource_name,
         parent_id,
         filters=None,
+        include_deleted=False,
         id_field=DEFAULT_ID_FIELD,
         modified_field=DEFAULT_MODIFIED_FIELD,
         deleted_field=DEFAULT_DELETED_FIELD,
     ):
         objects = _get_objects_by_parent_id(self._store, parent_id, resource_name)
+        if include_deleted:
+            objects += _get_objects_by_parent_id(self._cemetery, parent_id, resource_name)
+
         _, count = self.extract_object_set(
             objects=objects,
             filters=filters,
             sorting=None,
+            include_deleted=include_deleted,
             id_field=id_field,
             deleted_field=deleted_field,
         )
@@ -476,6 +490,7 @@ def extract_object_set(
     sorting,
     pagination_rules=None,
     limit=None,
+    include_deleted=False,
     id_field=DEFAULT_ID_FIELD,
     deleted_field=DEFAULT_DELETED_FIELD,
 ):
@@ -496,12 +511,14 @@ def extract_object_set(
 
     sorted_ = apply_sorting(paginated, sorting or [])
 
-    filtered_deleted = len([r for r in sorted_ if r.get(deleted_field) is True])
+    if not include_deleted:
+        filtered_deleted = len([r for r in sorted_ if r.get(deleted_field) is True])
+        total_objects -= filtered_deleted
 
     if limit:
         sorted_ = list(sorted_)[:limit]
 
-    return sorted_, total_objects - filtered_deleted
+    return sorted_, total_objects
 
 
 def canonical_json(obj):
