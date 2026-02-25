@@ -57,8 +57,8 @@ class PurgeDeletedTest(unittest.TestCase):
         )
         assert code == 0
         self.registry.storage.purge_deleted.assert_any_call(
-            parent_id="*", resource_name="A", max_retained=42
+            parent_id="*", resource_name="A", max_retained=42, force_commit=True
         )
         self.registry.storage.purge_deleted.assert_any_call(
-            parent_id="*", resource_name="B", max_retained=42
+            parent_id="*", resource_name="B", max_retained=42, force_commit=True
         )
