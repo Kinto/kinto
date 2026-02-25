@@ -5,6 +5,7 @@ import unittest
 import uuid
 from urllib.parse import urljoin
 
+import pytest
 import requests
 
 from kinto import HTTP_API_VERSION
@@ -26,6 +27,7 @@ def build_task():
     return data
 
 
+@pytest.mark.xdist_group("functional")
 class FunctionalTest(unittest.TestCase):
     def __init__(self, *args, **kwargs):
         super(FunctionalTest, self).__init__(*args, **kwargs)
