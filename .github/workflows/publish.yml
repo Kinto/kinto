@@ -13,29 +13,17 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - name: Set up Python
-        uses: actions/setup-python@v6
-        with:
-          python-version: "3.x"
+      - uses: astral-sh/setup-uv@v5
 
       - uses: actions/setup-node@v6
         with:
           node-version: "20"
 
-      - name: Print environment
-        run: |
-          python --version
-          node --version
-          npm --version
-
       - name: Pull Admin UI
         run: make pull-kinto-admin
 
-      - name: Install pypa/build
-        run: python3 -m pip install build
-
       - name: Build a binary wheel and a source tarball
-        run: python3 -m build
+        run: uv build
 
       - name: Store the distribution packages
         uses: actions/upload-artifact@v6

@@ -140,18 +140,18 @@ Depending on the platform and chosen configuration, some libraries or
 extra services are required.
 
 The following commands will install necessary tools for cryptography
-and Python packaging like `Virtualenv <https://virtualenv.pypa.io/>`_.
+and Python packaging.
 
 Linux
 '''''
 
 On Debian / Ubuntu based systems::
 
-    apt-get install libffi-dev libssl-dev python3-dev python-virtualenv
+    apt-get install libffi-dev libssl-dev python3-dev
 
 On RHEL-derivatives::
 
-    dnf install libffi-devel openssl-devel python3-devel python-virtualenv
+    dnf install libffi-devel openssl-devel python3-devel
 
 OS X
 ''''
@@ -162,16 +162,10 @@ Assuming `brew <http://brew.sh/>`_ is installed:
 
     brew install libffi openssl pkg-config python
 
-    pip install virtualenv
-
 Microsoft Windows
 '''''''''''''''''
 
 * `Python compiler <https://www.python.org/downloads/windows/>`_ has to be installed and you have access to an instance of `Visual C++ Build tools <https://wiki.python.org/moin/WindowsCompilers>`_ on the global path to apply commands via command line.
-
-::
-
-    pip install virtualenv
 
 **PS**: You might follow the instruction on `Wiki <https://github.com/Kinto/kinto/wiki/Microsoft-Windows-Users/>`_ to run the application properly.
 
@@ -186,18 +180,14 @@ will lose its data, and multiple processes are not handled properly.
 But it should be enough to get started!
 
 
-Create a Python isolated environment (*recommended*):
+Install `uv <https://docs.astral.sh/uv/>`_ and then install Kinto:
 
 ::
 
-    virtualenv -p python3 env/
-    source env/bin/activate
+    uv pip install kinto
 
-Then install the package using the default configuration:
+Alternatively, using pip::
 
-::
-
-    pip install --upgrade pip
     pip install kinto
 
 ::

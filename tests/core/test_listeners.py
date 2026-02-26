@@ -45,9 +45,14 @@ class ListenerSetupTest(unittest.TestCase):
         settings = {"event_listeners": "tests.core.listeners"}
         settings.update(**extra_settings)
         config = testing.setUp(settings=settings)
+        initialization.setup_metrics(config)
         config.commit()
         initialization.setup_listeners(config)
         return config
+
+    def test_listener_module_path_used_directly(self):
+        self.make_app()
+        self.assertTrue(self.demo_mocked.called)
 
     def test_listener_module_is_specified_via_settings(self):
         self.make_app(
@@ -156,6 +161,8 @@ class ListenerSetupTest(unittest.TestCase):
             "KINTO_EVENT_LISTENERS_KVSTORE_ACTIONS": "delete",
             "KINTO_EVENT_LISTENERS_KVSTORE_RESOURCES": "toad",
         }
+        for k in environ:
+            self.addCleanup(os.environ.pop, k, None)
         os.environ.update(**environ)
 
         config = self.make_app(
@@ -189,10 +196,6 @@ class ListenerSetupTest(unittest.TestCase):
         )
         config.registry.notify(event)
         self.assertFalse(self.demo_mocked.return_value.called)
-
-        # Clean-up.
-        for k in environ.keys():
-            os.environ.pop(k)
 
 
 class ListenerBaseTest(unittest.TestCase):
