@@ -97,6 +97,9 @@ class OverriddenAdminViewTest(BaseWebTest, unittest.TestCase):
         settings["admin_assets_path"] = cls.tmp_dir.name
         return settings
 
+    def setUp(self):
+        admin_views.admin_home_view.saved = None
+
     def test_admin_capability_reads_version_from_configured_folder(self):
         resp = self.app.get("/")
         self.assertEqual(resp.json["capabilities"]["admin"]["version"], "42.0.0")
