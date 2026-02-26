@@ -687,6 +687,7 @@ class Storage(StorageBase, MigratorMixin):
         max_retained=None,
         id_field=DEFAULT_ID_FIELD,
         modified_field=DEFAULT_MODIFIED_FIELD,
+        force_commit=False,
     ):
         delete_tombstones = """
         DELETE
@@ -749,7 +750,7 @@ class Storage(StorageBase, MigratorMixin):
             safeholders["conditions_filter"] = "AND last_modified < from_epoch(:before)"
             placeholders["before"] = before
 
-        with self.client.connect(force_commit=True) as conn:
+        with self.client.connect(force_commit=force_commit) as conn:
             result = conn.execute(sa.text(delete_tombstones.format_map(safeholders)), placeholders)
             deleted = result.rowcount
 

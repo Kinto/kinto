@@ -297,6 +297,7 @@ class Storage(MemoryBasedStorage):
         max_retained=None,
         id_field=DEFAULT_ID_FIELD,
         modified_field=DEFAULT_MODIFIED_FIELD,
+        force_commit=False,
     ):
         if max_retained is not None and before is not None:
             raise ValueError("`before` and `max_retained` are exclusive arguments. Pick one.")

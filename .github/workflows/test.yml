@@ -110,7 +110,7 @@ jobs:
           COVERALLS_PARALLEL: true
         run: |
           pip install tomli coveralls
-          coveralls --service=github
+          coveralls --service=github || true
 
   finish:
     name: Coveralls Finished
@@ -125,7 +125,7 @@ jobs:
       - name: Coveralls Finished
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: coveralls --service=github --finish
+        run: coveralls --service=github --finish || true
 
   functional:
     name: Functional

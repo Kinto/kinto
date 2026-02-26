@@ -36,7 +36,10 @@ def purge_deleted(env, resource_names, max_retained):
     count = 0
     for resource_name in resource_names:
         count += registry.storage.purge_deleted(
-            resource_name=resource_name, parent_id="*", max_retained=max_retained
+            resource_name=resource_name,
+            parent_id="*",
+            max_retained=max_retained,
+            force_commit=True,
         )
 
     logger.info("%s tombstone(s) deleted." % count)
