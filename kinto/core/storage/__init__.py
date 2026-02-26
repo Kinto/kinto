@@ -267,6 +267,7 @@ class StorageBase:
         max_retained=None,
         id_field=DEFAULT_ID_FIELD,
         modified_field=DEFAULT_MODIFIED_FIELD,
+        force_commit=False,
     ):
         """Delete all deleted object tombstones in this `resource_name`
         for this `parent_id`.
@@ -276,6 +277,8 @@ class StorageBase:
 
         :param int before: Optional timestamp to limit deletion (exclusive).
         :param int max_count: Optional maximum of tombstones to keep per collection.
+
+        :param bool force_commit: whether to force commit the transaction after deletion.
 
         :returns: The number of deleted objects.
         :rtype: int
