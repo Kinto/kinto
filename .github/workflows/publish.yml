@@ -12,6 +12,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          fetch-tags: true
 
       - uses: astral-sh/setup-uv@v7
 
