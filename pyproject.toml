@@ -113,6 +113,7 @@ source = "uv-dynamic-versioning"
 
 [tool.uv-dynamic-versioning]
 fallback-version = "0.0.0"
+pattern = "default-unprefixed"
 
 [tool.pytest.ini_options]
 addopts = "-n auto --dist=loadgroup"
