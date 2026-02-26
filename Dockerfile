@@ -60,4 +60,4 @@ RUN kinto init --ini /etc/kinto/kinto.ini --backend=memory --cache-backend=memor
 WORKDIR /app
 USER app
 # Migrate and start the server
-CMD sh -c "kinto migrate --ini $KINTO_INI && kinto start --ini $KINTO_INI --port $PORT"
+CMD ["sh", "-c", "kinto migrate --ini $KINTO_INI && kinto start --ini $KINTO_INI --port $PORT"]
