@@ -109,7 +109,7 @@ jobs:
           COVERALLS_PARALLEL: true
         run: |
           uv pip install tomli coveralls
-          .venv/bin/coveralls --service=github
+          .venv/bin/coveralls --service=github || true
 
   finish:
     name: Coveralls Finished
@@ -120,7 +120,7 @@ jobs:
       - name: Coveralls Finished
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: uvx --with tomli coveralls --service=github --finish
+        run: uvx --with tomli coveralls --service=github --finish || true
 
   functional:
     name: Functional

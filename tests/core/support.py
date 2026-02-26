@@ -1,5 +1,6 @@
 from unittest import mock
 
+import pytest
 from pyramid.authorization import Authenticated
 from pyramid.interfaces import IAuthorizationPolicy
 from zope.interface import implementer
@@ -61,6 +62,7 @@ class AllowAuthorizationPolicy:
         raise NotImplementedError()  # PRAGMA NOCOVER
 
 
+@pytest.mark.xdist_group("postgres")
 class PostgreSQLTest(BaseWebTest):
     @classmethod
     def get_app_settings(cls, extras=None):

@@ -3,6 +3,7 @@ import os
 import unittest
 from unittest import mock
 
+import pytest
 from pyramid import testing
 
 from kinto.core.cache import postgresql as postgresql_cache
@@ -69,6 +70,7 @@ class MigratorTest(unittest.TestCase):
             self.assertRaises(AssertionError, self.migrator.create_or_migrate_schema)
 
 
+@pytest.mark.xdist_group("postgres")
 @skip_if_no_postgresql
 class PostgresqlStorageMigrationTest(unittest.TestCase):
     def __init__(self, *args, **kwargs):
@@ -293,6 +295,7 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
         assert objects[0]["drink"] == "mate"
 
 
+@pytest.mark.xdist_group("postgres")
 @skip_if_no_postgresql
 class PostgresqlPermissionMigrationTest(unittest.TestCase):
     def __init__(self, *args, **kw):

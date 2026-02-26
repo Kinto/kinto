@@ -2,6 +2,8 @@
 
 import unittest
 
+import pytest
+
 from kinto.core.testing import (
     skip_if_no_memcached,
     skip_if_no_postgresql,
@@ -73,6 +75,7 @@ class RedisCacheMetricsTest(BaseCacheMetricsTest, unittest.TestCase):
         return settings
 
 
+@pytest.mark.xdist_group("postgres")
 @skip_if_no_postgresql
 class PostgreSQLCacheMetricsTest(BaseCacheMetricsTest, unittest.TestCase):
     """Run cache metrics tests with PostgreSQL cache backend."""

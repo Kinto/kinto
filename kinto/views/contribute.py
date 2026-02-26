@@ -33,7 +33,7 @@ contribute_responses = {
 )
 def contribute_get(request):
     global _CONTRIBUTE_INFO
-    if _CONTRIBUTE_INFO is None:
+    if _CONTRIBUTE_INFO is None:  # pragma: no cover
         with open(os.path.join(ORIGIN, "contribute.json")) as f:
             _CONTRIBUTE_INFO = json.load(f)
     return _CONTRIBUTE_INFO

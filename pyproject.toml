@@ -64,6 +64,11 @@ readme = {file = ["README.rst", "CONTRIBUTORS.rst"]}
 requires = ["hatchling", "uv-dynamic-versioning"]
 build-backend = "hatchling.build"
 
+[dependency-groups]
+dev = [
+    "pytest-xdist>=3.8.0",
+]
+
 [project.optional-dependencies]
 memcached = [
     "python-memcached",
@@ -108,6 +113,13 @@ source = "uv-dynamic-versioning"
 
 [tool.uv-dynamic-versioning]
 fallback-version = "0.0.0"
+
+[tool.pytest.ini_options]
+addopts = "-n auto --dist=loadgroup"
+testpaths = ["tests"]
+markers = [
+    "xdist_group: mark tests to run in the same xdist worker group",
+]
 
 [tool.coverage.run]
 branch = true
