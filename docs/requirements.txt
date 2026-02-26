@@ -1,6 +1,6 @@
 Sphinx==8.2.3
 sphinx_rtd_theme==3.1.0
-docutils==0.20.1
+docutils==0.21.2
 sphinxcontrib-httpdomain==2.0.0
 sphinx-github-changelog==1.7.1
 kinto
@@ -8,5 +8,5 @@ mock==5.2.0
 webtest==3.0.7
 pyramid==2.0.2
 python-rapidjson==1.23
-SQLAlchemy==2.0.46
+SQLAlchemy==2.0.47
 setuptools<82.0
