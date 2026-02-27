@@ -1,4 +1,3 @@
-import codecs
 import os
 import tempfile
 import unittest
@@ -36,7 +35,9 @@ class ConfigTest(unittest.TestCase):
     def test_transpose_parameters_into_template(self):
         self.maxDiff = None
         template = "kinto.tpl"
-        dest = tempfile.mktemp()
+        with tempfile.NamedTemporaryFile(delete=False) as tmp:
+            dest = tmp.name
+        self.addCleanup(os.unlink, dest)
         config.render_template(
             template,
             dest,
@@ -53,11 +54,11 @@ class ConfigTest(unittest.TestCase):
             config_file_timestamp="config_file_timestamp",
         )
 
-        with codecs.open(dest, "r", encoding="utf-8") as d:
+        with open(dest, "r", encoding="utf-8") as d:
             destination_temp = d.read()
 
         sample_path = os.path.join(os.path.dirname(__file__), "test_configuration/test.ini")
-        with codecs.open(sample_path, "r", encoding="utf-8") as c:
+        with open(sample_path, "r", encoding="utf-8") as c:
             sample = c.read()
 
         self.assertEqual(destination_temp, sample)

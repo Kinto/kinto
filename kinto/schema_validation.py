@@ -9,7 +9,7 @@ from kinto.core.errors import raise_invalid
 from kinto.views import object_exists_or_404
 
 
-class JSONSchemaMapping(colander.SchemaNode):
+class JSONSchemaMapping(colander.SchemaNode):  # type: ignore[unsupported-base]
     def schema_type(self, **kw):
         return colander.Mapping(unknown="preserve")
 

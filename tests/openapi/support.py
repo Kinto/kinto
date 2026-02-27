@@ -77,14 +77,14 @@ class OpenAPITest(BaseWebTest, unittest.TestCase):
 
         # FIXME: Empty response fails with Bravado and Python 3
         # See https://github.com/Yelp/bravado-core/issues/134
-        if not resp.text:  # type: ignore[attr-defined]
+        if not resp.text:
             resp.text = None  # type: ignore[attr-defined]
 
         resp.headers = response.headers  # type: ignore[attr-defined]
         # Response headers integer fields are not casted by default
         for k, v in resp.headers.items():
             try:
-                resp.headers[k] = int(v)  # type: ignore[attr-defined]
+                resp.headers[k] = int(v)
             except ValueError:
                 pass
 

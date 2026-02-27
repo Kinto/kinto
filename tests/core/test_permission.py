@@ -65,6 +65,6 @@ class PostgreSQLPermissionTest(PermissionTest, unittest.TestCase):
             mock.patch.object(
                 self.permission.client,
                 "session_factory",
-                side_effect=sqlalchemy.exc.SQLAlchemyError,
+                side_effect=sqlalchemy.exc.SQLAlchemyError,  # type: ignore[possibly-missing-attribute]
             )
         ]

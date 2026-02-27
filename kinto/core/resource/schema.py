@@ -103,7 +103,7 @@ class ResourceSchema(colander.MappingSchema):
         return colander.Mapping(unknown=unknown)
 
 
-class PermissionsSchema(colander.SchemaNode):
+class PermissionsSchema(colander.SchemaNode):  # type: ignore[unsupported-base]
     """A permission mapping defines ACEs.
 
     It has permission names as keys and principals as values.
