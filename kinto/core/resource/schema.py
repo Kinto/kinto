@@ -184,7 +184,7 @@ class HeaderSchema(colander.MappingSchema):
     if_none_match = HeaderQuotedInteger(name="If-None-Match")
 
     @staticmethod
-    def schema_type():
+    def schema_type():  # type: ignore[override]
         return colander.Mapping(unknown="preserve")
 
 
@@ -211,7 +211,7 @@ class QuerySchema(colander.MappingSchema):
     missing = colander.drop
 
     @staticmethod
-    def schema_type():
+    def schema_type():  # type: ignore[override]
         return colander.Mapping(unknown="ignore")
 
     def deserialize(self, cstruct=colander.null):
@@ -227,7 +227,7 @@ class QuerySchema(colander.MappingSchema):
         schema_values = super().deserialize(cstruct)
 
         # Deserialize querystring field filters (see docstring e.g)
-        for k, v in cstruct.items():
+        for k, v in cstruct.items():  # type: ignore[union-attr]
             # Deserialize lists used on contains_ and contains_any_ filters
             if k.startswith("contains_"):
                 as_list = native_value(v)
@@ -303,7 +303,7 @@ class ObjectSchema(colander.MappingSchema):
         return get_perms(node, kwargs) or colander.deferred(get_perms)
 
     @staticmethod
-    def schema_type():
+    def schema_type():  # type: ignore[override]
         return colander.Mapping(unknown="raise")
 
 
@@ -325,7 +325,7 @@ class JsonPatchOperationSchema(colander.MappingSchema):
     value = colander.SchemaNode(Any(), missing=colander.drop)
 
     @staticmethod
-    def schema_type():
+    def schema_type():  # type: ignore[override]
         return colander.Mapping(unknown="raise")
 
 

@@ -36,13 +36,13 @@ class _ResourceEvent:
     def read_records(self):
         message = "`read_records` is deprecated, use `read_objects` instead."
         warnings.warn(message, DeprecationWarning)
-        return self.read_objects
+        return self.read_objects  # type: ignore[attr-defined]
 
     @property
     def impacted_records(self):
         message = "`impacted_records` is deprecated, use `impacted_objects` instead."
         warnings.warn(message, DeprecationWarning)
-        return self.impacted_objects
+        return self.impacted_objects  # type: ignore[attr-defined]
 
 
 class ResourceRead(_ResourceEvent):
@@ -273,7 +273,7 @@ def notify_resource_event(
         else:
             impacted = []
             for i, new in enumerate(data):
-                impacted.append({"new": new, "old": old[i]})
+                impacted.append({"new": new, "old": old[i]})  # type: ignore[index]
     else:  # ACTIONS.UPDATE:
         impacted = [{"new": data, "old": old}]
 

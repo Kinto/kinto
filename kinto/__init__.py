@@ -11,6 +11,7 @@ from kinto.core import utils
 
 
 # Module version, as defined in PEP-0396.
+assert __package__ is not None
 __version__ = version(__package__)
 
 # Implemented HTTP API Version
@@ -46,7 +47,7 @@ def main(global_config, config=None, **settings):
     if not config:
         config = Configurator(settings=settings, root_factory=RouteFactory)
 
-    config.registry.command = global_config and global_config.get("command", None)
+    config.registry.command = global_config and global_config.get("command", None)  # type: ignore[union-attr]
 
     # Force settings prefix.
     config.add_settings({"kinto.settings_prefix": "kinto"})

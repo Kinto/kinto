@@ -146,7 +146,7 @@ class RouteFactoryTest(unittest.TestCase):
             "/obj/3": ["obj:create"],
         }
         context.fetch_shared_objects("read", ["userid"], None)
-        self.assertEqual(sorted(context.shared_ids), ["1", "3"])
+        self.assertEqual(sorted(context.shared_ids), ["1", "3"])  # type: ignore[arg-type]
 
     def test_fetch_shared_objects_sets_shared_ids_if_empty(self):
         request = DummyRequest()
@@ -265,10 +265,10 @@ class GuestAuthorizationPolicyTest(unittest.TestCase):
         self.request = DummyRequest(method="GET")
         self.context = RouteFactory(self.request)
         self.context.on_plural_endpoint = True
-        self.context.check_permission = mock.Mock(return_value=False)
+        self.context.check_permission = mock.Mock(return_value=False)  # type: ignore[assignment]
 
     def test_permits_returns_true_if_plural_endpoint_and_shared_objects(self):
-        self.context.fetch_shared_objects = mock.MagicMock(return_value=["object1", "object2"])
+        self.context.fetch_shared_objects = mock.MagicMock(return_value=["object1", "object2"])  # type: ignore[assignment]
         allowed = self.authz.permits(self.context, ["userid"], "dynamic")
         # Note: we use the list of principals from request.prefixed_principals
         self.context.fetch_shared_objects.assert_called_with(
@@ -291,7 +291,7 @@ class GuestAuthorizationPolicyTest(unittest.TestCase):
         self.assertFalse(allowed)
 
     def test_permits_returns_false_if_resource_is_unknown(self):
-        self.context.fetch_shared_objects = mock.MagicMock(return_value=None)
+        self.context.fetch_shared_objects = mock.MagicMock(return_value=None)  # type: ignore[assignment]
         allowed = self.authz.permits(self.context, ["userid"], "dynamic")
         # Note: we use the list of principals from request.prefixed_principals
         self.context.fetch_shared_objects.assert_called_with(

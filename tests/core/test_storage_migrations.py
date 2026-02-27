@@ -40,7 +40,7 @@ class MigratorTest(unittest.TestCase):
     def _walk_from_3_to_6(self):
         """Helper method for simulating a migration from version 3 to version 6."""
         versions = [6, 5, 4, 3, 3]
-        self.migrator.get_installed_version = lambda: versions.pop()
+        self.migrator.get_installed_version = lambda: versions.pop()  # type: ignore[assignment, method-assign]
 
     def test_migration_file_is_executed_for_every_intermediary_version(self, execute_sql):
         self._walk_from_3_to_6()
@@ -481,6 +481,6 @@ class PostgresqlExceptionRaisedTest(unittest.TestCase):
         postgresql_storage.client.sqlalchemy = self.sqlalchemy
 
     def test_postgresql_usage_raise_an_error_if_postgresql_not_installed(self):
-        postgresql_storage.client.sqlalchemy = None
+        postgresql_storage.client.sqlalchemy = None  # type: ignore[assignment]
         with self.assertRaises(ImportWarning):
             postgresql_storage.client.create_from_config(testing.setUp())

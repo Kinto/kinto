@@ -111,7 +111,7 @@ class PutTest(BaseTest):
         self.assertNotEqual(result["last_modified"], 123)
 
     def test_storage_is_not_used_if_context_provides_current_object(self):
-        self.resource.context.current_object = {"id": "hola"}
+        self.resource.context.current_object = {"id": "hola"}  # type: ignore[assignment]
         self.validated["body"] = {"data": {}}
         with mock.patch.object(self.resource.model, "get_object") as get:
             self.resource.put()
@@ -424,7 +424,7 @@ class UnknownObjectTest(BaseTest):
     def setUp(self):
         super().setUp()
         self.unknown_id = "1cea99eb-5e3d-44ad-a53a-2fb68473b538"
-        self.resource.object_id = self.unknown_id
+        self.resource.object_id = self.unknown_id  # type: ignore[assignment]
         self.validated["body"] = {"data": {"field": "new"}}
 
     def test_get_object_unknown_raises_404(self):
@@ -444,7 +444,7 @@ class UnknownObjectTest(BaseTest):
 class InvalidIdTest(BaseTest):
     def setUp(self):
         super().setUp()
-        self.resource.object_id = "a*b"
+        self.resource.object_id = "a*b"  # type: ignore[assignment]
 
     def test_get_with_invalid_id_raises_400(self):
         self.assertRaises(httpexceptions.HTTPBadRequest, self.resource.get)
@@ -473,7 +473,7 @@ class ReadonlyFieldsTest(BaseTest):
         except httpexceptions.HTTPBadRequest as e:
             error = e
         self.assertEqual(
-            error.json,
+            error.json,  # type: ignore[union-attr]
             {
                 "errno": ERRORS.INVALID_PARAMETERS.value,
                 "message": "Cannot modify {0}".format(field),

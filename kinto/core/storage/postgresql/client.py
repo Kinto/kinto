@@ -54,7 +54,7 @@ class PostgreSQLClient:
 
         except sqlalchemy.exc.IntegrityError as e:
             logger.error(e, exc_info=True)
-            if commit_manually:  # pragma: no branch
+            if session and commit_manually:  # pragma: no branch
                 session.rollback()
             raise exceptions.IntegrityError(original=e) from e
         except sqlalchemy.exc.SQLAlchemyError as e:

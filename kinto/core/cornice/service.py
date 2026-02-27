@@ -181,6 +181,8 @@ class Service(object):
         self.description = description
         self.cors_expose_all_headers = True
         self._cors_enabled = None
+        self.cors_origins: list = []
+        self.cors_credentials: bool = False
 
         if cors_policy:
             for key, value in cors_policy.items():
@@ -309,7 +311,7 @@ class Service(object):
             del args["factory"]
 
         if hasattr(self, "get_view_wrapper"):
-            view = self.get_view_wrapper(kwargs)(view)
+            view = self.get_view_wrapper(kwargs)(view)  # type: ignore[call-non-callable]
         self.definitions.append((method, view, args))
 
         # keep track of the defined methods for the service
@@ -634,7 +636,7 @@ def decorate_view(view, args, method, route_args={}):
 class _UnboundView(object):
     def __init__(self, klass, view):
         self.unbound_view = getattr(klass, view.lower())
-        functools.update_wrapper(self, self.unbound_view)
+        functools.update_wrapper(self, self.unbound_view)  # type: ignore[arg-type]
         self.__name__ = func_name(self.unbound_view)
 
     def make_bound_view(self, ob):

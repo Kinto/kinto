@@ -1,4 +1,6 @@
 import time
+import unittest
+from typing import TYPE_CHECKING, Any
 from unittest import mock
 
 import pytest
@@ -8,9 +10,18 @@ from kinto.core.cache import heartbeat
 from kinto.core.storage import exceptions
 
 
-class CacheTest:
-    backend = None
-    settings = {}
+if TYPE_CHECKING:
+    _CacheTestBase = unittest.TestCase
+else:
+    _CacheTestBase = object
+
+
+class CacheTest(_CacheTestBase):
+    backend: Any = None
+    settings: dict = {}
+    cache: Any
+    request: Any
+    client_error_patcher: Any
 
     def setUp(self):
         super().setUp()

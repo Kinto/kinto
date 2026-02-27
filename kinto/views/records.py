@@ -73,7 +73,7 @@ class Record(resource.Resource):
                     new, schema, ignore_fields=ignored_fields, id_field=self.model.id_field
                 )
             except ValidationError as e:
-                raise_invalid(self.request, name=e.field, description=e.message)
+                raise_invalid(self.request, name=e.field, description=e.message)  # type: ignore[attr-defined]
             except RefResolutionError as e:
                 raise_invalid(self.request, name="schema", description=str(e))
 

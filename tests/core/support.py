@@ -49,7 +49,7 @@ class BaseWebTest(testing.BaseWebTest):
     def get_item_url(self, id=None):
         """Return the URL of the item using self.item_url."""
         if id is None:
-            id = self.obj["id"]
+            id = self.obj["id"]  # type: ignore[attr-defined]
         return "{}/{}".format(self.plural_url, id)
 
 
