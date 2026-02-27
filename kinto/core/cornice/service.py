@@ -158,6 +158,10 @@ class Service(object):
     mandatory_arguments = ("renderer",)
     list_arguments = ("validators", "filters", "cors_headers", "cors_origins")
 
+    # These may be set at the class level via init_from_settings() or on instances via setattr()
+    cors_origins: list
+    cors_credentials: bool
+
     def __repr__(self):
         return "<Service %s at %s>" % (self.name, self.pyramid_route or self.path)
 
@@ -181,8 +185,6 @@ class Service(object):
         self.description = description
         self.cors_expose_all_headers = True
         self._cors_enabled = None
-        self.cors_origins: list = []
-        self.cors_credentials: bool = False
 
         if cors_policy:
             for key, value in cors_policy.items():
