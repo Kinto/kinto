@@ -10,7 +10,7 @@ from kinto.plugins import statsd
 class StatsDMissing(unittest.TestCase):
     def setUp(self):
         self.previous = statsd.statsd_module
-        statsd.statsd_module = None
+        statsd.statsd_module = None  # type: ignore[assignment]
 
     def tearDown(self):
         statsd.statsd_module = self.previous

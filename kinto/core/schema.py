@@ -12,7 +12,7 @@ import colander
 from kinto.core.utils import msec_time, native_value, strip_whitespace
 
 
-class TimeStamp(colander.SchemaNode):
+class TimeStamp(colander.SchemaNode):  # type: ignore[unsupported-base]
     """Basic integer schema field that can be set to current server timestamp
     in milliseconds if no value is provided.
 
@@ -40,7 +40,7 @@ class TimeStamp(colander.SchemaNode):
         return super(TimeStamp, self).deserialize(cstruct)
 
 
-class URL(colander.SchemaNode):
+class URL(colander.SchemaNode):  # type: ignore[unsupported-base]
     """String field representing a URL, with max length of 2048.
     This is basically a shortcut for string field with
     `~colander:colander.url`.
@@ -65,7 +65,7 @@ class Any(colander.SchemaType):
         return cstruct
 
 
-class HeaderField(colander.SchemaNode):
+class HeaderField(colander.SchemaNode):  # type: ignore[unsupported-base]
     """Basic header field SchemaNode."""
 
     missing = colander.drop
@@ -79,7 +79,7 @@ class HeaderField(colander.SchemaNode):
         return super(HeaderField, self).deserialize(cstruct)
 
 
-class QueryField(colander.SchemaNode):
+class QueryField(colander.SchemaNode):  # type: ignore[unsupported-base]
     """Basic querystring field SchemaNode."""
 
     missing = colander.drop

@@ -2,8 +2,8 @@ import importlib
 import importlib.resources
 from string import Template
 
-import cornice
-import cornice_swagger
+import cornice  # type: ignore[import-unresolved]
+import cornice_swagger  # type: ignore[import-unresolved]
 from pyramid.response import Response
 
 

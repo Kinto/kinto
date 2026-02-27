@@ -5,7 +5,7 @@ from zope.interface import Interface, implementer
 from kinto.core import utils
 
 
-class IMetricsService(Interface):
+class IMetricsService(Interface):  # type: ignore[unsupported-base]
     """
     An interface that defines the metrics service contract.
     Any class implementing this must provide all its methods.

@@ -69,8 +69,8 @@ class Account(resource.Resource):
         # administrators.
         # Plus when anonymous create accounts, we have to set their parent id
         # to the same value they would obtain when authenticated.
-        if self.context.is_administrator:
-            if self.context.on_plural_endpoint:
+        if self.context.is_administrator:  # type: ignore[union-attr]
+            if self.context.on_plural_endpoint:  # type: ignore[union-attr]
                 # Accounts created by admin should have userid as parent.
                 if request.method.lower() == "post":
                     return _extract_posted_body_id(request)
@@ -81,7 +81,7 @@ class Account(resource.Resource):
                 # No pattern matching for admin on single record.
                 return request.matchdict["id"]
 
-        if not self.context.is_anonymous:
+        if not self.context.is_anonymous:  # type: ignore[union-attr]
             # Authenticated users see their own account only.
             return request.selected_userid
 
@@ -104,7 +104,7 @@ class Account(resource.Resource):
 
         # Administrators can reach other accounts and anonymous have no
         # selected_userid. So do not try to enforce.
-        if self.context.is_administrator or self.context.is_anonymous:
+        if self.context.is_administrator or self.context.is_anonymous:  # type: ignore[attr-defined]
             return new
 
         # Otherwise, we force the id to match the authenticated username.

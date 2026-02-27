@@ -1,4 +1,5 @@
 import warnings
+from typing import Any
 
 
 class Model:
@@ -34,7 +35,7 @@ class Model:
         resource_name="",
         parent_id="",
         current_principal=None,
-        prefixed_principals=None,
+        prefixed_principals: list | None = None,
         explicit_perm=True,
     ):
         """
@@ -62,7 +63,7 @@ class Model:
         self.explicit_perm = explicit_perm
 
         # Object permission id.
-        self.get_permission_object_id = None
+        self.get_permission_object_id: Any = None
 
     def timestamp(self, parent_id=None):
         """Fetch the resource current timestamp.
@@ -80,7 +81,7 @@ class Model:
         permissions = self.permission.get_object_permissions(perm_object_id)
         # Permissions are not returned if user only has read permission.
         writers = permissions.get("write", [])
-        principals = self.prefixed_principals + [self.current_principal]
+        principals = (self.prefixed_principals or []) + [self.current_principal]
         if len(set(writers) & set(principals)) == 0:
             permissions = {}
         # Insert the permissions values in the response.

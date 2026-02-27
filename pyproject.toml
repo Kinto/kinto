@@ -67,6 +67,7 @@ build-backend = "hatchling.build"
 [dependency-groups]
 dev = [
     "pytest-xdist>=3.8.0",
+    "ty>=0.0.19",
 ]
 
 [project.optional-dependencies]

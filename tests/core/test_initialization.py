@@ -25,22 +25,22 @@ class InitializationTest(unittest.TestCase):
     def test_set_the_project_version_if_specified(self):
         config = Configurator()
         kinto.core.initialize(config, "0.0.1", "name")
-        self.assertEqual(config.registry.settings["project_version"], "0.0.1")
+        self.assertEqual(config.registry.settings["project_version"], "0.0.1")  # type: ignore[union-attr]
 
     def test_project_version_uses_setting_if_specified(self):
         config = Configurator(settings={"name.project_version": "1.0.0"})
         kinto.core.initialize(config, "0.0.1", "name")
-        self.assertEqual(config.registry.settings["project_version"], "1.0.0")
+        self.assertEqual(config.registry.settings["project_version"], "1.0.0")  # type: ignore[union-attr]
 
     def test_http_api_version_relies_on_project_version_by_default(self):
         config = Configurator()
         kinto.core.initialize(config, "0.1.0", "name")
-        self.assertEqual(config.registry.settings["http_api_version"], "0.1")
+        self.assertEqual(config.registry.settings["http_api_version"], "0.1")  # type: ignore[union-attr]
 
     def test_http_api_version_uses_setting_if_specified(self):
         config = Configurator(settings={"name.http_api_version": "1.3"})
         kinto.core.initialize(config, "0.0.1", "name")
-        self.assertEqual(config.registry.settings["http_api_version"], "1.3")
+        self.assertEqual(config.registry.settings["http_api_version"], "1.3")  # type: ignore[union-attr]
 
     def test_warns_if_settings_prefix_is_empty(self):
         config = Configurator(settings={"kinto.settings_prefix": ""})
@@ -59,12 +59,12 @@ class InitializationTest(unittest.TestCase):
     def test_set_the_settings_prefix_if_specified(self):
         config = Configurator()
         kinto.core.initialize(config, "0.0.1", "kinto")
-        self.assertEqual(config.registry.settings["settings_prefix"], "kinto")
+        self.assertEqual(config.registry.settings["settings_prefix"], "kinto")  # type: ignore[union-attr]
 
     def test_set_the_settings_prefix_from_settings_even_if_specified(self):
         config = Configurator(settings={"kinto.settings_prefix": "kinto"})
         kinto.core.initialize(config, "0.0.1", "readinglist")
-        self.assertEqual(config.registry.settings["settings_prefix"], "kinto")
+        self.assertEqual(config.registry.settings["settings_prefix"], "kinto")  # type: ignore[union-attr]
 
     def test_warns_if_not_https(self):
         error_msg = "HTTPS is not enabled"
@@ -85,18 +85,18 @@ class InitializationTest(unittest.TestCase):
         config = Configurator()
         defaults = {"paginate_by": 102}
         kinto.core.initialize(config, "0.0.1", "prefix", default_settings=defaults)
-        self.assertEqual(config.registry.settings["paginate_by"], 102)
+        self.assertEqual(config.registry.settings["paginate_by"], 102)  # type: ignore[union-attr]
 
     def test_default_settings_are_overriden_by_application(self):
         config = Configurator(settings={"prefix.paginate_by": 10})
         kinto.core.initialize(config, "0.0.1", "prefix")
-        self.assertEqual(config.registry.settings["paginate_by"], 10)
+        self.assertEqual(config.registry.settings["paginate_by"], 10)  # type: ignore[union-attr]
 
     def test_specified_default_settings_are_overriden_by_application(self):
         config = Configurator(settings={"settings_prefix.paginate_by": 5})
         defaults = {"settings_prefix.paginate_by": 10}
         kinto.core.initialize(config, "0.0.1", "settings_prefix", default_settings=defaults)
-        self.assertEqual(config.registry.settings["paginate_by"], 5)
+        self.assertEqual(config.registry.settings["paginate_by"], 5)  # type: ignore[union-attr]
 
     def test_backends_are_not_instantiated_by_default(self):
         config = Configurator(settings={**kinto.core.DEFAULT_SETTINGS})
@@ -126,7 +126,7 @@ class InitializationTest(unittest.TestCase):
 
         os.environ.pop(envkey)
 
-        prefix_used = config.registry.settings["settings_prefix"]
+        prefix_used = config.registry.settings["settings_prefix"]  # type: ignore[union-attr]
         self.assertEqual(prefix_used, "abc")
 
     def test_statsd_plugin_isnt_included_by_default(self):
@@ -301,7 +301,7 @@ class SentryTest(unittest.TestCase):
     def unexpected_exceptions_are_reported(self):
         with mock.patch("kinto.core.views.hello.get_eos", side_effect=ValueError):
             with mock.patch("sentry_sdk.hub.Hub.capture_event") as mocked:
-                resp = self.app.get("/")
+                resp = self.app.get("/")  # type: ignore[attr-defined]
         assert resp.status == 500
         assert len(mocked.call_args_list) > 0
 
@@ -325,9 +325,9 @@ class MetricsConfigurationTest(unittest.TestCase):
         self.addCleanup(patch_watch.stop)
 
         self.config = Configurator(settings=self.settings)
-        self.config.registry.storage = {}
-        self.config.registry.cache = {}
-        self.config.registry.permission = {}
+        self.config.registry.storage = {}  # type: ignore[assignment]
+        self.config.registry.cache = {}  # type: ignore[assignment]
+        self.config.registry.permission = {}  # type: ignore[assignment]
 
     #
     # Backends.
@@ -467,15 +467,15 @@ class MetricsConfigurationTest(unittest.TestCase):
 
         initialization.setup_metrics(self.config)
 
-        self.assertEqual(self.config.registry.statsd.__class__.__name__, "NoOpMetricsService")
+        self.assertEqual(self.config.registry.statsd.__class__.__name__, "NoOpMetricsService")  # type: ignore[attr-defined]
 
     def test_metrics_attr_is_set_if_statsd_url_is_set(self):
         self.config.add_settings({"statsd_url": "udp://host:8080"})
 
         initialization.setup_metrics(self.config)
 
-        self.assertIsNotNone(self.config.registry.statsd)
-        self.assertIsNotNone(self.config.registry.metrics)
+        self.assertIsNotNone(self.config.registry.statsd)  # type: ignore[attr-defined]
+        self.assertIsNotNone(self.config.registry.metrics)  # type: ignore[attr-defined]
 
     def test_statsd_attr_is_exposed_in_the_registry_if_url_is_set(self):
         self.config.add_settings({"statsd_url": "udp://host:8080"})
@@ -483,7 +483,7 @@ class MetricsConfigurationTest(unittest.TestCase):
         initialization.setup_metrics(self.config)
 
         with mock.patch("warnings.warn") as mocked_warnings:
-            self.config.registry.statsd.count("key")
+            self.config.registry.statsd.count("key")  # type: ignore[attr-defined]
             mocked_warnings.assert_called_with(
                 "``config.registry.statsd`` is now deprecated. Use ``config.registry.metrics`` instead.",
                 DeprecationWarning,
@@ -573,8 +573,8 @@ class PluginsTest(unittest.TestCase):
             with mock.patch.object(config, "scan"):
                 kinto.core.includeme(config)
 
-                config.include.assert_any_call("elastic")
-                config.include.assert_any_call("history")
+                config.include.assert_any_call("elastic")  # type: ignore[attr-defined]
+                config.include.assert_any_call("history")  # type: ignore[attr-defined]
 
     def make_app(self, settings=None):
         config = Configurator(settings={**kinto.core.DEFAULT_SETTINGS})

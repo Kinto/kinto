@@ -39,7 +39,7 @@ class Cache(CacheBase):
             self.delete(expired_item_key[len(self.prefix) :])
 
     def _clean_oversized(self):
-        if self._quota < self.max_size_bytes:
+        if self.max_size_bytes is None or self._quota < self.max_size_bytes:
             return
 
         for key, value in sorted(self._created_at.items(), key=lambda k: k[1]):

@@ -21,7 +21,7 @@ class cache_forever:
                 raise ValueError("cache_forever cannot cache Response only its body")
 
         request.response.write(self.saved)
-        request.response.headers.update(**self.saved_headers)
+        request.response.headers.update(**self.saved_headers)  # type: ignore[arg-type]
         return request.response
 
 

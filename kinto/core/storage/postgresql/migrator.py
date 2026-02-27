@@ -4,6 +4,7 @@ A helper class to run migrations using a series of SQL files.
 
 import logging
 import os
+from typing import Any
 
 from kinto.core.utils import sqlalchemy as sa
 
@@ -20,9 +21,10 @@ class MigratorMixin:
 
     """Name of this migrator (e.g. "storage"). Override this."""
     name = None
+    client: Any  # Provided by the concrete class that mixes this in.
 
     """The current "newest" schema version. Override this."""
-    schema_version = None
+    schema_version: Any = None
 
     """The file to find the current "newest" schema in. Override this."""
     schema_file = None
@@ -31,7 +33,7 @@ class MigratorMixin:
 
     Migrations should each be a file named migration_nnn_mmm.sql, where mmm = nnn + 1.
     """
-    migrations_directory = None
+    migrations_directory: Any = None
 
     def get_installed_version(self):
         """Return current version of schema or None if none found.

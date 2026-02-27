@@ -9,7 +9,7 @@ from kinto.core.errors import raise_invalid
 from kinto.views import object_exists_or_404
 
 
-class JSONSchemaMapping(colander.SchemaNode):
+class JSONSchemaMapping(colander.SchemaNode):  # type: ignore[unsupported-base]
     def schema_type(self, **kw):
         return colander.Mapping(unknown="preserve")
 
@@ -27,7 +27,7 @@ def check_schema(data):
     try:
         DraftValidator.check_schema(data)
     except SchemaError as e:
-        message = e.path.pop() + e.message
+        message = str(e.path.pop()) + e.message
         raise ValidationError(message)
 
 
@@ -86,7 +86,7 @@ def validate_schema(data, schema, id_field, ignore_fields=None):
             field = e.validator_value[-1]
         else:
             field = e.schema_path[-1]
-        e.field = field
+        e.field = field  # type: ignore[attr-defined]
         raise e
     # Raise an error here if a reference in the schema doesn't resolve.
     # jsonschema doesn't provide schema validation checking upon creation yet,
@@ -130,6 +130,6 @@ def validate_from_bucket_schema_or_400(data, resource_name, request, id_field, i
     try:
         validate_schema(data, schema, ignore_fields=ignore_fields, id_field=id_field)
     except ValidationError as e:
-        raise_invalid(request, name=e.field, description=e.message)
+        raise_invalid(request, name=e.field, description=e.message)  # type: ignore[attr-defined]
     except RefResolutionError as e:
         raise_invalid(request, name="schema", description=str(e))

@@ -31,11 +31,12 @@ class VersionViewTest(BaseWebTest, unittest.TestCase):
             self.app.get("/__version__", status=500)
 
     def test_return_the_version_file_specified_in_setting_if_present(self):
-        custom_path = tempfile.mktemp()
+        with tempfile.NamedTemporaryFile(delete=False) as tmp:
+            custom_path = tmp.name
         content = {"foo": "lala"}
         with open(custom_path, "w") as f:
             json.dump(content, f)
-        self.addCleanup(lambda: os.remove(custom_path))
+        self.addCleanup(os.remove, custom_path)
 
         with mock.patch.dict(self.app.app.registry.settings, [("version_json_path", custom_path)]):
             response = self.app.get("/__version__")

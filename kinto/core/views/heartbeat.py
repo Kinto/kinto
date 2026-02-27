@@ -47,9 +47,10 @@ def get_heartbeat(request):
     heartbeats = request.registry.heartbeats
     pool = ThreadPoolExecutor(max_workers=max(1, len(heartbeats.keys())))
     futures = []
+    future_names: dict = {}
     for name, func in heartbeats.items():
         future = pool.submit(heartbeat_check, name, func)
-        future.__heartbeat_name = name  # For logging purposes.
+        future_names[future] = name  # For logging purposes.
         futures.append(future)
 
     # Wait for the results, with timeout.
@@ -61,12 +62,12 @@ def get_heartbeat(request):
     for future in done:
         exc = future.exception()
         if exc is not None:
-            logger.error(f"'{future.__heartbeat_name}' heartbeat failed.")
+            logger.error(f"'{future_names[future]}' heartbeat failed.")
             logger.error(exc)
 
     # Log timed-out heartbeats.
     for future in not_done:
-        name = future.__heartbeat_name
+        name = future_names[future]
         error_msg = f"'{name}' heartbeat has exceeded timeout of {seconds} seconds."
         logger.error(error_msg)
 

@@ -35,7 +35,7 @@ class ResourceTest(BaseTest):
         ):
             with self.assertRaises(excepted_exc) as cm:
                 self.resource_class(request)
-                self.assertIn("writable", cm.exception.message)
+                self.assertIn("writable", cm.exception.message)  # type: ignore[attr-defined]
 
     def test_resource_can_be_created_without_context(self):
         try:

@@ -9,8 +9,8 @@ class CacheExpires(BaseTest):
         context.resource_name = "test"
         return context
 
-    def get_request(self):
-        request = super().get_request()
+    def get_request(self, resource_name=""):
+        request = super().get_request(resource_name)
         request.prefixed_userid = None  # Anonymous.
         return request
 

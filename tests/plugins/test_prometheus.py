@@ -16,7 +16,7 @@ DATETIME_REGEX = r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}\+\d{2}:\d{2}$"
 class PrometheusMissing(unittest.TestCase):
     def setUp(self):
         self.previous = prometheus.prometheus_module
-        prometheus.prometheus_module = None
+        prometheus.prometheus_module = None  # type: ignore[assignment]
 
     def tearDown(self):
         prometheus.prometheus_module = self.previous

@@ -271,7 +271,7 @@ class ErrorViewTest(FormattedErrorMixin, BaseWebTest, unittest.TestCase):
 
     def test_500_logs_errno_from_exception(self):
         custom_error = ValueError("Some error")
-        custom_error.errno = ERRORS.VERSION_NOT_AVAILABLE
+        custom_error.errno = ERRORS.VERSION_NOT_AVAILABLE  # type: ignore[attr-defined]
 
         with mock.patch(
             "tests.core.testapp.views.Mushroom._extract_filters", side_effect=custom_error

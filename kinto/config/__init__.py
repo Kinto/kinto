@@ -1,4 +1,3 @@
-import codecs
 import logging
 import os
 from datetime import datetime
@@ -24,10 +23,10 @@ def render_template(template, destination, **kwargs):
 
     logger.info(f"Created config {os.path.abspath(destination)}")
 
-    with codecs.open(template, "r", encoding="utf-8") as f:
+    with open(template, "r", encoding="utf-8") as f:
         raw_template = f.read()
         rendered = raw_template.format_map(kwargs)
-        with codecs.open(destination, "w+", encoding="utf-8") as output:
+        with open(destination, "w+", encoding="utf-8") as output:
             output.write(rendered)
 
 

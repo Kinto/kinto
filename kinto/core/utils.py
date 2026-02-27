@@ -26,28 +26,31 @@ from kinto.core.cornice import cors
 try:
     import sqlalchemy
 except ImportError:  # pragma: no cover
-    sqlalchemy = None
+    sqlalchemy = None  # type: ignore[assignment]
 
 try:
     import memcache
 except ImportError:  # pragma: no cover
-    memcache = None
+    memcache = None  # type: ignore[assignment]
 
 try:
     import redis
 except ImportError:  # pragma: no cover
-    redis = None
+    redis = None  # type: ignore[assignment]
 
 
 class json:
+    @staticmethod
     def dumps(v, **kw):
         kw.setdefault("bytes_mode", rapidjson.BM_NONE)
         return rapidjson.dumps(v, **kw)
 
+    @staticmethod
     def load(v, **kw):
         kw.setdefault("number_mode", rapidjson.NM_NATIVE)
         return rapidjson.load(v, **kw)
 
+    @staticmethod
     def loads(v, **kw):
         kw.setdefault("number_mode", rapidjson.NM_NATIVE)
         return rapidjson.loads(v, **kw)
