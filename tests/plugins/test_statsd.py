@@ -1,5 +1,6 @@
 from unittest import mock
 
+import pytest
 from pyramid import testing
 from pyramid.exceptions import ConfigurationError
 
@@ -47,9 +48,10 @@ class StatsdClientTest(unittest.TestCase):
             mocked_client.incr.assert_called_with("click", count=10)
 
     def test_count_with_unique_uses_sets_for_key(self):
-        with mock.patch.object(self.client, "_client") as mocked_client:
-            self.client.count("click", unique="menu")
-            mocked_client.set.assert_called_with("click", "menu")
+        with pytest.warns(DeprecationWarning, match="`unique` parameter"):
+            with mock.patch.object(self.client, "_client") as mocked_client:
+                self.client.count("click", unique="menu")
+                mocked_client.set.assert_called_with("click", "menu")
 
     def test_count_turns_tuples_into_set_key(self):
         with mock.patch.object(self.client, "_client") as mocked_client:
