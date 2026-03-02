@@ -101,6 +101,11 @@ class FilteringTest(BaseTest):
         result = self.resource.plural_get()
         self.assertEqual(len(result["data"]), 8)
 
+    def test_filter_works_with_since_zero(self):
+        self.validated["querystring"] = {"_since": '"0"'}
+        result = self.resource.plural_get()
+        self.assertEqual(len(result["data"]), 8)
+
     def test_filter_raises_error_if_since_or_before_value_is_neither_int_nor_string(self):
         self.validated["querystring"] = {"_before": dict()}
         self.assertRaises(httpexceptions.HTTPBadRequest, self.resource.plural_get)
