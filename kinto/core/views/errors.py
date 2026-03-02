@@ -1,7 +1,6 @@
 import logging
 
 from pyramid import httpexceptions
-from pyramid.authorization import Authenticated
 from pyramid.httpexceptions import HTTPTemporaryRedirect
 from pyramid.security import NO_PERMISSION_REQUIRED, forget
 from pyramid.settings import asbool
@@ -20,7 +19,7 @@ def authorization_required(response, request):
     """Distinguish authentication required (``401 Unauthorized``) from
     not allowed (``403 Forbidden``).
     """
-    if Authenticated not in request.effective_principals:
+    if request.authenticated_userid is None:
         if response.content_type != "application/json":
             # This is always the case when `HTTPForbidden` is raised by Pyramid
             # on protected views with unauthenticated requests.
