@@ -1,6 +1,7 @@
 import colander
 from jsonschema import Draft7Validator as DraftValidator
-from jsonschema import RefResolutionError, SchemaError, ValidationError
+from jsonschema import SchemaError, ValidationError
+from referencing.exceptions import Unresolvable as RefResolutionError
 from jsonschema.validators import validator_for
 from pyramid.settings import asbool
 
