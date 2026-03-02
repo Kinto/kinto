@@ -121,6 +121,28 @@ testpaths = ["tests"]
 markers = [
     "xdist_group: mark tests to run in the same xdist worker group",
 ]
+filterwarnings = [
+    # Hide warnings about our own code.
+    "ignore:No value specified for `settings_prefix`:UserWarning",
+    "ignore:HTTPS is not enabled:UserWarning",
+    "ignore:Reuse existing PostgreSQL connection:UserWarning",
+    # pyramid_multiauth
+    "ignore:The new security policy has deprecated effective_principals:DeprecationWarning",
+    "ignore:Authentication and authorization policies have been deprecated:DeprecationWarning:pyramid_multiauth",
+    # Pyramid uses pkg_resources internally
+    # See https://github.com/Pylons/pyramid/issues/3731
+    "ignore:pkg_resources is deprecated as an API:UserWarning:pyramid",
+    # pkg_resources namespace packages
+    "ignore:Deprecated call to `pkg_resources.declare_namespace:DeprecationWarning:pkg_resources",
+    # bravado
+    "ignore:jsonschema.RefResolver is deprecated:DeprecationWarning:bravado_core",
+    "ignore:jsonschema.RefResolver.in_scope is deprecated:DeprecationWarning:bravado_core",
+    # swagger
+    "ignore:jsonschema.RefResolver is deprecated:DeprecationWarning:swagger_spec_validator",
+    # webob
+    "ignore:datetime.datetime.utcnow.. is deprecated:DeprecationWarning:webob",
+    "ignore:'cgi' is deprecated and slated for removal:DeprecationWarning:webob",
+]
 
 [tool.coverage.run]
 branch = true
