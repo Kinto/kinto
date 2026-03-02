@@ -135,7 +135,7 @@ class Service(CorniceService):
         cls.cors_max_age = int(cors_max_age) if cors_max_age else None
 
 
-class JsonLogFormatter(dockerflow_logging.JsonLogFormatter):
+class JsonLogFormatter(dockerflow_logging.MozlogFormatter):
     logger_name = "kinto"
 
     @classmethod
