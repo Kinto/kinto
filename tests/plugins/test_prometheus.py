@@ -3,7 +3,6 @@ import unittest
 from unittest import mock
 
 import pytest
-
 from pyramid.exceptions import ConfigurationError
 
 from kinto.core.testing import get_user_headers, skip_if_no_prometheus
