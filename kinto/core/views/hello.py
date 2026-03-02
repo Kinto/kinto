@@ -1,5 +1,4 @@
 import colander
-from pyramid.authorization import Authenticated
 from pyramid.security import NO_PERMISSION_REQUIRED
 
 from kinto.config import config_attributes
@@ -51,7 +50,7 @@ def get_hello(request):
 
     # If current user is authenticated, add user info:
     # (Note: this will call authenticated_userid() with multiauth+groupfinder)
-    if Authenticated in request.effective_principals:
+    if request.authenticated_userid is not None:
         data["user"] = request.get_user_info()
 
     if settings["readonly"]:
