@@ -41,7 +41,7 @@ class NotModifiedTest(BaseTest):
         self.assertIsNotNone(error.headers.get("Last-Modified"))
 
     def test_single_object_last_modified_is_returned(self):
-        self.resource.timestamp = 0
+        self.resource.timestamp = 0  # type: ignore[assignment]
         self.resource.object_id = self.stored["id"]
         try:
             self.resource.get()
@@ -142,7 +142,7 @@ class ModifiedMeanwhileTest(BaseTest):
         self.assertRaises(httpexceptions.HTTPPreconditionFailed, self.resource.put)
 
     def test_put_returns_last_modified_if_changed_meanwhile(self):
-        self.resource.timestamp = 0
+        self.resource.timestamp = 0  # type: ignore[assignment]
         self.resource.object_id = self.stored["id"]
         try:
             self.resource.put()
@@ -256,7 +256,7 @@ class ModifiedMeanwhileTest(BaseTest):
         self.assertRaises(httpexceptions.HTTPPreconditionFailed, self.resource.patch)
 
     def test_patch_returns_last_modified_if_changed_meanwhile(self):
-        self.resource.timestamp = 0
+        self.resource.timestamp = 0  # type: ignore[assignment]
         try:
             self.resource.patch()
         except httpexceptions.HTTPPreconditionFailed as e:

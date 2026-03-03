@@ -400,14 +400,14 @@ class CorniceSwagger(object):
             self.services = services
 
         # Instantiate handlers
-        self.definitions = self.definitions(ref=def_ref_depth, type_converter=type_converter)
-        self.parameters = self.parameters(
+        self.definitions = self.definitions(ref=def_ref_depth, type_converter=type_converter)  # type: ignore[call-non-callable]
+        self.parameters = self.parameters(  # type: ignore[call-non-callable]
             self.definitions,
             ref=param_ref,
             type_converter=type_converter,
             parameter_converter=parameter_converter,
         )
-        self.responses = self.responses(
+        self.responses = self.responses(  # type: ignore[call-non-callable]
             self.definitions, ref=resp_ref, type_converter=type_converter
         )
 
@@ -449,24 +449,24 @@ class CorniceSwagger(object):
             tag_names = {t["name"] for t in swagger["tags"]}
             for tag in tags:
                 if tag["name"] not in tag_names:
-                    swagger["tags"].append(tag)
+                    swagger["tags"].append(tag)  # type: ignore[union-attr]
 
         # Create/Update swagger sections with extracted values where not provided
         if paths:
             swagger.setdefault("paths", {})
             merge_dicts(swagger["paths"], paths)
 
-        definitions = self.definitions.definition_registry
+        definitions = self.definitions.definition_registry  # type: ignore[attr-defined]
         if definitions:
             swagger.setdefault("definitions", {})
             merge_dicts(swagger["definitions"], definitions)
 
-        parameters = self.parameters.parameter_registry
+        parameters = self.parameters.parameter_registry  # type: ignore[attr-defined]
         if parameters:
             swagger.setdefault("parameters", {})
             merge_dicts(swagger["parameters"], parameters)
 
-        responses = self.responses.response_registry
+        responses = self.responses.response_registry  # type: ignore[attr-defined]
         if responses:
             swagger.setdefault("responses", {})
             merge_dicts(swagger["responses"], responses)
@@ -604,7 +604,7 @@ class CorniceSwagger(object):
             path = path.replace(subpath_marker, "{subpath}")
 
         # Extract path parameters
-        parameters = self.parameters.from_path(path)
+        parameters = self.parameters.from_path(path)  # type: ignore[missing-argument]
         if parameters:
             path_obj["parameters"] = parameters
 
@@ -661,7 +661,7 @@ class CorniceSwagger(object):
         is_colander = self._is_colander_schema(args)
         if is_colander:
             schema = self._extract_transform_colander_schema(args)
-            parameters = self.parameters.from_schema(schema)
+            parameters = self.parameters.from_schema(schema)  # type: ignore[missing-argument]
         else:
             # Bail out for now
             parameters = None
@@ -682,7 +682,7 @@ class CorniceSwagger(object):
 
         # Get response definitions
         if "response_schemas" in args:
-            op["responses"] = self.responses.from_schema_mapping(args["response_schemas"])
+            op["responses"] = self.responses.from_schema_mapping(args["response_schemas"])  # type: ignore[missing-argument]
 
         # Get response tags
         if "tags" in args:

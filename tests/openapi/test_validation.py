@@ -9,11 +9,11 @@ class OpenAPIRequestsValidationTest(OpenAPITest):
         super().setUp()
 
         self.request = IncomingRequest()
-        self.request.path = {}
-        self.request.headers = {}
-        self.request.query = {}
-        self.request._json = {}
-        self.request.json = lambda: self.request._json
+        self.request.path = {}  # type: ignore[attr-defined]
+        self.request.headers = {}  # type: ignore[attr-defined]
+        self.request.query = {}  # type: ignore[attr-defined]
+        self.request._json = {}  # type: ignore[attr-defined]
+        self.request.json = lambda: self.request._json  # type: ignore[attr-defined, method-assign]
 
     def test_validate_bucket_path(self):
         self.assertRaises(
@@ -28,7 +28,7 @@ class OpenAPIRequestsValidationTest(OpenAPITest):
     def test_validate_group_path(self):
         paths = [{}, {"bucket_id": "b1"}, {"id": "g1"}]
         for path in paths:
-            self.request.path = path
+            self.request.path = path  # type: ignore[assignment]
             self.assertRaises(
                 ValidationError,
                 unmarshal_request,
@@ -47,7 +47,7 @@ class OpenAPIRequestsValidationTest(OpenAPITest):
     def test_validate_plural_path(self):
         paths = [{}, {"bucket_id": "b1"}, {"id": "c1"}]
         for path in paths:
-            self.request.path = path
+            self.request.path = path  # type: ignore[assignment]
             self.assertRaises(
                 ValidationError,
                 unmarshal_request,
@@ -58,7 +58,7 @@ class OpenAPIRequestsValidationTest(OpenAPITest):
     def test_validate_records_path(self):
         paths = [{}, {"bucket_id": "b1"}, {"collection_id": "c1"}]
         for path in paths:
-            self.request.path = path
+            self.request.path = path  # type: ignore[assignment]
             self.assertRaises(
                 ValidationError,
                 unmarshal_request,
@@ -69,7 +69,7 @@ class OpenAPIRequestsValidationTest(OpenAPITest):
     def test_validate_object_path(self):
         paths = [{}, {"bucket_id": "b1", "collection_id": "c1"}, {"id": "r1"}]
         for path in paths:
-            self.request.path = path
+            self.request.path = path  # type: ignore[assignment]
             self.assertRaises(
                 ValidationError,
                 unmarshal_request,
@@ -80,7 +80,7 @@ class OpenAPIRequestsValidationTest(OpenAPITest):
     def test_validate_data(self):
         bodies = [{"data": "aaa"}]
         for body in bodies:
-            self.request._json = body
+            self.request._json = body  # type: ignore[assignment]
             self.assertRaises(
                 ValidationError,
                 unmarshal_request,
@@ -95,7 +95,7 @@ class OpenAPIRequestsValidationTest(OpenAPITest):
             {"permissions": {"read": [111]}},
         ]
         for body in bodies:
-            self.request._json = body
+            self.request._json = body  # type: ignore[assignment]
             self.assertRaises(
                 ValidationError,
                 unmarshal_request,
@@ -106,7 +106,7 @@ class OpenAPIRequestsValidationTest(OpenAPITest):
     def test_validate_queries(self):
         queries = [{"_since": "aaa"}, {"_before": "aaa"}, {"_limit": "aaa"}, {"_token": {}}]
         for query in queries:
-            self.request.query = query
+            self.request.query = query  # type: ignore[assignment]
             self.assertRaises(
                 ValidationError,
                 unmarshal_request,
@@ -117,7 +117,7 @@ class OpenAPIRequestsValidationTest(OpenAPITest):
     def test_validate_headers(self):
         headers = [{"If-None-Match": "123"}, {"If-Match": "123"}]
         for head in headers:
-            self.request.headers = head
+            self.request.headers = head  # type: ignore[assignment]
             self.assertRaises(
                 ValidationError,
                 unmarshal_request,
@@ -126,25 +126,25 @@ class OpenAPIRequestsValidationTest(OpenAPITest):
             )
 
     def test_validate_batch_requests_method(self):
-        self.request._json = {"requests": [{"method": "AAA", "path": "/buckets/b1"}]}
+        self.request._json = {"requests": [{"method": "AAA", "path": "/buckets/b1"}]}  # type: ignore[assignment]
         self.assertRaises(
             ValidationError, unmarshal_request, self.request, self.resources["Batch"].batch
         )
 
     def test_validate_batch_requests_path(self):
-        self.request._json = {"requests": [{"method": "GET", "path": 123}]}
+        self.request._json = {"requests": [{"method": "GET", "path": 123}]}  # type: ignore[assignment]
         self.assertRaises(
             ValidationError, unmarshal_request, self.request, self.resources["Batch"].batch
         )
 
     def test_validate_batch_requests_body(self):
-        self.request._json = {"requests": [{"method": "GET", "path": "/buckets/b1", "body": []}]}
+        self.request._json = {"requests": [{"method": "GET", "path": "/buckets/b1", "body": []}]}  # type: ignore[assignment]
         self.assertRaises(
             ValidationError, unmarshal_request, self.request, self.resources["Batch"].batch
         )
 
     def test_validate_batch_requests_header(self):
-        self.request._json = {
+        self.request._json = {  # type: ignore[assignment]
             "requests": [{"method": "GET", "path": "/buckets/b1", "body": {}, "headers": []}]
         }
         self.assertRaises(
@@ -152,7 +152,7 @@ class OpenAPIRequestsValidationTest(OpenAPITest):
         )
 
     def test_validate_batch_defaults(self):
-        self.request._json = {
+        self.request._json = {  # type: ignore[assignment]
             "defaults": [],
             "requests": [{"method": "GET", "path": "/buckets/b1"}],
         }
@@ -161,13 +161,13 @@ class OpenAPIRequestsValidationTest(OpenAPITest):
         )
 
     def test_validate_batch_defaults_method(self):
-        self.request._json = {"defaults": {"method": "AAA"}, "requests": [{"path": "/buckets/b1"}]}
+        self.request._json = {"defaults": {"method": "AAA"}, "requests": [{"path": "/buckets/b1"}]}  # type: ignore[assignment]
         self.assertRaises(
             ValidationError, unmarshal_request, self.request, self.resources["Batch"].batch
         )
 
     def test_validate_batch_defaults_body(self):
-        self.request._json = {
+        self.request._json = {  # type: ignore[assignment]
             "defaults": {"body": []},
             "requests": [{"method": "PUT", "path": "/buckets/b1"}],
         }
@@ -176,7 +176,7 @@ class OpenAPIRequestsValidationTest(OpenAPITest):
         )
 
     def test_validate_batch_defaults_headers(self):
-        self.request._json = {
+        self.request._json = {  # type: ignore[assignment]
             "defaults": {"headers": []},
             "requests": [{"method": "GET", "path": "/buckets/b1"}],
         }

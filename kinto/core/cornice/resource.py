@@ -118,7 +118,7 @@ def add_resource(klass, depth=2, **kw):
         service = services[service_name] = Service(name=service_name, depth=depth, **service_args)
         # ensure the service comes with the same properties as the wrapped
         # resource
-        functools.update_wrapper(service, klass)
+        functools.update_wrapper(service, klass)  # type: ignore[arg-type]
 
         # initialize views
         for verb in ("get", "post", "put", "delete", "options", "patch"):

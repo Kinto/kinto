@@ -201,7 +201,7 @@ class RouteFactory:
             bound_perms = [(self.resource_name, self.required_permission)]
         for _, permission in bound_perms:
             # With Kinto inheritance tree, we can have: `permission = "record:create"`
-            if self.resource_name and permission.startswith(self.resource_name):
+            if self.resource_name and permission and permission.startswith(self.resource_name):
                 setting = f"{permission.replace(':', '_')}_principals"
             else:
                 setting = f"{self.resource_name}_{permission}_principals"
@@ -302,7 +302,11 @@ class RouteFactory:
         # In the case of a "POST" on a plural endpoint, if an "id" was
         # specified, then the object is returned. The required permission
         # is thus "read" on this object.
-        if request.method.lower() == "post" and self.current_object is not None:
+        if (
+            request.method.lower() == "post"
+            and self.current_object is not None
+            and self._resource is not None
+        ):
             permission_object_id = self.get_permission_object_id(
                 request, object_id=self._resource.object_id
             )

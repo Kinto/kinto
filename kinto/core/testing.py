@@ -2,6 +2,7 @@ import os
 import threading
 import unittest
 from collections import defaultdict
+from typing import TYPE_CHECKING
 from unittest import mock
 
 import webtest
@@ -68,7 +69,17 @@ def get_request_class(prefix):
     return PrefixedRequestClass
 
 
-class FormattedErrorMixin:
+if TYPE_CHECKING:
+    _FormattedErrorMixinBase = unittest.TestCase
+    _BaseWebTestBase = unittest.TestCase
+    _ThreadMixinBase = unittest.TestCase
+else:
+    _FormattedErrorMixinBase = object
+    _BaseWebTestBase = object
+    _ThreadMixinBase = object
+
+
+class FormattedErrorMixin(_FormattedErrorMixinBase):
     """Test mixin in order to perform advanced error responses assertions."""
 
     def assertFormattedError(self, response, code, errno, error, message=None, info=None):
@@ -98,7 +109,7 @@ def get_user_headers(user, password="secret"):
     return {"Authorization": authorization}
 
 
-class BaseWebTest:
+class BaseWebTest(_BaseWebTestBase):
     """Base Web Test to test your kinto.core service.
 
     It setups the database before each test and delete it after.
@@ -136,7 +147,7 @@ class BaseWebTest:
 
         main = cls.entry_point
 
-        wsgi_app = main({}, config=config, **settings)
+        wsgi_app = main({}, config=config, **settings)  # type: ignore[call-non-callable]
         app = webtest.TestApp(wsgi_app)
         app.RequestClass = get_request_class(cls.api_prefix)
         return app
@@ -155,7 +166,7 @@ class BaseWebTest:
         settings["cache_backend"] = "kinto.core.cache.memory"
         settings["permission_backend"] = "kinto.core.permission.memory"
 
-        settings.update(extras or None)
+        settings.update(extras or {})
 
         return settings
 
@@ -166,7 +177,7 @@ class BaseWebTest:
         self.permission.flush()
 
 
-class ThreadMixin:
+class ThreadMixin(_ThreadMixinBase):
     def setUp(self):
         super().setUp()
         self._threads = []

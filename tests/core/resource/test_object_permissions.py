@@ -15,8 +15,8 @@ class PermissionTest(BaseTest):
         self.permission = Permission()
         super().setUp()
 
-    def get_request(self):
-        request = super().get_request()
+    def get_request(self, resource_name=""):
+        request = super().get_request(resource_name)
         request.registry.permission = self.permission
         return request
 
@@ -88,7 +88,7 @@ class SpecifyObjectPermissionTest(PermissionTest):
         self.resource.request.path = self.object_uri
 
     def test_write_permission_is_given_to_creator_on_post(self):
-        self.resource.context.object_uri = "/articles"
+        self.resource.context.object_uri = "/articles"  # type: ignore[union-attr]
         self.resource.request.method = "POST"
         result = self.resource.plural_post()
         self.assertEqual(sorted(result["permissions"]["write"]), ["basicauth:bob"])
@@ -113,7 +113,7 @@ class SpecifyObjectPermissionTest(PermissionTest):
     def test_permissions_can_be_specified_in_plural_post(self):
         perms = {"write": ["jean-louis"]}
         self.resource.request.method = "POST"
-        self.resource.context.object_uri = "/articles"
+        self.resource.context.object_uri = "/articles"  # type: ignore[union-attr]
         self.resource.request.validated["body"] = {"data": {}, "permissions": perms}
         result = self.resource.plural_post()
         self.assertEqual(sorted(result["permissions"]["write"]), ["basicauth:bob", "jean-louis"])
@@ -185,7 +185,7 @@ class DeletedObjectPermissionTest(PermissionTest):
         self.assertEqual(len(principals), 0)
 
     def test_permissions_are_deleted_when_plural_is_deleted(self):
-        self.resource.context.on_plural_endpoint = True
+        self.resource.context.on_plural_endpoint = True  # type: ignore[assignment]
         self.resource.plural_delete()
         principals = self.permission.get_object_permission_principals(self.object_uri, "read")
         self.assertEqual(len(principals), 0)
@@ -206,7 +206,7 @@ class GuestPluralEndpointTest(PermissionTest):
         self.permission.add_principal_to_ace(uri2, "read", "group")
         self.permission.add_principal_to_ace(uri3, "read", "jean-louis")
 
-        self.resource.context.shared_ids = [object1["id"], object2["id"]]
+        self.resource.context.shared_ids = [object1["id"], object2["id"]]  # type: ignore[assignment]
 
     def test_plural_is_filtered_for_current_guest(self):
         result = self.resource.plural_get()
@@ -219,12 +219,12 @@ class GuestPluralEndpointTest(PermissionTest):
         self.assertEqual(len(result["data"]), 1)
 
     def test_guest_plural_get_is_empty_if_no_object_is_shared(self):
-        self.resource.context.shared_ids = ["tata lili"]
+        self.resource.context.shared_ids = ["tata lili"]  # type: ignore[assignment]
         result = self.resource.plural_get()
         self.assertEqual(len(result["data"]), 0)
 
     def test_permission_backend_is_not_queried_if_not_guest(self):
-        self.resource.context.shared_ids = None
+        self.resource.context.shared_ids = None  # type: ignore[assignment]
         self.resource.request.registry.permission = None  # would fail!
         result = self.resource.plural_get()
         self.assertEqual(len(result["data"]), 3)
@@ -251,11 +251,11 @@ class GuestPluralDeleteTest(PermissionTest):
         self.permission.add_principal_to_ace(uri3, "write", "group")
         self.permission.add_principal_to_ace(uri4, "write", "jean-louis")
 
-        self.resource.context.shared_ids = [object2["id"], object3["id"]]
+        self.resource.context.shared_ids = [object2["id"], object3["id"]]  # type: ignore[assignment]
         self.resource.request.method = "DELETE"
 
-    def get_request(self):
-        request = super().get_request()
+    def get_request(self, resource_name=""):
+        request = super().get_request(resource_name)
         # RouteFactory must be aware of DELETE to query 'write' permission.
         request.method = "DELETE"
         return request
@@ -274,7 +274,7 @@ class GuestPluralDeleteTest(PermissionTest):
         self.assertEqual(len(objects), 3)
 
     def test_guest_cannot_delete_objects_if_not_allowed(self):
-        self.resource.context.shared_ids = ["tata lili"]
+        self.resource.context.shared_ids = ["tata lili"]  # type: ignore[assignment]
         result = self.resource.plural_delete()
         self.assertEqual(len(result["data"]), 0)
         objects = self.resource.model.get_objects()

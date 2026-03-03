@@ -166,5 +166,7 @@ class PostgreSQLCacheTest(CacheTest, unittest.TestCase):
     def setUp(self):
         super().setUp()
         self.client_error_patcher = mock.patch.object(
-            self.cache.client, "session_factory", side_effect=sqlalchemy.exc.SQLAlchemyError
+            self.cache.client,
+            "session_factory",
+            side_effect=sqlalchemy.exc.SQLAlchemyError,  # type: ignore[possibly-missing-attribute]
         )

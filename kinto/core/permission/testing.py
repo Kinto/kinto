@@ -1,3 +1,5 @@
+import unittest
+from typing import TYPE_CHECKING, Any
 from unittest import mock
 
 from pyramid import testing
@@ -7,9 +9,18 @@ from kinto.core.storage import exceptions
 from kinto.core.testing import DummyRequest
 
 
-class PermissionTest:
-    backend = None
-    settings = {}
+if TYPE_CHECKING:
+    _PermissionTestBase = unittest.TestCase
+else:
+    _PermissionTestBase = object
+
+
+class PermissionTest(_PermissionTestBase):
+    backend: Any = None
+    settings: dict = {}
+    permission: Any
+    request: Any
+    client_error_patcher: Any
 
     def setUp(self):
         super().setUp()

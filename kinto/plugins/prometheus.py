@@ -16,7 +16,7 @@ from kinto.core.utils import safe_wraps
 try:
     import prometheus_client as prometheus_module
 except ImportError:  # pragma: no cover
-    prometheus_module = None
+    prometheus_module = None  # type: ignore[assignment]
 
 
 logger = logging.getLogger(__name__)
@@ -136,7 +136,7 @@ class PrometheusService:
                 key,
                 f"Histogram of {key}",
                 labelnames=[label_name for label_name, _ in labels],
-                buckets=self.histogram_buckets,
+                buckets=self.histogram_buckets,  # type: ignore[arg-type]
             )
 
         if not isinstance(_METRICS[key], prometheus_module.Histogram):
@@ -251,8 +251,8 @@ def metrics_view(request):
 
 
 def _reset_multiproc_folder_content():  # pragma: no cover
-    shutil.rmtree(PROMETHEUS_MULTIPROC_DIR, ignore_errors=True)
-    os.makedirs(PROMETHEUS_MULTIPROC_DIR, exist_ok=True)
+    shutil.rmtree(PROMETHEUS_MULTIPROC_DIR, ignore_errors=True)  # type: ignore[arg-type]
+    os.makedirs(PROMETHEUS_MULTIPROC_DIR, exist_ok=True)  # type: ignore[arg-type]
 
 
 def reset_registry():

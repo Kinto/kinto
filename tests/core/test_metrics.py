@@ -44,8 +44,8 @@ class ListenerWithTimerTest(unittest.TestCase):
         self.assertEqual(wrapped(42), 42)  # does not raise
 
     def test_with_metrics_service(self):
-        self.config.registry.registerUtility(mock.MagicMock(), metrics.IMetricsService)
+        self.config.registry.registerUtility(mock.MagicMock(), metrics.IMetricsService)  # type: ignore[union-attr]
         wrapped = metrics.listener_with_timer(self.config, "key", self.func)
 
         self.assertEqual(wrapped(42), 42)
-        self.config.registry.metrics.timer.assert_called_with("key.seconds")
+        self.config.registry.metrics.timer.assert_called_with("key.seconds")  # type: ignore[union-attr]

@@ -1,4 +1,6 @@
 import time
+import unittest
+from typing import TYPE_CHECKING, Any
 from unittest import mock
 
 from pyramid import testing
@@ -10,11 +12,37 @@ from kinto.core.testing import DummyRequest, ThreadMixin, skip_if_ci
 
 OBJECT_ID = "472be9ec-26fe-461b-8282-9c4e4b207ab3"
 
+if TYPE_CHECKING:
+    _StorageTestBase = unittest.TestCase
+else:
+    _StorageTestBase = object
 
-class BaseTestStorage:
-    backend = None
 
-    settings = {}
+class _StorageMixin(_StorageTestBase):
+    """Shared attribute declarations for storage test mixin classes."""
+
+    storage: Any
+    storage_kw: dict
+    create_object: Any
+    modified_field: str
+    id_field: str
+    obj: dict
+    other_parent_id: str
+    mocked_warnings: Any
+    _create_thread: Any
+
+
+class BaseTestStorage(_StorageMixin):
+    backend: Any = None
+    settings: dict = {}
+    storage: Any
+    id_field: str
+    modified_field: str
+    client_error_patcher: Any
+    obj: dict
+    storage_kw: dict
+    other_parent_id: str
+    auth: str
 
     def setUp(self):
         super().setUp()
@@ -823,7 +851,7 @@ class BaseTestStorage:
         self.assertEqual(len(results), 2)
 
 
-class TimestampsTest:
+class TimestampsTest(_StorageMixin):
     def test_timestamp_are_incremented_on_create(self):
         self.create_object()  # init
         before = self.storage.resource_timestamp(**self.storage_kw)
@@ -1081,7 +1109,7 @@ class TimestampsTest:
         self.mocked_warnings.assert_called_with(message, DeprecationWarning)
 
 
-class DeletedObjectsTest:
+class DeletedObjectsTest(_StorageMixin):
     def _get_last_modified_filters(self):
         start = self.storage.resource_timestamp(**self.storage_kw)
         time.sleep(0.1)
@@ -1569,8 +1597,8 @@ class DeletedObjectsTest:
             sorting=sorting, filters=filters, include_deleted=True, **self.storage_kw
         )
 
-        self.assertDictEqual(objects[0], first)
-        self.assertDictEqual(objects[-1], last)
+        self.assertDictEqual(objects[0], first)  # type: ignore[arg-type]
+        self.assertDictEqual(objects[-1], last)  # type: ignore[arg-type]
 
     def test_sorting_on_last_modified_mixes_deleted_objects(self):
         filters = self._get_last_modified_filters()
@@ -1864,7 +1892,7 @@ class DeletedObjectsTest:
         self.assertEqual(len(deleted), 2)
 
 
-class ParentObjectAccessTest:
+class ParentObjectAccessTest(_StorageMixin):
     def test_parent_cannot_access_other_parent_object(self):
         obj = self.create_object()
         self.assertRaises(
@@ -1896,7 +1924,7 @@ class ParentObjectAccessTest:
         self.assertNotIn("another", not_updated)
 
 
-class SerializationTest:
+class SerializationTest(_StorageMixin):
     def test_create_bytes_raises(self):
         data = {"steak": "haché".encode(encoding="utf-8")}
         self.assertIsInstance(data["steak"], bytes)
@@ -1913,7 +1941,7 @@ class SerializationTest:
         )
 
 
-class TrimObjectsTest:
+class TrimObjectsTest(_StorageMixin):
     def test_trims_n_of_same_resource(self):
         for i in range(20):
             self.create_object({"num": i, "group": "a" if i % 2 == 0 else "b"})
@@ -1929,7 +1957,7 @@ class TrimObjectsTest:
         self.assertEqual(count, 20 - num_removed)
 
 
-class DeprecatedCoreNotionsTest:
+class DeprecatedCoreNotionsTest(_StorageMixin):
     def setUp(self):
         super().setUp()
         patch = mock.patch("warnings.warn")

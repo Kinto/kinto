@@ -86,6 +86,7 @@ test-deps:
 lint: install-dev ## run the code linters
 	$(VENV)/bin/ruff check kinto tests docs/conf.py
 	$(VENV)/bin/ruff format --check kinto tests docs/conf.py
+	$(VENV)/bin/ty check kinto tests
 
 .PHONY: format
 format: install-dev ## reformat code

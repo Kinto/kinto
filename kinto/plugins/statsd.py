@@ -11,7 +11,7 @@ from kinto.core import metrics
 try:
     import statsd as statsd_module
 except ImportError:  # pragma: no cover
-    statsd_module = None
+    statsd_module = None  # type: ignore[assignment]
 
 
 def sanitize(value):

@@ -40,7 +40,7 @@ class BatchRequestSchema(colander.MappingSchema):
     body = colander.SchemaNode(colander.Mapping(unknown="preserve"), missing=colander.drop)
 
     @staticmethod
-    def schema_type():
+    def schema_type():  # type: ignore[override]
         return colander.Mapping(unknown="raise")
 
 
@@ -49,7 +49,7 @@ class BatchPayloadSchema(colander.MappingSchema):
     requests = colander.SchemaNode(colander.Sequence(), BatchRequestSchema())
 
     @staticmethod
-    def schema_type():
+    def schema_type():  # type: ignore[override]
         return colander.Mapping(unknown="raise")
 
     def __init__(self, *args, **kwargs):
@@ -60,8 +60,8 @@ class BatchPayloadSchema(colander.MappingSchema):
     def deserialize(self, cstruct=colander.null):
         """Preprocess received data to carefully merge defaults."""
         if cstruct is not colander.null:
-            defaults = cstruct.get("defaults")
-            requests = cstruct.get("requests")
+            defaults = cstruct.get("defaults")  # type: ignore[union-attr]
+            requests = cstruct.get("requests")  # type: ignore[union-attr]
             if isinstance(defaults, dict) and isinstance(requests, list):
                 for request in requests:
                     if isinstance(request, dict):

@@ -52,12 +52,12 @@ class PostgreSQLClient:
                 # Commit like would do a succesful request.
                 zope_transaction.commit()
 
-        except sqlalchemy.exc.IntegrityError as e:
+        except sqlalchemy.exc.IntegrityError as e:  # type: ignore[possibly-missing-attribute]
             logger.error(e, exc_info=True)
-            if commit_manually:  # pragma: no branch
+            if session and commit_manually:  # pragma: no branch
                 session.rollback()
             raise exceptions.IntegrityError(original=e) from e
-        except sqlalchemy.exc.SQLAlchemyError as e:
+        except sqlalchemy.exc.SQLAlchemyError as e:  # type: ignore[possibly-missing-attribute]
             logger.error(e, exc_info=True)
             if session and commit_manually:
                 session.rollback()
