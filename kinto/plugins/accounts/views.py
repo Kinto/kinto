@@ -1,6 +1,6 @@
 import colander
 from pyramid import httpexceptions
-from pyramid.authorization import Authenticated, Everyone
+from pyramid.authorization import Everyone
 from pyramid.decorator import reify
 from pyramid.events import subscriber
 from pyramid.settings import aslist
@@ -49,7 +49,7 @@ class Account(resource.Resource):
             len(set(aslist(allowed_from_settings)) & set(request.prefixed_principals)) > 0
         )
         # Shortcut to check if current is anonymous (before get_parent_id()).
-        context.is_anonymous = Authenticated not in request.effective_principals
+        context.is_anonymous = request.authenticated_userid is None
 
         super().__init__(request, context)
 

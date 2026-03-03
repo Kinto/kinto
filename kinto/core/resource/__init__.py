@@ -31,6 +31,7 @@ from kinto.core.utils import (
     encode64,
     find_nested_value,
     json,
+    msec_time,
     recursive_update_dict,
 )
 
@@ -1061,7 +1062,16 @@ class Resource:
 
         def is_valid_timestamp(value):
             # Is either integer, or integer as string, or integer between 2 quotes.
-            return isinstance(value, int) or re.match(r'^(\d+)$|^("\d+")$', str(value))
+            if isinstance(value, str):
+                if not re.match(r'^(\d+)$|^("\d+")$', value):
+                    return False
+                value = value.strip('"')
+            try:
+                ivalue = int(value)
+            except (ValueError, TypeError):
+                return False
+            tomorrow = msec_time() + 24 * 3600 * 1000
+            return 0 <= ivalue < tomorrow
 
         queryparams = self.request.validated["querystring"]
 

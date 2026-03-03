@@ -1,6 +1,7 @@
 import warnings
 from unittest import mock
 
+import pytest
 import webtest
 from pyramid.authentication import SessionAuthenticationPolicy
 from pyramid.config import Configurator
@@ -363,6 +364,7 @@ class MetricsConfigurationTest(unittest.TestCase):
             self.mocked(), mock.ANY, prefix="authentication", classname="basicauth"
         )
 
+    @pytest.mark.filterwarnings("ignore::DeprecationWarning")
     def test_statsd_is_set_on_authentication_raw_auth(self):
         authn_policy = SessionAuthenticationPolicy()
         self.config.set_authentication_policy(authn_policy)
@@ -467,14 +469,16 @@ class MetricsConfigurationTest(unittest.TestCase):
 
         initialization.setup_metrics(self.config)
 
-        self.assertEqual(self.config.registry.statsd.__class__.__name__, "NoOpMetricsService")  # type: ignore[attr-defined]
+        with pytest.warns(DeprecationWarning, match="config.registry.statsd"):
+            self.assertEqual(self.config.registry.statsd.__class__.__name__, "NoOpMetricsService")  # type: ignore[attr-defined]
 
     def test_metrics_attr_is_set_if_statsd_url_is_set(self):
         self.config.add_settings({"statsd_url": "udp://host:8080"})
 
         initialization.setup_metrics(self.config)
 
-        self.assertIsNotNone(self.config.registry.statsd)  # type: ignore[attr-defined]
+        with pytest.warns(DeprecationWarning, match="config.registry.statsd"):
+            self.assertIsNotNone(self.config.registry.statsd)  # type: ignore[attr-defined]
         self.assertIsNotNone(self.config.registry.metrics)  # type: ignore[attr-defined]
 
     def test_statsd_attr_is_exposed_in_the_registry_if_url_is_set(self):

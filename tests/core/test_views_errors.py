@@ -6,6 +6,7 @@ from pyramid import httpexceptions
 from kinto.core.errors import ERRORS, http_error
 from kinto.core.storage import exceptions as storage_exceptions
 from kinto.core.testing import FormattedErrorMixin
+from kinto.core.utils import msec_time
 
 from .support import BaseWebTest
 
@@ -157,6 +158,19 @@ class ErrorViewTest(FormattedErrorMixin, BaseWebTest, unittest.TestCase):
         response = self.app.get("/%82%AC", status=400)
         self.assertFormattedError(
             response, 400, ERRORS.INVALID_PARAMETERS, "Bad Request", "Invalid URL path."
+        )
+
+    def test_400_with_last_modified_in_the_future(self):
+        infuture = msec_time() + 3 * 24 * 3600 * 1000  # 3 days in the future
+        response = self.app.get(
+            self.sample_url + f'?_since="{infuture}"', headers=self.headers, status=400
+        )
+        self.assertFormattedError(
+            response,
+            400,
+            ERRORS.INVALID_PARAMETERS,
+            "Invalid parameters",
+            "Invalid value for _since",
         )
 
     def test_400_when_query_field_contains_nul_character(self):

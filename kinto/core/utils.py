@@ -5,6 +5,7 @@ import hmac
 import os
 import re
 import time
+import warnings
 from base64 import b64decode, b64encode
 from binascii import hexlify
 from enum import Enum
@@ -341,7 +342,12 @@ def prefixed_principals(request):
     """
     :returns: the list principals with prefixed user id.
     """
-    principals = request.effective_principals
+    # pyramid_multiauth uses the old-style authentication policy interface, so
+    # effective_principals is still the only way to get the full principal list
+    # (including group principals from all configured policies).
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", DeprecationWarning)
+        principals = request.effective_principals
     if Authenticated not in principals:
         return principals
 

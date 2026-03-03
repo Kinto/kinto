@@ -1,7 +1,6 @@
 import uuid
 
 from pyramid import httpexceptions
-from pyramid.authorization import Authenticated
 from pyramid.security import NO_PERMISSION_REQUIRED
 from pyramid.settings import asbool
 
@@ -113,7 +112,7 @@ def default_bucket(request):
         subrequest = build_request(request, {"method": "OPTIONS", "path": path})
         return request.invoke_subrequest(subrequest)
 
-    if Authenticated not in request.effective_principals:
+    if request.authenticated_userid is None:
         # Pass through the forbidden_view_config
         raise httpexceptions.HTTPForbidden()
 
