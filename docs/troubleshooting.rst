@@ -74,10 +74,16 @@ By default, the PostgreSQL Debian package does not setup any password for the ``
 	...
 
 
-bind(): No such file or directory [uwsgi error]
+bind(): No such file or directory [uWSGI error]
 ===============================================
 
-Make sure that the path you defined for the socket parameter of the uwsgi
+.. note::
+
+    Kinto now uses `Granian <https://github.com/emmett-framework/granian>`_ as its
+    default WSGI server. The uWSGI-specific errors below only apply if you are still
+    using uWSGI explicitly.
+
+Make sure that the path you defined for the socket parameter of the uWSGI
 configuration exists.
 
 To fix this::
@@ -88,11 +94,11 @@ Make sure the directory exists::
 
   sudo mkdir -p /var/run/uwsgi
 
-Also, make sure the user that runs uwsgi can access /var/run/uwsgi and can
-write in the uwsgi directory.
+Also, make sure the user that runs uWSGI can access ``/var/run/uwsgi`` and can
+write to the directory.
 
-ERROR: ImportError: No module named .... [uwsgi error]
-=========================================================
+ERROR: ImportError: No module named .... [uWSGI error]
+=======================================================
 
 You might get some error like::
 
@@ -108,9 +114,9 @@ You might get some error like::
   ImportError: No module named cornice
   unable to load app 0 (mountpoint='') (callable not found or import error)
 
-The reason is that the user/group (``uid`` and ``gid`` specified under [uwsgi] section in kinto.ini) not being able to access the sourcecode.
+The reason is that the user/group (``uid`` and ``gid`` specified under ``[uwsgi]`` in ``kinto.ini``) cannot access the source code.
 
-To fix this, grant ``kinto`` user/group access to the source folder::
+To fix this, grant the ``kinto`` user/group access to the source folder::
 
   $ chgrp kinto -R .
   $ chown kinto -R .
@@ -191,6 +197,6 @@ Here is an example of one such conflicting configuration::
    multiauth.policy.auth0.userid_field = email
 
 One simple solution is not to use Auth0 in conjunction with other auth policies
-that overlaps with the ones it suppoprts (https://auth0.com/docs/identityproviders).
-This is because Auth0 allows to fetch profile information from other providers creating
-a conflict while choosing what policy should handle the access token.
+that overlap with the ones it supports (https://auth0.com/docs/identityproviders).
+This is because Auth0 allows fetching profile information from other providers, creating
+a conflict when choosing which policy should handle the access token.

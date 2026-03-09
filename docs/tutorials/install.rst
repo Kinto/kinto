@@ -18,7 +18,7 @@ If you have `Docker <https://docker.com/>`_, *Kinto* can be started locally with
 
 ::
 
-    sudo docker run -p 8888:8888 kinto/kinto-server
+    docker run -p 8888:8888 kinto/kinto-server
 
 The server should now be running on http://localhost:8888
 
@@ -70,7 +70,7 @@ config file:
 
 .. code-block:: shell
 
-    sudo docker run -v `pwd`/config:/etc/kinto \
+    docker run -v `pwd`/config:/etc/kinto \
                     -e KINTO_INI=/etc/kinto/dev.ini \
                     -p 8888:8888 \
                     kinto/kinto-server
@@ -79,22 +79,22 @@ config file:
 Using Docker Compose
 --------------------
 
-A sample configuration for `Docker Compose <http://docs.docker.com/compose/>`_
+A sample configuration for `Docker Compose <https://docs.docker.com/compose/>`_
 is provided in the Kinto repository. It pulls the *Kinto* container and runs it
 with a *PostgreSQL* container.
 
 ::
 
     wget https://raw.githubusercontent.com/Kinto/kinto/main/docker-compose.yml
-    sudo docker-compose up
+    docker compose up
 
 Now you can:
 
-- Stop the containers with ``docker-compose stop``.
-- Start the containers with ``docker-compose up -d`` (``-d`` is for background/daemon).
-- Connect to PostgreSQL service with ``docker-compose exec --user postgres db psql``.
-- Install a plugin into kinto with ``docker-compose exec web pip3 install kinto-emailer``.
-- Inspect the kinto config file with ``docker-compose exec web cat /etc/kinto/kinto.ini``.
+- Stop the containers with ``docker compose stop``.
+- Start the containers with ``docker compose up -d`` (``-d`` is for background/daemon).
+- Connect to PostgreSQL service with ``docker compose exec --user postgres db psql``.
+- Install a plugin into kinto with ``docker compose exec web pip3 install kinto-emailer``.
+- Inspect the kinto config file with ``docker compose exec web cat /etc/kinto/kinto.ini``.
 
 If you want to change the settings, you need to mount a custom settings file
 into the *Kinto* container. Hopefully Docker Compose lets you do that the exact
@@ -116,7 +116,7 @@ same way Docker does (assuming you have created the config file ``./config/kinto
       volumes:
         - ./config:/etc/kinto
 
-Note that with the above example,``config/kinto.ini`` must define the following options
+Note that with the above example, ``config/kinto.ini`` must define the following options
 (where ``postgres:postgres`` is the user/password you defined in ``docker-compose.yml``):
 
 ::
