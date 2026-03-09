@@ -4,7 +4,7 @@ Rationale
 *Kinto-Core* is a toolkit to ease the implementation of HTTP `microservices`_.
 It is mainly focused on data-driven REST APIs (aka :term:`CRUD`).
 
-.. _microservices: http://en.wikipedia.org/wiki/Microservices
+.. _microservices: https://en.wikipedia.org/wiki/Microservices
 
 
 Philosophy
@@ -28,7 +28,7 @@ expose a well defined HTTP API for:
 practices (followed at `Mozilla Services`_ and `elsewhere`_).
 
 .. _Mozilla Services: https://wiki.mozilla.org/CloudServices
-.. _elsewhere: http://www.vinaysahni.com/best-practices-for-a-pragmatic-restful-api
+.. _elsewhere: https://www.vinaysahni.com/best-practices-for-a-pragmatic-restful-api
 
 The goal is to produce standardized APIs, which follow some
 well known patterns, encouraging genericity in clients code [#]_.
@@ -117,13 +117,10 @@ A *Kinto-Core* application can change or force default values for any setting.
 Built with Kinto-Core
 =====================
 
-Some applications in the wild built with *Kinto-Core*:
+Some applications built with *Kinto-Core*:
 
-* `Reading List <https://readinglist.readthedocs.io>`_, a service to synchronize articles between
-  devices;
 * `Kinto <https://kinto.readthedocs.io>`_, a service to store and synchronize schema-less data.
-* `Syncto <https://syncto.readthedocs.io>`_, a service to access *Firefox Sync* using *kinto.js*.
-* *Please contact us to add yours*.
+* *Please open an issue or PR to add yours*.
 
 Any application built with *Kinto-Core*:
 
@@ -136,20 +133,18 @@ Any application built with *Kinto-Core*:
 Similar projects
 ================
 
-* `Python Eve <http://python-eve.org/>`_, built on Flask and MongoDB;
-* *Please contact us to add more if any*.
+* `Python Eve <https://docs.python-eve.org/>`_, a REST API framework built on Flask and MongoDB;
+* *Please open an issue or PR to add more*.
 
-Since the HTTP API is language independant and follows good HTTP/REST principles,
-in the long term *Kinto-Core* should become only one among several server implementations.
+Since the HTTP API is language-independent and follows good HTTP/REST principles,
+*Kinto-Core* is designed to be only one among several possible server implementations.
 
 .. note::
 
-    We encourage you to implement a clone of this project — using Node.js, Asyncio,
-    Go, Twisted, Django or anything else — following :ref:`the same HTTP API <kinto-api-endpoints>`!
+    We encourage you to implement a compatible server — using Node.js, asyncio,
+    Go, Django or anything else — following :ref:`the same HTTP API <kinto-api-endpoints>`!
 
 
-.. [#] Switch from custom API to `JSON-API spec`_ is `being discussed`_.
-
-.. _JSON-API spec: http://jsonapi.org/
-.. _being discussed: https://github.com/mozilla-services/cliquet/issues/254
+.. [#] A switch from the custom API to the `JSON-API spec <http://jsonapi.org/>`_ was discussed
+   but never pursued.
 

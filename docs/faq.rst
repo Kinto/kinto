@@ -46,7 +46,7 @@ Over the years, many great (and better!) alternatives were created with more fea
 Why the name «Kinto»?
 ---------------------
 
-«*Kinto-Un*» is the name of the `flying nimbus of San Goku <http://dragonball.wikia.com/wiki/Flying_Nimbus>`_.
+«*Kinto-Un*» is the name of the `flying nimbus of Son Goku <https://dragonball.fandom.com/wiki/Flying_Nimbus>`_.
 It is a small personal cloud, that flies at high speed and that you can share with
 pure heart riders :)
 
@@ -62,8 +62,8 @@ Can I encrypt my data?
 ----------------------
 
 Kinto server stores any data you pass to it, whether it's encrypted or not. We believe
-encryption should always be done on the client-side, and we make it `easy to use encryption in our Kinto.js client
-<https://mozilla-services.github.io/servicedenuages.fr/en/kinto-encryption-example>`_.
+encryption should always be done on the client-side. The `kinto.js <https://github.com/Kinto/kinto.js>`_
+client supports transparent client-side encryption before records are sent to the server.
 
 
 Is there a package for my Operating System?
@@ -72,11 +72,11 @@ Is there a package for my Operating System?
 No, but it's a great idea. Maintaining packages for several platforms is time-consuming
 and we're a very small team.
 
-Currently we make sure it's :ref:`easy to run with Docker or Python pip <install>`.
+Currently we make sure it's :ref:`easy to run with Docker or Python (uv/pip) <install>`.
 
 
-Why did you chose to use Python rather than X?
-----------------------------------------------
+Why did you choose to use Python rather than X?
+------------------------------------------------
 
 We love `Python <https://python.org>`_ because it's a concise & expressive
 language with powerful data structures & easy to learn,
@@ -185,14 +185,13 @@ If you prefer MongoDB, RethinkDB or X, don't hesitate to start a storage, permis
 cache backend, we'll be delighted to give you a hand!
 
 
-Why did you chose to use Pyramid rather than X?
------------------------------------------------
+Why did you choose to use Pyramid rather than X?
+-------------------------------------------------
 
 Flask or Django Rest Framework could have been very good candidates!
 
-We chose the Pyramid framework because we like `its flexibility and extensibility
-<http://kinto.github.io/kinto-slides/2016.07.pybcn/index.html#slide25>`_.
-Plus, we could :ref:`leverage Cornice helpers <technical-architecture>`, which
+We chose the Pyramid framework because of its flexibility and extensibility.
+We could also :ref:`leverage Cornice helpers <technical-architecture>`, which
 bring HTTP best practices out-of-the-box.
 
 

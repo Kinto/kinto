@@ -126,7 +126,7 @@ Get started!
 
    Now you can make your changes locally.
 
-6. When you're done making changes, check that your changes pass linting (requires python >= 3.6)::
+6. When you're done making changes, check that your changes pass linting (requires Python >= 3.10)::
 
     make lint
 
@@ -146,11 +146,11 @@ Get started!
 Testing methodology
 -------------------
 
-The `tests are the specifications <http://blog.mathieu-leplatre.info/your-tests-as-your-specs.html>`_.
+The tests are the specifications.
 
 * Each test class represents a situation or feature (e.g. ``class AnonymousCreationTest(unittest.TestCase):``)
 * Each test method represents an aspect of the specification (e.g. ``def test_creation_is_allowed_if_enabled_in_settings(self):``)
-* Each test method is independant
+* Each test method is independent
 * The assertions should only correspond to the aspect of the specification that this method targets
 * The ``setUp()`` method contains some initialization steps that are shared among the methods
 * If the methods have different initialization steps, they should probably be split into different test classes
@@ -195,7 +195,7 @@ Hack core libraries
 -------------------
 
 If you want to run *Kinto* with some core libraries under development,
-just install them from your local folder using ``pip``.
+just install them from your local folder using ``uv pip``.
 
 For example:
 
@@ -204,7 +204,7 @@ For example:
     cd ..
     git clone https://github.com/Kinto/kinto-attachment.git
     cd kinto/
-    .venv/bin/pip install -e ../kinto-attachment/
+    uv pip install -e ../kinto-attachment/
 
 
 Functional Tests
@@ -267,7 +267,7 @@ Step 1
 Step 2
 ------
 
-1. Create a release on Github on https://github.com/Kinto/kinto-attachment/releases/new
+1. Create a release on Github on https://github.com/Kinto/kinto/releases/new
 2. Create a new tag `X.Y.Z` (*This tag will be created from the target when you publish this release.*)
 3. Generate release notes
 4. Publish release

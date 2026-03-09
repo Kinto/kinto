@@ -201,7 +201,7 @@ A client is automatically assigned a particular shard, depending for example:
 It is currently not possible to setup the sharding directly from the kinto
 settings, however it is already possible to set it up manually. [#]_
 
-.. [#] http://www.craigkerstiens.com/2012/11/30/sharding-your-database/
+.. [#] https://www.craigkerstiens.com/2012/11/30/sharding-your-database/
 
 
 At the HTTP level
@@ -243,6 +243,6 @@ The right database node is chosen based on some elements of the data query
 (most probably bucket or collection id) and partioning is then performed
 automatically.
 
-As an example, see `pgPool <http://www.pgpool.net/mediawiki/index.php/Main_Page>`_
+As an example, see `pgPool <https://www.pgpool.net/mediawiki/index.php/Main_Page>`_
 or `pgShard <https://github.com/citusdata/pg_shard>`_ for ways to shard a PostgreSQL
 database.

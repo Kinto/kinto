@@ -26,11 +26,11 @@ We want to help developers focus on the frontend, and we don't want the challeng
 of storing user data to get in their way. The path between a new idea and deploying to
 production should be short!
 
-Also, we believe data belong to the users, and not necessarily to the application authors.
+Also, we believe data belongs to the users, and not necessarily to the application authors.
 Applications should be decoupled from the storage location, and users should be
 able to choose where their personal data are stored.
 
-The backend can often be universal, generic and resuable. We envision mutualisation
+The backend can often be universal, generic and reusable. We envision mutualisation
 of services and self-hosting: the backend is deployed, secured and scaled
 only once for several applications.
 
