@@ -20,7 +20,7 @@ pattern and uses this rule to be incremented:
    this with a header like "Added in 1.x".
 
 2. any change to the :term:`HTTP API` that is backward incompatible increments
-   the **MAJOR** number, and the differences are summarized at the begining of
+   the **MAJOR** number, and the differences are summarized at the beginning of
    the documentation, a new document for that **MAJOR** version is created.
 
 .. note::

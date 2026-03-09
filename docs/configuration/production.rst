@@ -31,9 +31,9 @@ On Debian / Ubuntu based systems::
 
     $ sudo apt-get install libpq-dev
 
-On RedHat / Fedora / Mint based systems::
+On RedHat / Fedora based systems::
 
-    $ yum install postgresql-devel
+    $ dnf install postgresql-devel
 
 On MacOS::
 
@@ -165,7 +165,7 @@ Recommended settings
 Most default setting values in the application code base are suitable
 for production.
 
-Also, the set of settings mentionned below might deserve some review or
+Also, the set of settings mentioned below might deserve some review or
 adjustments:
 
 .. code-block :: ini
@@ -422,7 +422,7 @@ Upgrading Kinto
 
     Before upgrading, read the release notes about potential breaking changes.
 
-    See also ref:`API versioning <api-versioning>`.
+    See also :ref:`API versioning <api-versioning>`.
 
 First, make the potential changes to the configuration file, as described in
 the release notes.

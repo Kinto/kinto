@@ -36,9 +36,9 @@ The problem
 ===========
 
 There are several kinds of applications where *Kinto* is
-particulary relevant as a storage backend.
+particularly relevant as a storage backend.
 
-Let's say that we want to make a `TodoMVC <http://todomvc.com/>`_
+Let's say that we want to make a `TodoMVC <https://todomvc.com/>`_
 backend that will sync user tasks between the devices. The
 requirements are that users can check off tasks as they complete them
 and they can share their tasks with other users. We want tasks and
@@ -61,7 +61,7 @@ Account
 
 Since we use internal accounts, we will start by creating one :)
 
-Using the `httpie <http://httpie.org>`_ tool, it is as simple as:
+Using the `httpie <https://httpie.io>`_ tool, it is as simple as:
 
 .. code-block:: shell
 

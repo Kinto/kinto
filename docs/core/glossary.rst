@@ -53,7 +53,7 @@ Glossary
 
     object
     objects
-        Also refered as «records», objects are stored by *Kinto-Core* resources.
+        Also referred to as «records», objects are stored by *Kinto-Core* resources.
 
     tombstone
     tombstones
