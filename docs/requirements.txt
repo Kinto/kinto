@@ -6,7 +6,7 @@ sphinx-github-changelog==1.7.1
 kinto
 mock==5.2.0
 webtest==3.0.7
-pyramid==2.0.2
+pyramid==2.1
 python-rapidjson==1.23
 SQLAlchemy==2.0.48
 setuptools<82.0
