@@ -77,8 +77,8 @@ class StorageBaseTest(unittest.TestCase):
             (self.storage.count_all, "", ""),
             (self.storage.trim_objects, "", "", [], 0),
         ]
-        for call in calls:
-            self.assertRaises(NotImplementedError, *call)
+        for callable_, *args in calls:
+            self.assertRaises(NotImplementedError, callable_, *args)
 
     def test_backend_error_message_provides_given_message_if_defined(self):
         error = exceptions.BackendError(message="Connection Error")

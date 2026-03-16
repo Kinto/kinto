@@ -1,3 +1,4 @@
+from typing import Any
 from unittest import mock
 
 import colander
@@ -272,7 +273,7 @@ class PayloadRequestSchemaTest(unittest.TestCase):
 class PluralQuerySchemaTest(unittest.TestCase):
     def setUp(self):
         self.schema = schema.PluralQuerySchema()
-        self.querystring = {
+        self.querystring: dict[str, Any] = {
             "_limit": "2",
             "_sort": "toto,tata",
             "_token": "abc",

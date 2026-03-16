@@ -29,8 +29,8 @@ class CacheBaseTest(unittest.TestCase):
             (self.cache.set, "", "", 42),
             (self.cache.delete, ""),
         ]
-        for call in calls:
-            self.assertRaises(NotImplementedError, *call)
+        for callable_, *args in calls:
+            self.assertRaises(NotImplementedError, callable_, *args)
 
 
 class MemoryCacheTest(CacheTest, unittest.TestCase):

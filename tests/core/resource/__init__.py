@@ -1,4 +1,5 @@
 import unittest
+from typing import Any
 from unittest import mock
 
 from kinto.core import resource
@@ -23,7 +24,7 @@ class BaseTest(unittest.TestCase):
         self.resource.schema = StrictSchema
         self.model = self.resource.model
         self.patch_known_field = mock.patch.object(self.resource, "is_known_field")
-        self.validated = {"body": {}, "header": {}, "querystring": {}}
+        self.validated: dict[str, Any] = {"body": {}, "header": {}, "querystring": {}}
         self.resource.request.validated = self.validated
 
     def tearDown(self):
