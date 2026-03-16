@@ -3,6 +3,7 @@
 import inspect
 import warnings
 from collections import OrderedDict
+from typing import Any
 
 import colander
 from pyramid.threadlocal import get_current_registry
@@ -437,41 +438,41 @@ class CorniceSwagger(object):
         swagger = swagger or self.swagger
         base_path = base_path or self.base_path
 
-        swagger = swagger.copy()
+        swagger_doc: dict[str, Any] = swagger.copy()
         info.update(title=title, version=version)
-        swagger.update(swagger="2.0", info=info, basePath=base_path)
+        swagger_doc.update({"swagger": "2.0", "info": info, "basePath": base_path})  # type: ignore[no-matching-overload]
 
         paths, tags = self._build_paths()
 
         # Update the provided tags with the extracted ones preserving order
         if tags:
-            swagger.setdefault("tags", [])
-            tag_names = {t["name"] for t in swagger["tags"]}
+            swagger_doc.setdefault("tags", [])  # type: ignore[no-matching-overload]
+            tag_names = {t["name"] for t in swagger_doc["tags"]}
             for tag in tags:
                 if tag["name"] not in tag_names:
-                    swagger["tags"].append(tag)  # type: ignore[union-attr]
+                    swagger_doc["tags"].append(tag)  # type: ignore[union-attr]
 
         # Create/Update swagger sections with extracted values where not provided
         if paths:
-            swagger.setdefault("paths", {})
-            merge_dicts(swagger["paths"], paths)
+            swagger_doc.setdefault("paths", {})
+            merge_dicts(swagger_doc["paths"], paths)
 
         definitions = self.definitions.definition_registry  # type: ignore[attr-defined]
         if definitions:
-            swagger.setdefault("definitions", {})
-            merge_dicts(swagger["definitions"], definitions)
+            swagger_doc.setdefault("definitions", {})
+            merge_dicts(swagger_doc["definitions"], definitions)
 
         parameters = self.parameters.parameter_registry  # type: ignore[attr-defined]
         if parameters:
-            swagger.setdefault("parameters", {})
-            merge_dicts(swagger["parameters"], parameters)
+            swagger_doc.setdefault("parameters", {})
+            merge_dicts(swagger_doc["parameters"], parameters)
 
         responses = self.responses.response_registry  # type: ignore[attr-defined]
         if responses:
-            swagger.setdefault("responses", {})
-            merge_dicts(swagger["responses"], responses)
+            swagger_doc.setdefault("responses", {})
+            merge_dicts(swagger_doc["responses"], responses)
 
-        return swagger
+        return swagger_doc
 
     def __call__(self, *args, **kwargs):
         """Deprecated alias of `generate`."""
@@ -623,7 +624,7 @@ class CorniceSwagger(object):
         :returns: Operation definition.
         """
 
-        op = {
+        op: dict[str, Any] = {
             "responses": {"default": {"description": "UNDOCUMENTED RESPONSE"}},
         }
 

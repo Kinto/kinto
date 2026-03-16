@@ -63,8 +63,8 @@ class CacheTest(_CacheTestBase):
             (self.cache.set, "", "", 42),
             (self.cache.delete, ""),
         ]
-        for call in calls:
-            self.assertRaises(exceptions.BackendError, *call)
+        for callable_, *args in calls:
+            self.assertRaises(exceptions.BackendError, callable_, *args)
 
     def test_initialize_schema_is_idempotent(self):
         self.cache.initialize_schema()

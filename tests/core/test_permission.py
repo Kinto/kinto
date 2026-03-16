@@ -32,8 +32,8 @@ class PermissionBaseTest(unittest.TestCase):
             (self.permission.get_accessible_objects, [], ""),
             (self.permission.get_authorized_principals, []),
         ]
-        for call in calls:
-            self.assertRaises(NotImplementedError, *call)
+        for callable_, *args in calls:
+            self.assertRaises(NotImplementedError, callable_, *args)
 
 
 class MemoryPermissionTest(PermissionTest, unittest.TestCase):

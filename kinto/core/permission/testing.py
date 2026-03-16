@@ -57,8 +57,8 @@ class PermissionTest(_PermissionTestBase):
             (self.permission.get_accessible_objects, []),
             (self.permission.get_authorized_principals, [("*", "read")]),
         ]
-        for call in calls:
-            self.assertRaises(exceptions.BackendError, *call)
+        for callable_, *args in calls:
+            self.assertRaises(exceptions.BackendError, callable_, *args)
 
     def test_initialize_schema_is_idempotent(self):
         self.permission.initialize_schema()
