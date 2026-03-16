@@ -150,7 +150,7 @@ class ErrorViewTest(FormattedErrorMixin, BaseWebTest, unittest.TestCase):
             500,
             ERRORS.UNDEFINED,
             "Internal Server Error",
-            "A programmatic error occured, developers have been informed.",
+            "A programmatic error occurred, developers have been informed.",
             "https://github.com/Kinto/kinto/issues/",
         )
 
@@ -209,7 +209,7 @@ class ErrorViewTest(FormattedErrorMixin, BaseWebTest, unittest.TestCase):
             500,
             ERRORS.UNDEFINED,
             "Internal Server Error",
-            "A programmatic error occured, developers have been informed.",
+            "A programmatic error occurred, developers have been informed.",
             link,
         )
 

@@ -137,7 +137,7 @@ def error(context, request):
     # see https://github.com/python/cpython/blob/ce9e62544/Lib/logging/__init__.py#L1460-L1462
     logger.error(context, extra=extra, exc_info=context)
 
-    error_msg = "A programmatic error occured, developers have been informed."
+    error_msg = "A programmatic error occurred, developers have been informed."
     info = request.registry.settings["error_info_link"]
     response = http_error(httpexceptions.HTTPInternalServerError(), message=error_msg, info=info)
 
