@@ -89,7 +89,7 @@ class ErrorSchema(colander.MappingSchema):
 def http_error(
     httpexception, errno=None, code=None, error=None, message=None, info=None, details=None
 ):
-    """Return a JSON formated response matching the error HTTP API.
+    """Return a JSON formatted response matching the error HTTP API.
 
     :param httpexception: Instance of :mod:`~pyramid:pyramid.httpexceptions`
     :param errno: stable application-level error number (e.g. 109)
@@ -123,7 +123,7 @@ def http_error(
 
 
 def json_error_handler(request):
-    """Cornice JSON error handler, returning consistant JSON formatted errors
+    """Cornice JSON error handler, returning consistent JSON formatted errors
     from schema validation errors.
 
     This is meant to be used is custom services in your applications.
