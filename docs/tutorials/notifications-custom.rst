@@ -144,7 +144,7 @@ Kinto should load the listeners without errors:
 Test it
 '''''''
 
-Create a bucket (using `HTTPie <http://httpie.org>`_):
+Create a bucket (using `HTTPie <https://httpie.io>`_):
 
 .. code-block:: shell
 
