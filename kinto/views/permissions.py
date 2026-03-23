@@ -86,8 +86,10 @@ class PermissionsModel:
         )
         return objects
 
-    def count_objects(self, filters=None, parent_id=None):
-        _, count = self._get_objects(filters=filters, parent_id=parent_id)
+    def count_objects(self, filters=None, parent_id=None, ignore_history=True):
+        _, count = self._get_objects(
+            filters=filters, parent_id=parent_id, ignore_history=ignore_history
+        )
         return count
 
     def _get_objects(
@@ -98,6 +100,7 @@ class PermissionsModel:
         limit=None,
         include_deleted=False,
         parent_id=None,
+        ignore_history=True,
     ):
         # Invert the permissions inheritance tree.
         perms_descending_tree = {}
@@ -114,7 +117,9 @@ class PermissionsModel:
 
         # Query every possible permission of the current user from backend.
         backend = self.request.registry.permission
-        perms_by_object_uri = backend.get_accessible_objects(principals)
+        perms_by_object_uri = backend.get_accessible_objects(
+            principals, ignore_history=ignore_history
+        )
 
         # Check settings for every allowed resources.
         from_settings = allowed_from_settings(self.request.registry.settings, principals)

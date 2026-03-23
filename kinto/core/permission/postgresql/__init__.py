@@ -257,7 +257,7 @@ class Permission(PermissionBase, MigratorMixin):
             results = result.fetchall()
         return set([r.principal for r in results])
 
-    def get_accessible_objects(self, principals, bound_permissions=None, with_children=True):
+    def get_accessible_objects(self, principals, bound_permissions=None, with_children=True, ignore_history=False):
         placeholders = {}
 
         if bound_permissions is None:
@@ -269,6 +269,8 @@ class Permission(PermissionBase, MigratorMixin):
               FROM access_control_entries
              WHERE principal IN :principals
             """
+            if ignore_history:
+                query = f"{query} AND object_id not like '%/history/%'"
             placeholders["principals"] = tuple(principals)
 
         elif len(bound_permissions) == 0:
@@ -294,6 +296,8 @@ class Permission(PermissionBase, MigratorMixin):
                 object_id_condition = (
                     "object_id LIKE pattern AND object_id NOT LIKE pattern || '/%'"
                 )
+            if ignore_history:
+                object_id_condition = f"{object_id_condition} AND object_id not like '%/history/%'"
             query = f"""
             WITH required_perms AS (
               VALUES {",".join(perm_values)}
