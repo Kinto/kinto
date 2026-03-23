@@ -91,7 +91,8 @@ class PermissionBase:
         raise NotImplementedError
 
     def get_accessible_objects(
-        self, principals, bound_permissions=None, with_children=True, ignore_history=False
+        self, principals, bound_permissions=None, with_children=True, ignore_history=False,
+        object_id_prefix=None,
     ):
         """Return the list of objects where the specified `principals`
         have some permissions.
@@ -106,6 +107,10 @@ class PermissionBase:
         :param bool with_children: Include the children of object ids or not.
         :param bool ignore_history: If ``True``, exclude objects whose
             ``object_id`` contains ``/history/`` from the results.
+        :param str object_id_prefix: An optional prefix to filter results.
+            When specified (and ``bound_permissions`` is ``None``), only ACEs
+            whose ``object_id`` equals the prefix or starts with ``prefix + '/'``
+            are returned.  Uses an index-friendly ``LIKE`` on PostgreSQL.
 
         :returns: A mapping whose keys are the object_ids and the values are
             the related list of permissions.

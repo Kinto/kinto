@@ -93,7 +93,8 @@ class Permission(PermissionBase):
         return members
 
     @synchronized
-    def get_accessible_objects(self, principals, bound_permissions=None, with_children=True, ignore_history=False):
+    def get_accessible_objects(self, principals, bound_permissions=None, with_children=True,
+                               ignore_history=False, object_id_prefix=None):
         principals = set(principals)
         candidates = []
         if bound_permissions is None:
@@ -101,6 +102,11 @@ class Permission(PermissionBase):
                 if key.startswith("permission:"):
                     _, object_id, permission = key.split(":", 2)
                     if ignore_history and "/history/" in object_id:
+                        continue
+                    if object_id_prefix and not (
+                        object_id == object_id_prefix
+                        or object_id.startswith(object_id_prefix + "/")
+                    ):
                         continue
                     candidates.append((object_id, permission, value))
         else:

@@ -8,6 +8,7 @@ from kinto.core import resource
 from kinto.core import utils as core_utils
 from kinto.core.storage import Sort
 from kinto.core.storage.memory import extract_object_set
+from kinto.core.utils import COMPARISON
 
 
 def allowed_from_settings(settings, principals):
@@ -115,10 +116,20 @@ class PermissionsModel:
         # Obtain current principals.
         principals = self.request.prefixed_principals
 
+        # Extract bucket_id from filters to push it into the SQL query
+        # as an object_id prefix, avoiding a full table scan.
+        object_id_prefix = None
+        if filters:
+            for f in filters:
+                if f.field == "bucket_id" and f.operator == COMPARISON.EQ:
+                    object_id_prefix = f"/buckets/{f.value}"
+                    break
+
         # Query every possible permission of the current user from backend.
         backend = self.request.registry.permission
         perms_by_object_uri = backend.get_accessible_objects(
-            principals, ignore_history=ignore_history
+            principals, ignore_history=ignore_history,
+            object_id_prefix=object_id_prefix,
         )
 
         # Check settings for every allowed resources.

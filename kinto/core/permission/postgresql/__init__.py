@@ -257,7 +257,8 @@ class Permission(PermissionBase, MigratorMixin):
             results = result.fetchall()
         return set([r.principal for r in results])
 
-    def get_accessible_objects(self, principals, bound_permissions=None, with_children=True, ignore_history=False):
+    def get_accessible_objects(self, principals, bound_permissions=None, with_children=True,
+                               ignore_history=False, object_id_prefix=None):
         placeholders = {}
 
         if bound_permissions is None:
@@ -269,6 +270,13 @@ class Permission(PermissionBase, MigratorMixin):
               FROM access_control_entries
              WHERE principal IN :principals
             """
+            if object_id_prefix:
+                # Scope results to a specific object and its children.
+                # Uses the B-tree index on object_id (COLLATE "C") for an
+                # efficient prefix scan instead of a full table scan.
+                query = f"{query} AND (object_id = :prefix_exact OR object_id LIKE :prefix_children)"
+                placeholders["prefix_exact"] = object_id_prefix
+                placeholders["prefix_children"] = object_id_prefix + "/%"
             if ignore_history:
                 query = f"{query} AND object_id not like '%/history/%'"
             placeholders["principals"] = tuple(principals)
