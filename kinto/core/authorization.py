@@ -228,7 +228,17 @@ class RouteFactory:
             bound_perms = get_bound_permissions(self._object_id_match, perm)
         else:
             bound_perms = [(self._object_id_match, perm)]
-        by_obj_id = self._get_accessible_objects(principals, bound_perms, with_children=False, ignore_history=True)
+        # Only ignore history objects for non-history resources. This
+        # preserves the history plugin behavior where per-entry permissions
+        # on history records are still taken into account.
+        ignore_history = True
+        if self.resource_name == "history":
+            ignore_history = False
+        elif self._object_id_match is not None and "/history/" in self._object_id_match:
+            ignore_history = False
+        by_obj_id = self._get_accessible_objects(
+            principals, bound_perms, with_children=False, ignore_history=ignore_history
+        )
         ids = by_obj_id.keys()
         # Store for later use in ``Resource``.
         self.shared_ids = [self._extract_object_id(id_) for id_ in ids]

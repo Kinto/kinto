@@ -361,6 +361,40 @@ class PermissionTest(_PermissionTestBase):
         per_object_ids = self.permission.get_accessible_objects(["user1"])
         self.assertEqual(sorted(per_object_ids.keys()), ["id1"])
 
+    def test_accessible_objects_ignore_history_excludes_history_entries(self):
+        self.permission.add_principal_to_ace("/buckets/a/history/1", "read", "user1")
+        self.permission.add_principal_to_ace("/buckets/a/collections/b", "read", "user1")
+        per_object_ids = self.permission.get_accessible_objects(["user1"], ignore_history=True)
+        self.assertEqual(sorted(per_object_ids.keys()), ["/buckets/a/collections/b"])
+
+    def test_accessible_objects_ignore_history_false_includes_history_entries(self):
+        self.permission.add_principal_to_ace("/buckets/a/history/1", "read", "user1")
+        self.permission.add_principal_to_ace("/buckets/a/collections/b", "read", "user1")
+        per_object_ids = self.permission.get_accessible_objects(["user1"], ignore_history=False)
+        self.assertEqual(
+            sorted(per_object_ids.keys()),
+            ["/buckets/a/collections/b", "/buckets/a/history/1"],
+        )
+
+    def test_accessible_objects_ignore_history_with_bound_permissions(self):
+        self.permission.add_principal_to_ace("/buckets/a/history/1", "read", "user1")
+        self.permission.add_principal_to_ace("/buckets/a/collections/b", "read", "user1")
+        per_object_ids = self.permission.get_accessible_objects(
+            ["user1"], [("/buckets/a/*", "read")], ignore_history=True
+        )
+        self.assertEqual(sorted(per_object_ids.keys()), ["/buckets/a/collections/b"])
+
+    def test_accessible_objects_ignore_history_false_with_bound_permissions(self):
+        self.permission.add_principal_to_ace("/buckets/a/history/1", "read", "user1")
+        self.permission.add_principal_to_ace("/buckets/a/collections/b", "read", "user1")
+        per_object_ids = self.permission.get_accessible_objects(
+            ["user1"], [("/buckets/a/*", "read")], ignore_history=False
+        )
+        self.assertEqual(
+            sorted(per_object_ids.keys()),
+            ["/buckets/a/collections/b", "/buckets/a/history/1"],
+        )
+
     #
     # get_object_permissions()
     #

@@ -115,7 +115,7 @@ class RouteFactoryTest(unittest.TestCase):
         context.fetch_shared_objects("read", ["userid"], None)
 
         request.registry.permission.get_accessible_objects.assert_called_with(
-            ["userid"], [("/buckets/*", "read")], with_children=False
+            ["userid"], [("/buckets/*", "read")], with_children=False, ignore_history=True
         )
 
     def test_fetch_shared_objects_uses_get_bound_permission_callback(self):
@@ -135,7 +135,7 @@ class RouteFactoryTest(unittest.TestCase):
         context.fetch_shared_objects("read", ["userid"], get_bound_perms)
 
         request.registry.permission.get_accessible_objects.assert_called_with(
-            ["userid"], [("/buckets/*", "write"), ("/buckets/*", "read")], with_children=False
+            ["userid"], [("/buckets/*", "write"), ("/buckets/*", "read")], with_children=False, ignore_history=True
         )
 
     def test_fetch_shared_objects_sets_shared_ids_from_results(self):
