@@ -228,7 +228,7 @@ class RouteFactory:
             bound_perms = get_bound_permissions(self._object_id_match, perm)
         else:
             bound_perms = [(self._object_id_match, perm)]
-        by_obj_id = self._get_accessible_objects(principals, bound_perms, with_children=False)
+        by_obj_id = self._get_accessible_objects(principals, bound_perms, with_children=False, ignore_history=True)
         ids = by_obj_id.keys()
         # Store for later use in ``Resource``.
         self.shared_ids = [self._extract_object_id(id_) for id_ in ids]
