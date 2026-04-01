@@ -47,7 +47,7 @@ def main(global_config, config=None, **settings):
     if not config:
         config = Configurator(settings=settings, root_factory=RouteFactory)
 
-    config.registry.command = global_config and global_config.get("command", None)  # type: ignore[union-attr]
+    config.registry.command = global_config and global_config.get("command", None)  # ty: ignore[invalid-assignment]
 
     # Force settings prefix.
     config.add_settings({"kinto.settings_prefix": "kinto"})

@@ -28,18 +28,18 @@ from kinto.core.events import ACTIONS, ResourceChanged, ResourceRead
 try:
     import newrelic.agent
 except ImportError:  # pragma: no cover
-    newrelic = None  # type: ignore[assignment]
+    newrelic = None  # ty: ignore[invalid-assignment]
 try:
     from werkzeug.middleware.profiler import ProfilerMiddleware
 except ImportError:  # pragma: no cover
-    ProfilerMiddleware = False  # type: ignore[assignment,misc]
+    ProfilerMiddleware = False  # ty: ignore[invalid-assignment]
 try:
     import sentry_sdk
     from sentry_sdk.integrations.logging import LoggingIntegration
     from sentry_sdk.integrations.pyramid import PyramidIntegration
     from sentry_sdk.integrations.sqlalchemy import SqlalchemyIntegration
 except ImportError:  # pragma: no cover
-    sentry_sdk = None  # type: ignore[assignment]
+    sentry_sdk = None  # ty: ignore[invalid-assignment]
 
 
 logger = logging.getLogger(__name__)
@@ -62,8 +62,8 @@ def setup_json_serializer(config):
     import webob
 
     # Monkey patch to use rapidjson
-    webob.request.json = utils.json  # type: ignore[assignment]
-    requests.models.json = utils.json  # type: ignore[attr-defined]
+    webob.request.json = utils.json  # ty: ignore[invalid-assignment]
+    requests.models.json = utils.json  # ty: ignore[unresolved-attribute]
 
     # Override json renderer using rapidjson
     renderer = JSONRenderer(serializer=utils.json_serializer)

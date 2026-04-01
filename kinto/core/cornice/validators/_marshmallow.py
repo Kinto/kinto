@@ -38,9 +38,9 @@ def _generate_marshmallow_validator(location):
         :param deserializer: Optional deserializer, defaults to
             :func:`cornice.validators.extract_cstruct`
         """
-        import marshmallow  # type: ignore[import-unresolved]
-        import marshmallow.schema  # type: ignore[import-unresolved]
-        from marshmallow.utils import EXCLUDE  # type: ignore[import-unresolved]
+        import marshmallow  # ty: ignore[unresolved-import]
+        import marshmallow.schema  # ty: ignore[unresolved-import]
+        from marshmallow.utils import EXCLUDE  # ty: ignore[unresolved-import]
 
         if schema is None:
             return
@@ -137,7 +137,7 @@ def validator(request, schema=None, deserializer=None, **kwargs):
     :param deserializer: Optional deserializer, defaults to
         :func:`cornice.validators.extract_cstruct`
     """
-    import marshmallow  # type: ignore[import-unresolved]
+    import marshmallow  # ty: ignore[unresolved-import]
 
     from kinto.core.cornice.validators import extract_cstruct
 

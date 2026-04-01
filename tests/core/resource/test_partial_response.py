@@ -8,7 +8,7 @@ from . import BaseTest
 class PartialResponseBase(BaseTest):
     def setUp(self):
         super().setUp()
-        self.resource._get_known_fields = lambda: ["field", "other", "orig"]  # type: ignore[assignment, method-assign]
+        self.resource._get_known_fields = lambda: ["field", "other", "orig"]  # ty: ignore[invalid-assignment]
         self.obj = self.model.create_object(
             {
                 "field": "value",

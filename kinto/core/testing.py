@@ -147,7 +147,7 @@ class BaseWebTest(_BaseWebTestBase):
 
         main = cls.entry_point
 
-        wsgi_app = main({}, config=config, **settings)  # type: ignore[call-non-callable]
+        wsgi_app = main({}, config=config, **settings)  # ty: ignore[call-non-callable]
         app = webtest.TestApp(wsgi_app)
         app.RequestClass = get_request_class(cls.api_prefix)
         return app

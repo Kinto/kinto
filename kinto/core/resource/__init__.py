@@ -94,12 +94,12 @@ def register_resource(resource_cls, settings=None, viewset=None, depth=1, **kwar
         service = Service(name, path, depth=depth, **viewset.get_service_arguments())
 
         # Attach viewset and resource to the service for later reference.
-        service.viewset = viewset  # type: ignore[attr-defined]
-        service.resource = resource_cls  # type: ignore[attr-defined]
-        service.type = endpoint_type  # type: ignore[attr-defined]
+        service.viewset = viewset  # ty: ignore[unresolved-attribute]
+        service.resource = resource_cls  # ty: ignore[unresolved-attribute]
+        service.type = endpoint_type  # ty: ignore[unresolved-attribute]
         # Attach plural and object paths.
-        service.plural_path = viewset.plural_path.format_map(path_values)  # type: ignore[attr-defined]
-        service.object_path = (  # type: ignore[attr-defined]
+        service.plural_path = viewset.plural_path.format_map(path_values)  # ty: ignore[unresolved-attribute]
+        service.object_path = (  # ty: ignore[unresolved-attribute]
             viewset.object_path.format_map(path_values)
             if viewset.object_path is not None
             else None
@@ -1158,7 +1158,7 @@ class Resource:
         # If a plural endpoint is reached, and if the user does not have the
         # permission to read/write the whole list, the set is filtered by ids,
         # based on the list of ids returned by the authorization policy.
-        ids = self.context.shared_ids  # type: ignore[union-attr]
+        ids = self.context.shared_ids  # ty: ignore[unresolved-attribute]
         if ids is not None:
             filter_by_id = Filter(self.model.id_field, ids, COMPARISON.IN)
             filters.insert(0, filter_by_id)
