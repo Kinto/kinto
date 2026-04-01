@@ -1597,8 +1597,8 @@ class DeletedObjectsTest(_StorageMixin):
             sorting=sorting, filters=filters, include_deleted=True, **self.storage_kw
         )
 
-        self.assertDictEqual(objects[0], first)  # type: ignore[arg-type]
-        self.assertDictEqual(objects[-1], last)  # type: ignore[arg-type]
+        self.assertDictEqual(objects[0], first)  # ty: ignore[invalid-argument-type]
+        self.assertDictEqual(objects[-1], last)  # ty: ignore[invalid-argument-type]
 
     def test_sorting_on_last_modified_mixes_deleted_objects(self):
         filters = self._get_last_modified_filters()

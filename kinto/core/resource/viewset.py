@@ -27,19 +27,19 @@ PATCH_CONTENT_TYPES = ["application/merge-patch+json"]
 
 class StrictSchema(colander.MappingSchema):
     @staticmethod
-    def schema_type():  # type: ignore[override]
+    def schema_type():  # ty: ignore[invalid-method-override]
         return colander.Mapping(unknown="raise")
 
 
 class PartialSchema(colander.MappingSchema):
     @staticmethod
-    def schema_type():  # type: ignore[override]
+    def schema_type():  # ty: ignore[invalid-method-override]
         return colander.Mapping(unknown="ignore")
 
 
 class SimpleSchema(colander.MappingSchema):
     @staticmethod
-    def schema_type():  # type: ignore[override]
+    def schema_type():  # ty: ignore[invalid-method-override]
         return colander.Mapping(unknown="preserve")
 
 
@@ -146,14 +146,14 @@ class ViewSet:
 
         request_schema = args.get("schema", RequestSchema())
         object_schema = self.get_object_schema(resource_cls, method)
-        request_schema = request_schema.bind(body=object_schema)  # type: ignore[union-attr]
+        request_schema = request_schema.bind(body=object_schema)  # ty: ignore[unresolved-attribute]
         response_schemas = self.responses.get_and_bind(endpoint_type, method, object=object_schema)
 
         args["schema"] = request_schema
         args["response_schemas"] = response_schemas
 
         validators = args.get("validators", [])
-        validators.append(colander_validator)  # type: ignore[union-attr]
+        validators.append(colander_validator)  # ty: ignore[unresolved-attribute, invalid-argument-type]
         args["validators"] = validators
 
         return args

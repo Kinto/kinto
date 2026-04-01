@@ -63,24 +63,24 @@ class OpenAPITest(BaseWebTest, unittest.TestCase):
 
         # Create raw Bravado request
         self.request = IncomingRequest()
-        self.request.url = ""  # type: ignore[attr-defined]
-        self.request.data = ""  # type: ignore[attr-defined]
-        self.request.path = {}  # type: ignore[attr-defined]
-        self.request.headers = {}  # type: ignore[attr-defined]
-        self.request.query = {}  # type: ignore[attr-defined]
-        self.request._json = {}  # type: ignore[attr-defined]
-        self.request.json = lambda: self.request._json  # type: ignore[attr-defined, method-assign]
+        self.request.url = ""  # ty: ignore[unresolved-attribute]
+        self.request.data = ""  # ty: ignore[unresolved-attribute]
+        self.request.path = {}  # ty: ignore[unresolved-attribute]
+        self.request.headers = {}  # ty: ignore[unresolved-attribute]
+        self.request.query = {}  # ty: ignore[unresolved-attribute]
+        self.request._json = {}  # ty: ignore[unresolved-attribute]
+        self.request.json = lambda: self.request._json  # ty: ignore[invalid-assignment]
 
     def cast_bravado_response(self, response):
         resp = OutgoingResponse()
-        resp.text = response.body  # type: ignore[attr-defined]
+        resp.text = response.body  # ty: ignore[unresolved-attribute]
 
         # FIXME: Empty response fails with Bravado and Python 3
         # See https://github.com/Yelp/bravado-core/issues/134
         if not resp.text:
-            resp.text = None  # type: ignore[attr-defined]
+            resp.text = None  # ty: ignore[unresolved-attribute]
 
-        resp.headers = response.headers  # type: ignore[attr-defined]
+        resp.headers = response.headers  # ty: ignore[unresolved-attribute]
         # Response headers integer fields are not casted by default
         for k, v in resp.headers.items():
             try:
@@ -90,8 +90,8 @@ class OpenAPITest(BaseWebTest, unittest.TestCase):
 
         # FIXME: Drop charset from application/json response on Pyramid
         # See https://github.com/Pylons/pyramid/issues/2860
-        resp.content_type = response.headers.get("Content-Type", "").split(";")[0]  # type: ignore[attr-defined]
-        resp.json = lambda: response.json  # type: ignore[assignment, method-assign, attr-defined]
+        resp.content_type = response.headers.get("Content-Type", "").split(";")[0]  # ty: ignore[unresolved-attribute]
+        resp.json = lambda: response.json  # ty: ignore[invalid-assignment]
 
         return resp
 

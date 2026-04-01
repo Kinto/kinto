@@ -401,14 +401,14 @@ class CorniceSwagger(object):
             self.services = services
 
         # Instantiate handlers
-        self.definitions = self.definitions(ref=def_ref_depth, type_converter=type_converter)  # type: ignore[call-non-callable]
-        self.parameters = self.parameters(  # type: ignore[call-non-callable]
+        self.definitions = self.definitions(ref=def_ref_depth, type_converter=type_converter)  # ty: ignore[call-non-callable]
+        self.parameters = self.parameters(  # ty: ignore[call-non-callable]
             self.definitions,
             ref=param_ref,
             type_converter=type_converter,
             parameter_converter=parameter_converter,
         )
-        self.responses = self.responses(  # type: ignore[call-non-callable]
+        self.responses = self.responses(  # ty: ignore[call-non-callable]
             self.definitions, ref=resp_ref, type_converter=type_converter
         )
 
@@ -440,34 +440,34 @@ class CorniceSwagger(object):
 
         swagger_doc: dict[str, Any] = swagger.copy()
         info.update(title=title, version=version)
-        swagger_doc.update({"swagger": "2.0", "info": info, "basePath": base_path})  # type: ignore[no-matching-overload]
+        swagger_doc.update({"swagger": "2.0", "info": info, "basePath": base_path})  # ty: ignore[no-matching-overload]
 
         paths, tags = self._build_paths()
 
         # Update the provided tags with the extracted ones preserving order
         if tags:
-            swagger_doc.setdefault("tags", [])  # type: ignore[no-matching-overload]
+            swagger_doc.setdefault("tags", [])  # ty: ignore[no-matching-overload]
             tag_names = {t["name"] for t in swagger_doc["tags"]}
             for tag in tags:
                 if tag["name"] not in tag_names:
-                    swagger_doc["tags"].append(tag)  # type: ignore[union-attr]
+                    swagger_doc["tags"].append(tag)  # ty: ignore[unresolved-attribute]
 
         # Create/Update swagger sections with extracted values where not provided
         if paths:
             swagger_doc.setdefault("paths", {})
             merge_dicts(swagger_doc["paths"], paths)
 
-        definitions = self.definitions.definition_registry  # type: ignore[attr-defined]
+        definitions = self.definitions.definition_registry  # ty: ignore[unresolved-attribute]
         if definitions:
             swagger_doc.setdefault("definitions", {})
             merge_dicts(swagger_doc["definitions"], definitions)
 
-        parameters = self.parameters.parameter_registry  # type: ignore[attr-defined]
+        parameters = self.parameters.parameter_registry  # ty: ignore[unresolved-attribute]
         if parameters:
             swagger_doc.setdefault("parameters", {})
             merge_dicts(swagger_doc["parameters"], parameters)
 
-        responses = self.responses.response_registry  # type: ignore[attr-defined]
+        responses = self.responses.response_registry  # ty: ignore[unresolved-attribute]
         if responses:
             swagger_doc.setdefault("responses", {})
             merge_dicts(swagger_doc["responses"], responses)
@@ -605,7 +605,7 @@ class CorniceSwagger(object):
             path = path.replace(subpath_marker, "{subpath}")
 
         # Extract path parameters
-        parameters = self.parameters.from_path(path)  # type: ignore[missing-argument]
+        parameters = self.parameters.from_path(path)  # ty: ignore[missing-argument]
         if parameters:
             path_obj["parameters"] = parameters
 
@@ -662,7 +662,7 @@ class CorniceSwagger(object):
         is_colander = self._is_colander_schema(args)
         if is_colander:
             schema = self._extract_transform_colander_schema(args)
-            parameters = self.parameters.from_schema(schema)  # type: ignore[missing-argument]
+            parameters = self.parameters.from_schema(schema)  # ty: ignore[missing-argument]
         else:
             # Bail out for now
             parameters = None
@@ -683,7 +683,7 @@ class CorniceSwagger(object):
 
         # Get response definitions
         if "response_schemas" in args:
-            op["responses"] = self.responses.from_schema_mapping(args["response_schemas"])  # type: ignore[missing-argument]
+            op["responses"] = self.responses.from_schema_mapping(args["response_schemas"])  # ty: ignore[missing-argument]
 
         # Get response tags
         if "tags" in args:

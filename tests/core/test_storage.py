@@ -154,7 +154,7 @@ class PostgreSQLStorageTest(StorageTest, unittest.TestCase):
         self.client_error_patcher = mock.patch.object(
             self.storage.client,
             "session_factory",
-            side_effect=sa.exc.SQLAlchemyError,  # type: ignore[possibly-missing-attribute]
+            side_effect=sa.exc.SQLAlchemyError,  # ty: ignore[possibly-missing-submodule]
         )
 
     def test_number_of_fetched_objects_can_be_limited_in_settings(self):
@@ -206,7 +206,7 @@ class PostgreSQLStorageTest(StorageTest, unittest.TestCase):
                 """
                 conn.execute(sa.text(query))
 
-                raise sa.exc.TimeoutError()  # type: ignore[possibly-missing-attribute]
+                raise sa.exc.TimeoutError()  # ty: ignore[possibly-missing-submodule]
         except exceptions.BackendError:
             pass
 

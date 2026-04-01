@@ -27,17 +27,17 @@ from kinto.core.cornice import cors
 try:
     import sqlalchemy
 except ImportError:  # pragma: no cover
-    sqlalchemy = None  # type: ignore[assignment]
+    sqlalchemy = None  # ty: ignore[invalid-assignment]
 
 try:
     import memcache
 except ImportError:  # pragma: no cover
-    memcache = None  # type: ignore[assignment]
+    memcache = None  # ty: ignore[invalid-assignment]
 
 try:
     import redis
 except ImportError:  # pragma: no cover
-    redis = None  # type: ignore[assignment]
+    redis = None  # ty: ignore[invalid-assignment]
 
 
 class json:
