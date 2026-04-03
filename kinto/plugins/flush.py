@@ -1,4 +1,4 @@
-from pyramid.security import NO_PERMISSION_REQUIRED
+from pyramid.httpexceptions import HTTPForbidden
 
 from kinto.core import Service
 from kinto.events import ServerFlushed
@@ -7,8 +7,10 @@ from kinto.events import ServerFlushed
 flush = Service(name="flush", description="Clear database content", path="/__flush__")
 
 
-@flush.post(permission=NO_PERMISSION_REQUIRED)
+@flush.post(permission="admin")
 def flush_post(request):
+    if not request.registry.settings.get("debug", False):
+        raise HTTPForbidden()
     request.registry.storage.flush()
     request.registry.permission.flush()
     request.registry.cache.flush()
