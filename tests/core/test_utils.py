@@ -16,7 +16,6 @@ from kinto.core.utils import (
     find_nested_value,
     follow_subrequest,
     hmac_digest,
-    instance_uri_registry,
     native_value,
     prefixed_principals,
     random_bytes_hex,
@@ -24,6 +23,8 @@ from kinto.core.utils import (
     recursive_update_dict,
     strip_whitespace,
 )
+
+from .support import instance_uri_registry
 
 
 def build_real_request(wsgi_environ):
@@ -317,7 +318,7 @@ class RecursiveUpdateDictTest(unittest.TestCase):
 
 
 class InstanceURIRegistryTest(unittest.TestCase):
-    @mock.patch("kinto.core.utils.instance_uri")
+    @mock.patch("tests.core.support.instance_uri")
     def test_instance_uri_registry_calls_instance_uri(self, instance_uri):
         registry = mock.Mock()
         instance_uri_registry(registry, "object", a=1)

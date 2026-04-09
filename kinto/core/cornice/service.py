@@ -18,10 +18,6 @@ from kinto.core.cornice.validators import (
 SERVICES = []
 
 
-def clear_services():
-    SERVICES[:] = []
-
-
 def get_services(names=None, exclude=None):
     def _keep(service):
         if exclude is not None and service.name in exclude:
