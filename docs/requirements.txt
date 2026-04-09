@@ -8,5 +8,5 @@ mock==5.2.0
 webtest==3.0.7
 pyramid==2.1
 python-rapidjson==1.23
-SQLAlchemy==2.0.48
+SQLAlchemy==2.0.49
 setuptools<82.0
