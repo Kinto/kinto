@@ -130,15 +130,6 @@ wheels = [
 ]
 
 [[package]]
-name = "boto"
-version = "2.49.0"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/c8/af/54a920ff4255664f5d238b5aebd8eedf7a07c7a5e71e27afcfe840b82f51/boto-2.49.0.tar.gz", hash = "sha256:ea0d3b40a2d852767be77ca343b58a9e3a4b00d9db440efb8da74b4e58025e5a", size = 1478498, upload-time = "2018-07-11T20:58:58.057Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/23/10/c0b78c27298029e4454a472a1919bde20cb182dab1662cec7f2ca1dcc523/boto-2.49.0-py2.py3-none-any.whl", hash = "sha256:147758d41ae7240dc989f0039f27da8ca0d53734be0eb869ef16e3adcfa462e8", size = 1359202, upload-time = "2018-07-11T20:58:55.711Z" },
-]
-
-[[package]]
 name = "bravado"
 version = "12.0.1"
 source = { registry = "https://pypi.org/simple" }
@@ -1258,18 +1249,16 @@ dev = [
 
 [[package]]
 name = "kinto-attachment"
-version = "7.3.1"
+version = "8.0.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "boto" },
     { name = "google-cloud-storage" },
     { name = "greenlet" },
     { name = "kinto", extra = ["monitoring"] },
-    { name = "pyramid-storage" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/3f/58/ef489046808f2d65593ec54f4826682776a912ecbb1f8b2a0a9c158e593c/kinto_attachment-7.3.1.tar.gz", hash = "sha256:05ec7215eda4306a59774a1eeeeee4490611c14fb38f637b64a6533394324789", size = 72508, upload-time = "2026-03-02T17:41:32.09Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/b9/73/3617abd2bb3cb8186079ad1d8c3643040c81dfad3dba4913c917bb76dcd5/kinto_attachment-8.0.0.tar.gz", hash = "sha256:6cc21775f8b05951cb7cfc77016fd54955874f3b7a45b17791530b872ef17ca0", size = 202421, upload-time = "2026-04-09T08:36:47.655Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/80/64/72bd4b424b0a5ddaa5c549bc58316369e1cb756359bebaa70c1d03c945e4/kinto_attachment-7.3.1-py3-none-any.whl", hash = "sha256:fabf0046bdef07e1faf33ea84f75daa4dfa45b8f8ebaca831ee99e7b3d6ab7fa", size = 20994, upload-time = "2026-03-02T17:41:30.48Z" },
+    { url = "https://files.pythonhosted.org/packages/d5/8a/a64f6c7794798fd156282ee0f2b6a7fb07fea29d116c183a695ef5745e82/kinto_attachment-8.0.0-py3-none-any.whl", hash = "sha256:db7e69e5c8a2cee0319a7489d21013970f2e51ccadbf59f95902e5f2ba647bc7", size = 25406, upload-time = "2026-04-09T08:36:45.75Z" },
 ]
 
 [[package]]
@@ -1996,18 +1985,6 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/c8/51/30beabe10c2cfab7d43bd2c7c6a183eb917193841ba8d5979ea4e5cc5427/pyramid_multiauth-1.0.2.tar.gz", hash = "sha256:e4c01c59dd865a637173c7d0e3de062895e4a1b3312e442add6182989a13ca83", size = 31079, upload-time = "2024-03-28T15:01:28.356Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/6c/6b/c25340c5efccdbb7352d88a513b881b986fbb02e3b94fce937e6786d725e/pyramid_multiauth-1.0.2-py3-none-any.whl", hash = "sha256:0cd1f2d9c782458c3992a9183a55f9fcd257a2f1c6e7d62e44552f7cdaff9063", size = 18297, upload-time = "2024-03-28T15:01:26.823Z" },
-]
-
-[[package]]
-name = "pyramid-storage"
-version = "1.3.2"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "pyramid" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/4c/3d/cc99fdc5e76419775dccb8fb3404ce6bc3c2eaafebc41887cfabca64e665/pyramid_storage-1.3.2.tar.gz", hash = "sha256:31030f38448dc1f7eee8c82f13c1c2a0168233e4a92058234c8bef87cd20bdaf", size = 31205, upload-time = "2024-10-16T10:39:28.185Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/a4/e9/fb30a2efc95b5358218b6739a2fbe5b357568e1ab4592f92d26aea2b23a9/pyramid_storage-1.3.2-py3-none-any.whl", hash = "sha256:dd4fff0d19290c102948d746bf1f32d15ae5b2173d0c1ebc48a136a00643c6bc", size = 14460, upload-time = "2024-10-16T10:39:27.214Z" },
 ]
 
 [[package]]
