@@ -313,7 +313,6 @@ class PostgreSQLStorageTest(StorageTest, unittest.TestCase):
             self.assertLess(obj["last_modified"], before)
 
 
-
 class FormatConditionsEQContainmentTest(unittest.TestCase):
     """Test that _format_conditions uses JSONB containment (@>) for EQ filters
     on scalar values, enabling GIN index usage."""

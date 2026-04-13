@@ -510,7 +510,6 @@ def instance_uri(request, resource_name, **params):
     return strip_uri_prefix(request.route_path(f"{resource_name}-object", **params))
 
 
-
 def apply_json_patch(obj, ops):
     """
     Apply JSON Patch operations using jsonpatch.
