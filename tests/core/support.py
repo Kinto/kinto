@@ -3,13 +3,30 @@ from unittest import mock
 import pytest
 from pyramid.authorization import Authenticated
 from pyramid.interfaces import IAuthorizationPolicy
+from pyramid.request import Request
 from zope.interface import implementer
 
 from kinto.core import testing
+from kinto.core.cornice.service import SERVICES
 from kinto.core.storage.exceptions import BackendError
-from kinto.core.utils import sqlalchemy
+from kinto.core.utils import instance_uri, sqlalchemy
 
 from .testapp import main as testapp
+
+
+def clear_services():
+    SERVICES[:] = []
+
+
+def instance_uri_registry(registry, resource_name, **params):
+    """Return the URI for the given resource, even if you don't have a request.
+
+    This gins up a request using Request.blank and so does not support
+    any routes with pregenerators.
+    """
+    request = Request.blank(path="")
+    request.registry = registry
+    return instance_uri(request, resource_name, **params)
 
 
 # This is the principal a connected user should have (in the tests).

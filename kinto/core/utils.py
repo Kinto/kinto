@@ -510,17 +510,6 @@ def instance_uri(request, resource_name, **params):
     return strip_uri_prefix(request.route_path(f"{resource_name}-object", **params))
 
 
-def instance_uri_registry(registry, resource_name, **params):
-    """Return the URI for the given resource, even if you don't have a request.
-
-    This gins up a request using Request.blank and so does not support
-    any routes with pregenerators.
-    """
-    request = Request.blank(path="")
-    request.registry = registry
-    return instance_uri(request, resource_name, **params)
-
-
 def apply_json_patch(obj, ops):
     """
     Apply JSON Patch operations using jsonpatch.

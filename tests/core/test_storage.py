@@ -14,7 +14,6 @@ from kinto.core.storage import (
     postgresql,
 )
 from kinto.core.storage.testing import StorageTest
-from kinto.core.storage.utils import paginated
 from kinto.core.testing import skip_if_no_postgresql, unittest
 from kinto.core.utils import COMPARISON, json
 from kinto.core.utils import sqlalchemy as sa
@@ -312,67 +311,6 @@ class PostgreSQLStorageTest(StorageTest, unittest.TestCase):
         self.assertEqual(len(results), 5)
         for obj in results:
             self.assertLess(obj["last_modified"], before)
-
-
-class PaginatedTest(unittest.TestCase):
-    def setUp(self):
-        self.storage = mock.Mock()
-        self.sample_objects = [
-            {"id": "object-01", "flavor": "strawberry"},
-            {"id": "object-02", "flavor": "banana"},
-            {"id": "object-03", "flavor": "mint"},
-            {"id": "object-04", "flavor": "plain"},
-            {"id": "object-05", "flavor": "peanut"},
-        ]
-
-        def sample_objects_side_effect(*args, **kwargs):
-            return self.sample_objects
-
-        self.storage.list_all.side_effect = sample_objects_side_effect
-
-    def test_paginated_passes_sort(self):
-        i = paginated(self.storage, sorting=[Sort("id", -1)])
-        next(i)  # make the generator do anything
-        self.storage.list_all.assert_called_with(
-            sorting=[Sort("id", -1)], limit=25, pagination_rules=None
-        )
-
-    def test_paginated_passes_batch_size(self):
-        i = paginated(self.storage, sorting=[Sort("id", -1)], batch_size=17)
-        next(i)  # make the generator do anything
-        self.storage.list_all.assert_called_with(
-            sorting=[Sort("id", -1)], limit=17, pagination_rules=None
-        )
-
-    def test_paginated_yields_objects(self):
-        iter = paginated(self.storage, sorting=[Sort("id", -1)])
-        assert next(iter) == {"id": "object-01", "flavor": "strawberry"}
-
-    def test_paginated_fetches_next_page(self):
-        objects = self.sample_objects
-        objects.reverse()
-
-        def list_all_mock(*args, **kwargs):
-            this_objects = objects[:3]
-            del objects[:3]
-            return this_objects
-
-        self.storage.list_all.side_effect = list_all_mock
-
-        list(paginated(self.storage, sorting=[Sort("id", -1)]))
-        assert self.storage.list_all.call_args_list == [
-            mock.call(sorting=[Sort("id", -1)], limit=25, pagination_rules=None),
-            mock.call(
-                sorting=[Sort("id", -1)],
-                limit=25,
-                pagination_rules=[[Filter("id", "object-03", COMPARISON.LT)]],
-            ),
-            mock.call(
-                sorting=[Sort("id", -1)],
-                limit=25,
-                pagination_rules=[[Filter("id", "object-01", COMPARISON.LT)]],
-            ),
-        ]
 
 
 class FormatConditionsEQContainmentTest(unittest.TestCase):
