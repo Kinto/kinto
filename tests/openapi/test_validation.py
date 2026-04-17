@@ -28,7 +28,7 @@ class OpenAPIRequestsValidationTest(OpenAPITest):
     def test_validate_group_path(self):
         paths = [{}, {"bucket_id": "b1"}, {"id": "g1"}]
         for path in paths:
-            self.request.path = path  # ty: ignore[invalid-assignment]
+            self.request.path = path  # ty: ignore[unresolved-attribute]
             self.assertRaises(
                 ValidationError,
                 unmarshal_request,
@@ -47,7 +47,7 @@ class OpenAPIRequestsValidationTest(OpenAPITest):
     def test_validate_plural_path(self):
         paths = [{}, {"bucket_id": "b1"}, {"id": "c1"}]
         for path in paths:
-            self.request.path = path  # ty: ignore[invalid-assignment]
+            self.request.path = path  # ty: ignore[unresolved-attribute]
             self.assertRaises(
                 ValidationError,
                 unmarshal_request,
@@ -58,7 +58,7 @@ class OpenAPIRequestsValidationTest(OpenAPITest):
     def test_validate_records_path(self):
         paths = [{}, {"bucket_id": "b1"}, {"collection_id": "c1"}]
         for path in paths:
-            self.request.path = path  # ty: ignore[invalid-assignment]
+            self.request.path = path  # ty: ignore[unresolved-attribute]
             self.assertRaises(
                 ValidationError,
                 unmarshal_request,
@@ -69,7 +69,7 @@ class OpenAPIRequestsValidationTest(OpenAPITest):
     def test_validate_object_path(self):
         paths = [{}, {"bucket_id": "b1", "collection_id": "c1"}, {"id": "r1"}]
         for path in paths:
-            self.request.path = path  # ty: ignore[invalid-assignment]
+            self.request.path = path  # ty: ignore[unresolved-attribute]
             self.assertRaises(
                 ValidationError,
                 unmarshal_request,
@@ -80,7 +80,7 @@ class OpenAPIRequestsValidationTest(OpenAPITest):
     def test_validate_data(self):
         bodies = [{"data": "aaa"}]
         for body in bodies:
-            self.request._json = body  # ty: ignore[invalid-assignment]
+            self.request._json = body  # ty: ignore[unresolved-attribute]
             self.assertRaises(
                 ValidationError,
                 unmarshal_request,
@@ -95,7 +95,7 @@ class OpenAPIRequestsValidationTest(OpenAPITest):
             {"permissions": {"read": [111]}},
         ]
         for body in bodies:
-            self.request._json = body  # ty: ignore[invalid-assignment]
+            self.request._json = body  # ty: ignore[unresolved-attribute]
             self.assertRaises(
                 ValidationError,
                 unmarshal_request,
@@ -106,7 +106,7 @@ class OpenAPIRequestsValidationTest(OpenAPITest):
     def test_validate_queries(self):
         queries = [{"_since": "aaa"}, {"_before": "aaa"}, {"_limit": "aaa"}, {"_token": {}}]
         for query in queries:
-            self.request.query = query  # ty: ignore[invalid-assignment]
+            self.request.query = query  # ty: ignore[unresolved-attribute]
             self.assertRaises(
                 ValidationError,
                 unmarshal_request,
@@ -117,7 +117,7 @@ class OpenAPIRequestsValidationTest(OpenAPITest):
     def test_validate_headers(self):
         headers = [{"If-None-Match": "123"}, {"If-Match": "123"}]
         for head in headers:
-            self.request.headers = head  # ty: ignore[invalid-assignment]
+            self.request.headers = head  # ty: ignore[unresolved-attribute]
             self.assertRaises(
                 ValidationError,
                 unmarshal_request,
@@ -126,25 +126,25 @@ class OpenAPIRequestsValidationTest(OpenAPITest):
             )
 
     def test_validate_batch_requests_method(self):
-        self.request._json = {"requests": [{"method": "AAA", "path": "/buckets/b1"}]}  # ty: ignore[invalid-assignment]
+        self.request._json = {"requests": [{"method": "AAA", "path": "/buckets/b1"}]}  # ty: ignore[unresolved-attribute]
         self.assertRaises(
             ValidationError, unmarshal_request, self.request, self.resources["Batch"].batch
         )
 
     def test_validate_batch_requests_path(self):
-        self.request._json = {"requests": [{"method": "GET", "path": 123}]}  # ty: ignore[invalid-assignment]
+        self.request._json = {"requests": [{"method": "GET", "path": 123}]}  # ty: ignore[unresolved-attribute]
         self.assertRaises(
             ValidationError, unmarshal_request, self.request, self.resources["Batch"].batch
         )
 
     def test_validate_batch_requests_body(self):
-        self.request._json = {"requests": [{"method": "GET", "path": "/buckets/b1", "body": []}]}  # ty: ignore[invalid-assignment]
+        self.request._json = {"requests": [{"method": "GET", "path": "/buckets/b1", "body": []}]}  # ty: ignore[unresolved-attribute]
         self.assertRaises(
             ValidationError, unmarshal_request, self.request, self.resources["Batch"].batch
         )
 
     def test_validate_batch_requests_header(self):
-        self.request._json = {  # ty: ignore[invalid-assignment]
+        self.request._json = {  # ty: ignore[unresolved-attribute]
             "requests": [{"method": "GET", "path": "/buckets/b1", "body": {}, "headers": []}]
         }
         self.assertRaises(
@@ -152,7 +152,7 @@ class OpenAPIRequestsValidationTest(OpenAPITest):
         )
 
     def test_validate_batch_defaults(self):
-        self.request._json = {  # ty: ignore[invalid-assignment]
+        self.request._json = {  # ty: ignore[unresolved-attribute]
             "defaults": [],
             "requests": [{"method": "GET", "path": "/buckets/b1"}],
         }
@@ -161,13 +161,13 @@ class OpenAPIRequestsValidationTest(OpenAPITest):
         )
 
     def test_validate_batch_defaults_method(self):
-        self.request._json = {"defaults": {"method": "AAA"}, "requests": [{"path": "/buckets/b1"}]}  # ty: ignore[invalid-assignment]
+        self.request._json = {"defaults": {"method": "AAA"}, "requests": [{"path": "/buckets/b1"}]}  # ty: ignore[unresolved-attribute]
         self.assertRaises(
             ValidationError, unmarshal_request, self.request, self.resources["Batch"].batch
         )
 
     def test_validate_batch_defaults_body(self):
-        self.request._json = {  # ty: ignore[invalid-assignment]
+        self.request._json = {  # ty: ignore[unresolved-attribute]
             "defaults": {"body": []},
             "requests": [{"method": "PUT", "path": "/buckets/b1"}],
         }
@@ -176,7 +176,7 @@ class OpenAPIRequestsValidationTest(OpenAPITest):
         )
 
     def test_validate_batch_defaults_headers(self):
-        self.request._json = {  # ty: ignore[invalid-assignment]
+        self.request._json = {  # ty: ignore[unresolved-attribute]
             "defaults": {"headers": []},
             "requests": [{"method": "GET", "path": "/buckets/b1"}],
         }

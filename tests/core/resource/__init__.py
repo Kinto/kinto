@@ -21,7 +21,7 @@ class BaseTest(unittest.TestCase):
         self.storage = storage_memory.Storage()
         self.cache = cache_memory.Cache(cache_prefix="", cache_max_size_bytes=1000)
         self.resource = self.resource_class(request=self.get_request(), context=self.get_context())
-        self.resource.schema = StrictSchema
+        self.resource.schema = StrictSchema  # ty: ignore[invalid-assignment]
         self.model = self.resource.model
         self.patch_known_field = mock.patch.object(self.resource, "is_known_field")
         self.validated: dict[str, Any] = {"body": {}, "header": {}, "querystring": {}}

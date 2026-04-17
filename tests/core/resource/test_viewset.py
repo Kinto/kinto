@@ -466,7 +466,7 @@ class RegisterTest(unittest.TestCase):
 
     @mock.patch("kinto.core.resource.Service")
     def test_endpoint_is_skipped_if_object_path_is_none(self, service_cls):
-        self.viewset.object_path = None
+        self.viewset.object_path = None  # ty: ignore[invalid-assignment]
 
         venusian_callback = register_resource(self.resource, viewset=self.viewset)
         config = mock.MagicMock()

@@ -401,14 +401,14 @@ class CorniceSwagger(object):
             self.services = services
 
         # Instantiate handlers
-        self.definitions = self.definitions(ref=def_ref_depth, type_converter=type_converter)  # ty: ignore[call-non-callable]
-        self.parameters = self.parameters(  # ty: ignore[call-non-callable]
+        self.definitions = self.definitions(ref=def_ref_depth, type_converter=type_converter)  # ty: ignore[call-non-callable, invalid-assignment]
+        self.parameters = self.parameters(  # ty: ignore[call-non-callable, invalid-assignment]
             self.definitions,
             ref=param_ref,
             type_converter=type_converter,
             parameter_converter=parameter_converter,
         )
-        self.responses = self.responses(  # ty: ignore[call-non-callable]
+        self.responses = self.responses(  # ty: ignore[call-non-callable, invalid-assignment]
             self.definitions, ref=resp_ref, type_converter=type_converter
         )
 

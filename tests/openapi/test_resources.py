@@ -29,7 +29,7 @@ class OpenAPIResourcesTest(OpenAPITest):
 
         for op in resource.operations.values():
             self.app.put_json("/buckets/b1", MINIMALIST_BUCKET, headers=self.headers)
-            self.request.path = {"id": "b1"}  # ty: ignore[invalid-assignment]
+            self.request.path = {"id": "b1"}  # ty: ignore[unresolved-attribute]
             bucket = {**MINIMALIST_BUCKET, "data": {"foo": "bar"}}
             self.request.json = lambda: bucket  # ty: ignore[invalid-assignment]
             self.validate_request_call(op)
@@ -39,7 +39,7 @@ class OpenAPIResourcesTest(OpenAPITest):
 
         for op in resource.operations.values():
             self.app.put_json("/buckets/b1/groups/g1", MINIMALIST_GROUP, headers=self.headers)
-            self.request.path = {"bucket_id": "b1", "id": "g1"}  # ty: ignore[invalid-assignment]
+            self.request.path = {"bucket_id": "b1", "id": "g1"}  # ty: ignore[unresolved-attribute]
             self.request.json = lambda: MINIMALIST_GROUP  # ty: ignore[invalid-assignment]
             self.validate_request_call(op)
 
@@ -50,7 +50,7 @@ class OpenAPIResourcesTest(OpenAPITest):
             self.app.put_json(
                 "/buckets/b1/collections/c1", MINIMALIST_COLLECTION, headers=self.headers
             )
-            self.request.path = {"bucket_id": "b1", "id": "c1"}  # ty: ignore[invalid-assignment]
+            self.request.path = {"bucket_id": "b1", "id": "c1"}  # ty: ignore[unresolved-attribute]
             collection = {**MINIMALIST_COLLECTION, "data": {"foo": "bar"}}
             self.request.json = lambda: collection  # ty: ignore[invalid-assignment]
             self.validate_request_call(op)
@@ -62,6 +62,6 @@ class OpenAPIResourcesTest(OpenAPITest):
             self.app.put_json(
                 "/buckets/b1/collections/c1/records/r1", MINIMALIST_RECORD, headers=self.headers
             )
-            self.request.path = {"bucket_id": "b1", "collection_id": "c1", "id": "r1"}  # ty: ignore[invalid-assignment]
+            self.request.path = {"bucket_id": "b1", "collection_id": "c1", "id": "r1"}  # ty: ignore[unresolved-attribute]
             self.request.json = lambda: MINIMALIST_RECORD  # ty: ignore[invalid-assignment]
             self.validate_request_call(op)
