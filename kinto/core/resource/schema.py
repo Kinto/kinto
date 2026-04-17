@@ -95,7 +95,7 @@ class ResourceSchema(colander.MappingSchema):
         """
         return field in cls.get_option("readonly_fields")
 
-    def schema_type(self):
+    def schema_type(self):  # ty: ignore[invalid-method-override]
         if self.get_option("preserve_unknown") is True:
             unknown = "preserve"
         else:

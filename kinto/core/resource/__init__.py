@@ -929,7 +929,7 @@ class Resource:
         :raises: :class:`pyramid.httpexceptions.HTTPBadRequest`
         """
         is_string = isinstance(object_id, str)
-        if not is_string or not self.model.id_generator.match(object_id):
+        if not is_string or not self.model.id_generator.match(object_id):  # ty: ignore[unresolved-attribute]
             error_details = {"location": "path", "description": "Invalid object id"}
             raise_invalid(self.request, **error_details)
 

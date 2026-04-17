@@ -167,7 +167,7 @@ class ModifiedMeanwhileTest(BaseTest):
         self.validated["header"].pop("If-Match")
         self.validated["header"]["If-None-Match"] = "*"
         self.validated["body"] = {"data": {"field": "new"}}
-        self.resource.object_id = self.resource.model.id_generator()
+        self.resource.object_id = self.resource.model.id_generator()  # ty: ignore[call-non-callable]
         self.resource.put()  # not raising.
 
     def test_put_if_none_match_star_succeeds_if_tombstone_exists(self):
@@ -187,7 +187,7 @@ class ModifiedMeanwhileTest(BaseTest):
     def test_post_if_none_match_star_succeeds_if_object_does_not_exist(self):
         self.validated["header"].pop("If-Match")
         self.validated["header"]["If-None-Match"] = "*"
-        self.resource.object_id = self.resource.model.id_generator()
+        self.resource.object_id = self.resource.model.id_generator()  # ty: ignore[call-non-callable]
         self.validated["body"] = {"data": {"id": self.resource.object_id, "field": "new"}}
         self.resource.plural_post()  # not raising.
 
@@ -230,14 +230,14 @@ class ModifiedMeanwhileTest(BaseTest):
         self.validated["header"]["If-Match"] = "*"
         self.resource.request.json = {"data": {"field": "new"}}
         self.validated["body"] = self.resource.request.json
-        self.resource.object_id = self.resource.model.id_generator()
+        self.resource.object_id = self.resource.model.id_generator()  # ty: ignore[call-non-callable]
         self.assertRaises(httpexceptions.HTTPPreconditionFailed, self.resource.put)
 
     def test_put_if_match_current_fails_if_object_does_not_exist(self):
         self.validated["header"]["If-Match"] = self.current  # wouldn't raise on existing
         self.resource.request.json = {"data": {"field": "new"}}
         self.validated["body"] = self.resource.request.json
-        self.resource.object_id = self.resource.model.id_generator()
+        self.resource.object_id = self.resource.model.id_generator()  # ty: ignore[call-non-callable]
         self.assertRaises(httpexceptions.HTTPPreconditionFailed, self.resource.put)
 
     def test_put_if_fails_if_if_match_is_superior(self):

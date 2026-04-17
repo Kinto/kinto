@@ -53,13 +53,13 @@ class PutTest(BaseTest):
         self.assertEqual(expected, self.last_response.headers["ETag"])
 
     def test_returns_201_if_created(self):
-        self.resource.object_id = self.resource.model.id_generator()
+        self.resource.object_id = self.resource.model.id_generator()  # ty: ignore[call-non-callable]
         self.validated["body"] = {"data": {"field": "new"}}
         self.resource.put()
         self.assertEqual(self.last_response.status_code, 201)
 
     def test_relies_on_plural_endpoint_create(self):
-        self.resource.object_id = self.resource.model.id_generator()
+        self.resource.object_id = self.resource.model.id_generator()  # ty: ignore[call-non-callable]
         self.validated["body"] = {"data": {"field": "new"}}
         with mock.patch.object(self.model, "create_object") as patched:
             self.resource.put()
@@ -204,7 +204,7 @@ class PatchTest(BaseTest):
             unread = colander.SchemaNode(colander.Boolean(), missing=colander.drop)
             position = colander.SchemaNode(colander.Int(), missing=colander.drop)
 
-        self.resource.schema = ArticleSchema
+        self.resource.schema = ArticleSchema  # ty: ignore[invalid-assignment]
 
         self.result = self.resource.patch()["data"]
 
@@ -256,7 +256,7 @@ class MergePatchTest(BaseTest):
             unread = colander.SchemaNode(colander.Boolean(), missing=colander.drop)
             position = colander.SchemaNode(colander.Int(), missing=colander.drop)
 
-        self.resource.schema = ArticleSchema
+        self.resource.schema = ArticleSchema  # ty: ignore[invalid-assignment]
 
     def test_merge_patch_updates_attributes_recursively(self):
         self.validated["body"] = {"data": {"a": {"b": "bbb", "c": "ccc"}}}
@@ -463,7 +463,7 @@ class ReadonlyFieldsTest(BaseTest):
     def setUp(self):
         super().setUp()
         self.stored = self.model.create_object({"age": 32})
-        self.resource.schema.Options.readonly_fields = ("age",)
+        self.resource.schema.Options.readonly_fields = ("age",)  # ty: ignore[invalid-assignment]
         self.resource.object_id = self.stored["id"]
 
     def assertReadonlyError(self, field):

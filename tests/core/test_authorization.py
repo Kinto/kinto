@@ -271,7 +271,7 @@ class GuestAuthorizationPolicyTest(unittest.TestCase):
         self.context.fetch_shared_objects = mock.MagicMock(return_value=["object1", "object2"])  # ty: ignore[invalid-assignment]
         allowed = self.authz.permits(self.context, ["userid"], "dynamic")
         # Note: we use the list of principals from request.prefixed_principals
-        self.context.fetch_shared_objects.assert_called_with(
+        self.context.fetch_shared_objects.assert_called_with(  # ty: ignore[unresolved-attribute]
             "read",
             ["basicauth:bob", "system.Everyone", "system.Authenticated"],
             self.authz.get_bound_permissions,
@@ -294,7 +294,7 @@ class GuestAuthorizationPolicyTest(unittest.TestCase):
         self.context.fetch_shared_objects = mock.MagicMock(return_value=None)  # ty: ignore[invalid-assignment]
         allowed = self.authz.permits(self.context, ["userid"], "dynamic")
         # Note: we use the list of principals from request.prefixed_principals
-        self.context.fetch_shared_objects.assert_called_with(
+        self.context.fetch_shared_objects.assert_called_with(  # ty: ignore[unresolved-attribute]
             "read",
             ["basicauth:bob", "system.Everyone", "system.Authenticated"],
             self.authz.get_bound_permissions,
