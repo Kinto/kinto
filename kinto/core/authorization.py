@@ -229,9 +229,9 @@ class RouteFactory:
             bound_perms = get_bound_permissions(self._object_id_match, perm)
         else:
             bound_perms = [(self._object_id_match, perm)]
-        
+
         safe_bound_perms = [
-            (re.escape(obj_id).replace(r'\*', '*') if obj_id else obj_id, p)
+            (re.escape(obj_id).replace(r"\*", "*") if obj_id else obj_id, p)
             for obj_id, p in bound_perms
         ]
 

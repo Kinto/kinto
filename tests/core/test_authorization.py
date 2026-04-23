@@ -165,7 +165,7 @@ class RouteFactoryTest(unittest.TestCase):
         context.required_permission = "book:create"
         context._settings = {"book_create_principals": "fxa:user"}
         self.assertTrue(context.check_permission(["fxa:user"], None))
-    
+
     def test_fetch_shared_objects_with_regex_special_chars_in_object_id(self):
         """Bucket IDs with unbalanced parentheses should not raise re.error."""
         # Reproduce issue #2676
