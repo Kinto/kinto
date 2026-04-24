@@ -146,7 +146,7 @@ class InitializationTest(unittest.TestCase):
         config.add_migration("my_plugin", migration)
         config.commit()
 
-        registered = dict(config.registry.getUtilitiesFor(IMigratable))
+        registered = dict(config.registry.getUtilitiesFor(IMigratable))  # ty: ignore[unresolved-attribute]
         self.assertIn("my_plugin", registered)
         self.assertIs(registered["my_plugin"], migration)
 
