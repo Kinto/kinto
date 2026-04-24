@@ -98,3 +98,45 @@ class MigratorMixin:
         # Since called outside request, force commit.
         with self.client.connect(force_commit=True) as conn:
             conn.execute(sa.text(schema))
+
+
+class PostgreSQLPluginMigration(MigratorMixin):
+    """Base class for plugin storage migrations on PostgreSQL.
+
+    Inherits all migration logic from :class:`MigratorMixin` — the same
+    engine used by Kinto's own storage and permission backends.
+
+    Subclass and set ``name``, ``schema_version``, ``schema_file``, and
+    ``migrations_directory``, then register in ``includeme()``::
+
+        config.add_migration("myplugin", MyPluginMigration())
+
+    ``kinto migrate`` injects the PostgreSQL client automatically and skips
+    the migration with a warning when the storage backend is not PostgreSQL.
+
+    Migration SQL files must be named ``migration_NNN_MMM.sql`` where
+    ``MMM = NNN + 1``, and must ``INSERT`` the new version into ``metadata``::
+
+        INSERT INTO metadata (name, value)
+          VALUES ('{name}_schema_version', '{to_version}');
+    """
+
+    def get_installed_version(self):
+        query = """
+        SELECT value AS version
+          FROM metadata
+         WHERE name = :key
+         ORDER BY LPAD(value, 3, '0') DESC
+         LIMIT 1;
+        """
+        with self.client.connect() as conn:
+            result = conn.execute(
+                sa.text(query),
+                {"key": f"{self.name}_schema_version"},
+            )
+            row = result.fetchone()
+        return int(row.version) if row is not None else 1
+
+    def initialize_schema(self, client, dry_run=False):
+        self.client = client
+        return self.create_or_migrate_schema(dry_run)

@@ -2,11 +2,22 @@ import unittest
 from unittest import mock
 
 from kinto.core import scripts
+from kinto.core.storage.postgresql import PostgreSQLPluginMigration
+from kinto.core.storage.postgresql import Storage as PostgreSQLStorage
+
+
+class _FakePluginMigration(PostgreSQLPluginMigration):
+    name = "my_plugin"
+    schema_version = 1
+    schema_file = "/fake/schema.sql"
+    migrations_directory = "/fake/migrations"
 
 
 class InitSchemaTest(unittest.TestCase):
     def setUp(self):
         self.registry = mock.MagicMock()
+        self.registry.storage = mock.MagicMock()
+        self.registry.storage.__class__ = PostgreSQLStorage
 
     def test_migrate_calls_initialize_schema_on_backends(self):
         scripts.migrate({"registry": self.registry})
@@ -17,11 +28,48 @@ class InitSchemaTest(unittest.TestCase):
     def test_migrate_skips_missing_backends(self):
         class FakeRegistry:
             settings = dict()
-            storage = mock.MagicMock()
+            storage = mock.MagicMock(spec=PostgreSQLStorage)
+
+            def getUtilitiesFor(self, iface):
+                return []
 
         registry = FakeRegistry()
         scripts.migrate({"registry": registry})
         self.assertTrue(registry.storage.initialize_schema.called)
+
+    def test_migrate_runs_plugin_migrations(self):
+        plugin_migration = _FakePluginMigration()
+        self.registry.getUtilitiesFor.return_value = [("my_plugin", plugin_migration)]
+        scripts.migrate({"registry": self.registry})
+        assert plugin_migration.client is self.registry.storage.client
+
+    def test_migrate_runs_plugin_migrations_dry_run(self):
+        plugin_migration = _FakePluginMigration()
+        with mock.patch.object(plugin_migration, "initialize_schema") as m:
+            self.registry.getUtilitiesFor.return_value = [("my_plugin", plugin_migration)]
+            scripts.migrate({"registry": self.registry}, dry_run=True)
+        m.assert_called_once_with(self.registry.storage.client, dry_run=True)
+
+    def test_migrate_skips_plugins_with_no_migrations(self):
+        self.registry.getUtilitiesFor.return_value = []
+        scripts.migrate({"registry": self.registry})
+
+    def test_migrate_skips_plugin_when_storage_is_not_postgresql(self):
+        self.registry.storage = mock.MagicMock()  # not a PostgreSQLStorage
+        plugin_migration = _FakePluginMigration()
+        with mock.patch.object(plugin_migration, "initialize_schema") as m:
+            self.registry.getUtilitiesFor.return_value = [("my_plugin", plugin_migration)]
+            scripts.migrate({"registry": self.registry})
+        m.assert_not_called()
+
+    def test_migrate_warns_on_unsupported_migration_type(self):
+        plugin_migration = mock.MagicMock()  # not a PostgreSQLPluginMigration
+        self.registry.getUtilitiesFor.return_value = [("my_plugin", plugin_migration)]
+        with mock.patch("kinto.core.scripts.logger") as mocked_logger:
+            scripts.migrate({"registry": self.registry})
+        mocked_logger.warning.assert_any_call(
+            "Unsupported migration type %r for plugin %r.", type(plugin_migration), "my_plugin"
+        )
 
     def test_migrate_in_read_only_display_an_error(self):
         with mock.patch("kinto.core.scripts.logger") as mocked:

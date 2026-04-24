@@ -136,6 +136,20 @@ class InitializationTest(unittest.TestCase):
             kinto.core.initialize(config, "0.0.1", "prefix")
         mocked.assert_not_called()
 
+    def test_add_migration_directive_registers_utility(self):
+        from kinto.core.migrations import IMigratable
+
+        config = Configurator()
+        kinto.core.initialize(config, "0.0.1", "prefix")
+
+        migration = mock.MagicMock()
+        config.add_migration("my_plugin", migration)
+        config.commit()
+
+        registered = dict(config.registry.getUtilitiesFor(IMigratable))
+        self.assertIn("my_plugin", registered)
+        self.assertIs(registered["my_plugin"], migration)
+
 
 class ProjectSettingsTest(unittest.TestCase):
     def settings(self, provided):

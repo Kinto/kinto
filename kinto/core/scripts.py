@@ -14,6 +14,10 @@ def migrate(env, dry_run=False):
     """
     User-friendly frontend to run database migrations.
     """
+    from kinto.core.migrations import IMigratable
+    from kinto.core.storage.postgresql import PostgreSQLPluginMigration
+    from kinto.core.storage.postgresql import Storage as PostgreSQLStorage
+
     registry = env["registry"]
     settings = registry.settings
     readonly_backends = ("storage", "permission")
@@ -26,6 +30,15 @@ def migrate(env, dry_run=False):
                 logger.error(message)
             else:
                 getattr(registry, backend).initialize_schema(dry_run=dry_run)
+
+    for name, migration in registry.getUtilitiesFor(IMigratable):
+        if not isinstance(migration, PostgreSQLPluginMigration):
+            logger.warning("Unsupported migration type %r for plugin %r.", type(migration), name)
+            continue
+        if not isinstance(registry.storage, PostgreSQLStorage):
+            continue
+        logger.info("Running migrations for plugin %r.", name)
+        migration.initialize_schema(registry.storage.client, dry_run=dry_run)
 
 
 def purge_deleted(env, resource_names, max_retained):
