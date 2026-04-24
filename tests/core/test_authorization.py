@@ -166,6 +166,19 @@ class RouteFactoryTest(unittest.TestCase):
         context._settings = {"book_create_principals": "fxa:user"}
         self.assertTrue(context.check_permission(["fxa:user"], None))
 
+    def test_fetch_shared_objects_with_regex_special_chars_in_object_id(self):
+        """Bucket IDs with unbalanced parentheses should not raise re.error."""
+        # Reproduce issue #2676
+        request = DummyRequest()
+        request.route_path.return_value = "/v1/buckets/%29EFg9%3D%29"
+        service = mock.MagicMock()
+        service.type = "object"
+        with mock.patch("kinto.core.authorization.utils.current_service") as m:
+            m.return_value = service
+            context = RouteFactory(request)
+        # Should not raise re.error
+        context.fetch_shared_objects("read", ["userid"], None)
+
 
 class AuthorizationPolicyTest(unittest.TestCase):
     def setUp(self):
