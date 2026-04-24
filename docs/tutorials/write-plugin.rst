@@ -316,9 +316,9 @@ The schema version is stored in the shared ``metadata`` table under the key
 Basic: inline SQL
 ~~~~~~~~~~~~~~~~~
 
-For simple plugins, subclass :class:`~kinto.core.storage.postgresql.migrator.PostgreSQLPluginMigration`
-and override ``create_schema()`` to run SQL directly in Python instead of
-loading a file.  All version-comparison and dry-run logic is inherited:
+For simple plugins, subclass ``PostgreSQLPluginMigration`` and override
+``create_schema()`` to run SQL directly in Python instead of loading a file.
+All version-comparison and dry-run logic is inherited:
 
 .. code-block:: python
 
@@ -371,11 +371,11 @@ Running ``kinto migrate`` will now also apply your plugin's schema:
 Advanced: SQL files with PostgreSQLPluginMigration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-For plugins with multiple schema versions, use :class:`~kinto.core.storage.postgresql.migrator.PostgreSQLPluginMigration` with SQL files.
-It reads and writes the version from ``metadata``, loads the initial schema
-from a ``.sql`` file, and applies incremental ``migration_NNN_MMM.sql`` files
-for each version step — exactly like Kinto's own storage and permission
-backends.
+For plugins with multiple schema versions, use ``PostgreSQLPluginMigration``
+with SQL files.  It reads and writes the version from ``metadata``, loads the
+initial schema from a ``.sql`` file, and applies incremental
+``migration_NNN_MMM.sql`` files for each version step — exactly like Kinto's
+own storage and permission backends.
 
 **File layout**::
 
