@@ -6,6 +6,9 @@ import logging
 import os
 from typing import Any
 
+from zope.interface import implementer
+
+from kinto.core.migrations import IMigratable
 from kinto.core.utils import sqlalchemy as sa
 
 
@@ -100,28 +103,49 @@ class MigratorMixin:
             conn.execute(sa.text(schema))
 
 
+@implementer(IMigratable)
 class PostgreSQLPluginMigration(MigratorMixin):
     """Base class for plugin storage migrations on PostgreSQL.
 
     Inherits all migration logic from :class:`MigratorMixin` — the same
     engine used by Kinto's own storage and permission backends.
 
-    Subclass and set ``name``, ``schema_version``, ``schema_file``, and
-    ``migrations_directory``, then register in ``includeme()``::
+    Subclass and set ``name``, ``schema_version``.
+
+    Then choose between:
+    - inline SQL by overriding `migrate_schema(start_version, dry_run)`
+    - file based by setting the ``migrations_directory`` class attribute, pointing
+      at the directory containing the migration files. Migration SQL files must
+      be named ``migration_NNN_MMM.sql`` where ``MMM = NNN + 1``.
+
+    In both cases, the migration should end by inserting the new version into the ``metadata`` table,
+    with a name of ``{name}_schema_version``::
+
+        INSERT INTO metadata (name, value)
+          VALUES ('myplugin_schema_version', '{to_version}');
+
+    Then register in ``includeme()``::
 
         config.add_migration("myplugin", MyPluginMigration())
 
     ``kinto migrate`` injects the PostgreSQL client automatically and skips
-    the migration with a warning when the storage backend is not PostgreSQL.
-
-    Migration SQL files must be named ``migration_NNN_MMM.sql`` where
-    ``MMM = NNN + 1``, and must ``INSERT`` the new version into ``metadata``::
-
-        INSERT INTO metadata (name, value)
-          VALUES ('{name}_schema_version', '{to_version}');
+    the migration when the storage backend is not PostgreSQL.
     """
 
+    def initialize_schema(self, client, dry_run=False):
+        """
+        Main entry point of `IMigratable` interface.
+
+        This leverages the `MigratorMixin` logic, which will call `get_installed_version()`.
+        Since `get_installed_version()` returns `1` when no version is found,
+        the `create_schema()` method of the mixin will never be called in plugin migrations.
+        """
+        self.client = client
+        return self.create_or_migrate_schema(dry_run)
+
     def get_installed_version(self):
+        # Get highest version for this plugin, or always return 1
+        # if no version found.
         query = """
         SELECT value AS version
           FROM metadata
@@ -136,7 +160,3 @@ class PostgreSQLPluginMigration(MigratorMixin):
             )
             row = result.fetchone()
         return int(row.version) if row is not None else 1
-
-    def initialize_schema(self, client, dry_run=False):
-        self.client = client
-        return self.create_or_migrate_schema(dry_run)

@@ -68,7 +68,7 @@ class InitSchemaTest(unittest.TestCase):
         with mock.patch("kinto.core.scripts.logger") as mocked_logger:
             scripts.migrate({"registry": self.registry})
         mocked_logger.warning.assert_any_call(
-            "Unsupported migration type %r for plugin %r.", type(plugin_migration), "my_plugin"
+            "Migration has specific type %r for plugin %r.", type(plugin_migration), "my_plugin"
         )
 
     def test_migrate_in_read_only_display_an_error(self):

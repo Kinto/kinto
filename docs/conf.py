@@ -161,8 +161,8 @@ def setup(app):
 # -- Options for intersphinx --------------------------------------------------
 
 intersphinx_mapping = {
-    "colander": ("https://colander.readthedocs.io/en/latest/", None),
-    "pyramid": ("https://pyramid.readthedocs.io/en/latest/", None),
+    "colander": ("https://docs.pylonsproject.org/projects/colander/en/latest/", None),
+    "pyramid": ("https://docs.pylonsproject.org/projects/pyramid/en/latest/", None),
 }
 
 # -- Changelog

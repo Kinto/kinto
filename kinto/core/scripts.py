@@ -33,9 +33,10 @@ def migrate(env, dry_run=False):
 
     for name, migration in registry.getUtilitiesFor(IMigratable):
         if not isinstance(migration, PostgreSQLPluginMigration):
-            logger.warning("Unsupported migration type %r for plugin %r.", type(migration), name)
-            continue
+            logger.warning("Migration has specific type %r for plugin %r.", type(migration), name)
         if not isinstance(registry.storage, PostgreSQLStorage):
+            # Do not attempt to run PostgreSQL-specific migrations when the storage backend is not PostgreSQL.
+            # (eg. do not show warning, or local development or tests will be flooded)
             continue
         logger.info("Running migrations for plugin %r.", name)
         migration.initialize_schema(registry.storage.client, dry_run=dry_run)

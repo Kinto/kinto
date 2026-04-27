@@ -9,9 +9,9 @@ class IMigratable(Interface):  # ty: ignore[unsupported-base]
     ``initialize_schema()`` on every registered migration.
     """
 
-    def initialize_schema(client, dry_run=False):
+    def initialize_schema(client=None, dry_run=False):
         """
         Create or upgrade the plugin's storage schema.
-        Receives the PostgreSQL ``client`` and ``dry_run=True`` when called
-        with ``--dry-run``.
+        Receives an optional ``client`` (backend specific)
+        and ``dry_run=True`` when called with ``--dry-run``.
         """
