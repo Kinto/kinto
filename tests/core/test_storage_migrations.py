@@ -434,6 +434,7 @@ class PostgresqlPermissionMigrationTest(unittest.TestCase):
 
 
 @skip_if_no_postgresql
+@pytest.mark.xdist_group("postgres")
 class PostgresqlCacheMigrationTest(unittest.TestCase):
     def __init__(self, *args, **kw):
         super().__init__(*args, **kw)

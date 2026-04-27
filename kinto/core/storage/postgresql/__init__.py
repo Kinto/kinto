@@ -14,6 +14,9 @@ from kinto.core.storage import (
 )
 from kinto.core.storage.postgresql.client import create_from_config
 from kinto.core.storage.postgresql.migrator import MigratorMixin
+from kinto.core.storage.postgresql.migrator import (
+    PostgreSQLPluginMigration as PostgreSQLPluginMigration,
+)
 from kinto.core.utils import COMPARISON, json
 from kinto.core.utils import sqlalchemy as sa
 

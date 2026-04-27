@@ -302,6 +302,149 @@ Clients can rely on this to detect optional features on the server, like our ind
     root URL.
 
 
+Plugin storage migrations
+-------------------------
+
+If your plugin stores data directly in the PostgreSQL storage backend, you can
+register a storage migration object with ``config.add_migration()``.
+``kinto migrate`` will call ``migrate_schema()`` on every registered
+migration, creating or upgrading the plugin's tables alongside the core schema.
+
+The schema version is stored in the shared ``metadata`` table under the key
+``{plugin_name}_schema_version``.
+
+Basic: inline SQL
+~~~~~~~~~~~~~~~~~
+
+For simple plugins, subclass ``PostgreSQLPluginMigration`` and override
+``migrate_schema()`` to run SQL directly in Python instead of loading a file.
+All version-comparison and dry-run logic is inherited:
+
+.. code-block:: python
+
+    from kinto.core.storage.postgresql import PostgreSQLPluginMigration
+    from kinto.core.utils import sqlalchemy as sa
+    import logging
+
+    logger = logging.getLogger(__name__)
+
+
+    class MyPluginMigration(PostgreSQLPluginMigration):
+        name = "myplugin"
+        schema_version = 2
+
+        def migrate_schema(self, start_version, dry_run=False):
+            logger.info(f"Migrate PostgreSQL {self.name} from version {start_version} to {self.schema_version}.")
+            sql = """
+            INSERT INTO objects (id, resource_name, parent_id, data)
+                SELECT id, 'attachments', parent_id, data
+                FROM objects
+                WHERE parent_id = '__attachments__' and resource_name = ''
+                ON CONFLICT do nothing;
+
+            DELETE FROM objects
+                WHERE parent_id = '__attachments__' and resource_name = '';
+
+            INSERT INTO metadata (name, value)
+            VALUES ('myplugin_schema_version', '2');
+            """
+            with self.client.connect(force_commit=True) as conn:
+                conn.execute(sa.text(sql))
+            logger.info(
+                f"PostgreSQL {self.name} schema migration {'simulated' if dry_run else 'done'}"
+            )
+
+Register it in ``includeme()``:
+
+.. code-block:: python
+
+    def includeme(config):
+        config.add_migration("myplugin", MyPluginMigration())
+
+Running ``kinto migrate`` will now also apply your plugin's schema:
+
+.. code-block:: console
+
+    $ kinto migrate --ini config/postgresql.ini
+    ...
+    INFO  Running migrations for plugin 'myplugin'.
+    INFO  Migrate PostgreSQL myplugin from version 1 to 2."
+    INFO  PostgreSQL myplugin schema migration done.
+
+.. note::
+
+    ``config.add_migration()`` is a no-op when the plugin is not included.
+    Plugins that do not call it are silently skipped by ``kinto migrate``.
+
+.. note::
+
+    ``PostgreSQLPluginMigration`` assumes version ``1`` in case the plugin
+    has never been migrated before.
+
+
+Advanced: SQL files with PostgreSQLPluginMigration
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+For plugins with multiple schema versions, use ``PostgreSQLPluginMigration``
+with SQL files.  It reads and writes the version from ``metadata``, loads the
+initial schema from a ``.sql`` file, and applies incremental
+``migration_NNN_MMM.sql`` files for each version step — exactly like Kinto's
+own storage and permission backends.
+
+**File layout**::
+
+    kinto_myplugin/
+        __init__.py
+        migrations/
+            migration_001_002.sql
+
+**migration_001_002.sql** — migrates data and bumps the version:
+
+.. code-block:: sql
+
+    INSERT INTO objects (id, resource_name, parent_id, data)
+    SELECT id, 'attachments', parent_id, data
+      FROM objects
+     WHERE parent_id = '__attachments__' AND resource_name = ''
+    ON CONFLICT DO NOTHING;
+
+    DELETE FROM objects
+     WHERE parent_id = '__attachments__' AND resource_name = '';
+
+    INSERT INTO metadata (name, value) VALUES ('myplugin_schema_version', '2');
+
+**Migration class** in :file:`kinto_myplugin/__init__.py`:
+
+.. code-block:: python
+
+    import os
+    from kinto.core.storage.postgresql import PostgreSQLPluginMigration
+
+    HERE = os.path.dirname(__file__)
+
+    class MyPluginMigration(PostgreSQLPluginMigration):
+        name = "myplugin"
+        schema_version = 2
+        migrations_directory = os.path.join(HERE, "migrations")
+
+**Registration** in ``includeme()``:
+
+.. code-block:: python
+
+    def includeme(config):
+        config.add_migration("myplugin", MyPluginMigration())
+
+.. note::
+
+    When the storage backend is not PostgreSQL, ``kinto migrate`` skips
+    ``PostgreSQLPluginMigration`` instances automatically.
+
+.. note::
+
+    ``PostgreSQLPluginMigration`` assumes version ``1`` in case the plugin
+    has never been migrated before.
+
+
 Default configuration and environment variables
 -----------------------------------------------
 

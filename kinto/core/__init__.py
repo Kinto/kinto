@@ -195,6 +195,14 @@ def includeme(config):
     config.add_directive("add_api_capability", add_api_capability)
     config.registry.api_capabilities = {}
 
+    # Directive for plugins to declare schema migrations.
+    from kinto.core.migrations import IMigratable
+
+    def add_migration(config, name, migration):
+        config.registry.registerUtility(migration, IMigratable, name=name)
+
+    config.add_directive("add_migration", add_migration)
+
     # Resource events helpers.
     config.add_request_method(events.get_resource_events, name="get_resource_events")
     config.add_request_method(events.notify_resource_event, name="notify_resource_event")
