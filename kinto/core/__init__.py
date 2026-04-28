@@ -198,8 +198,8 @@ def includeme(config):
     # Directive for plugins to declare schema migrations.
     from kinto.core.migrations import IMigratable
 
-    def add_migration(config, name, migration):
-        config.registry.registerUtility(migration, IMigratable, name=name)
+    def add_migration(config, migration):
+        config.registry.registerUtility(migration, IMigratable, name=migration.name)
 
     config.add_directive("add_migration", add_migration)
 

@@ -359,7 +359,7 @@ Register it in ``includeme()``:
 .. code-block:: python
 
     def includeme(config):
-        config.add_migration("myplugin", MyPluginMigration())
+        config.add_migration(MyPluginMigration())
 
 Running ``kinto migrate`` will now also apply your plugin's schema:
 
@@ -432,7 +432,7 @@ own storage and permission backends.
 .. code-block:: python
 
     def includeme(config):
-        config.add_migration("myplugin", MyPluginMigration())
+        config.add_migration(MyPluginMigration())
 
 .. note::
 
