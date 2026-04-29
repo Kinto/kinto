@@ -143,7 +143,8 @@ class InitializationTest(unittest.TestCase):
         kinto.core.initialize(config, "0.0.1", "prefix")
 
         migration = mock.MagicMock()
-        config.add_migration("my_plugin", migration)
+        migration.name = "my_plugin"
+        config.add_migration(migration)
         config.commit()
 
         registered = dict(config.registry.getUtilitiesFor(IMigratable))  # ty: ignore[unresolved-attribute]
