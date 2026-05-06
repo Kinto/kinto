@@ -26,7 +26,7 @@ from kinto.core.events import ACTIONS, ResourceChanged, ResourceRead
 
 
 try:
-    import newrelic.agent
+    import newrelic
 except ImportError:  # pragma: no cover
     newrelic = None  # ty: ignore[invalid-assignment]
 try:
@@ -35,9 +35,6 @@ except ImportError:  # pragma: no cover
     ProfilerMiddleware = False  # ty: ignore[invalid-assignment]
 try:
     import sentry_sdk
-    from sentry_sdk.integrations.logging import LoggingIntegration
-    from sentry_sdk.integrations.pyramid import PyramidIntegration
-    from sentry_sdk.integrations.sqlalchemy import SqlalchemyIntegration
 except ImportError:  # pragma: no cover
     sentry_sdk = None  # ty: ignore[invalid-assignment]
 
@@ -306,6 +303,10 @@ def setup_sentry(config):
 
     dsn = settings["sentry_dsn"]
     if dsn:  # pragma: no cover
+        from sentry_sdk.integrations.logging import LoggingIntegration
+        from sentry_sdk.integrations.pyramid import PyramidIntegration
+        from sentry_sdk.integrations.sqlalchemy import SqlalchemyIntegration
+
         env_options = {}
         env = settings["sentry_env"]
         if env:
@@ -339,6 +340,8 @@ def install_middlewares(app, settings):
     "Install a set of middlewares defined in the ini file on the given app."
     # Setup new-relic.
     if settings.get("newrelic_config"):
+        import newrelic.agent
+
         ini_file = settings["newrelic_config"]
         env = settings["newrelic_env"]
         newrelic.agent.initialize(ini_file, env)

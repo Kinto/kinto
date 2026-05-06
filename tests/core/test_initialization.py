@@ -13,6 +13,12 @@ from kinto.core import initialization
 from kinto.core.testing import get_user_headers, skip_if_no_statsd, unittest
 
 
+if initialization.newrelic is not None:
+    # Ensure ``newrelic.agent`` is loaded so tests can patch it
+    # (production code will load it inside ``install_middlewares``)
+    import newrelic.agent  # noqa: F401
+
+
 class InitializationTest(unittest.TestCase):
     def test_fails_if_no_version_is_specified(self):
         config = Configurator()
