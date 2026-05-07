@@ -1263,15 +1263,15 @@ wheels = [
 
 [[package]]
 name = "kinto-emailer"
-version = "3.0.4"
+version = "4.0.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "kinto" },
     { name = "pyramid-mailer" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/05/97/6b576eceb77aec29c55fe4228d57564125816f8b79f5d8431fe8329bbef9/kinto_emailer-3.0.4.tar.gz", hash = "sha256:faad1050a7a3370b09ff6faf06239bc267dce7ab259169d64d2eabfbc41854f8", size = 36797, upload-time = "2025-02-11T12:08:53.637Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/6d/db/74fb0b572b1416c720317c698b7352ebdea8f6382a677b60b2da5adb6f0a/kinto_emailer-4.0.0.tar.gz", hash = "sha256:df6d32ea799b85a55115590c340329c94c3d1ba1e3f590e897a73a3e37da0e38", size = 36678, upload-time = "2026-05-07T07:57:06.973Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/9d/f5/5a337545175e96e7c57b620c103dca3e8e195559651cc4561e1a295e4a95/kinto_emailer-3.0.4-py3-none-any.whl", hash = "sha256:84931ac6ff68cf1be65802297c7b370595765372d1d8aca536caaf7f776a63c9", size = 8118, upload-time = "2025-02-11T12:08:52.091Z" },
+    { url = "https://files.pythonhosted.org/packages/98/99/8193f9ffa15a538ae4bcc8853d96336a876b21811e4d6c439058f61d8302/kinto_emailer-4.0.0-py3-none-any.whl", hash = "sha256:013e29f99a0736d078a23dc5cd0a740b44a079b5ef32150f521ffcf66ed64031", size = 8213, upload-time = "2026-05-07T07:57:05.232Z" },
 ]
 
 [[package]]
