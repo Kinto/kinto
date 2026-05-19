@@ -3,6 +3,7 @@ import re
 import unittest
 from unittest import mock
 
+from kinto.core.events import ACTIONS, ResourceChanged
 from kinto.core.testing import get_user_headers, skip_if_no_statsd
 
 from .. import support
@@ -299,6 +300,72 @@ class HistoryViewTest(HistoryWebTest):
         resp = self.app.get(self.history_uri, headers=self.headers)
         deletion_entries = [e for e in resp.json["data"] if e["action"] == "delete"]
         assert len(deletion_entries) == 1
+
+
+def includeme(config):
+    """Test fake plugin.
+
+    Mutates ``ResourceChanged`` event payloads for records to append an extra
+    path segment to ``payload["uri"]``, simulating a request that hit a
+    sub-path of a record (e.g. ``.../records/<id>/attachment`` as done by
+    kinto-attachment's ``patch_record()``).
+    https://github.com/Kinto/kinto-attachment/blob/f539c6ccbd82971661/src/kinto_attachment/utils.py#L142
+    """
+
+    def append_subpath(event):
+        if event.payload["action"] in (ACTIONS.CREATE.value, ACTIONS.UPDATE.value):
+            if not event.payload["uri"].endswith("/attachment"):
+                event.payload["uri"] = event.payload["uri"] + "/attachment"
+
+    config.add_subscriber(append_subpath, ResourceChanged, for_resources=("record",))
+
+
+class SubpathEventURITest(HistoryWebTest):
+    """Test that history does not rely on object id as the last segment."""
+
+    @classmethod
+    def get_app_settings(cls, extras=None):
+        settings = super().get_app_settings(extras)
+        # Order matters: this helper must run before the history listener.
+        settings["includes"] = "tests.plugins.test_history " + settings["includes"]
+        return settings
+
+    def setUp(self):
+        self.app.put("/buckets/b", headers=self.headers)
+        self.app.put("/buckets/b/collections/c", headers=self.headers)
+
+    def test_record_create_history_uri_is_canonical(self):
+        self.app.put_json(
+            "/buckets/b/collections/c/records/r",
+            {"data": {"foo": 1}},
+            headers=self.headers,
+        )
+
+        resp = self.app.get("/buckets/b/history?resource_name=record", headers=self.headers)
+
+        entry = resp.json["data"][0]
+        assert entry["action"] == "create"
+        assert entry["uri"] == "/buckets/b/collections/c/records/r"
+
+    def test_record_update_history_uri_is_canonical(self):
+        self.app.put_json(
+            "/buckets/b/collections/c/records/r",
+            {"data": {"foo": 1}},
+            headers=self.headers,
+        )
+        self.app.patch_json(
+            "/buckets/b/collections/c/records/r",
+            {"data": {"foo": 2}},
+            headers=self.headers,
+        )
+
+        resp = self.app.get(
+            "/buckets/b/history?resource_name=record&action=update",
+            headers=self.headers,
+        )
+
+        entry = resp.json["data"][0]
+        assert entry["uri"] == "/buckets/b/collections/c/records/r"
 
 
 class HistoryDeletionTest(HistoryWebTest):

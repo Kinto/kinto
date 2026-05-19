@@ -19,7 +19,6 @@ def on_resource_changed(event):
     """
     payload = event.payload
     resource_name = payload["resource_name"]
-    event_uri = payload["uri"]
     user_id = payload["user_id"]
 
     storage = event.request.registry.storage
@@ -70,15 +69,18 @@ def on_resource_changed(event):
                 )
                 continue
 
-        # On POST .../records, the URI does not contain the newly created
-        # record id.
-        parts = event_uri.split("/")
-        if resource_name in parts[-1]:
-            parts.append(obj_id)
-        else:
-            # Make sure the id is correct on grouped events.
-            parts[-1] = obj_id
-        uri = "/".join(parts)
+        # Build the resource URI from the IDs we already have, rather than
+        # parsing ``event_uri`` (which is ``request.path``). Some plugins
+        # route resource writes through sub-paths (e.g. kinto-attachment's
+        # ``patch_record()`` hits ``.../records/<id>/attachment``);
+        # parsing the request path would produce a malformed
+        # ``.../records/<id>/<id>`` URI for those entries.
+        route_params = {"id": obj_id}
+        if resource_name != "bucket":
+            route_params["bucket_id"] = bucket_id
+        if "collection_id" in payload:
+            route_params["collection_id"] = payload["collection_id"]
+        uri = instance_uri(event.request, resource_name, **route_params)
 
         if uri in excluded_resources:
             logger.info(f"History entries for record {uri!r} are disabled in config")
