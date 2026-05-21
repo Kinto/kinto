@@ -1,5 +1,7 @@
 import json
 import re
+import shutil
+import tempfile
 import unittest
 from unittest import mock
 
@@ -7,6 +9,13 @@ from kinto.core.testing import get_user_headers, skip_if_no_statsd
 
 from .. import support
 
+
+try:
+    import kinto_attachment  # noqa: F401
+
+    HAS_KINTO_ATTACHMENT = True
+except ImportError:
+    HAS_KINTO_ATTACHMENT = False
 
 DATETIME_REGEX = r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}\+\d{2}:\d{2}$"
 
@@ -299,6 +308,73 @@ class HistoryViewTest(HistoryWebTest):
         resp = self.app.get(self.history_uri, headers=self.headers)
         deletion_entries = [e for e in resp.json["data"] if e["action"] == "delete"]
         assert len(deletion_entries) == 1
+
+
+@unittest.skipUnless(HAS_KINTO_ATTACHMENT, "kinto-attachment is not installed")
+class AttachmentHistoryURITest(HistoryWebTest):
+    """When a record is created/updated via kinto-attachment's
+    sub-path endpoint (``.../records/<id>/attachment``), the resulting history
+    entries must use the canonical record URI and not the request path, which
+    would otherwise produce a malformed ``.../records/<id>/<id>`` URI.
+    """
+
+    @classmethod
+    def get_app_settings(cls, extras=None):
+        settings = super().get_app_settings(extras)
+        settings["includes"] = settings["includes"] + " kinto_attachment"
+        cls._attachments_folder = tempfile.mkdtemp(prefix="kinto-history-attach-")
+        settings["attachment.base_path"] = cls._attachments_folder
+        settings["attachment.base_url"] = "https://cdn.example/"
+        return settings
+
+    @classmethod
+    def tearDownClass(cls):
+        super().tearDownClass()
+        shutil.rmtree(cls._attachments_folder, ignore_errors=True)
+
+    def setUp(self):
+        self.app.put("/buckets/bid", headers=self.headers)
+        self.app.put("/buckets/bid/collections/cid", headers=self.headers)
+
+    def _upload_attachment(self, record_id):
+        url = f"/buckets/bid/collections/cid/records/{record_id}/attachment"
+        files = [("attachment", "file.txt", b"hello")]
+        content_type, body = self.app.encode_multipart([], files)
+        headers = {**self.headers, "Content-Type": content_type}
+        return self.app.post(url, body, headers=headers)
+
+    def test_history_uri_for_new_record_via_attachment(self):
+        self._upload_attachment("rid")
+
+        resp = self.app.get("/buckets/bid/history?resource_name=record", headers=self.headers)
+
+        record_entries = resp.json["data"]
+        assert len(record_entries) == 1
+        assert record_entries[0]["action"] == "create"
+        assert "attachment" in record_entries[0]["target"]["data"]
+        record_uri = "/buckets/bid/collections/cid/records/rid"
+        assert record_entries[0]["uri"] == record_uri
+
+    def test_history_uri_for_existing_record_via_attachment(self):
+        self.app.put_json(
+            "/buckets/bid/collections/cid/records/rid",
+            {"data": {"foo": 1}},
+            headers=self.headers,
+        )
+        # Uploading an attachment routes through kinto-attachment's
+        # patch_record() shim, which is what produced the malformed URI.
+        self._upload_attachment("rid")
+
+        resp = self.app.get("/buckets/bid/history?resource_name=record", headers=self.headers)
+
+        record_entries = resp.json["data"]
+        assert len(record_entries) == 2
+        assert record_entries[-1]["action"] == "create"
+        assert "attachment" not in record_entries[-1]["target"]["data"]
+        assert record_entries[0]["action"] == "update"
+        assert "attachment" in record_entries[0]["target"]["data"]
+        record_uri = "/buckets/bid/collections/cid/records/rid"
+        assert record_entries[0]["uri"] == record_uri
 
 
 class HistoryDeletionTest(HistoryWebTest):
