@@ -1,6 +1,8 @@
 import unittest
 from unittest import mock
 
+import jwt
+
 from kinto.core.testing import DummyRequest
 from kinto.plugins.openid import OpenIDConnectPolicy
 from kinto.plugins.openid.utils import fetch_openid_config
@@ -37,6 +39,7 @@ class OpenIDWebTest(support.BaseWebTest, unittest.TestCase):
         settings["multiauth.policy.auth0.issuer"] = "https://auth0-issuer"
         settings["multiauth.policy.auth0.client_id"] = "abc"
         settings["multiauth.policy.auth0.client_secret"] = "xyz"
+        settings["multiauth.policy.auth0.audience"] = "nonprod"
 
         settings["multiauth.policy.google.use"] = openid_policy
         settings["multiauth.policy.google.issuer"] = "https://google-issuer"
@@ -272,14 +275,29 @@ class VerifyTokenTest(unittest.TestCase):
             jwks_client.return_value.get_signing_key_from_jwt.return_value = signing_key
             assert self.policy._decode_jwt("abc") is not None
 
+            # Call again.
+            self.policy._decode_jwt("abc")
+
         jwks_client.assert_called_once_with("https://jwks")
-        jwks_client.return_value.get_signing_key_from_jwt.assert_called_once_with("abc")
-        decode.assert_called_once_with(
+        jwks_client.return_value.get_signing_key_from_jwt.assert_called_with("abc")
+        decode.assert_called_with(
             "abc",
             "public-key",
             audience="rs-nonprod",
             issuer="https://fxa",
         )
+
+    def test_return_none_if_token_is_invalid(self):
+        self.policy.audience = "rs-nonprod"
+        signing_key = mock.Mock()
+        signing_key.key = "public-key"
+        with (
+            mock.patch("kinto.plugins.openid.jwt.PyJWKClient") as jwks_client,
+            mock.patch("kinto.plugins.openid.jwt.decode") as decode,
+        ):
+            jwks_client.return_value.get_signing_key_from_jwt.return_value = signing_key
+            decode.side_effect = jwt.exceptions.InvalidAudienceError
+            assert self.policy._verify_token("abc") is None
 
 
 class LoginViewTest(OpenIDWebTest):
@@ -317,6 +335,14 @@ class LoginViewTest(OpenIDWebTest):
         assert "%2Fv1%2Fopenid%2Fauth0%2Ftoken" in location
         assert "scope=openid" in location
         assert "client_id=abc" in location
+        assert "audience=nonprod" in location
+
+    def test_redirects_to_the_identity_provider_without_audience(self):
+        params = {"callback": "http://ui.kinto.example.com", "scope": "openid email"}
+        resp = self.app.get("/openid/google/login", params=params, status=307)
+        location = resp.headers["Location"]
+        assert "google-issuer/authorize?" in location
+        assert "audience" not in location
 
     def test_redirects_to_the_identity_provider_with_prompt_none(self):
         params = {"callback": "http://ui.kinto.example.com", "scope": "openid", "prompt": "none"}
