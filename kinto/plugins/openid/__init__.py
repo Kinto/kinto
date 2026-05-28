@@ -1,3 +1,4 @@
+import jwt
 import requests
 from pyramid import authentication as base_auth
 from pyramid.interfaces import IAuthenticationPolicy
@@ -18,6 +19,7 @@ class OpenIDConnectPolicy(base_auth.CallbackAuthenticationPolicy):
         self.issuer = issuer
         self.client_id = client_id
         self.client_secret = kwargs.get("client_secret", "")
+        self.audience = kwargs.get("audience", "")
         self.header_type = kwargs.get("header_type", "Bearer")
         self.userid_field = kwargs.get("userid_field", "sub")
         self.verification_ttl = int(kwargs.get("verification_ttl_seconds", 86400))
@@ -25,7 +27,7 @@ class OpenIDConnectPolicy(base_auth.CallbackAuthenticationPolicy):
         # Fetch OpenID config (at instantiation, ie. startup)
         self.oid_config = fetch_openid_config(issuer)
 
-        self._jwt_keys = None
+        self._jwks_client = None
 
     def unauthenticated_userid(self, request):
         """Return the userid or ``None`` if token could not be verified."""
@@ -41,11 +43,9 @@ class OpenIDConnectPolicy(base_auth.CallbackAuthenticationPolicy):
         if authmeth.lower() != self.header_type.lower():
             return None
 
-        # XXX JWT Access token
-        # https://auth0.com/docs/tokens/access-token#access-token-format
-
-        # Check cache if these tokens were already verified.
-        hmac_tokens = core_utils.hmac_digest(hmac_secret, access_token)
+        # Check cache if this token was already verified for these provider settings.
+        cache_token = f"{self.issuer}:{self.client_id}:{self.audience}:{access_token}"
+        hmac_tokens = core_utils.hmac_digest(hmac_secret, cache_token)
         cache_key = f"openid:verify:{hmac_tokens}"
         payload = request.registry.cache.get(cache_key)
         if payload is None:
@@ -66,6 +66,10 @@ class OpenIDConnectPolicy(base_auth.CallbackAuthenticationPolicy):
         return [("WWW-Authenticate", '%s realm="%s"' % (self.header_type, self.realm))]
 
     def _verify_token(self, access_token):
+        if self.audience != "" and self._decode_jwt(access_token) is None:
+            # Logged debug in `_decode_jwt()`.
+            return None
+
         uri = self.oid_config["userinfo_endpoint"]
         # Opaque access token string. Fetch user info from profile.
         try:
@@ -76,6 +80,26 @@ class OpenIDConnectPolicy(base_auth.CallbackAuthenticationPolicy):
 
         except (requests.exceptions.HTTPError, ValueError, KeyError) as e:
             logger.debug("Unable to fetch user profile from %s (%s)" % (uri, e))
+            return None
+
+    def _get_jwks_client(self):
+        if self._jwks_client is None:
+            self._jwks_client = jwt.PyJWKClient(self.oid_config["jwks_uri"])
+        return self._jwks_client
+
+    def _decode_jwt(self, access_token):
+        try:
+            signing_key = self._get_jwks_client().get_signing_key_from_jwt(access_token)
+            return jwt.decode(
+                access_token,
+                signing_key.key,
+                # Verify issuer
+                issuer=self.issuer,
+                # Verify audience
+                audience=self.audience if self.audience != "" else None,
+            )
+        except jwt.PyJWTError as e:
+            logger.debug("Invalid JWT access token from %s (%s)", self.issuer, e)
             return None
 
 
@@ -105,6 +129,7 @@ def includeme(config):
         openid_config = fetch_openid_config(issuer)
 
         client_id = settings["multiauth.policy.%s.client_id" % name]
+        audience = settings.get("multiauth.policy.%s.audience" % name, "")
         header_type = settings.get("multiauth.policy.%s.header_type", "Bearer")
 
         providers_infos.append(
@@ -113,6 +138,7 @@ def includeme(config):
                 "issuer": openid_config["issuer"],
                 "auth_path": "/openid/%s/login" % name,
                 "client_id": client_id,
+                "audience": audience,
                 "header_type": header_type,
                 "userinfo_endpoint": openid_config["userinfo_endpoint"],
             }

@@ -36,6 +36,7 @@ dependencies = [
     "python-rapidjson",
     # pyramid still requires setuptools<82.0
     "setuptools<82.0",
+    "pyjwt[crypto]>=2.13.0",
 ]
 requires-python = ">=3.10"
 

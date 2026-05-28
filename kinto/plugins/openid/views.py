@@ -83,6 +83,7 @@ def get_login(request):
     settings_prefix = "multiauth.policy.%s." % provider
     issuer = request.registry.settings[settings_prefix + "issuer"]
     client_id = request.registry.settings[settings_prefix + "client_id"]
+    audience = request.registry.settings.get(settings_prefix + "audience", "")
     userid_field = request.registry.settings.get(settings_prefix + "userid_field")
     state_ttl = int(
         request.registry.settings.get(
@@ -123,6 +124,8 @@ def get_login(request):
     if prompt:
         # The 'prompt' parameter is optional.
         params["prompt"] = prompt
+    if audience != "":
+        params["audience"] = audience
     redirect = f"{auth_endpoint}?{urllib.parse.urlencode(params)}"
     raise httpexceptions.HTTPTemporaryRedirect(redirect)
 
