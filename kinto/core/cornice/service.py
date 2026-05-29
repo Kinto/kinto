@@ -102,7 +102,7 @@ class Service(object):
 
     There are also a number of parameters that are related to the support of
     CORS (Cross Origin Resource Sharing). You can read the
-    :ref:`CORS specification <http://www.w3.org/TR/cors/>`_.
+    `CORS specification <http://www.w3.org/TR/cors/>`_.
 
     :param cors_enabled:
         To use if you especially want to disable CORS support for a particular
