@@ -1,4 +1,5 @@
 import re
+from typing import Any
 from uuid import uuid4
 
 
@@ -12,15 +13,15 @@ class Generator:
     regexp = r"^[a-zA-Z0-9][a-zA-Z0-9_-]*$"
     """Default object id pattern. Can be changed to comply with custom ids."""
 
-    def __init__(self, config=None):
+    def __init__(self, config: Any = None):
         self.config = config
-        self._regexp = None
+        self._regexp: re.Pattern[str] | None = None
 
         if not self.match(self()):
             error_msg = "Generated object id does comply with regexp."
             raise ValueError(error_msg)
 
-    def match(self, object_id):
+    def match(self, object_id: str) -> re.Match[str] | None:
         """Validate that object ids match the generator. This is used mainly
         when an object id is picked arbitrarily (e.g with ``PUT`` requests).
 
@@ -31,7 +32,7 @@ class Generator:
             self._regexp = re.compile(self.regexp)
         return self._regexp.match(object_id)
 
-    def __call__(self):
+    def __call__(self) -> str:
         """
         :returns: A object id, most likely unique.
         :rtype: str
@@ -54,5 +55,5 @@ Universally_unique_identifier#Random_UUID_probability_of_duplicates>`_).
     regexp = r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-" r"[0-9a-f]{4}-[0-9a-f]{12}$"
     """UUID4 accurate pattern."""
 
-    def __call__(self):
+    def __call__(self) -> str:
         return str(uuid4())
