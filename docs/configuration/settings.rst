@@ -740,6 +740,11 @@ OpenID Authentication should work as described in the :ref:`API docs <authentica
     # Authorization header prefix (Default: `Bearer`)
     multiauth.policy.google.header_type = Bearer+OIDC
 
+    # API audience requested during login, for providers like Auth0.
+    # When set, Kinto adds ``audience`` to the authorization request
+    # and then requires the obtained access token ``aud`` claim to match.
+    multiauth.policy.google.audience = kinto-prod
+
     # User information cache expiration (Default: 1 day)
     # Access token verification will be cached during that amount of time.
     multiauth.policy.google.verification_ttl_seconds = 86400

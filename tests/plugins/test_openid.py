@@ -1,6 +1,8 @@
 import unittest
 from unittest import mock
 
+import jwt
+
 from kinto.core.testing import DummyRequest
 from kinto.plugins.openid import OpenIDConnectPolicy
 from kinto.plugins.openid.utils import fetch_openid_config
@@ -34,12 +36,13 @@ class OpenIDWebTest(support.BaseWebTest, unittest.TestCase):
         settings["includes"] = "kinto.plugins.openid"
         settings["multiauth.policies"] = "auth0 google"
         settings["multiauth.policy.auth0.use"] = openid_policy
-        settings["multiauth.policy.auth0.issuer"] = "https://auth.mozilla.auth0.com"
+        settings["multiauth.policy.auth0.issuer"] = "https://auth0-issuer"
         settings["multiauth.policy.auth0.client_id"] = "abc"
         settings["multiauth.policy.auth0.client_secret"] = "xyz"
+        settings["multiauth.policy.auth0.audience"] = "nonprod"
 
         settings["multiauth.policy.google.use"] = openid_policy
-        settings["multiauth.policy.google.issuer"] = "https://accounts.google.com"
+        settings["multiauth.policy.google.issuer"] = "https://google-issuer"
         settings["multiauth.policy.google.client_id"] = "123"
         settings["multiauth.policy.google.client_secret"] = "789"
         settings["multiauth.policy.google.userid_field"] = "email"
@@ -67,18 +70,25 @@ class OpenIDWithoutPolicyTest(support.BaseWebTest, unittest.TestCase):
 
 class OpenIDOnePolicyTest(support.BaseWebTest, unittest.TestCase):
     @classmethod
+    def make_app(cls, *args, **kwargs):
+        with mock.patch("kinto.plugins.openid.requests.get") as get:
+            get.side_effect = get_openid_configuration
+            return super(OpenIDOnePolicyTest, cls).make_app(*args, **kwargs)
+
+    @classmethod
     def get_app_settings(cls, extras=None):
         settings = super().get_app_settings(extras)
         openid_policy = "kinto.plugins.openid.OpenIDConnectPolicy"
         settings["includes"] = "kinto.plugins.openid"
         settings["multiauth.policies"] = "google"
         settings["multiauth.policy.auth0.use"] = openid_policy
-        settings["multiauth.policy.auth0.issuer"] = "https://auth.mozilla.auth0.com"
+        settings["multiauth.policy.auth0.issuer"] = "https://auth0-issuer"
         settings["multiauth.policy.auth0.client_id"] = "abc"
         settings["multiauth.policy.auth0.client_secret"] = "xyz"
+        settings["multiauth.policy.auth0.audience"] = "prod"
 
         settings["multiauth.policy.google.use"] = openid_policy
-        settings["multiauth.policy.google.issuer"] = "https://accounts.google.com"
+        settings["multiauth.policy.google.issuer"] = "https://google-issuer"
         settings["multiauth.policy.google.client_id"] = "123"
         settings["multiauth.policy.google.client_secret"] = "789"
         settings["multiauth.policy.google.userid_field"] = "email"
@@ -91,7 +101,7 @@ class OpenIDOnePolicyTest(support.BaseWebTest, unittest.TestCase):
         assert len(providers) == 1
 
     def test_profile_is_exposed(self):
-        key = "openid:verify:444c6694937007bbf494f155f6cb12139db4c4c6a926742f3fe0bb4b5d191aa3"
+        key = "openid:verify:24c5005651efc3cda836c2985ba1a7c8349af2e18d8f33157eaa2719ab9d20f3"
         profile = {"sub": "abcd", "email": "foobar@tld.com"}
         self.app.app.registry.cache.set(key, profile, ttl=30)
         with mock.patch("kinto.plugins.openid.utils.requests.get") as m:
@@ -119,7 +129,7 @@ class HelloViewTest(OpenIDWebTest):
         resp = self.app.get("/__api__")
         assert "auth0" in resp.json["securityDefinitions"]
         auth = resp.json["securityDefinitions"]["auth0"]["authorizationUrl"]
-        assert auth == "https://auth.mozilla.auth0.com/authorize"
+        assert auth == "https://auth0-issuer/authorize"
 
 
 class PolicyTest(unittest.TestCase):
@@ -231,6 +241,64 @@ class VerifyTokenTest(unittest.TestCase):
         payload = self.policy._verify_token(access_token="abc")
         assert payload is None
 
+    def test_returns_none_if_configured_audience_does_not_match(self):
+        self.policy.audience = "rs-nonprod"
+        with mock.patch.object(self.policy, "_decode_jwt") as mocked:
+            mocked.return_value = None
+            payload = self.policy._verify_token(access_token="abc")
+
+        assert payload is None
+        assert not self.mocked_get.called
+
+    def test_fetches_userinfo_if_configured_audience_matches(self):
+        self.policy.audience = "rs-nonprod"
+        self.mocked_get.return_value.json.side_effect = [{"sub": "me"}]
+        with mock.patch.object(self.policy, "_decode_jwt") as mocked:
+            mocked.return_value = mock.sentinel  # not None
+            payload = self.policy._verify_token(access_token="abc")
+
+        assert payload["sub"] == "me"
+
+    def test_audience_is_verified_with_provider_jwks(self):
+        self.policy.audience = "rs-nonprod"
+        self.policy.oid_config = {
+            **self.policy.oid_config,
+            "issuer": "https://fxa",
+        }
+        signing_key = mock.Mock()
+        signing_key.key = "public-key"
+
+        with (
+            mock.patch("kinto.plugins.openid.jwt.PyJWKClient") as jwks_client,
+            mock.patch("kinto.plugins.openid.jwt.decode") as decode,
+        ):
+            jwks_client.return_value.get_signing_key_from_jwt.return_value = signing_key
+            assert self.policy._decode_jwt("abc") is not None
+
+            # Call again.
+            self.policy._decode_jwt("abc")
+
+        jwks_client.assert_called_once_with("https://jwks")
+        jwks_client.return_value.get_signing_key_from_jwt.assert_called_with("abc")
+        decode.assert_called_with(
+            "abc",
+            "public-key",
+            audience="rs-nonprod",
+            issuer="https://fxa",
+        )
+
+    def test_return_none_if_token_is_invalid(self):
+        self.policy.audience = "rs-nonprod"
+        signing_key = mock.Mock()
+        signing_key.key = "public-key"
+        with (
+            mock.patch("kinto.plugins.openid.jwt.PyJWKClient") as jwks_client,
+            mock.patch("kinto.plugins.openid.jwt.decode") as decode,
+        ):
+            jwks_client.return_value.get_signing_key_from_jwt.return_value = signing_key
+            decode.side_effect = jwt.exceptions.InvalidAudienceError
+            assert self.policy._verify_token("abc") is None
+
 
 class LoginViewTest(OpenIDWebTest):
     def test_returns_400_if_parameters_are_missing_or_bad(self):
@@ -263,16 +331,24 @@ class LoginViewTest(OpenIDWebTest):
         params = {"callback": "http://ui.kinto.example.com", "scope": "openid"}
         resp = self.app.get("/openid/auth0/login", params=params, status=307)
         location = resp.headers["Location"]
-        assert "auth0.com/authorize?" in location
+        assert "auth0-issuer/authorize?" in location
         assert "%2Fv1%2Fopenid%2Fauth0%2Ftoken" in location
         assert "scope=openid" in location
         assert "client_id=abc" in location
+        assert "audience=nonprod" in location
+
+    def test_redirects_to_the_identity_provider_without_audience(self):
+        params = {"callback": "http://ui.kinto.example.com", "scope": "openid email"}
+        resp = self.app.get("/openid/google/login", params=params, status=307)
+        location = resp.headers["Location"]
+        assert "google-issuer/authorize?" in location
+        assert "audience" not in location
 
     def test_redirects_to_the_identity_provider_with_prompt_none(self):
         params = {"callback": "http://ui.kinto.example.com", "scope": "openid", "prompt": "none"}
         resp = self.app.get("/openid/auth0/login", params=params, status=307)
         location = resp.headers["Location"]
-        assert "auth0.com/authorize?" in location
+        assert "auth0-issuer/authorize?" in location
         assert "%2Fv1%2Fopenid%2Fauth0%2Ftoken" in location
         assert "scope=openid" in location
         assert "client_id=abc" in location
@@ -306,7 +382,7 @@ class TokenViewTest(OpenIDWebTest):
             m.return_value.text = '{"access_token": "token"}'
             self.app.get("/openid/auth0/token", params={"code": "abc", "state": "key"})
             m.assert_called_with(
-                "https://auth.mozilla.auth0.com/oauth/token",
+                "https://auth0-issuer/oauth/token",
                 data={
                     "code": "abc",
                     "client_id": "abc",
