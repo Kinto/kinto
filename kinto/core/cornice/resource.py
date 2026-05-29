@@ -167,7 +167,7 @@ def view(**kw):
 
 def add_view(func, **kw):
     """Method to store view arguments when defining a resource with
-    the add_resource class method
+    the add_resource class method.
 
     :param func:
         The func to hook to
@@ -175,7 +175,7 @@ def add_view(func, **kw):
     :param kw:
         Keyword arguments configuring the view.
 
-    Example:
+    For example:
 
     .. code-block:: python
 
