@@ -138,7 +138,7 @@ class Service(object):
         unpacked and considered rather than the parameters starting by `cors_`
         here.
 
-    See
+    See the
     `Pyramid docs about ACLs <https://pyramid.readthedocs.io/en/1.0-branch/glossary.html#term-acl>`_
     for more information.
 
