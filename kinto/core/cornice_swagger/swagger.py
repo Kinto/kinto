@@ -440,17 +440,17 @@ class CorniceSwagger(object):
 
         swagger_doc: dict[str, Any] = swagger.copy()
         info.update(title=title, version=version)
-        swagger_doc.update({"swagger": "2.0", "info": info, "basePath": base_path})  # ty: ignore[no-matching-overload]
+        swagger_doc.update({"swagger": "2.0", "info": info, "basePath": base_path})
 
         paths, tags = self._build_paths()
 
         # Update the provided tags with the extracted ones preserving order
         if tags:
-            swagger_doc.setdefault("tags", [])  # ty: ignore[no-matching-overload]
+            swagger_doc.setdefault("tags", [])
             tag_names = {t["name"] for t in swagger_doc["tags"]}
             for tag in tags:
                 if tag["name"] not in tag_names:
-                    swagger_doc["tags"].append(tag)  # ty: ignore[unresolved-attribute]
+                    swagger_doc["tags"].append(tag)
 
         # Create/Update swagger sections with extracted values where not provided
         if paths:

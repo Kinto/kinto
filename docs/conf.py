@@ -108,7 +108,9 @@ nitpick_ignore = [
     ("py:class", "str"),
     ("py:class", "tuple"),
     ("py:class", "Exception"),
+    ("py:class", "re.Match"),
     ("py:class", "kinto.core.cornice.Service"),
+    ("py:class", "kinto.core.storage.postgresql.client.PostgreSQLClient"),
     # Member autodoc fails with those:
     # kinto.core.resource.schema
     ("py:class", "Integer"),
