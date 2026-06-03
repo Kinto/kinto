@@ -381,7 +381,7 @@ You can also delete the record and use the same mechanism to avoid conflicts:
     }
 
 
-Likewise, we can query the list of changes (updates and deletions) that occured
+Likewise, we can query the list of changes (updates and deletions) that occurred
 since we last fetched the collection.
 
 Just add the ``_since`` querystring filter, using the value of any ``ETag`` (or

@@ -51,7 +51,7 @@ class PermissionBase:
         raise NotImplementedError
 
     def get_user_principals(self, user_id):
-        """Return the set of additionnal principals given to a user.
+        """Return the set of additional principals given to a user.
 
         :param str user_id: The user_id to get the list of groups for.
         :returns: The list of group principals the user is in.
@@ -145,7 +145,7 @@ class PermissionBase:
         :param list objects_ids: The list of object_ids.
         :param list permissions: Optional list of permissions to limit the
             results. If not specified, retrieve all.
-        :returns: A list of dictionnaries with the list of user principals for
+        :returns: A list of dictionaries with the list of user principals for
             each object permission.
         :rtype: list
         """

@@ -116,7 +116,7 @@ class Permission(PermissionBase, MigratorMixin):
                     return int(result.fetchone().version)
 
         # Either the metadata table doesn't exist, or it doesn't have
-        # a permission_schema_version row. Many possiblities exist:
+        # a permission_schema_version row. Many possibilities exist:
         #
         # - Maybe we are migrating from <8.1.2 and the permission
         # backend doesn't have a metadata table.

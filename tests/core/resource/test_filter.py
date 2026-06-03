@@ -201,7 +201,7 @@ class FilteringTest(BaseTest):
         result = self.resource.plural_get()
         self.assertEqual(len(result["data"]), 1)
 
-    def test_filter_considers_string_if_syntaxically_invalid(self):
+    def test_filter_considers_string_if_syntactically_invalid(self):
         self.validated["querystring"] = {"status": "1.2.3"}
         result = self.resource.plural_get()
         self.assertEqual(len(result["data"]), 0)

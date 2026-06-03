@@ -101,7 +101,7 @@ class RecordsViewTest(BaseWebTest, unittest.TestCase):
         self.app.put_json(
             "/buckets/be/collections/ba", MINIMALIST_COLLECTION, headers=self.headers
         )
-        other = self.record_url.replace("barley", "ba").replace("beers", "be")
+        other = self.record_url.replace("barley", "bam").replace("beers", "be")
         self.app.get(other, headers=self.headers, status=404)
 
     def test_a_collection_named_group_do_not_interfere_with_groups(self):

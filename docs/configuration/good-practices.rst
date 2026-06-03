@@ -240,7 +240,7 @@ At the database level
 PostgreSQL has sharding support built-in.
 
 The right database node is chosen based on some elements of the data query
-(most probably bucket or collection id) and partioning is then performed
+(most probably bucket or collection id) and partionning is then performed
 automatically.
 
 As an example, see `pgPool <https://www.pgpool.net/mediawiki/index.php/Main_Page>`_

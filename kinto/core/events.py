@@ -247,7 +247,7 @@ def notify_resource_event(
 ):
     """Request helper to stack a resource event.
 
-    If a similar event (same resource, same action) already occured during the
+    If a similar event (same resource, same action) already occurred during the
     current transaction (e.g. batch) then just extend the impacted objects of
     the previous one.
 

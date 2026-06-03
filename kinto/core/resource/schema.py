@@ -53,7 +53,7 @@ class ResourceSchema(colander.MappingSchema):
         """
         Resource schema options.
 
-        This is meant to be overriden for changing values:
+        This is meant to be overridden for changing values:
 
         .. code-block:: python
 
@@ -400,7 +400,7 @@ class NotModifiedResponseSchema(colander.MappingSchema):
 
 
 class ObjectResponseSchema(colander.MappingSchema):
-    """Response schema used with sigle resource endpoints."""
+    """Response schema used with single resource endpoints."""
 
     header = ResponseHeaderSchema()
 

@@ -383,8 +383,8 @@ class Storage(StorageBase, MigratorMixin):
             # id already exists.
             # Even if this check doesn't find one, be robust against
             # conflicts because we could race with another thread.
-            # Still, this reduces write load because SELECTs are
-            # cheaper than INSERTs.
+            # Still, this reduces write load because SELECTTs are
+            # cheaper than INSERTTs.
             try:
                 existing = self.get(resource_name, parent_id, obj[id_field])
                 raise exceptions.UnicityError(id_field, existing)
@@ -1050,7 +1050,7 @@ class Storage(StorageBase, MigratorMixin):
                 cond = f"{is_json_sequence} AND {data_as_array} && (:{value_holder})::jsonb[]"
 
             elif value != MISSING:
-                # Safely escape value. MISSINGs get handled below.
+                # Safely escape value. MISSING get handled below.
                 value_holder = f"{prefix}_value_{i}"
 
                 # Use JSONB containment (@>) for EQ on data fields with scalar

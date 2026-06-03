@@ -12,7 +12,7 @@ request until it's done.
 
 This design is useful when we want to ensure that something is done on the
 server before we send back the result to the client, and within the database
-transaction. But it's usually preferrable to run the notifications asynchronously.
+transaction. But it's usually preferable to run the notifications asynchronously.
 
 For the latter, the simplest way to run our custom code asynchronously
 is to use separate process workers that are notified via a job queue.

@@ -102,7 +102,7 @@ def recursive_update_dict(root, changes, ignores=()):
     """Update recursively all the entries from a dict and it's children dicts.
 
     :param dict root: root dictionary
-    :param dict changes: dictonary where changes should be made (default=root)
+    :param dict changes: dictionary where changes should be made (default=root)
     :returns dict newd: dictionary with removed entries of val.
     """
     if isinstance(changes, dict):
@@ -130,7 +130,7 @@ def random_bytes_hex(bytes_length):
 def native_value(value):
     """Convert string value to native python values.
 
-    :param str value: value to interprete.
+    :param str value: value to interpret.
     :returns: the value coerced to python type
     """
     if isinstance(value, str):
@@ -331,7 +331,7 @@ def prefixed_userid(request):
     the user id without prefix.
     """
     # If pyramid_multiauth is used, a ``authn_type`` is set on request
-    # when a policy succesfully authenticates a user.
+    # when a policy successfully authenticates a user.
     # (see :func:`kinto.core.initialization.setup_authentication`)
     authn_type = getattr(request, "authn_type", None)
     if authn_type is not None:

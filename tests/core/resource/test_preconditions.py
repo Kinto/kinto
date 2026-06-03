@@ -244,11 +244,11 @@ class ModifiedMeanwhileTest(BaseTest):
         self.validated["header"]["If-Match"] += self.current + 10
         self.assertRaises(httpexceptions.HTTPPreconditionFailed, self.resource.put)
 
-    def test_get_if_match_star_suceed_on_plural_endpoints(self):
+    def test_get_if_match_star_succeed_on_plural_endpoints(self):
         self.validated["header"]["If-Match"] = "*"
         self.resource.plural_get()
 
-    def test_delete_if_match_star_suceed_on_plural_endpoints(self):
+    def test_delete_if_match_star_succeed_on_plural_endpoints(self):
         self.validated["header"]["If-Match"] = "*"
         self.resource.plural_delete()
 

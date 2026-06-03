@@ -289,7 +289,7 @@ class RouteFactory:
         plural_path = str(service.plural_path)
         plural_path = plural_path.format_map(request.matchdict)
 
-        # In the case of a "PUT", check if the targetted object already
+        # In the case of a "PUT", check if the targeted object already
         # exists, return "write" if it does, "create" otherwise.
         if request.method.lower() == "put":
             if self.current_object is None:

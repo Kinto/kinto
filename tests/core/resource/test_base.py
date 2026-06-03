@@ -106,18 +106,18 @@ class DeprecatedMethodsTest(unittest.TestCase):
 
 class NewResource(Resource):
     def get_parent_id(self, request):
-        return "overrided"
+        return "overridden"
 
 
 class ParentIdOverrideResourceTest(BaseTest):
     resource_class = NewResource
 
-    def test_get_parent_can_be_overridded(self):
+    def test_get_parent_can_be_overridden(self):
         request = self.get_request()
 
         parent_id = self.resource.get_parent_id(request)
-        self.assertEqual(parent_id, "overrided")
-        self.assertEqual(self.resource.model.parent_id, "overrided")
+        self.assertEqual(parent_id, "overridden")
+        self.assertEqual(self.resource.model.parent_id, "overridden")
 
 
 class CustomModelResource(Resource):
@@ -128,6 +128,6 @@ class CustomModelResource(Resource):
 
 
 class CustomModelResourceTets(unittest.TestCase):
-    def test_custom_model_is_not_overriden(self):
+    def test_custom_model_is_not_overridden(self):
         c = CustomModelResource(request=mock.MagicMock())
         self.assertEqual(c.model.name, mock.sentinel.model)  # ty: ignore[unresolved-attribute]

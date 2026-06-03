@@ -38,7 +38,7 @@ class Cache(CacheBase):
         kinto.cache_pool_size = 50
         kinto.cache_pool_timeout = 30
 
-    If the database is used for multiple Kinto deployement cache, you
+    If the database is used for multiple Kinto deployment cache, you
     may want to add a prefix to every key to avoid collision::
 
         kinto.cache_prefix = stack1_

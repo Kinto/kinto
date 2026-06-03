@@ -234,22 +234,22 @@ class StorageBase:
         :param str resource_name: the resource name.
         :param str parent_id: the resource parent.
 
-        :param filters: Optionnally filter the objects to delete.
+        :param filters: Optionally filter the objects to delete.
         :type filters: list of :class:`kinto.core.storage.Filter`
-        :param sorting: Optionnally sort the objects by attribute.
+        :param sorting: Optionally sort the objects by attribute.
             Each sort instruction in this list refers to a field and a
             direction (negative means descending). All sort instructions are
             cumulative.
         :type sorting: list of :class:`kinto.core.storage.Sort`
 
-        :param pagination_rules: Optionnally paginate the deletion of objects.
+        :param pagination_rules: Optionally paginate the deletion of objects.
             This list of rules aims to reduce the set of objects to the current
             page. A rule is a list of filters (see `filters` parameter),
             and all rules are combined using *OR*.
         :type pagination_rules: list of list of
             :class:`kinto.core.storage.Filter`
 
-        :param int limit: Optionnally limit the number of objects to be
+        :param int limit: Optionally limit the number of objects to be
             deleted.
 
         :param bool with_deleted: track deleted objects with a tombstone
@@ -332,23 +332,23 @@ class StorageBase:
             are combined using *AND*.
         :type filters: list of :class:`kinto.core.storage.Filter`
 
-        :param sorting: Optionnally sort the objects by attribute.
+        :param sorting: Optionally sort the objects by attribute.
             Each sort instruction in this list refers to a field and a
             direction (negative means descending). All sort instructions are
             cumulative.
         :type sorting: list of :class:`kinto.core.storage.Sort`
 
-        :param pagination_rules: Optionnally paginate the list of objects.
+        :param pagination_rules: Optionally paginate the list of objects.
             This list of rules aims to reduce the set of objects to the current
             page. A rule is a list of filters (see `filters` parameter),
             and all rules are combined using *OR*.
         :type pagination_rules: list of list of
             :class:`kinto.core.storage.Filter`
 
-        :param int limit: Optionnally limit the number of objects to be
+        :param int limit: Optionally limit the number of objects to be
             retrieved.
 
-        :param bool include_deleted: Optionnally include the deleted objects
+        :param bool include_deleted: Optionally include the deleted objects
             that match the filters.
 
         :returns: the limited list of objects of
@@ -379,7 +379,7 @@ class StorageBase:
             comparison (see `kinto.core.utils.COMPARISON`). All filters
             are combined using *AND*.
         :type filters: list of :class:`kinto.core.storage.Filter`
-        :param include_deleted: Optionnally include the deleted objects that match the filters.
+        :param include_deleted: Optionally include the deleted objects that match the filters.
         :type include_deleted: bool
         :returns: the total number of matching objects in the resource (deleted ones excluded).
         :rtype: int

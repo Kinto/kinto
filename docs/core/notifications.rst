@@ -12,7 +12,7 @@ has changed, can continuously update its index.
 Kinto-Core leverages Pyramid's built-in event system and produces the following
 events:
 
-- :class:`kinto.core.events.ResourceRead`: a read operation occured on the resource.
+- :class:`kinto.core.events.ResourceRead`: a read operation occurred on the resource.
 
 - :class:`kinto.core.events.ResourceChanged`: a resource **is being changed**. This
   event occurs synchronously within the transaction and within the
@@ -69,7 +69,7 @@ Only one event is sent per transaction, per resource and per action.
 In other words, if every requests of a :ref:`batch requests <batch>`
 perform the same action on the same resource, only one event will be sent.
 
-The ``AfterResourceChanged`` is sent only if the transaction was comitted
+The ``AfterResourceChanged`` is sent only if the transaction was committed
 successfully.
 
 It is possible to cancel the current transaction by raising an HTTP Exception
@@ -92,7 +92,7 @@ Filtering
 ---------
 
 It is possible to filter events based on its action or the name of the resource where
-it occured.
+it occurred.
 
 For example:
 
@@ -115,7 +115,7 @@ events contain a ``payload`` attribute with the following information:
 - **action**: what happened. 'create', 'update' or 'delete'
 - **uri**: the uri of the impacted resource
 - **user_id**: the authenticated user id
-- **resource_name**: the name of the impacted resouce (e.g. 'article', 'bookmark', bucket',
+- **resource_name**: the name of the impacted resource (e.g. 'article', 'bookmark', bucket',
   'group' etc.)
 - **<resource_name>_id**: id of the impacted record
 - **<matchdict value>**: every value matched by each URL pattern name (see
@@ -146,7 +146,7 @@ events.
 
 *Kinto-Core* offers custom listeners that can be activated through configuration,
 so that every Kinto-Core-based application can benefit from **pluggable listeners**
-without using `config.add_subscriber()` explicitely.
+without using `config.add_subscriber()` explicitly.
 
 Currently, a simple built-in listener is available in kinto-redis plugin,
 that just delivers the events into a Redis queue, allowing asynchronous event handling.

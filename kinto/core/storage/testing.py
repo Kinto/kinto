@@ -1844,14 +1844,14 @@ class DeletedObjectsTest(_StorageMixin):
                         last_object = page[-1]
                         order_field, order_direction = order
                         pagination_direction = GT if order_direction == 1 else LT
-                        threshhold_field = last_object[order_field]
-                        threshhold_lm = last_object["last_modified"]
+                        threshold_field = last_object[order_field]
+                        threshold_lm = last_object["last_modified"]
                         pagination = [
                             [
-                                Filter(order_field, threshhold_field, utils.COMPARISON.EQ),
-                                Filter("last_modified", threshhold_lm, utils.COMPARISON.LT),
+                                Filter(order_field, threshold_field, utils.COMPARISON.EQ),
+                                Filter("last_modified", threshold_lm, utils.COMPARISON.LT),
                             ],
-                            [Filter(order_field, threshhold_field, pagination_direction)],
+                            [Filter(order_field, threshold_field, pagination_direction)],
                         ]
 
                     self.assertEqual(

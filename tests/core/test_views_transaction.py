@@ -80,7 +80,7 @@ class TransactionTest(PostgreSQLTest, unittest.TestCase):
         resp = self.app.get("/mushrooms", headers=self.headers)
         self.assertEqual(len(resp.json["data"]), 0)
 
-    def test_modifications_are_rolled_back_on_error_accross_backends(self):
+    def test_modifications_are_rolled_back_on_error_across_backends(self):
         self.run_failing_post()
 
         resp = self.app.get("/psilos", headers=self.headers)
@@ -228,7 +228,7 @@ class WithoutTransactionTest(PostgreSQLTest, unittest.TestCase):
         resp = self.app.get("/mushrooms", headers=self.headers)
         self.assertEqual(len(resp.json["data"]), 2)
 
-    def test_modifications_are_not_rolled_back_on_error_accross_backends(self):
+    def test_modifications_are_not_rolled_back_on_error_across_backends(self):
         self.run_failing_post()
 
         resp = self.app.get("/psilos", headers=self.headers)

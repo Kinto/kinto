@@ -155,7 +155,7 @@ class ViewSetTest(unittest.TestCase):
     def test_class_parameters_overwrite_each_others(self, mocked):
         # Some class parameters should overwrite each others.
         # The more specifics should prevail over the more generics.
-        # Items annoted with a "<<" are the one that should prevail.
+        # Items annotated with a "<<" are the one that should prevail.
         default_arguments = {
             "cors_origins": mock.sentinel.default_cors_origins,
             "error_handler": mock.sentinel.default_error_handler,

@@ -202,7 +202,7 @@ Custom permission checking
 --------------------------
 
 The permissions verification in *Kinto-Core* is done with usual Pyramid authorization
-abstractions. Most notably using an implementation of a `RootFactory in conjonction with an Authorization policy
+abstractions. Most notably using an implementation of a `RootFactory in conjunction with an Authorization policy
 <http://docs.pylonsproject.org/projects/pyramid/en/latest/quick_tutorial/authorization.html>`_.
 
 In order to completely override (or mimic) the defaults, a custom
@@ -239,7 +239,7 @@ on the resource during registration.
 See more details about available customization in the :ref:`viewset section <viewset>`.
 
 A custom RootFactory and AuthorizationPolicy should implement the permission
-checking `using Pyramid mecanisms <http://docs.pylonsproject.org/projects/pyramid/en/latest/tutorials/wiki2/authorization.html>`_.
+checking `using Pyramid mechanisms <http://docs.pylonsproject.org/projects/pyramid/en/latest/tutorials/wiki2/authorization.html>`_.
 
 For example, a simplistic example with the previous resource viewset:
 
@@ -296,7 +296,7 @@ Memory
 API
 ===
 
-Implementing a custom permission backend consists in implementating the following
+Implementing a custom permission backend consists in implementing the following
 interface:
 
 .. automodule:: kinto.core.permission

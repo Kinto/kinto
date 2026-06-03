@@ -20,7 +20,7 @@ Since 16.4.0, the `changelog in our documentation <https://docs.kinto-storage.or
 
 - Publish to docker hub on tag (#3329)
 - Publish to Pypi on tag (#3328)
-- Switch to ruff insteaf of therapist+flake8+black+isort (#3321)
+- Switch to ruff instead of therapist+flake8+black+isort (#3321)
 - Upgrade to SQLAlchemy 2 (fixes #3128)
 
 
@@ -248,7 +248,7 @@ For a complete log of Kinto Admin changes, see `v1.31.0...v2.0.0 <https://github
 
 **Documentation**
 
-- Fix "negociation" typo in docs/images/architecture.svg (#2813)
+- Fix "negotiation" typo in docs/images/architecture.svg (#2813)
 
 **Internal changes**
 
@@ -473,7 +473,7 @@ For a complete log of Kinto Admin changes, see `v1.31.0...v2.0.0 <https://github
 
 **Bug fixes**
 
-- Fix apparence of Admin notifications (fixes #2191)
+- Fix appearance of Admin notifications (fixes #2191)
 - Fix intermittent failure when comparing timestamps in ConfigTest (fixes #2129)
 
 
@@ -1241,7 +1241,7 @@ API is now at version **1.19**. See `API changelog`_.
   specified users only makes sense if those users are "admins", which
   means they're in ``account_write_principals``. (Fixes #1281.)
 - Fix a 500 when accounts without an ID are created (fixes #1280).
-- Fix StatsD unparseable metric packets for the unique user counter (fixes #1282)
+- Fix StatsD unparsable metric packets for the unique user counter (fixes #1282)
 
 **Internal changes**
 
@@ -1452,7 +1452,7 @@ Protocol is now at version **1.15**. See `API changelog`_.
 - Prevent injections in the PostgreSQL permission backend (#1061)
 - Fix crash on ``If-Match: *`` (#1064)
 - Handle Integer overflow in querystring parameters. (#1076)
-- Flush endpoint now returns an empty JSON object instad of an HTML page (#1098)
+- Flush endpoint now returns an empty JSON object instead of an HTML page (#1098)
 - Fix nested sorting key breaks pagination token. (#1116)
 - Remove ``deleted`` field from ``PUT`` requests over tombstones. (#1115)
 - Fix crash when preconditions are used on the permission endpoint (fixes #1066)
@@ -1799,7 +1799,7 @@ Protocol is now at version **1.9**. See `API changelog`_.
 **New features**
 
 - Added a new built-in plugin ``kinto.plugins.history`` that keeps track of every action
-  that occured within a bucket and serves a stream of changes that can be synced.
+  that occurred within a bucket and serves a stream of changes that can be synced.
   See `API documentation <https://kinto.readthedocs.io/en/latest/api/1.x/history.html>`_.
 - Added a new ``--dry-run`` option to command-line script ``migrate`` that will simulate
   migration operation without executing on the backend (thanks @lavish205! #685)
@@ -1811,7 +1811,7 @@ Protocol is now at version **1.9**. See `API changelog`_.
 
 **Bug fixes**
 
-- Fix bug where the resource events of a request targetting two groups/collection
+- Fix bug where the resource events of a request targeting two groups/collection
   from different buckets would be grouped together.
 - Fix crash when an invalid UTF-8 character is provided in URL
 - Fix crash when provided ``last_modified`` field is not divisible (e.g. string)
@@ -1821,7 +1821,7 @@ Protocol is now at version **1.9**. See `API changelog`_.
 - Huge rework of documentation after the merge of *Cliquet* into kinto.core (#731)
 - Improve the documentation about generating docs (fixes #615)
 - Switch from cliquet-pusher to kinto-pusher in Dockerfile and tutorial.
-- List posssible response status on every endpoint documentation (#736)
+- List possible response status on every endpoint documentation (#736)
 - Remove duplicated and confusing docs about generic resources
 - Replace the term ``protocol`` by ``API`` in documentation (fixes #664)
 - Add load tests presets (exhaustive, read, write) in addition to the existing random. Switched integration test ``make loadtest-check-simulation`` to run the exhaustive one (fixes #258)
@@ -1848,7 +1848,7 @@ Protocol is now at version **1.9**. See `API changelog`_.
 **Bug fixes**
 
 - Fix Redis get_accessible_object implementation (#725)
-- Fix bug where the resource events of a request targetting two groups/collection
+- Fix bug where the resource events of a request targeting two groups/collection
   from different buckets would be grouped together.
 
 
@@ -1887,7 +1887,7 @@ Protocol is now at version **1.8**. See `API changelog`_.
 **Internal changes**
 
 - Resource events constructors signatures were changed. The event payload is now
-  built immediately when event is fired instead of during transactoin commit (#704).
+  built immediately when event is fired instead of during transaction commit (#704).
 - Fix crash when a resource is registered without record path.
 - Changed behaviour of accessible objects in permissions backend when list of
   bound permissions is empty.
@@ -1962,7 +1962,7 @@ Protocol is now at version **1.6**. See `API changelog`_.
 - Fix internal storage filtering when an empty list of values is provided.
 - Authenticated users are now allowed to obtain an empty list of buckets on
   ``GET /buckets`` even if no bucket is readable (#454)
-- Fix enabling flush enpoint with ``KINTO_FLUSH_ENDPOINT_ENABLED`` environment variable (fixes #588)
+- Fix enabling flush endpoint with ``KINTO_FLUSH_ENDPOINT_ENABLED`` environment variable (fixes #588)
 - Fix reading settings for events listeners from environment variables (fixes #515)
 - Fix principal added to ``write`` permission when a publicly writable object
   is created/edited (fixes #645)
@@ -2143,7 +2143,7 @@ Protocol is now in version **1.4**. See `API changelog`_.
 - Mention python plugin for Uwsgi (#448)
 - Add how to troubleshoot psql encoding problems. (#453)
 - Add mini checklist for CDN deployment (#450)
-- Replace subjective ligthweight by minimalist (fixes #417)
+- Replace subjective lightweight by minimalist (fixes #417)
 - Improve synchronisation docs (#451)
 - Add the requirements in the Readme (#465)
 - Add docs about architecture (fixes #430)
@@ -2251,7 +2251,7 @@ Improved:
 
 Minor:
 
-- Added missing DELETE endoint for list of records (fixes #238)
+- Added missing DELETE endpoint for list of records (fixes #238)
 - Mention how to restrict private URLs with NGinx (fixes #250)
 - Fix link to the freenode #kinto channel in the docs (#333)
 - Remove Firefox Account mention from README (fixes #326)
@@ -2321,7 +2321,7 @@ Changed the naming in the root URL (hello view) (mozilla-services/cliquet#600)
 
 **Internal changes**
 
-- Clarified how Kinto is versionned in the documentation (#305)
+- Clarified how Kinto is versioned in the documentation (#305)
 
 1.9.0 (2015-11-18)
 ------------------
@@ -2643,7 +2643,7 @@ See also `*Cliquet* changes <https://github.com/mozilla-services/cliquet/release
 - Updated *Cliquet* to 2.0, which introduces a lot of breaking changes
   (`see changelog <https://github.com/mozilla-services/cliquet/releases/2.0.0>`_)
 - Firefox Accounts is not a dependency anymore and should be installed and
-  included explictly using the python package ``cliquet-fxa``
+  included explicitly using the python package ``cliquet-fxa``
   (`see documentation <https://github.com/mozilla-services/cliquet-fxa/>`_)
 - API is now served under ``/v1``
 - Collections are now managed by bucket, and not by user anymore (#44)

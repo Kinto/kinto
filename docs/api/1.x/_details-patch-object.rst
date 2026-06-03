@@ -25,7 +25,7 @@ The provided values are merged with the existing object. For example:
 
 `JSON merge <https://tools.ietf.org/html/rfc7396>`_
 is currently supported using ``Content-Type: application/merge-patch+json``. This provides
-support to merging sub-objects and removing attibutes. For example:
+support to merging sub-objects and removing attributes. For example:
 
 * ``{"a":"b"}`` + ``{"a":null}`` → ``{}``
 * ``{"a": {"b":"c"}}`` + ``{"a":{"d":"e"}}`` → ``{"a":{"b":"c", "d":"e"}}``

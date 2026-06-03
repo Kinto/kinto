@@ -49,7 +49,7 @@ class PostgreSQLClient:
             if commit_manually:
                 session.commit()
             elif force_commit:
-                # Commit like would do a succesful request.
+                # Commit like would do a successful request.
                 zope_transaction.commit()
 
         except sqlalchemy.exc.IntegrityError as e:  # ty: ignore[possibly-missing-submodule]

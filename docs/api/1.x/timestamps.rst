@@ -16,7 +16,7 @@ the current user will be given on list endpoint.
 
     ETag: "1432208041618"
 
-On object enpoints, the ``ETag`` header value will contain the timestamp of the
+On object endpoints, the ``ETag`` header value will contain the timestamp of the
 object.
 
 In order to bypass costly and error-prone HTTP date parsing, ``ETag`` headers
@@ -72,7 +72,7 @@ the cached version is still good.
 Concurrency control
 ===================
 
-In order to prevent race conditions, like overwriting changes occured in the interim for example,
+In order to prevent race conditions, like overwriting changes occurred in the interim for example,
 a ``If-Match: "timestamp"`` request header can be used. If the response is |status-412|
 then the resource has changed meanwhile.
 

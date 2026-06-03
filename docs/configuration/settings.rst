@@ -363,7 +363,7 @@ since the specified module must just define an ``includeme(config)`` function.
 
 .. _many available packages: https://github.com/ITCase/awesome-pyramid
 
-See also: :ref:`tutorial-write-plugin` for more in-depth informations on how
+See also: :ref:`tutorial-write-plugin` for more in-depth information on how
 to create your own plugin.
 
 
@@ -626,7 +626,7 @@ It is possible to enable several authentication policies. **The order matters**:
 |                                |                                                       | below.                                                                   |
 +--------------------------------+-------------------------------------------------------+--------------------------------------------------------------------------+
 | multiauth.authorization_policy | ``kinto.authorization.AuthorizationPolicy``           | Python *dotted* path the authorization policy to use for the permission  |
-|                                |                                                       | mecanism.                                                                |
+|                                |                                                       | mechanism.                                                               |
 +--------------------------------+-------------------------------------------------------+--------------------------------------------------------------------------+
 
 
@@ -806,7 +806,7 @@ In the following example, internal accounts, Persona, and IP Auth are all enable
 
     multiauth.policy.account.use = kinto.plugins.account.AccountsPolicy
 
-    multiauth.policy.ipauth.use = pyramid_ipauth.IPAuthentictionPolicy
+    multiauth.policy.ipauth.use = pyramid_ipauth.IPAuthenticationPolicy
     multiauth.policy.ipauth.ipaddrs = 192.168.0.*
     multiauth.policy.ipauth.userid = LAN-user
     multiauth.policy.ipauth.principals = trusted
@@ -951,7 +951,7 @@ allowed to do and which data can be managed.
     kinto.experimental_permissions_endpoint = true
 
 Then, issue a ``GET`` request to the ``/permissions`` endpoint to get the
-list of the user permissions on the server ressources.
+list of the user permissions on the server resources.
 
 
 .. _configuration-client-caching:

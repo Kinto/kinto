@@ -177,3 +177,14 @@ ignore = [
 
 [tool.ruff.lint.isort]
 lines-after-imports = 2
+
+[tool.typos.default]
+extend-ignore-re = [
+    # Ignore blocks between `# spellchecker:off` and `# spellchecker:on`
+    "(?s)(#|//)\\s*spellchecker:off.*?\\n\\s*(#|//)\\s*spellchecker:on",
+]
+
+[tool.typos.default.extend-words]
+# MoFo
+Fo = "Fo"
+gti = "gti"

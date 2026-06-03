@@ -96,7 +96,7 @@ class ErrorViewTest(FormattedErrorMixin, BaseWebTest, unittest.TestCase):
             response, 403, ERRORS.FORBIDDEN, "Forbidden", "This user cannot access this resource."
         )
 
-    def test_403_can_be_overridded(self):
+    def test_403_can_be_overridden(self):
         custom_403 = http_error(
             httpexceptions.HTTPForbidden(), errno=ERRORS.FORBIDDEN, message="Customized."
         )

@@ -97,7 +97,7 @@ Cheatsheet
 +----------+----------------------------------------------------------------------------------------------+---------------------------------------------------------+
 | `PATCH`  | :ref:`/buckets/(bucket_id)/collections/(collection_id) <collection-patch>`                   | :ref:`Modify an existing collection <collection-patch>` |
 +----------+----------------------------------------------------------------------------------------------+---------------------------------------------------------+
-| `GET`    | :ref:`/buckets/(bucket_id)/collections/(collection_id) <collection-get>`                     | :ref:`Retreive an existing collection <collection-get>` |
+| `GET`    | :ref:`/buckets/(bucket_id)/collections/(collection_id) <collection-get>`                     | :ref:`Retrieve an existing collection <collection-get>` |
 +----------+----------------------------------------------------------------------------------------------+---------------------------------------------------------+
 | `DELETE` | :ref:`/buckets/(bucket_id)/collections/(collection_id) <collection-delete>`                  | :ref:`Delete a collection <collection-delete>`          |
 +----------+----------------------------------------------------------------------------------------------+---------------------------------------------------------+

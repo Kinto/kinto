@@ -7,7 +7,7 @@ Viewsets
 using *ViewSets*.
 
 Since a resource defines two URLs with several HTTP methods, a view set can
-be considered as a set of rules for registring the resource views into the
+be considered as a set of rules for registering the resource views into the
 routing mechanism of Pyramid.
 
 To use *Kinto-Core* in a basic fashion, there is no need to understand how
@@ -17,7 +17,7 @@ viewsets work in full detail.
 Override defaults
 =================
 
-Viewsets defaults can be overriden by passing arguments to the
+Viewsets defaults can be overridden by passing arguments to the
 :func:`kinto.core.resource.register` class decorator:
 
 .. code-block:: python
