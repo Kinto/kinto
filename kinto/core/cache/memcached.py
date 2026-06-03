@@ -2,7 +2,9 @@ import logging
 from functools import wraps
 from math import ceil, floor
 from time import time
+from typing import Any
 
+from pyramid.config import Configurator
 from pyramid.settings import aslist
 
 from kinto.core.cache import CacheBase
@@ -30,7 +32,7 @@ def wrap_memcached_error(func):
     return wrapped
 
 
-def create_from_config(config, prefix=""):
+def create_from_config(config, prefix: str = "") -> Any:
     """Memcached client instantiation from settings."""
     settings = config.get_settings()
     hosts = aslist(settings[prefix + "hosts"])
@@ -56,16 +58,16 @@ class Cache(CacheBase):
         super(Cache, self).__init__(*args, **kwargs)
         self._client = client
 
-    def initialize_schema(self, dry_run=False):
+    def initialize_schema(self, dry_run: bool = False) -> None:
         # Nothing to do.
         pass
 
     @wrap_memcached_error
-    def flush(self):
+    def flush(self) -> None:
         self._client.flush_all()
 
     @wrap_memcached_error
-    def _get(self, key):
+    def _get(self, key: str) -> tuple[Any, Any]:
         value = self._client.get(self.prefix + key)
         if not value:
             self.metrics_backend.count_miss()
@@ -74,17 +76,17 @@ class Cache(CacheBase):
         data = json.loads(value)
         return data["value"], data["ttl"]
 
-    def ttl(self, key):
+    def ttl(self, key: str) -> float:
         _, ttl = self._get(key)
         val = ttl - time()
         return floor(val)
 
-    def get(self, key):
+    def get(self, key: str) -> Any:
         value, _ = self._get(key)
         return value
 
     @wrap_memcached_error
-    def expire(self, key, ttl):
+    def expire(self, key: str, ttl: float) -> None:
         if ttl == 0:
             self.delete(key)
         else:
@@ -93,20 +95,20 @@ class Cache(CacheBase):
             self.set(key, value, ttl)
 
     @wrap_memcached_error
-    def set(self, key, value, ttl):
+    def set(self, key: str, value: Any, ttl: float) -> None:
         if isinstance(value, bytes):
             raise TypeError("a string-like object is required, not 'bytes'")
         value = json.dumps({"value": value, "ttl": ceil(time() + ttl)})
         self._client.set(self.prefix + key, value, int(ttl))
 
     @wrap_memcached_error
-    def delete(self, key):
+    def delete(self, key: str) -> Any:
         value = self.get(key)
         self._client.delete(self.prefix + key)
         return value
 
 
-def load_from_config(config):
+def load_from_config(config: Configurator) -> Cache:
     settings = config.get_settings()
     client = create_from_config(config, prefix="cache_")
     return Cache(client, cache_prefix=settings["cache_prefix"])

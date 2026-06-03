@@ -1,5 +1,9 @@
 import logging
 import random
+from collections.abc import Callable
+from typing import Any
+
+from pyramid.request import Request
 
 
 logger = logging.getLogger(__name__)
@@ -20,7 +24,7 @@ class CacheBase:
         self.max_size_bytes = kwargs.get("cache_max_size_bytes")
         self.set_metrics_backend(kwargs.get("metrics_backend"))
 
-    def initialize_schema(self, dry_run=False):
+    def initialize_schema(self, dry_run: bool = False) -> None:
         """Create every necessary objects (like tables or indices) in the
         backend.
 
@@ -30,11 +34,11 @@ class CacheBase:
         """
         raise NotImplementedError
 
-    def flush(self):
+    def flush(self) -> None:
         """Delete every values."""
         raise NotImplementedError
 
-    def ttl(self, key):
+    def ttl(self, key: str) -> float:
         """Obtain the expiration value of the specified `key`.
 
         :param str key: key
@@ -43,7 +47,7 @@ class CacheBase:
         """
         raise NotImplementedError
 
-    def expire(self, key, ttl):
+    def expire(self, key: str, ttl: float) -> None:
         """Set the expiration value `ttl` for the specified `key`.
 
         :param str key: key
@@ -51,7 +55,7 @@ class CacheBase:
         """
         raise NotImplementedError
 
-    def set(self, key, value, ttl):
+    def set(self, key: str, value: Any, ttl: float) -> None:
         """Store a value with the specified `key`.
 
         :param str key: key
@@ -60,7 +64,7 @@ class CacheBase:
         """
         raise NotImplementedError
 
-    def get(self, key):
+    def get(self, key: str) -> Any:
         """Obtain the value of the specified `key`.
 
         :param str key: key
@@ -69,14 +73,14 @@ class CacheBase:
         """
         raise NotImplementedError
 
-    def delete(self, key):
+    def delete(self, key: str) -> Any:
         """Delete the value of the specified `key`.
 
         :param str key: key
         """
         raise NotImplementedError
 
-    def set_metrics_backend(self, metrics_backend):
+    def set_metrics_backend(self, metrics_backend: Any) -> None:
         """Set a metrics backend via the `CacheMetricsBackend` adapter.
 
         :param metrics_backend: A metrics backend implementing the IMetricsService interface.
@@ -89,26 +93,26 @@ class CacheMetricsBackend:
     A simple adapter for tracking cache-related metrics.
     """
 
-    def __init__(self, metrics_backend, *args, **kwargs):
+    def __init__(self, metrics_backend: Any, *args, **kwargs):
         """Initialize with a given metrics backend.
 
         :param metrics_backend: A metrics backend implementing the IMetricsService interface.
         """
         self._backend = metrics_backend
 
-    def count_hit(self):
+    def count_hit(self) -> None:
         """Increment the cache hit counter."""
         if self._backend:
             self._backend.count(key=_CACHE_HIT_METRIC_KEY)
 
-    def count_miss(self):
+    def count_miss(self) -> None:
         """Increment the cache miss counter."""
         if self._backend:
             self._backend.count(key=_CACHE_MISS_METRIC_KEY)
 
 
-def heartbeat(backend):
-    def ping(request):
+def heartbeat(backend: CacheBase) -> Callable[[Request], bool]:
+    def ping(request: Request) -> bool:
         """Test that cache backend is operational.
 
         :param request: current request object
