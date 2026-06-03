@@ -101,8 +101,8 @@ class Service(object):
         will be used as the traversal path.
 
     There are also a number of parameters that are related to the support of
-    CORS (Cross Origin Resource Sharing). You can read the CORS specification
-    at http://www.w3.org/TR/cors/
+    CORS (Cross Origin Resource Sharing). You can read the
+    `CORS specification <http://www.w3.org/TR/cors/>`_.
 
     :param cors_enabled:
         To use if you especially want to disable CORS support for a particular
@@ -138,9 +138,9 @@ class Service(object):
         unpacked and considered rather than the parameters starting by `cors_`
         here.
 
-    See
-    https://pyramid.readthedocs.io/en/1.0-branch/glossary.html#term-acl
-    for more information about ACLs.
+    See the
+    `Pyramid docs about ACLs <https://pyramid.readthedocs.io/en/1.0-branch/glossary.html#term-acl>`_
+    for more information.
 
     Service cornice instances also have methods :meth:`~get`, :meth:`~post`,
     :meth:`~put`, :meth:`~options` and :meth:`~delete` are decorators that can
@@ -235,8 +235,10 @@ class Service(object):
         return renderer.render_errors(request)
 
     def get_arguments(self, conf=None):
-        """Return a dictionary of arguments. Takes arguments from the :param
-        conf: param and merges it with the arguments passed in the constructor.
+        """Return a dictionary of arguments.
+
+        Takes arguments from the ``conf`` argument and merges it with the
+        arguments passed in the constructor.
 
         :param conf: the dictionary to use.
         """

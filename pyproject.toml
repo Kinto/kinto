@@ -67,6 +67,7 @@ build-backend = "hatchling.build"
 
 [dependency-groups]
 dev = [
+    "docstring-format-checker>=1.11.4",
     "pytest-xdist>=3.8.0",
     "ty>=0.0.19",
 ]
@@ -177,3 +178,10 @@ ignore = [
 
 [tool.ruff.lint.isort]
 lines-after-imports = 2
+
+[tool.docstring-format-checker]
+require_docstrings = false
+sections = [
+    { name = "summary", type = "free_text", required = false },
+    { name = "params", type = "list_name_and_type", required = false },
+]
