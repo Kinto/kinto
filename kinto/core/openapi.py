@@ -26,7 +26,7 @@ class OpenAPI(CorniceSwagger):
     def expose_authentication_method(cls, method_name, definition):
         """Allow security extensions to expose authentication methods on the
         OpenAPI documentation. The definition field should correspond to a
-        valid OpenAPI security definition. Refer the
+        valid OpenAPI security definition. Refer to the
         `OpenAPI docs <https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md>`_
         for more information.
 
