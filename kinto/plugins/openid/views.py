@@ -45,7 +45,7 @@ def provider_validator(request, **kwargs):
     provider = request.matchdict["provider"]
     used = request.registry.settings.get("multiauth.policy.%s.use" % provider, "")
     if not used.endswith("OpenIDConnectPolicy"):
-        request.errors.add("path", "provider", "Unknow provider %r" % provider)
+        request.errors.add("path", "provider", "Unknown provider %r" % provider)
 
 
 class LoginQuerystringSchema(colander.MappingSchema):

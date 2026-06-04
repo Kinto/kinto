@@ -322,7 +322,7 @@ def setup_sentry(config):
                 LoggingIntegration(
                     # Logs to be captured as breadcrumbs (debug and above by default)
                     level=breadcrumbs_level,
-                    # Logs to be catpured as events (warning and above by default)
+                    # Logs to be captured as events (warning and above by default)
                     event_level=events_level,
                 ),
             ],
@@ -420,7 +420,7 @@ def setup_logging(config):
             pass
 
         if not hasattr(request, "parent"):
-            # Ouput application request summary.
+            # Output application request summary.
             summary_logger.info("", extra=request.log_context())
 
     config.add_subscriber(on_new_response, NewResponse)
@@ -731,7 +731,7 @@ def initialize(config, version=None, settings_prefix="", default_settings=None):
     # HTTP API version.
     http_api_version = settings.get("http_api_version")
     if http_api_version is None:
-        # The API version is derivated from the module version if not provided.
+        # The API version is derived from the module version if not provided.
         http_api_version = ".".join(project_version.split(".")[0:2])
     settings["http_api_version"] = http_api_version = str(http_api_version)
     api_version = f"v{http_api_version.split('.')[0]}"

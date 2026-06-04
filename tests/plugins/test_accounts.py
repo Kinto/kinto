@@ -453,7 +453,7 @@ class WithBasicAuthTest(AccountsWebTest):
     def test_id_field_is_mandatory(self):
         self.app.post_json("/accounts", {"data": {"password": "pass"}}, status=400)
 
-    def test_fallsback_on_basicauth(self):
+    def test_fallback_on_basicauth(self):
         self.app.post_json("/accounts", {"data": {"id": "me", "password": "bleh"}})
 
         resp = self.app.get("/", headers=get_user_headers("me", "wrong"))

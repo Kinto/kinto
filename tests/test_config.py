@@ -196,7 +196,7 @@ class ConfigTest(unittest.TestCase):
             **{
                 "host": "127.0.0.1",
                 "secret": "abcd-ceci-est-un-secret",
-                "bucket_id_salt": "backet-id-salt-random",
+                "bucket_id_salt": "bucket-id-salt-random",
                 "storage_backend": "kinto.core.storage.memory",
                 "cache_backend": "kinto.core.cache.memory",
                 "permission_backend": "kinto.core.permission.memory",

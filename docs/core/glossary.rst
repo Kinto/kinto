@@ -20,7 +20,7 @@ Glossary
         An endpoint handles a particular HTTP verb at a particular URL.
 
     extensible
-        «Extensible» means that the component behaviour can be overriden via
+        «Extensible» means that the component behaviour can be overridden via
         lines of code. It differs from «:term:`pluggable`».
 
     Identity Provider
@@ -33,7 +33,7 @@ Glossary
         respond with the requested data, in the form of JSON.
 
     KISS
-        «Keep it simple, stupid» is a design priciple which states that most
+        «Keep it simple, stupid» is a design principle which states that most
         systems work best if they are kept simple rather than made complicated.
 
     pluggable

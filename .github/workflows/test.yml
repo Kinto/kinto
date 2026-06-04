@@ -19,6 +19,9 @@ jobs:
       - name: Actions Lint
         uses: raven-actions/actionlint@v2
 
+      - name: Install typos spellcheck
+        run: cargo install typos-cli
+
       - uses: astral-sh/setup-uv@v7
 
       - name: make lint

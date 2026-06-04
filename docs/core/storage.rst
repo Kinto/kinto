@@ -28,7 +28,7 @@ Memory
 API
 ===
 
-Implementing a custom storage backend consists in implementating the following
+Implementing a custom storage backend consists in implementing the following
 interface:
 
 .. automodule:: kinto.core.storage

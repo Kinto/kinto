@@ -130,4 +130,4 @@ Permissions
 
 In order to control which users are allowed to create or modify objects, we mention their user IDs in permissions or groups members.
 
-For more details, check :ref:`the permissions section of the documention <api-principals>`.
+For more details, check :ref:`the permissions section of the documentation <api-principals>`.

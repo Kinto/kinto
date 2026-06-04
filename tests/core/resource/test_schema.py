@@ -7,8 +7,8 @@ from kinto.core.resource import schema
 from kinto.core.testing import unittest
 
 
-class DepracatedSchemasTest(unittest.TestCase):
-    def test_resource_timestamp_is_depracated(self):
+class DeprecatedSchemasTest(unittest.TestCase):
+    def test_resource_timestamp_is_deprecated(self):
         with mock.patch("kinto.core.resource.schema.warnings") as mocked:
             schema.TimeStamp()
             message = (
@@ -17,7 +17,7 @@ class DepracatedSchemasTest(unittest.TestCase):
             )
             mocked.warn.assert_called_with(message, DeprecationWarning)
 
-    def test_resource_URL_is_depracated(self):
+    def test_resource_URL_is_deprecated(self):
         with mock.patch("kinto.core.resource.schema.warnings") as mocked:
             schema.URL()
             message = (
@@ -38,7 +38,7 @@ class ResourceSchemaTest(unittest.TestCase):
         self.assertIn("foo", deserialized)
         self.assertEqual(deserialized["foo"], "bar")
 
-    def test_ignore_unknwon_fields_when_specified(self):
+    def test_ignore_unknown_fields_when_specified(self):
         class PreserveSchema(schema.ResourceSchema):
             class Options:
                 preserve_unknown = False

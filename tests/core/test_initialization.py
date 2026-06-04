@@ -88,18 +88,18 @@ class InitializationTest(unittest.TestCase):
             kinto.core.initialize(config, "0.0.1")
             self.assertTrue(any(error_msg in str(w.message) for w in warns))
 
-    def test_default_settings_are_overriden_if_specified_in_initialize(self):
+    def test_default_settings_are_overridden_if_specified_in_initialize(self):
         config = Configurator()
         defaults = {"paginate_by": 102}
         kinto.core.initialize(config, "0.0.1", "prefix", default_settings=defaults)
         self.assertEqual(config.registry.settings["paginate_by"], 102)  # ty: ignore[unresolved-attribute]
 
-    def test_default_settings_are_overriden_by_application(self):
+    def test_default_settings_are_overridden_by_application(self):
         config = Configurator(settings={"prefix.paginate_by": 10})
         kinto.core.initialize(config, "0.0.1", "prefix")
         self.assertEqual(config.registry.settings["paginate_by"], 10)  # ty: ignore[unresolved-attribute]
 
-    def test_specified_default_settings_are_overriden_by_application(self):
+    def test_specified_default_settings_are_overridden_by_application(self):
         config = Configurator(settings={"settings_prefix.paginate_by": 5})
         defaults = {"settings_prefix.paginate_by": 10}
         kinto.core.initialize(config, "0.0.1", "settings_prefix", default_settings=defaults)
@@ -544,15 +544,15 @@ class RequestsConfigurationTest(unittest.TestCase):
         config = Configurator(settings={**self.app_settings})
         kinto.core.initialize(config, "0.0.1", "name")
 
-        bound_datas = set()
+        bound_data = set()
 
         def on_new_request(event):
-            bound_datas.add(id(event.request.bound_data))
+            bound_data.add(id(event.request.bound_data))
 
         config.add_subscriber(on_new_request, NewRequest)
         app = webtest.TestApp(config.make_wsgi_app())
         app.post_json("/v0/batch", {"requests": [{"path": "/"}]})
-        self.assertEqual(len(bound_datas), 1)
+        self.assertEqual(len(bound_data), 1)
 
     def test_by_default_relies_on_pyramid_application_url(self):
         app = self._get_app()

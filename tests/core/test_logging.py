@@ -179,7 +179,7 @@ class RequestIdFilter(BaseWebTest, unittest.TestCase):
         logger = logging.getLogger(__name__)
         logger.addHandler(stream_handler)
 
-        request_id_context.set("abc")  # As done in `kinto.core.initalization`.
+        request_id_context.set("abc")  # As done in `kinto.core.initialization`.
         logger.error("Some message")
 
         captured = log_buffer.getvalue()

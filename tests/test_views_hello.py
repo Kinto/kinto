@@ -12,7 +12,7 @@ class HelloViewTest(BaseWebTest, unittest.TestCase):
         self.assertEqual(response.json["project_docs"], "https://kinto.readthedocs.io/")
         self.assertEqual(response.json["url"], "http://localhost/v1/")
 
-    def test_project_name_can_be_overriden(self):
+    def test_project_name_can_be_overridden(self):
         settings = {"project_name": "RemoteSettings"}
         app = self.make_app(settings=settings)
         resp = app.get("/")

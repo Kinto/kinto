@@ -389,7 +389,7 @@ bucket implicitly creates the collections objects on their first use.
 
 .. http:get:: /buckets/default
 
-    :synopsis: Returns the current user personnal bucket.
+    :synopsis: Returns the current user personal bucket.
 
     **Requires authentication**
 
@@ -440,7 +440,7 @@ For convenience, the actual default bucket id is provided in the root URL of *Ki
 
 .. http:get:: /
 
-    :synopsis: Obtain current user personnal bucket in root URL.
+    :synopsis: Obtain current user personal bucket in root URL.
 
     **Requires authentication**
 

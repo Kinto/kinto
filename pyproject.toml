@@ -185,3 +185,14 @@ sections = [
     { name = "summary", type = "free_text", required = false },
     { name = "params", type = "list_name_and_type", required = false },
 ]
+
+[tool.typos.default]
+extend-ignore-re = [
+    # Ignore blocks between `# spellchecker:off` and `# spellchecker:on`
+    "(?s)(#|//)\\s*spellchecker:off.*?\\n\\s*(#|//)\\s*spellchecker:on",
+]
+
+[tool.typos.default.extend-words]
+# MoFo
+Fo = "Fo"
+gti = "gti"

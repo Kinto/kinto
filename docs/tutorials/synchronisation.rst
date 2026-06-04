@@ -150,7 +150,7 @@ In the *polling for changes* response, created records are simply the records
 unknown by the client (using ``id`` field).
 
 If the records to be updated or deleted had also been modified locally then
-the developper must choose a relevant strategy. For example, merge fields or
+the developer must choose a relevant strategy. For example, merge fields or
 ignore deletion.
 
 .. _api-concurrency-control:

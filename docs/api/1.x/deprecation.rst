@@ -18,7 +18,7 @@ The value is JSON mapping with the following attributes:
 * ``url``: a URL at which more information is available (optional).
 
 A |status-410| error response can be returned if the
-client version is too old, or the service had been remplaced with
+client version is too old, or the service had been replaced with
 a new and better service using a new API version.
 
 See details in :ref:`configuration` to activate deprecation.

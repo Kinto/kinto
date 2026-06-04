@@ -44,7 +44,7 @@ logger = logging.getLogger(__name__)
 
 
 def register(depth=1, **kwargs):
-    """Ressource class decorator.
+    """Resource class decorator.
 
     Register the decorated class in the cornice registry.
     Pass all its keyword arguments to the register_resource
@@ -121,7 +121,7 @@ def register_resource(resource_cls, settings=None, viewset=None, depth=1, **kwar
             # We support JSON-patch on PATCH views. Since the body payload
             # of JSON Patch is not a dict (mapping) but an array, we can't
             # use the same schema as for other PATCH protocols. We add another
-            # dedicated view for PATCH, but targetting a different content_type
+            # dedicated view for PATCH, but targeting a different content_type
             # predicate.
             if method.lower() == "patch":
                 view_args["content_type"] = "application/json-patch+json"
@@ -131,7 +131,7 @@ def register_resource(resource_cls, settings=None, viewset=None, depth=1, **kwar
         return service
 
     def callback(context, name, ob):
-        # get the callbacks registred by the inner services
+        # get the callbacks registered by the inner services
         # and call them from here when the @resource classes are being
         # scanned by venusian.
         config = context.config.with_package(info.module)
@@ -290,7 +290,7 @@ class Resource:
         return ""
 
     def _get_known_fields(self):
-        """Return all the `field` defined in the ressource schema."""
+        """Return all the `field` defined in the resource schema."""
         known_fields = [c.name for c in self.schema().children] + [
             self.model.id_field,
             self.model.modified_field,

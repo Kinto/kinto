@@ -148,7 +148,7 @@ class EntriesTest(PermissionsViewTest):
         permissions = resp.json["data"]
         self.assertEqual(len(permissions), 1)
 
-    def test_implicit_permissions_are_explicited(self):
+    def test_implicit_permissions_are_explicit(self):
         resp = self.app.get("/permissions", headers=get_user_headers("alice"))
         permissions = resp.json["data"]
         bucket_permissions = permissions[0]

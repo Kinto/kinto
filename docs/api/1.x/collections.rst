@@ -32,7 +32,7 @@ A collection is a mapping with the following attributes:
     the contacts of the current user.
 
     Internally the user default bucket is assigned to an ID, and users can share
-    data from their personnal bucket, by sharing :ref:`its URL using the full ID <buckets-default-id>`.
+    data from their personal bucket, by sharing :ref:`its URL using the full ID <buckets-default-id>`.
 
 
 .. _collections-get:

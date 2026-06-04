@@ -7,6 +7,7 @@ NAME := kinto
 SOURCE := $(shell git config remote.origin.url | sed -e 's|git@|https://|g' | sed -e 's|github.com:|github.com/|g')
 VERSION := $(shell git describe --always --tag)
 COMMIT := $(shell git log --pretty=format:'%H' -n 1)
+TYPOS_INSTALLED := $(shell typos --version 2>/dev/null)
 
 .IGNORE: clean
 
@@ -88,6 +89,11 @@ lint: install-dev ## run the code linters
 	$(VENV)/bin/ruff format --check kinto tests docs/conf.py
 	$(VENV)/bin/ty check kinto tests
 	$(VENV)/bin/dfc --check kinto
+ifndef TYPOS_INSTALLED
+		$(warning "'typos' is not available please install typos-cli")
+else
+		typos `git ls-files | grep -v -E '.png|CONTRIBUTORS.rst'`
+endif
 
 .PHONY: format
 format: install-dev ## reformat code
