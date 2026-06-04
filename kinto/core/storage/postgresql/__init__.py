@@ -383,8 +383,8 @@ class Storage(StorageBase, MigratorMixin):
             # id already exists.
             # Even if this check doesn't find one, be robust against
             # conflicts because we could race with another thread.
-            # Still, this reduces write load because SELECTTs are
-            # cheaper than INSERTTs.
+            # Still, this reduces write load because SELECT are
+            # cheaper than INSERT.
             try:
                 existing = self.get(resource_name, parent_id, obj[id_field])
                 raise exceptions.UnicityError(id_field, existing)
