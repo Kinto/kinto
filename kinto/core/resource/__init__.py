@@ -3,7 +3,7 @@ import logging
 import re
 import warnings
 from collections.abc import Callable
-from typing import Any, TypeVar
+from typing import Any
 from uuid import uuid4
 
 import colander
@@ -47,10 +47,8 @@ from .viewset import ViewSet
 
 logger = logging.getLogger(__name__)
 
-_ResourceCls = TypeVar("_ResourceCls")
 
-
-def register(depth: int = 1, **kwargs) -> Callable[[_ResourceCls], _ResourceCls]:
+def register(depth: int = 1, **kwargs) -> Callable[["type[Resource]"], "type[Resource]"]:
     """Resource class decorator.
 
     Register the decorated class in the cornice registry.
@@ -58,7 +56,7 @@ def register(depth: int = 1, **kwargs) -> Callable[[_ResourceCls], _ResourceCls]
     function.
     """
 
-    def wrapped(resource: _ResourceCls) -> _ResourceCls:
+    def wrapped(resource: type[Resource]) -> type[Resource]:
         register_resource(resource, depth=depth + 1, **kwargs)
         return resource
 
@@ -66,7 +64,7 @@ def register(depth: int = 1, **kwargs) -> Callable[[_ResourceCls], _ResourceCls]
 
 
 def register_resource(
-    resource_cls: Any, settings=None, viewset=None, depth=1, **kwargs
+    resource_cls: "type[Resource]", settings=None, viewset=None, depth=1, **kwargs
 ) -> Callable:
     """Register a resource in the cornice registry.
 

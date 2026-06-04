@@ -5,7 +5,7 @@ from pyramid import exceptions, testing
 
 from kinto.core import DEFAULT_SETTINGS, authorization
 from kinto.core.cornice.validators import colander_validator
-from kinto.core.resource import ViewSet, register_resource
+from kinto.core.resource import Resource, ViewSet, register_resource
 from kinto.core.resource.viewset import PartialSchema, ShareableViewSet, StrictSchema
 from kinto.core.testing import unittest
 
@@ -30,7 +30,7 @@ class FakeViewSet(ViewSet):
         return {}
 
 
-class FakeResource:
+class FakeResource(Resource):
     """Fake resource class used for tests"""
 
     name = "fake"
@@ -56,27 +56,26 @@ class ViewSetTest(unittest.TestCase):
         original_arguments = {}
         viewset = ViewSet(plural_get_arguments=original_arguments)
         viewset.responses = mock.MagicMock()
-        arguments = viewset.plural_arguments(mock.MagicMock(), "GET")
+        arguments = viewset.plural_arguments(FakeResource, "GET")
         self.assertEqual(original_arguments, {})
         self.assertNotEqual(original_arguments, arguments)
 
     def test_schema_is_added_when_method_matches(self):
         viewset = ViewSet()
         viewset.responses = mock.MagicMock()
-        resource = mock.MagicMock()
-        arguments = viewset.plural_arguments(resource, "GET")
+        arguments = viewset.plural_arguments(FakeResource, "GET")
         self.assertIn("schema", arguments)
 
     def test_schema_is_added_when_uppercase_method_matches(self):
         viewset = ViewSet(plural_methods=("GET", "DELETE"))
         viewset.responses = mock.MagicMock()
-        arguments = viewset.plural_arguments(mock.MagicMock(), "get")
+        arguments = viewset.plural_arguments(FakeResource, "get")
         self.assertIn("schema", arguments)
 
     @mock.patch("kinto.core.resource.viewset.RequestSchema")
     def test_a_default_schema_is_added_when_method_doesnt_match(self, mocked):
         viewset = ViewSet()
-        resource = mock.MagicMock()
+        resource = FakeResource
         viewset.responses = mock.MagicMock()
         mocked.Mapping.return_value = mock.sentinel.default_schema
 
@@ -103,7 +102,7 @@ class ViewSetTest(unittest.TestCase):
         )
 
         viewset.responses = mock.MagicMock()
-        arguments = viewset.plural_arguments(mock.MagicMock(), "get")
+        arguments = viewset.plural_arguments(FakeResource, "get")
 
         self.assertDictEqual(
             arguments,
@@ -136,7 +135,7 @@ class ViewSetTest(unittest.TestCase):
         )
 
         viewset.responses = mock.MagicMock()
-        arguments = viewset.object_arguments(mock.MagicMock(), "get")
+        arguments = viewset.object_arguments(FakeResource, "get")
 
         self.assertDictEqual(
             arguments,
@@ -175,7 +174,7 @@ class ViewSetTest(unittest.TestCase):
         )
 
         viewset.responses = mock.MagicMock()
-        arguments = viewset.object_arguments(mock.MagicMock(), "get")
+        arguments = viewset.object_arguments(FakeResource, "get")
 
         self.assertDictEqual(
             arguments,
@@ -202,7 +201,7 @@ class ViewSetTest(unittest.TestCase):
         )
 
         viewset.responses = mock.MagicMock()
-        arguments = viewset.object_arguments(mock.MagicMock(), "get")
+        arguments = viewset.object_arguments(FakeResource, "get")
 
         self.assertDictEqual(
             arguments,
@@ -220,14 +219,14 @@ class ViewSetTest(unittest.TestCase):
 
     def test_get_service_name_returns_resource_att_if_not_callable(self):
         viewset = ViewSet()
-        resource = mock.MagicMock()
+        resource = FakeResource
         resource.name = "fakename"
         self.assertEqual(viewset.get_service_name("object", resource), "fakename-object")
 
     def test_get_service_name_doesnt_use_callable_as_a_name(self):
         viewset = ViewSet()
-        resource = mock.MagicMock()
-        resource.name = lambda x: "should not be called"
+        resource = FakeResource
+        resource.name = "should not be used"
         resource.__name__ = "FakeName"
         self.assertEqual(viewset.get_service_name("object", resource), "fakename-object")
 
@@ -294,7 +293,7 @@ class ViewSetTest(unittest.TestCase):
     def test_permission_dynamic_is_set_by_default(self):
         viewset = ViewSet()
         viewset.responses = mock.MagicMock()
-        resource = mock.MagicMock()
+        resource = FakeResource
         args = viewset.plural_arguments(resource, "GET")
         self.assertEqual(args["permission"], "dynamic")
 
@@ -308,7 +307,7 @@ class TestViewsetBoundSchemas(unittest.TestCase):
     def setUp(self):
         self.viewset = ViewSet()
         self.viewset.responses = mock.MagicMock()
-        self.resource = mock.MagicMock()
+        self.resource = FakeResource
 
     def test_request_schemas_have_header_and_querystring(self):
         self.viewset = ViewSet(
@@ -391,7 +390,7 @@ class RegisterTest(unittest.TestCase):
 
     def test_resource_default_viewset_is_used_if_not_provided(self):
         resource = FakeResource
-        resource.default_viewset = mock.Mock()  # ty: ignore[unresolved-attribute]
+        resource.default_viewset = mock.Mock()  # ty: ignore[invalid-assignment]
         additional_params = {"foo": "bar"}
         register_resource(resource, **additional_params)
         resource.default_viewset.assert_called_with(**additional_params)  # ty: ignore[unresolved-attribute]

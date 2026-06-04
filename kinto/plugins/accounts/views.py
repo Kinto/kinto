@@ -92,7 +92,7 @@ class Account(resource.Resource):
         return _extract_posted_body_id(request)
 
     def process_object(self, new, old=None):
-        new = super(Account, self).process_object(new, old)
+        new = super().process_object(new, old)
 
         if "data" in self.request.json and "password" in self.request.json["data"]:
             new["password"] = hash_password(new["password"])
