@@ -88,7 +88,7 @@ class ErrorSchema(colander.MappingSchema):
 
 def http_error(
     httpexception, errno=None, code=None, error=None, message=None, info=None, details=None
-):
+) -> httpexceptions.HTTPException:
     """Return a JSON formatted response matching the error HTTP API.
 
     :param httpexception: Instance of :mod:`~pyramid:pyramid.httpexceptions`

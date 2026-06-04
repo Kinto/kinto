@@ -1,3 +1,4 @@
+import typing
 import warnings
 
 import colander
@@ -80,12 +81,12 @@ class ResourceSchema(colander.MappingSchema):
         """
 
     @classmethod
-    def get_option(cls, attr):
+    def get_option(cls, attr: str) -> typing.Any:
         default_value = getattr(ResourceSchema.Options, attr)
         return getattr(cls.Options, attr, default_value)
 
     @classmethod
-    def is_readonly(cls, field):
+    def is_readonly(cls, field: str) -> bool:
         """Return True if specified field name is read-only.
 
         :param str field: the field name in the schema
@@ -95,7 +96,7 @@ class ResourceSchema(colander.MappingSchema):
         """
         return field in cls.get_option("readonly_fields")
 
-    def schema_type(self):  # ty: ignore[invalid-method-override]
+    def schema_type(self) -> colander.Mapping:  # ty: ignore[invalid-method-override]
         if self.get_option("preserve_unknown") is True:
             unknown = "preserve"
         else:
@@ -124,13 +125,13 @@ class PermissionsSchema(colander.SchemaNode):  # ty: ignore[unsupported-base]
         for perm in self.known_perms:
             self[perm] = self._get_node_principals(perm)
 
-    def schema_type(self):
+    def schema_type(self) -> colander.Mapping:
         if self.known_perms:
             return colander.Mapping(unknown="raise")
         else:
             return colander.Mapping(unknown="preserve")
 
-    def deserialize(self, cstruct=colander.null):
+    def deserialize(self, cstruct: typing.Any = colander.null) -> typing.Any:
         # If permissions are not a mapping (e.g null or invalid), try deserializing
         if not isinstance(cstruct, dict):
             return super().deserialize(cstruct)
@@ -154,20 +155,18 @@ class PermissionsSchema(colander.SchemaNode):  # ty: ignore[unsupported-base]
 
         return self._postprocess_null_perms(permissions, removed_keys)
 
-    def _get_node_principals(self, perm):
+    def _get_node_principals(self, perm: str) -> colander.SequenceSchema:
         principal = colander.SchemaNode(colander.String())
-        return colander.SchemaNode(
-            colander.Sequence(), principal, name=perm, missing=colander.drop
-        )
+        return colander.SequenceSchema(principal, name=perm, missing=colander.drop)
 
     @staticmethod
-    def _preprocess_null_perms(cstruct):
+    def _preprocess_null_perms(cstruct: dict) -> tuple[dict, set]:
         keys = {k for k, v in cstruct.items() if v is None}
         cleaned = {k: v for k, v in cstruct.items() if v is not None}
         return cleaned, keys
 
     @staticmethod
-    def _postprocess_null_perms(validated, keys):
+    def _postprocess_null_perms(validated: dict, keys: set) -> dict:
         validated.update({k: None for k in keys})
         return validated
 
@@ -184,7 +183,7 @@ class HeaderSchema(colander.MappingSchema):
     if_none_match = HeaderQuotedInteger(name="If-None-Match")
 
     @staticmethod
-    def schema_type():  # ty: ignore[invalid-method-override]
+    def schema_type() -> colander.Mapping:  # ty: ignore[invalid-method-override]
         return colander.Mapping(unknown="preserve")
 
 
@@ -211,10 +210,10 @@ class QuerySchema(colander.MappingSchema):
     missing = colander.drop
 
     @staticmethod
-    def schema_type():  # ty: ignore[invalid-method-override]
+    def schema_type() -> colander.Mapping:  # ty: ignore[invalid-method-override]
         return colander.Mapping(unknown="ignore")
 
-    def deserialize(self, cstruct=colander.null):
+    def deserialize(self, cstruct: typing.Any = colander.null) -> typing.Any:
         """
         Deserialize and validate the QuerySchema fields and try to deserialize and
         get the native value of additional filds (field filters) that may be present
@@ -227,7 +226,7 @@ class QuerySchema(colander.MappingSchema):
         schema_values = super().deserialize(cstruct)
 
         # Deserialize querystring field filters (see docstring e.g)
-        for k, v in cstruct.items():  # ty: ignore[unresolved-attribute]
+        for k, v in cstruct.items():
             # Deserialize lists used on contains_ and contains_any_ filters
             if k.startswith("contains_"):
                 as_list = native_value(v)
@@ -303,7 +302,7 @@ class ObjectSchema(colander.MappingSchema):
         return get_perms(node, kwargs) or colander.deferred(get_perms)
 
     @staticmethod
-    def schema_type():  # ty: ignore[invalid-method-override]
+    def schema_type() -> colander.Mapping:  # ty: ignore[invalid-method-override]
         return colander.Mapping(unknown="raise")
 
 
@@ -325,7 +324,7 @@ class JsonPatchOperationSchema(colander.MappingSchema):
     value = colander.SchemaNode(Any(), missing=colander.drop)
 
     @staticmethod
-    def schema_type():  # ty: ignore[invalid-method-override]
+    def schema_type() -> colander.Mapping:  # ty: ignore[invalid-method-override]
         return colander.Mapping(unknown="raise")
 
 
@@ -480,7 +479,7 @@ class ResourceResponses:
         "404": ErrorResponseSchema(description="The object does not exist or was already deleted.")
     }
 
-    def get_and_bind(self, endpoint_type, method, **kwargs):
+    def get_and_bind(self, endpoint_type: str, method: str, **kwargs) -> dict:
         """Wrap resource colander response schemas for an endpoint and return a dict
         of status codes mapping cloned and binded responses."""
 

@@ -1,5 +1,6 @@
 import functools
 import warnings
+from typing import Any
 
 import colander
 from pyramid.settings import asbool
@@ -27,19 +28,19 @@ PATCH_CONTENT_TYPES = ["application/merge-patch+json"]
 
 class StrictSchema(colander.MappingSchema):
     @staticmethod
-    def schema_type():  # ty: ignore[invalid-method-override]
+    def schema_type() -> colander.Mapping:  # ty: ignore[invalid-method-override]
         return colander.Mapping(unknown="raise")
 
 
 class PartialSchema(colander.MappingSchema):
     @staticmethod
-    def schema_type():  # ty: ignore[invalid-method-override]
+    def schema_type() -> colander.Mapping:  # ty: ignore[invalid-method-override]
         return colander.Mapping(unknown="ignore")
 
 
 class SimpleSchema(colander.MappingSchema):
     @staticmethod
-    def schema_type():  # ty: ignore[invalid-method-override]
+    def schema_type() -> colander.Mapping:  # ty: ignore[invalid-method-override]
         return colander.Mapping(unknown="preserve")
 
 
@@ -120,11 +121,13 @@ class ViewSet:
         self.object_arguments = functools.partial(self.get_view_arguments, "object")
         self.plural_arguments = functools.partial(self.get_view_arguments, "plural")
 
-    def update(self, **kwargs):
+    def update(self, **kwargs) -> None:
         """Update viewset attributes with provided values."""
         self.__dict__.update(**kwargs)
 
-    def get_view_arguments(self, endpoint_type, resource_cls, method):
+    def get_view_arguments(
+        self, endpoint_type: str, resource_cls: Any, method: str
+    ) -> dict[str, Any]:
         """Return the Pyramid/Cornice view arguments for the given endpoint
         type and method.
 
@@ -132,7 +135,7 @@ class ViewSet:
         :param resource_cls: the resource class.
         :param str method: the HTTP method.
         """
-        args = {**self.default_arguments}
+        args: dict[str, Any] = {**self.default_arguments}
         default_arguments = getattr(self, f"default_{endpoint_type}_arguments")
         args.update(**default_arguments)
 
@@ -146,19 +149,19 @@ class ViewSet:
 
         request_schema = args.get("schema", RequestSchema())
         object_schema = self.get_object_schema(resource_cls, method)
-        request_schema = request_schema.bind(body=object_schema)  # ty: ignore[unresolved-attribute]
+        request_schema = request_schema.bind(body=object_schema)
         response_schemas = self.responses.get_and_bind(endpoint_type, method, object=object_schema)
 
         args["schema"] = request_schema
         args["response_schemas"] = response_schemas
 
         validators = args.get("validators", [])
-        validators.append(colander_validator)  # ty: ignore[unresolved-attribute, invalid-argument-type]
+        validators.append(colander_validator)
         args["validators"] = validators
 
         return args
 
-    def get_object_schema(self, resource_cls, method):
+    def get_object_schema(self, resource_cls: Any, method: str) -> Any:
         """Return the Cornice schema for the given method."""
         if method.lower() in ("patch", "delete"):
             resource_schema = SimpleSchema
@@ -173,7 +176,7 @@ class ViewSet:
 
         return object_schema
 
-    def get_view(self, endpoint_type, method):
+    def get_view(self, endpoint_type: str, method: str) -> str:
         """Return the view method name located on the resource object, for the
         given type and method.
 
@@ -184,7 +187,7 @@ class ViewSet:
             return method.lower()
         return f"{endpoint_type}_{method.lower()}"
 
-    def get_name(self, resource_cls):
+    def get_name(self, resource_cls: Any) -> str:
         """Returns the name of the resource."""
         # Provided on viewset during registration.
         if "name" in self.__dict__:
@@ -198,7 +201,7 @@ class ViewSet:
         # Use classname
         return resource_cls.__name__.lower()
 
-    def get_service_name(self, endpoint_type, resource_cls):
+    def get_service_name(self, endpoint_type: str, resource_cls: Any) -> str:
         """Returns the name of the service, depending a given type and
         resource.
         """
@@ -206,10 +209,12 @@ class ViewSet:
             resource_name=self.get_name(resource_cls), endpoint_type=endpoint_type
         )
 
-    def get_service_arguments(self):
+    def get_service_arguments(self) -> dict[str, Any]:
         return {**self.service_arguments, "factory": self.factory}
 
-    def is_endpoint_enabled(self, endpoint_type, resource_name, method, settings):
+    def is_endpoint_enabled(
+        self, endpoint_type: str, resource_name: str, method: str, settings: dict[str, Any]
+    ) -> bool:
         """Returns if the given endpoint is enabled or not.
 
         Uses the settings to tell so.
