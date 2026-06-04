@@ -2,6 +2,8 @@ import contextlib
 import logging
 import warnings
 from collections import defaultdict
+from collections.abc import Callable, Iterator
+from typing import Any
 
 import transaction as zope_transaction
 
@@ -21,13 +23,18 @@ BLACKLISTED_SETTINGS = [
 
 
 class PostgreSQLClient:
-    def __init__(self, session_factory, commit_manually, invalidate):
+    def __init__(
+        self,
+        session_factory: Callable[[], Any],
+        commit_manually: bool,
+        invalidate: Callable[[Any], None],
+    ):
         self.session_factory = session_factory
         self.commit_manually = commit_manually
         self.invalidate = invalidate
 
     @contextlib.contextmanager
-    def connect(self, readonly=False, force_commit=False):
+    def connect(self, readonly: bool = False, force_commit: bool = False) -> Iterator[Any]:
         """
         Pulls a connection from the pool when context is entered and
         returns it when context is exited.
@@ -72,7 +79,9 @@ class PostgreSQLClient:
 _CLIENTS = defaultdict(dict)
 
 
-def create_from_config(config, prefix="", with_transaction=True):
+def create_from_config(
+    config, prefix: str = "", with_transaction: bool = True
+) -> PostgreSQLClient:
     """Create a PostgreSQLClient client using settings in the provided config."""
     if sqlalchemy is None:
         message = (

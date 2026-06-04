@@ -2,7 +2,10 @@ import logging
 import random
 import warnings
 from collections import namedtuple
+from collections.abc import Callable
+from typing import Any
 
+from pyramid.request import Request
 from pyramid.settings import asbool
 
 from kinto.core.decorators import deprecate_kwargs
@@ -25,6 +28,10 @@ MISSING = Missing()
 logger = logging.getLogger(__name__)
 
 
+KintoObject = dict[str, Any]
+"""Type alias for a stored object (record)."""
+
+
 Filter = namedtuple("Filter", ["field", "value", "operator"])
 """Filtering properties."""
 
@@ -38,7 +45,7 @@ DEFAULT_DELETED_FIELD = "deleted"
 _HEARTBEAT_DELETE_RATE = 0.6
 _HEARTBEAT_RESOURCE_NAME = "__heartbeat__"
 _HEART_PARENT_ID = _HEARTBEAT_RESOURCE_NAME
-_HEARTBEAT_OBJECT = {"__heartbeat__": True}
+_HEARTBEAT_OBJECT: dict[str, Any] = {"__heartbeat__": True}
 
 
 class StorageBase:
@@ -57,7 +64,7 @@ class StorageBase:
     id_generator = generators.UUID4()
     """Id generator used when no one is provided for create."""
 
-    def initialize_schema(self, dry_run=False):
+    def initialize_schema(self, dry_run: bool = False) -> None:
         """Create every necessary objects (like tables or indices) in the
         backend.
 
@@ -67,11 +74,11 @@ class StorageBase:
         """
         raise NotImplementedError
 
-    def flush(self):
+    def flush(self) -> None:
         """Remove **every** object from this storage."""
         raise NotImplementedError
 
-    def resource_timestamp(self, resource_name, parent_id):
+    def resource_timestamp(self, resource_name: str, parent_id: str) -> int:
         """Get the highest timestamp of every objects in this `resource_name` for
         this `parent_id`.
 
@@ -87,7 +94,7 @@ class StorageBase:
         """
         raise NotImplementedError
 
-    def all_resources_timestamps(self, resource_name):
+    def all_resources_timestamps(self, resource_name: str) -> dict[str, int]:
         """Get the highest timestamp of every objects in this `resource_name` for
         each `parent_id`.
 
@@ -104,13 +111,13 @@ class StorageBase:
 
     def create(
         self,
-        resource_name,
-        parent_id,
-        obj,
-        id_generator=None,
-        id_field=DEFAULT_ID_FIELD,
-        modified_field=DEFAULT_MODIFIED_FIELD,
-    ):
+        resource_name: str,
+        parent_id: str,
+        obj: KintoObject,
+        id_generator: generators.Generator | None = None,
+        id_field: str = DEFAULT_ID_FIELD,
+        modified_field: str = DEFAULT_MODIFIED_FIELD,
+    ) -> KintoObject:
         """Create the specified `obj` in this `resource_name` for this `parent_id`.
         Assign the id to the object, using the attribute
         :attr:`kinto.core.resource.model.Model.id_field`.
@@ -132,12 +139,12 @@ class StorageBase:
 
     def get(
         self,
-        resource_name,
-        parent_id,
-        object_id,
-        id_field=DEFAULT_ID_FIELD,
-        modified_field=DEFAULT_MODIFIED_FIELD,
-    ):
+        resource_name: str,
+        parent_id: str,
+        object_id: str,
+        id_field: str = DEFAULT_ID_FIELD,
+        modified_field: str = DEFAULT_MODIFIED_FIELD,
+    ) -> KintoObject:
         """Retrieve the object with specified `object_id`, or raise error
         if not found.
 
@@ -155,13 +162,13 @@ class StorageBase:
 
     def update(
         self,
-        resource_name,
-        parent_id,
-        object_id,
-        obj,
-        id_field=DEFAULT_ID_FIELD,
-        modified_field=DEFAULT_MODIFIED_FIELD,
-    ):
+        resource_name: str,
+        parent_id: str,
+        object_id: str,
+        obj: KintoObject,
+        id_field: str = DEFAULT_ID_FIELD,
+        modified_field: str = DEFAULT_MODIFIED_FIELD,
+    ) -> KintoObject:
         """Overwrite the `obj` with the specified `object_id`.
 
         If the specified id is not found, the object is created with the
@@ -183,15 +190,15 @@ class StorageBase:
 
     def delete(
         self,
-        resource_name,
-        parent_id,
-        object_id,
-        id_field=DEFAULT_ID_FIELD,
-        with_deleted=True,
-        modified_field=DEFAULT_MODIFIED_FIELD,
-        deleted_field=DEFAULT_DELETED_FIELD,
-        last_modified=None,
-    ):
+        resource_name: str,
+        parent_id: str,
+        object_id: str,
+        id_field: str = DEFAULT_ID_FIELD,
+        with_deleted: bool = True,
+        modified_field: str = DEFAULT_MODIFIED_FIELD,
+        deleted_field: str = DEFAULT_DELETED_FIELD,
+        last_modified: int | None = None,
+    ) -> KintoObject:
         """Delete the object with specified `object_id`, and raise error
         if not found.
 
@@ -218,17 +225,17 @@ class StorageBase:
 
     def delete_all(
         self,
-        resource_name,
-        parent_id,
-        filters=None,
-        sorting=None,
-        pagination_rules=None,
-        limit=None,
-        id_field=DEFAULT_ID_FIELD,
-        with_deleted=True,
-        modified_field=DEFAULT_MODIFIED_FIELD,
-        deleted_field=DEFAULT_DELETED_FIELD,
-    ):
+        resource_name: str,
+        parent_id: str,
+        filters: list[Filter] | None = None,
+        sorting: list[Sort] | None = None,
+        pagination_rules: list[list[Filter]] | None = None,
+        limit: int | None = None,
+        id_field: str = DEFAULT_ID_FIELD,
+        with_deleted: bool = True,
+        modified_field: str = DEFAULT_MODIFIED_FIELD,
+        deleted_field: str = DEFAULT_DELETED_FIELD,
+    ) -> list[KintoObject]:
         """Delete all objects in this `resource_name` for this `parent_id`.
 
         :param str resource_name: the resource name.
@@ -261,14 +268,14 @@ class StorageBase:
 
     def purge_deleted(
         self,
-        resource_name,
-        parent_id,
-        before=None,
-        max_retained=None,
-        id_field=DEFAULT_ID_FIELD,
-        modified_field=DEFAULT_MODIFIED_FIELD,
-        force_commit=False,
-    ):
+        resource_name: str,
+        parent_id: str,
+        before: int | None = None,
+        max_retained: int | None = None,
+        id_field: str = DEFAULT_ID_FIELD,
+        modified_field: str = DEFAULT_MODIFIED_FIELD,
+        force_commit: bool = False,
+    ) -> int:
         """Delete all deleted object tombstones in this `resource_name`
         for this `parent_id`.
 
@@ -287,7 +294,7 @@ class StorageBase:
         raise NotImplementedError
 
     @deprecate_kwargs({"collection_id": "resource_name"})
-    def get_all(self, *args, **kwargs):
+    def get_all(self, *args, **kwargs) -> tuple[list[KintoObject], int]:
         """Legacy method to support code that relied on the old API where the storage's
         get_all() would return a tuple of (<list of objects paginated>, <count of all>).
         Since then, we're being more explicit and expecting the client to deliberately
@@ -306,17 +313,17 @@ class StorageBase:
 
     def list_all(
         self,
-        resource_name,
-        parent_id,
-        filters=None,
-        sorting=None,
-        pagination_rules=None,
-        limit=None,
-        include_deleted=False,
-        id_field=DEFAULT_ID_FIELD,
-        modified_field=DEFAULT_MODIFIED_FIELD,
-        deleted_field=DEFAULT_DELETED_FIELD,
-    ):
+        resource_name: str,
+        parent_id: str,
+        filters: list[Filter] | None = None,
+        sorting: list[Sort] | None = None,
+        pagination_rules: list[list[Filter]] | None = None,
+        limit: int | None = None,
+        include_deleted: bool = False,
+        id_field: str = DEFAULT_ID_FIELD,
+        modified_field: str = DEFAULT_MODIFIED_FIELD,
+        deleted_field: str = DEFAULT_DELETED_FIELD,
+    ) -> list[KintoObject]:
         """Retrieve all objects in this `resource_name` for this `parent_id`.
 
         :param str resource_name: the resource name.
@@ -359,14 +366,14 @@ class StorageBase:
 
     def count_all(
         self,
-        resource_name,
-        parent_id,
-        filters=None,
-        include_deleted=False,
-        id_field=DEFAULT_ID_FIELD,
-        modified_field=DEFAULT_MODIFIED_FIELD,
-        deleted_field=DEFAULT_DELETED_FIELD,
-    ):
+        resource_name: str,
+        parent_id: str,
+        filters: list[Filter] | None = None,
+        include_deleted: bool = False,
+        id_field: str = DEFAULT_ID_FIELD,
+        modified_field: str = DEFAULT_MODIFIED_FIELD,
+        deleted_field: str = DEFAULT_DELETED_FIELD,
+    ) -> int:
         """Return a count of all objects in this `resource_name` for this `parent_id`.
 
         :param str resource_name: the resource name.
@@ -386,7 +393,7 @@ class StorageBase:
         """
         raise NotImplementedError
 
-    def collection_timestamp(self, collection_id, parent_id):
+    def collection_timestamp(self, collection_id: str, parent_id: str) -> int:
         message = "`collection_timestamp()` is deprecated, use `resource_timestamp()` instead."
         warnings.warn(message, DeprecationWarning)
         return self.resource_timestamp(resource_name=collection_id, parent_id=parent_id)
@@ -414,8 +421,8 @@ class StorageBase:
         raise NotImplementedError
 
 
-def heartbeat(backend):
-    def ping(request):
+def heartbeat(backend: StorageBase) -> Callable[[Request], bool]:
+    def ping(request) -> bool:
         """Test that storage is operational.
 
         :param request: current request object
@@ -424,7 +431,9 @@ def heartbeat(backend):
         :rtype: bool
         """
         try:
-            storage_kw = dict(resource_name=_HEARTBEAT_RESOURCE_NAME, parent_id=_HEART_PARENT_ID)
+            storage_kw: dict[str, Any] = dict(
+                resource_name=_HEARTBEAT_RESOURCE_NAME, parent_id=_HEART_PARENT_ID
+            )
             if asbool(request.registry.settings.get("readonly")):
                 # Do not try to write in readonly mode.
                 backend.get_all(**storage_kw)

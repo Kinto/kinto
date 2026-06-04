@@ -2,6 +2,8 @@ import numbers
 import operator
 import re
 from collections import abc, defaultdict
+from collections.abc import Iterator
+from typing import Any
 
 from kinto.core import utils
 from kinto.core.decorators import deprecate_kwargs, synchronized
@@ -10,14 +12,17 @@ from kinto.core.storage import (
     DEFAULT_ID_FIELD,
     DEFAULT_MODIFIED_FIELD,
     MISSING,
+    Filter,
+    KintoObject,
     Sort,
     StorageBase,
     exceptions,
+    generators,
 )
 from kinto.core.utils import COMPARISON, find_nested_value, json
 
 
-def tree():
+def tree() -> defaultdict:
     return defaultdict(tree)
 
 
@@ -28,19 +33,19 @@ class MemoryBasedStorage(StorageBase):
 
     json = json
 
-    def initialize_schema(self, dry_run=False):
+    def initialize_schema(self, dry_run: bool = False) -> None:
         # Nothing to do.
         pass
 
     def strip_deleted_object(
         self,
-        resource_name,
-        parent_id,
-        obj,
-        id_field=DEFAULT_ID_FIELD,
-        modified_field=DEFAULT_MODIFIED_FIELD,
-        deleted_field=DEFAULT_DELETED_FIELD,
-    ):
+        resource_name: str,
+        parent_id: str,
+        obj: KintoObject,
+        id_field: str = DEFAULT_ID_FIELD,
+        modified_field: str = DEFAULT_MODIFIED_FIELD,
+        deleted_field: str = DEFAULT_DELETED_FIELD,
+    ) -> KintoObject:
         """Strip the object of all its fields expect id and timestamp,
         and set the deletion field value (e.g deleted=True)
         """
@@ -52,12 +57,12 @@ class MemoryBasedStorage(StorageBase):
 
     def set_object_timestamp(
         self,
-        resource_name,
-        parent_id,
-        obj,
-        modified_field=DEFAULT_MODIFIED_FIELD,
-        last_modified=None,
-    ):
+        resource_name: str,
+        parent_id: str,
+        obj: KintoObject,
+        modified_field: str = DEFAULT_MODIFIED_FIELD,
+        last_modified: int | None = None,
+    ) -> KintoObject:
         timestamp = self.bump_and_store_timestamp(
             resource_name, parent_id, obj, modified_field, last_modified=last_modified
         )
@@ -66,15 +71,15 @@ class MemoryBasedStorage(StorageBase):
 
     def extract_object_set(
         self,
-        objects,
-        filters,
-        sorting,
-        include_deleted=False,
-        id_field=DEFAULT_ID_FIELD,
-        deleted_field=DEFAULT_DELETED_FIELD,
-        pagination_rules=None,
-        limit=None,
-    ):
+        objects: list[KintoObject],
+        filters: list[Filter] | None,
+        sorting: list[Sort] | None,
+        include_deleted: bool = False,
+        id_field: str = DEFAULT_ID_FIELD,
+        deleted_field: str = DEFAULT_DELETED_FIELD,
+        pagination_rules: list[list[Filter]] | None = None,
+        limit: int | None = None,
+    ) -> tuple[list[KintoObject], int]:
         """Take the list of objects and handle filtering, sorting and
         pagination.
 
@@ -90,7 +95,13 @@ class MemoryBasedStorage(StorageBase):
             limit=limit,
         )
 
-    def bump_timestamp(self, resource_timestamp, obj, modified_field, last_modified):
+    def bump_timestamp(
+        self,
+        resource_timestamp: int,
+        obj: KintoObject | None,
+        modified_field: str | None,
+        last_modified: int | None,
+    ) -> tuple[int, int]:
         """Timestamp are base on current millisecond.
 
         .. note ::
@@ -105,7 +116,8 @@ class MemoryBasedStorage(StorageBase):
             if last_modified is not None:
                 current = last_modified
             else:
-                current = obj[modified_field]
+                # `is_specified` guarantees `obj` holds `modified_field` here.
+                current = obj[modified_field]  # ty: ignore[not-subscriptable, invalid-argument-type]
 
             # If it is equal to current resource timestamp, bump it.
             if current == resource_timestamp:
@@ -126,8 +138,13 @@ class MemoryBasedStorage(StorageBase):
         return current, resource_timestamp
 
     def bump_and_store_timestamp(
-        self, resource_name, parent_id, obj=None, modified_field=None, last_modified=None
-    ):
+        self,
+        resource_name: str,
+        parent_id: str,
+        obj: KintoObject | None = None,
+        modified_field: str | None = None,
+        last_modified: int | None = None,
+    ) -> int:
         """Use the bump_timestamp to get its next value and store the resource_timestamp."""
         raise NotImplementedError
 
@@ -143,18 +160,18 @@ class Storage(MemoryBasedStorage):
         kinto.storage_backend = kinto.core.storage.memory
     """
 
-    def __init__(self, *args, readonly=False, **kwargs):
+    def __init__(self, *args, readonly: bool = False, **kwargs):
         super().__init__(*args, **kwargs)
         self.readonly = readonly
         self.flush()
 
-    def flush(self):
+    def flush(self) -> None:
         self._store = tree()
         self._cemetery = tree()
         self._timestamps = defaultdict(dict)
 
     @synchronized
-    def resource_timestamp(self, resource_name, parent_id):
+    def resource_timestamp(self, resource_name: str, parent_id: str) -> int:
         ts = self._timestamps[parent_id].get(resource_name)
         if ts is not None:
             return ts
@@ -164,12 +181,17 @@ class Storage(MemoryBasedStorage):
         return self.bump_and_store_timestamp(resource_name, parent_id)
 
     @synchronized
-    def all_resources_timestamps(self, resource_name):
+    def all_resources_timestamps(self, resource_name: str) -> dict[str, int]:
         return {k: v[resource_name] for k, v in self._timestamps.items() if resource_name in v}
 
     def bump_and_store_timestamp(
-        self, resource_name, parent_id, obj=None, modified_field=None, last_modified=None
-    ):
+        self,
+        resource_name: str,
+        parent_id: str,
+        obj: KintoObject | None = None,
+        modified_field: str | None = None,
+        last_modified: int | None = None,
+    ) -> int:
         """Use the bump_timestamp to get its next value and store the resource_timestamp."""
         current_resource_timestamp = self._timestamps[parent_id].get(resource_name, 0)
 
@@ -184,13 +206,13 @@ class Storage(MemoryBasedStorage):
     @synchronized
     def create(
         self,
-        resource_name,
-        parent_id,
-        obj,
-        id_generator=None,
-        id_field=DEFAULT_ID_FIELD,
-        modified_field=DEFAULT_MODIFIED_FIELD,
-    ):
+        resource_name: str,
+        parent_id: str,
+        obj: KintoObject,
+        id_generator: generators.Generator | None = None,
+        id_field: str = DEFAULT_ID_FIELD,
+        modified_field: str = DEFAULT_MODIFIED_FIELD,
+    ) -> KintoObject:
         id_generator = id_generator or self.id_generator
 
         # This is very inefficient, but memory storage is not used in production.
@@ -219,12 +241,12 @@ class Storage(MemoryBasedStorage):
     @synchronized
     def get(
         self,
-        resource_name,
-        parent_id,
-        object_id,
-        id_field=DEFAULT_ID_FIELD,
-        modified_field=DEFAULT_MODIFIED_FIELD,
-    ):
+        resource_name: str,
+        parent_id: str,
+        object_id: str,
+        id_field: str = DEFAULT_ID_FIELD,
+        modified_field: str = DEFAULT_MODIFIED_FIELD,
+    ) -> KintoObject:
         objects = self._store[parent_id][resource_name]
         if object_id not in objects:
             raise exceptions.ObjectNotFoundError(object_id)
@@ -234,13 +256,13 @@ class Storage(MemoryBasedStorage):
     @synchronized
     def update(
         self,
-        resource_name,
-        parent_id,
-        object_id,
-        obj,
-        id_field=DEFAULT_ID_FIELD,
-        modified_field=DEFAULT_MODIFIED_FIELD,
-    ):
+        resource_name: str,
+        parent_id: str,
+        object_id: str,
+        obj: KintoObject,
+        id_field: str = DEFAULT_ID_FIELD,
+        modified_field: str = DEFAULT_MODIFIED_FIELD,
+    ) -> KintoObject:
         # This is very inefficient, but memory storage is not used in production.
         # The serialization provides the necessary consistency with other
         # backends implementation, and the deserialization creates a deep
@@ -258,15 +280,15 @@ class Storage(MemoryBasedStorage):
     @synchronized
     def delete(
         self,
-        resource_name,
-        parent_id,
-        object_id,
-        id_field=DEFAULT_ID_FIELD,
-        with_deleted=True,
-        modified_field=DEFAULT_MODIFIED_FIELD,
-        deleted_field=DEFAULT_DELETED_FIELD,
-        last_modified=None,
-    ):
+        resource_name: str,
+        parent_id: str,
+        object_id: str,
+        id_field: str = DEFAULT_ID_FIELD,
+        with_deleted: bool = True,
+        modified_field: str = DEFAULT_MODIFIED_FIELD,
+        deleted_field: str = DEFAULT_DELETED_FIELD,
+        last_modified: int | None = None,
+    ) -> KintoObject:
         existing = self.get(resource_name, parent_id, object_id)
         # Need to delete the last_modified field of the object.
         del existing[modified_field]
@@ -291,14 +313,14 @@ class Storage(MemoryBasedStorage):
     @synchronized
     def purge_deleted(
         self,
-        resource_name,
-        parent_id,
-        before=None,
-        max_retained=None,
-        id_field=DEFAULT_ID_FIELD,
-        modified_field=DEFAULT_MODIFIED_FIELD,
-        force_commit=False,
-    ):
+        resource_name: str,
+        parent_id: str,
+        before: int | None = None,
+        max_retained: int | None = None,
+        id_field: str = DEFAULT_ID_FIELD,
+        modified_field: str = DEFAULT_MODIFIED_FIELD,
+        force_commit: bool = False,
+    ) -> int:
         if max_retained is not None and before is not None:
             raise ValueError("`before` and `max_retained` are exclusive arguments. Pick one.")
 
@@ -354,17 +376,17 @@ class Storage(MemoryBasedStorage):
     @synchronized
     def list_all(
         self,
-        resource_name,
-        parent_id,
-        filters=None,
-        sorting=None,
-        pagination_rules=None,
-        limit=None,
-        include_deleted=False,
-        id_field=DEFAULT_ID_FIELD,
-        modified_field=DEFAULT_MODIFIED_FIELD,
-        deleted_field=DEFAULT_DELETED_FIELD,
-    ):
+        resource_name: str,
+        parent_id: str,
+        filters: list[Filter] | None = None,
+        sorting: list[Sort] | None = None,
+        pagination_rules: list[list[Filter]] | None = None,
+        limit: int | None = None,
+        include_deleted: bool = False,
+        id_field: str = DEFAULT_ID_FIELD,
+        modified_field: str = DEFAULT_MODIFIED_FIELD,
+        deleted_field: str = DEFAULT_DELETED_FIELD,
+    ) -> list[KintoObject]:
         objects = _get_objects_by_parent_id(self._store, parent_id, resource_name)
 
         objects, _ = self.extract_object_set(
@@ -392,14 +414,14 @@ class Storage(MemoryBasedStorage):
     @synchronized
     def count_all(
         self,
-        resource_name,
-        parent_id,
-        filters=None,
-        include_deleted=False,
-        id_field=DEFAULT_ID_FIELD,
-        modified_field=DEFAULT_MODIFIED_FIELD,
-        deleted_field=DEFAULT_DELETED_FIELD,
-    ):
+        resource_name: str,
+        parent_id: str,
+        filters: list[Filter] | None = None,
+        include_deleted: bool = False,
+        id_field: str = DEFAULT_ID_FIELD,
+        modified_field: str = DEFAULT_MODIFIED_FIELD,
+        deleted_field: str = DEFAULT_DELETED_FIELD,
+    ) -> int:
         objects = _get_objects_by_parent_id(self._store, parent_id, resource_name)
         if include_deleted:
             objects += _get_objects_by_parent_id(self._cemetery, parent_id, resource_name)
@@ -418,17 +440,17 @@ class Storage(MemoryBasedStorage):
     @synchronized
     def delete_all(
         self,
-        resource_name,
-        parent_id,
-        filters=None,
-        sorting=None,
-        pagination_rules=None,
-        limit=None,
-        id_field=DEFAULT_ID_FIELD,
-        with_deleted=True,
-        modified_field=DEFAULT_MODIFIED_FIELD,
-        deleted_field=DEFAULT_DELETED_FIELD,
-    ):
+        resource_name: str,
+        parent_id: str,
+        filters: list[Filter] | None = None,
+        sorting: list[Sort] | None = None,
+        pagination_rules: list[list[Filter]] | None = None,
+        limit: int | None = None,
+        id_field: str = DEFAULT_ID_FIELD,
+        with_deleted: bool = True,
+        modified_field: str = DEFAULT_MODIFIED_FIELD,
+        deleted_field: str = DEFAULT_DELETED_FIELD,
+    ) -> list[KintoObject]:
         objects = _get_objects_by_parent_id(self._store, parent_id, resource_name, with_meta=True)
         objects, count = self.extract_object_set(
             objects=objects,
@@ -486,15 +508,15 @@ class Storage(MemoryBasedStorage):
 
 
 def extract_object_set(
-    objects,
-    filters,
-    sorting,
-    pagination_rules=None,
-    limit=None,
-    include_deleted=False,
-    id_field=DEFAULT_ID_FIELD,
-    deleted_field=DEFAULT_DELETED_FIELD,
-):
+    objects: list[KintoObject],
+    filters: list[Filter] | None,
+    sorting: list[Sort] | None,
+    pagination_rules: list[list[Filter]] | None = None,
+    limit: int | None = None,
+    include_deleted: bool = False,
+    id_field: str = DEFAULT_ID_FIELD,
+    deleted_field: str = DEFAULT_DELETED_FIELD,
+) -> tuple[list[KintoObject], int]:
     """Apply filters, sorting, limit, and pagination rules to the list of
     `objects`.
 
@@ -522,15 +544,15 @@ def extract_object_set(
     return sorted_, total_objects
 
 
-def canonical_json(obj):
+def canonical_json(obj: Any) -> str:
     # We just a predictable serialization so that we just compare strings.
     return json.dumps(obj, sort_keys=True)
 
 
-def apply_filters(objects, filters):
+def apply_filters(objects: list[KintoObject], filters: list[Filter]) -> Iterator[KintoObject]:
     """Filter the specified objects, using basic iteration."""
 
-    def contains_filtering(object_value, search_term):
+    def contains_filtering(object_value: Any, search_term: Any) -> bool:
         if object_value == MISSING:
             return False
         try:
@@ -540,7 +562,7 @@ def apply_filters(objects, filters):
             return False
         return object_value_set.intersection(search_set) == search_set
 
-    def contains_any_filtering(object_value, search_term):
+    def contains_any_filtering(object_value: Any, search_term: Any) -> Any:
         if object_value == MISSING:
             return False
         try:
@@ -599,7 +621,7 @@ def apply_filters(objects, filters):
             yield obj
 
 
-def schwartzian_transform(value):
+def schwartzian_transform(value: Any) -> tuple[int, Any]:
     """Decorate a value with a tag that enforces the Postgres sort order.
 
     The sort order, per https://www.postgresql.org/docs/9.6/static/datatype-json.html, is:
@@ -631,14 +653,14 @@ def schwartzian_transform(value):
     raise ValueError(f"Unknown value: {value}")  # pragma: no cover
 
 
-def apply_sorting(objects, sorting):
+def apply_sorting(objects: list[KintoObject], sorting: list[Sort]) -> list[KintoObject]:
     """Sort the specified objects, using cumulative python sorting."""
     result = list(objects)
 
     if not result:
         return result
 
-    def column(obj, name):
+    def column(obj: KintoObject, name: str) -> tuple[int, Any]:
         return schwartzian_transform(find_nested_value(obj, name, default=MISSING))
 
     for sort in reversed(sorting):
@@ -647,7 +669,9 @@ def apply_sorting(objects, sorting):
     return result
 
 
-def _get_objects_by_parent_id(store, parent_id, resource_name, with_meta=False):
+def _get_objects_by_parent_id(
+    store: dict[str, Any], parent_id: str, resource_name: str | None, with_meta: bool = False
+) -> list[KintoObject]:
     parent_id_match = re.compile(f"^{parent_id.replace('*', '.*')}$")
     by_parent_id = {
         pid: resources for pid, resources in store.items() if parent_id_match.match(pid)
@@ -665,5 +689,5 @@ def _get_objects_by_parent_id(store, parent_id, resource_name, with_meta=False):
     return objects
 
 
-def load_from_config(config):
+def load_from_config(config) -> Storage:
     return Storage()

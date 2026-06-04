@@ -30,7 +30,7 @@ class MigratorMixin:
     schema_version: Any = None
 
     """The file to find the current "newest" schema in. Override this."""
-    schema_file = None
+    schema_file: Any = None
 
     """The directory to find migration files in.
 
@@ -38,7 +38,7 @@ class MigratorMixin:
     """
     migrations_directory: Any = None
 
-    def get_installed_version(self):
+    def get_installed_version(self) -> int | None:
         """Return current version of schema or None if none found.
 
         Override this.
@@ -47,7 +47,7 @@ class MigratorMixin:
         """
         raise NotImplementedError("method not overridden")  # pragma: no cover
 
-    def create_or_migrate_schema(self, dry_run=False):
+    def create_or_migrate_schema(self, dry_run: bool = False) -> None:
         """Either create or migrate the schema, as needed."""
         version = self.get_installed_version()
         if not version:
@@ -61,7 +61,7 @@ class MigratorMixin:
 
         self.migrate_schema(version, dry_run)
 
-    def create_schema(self, dry_run):
+    def create_schema(self, dry_run: bool) -> None:
         """Actually create the schema from scratch using self.schema_file.
 
         You can override this if you want to add additional sanity checks.
@@ -73,7 +73,7 @@ class MigratorMixin:
             self._execute_sql_file(self.schema_file)
             logger.info(f"Created PostgreSQL {self.name} schema (version {self.schema_version}).")
 
-    def migrate_schema(self, start_version, dry_run):
+    def migrate_schema(self, start_version: int, dry_run: bool) -> None:
         migrations = [(v, v + 1) for v in range(start_version, self.schema_version)]
         for migration in migrations:
             expected = migration[0]
@@ -94,7 +94,7 @@ class MigratorMixin:
             f"PostgreSQL {self.name} schema migration {'simulated' if dry_run else 'done'}"
         )
 
-    def _execute_sql_file(self, filepath):
+    def _execute_sql_file(self, filepath: str) -> None:
         """Helper method to execute the SQL in a file."""
         with open(filepath) as f:
             schema = f.read()
@@ -132,7 +132,7 @@ class PostgreSQLPluginMigration(MigratorMixin):
     the migration when the storage backend is not PostgreSQL.
     """
 
-    def initialize_schema(self, client, dry_run=False):
+    def initialize_schema(self, client, dry_run: bool = False) -> None:
         """
         Main entry point of `IMigratable` interface.
 
@@ -143,7 +143,7 @@ class PostgreSQLPluginMigration(MigratorMixin):
         self.client = client
         return self.create_or_migrate_schema(dry_run)
 
-    def get_installed_version(self):
+    def get_installed_version(self) -> int:
         # Get highest version for this plugin, or always return 1
         # if no version found.
         query = """

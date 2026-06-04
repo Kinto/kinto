@@ -81,7 +81,7 @@ class QueuePoolWithMaxBacklogTest(unittest.TestCase):
         pool = QueuePoolWithMaxBacklog(None, max_backlog=2, pool_size=2)
         other = pool.recreate()
         self.assertEqual(pool._pool.__class__, other._pool.__class__)
-        self.assertEqual(other._pool.max_backlog, 2)
+        self.assertEqual(other._pool.max_backlog, 2)  # ty: ignore[unresolved-attribute]
 
     def test_has_pool_size_of_25_by_default(self):
         from kinto.core.storage.postgresql.pool import QueuePoolWithMaxBacklog

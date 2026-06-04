@@ -23,7 +23,9 @@ def allowed_from_settings(settings, principals):
             "collection": {"read"}
         }
 
-    XXX: This helper will be useful for Kinto/kinto#894
+    .. note::
+
+        This helper will be useful for Kinto/kinto#894
     """
     # Select settings about explicit permissions set on resources
     # bucket_write_principals = ... --> {("bucket", "write"): ["account:admin"]}

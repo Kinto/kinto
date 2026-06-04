@@ -1,5 +1,7 @@
 """Exceptions raised by storage backend."""
 
+from typing import Any
+
 
 class BackendError(Exception):
     """A generic exception raised by storage on error.
@@ -8,7 +10,7 @@ class BackendError(Exception):
         library.
     """
 
-    def __init__(self, original=None, message=None, *args, **kwargs):
+    def __init__(self, original: Any = None, message: str | None = None, *args, **kwargs):
         self.original = original
         if message is None:
             message = f"{original.__class__.__name__}: {original}"
@@ -47,7 +49,7 @@ class UnicityError(IntegrityError):
 
     """
 
-    def __init__(self, field, *args, **kwargs):
+    def __init__(self, field: str, *args, **kwargs):
         self.field = field
         self.msg = f"{field} is not unique"
         super().__init__(*args, **kwargs)

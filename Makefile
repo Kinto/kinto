@@ -88,6 +88,7 @@ lint: install-dev ## run the code linters
 	$(VENV)/bin/ruff check kinto tests docs/conf.py
 	$(VENV)/bin/ruff format --check kinto tests docs/conf.py
 	$(VENV)/bin/ty check kinto tests
+	$(VENV)/bin/dfc --check kinto
 ifndef TYPOS_INSTALLED
 		$(warning "'typos' is not available please install typos-cli")
 else

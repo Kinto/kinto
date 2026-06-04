@@ -2,6 +2,7 @@ import logging
 import os
 import warnings
 from collections import defaultdict
+from typing import Any
 
 from kinto.core.decorators import deprecate_kwargs
 from kinto.core.storage import (
@@ -9,10 +10,14 @@ from kinto.core.storage import (
     DEFAULT_ID_FIELD,
     DEFAULT_MODIFIED_FIELD,
     MISSING,
+    Filter,
+    KintoObject,
+    Sort,
     StorageBase,
     exceptions,
+    generators,
 )
-from kinto.core.storage.postgresql.client import create_from_config
+from kinto.core.storage.postgresql.client import PostgreSQLClient, create_from_config
 from kinto.core.storage.postgresql.migrator import MigratorMixin
 from kinto.core.storage.postgresql.migrator import (
     PostgreSQLPluginMigration as PostgreSQLPluginMigration,
@@ -25,7 +30,7 @@ logger = logging.getLogger(__name__)
 HERE = os.path.dirname(__file__)
 
 
-def _build_containment_json(field, value):
+def _build_containment_json(field: str, value: Any) -> str:
     """Build a JSON string for top-level JSONB containment (``@>``).
 
     Wraps *value* in nested objects matching the dotted *field* path.
@@ -172,22 +177,29 @@ class Storage(StorageBase, MigratorMixin):
     schema_file = os.path.join(HERE, "schema.sql")
     migrations_directory = os.path.join(HERE, "migrations")
 
-    def __init__(self, client, max_fetch_size, *args, readonly=False, **kwargs):
+    def __init__(
+        self,
+        client: PostgreSQLClient,
+        max_fetch_size: int,
+        *args,
+        readonly: bool = False,
+        **kwargs,
+    ):
         super().__init__(*args, **kwargs)
         self.client = client
         self._max_fetch_size = max_fetch_size
         self.readonly = readonly
 
-    def create_schema(self, dry_run=False):
+    def create_schema(self, dry_run: bool = False) -> None:
         """Override create_schema to ensure DB encoding and TZ are OK."""
         self._check_database_encoding()
         self._check_database_timezone()
         return super().create_schema(dry_run)
 
-    def initialize_schema(self, dry_run=False):
+    def initialize_schema(self, dry_run: bool = False) -> None:
         return self.create_or_migrate_schema(dry_run)
 
-    def _check_database_timezone(self):
+    def _check_database_timezone(self) -> None:
         # Make sure database has UTC timezone.
         query = "SELECT current_setting('TIMEZONE') AS timezone;"
         with self.client.connect() as conn:
@@ -199,7 +211,7 @@ class Storage(StorageBase, MigratorMixin):
             warnings.warn(msg)
             logger.warning(msg)
 
-    def _check_database_encoding(self):
+    def _check_database_encoding(self) -> None:
         # Make sure database is UTF-8.
         query = """
         SELECT pg_encoding_to_char(encoding) AS encoding
@@ -213,7 +225,7 @@ class Storage(StorageBase, MigratorMixin):
         if encoding != "utf8":  # pragma: no cover
             raise AssertionError(f"Unexpected database encoding {encoding}")
 
-    def get_installed_version(self):
+    def get_installed_version(self) -> int | None:
         """Return current version of schema or None if not any found."""
         # Check for objects table, which definitely indicates a new
         # DB. (metadata can exist if the permission schema ran first.)
@@ -268,7 +280,7 @@ class Storage(StorageBase, MigratorMixin):
             MAX_FLUSHABLE_SCHEMA_VERSION = 20
             return MAX_FLUSHABLE_SCHEMA_VERSION
 
-    def flush(self):
+    def flush(self) -> None:
         """Delete objects from tables without destroying schema.
 
         This is used in test suites as well as in the flush plugin.
@@ -281,7 +293,7 @@ class Storage(StorageBase, MigratorMixin):
             conn.execute(sa.text(query))
         logger.debug("Flushed PostgreSQL storage tables")
 
-    def resource_timestamp(self, resource_name, parent_id):
+    def resource_timestamp(self, resource_name: str, parent_id: str) -> int:
         query_existing = """
         WITH existing_timestamps AS (
           -- Timestamp of latest object.
@@ -336,7 +348,7 @@ class Storage(StorageBase, MigratorMixin):
 
         return obj.last_epoch
 
-    def all_resources_timestamps(self, resource_name):
+    def all_resources_timestamps(self, resource_name: str) -> dict[str, int]:
         query = """
         WITH existing_timestamps AS (
           -- Timestamp of latest object by parent_id.
@@ -369,13 +381,13 @@ class Storage(StorageBase, MigratorMixin):
     @deprecate_kwargs({"collection_id": "resource_name", "record": "obj"})
     def create(
         self,
-        resource_name,
-        parent_id,
-        obj,
-        id_generator=None,
-        id_field=DEFAULT_ID_FIELD,
-        modified_field=DEFAULT_MODIFIED_FIELD,
-    ):
+        resource_name: str,
+        parent_id: str,
+        obj: KintoObject,
+        id_generator: generators.Generator | None = None,
+        id_field: str = DEFAULT_ID_FIELD,
+        modified_field: str = DEFAULT_MODIFIED_FIELD,
+    ) -> KintoObject:
         id_generator = id_generator or self.id_generator
         obj = {**obj}
         if id_field in obj:
@@ -441,12 +453,12 @@ class Storage(StorageBase, MigratorMixin):
     @deprecate_kwargs({"collection_id": "resource_name"})
     def get(
         self,
-        resource_name,
-        parent_id,
-        object_id,
-        id_field=DEFAULT_ID_FIELD,
-        modified_field=DEFAULT_MODIFIED_FIELD,
-    ):
+        resource_name: str,
+        parent_id: str,
+        object_id: str,
+        id_field: str = DEFAULT_ID_FIELD,
+        modified_field: str = DEFAULT_MODIFIED_FIELD,
+    ) -> KintoObject:
         query = """
         SELECT as_epoch(last_modified) AS last_modified, data
           FROM objects
@@ -471,13 +483,13 @@ class Storage(StorageBase, MigratorMixin):
     @deprecate_kwargs({"collection_id": "resource_name", "record": "obj"})
     def update(
         self,
-        resource_name,
-        parent_id,
-        object_id,
-        obj,
-        id_field=DEFAULT_ID_FIELD,
-        modified_field=DEFAULT_MODIFIED_FIELD,
-    ):
+        resource_name: str,
+        parent_id: str,
+        object_id: str,
+        obj: KintoObject,
+        id_field: str = DEFAULT_ID_FIELD,
+        modified_field: str = DEFAULT_MODIFIED_FIELD,
+    ) -> KintoObject:
         # Remove redundancy in data field
         query_object = {**obj}
         query_object.pop(id_field, None)
@@ -515,15 +527,15 @@ class Storage(StorageBase, MigratorMixin):
     @deprecate_kwargs({"collection_id": "resource_name"})
     def delete(
         self,
-        resource_name,
-        parent_id,
-        object_id,
-        id_field=DEFAULT_ID_FIELD,
-        with_deleted=True,
-        modified_field=DEFAULT_MODIFIED_FIELD,
-        deleted_field=DEFAULT_DELETED_FIELD,
-        last_modified=None,
-    ):
+        resource_name: str,
+        parent_id: str,
+        object_id: str,
+        id_field: str = DEFAULT_ID_FIELD,
+        with_deleted: bool = True,
+        modified_field: str = DEFAULT_MODIFIED_FIELD,
+        deleted_field: str = DEFAULT_DELETED_FIELD,
+        last_modified: int | None = None,
+    ) -> KintoObject:
         if with_deleted:
             query = """
             UPDATE objects
@@ -570,17 +582,17 @@ class Storage(StorageBase, MigratorMixin):
     @deprecate_kwargs({"collection_id": "resource_name"})
     def delete_all(
         self,
-        resource_name,
-        parent_id,
-        filters=None,
-        sorting=None,
-        pagination_rules=None,
-        limit=None,
-        id_field=DEFAULT_ID_FIELD,
-        with_deleted=True,
-        modified_field=DEFAULT_MODIFIED_FIELD,
-        deleted_field=DEFAULT_DELETED_FIELD,
-    ):
+        resource_name: str,
+        parent_id: str,
+        filters: list[Filter] | None = None,
+        sorting: list[Sort] | None = None,
+        pagination_rules: list[list[Filter]] | None = None,
+        limit: int | None = None,
+        id_field: str = DEFAULT_ID_FIELD,
+        with_deleted: bool = True,
+        modified_field: str = DEFAULT_MODIFIED_FIELD,
+        deleted_field: str = DEFAULT_DELETED_FIELD,
+    ) -> list[KintoObject]:
         if with_deleted:
             query = """
             WITH matching_objects AS (
@@ -684,14 +696,14 @@ class Storage(StorageBase, MigratorMixin):
     @deprecate_kwargs({"collection_id": "resource_name"})
     def purge_deleted(
         self,
-        resource_name,
-        parent_id,
-        before=None,
-        max_retained=None,
-        id_field=DEFAULT_ID_FIELD,
-        modified_field=DEFAULT_MODIFIED_FIELD,
-        force_commit=False,
-    ):
+        resource_name: str,
+        parent_id: str,
+        before: int | None = None,
+        max_retained: int | None = None,
+        id_field: str = DEFAULT_ID_FIELD,
+        modified_field: str = DEFAULT_MODIFIED_FIELD,
+        force_commit: bool = False,
+    ) -> int:
         delete_tombstones = """
         DELETE
         FROM objects
@@ -770,17 +782,17 @@ class Storage(StorageBase, MigratorMixin):
 
     def list_all(
         self,
-        resource_name,
-        parent_id,
-        filters=None,
-        sorting=None,
-        pagination_rules=None,
-        limit=None,
-        include_deleted=False,
-        id_field=DEFAULT_ID_FIELD,
-        modified_field=DEFAULT_MODIFIED_FIELD,
-        deleted_field=DEFAULT_DELETED_FIELD,
-    ):
+        resource_name: str,
+        parent_id: str,
+        filters: list[Filter] | None = None,
+        sorting: list[Sort] | None = None,
+        pagination_rules: list[list[Filter]] | None = None,
+        limit: int | None = None,
+        include_deleted: bool = False,
+        id_field: str = DEFAULT_ID_FIELD,
+        modified_field: str = DEFAULT_MODIFIED_FIELD,
+        deleted_field: str = DEFAULT_DELETED_FIELD,
+    ) -> list[KintoObject]:
         query = """
             SELECT id, as_epoch(last_modified) AS last_modified, data
             FROM objects
@@ -820,14 +832,14 @@ class Storage(StorageBase, MigratorMixin):
 
     def count_all(
         self,
-        resource_name,
-        parent_id,
-        filters=None,
-        include_deleted=False,
-        id_field=DEFAULT_ID_FIELD,
-        modified_field=DEFAULT_MODIFIED_FIELD,
-        deleted_field=DEFAULT_DELETED_FIELD,
-    ):
+        resource_name: str,
+        parent_id: str,
+        filters: list[Filter] | None = None,
+        include_deleted: bool = False,
+        id_field: str = DEFAULT_ID_FIELD,
+        modified_field: str = DEFAULT_MODIFIED_FIELD,
+        deleted_field: str = DEFAULT_DELETED_FIELD,
+    ) -> int:
         query = """
             SELECT COUNT(*) AS total_count
             FROM objects
@@ -889,20 +901,20 @@ class Storage(StorageBase, MigratorMixin):
 
     def _get_rows(
         self,
-        query,
-        resource_name,
-        parent_id,
-        filters=None,
-        sorting=None,
-        pagination_rules=None,
-        limit=None,
-        include_deleted=False,
-        id_field=DEFAULT_ID_FIELD,
-        modified_field=DEFAULT_MODIFIED_FIELD,
-        deleted_field=DEFAULT_DELETED_FIELD,
-    ):
+        query: str,
+        resource_name: str,
+        parent_id: str,
+        filters: list[Filter] | None = None,
+        sorting: list[Sort] | None = None,
+        pagination_rules: list[list[Filter]] | None = None,
+        limit: int | None = None,
+        include_deleted: bool = False,
+        id_field: str = DEFAULT_ID_FIELD,
+        modified_field: str = DEFAULT_MODIFIED_FIELD,
+        deleted_field: str = DEFAULT_DELETED_FIELD,
+    ) -> list[Any]:
         # Unsafe strings escaped by PostgreSQL
-        placeholders = dict(parent_id=parent_id, resource_name=resource_name)
+        placeholders: dict[str, Any] = dict(parent_id=parent_id, resource_name=resource_name)
 
         # Safe strings
         safeholders = defaultdict(str)
@@ -940,7 +952,13 @@ class Storage(StorageBase, MigratorMixin):
             result = conn.execute(sa.text(query.format_map(safeholders)), placeholders)
             return result.fetchmany(self._max_fetch_size + 1)
 
-    def _format_conditions(self, filters, id_field, modified_field, prefix="filters"):
+    def _format_conditions(
+        self,
+        filters: list[Filter],
+        id_field: str,
+        modified_field: str,
+        prefix: str = "filters",
+    ) -> tuple[str, dict[str, Any]]:
         """Format the filters list in SQL, with placeholders for safe escaping.
 
         .. note::
@@ -1161,7 +1179,9 @@ class Storage(StorageBase, MigratorMixin):
         safe_sql = " AND ".join(conditions)
         return safe_sql, holders
 
-    def _format_pagination(self, pagination_rules, id_field, modified_field):
+    def _format_pagination(
+        self, pagination_rules: list[list[Filter]], id_field: str, modified_field: str
+    ) -> tuple[str, dict[str, Any]]:
         """Format the pagination rules in SQL, with placeholders for
         safe escaping.
 
@@ -1192,7 +1212,9 @@ class Storage(StorageBase, MigratorMixin):
         safe_sql = " OR ".join([f"({r})" for r in rules])
         return safe_sql, placeholders
 
-    def _format_sorting(self, sorting, id_field, modified_field):
+    def _format_sorting(
+        self, sorting: list[Sort], id_field: str, modified_field: str
+    ) -> tuple[str, dict[str, Any]]:
         """Format the sorting in SQL, with placeholders for safe escaping.
 
         .. note::
@@ -1231,7 +1253,7 @@ class Storage(StorageBase, MigratorMixin):
         return safe_sql, holders
 
 
-def load_from_config(config):
+def load_from_config(config) -> Storage:
     settings = config.get_settings()
     max_fetch_size = int(settings["storage_max_fetch_size"])
     readonly = settings.get("readonly", False)

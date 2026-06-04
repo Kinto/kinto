@@ -1,3 +1,5 @@
+from typing import Any
+
 from sqlalchemy.pool import QueuePool
 from sqlalchemy.util.queue import Queue
 
@@ -10,12 +12,12 @@ class _QueueWithMaxBacklog(Queue):
     adds a "max_backlog" parameter that can be used to bound this number.
     """
 
-    def __init__(self, maxsize=0, max_backlog=-1):
+    def __init__(self, maxsize: int = 0, max_backlog: int = -1):
         self.max_backlog = max_backlog
         self.cur_backlog = 0
         Queue.__init__(self, maxsize)
 
-    def get(self, block=True, timeout=None):
+    def get(self, block: bool = True, timeout: float | None = None) -> Any:
         # The SQLAlchemy Queue class uses a re-entrant mutext by default,
         # so it's safe to acquire it both here and in the superclass method.
         with self.mutex:
@@ -44,12 +46,12 @@ class QueuePoolWithMaxBacklog(QueuePool):
     be rejected immediately.
     """
 
-    def __init__(self, creator, max_backlog=-1, **kwds):
+    def __init__(self, creator, max_backlog: int = -1, **kwds):
         kwds.setdefault("pool_size", 25)
         QueuePool.__init__(self, creator, **kwds)
         self._pool = _QueueWithMaxBacklog(self._pool.maxsize, max_backlog)
 
-    def recreate(self):
+    def recreate(self) -> QueuePool:
         new_self = QueuePool.recreate(self)
         new_self._pool = _QueueWithMaxBacklog(self._pool.maxsize, self._pool.max_backlog)  # ty: ignore[unresolved-attribute]
         return new_self
