@@ -121,7 +121,6 @@ class PermissionBase:
         """Return the full set of authorized principals for a list of bound
         permissions (object + permission).
 
-        :param str object_id: The object_id the permission is set to.
         :param list bound_permissions: An list of tuples
             (object_id, permission) to be fetched.
         :returns: The list of user principals
@@ -189,7 +188,7 @@ class PermissionBase:
     def delete_object_permissions(self, *object_id_list: str) -> None:
         """Delete all listed object permissions.
 
-        :param str object_id: Remove given objects permissions.
+        :param str object_id_list: Remove given objects permissions.
         """
         raise NotImplementedError
 

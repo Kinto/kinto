@@ -514,9 +514,8 @@ def apply_json_patch(obj, ops):
     """
     Apply JSON Patch operations using jsonpatch.
 
-    :param object: base object where changes should be applied (not in-place).
-    :param list changes: list of JSON patch operations.
-    :param bool only_data: param to limit the scope of the patch only to 'data'.
+    :param dict obj: base object where changes should be applied (not in-place).
+    :param list ops: list of JSON patch operations.
     :returns dict data: patched object data.
              dict permissions: patched object permissions
     """

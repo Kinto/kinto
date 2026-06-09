@@ -283,7 +283,7 @@ class StorageBase:
         :param str parent_id: the resource parent.
 
         :param int before: Optional timestamp to limit deletion (exclusive).
-        :param int max_count: Optional maximum of tombstones to keep per collection.
+        :param int max_retained: Optional maximum of tombstones to keep per collection.
 
         :param bool force_commit: whether to force commit the transaction after deletion.
 
