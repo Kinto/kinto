@@ -1,4 +1,5 @@
 import logging
+from typing import Any
 
 import colander
 from pyramid import httpexceptions
@@ -16,7 +17,7 @@ subrequest_logger = logging.getLogger("subrequest.summary")
 valid_http_method = colander.OneOf(("GET", "HEAD", "DELETE", "TRACE", "POST", "PUT", "PATCH"))
 
 
-def string_values(node, cstruct):
+def string_values(node, cstruct: dict) -> None:
     """Validate that a ``colander.Mapping`` only has strings in its values.
 
     .. warning::
@@ -52,16 +53,16 @@ class BatchPayloadSchema(colander.MappingSchema):
     def schema_type():  # ty: ignore[invalid-method-override]
         return colander.Mapping(unknown="raise")
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         # On defaults, path is not mandatory.
         self.get("defaults").get("path").missing = colander.drop
 
-    def deserialize(self, cstruct=colander.null):
+    def deserialize(self, cstruct: Any = colander.null) -> Any:
         """Preprocess received data to carefully merge defaults."""
         if cstruct is not colander.null:
-            defaults = cstruct.get("defaults")  # ty: ignore[unresolved-attribute]
-            requests = cstruct.get("requests")  # ty: ignore[unresolved-attribute]
+            defaults = cstruct.get("defaults")
+            requests = cstruct.get("requests")
             if isinstance(defaults, dict) and isinstance(requests, list):
                 for request in requests:
                     if isinstance(request, dict):
@@ -112,7 +113,7 @@ batch = Service(name="batch", path="/batch", description="Batch operations")
     operation_id="batch",
     response_schemas=batch_responses,
 )
-def post_batch(request):
+def post_batch(request) -> dict | None:
     requests = request.validated["body"]["requests"]
 
     request.log_context(batch_size=len(requests))

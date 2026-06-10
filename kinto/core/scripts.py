@@ -3,6 +3,7 @@ kinto.core.scripts: utilities to build admin scripts for kinto-based services
 """
 
 import logging
+from typing import Any
 
 from pyramid.settings import asbool
 
@@ -10,7 +11,7 @@ from pyramid.settings import asbool
 logger = logging.getLogger(__name__)
 
 
-def migrate(env, dry_run=False):
+def migrate(env: dict[str, Any], dry_run: bool = False) -> None:
     """
     User-friendly frontend to run database migrations.
     """
@@ -42,7 +43,7 @@ def migrate(env, dry_run=False):
         migration.initialize_schema(registry.storage.client, dry_run=dry_run)
 
 
-def purge_deleted(env, resource_names, max_retained):
+def purge_deleted(env: dict[str, Any], resource_names: list[str], max_retained: int) -> int:
     logger.info("Keep only %r tombstones per parent and resource." % max_retained)
 
     registry = env["registry"]
@@ -60,7 +61,7 @@ def purge_deleted(env, resource_names, max_retained):
     return 0
 
 
-def flush_cache(env):
+def flush_cache(env: dict[str, Any]) -> int:
     registry = env["registry"]
     registry.cache.flush()
     logger.info("Cache has been cleared.")

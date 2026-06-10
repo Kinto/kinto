@@ -91,6 +91,9 @@ def on_resource_changed(event):
     if not targets:
         return  # Nothing to do.
 
+    # A non-empty ``targets`` means the loop above ran and assigned ``bucket_uri``.
+    assert bucket_uri is not None
+
     # Prepare a list of object ids to be fetched from permission backend,
     # and fetch them all at once. Use a mapping for later convenience.
     all_perms_objects_ids = [oid for (oid, _) in targets]

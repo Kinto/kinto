@@ -1,18 +1,21 @@
 import threading
 import warnings
+from collections.abc import Callable
 from functools import update_wrapper, wraps
+from typing import Any
 
+from pyramid.request import Request
 from pyramid.response import Response
 
 
 class cache_forever:
-    def __init__(self, wrapped):
+    def __init__(self, wrapped: Callable) -> None:
         self.wrapped = wrapped
         self.saved = None
         self.saved_headers = None
         update_wrapper(self, wrapped)
 
-    def __call__(self, request, *args, **kwargs):
+    def __call__(self, request: Request, *args, **kwargs) -> Response:
         if self.saved is None:
             self.saved = self.wrapped(request, *args, **kwargs)
             self.saved_headers = request.response.headers
@@ -25,7 +28,7 @@ class cache_forever:
         return request.response
 
 
-def synchronized(method):
+def synchronized(method: Callable) -> Callable:
     """Class method decorator to make sure two threads do not execute some code
     at the same time (c.f Java ``synchronized`` keyword).
 
@@ -33,7 +36,7 @@ def synchronized(method):
     """
 
     @wraps(method)
-    def decorated(self, *args, **kwargs):
+    def decorated(self, *args, **kwargs) -> Any:
         try:
             lock = getattr(self, "__lock__")
         except AttributeError:
@@ -50,16 +53,16 @@ def synchronized(method):
     return decorated
 
 
-def deprecate_kwargs(deprecated):
+def deprecate_kwargs(deprecated: dict) -> Callable:
     """
     A decorator to deprecate keyword arguments.
 
     :param dict deprecated: The keywords mapping (old: new)
     """
 
-    def decorated(func):
+    def decorated(func) -> Callable:
         @wraps(func)
-        def wrapper(*args, **kwargs):
+        def wrapper(*args, **kwargs) -> Any:
             new_kwargs = {**kwargs}
             for old_param, new_param in deprecated.items():
                 if old_param in kwargs:

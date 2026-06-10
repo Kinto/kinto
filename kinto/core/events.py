@@ -1,11 +1,17 @@
 import logging
 import warnings
 from collections import OrderedDict
+from collections.abc import Callable, Iterator
 from enum import Enum
+from typing import Any
 
 import pyramid.tweens
 import transaction
+from pyramid.config import Configurator
 from pyramid.events import NewRequest
+from pyramid.registry import Registry
+from pyramid.request import Request
+from pyramid.response import Response
 
 from kinto.core.utils import strip_uri_prefix
 
@@ -20,26 +26,26 @@ class ACTIONS(Enum):
     UPDATE = "update"
 
     @staticmethod
-    def from_string_list(elements):
+    def from_string_list(elements: list[str]) -> tuple["ACTIONS", ...]:
         return tuple(ACTIONS(el) for el in elements)
 
 
 class _ResourceEvent:
-    def __init__(self, payload, request):
+    def __init__(self, payload: dict | None, request: Any) -> None:
         self.payload = payload
         self.request = request
 
-    def __repr__(self):
-        return f"<{self.__class__.__name__} action={self.payload['action']} uri={self.payload['uri']}>"
+    def __repr__(self) -> str:
+        return f"<{self.__class__.__name__} action={self.payload['action']} uri={self.payload['uri']}>"  # ty: ignore[not-subscriptable]
 
     @property
-    def read_records(self):
+    def read_records(self) -> Any:
         message = "`read_records` is deprecated, use `read_objects` instead."
         warnings.warn(message, DeprecationWarning)
         return self.read_objects  # ty: ignore[unresolved-attribute]
 
     @property
-    def impacted_records(self):
+    def impacted_records(self) -> Any:
         message = "`impacted_records` is deprecated, use `impacted_objects` instead."
         warnings.warn(message, DeprecationWarning)
         return self.impacted_objects  # ty: ignore[unresolved-attribute]
@@ -48,7 +54,7 @@ class _ResourceEvent:
 class ResourceRead(_ResourceEvent):
     """Triggered when a resource is being read."""
 
-    def __init__(self, payload, read_objects, request):
+    def __init__(self, payload: dict | None, read_objects: list, request: Any) -> None:
         super().__init__(payload, request)
         self.read_objects = read_objects
 
@@ -56,7 +62,7 @@ class ResourceRead(_ResourceEvent):
 class ResourceChanged(_ResourceEvent):
     """Triggered when a resource is being changed."""
 
-    def __init__(self, payload, impacted_objects, request):
+    def __init__(self, payload: dict | None, impacted_objects: list, request: Any) -> None:
         super().__init__(payload, request)
         self.impacted_objects = impacted_objects
 
@@ -64,7 +70,7 @@ class ResourceChanged(_ResourceEvent):
 class AfterResourceRead(_ResourceEvent):
     """Triggered after a resource was successfully read."""
 
-    def __init__(self, payload, read_objects, request):
+    def __init__(self, payload: dict | None, read_objects: list, request: Any) -> None:
         super().__init__(payload, request)
         self.read_objects = read_objects
 
@@ -72,7 +78,7 @@ class AfterResourceRead(_ResourceEvent):
 class AfterResourceChanged(_ResourceEvent):
     """Triggered after a resource was successfully changed."""
 
-    def __init__(self, payload, impacted_objects, request):
+    def __init__(self, payload: dict | None, impacted_objects: list, request: Any) -> None:
         super().__init__(payload, request)
         self.impacted_objects = impacted_objects
 
@@ -85,7 +91,7 @@ class EventCollector(object):
     fewer events.
     """
 
-    def __init__(self, cascade_level=1):
+    def __init__(self, cascade_level: int = 1) -> None:
         self.cascade_level = cascade_level
         """Current level of event cascade. When we start consuming the
         gathered events, we increment it. This way, events emitted from
@@ -105,7 +111,15 @@ class EventCollector(object):
         https://github.com/Kinto/kinto/issues/1731.
         """
 
-    def add_event(self, resource_name, parent_id, action, payload, impacted, request):
+    def add_event(
+        self,
+        resource_name: str,
+        parent_id: str,
+        action: "ACTIONS",
+        payload: dict | None,
+        impacted: list,
+        request: Request,
+    ) -> None:
         key = (self.cascade_level, resource_name, parent_id, action)
         if key not in self.event_dict:
             value = (payload, impacted, request)
@@ -116,7 +130,7 @@ class EventCollector(object):
             # May be a good idea to assert that old_payload == payload here.
             self.event_dict[key] = (old_payload, old_impacted + impacted, old_request)
 
-    def drain(self):
+    def drain(self) -> "EventCollectorDrain":
         """Return an iterator that removes elements from this EventCollector.
 
         This can be used to process events while still allowing events
@@ -136,13 +150,13 @@ class EventCollectorDrain(object):
 
     Get one using EventCollector.drain()."""
 
-    def __init__(self, event_collector):
+    def __init__(self, event_collector: EventCollector) -> None:
         self.event_collector = event_collector
 
-    def __iter__(self):
+    def __iter__(self) -> "EventCollectorDrain":
         return self
 
-    def __next__(self):
+    def __next__(self) -> tuple:
         if self.event_collector.event_dict:
             # Get the "first" key in insertion order, so as to process
             # events in the same order they were queued.
@@ -153,7 +167,9 @@ class EventCollectorDrain(object):
             raise StopIteration
 
 
-def notify_resource_events_before(handler, registry):
+def notify_resource_events_before(
+    handler: Callable, registry: Registry
+) -> Callable[[Request], Response]:
     """Tween that runs ResourceChanged events.
 
     This tween runs under EXCVIEW, so exceptions raised by
@@ -162,7 +178,7 @@ def notify_resource_events_before(handler, registry):
 
     """
 
-    def tween(request):
+    def tween(request) -> Response:
         response = handler(request)
         for event in request.get_resource_events():
             request.registry.notify(event)
@@ -172,7 +188,7 @@ def notify_resource_events_before(handler, registry):
     return tween
 
 
-def setup_transaction_hook(config):
+def setup_transaction_hook(config: Configurator) -> None:
     """
     Resource events are plugged with the transactions of ``pyramid_tm``.
 
@@ -180,7 +196,7 @@ def setup_transaction_hook(config):
     ``AfterResourceChanged`` events are sent.
     """
 
-    def _notify_resource_events_after(success, request):
+    def _notify_resource_events_after(success: bool, request) -> None:
         """Notify the accumulated resource events if transaction succeeds."""
         if not success:  # pragma: no cover
             return
@@ -191,7 +207,7 @@ def setup_transaction_hook(config):
             except Exception:
                 logger.error("Unable to notify", exc_info=True)
 
-    def on_new_request(event):
+    def on_new_request(event: NewRequest) -> None:
         """When a new request comes in, hook on transaction commit."""
         # Since there is one transaction per batch, ignore subrequests.
         if hasattr(event.request, "parent"):
@@ -205,7 +221,7 @@ def setup_transaction_hook(config):
     )
 
 
-def get_resource_events(request, after_commit=False):
+def get_resource_events(request, after_commit: bool = False) -> Iterator[_ResourceEvent]:
     """Generator to iterate the list of events triggered on resources.
 
     The list is sorted chronologically (see OrderedDict).
@@ -243,8 +259,15 @@ def get_resource_events(request, after_commit=False):
 
 
 def notify_resource_event(
-    request, parent_id, timestamp, data, action, old=None, resource_name=None, resource_data=None
-):
+    request,
+    parent_id: str,
+    timestamp: int,
+    data: Any,
+    action: "ACTIONS",
+    old: Any = None,
+    resource_name: str | None = None,
+    resource_data: dict | None = None,
+) -> None:
     """Request helper to stack a resource event.
 
     If a similar event (same resource, same action) already occurred during the
@@ -273,7 +296,7 @@ def notify_resource_event(
         else:
             impacted = []
             for i, new in enumerate(data):
-                impacted.append({"new": new, "old": old[i]})  # ty: ignore[not-subscriptable]
+                impacted.append({"new": new, "old": old[i]})
     else:  # ACTIONS.UPDATE:
         impacted = [{"new": data, "old": old}]
 

@@ -1,4 +1,8 @@
+from typing import Any
+
 from pyramid import authentication as base_auth
+from pyramid.config import Configurator
+from pyramid.request import Request
 
 from kinto.core import utils
 from kinto.core.openapi import OpenAPI
@@ -12,20 +16,20 @@ class BasicAuthAuthenticationPolicy(base_auth.BasicAuthAuthenticationPolicy):
 
     """
 
-    def __init__(self, *args, **kwargs):
-        def noop_check(*a):
+    def __init__(self, *args, **kwargs) -> None:
+        def noop_check(*a) -> list:
             return []
 
         super().__init__(noop_check, *args, **kwargs)
 
-    def effective_principals(self, request):
+    def effective_principals(self, request: Request) -> list:
         # Bypass default Pyramid construction of principals because
         # Pyramid multiauth already adds userid, Authenticated and Everyone
         # principals.
         return []
 
-    def unauthenticated_userid(self, request):
-        settings = request.registry.settings
+    def unauthenticated_userid(self, request: Request) -> Any:
+        settings = request.registry.settings  # ty: ignore[unresolved-attribute]
 
         credentials = base_auth.extract_http_basic_credentials(request)
         if credentials:
@@ -39,7 +43,7 @@ class BasicAuthAuthenticationPolicy(base_auth.BasicAuthAuthenticationPolicy):
             return userid
 
 
-def includeme(config):
+def includeme(config: Configurator) -> None:
     config.add_api_capability(
         "basicauth",
         description="Very basic authentication sessions. Not for production use.",

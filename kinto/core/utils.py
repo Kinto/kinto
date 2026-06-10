@@ -8,7 +8,9 @@ import time
 import warnings
 from base64 import b64decode, b64encode
 from binascii import hexlify
+from collections.abc import Callable
 from enum import Enum
+from typing import Any
 from urllib.parse import unquote
 
 import jsonpatch
@@ -42,17 +44,17 @@ except ImportError:  # pragma: no cover
 
 class json:
     @staticmethod
-    def dumps(v, **kw):
+    def dumps(v: Any, **kw) -> str:
         kw.setdefault("bytes_mode", rapidjson.BM_NONE)
         return rapidjson.dumps(v, **kw)
 
     @staticmethod
-    def load(v, **kw):
+    def load(v: Any, **kw) -> Any:
         kw.setdefault("number_mode", rapidjson.NM_NATIVE)
         return rapidjson.load(v, **kw)
 
     @staticmethod
-    def loads(v, **kw):
+    def loads(v: Any, **kw) -> Any:
         kw.setdefault("number_mode", rapidjson.NM_NATIVE)
         return rapidjson.loads(v, **kw)
 
@@ -60,7 +62,7 @@ class json:
 json_serializer = json.dumps
 
 
-def strip_whitespace(v):
+def strip_whitespace(v: Any) -> Any:
     """Remove whitespace, newlines, and tabs from the beginning/end
     of a string.
 
@@ -70,7 +72,7 @@ def strip_whitespace(v):
     return v.strip(" \t\n\r") if v is not null else v
 
 
-def msec_time():
+def msec_time() -> int:
     """Return current epoch time in milliseconds.
 
     :rtype: int
@@ -78,7 +80,7 @@ def msec_time():
     return int(time.time() * 1000.0)  # floor
 
 
-def classname(obj):
+def classname(obj: Any) -> str:
     """Get a classname from an object.
 
     :rtype: str
@@ -86,7 +88,7 @@ def classname(obj):
     return obj.__class__.__name__.lower()
 
 
-def merge_dicts(a, b):
+def merge_dicts(a: dict, b: dict) -> None:
     """Merge b into a recursively, without overwriting values.
 
     :param dict a: the dict that will be altered with values of `b`.
@@ -98,7 +100,7 @@ def merge_dicts(a, b):
             a.setdefault(k, v)
 
 
-def recursive_update_dict(root, changes, ignores=()):
+def recursive_update_dict(root: dict, changes: Any, ignores: tuple = ()) -> None:
     """Update recursively all the entries from a dict and it's children dicts.
 
     :param dict root: root dictionary
@@ -118,7 +120,7 @@ def recursive_update_dict(root, changes, ignores=()):
                 root[k] = v
 
 
-def random_bytes_hex(bytes_length):
+def random_bytes_hex(bytes_length: int) -> str:
     """Return a hexstring of bytes_length cryptographic-friendly random bytes.
 
     :param int bytes_length: number of random bytes.
@@ -127,7 +129,7 @@ def random_bytes_hex(bytes_length):
     return hexlify(os.urandom(bytes_length)).decode("utf-8")
 
 
-def native_value(value):
+def native_value(value: Any) -> Any:
     """Convert string value to native python values.
 
     :param str value: value to interpret.
@@ -141,7 +143,7 @@ def native_value(value):
     return value
 
 
-def read_env(key, value):
+def read_env(key: str, value: Any) -> Any:
     """Read the setting key from environment variables.
 
     :param key: the setting name
@@ -154,7 +156,7 @@ def read_env(key, value):
     return value
 
 
-def encode64(content, encoding="utf-8"):
+def encode64(content: str, encoding: str = "utf-8") -> str:
     """Encode some content in base64.
 
     :rtype: str
@@ -162,7 +164,7 @@ def encode64(content, encoding="utf-8"):
     return b64encode(content.encode(encoding)).decode(encoding)
 
 
-def decode64(encoded_content, encoding="utf-8"):
+def decode64(encoded_content: str, encoding: str = "utf-8") -> str:
     """Decode some base64 encoded content.
 
     :rtype: str
@@ -170,14 +172,14 @@ def decode64(encoded_content, encoding="utf-8"):
     return b64decode(encoded_content.encode(encoding)).decode(encoding)
 
 
-def hmac_digest(secret, message, encoding="utf-8"):
+def hmac_digest(secret: str | bytes, message: str, encoding: str = "utf-8") -> str:
     """Return hex digest of a message HMAC using secret"""
     if isinstance(secret, str):
         secret = secret.encode(encoding)
     return hmac.new(secret, message.encode(encoding), hashlib.sha256).hexdigest()
 
 
-def dict_subset(d, keys):
+def dict_subset(d: dict, keys: list[str]) -> dict:
     """Return a dict with the specified keys"""
     result = {}
 
@@ -196,7 +198,7 @@ def dict_subset(d, keys):
     return result
 
 
-def dict_merge(a, b):
+def dict_merge(a: dict, b: dict) -> dict:
     """Merge the two specified dicts"""
     result = dict(**b)
     for key, value in a.items():
@@ -206,7 +208,7 @@ def dict_merge(a, b):
     return result
 
 
-def find_nested_value(d, path, default=None):
+def find_nested_value(d: dict, path: str, default: Any = None) -> Any:
     """Finds a nested value in a dict from a dotted path key string.
 
     :param dict d: the dict to retrieve nested value from
@@ -228,12 +230,13 @@ def find_nested_value(d, path, default=None):
     root = next((key for key in reversed(candidates) if key in d), None)
 
     # if no valid root candidates were found, the path is invalid; abandon
-    if root is None or not isinstance(d.get(root), dict):
+    root_value = d.get(root)
+    if root is None or not isinstance(root_value, dict):
         return default
 
     # we have our root key, extract the new subpath and recur
     subpath = path.replace(root + ".", "", 1)
-    return find_nested_value(d.get(root), subpath, default=default)
+    return find_nested_value(root_value, subpath, default=default)
 
 
 class COMPARISON(Enum):
@@ -253,7 +256,7 @@ class COMPARISON(Enum):
     CONTAINS = "contains"
 
 
-def reapply_cors(request, response):
+def reapply_cors(request, response) -> Any:
     """Reapply cors headers to the new response with regards to the request.
 
     We need to re-apply the CORS checks done by Cornice, in case we're
@@ -285,7 +288,7 @@ def reapply_cors(request, response):
     return response
 
 
-def log_context(request, **kwargs):
+def log_context(request, **kwargs) -> dict:
     """Bind information to the current request summary log."""
     non_empty = {k: v for k, v in kwargs.items() if v is not None}
     try:
@@ -295,7 +298,7 @@ def log_context(request, **kwargs):
     return request._log_context
 
 
-def current_service(request):
+def current_service(request) -> Any:
     """Return the Cornice service matching the specified request.
 
     :returns: the service or None if unmatched.
@@ -312,7 +315,7 @@ def current_service(request):
             return service
 
 
-def current_resource_name(request):
+def current_resource_name(request) -> str:
     """Return the name used when the kinto.core resource was registered along its
     viewset.
 
@@ -324,7 +327,7 @@ def current_resource_name(request):
     return resource_name
 
 
-def prefixed_userid(request):
+def prefixed_userid(request) -> str | None:
     """In Kinto users ids are prefixed with the policy name that is
     contained in Pyramid Multiauth.
     If a custom authn policy is used, without authn_type, this method returns
@@ -338,7 +341,7 @@ def prefixed_userid(request):
         return f"{authn_type}:{request.selected_userid}"
 
 
-def prefixed_principals(request):
+def prefixed_principals(request) -> list:
     """
     :returns: the list principals with prefixed user id.
     """
@@ -362,7 +365,7 @@ def prefixed_principals(request):
     return principals
 
 
-def build_request(original, dict_obj):
+def build_request(original, dict_obj: dict) -> Any:
     """
     Transform a dict object into a :class:`pyramid.request.Request` object.
 
@@ -407,7 +410,7 @@ def build_request(original, dict_obj):
     return request
 
 
-def build_response(response, request):
+def build_response(response, request) -> dict:
     """
     Transform a :class:`pyramid.response.Response` object into a serializable
     dict.
@@ -432,7 +435,7 @@ def build_response(response, request):
     return dict_obj
 
 
-def follow_subrequest(request, subrequest, **kwargs):
+def follow_subrequest(request, subrequest, **kwargs) -> tuple:
     """Run a subrequest (e.g. batch), and follow the redirection if any.
 
     :rtype: tuple
@@ -460,14 +463,14 @@ def follow_subrequest(request, subrequest, **kwargs):
         return request.invoke_subrequest(new_request, **kwargs), new_request
 
 
-def strip_uri_prefix(path):
+def strip_uri_prefix(path: str) -> str:
     """
     Remove potential version prefix in URI.
     """
     return re.sub(r"^(/v\d+)?", "", str(path))
 
 
-def view_lookup(request, uri):
+def view_lookup(request, uri: str) -> tuple:
     """
     A convenience method for view_lookup_registry when you have a request.
 
@@ -479,7 +482,7 @@ def view_lookup(request, uri):
     return view_lookup_registry(request.registry, uri)
 
 
-def view_lookup_registry(registry, uri):
+def view_lookup_registry(registry, uri: str) -> tuple:
     """
     Look-up the specified `uri` and return the associated resource name
     along the match dict.
@@ -505,12 +508,12 @@ def view_lookup_registry(registry, uri):
     return resource_name, matchdict
 
 
-def instance_uri(request, resource_name, **params):
+def instance_uri(request, resource_name, **params) -> str:
     """Return the URI for the given resource."""
     return strip_uri_prefix(request.route_path(f"{resource_name}-object", **params))
 
 
-def apply_json_patch(obj, ops):
+def apply_json_patch(obj: Any, ops: Any) -> dict:
     """
     Apply JSON Patch operations using jsonpatch.
 
@@ -548,7 +551,7 @@ def apply_json_patch(obj, ops):
     return result
 
 
-def safe_wraps(wrapper, *args, **kwargs):
+def safe_wraps(wrapper: Any, *args, **kwargs) -> Callable:
     """Safely wraps partial functions."""
     while isinstance(wrapper, functools.partial):
         wrapper = wrapper.func

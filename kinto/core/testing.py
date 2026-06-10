@@ -2,7 +2,7 @@ import os
 import threading
 import unittest
 from collections import defaultdict
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 from unittest import mock
 
 import webtest
@@ -28,7 +28,7 @@ skip_if_no_prometheus = unittest.skipIf(
 class DummyRequest(mock.MagicMock):
     """Fully mocked request."""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.upath_info = "/v0/"
         self.registry = mock.MagicMock(settings={**DEFAULT_SETTINGS})
@@ -48,7 +48,7 @@ class DummyRequest(mock.MagicMock):
         self.response = mock.MagicMock(headers={})
         self.application_url = ""  # used by parse_url_overrides
 
-        def route_url(*a, **kw):
+        def route_url(*a, **kw) -> str:
             # XXX: refactor DummyRequest to take advantage of `pyramid.testing`
             parts = parse_url_overrides(self, kw)
             return "".join([p for p in parts if p])
@@ -58,10 +58,10 @@ class DummyRequest(mock.MagicMock):
     follow_subrequest = follow_subrequest
 
 
-def get_request_class(prefix):
+def get_request_class(prefix: str) -> type[webtest.app.TestRequest]:
     class PrefixedRequestClass(webtest.app.TestRequest):
         @classmethod
-        def blank(cls, path, *args, **kwargs):
+        def blank(cls, path: str, *args, **kwargs) -> webtest.app.TestRequest:
             if prefix:
                 path = f"/{prefix}{path}"
             return webtest.app.TestRequest.blank(path, *args, **kwargs)
@@ -82,7 +82,15 @@ else:
 class FormattedErrorMixin(_FormattedErrorMixinBase):
     """Test mixin in order to perform advanced error responses assertions."""
 
-    def assertFormattedError(self, response, code, errno, error, message=None, info=None):
+    def assertFormattedError(
+        self,
+        response: Any,
+        code: int,
+        errno: Any,
+        error: str,
+        message: str | None = None,
+        info: Any = None,
+    ) -> None:
         self.assertIn("application/json", response.headers["Content-Type"])
         self.assertEqual(response.json["code"], code)
         self.assertEqual(response.json["errno"], errno.value)
@@ -98,7 +106,7 @@ class FormattedErrorMixin(_FormattedErrorMixinBase):
             self.assertNotIn("info", response.json)
 
 
-def get_user_headers(user, password="secret"):
+def get_user_headers(user: str, password: str = "secret") -> dict:
     """Helper to obtain a Basic Auth authorization headers from the specified
     `user` (e.g. ``"user:pass"``)
 
@@ -124,7 +132,7 @@ class BaseWebTest(_BaseWebTestBase):
     headers = {"Content-Type": "application/json"}
 
     @classmethod
-    def setUpClass(cls):
+    def setUpClass(cls) -> None:
         cls.app = cls.make_app()
         cls.storage = cls.app.app.registry.storage
         cls.cache = cls.app.app.registry.cache
@@ -135,7 +143,7 @@ class BaseWebTest(_BaseWebTestBase):
         cls.cache.initialize_schema()
 
     @classmethod
-    def make_app(cls, settings=None, config=None):
+    def make_app(cls, settings: dict | None = None, config: Any = None) -> webtest.TestApp:
         """Instantiate the application and setup requests to use the api
         prefix.
 
@@ -149,11 +157,11 @@ class BaseWebTest(_BaseWebTestBase):
 
         wsgi_app = main({}, config=config, **settings)  # ty: ignore[call-non-callable]
         app = webtest.TestApp(wsgi_app)
-        app.RequestClass = get_request_class(cls.api_prefix)
+        app.RequestClass = get_request_class(cls.api_prefix)  # ty: ignore[invalid-assignment]
         return app
 
     @classmethod
-    def get_app_settings(cls, extras=None):
+    def get_app_settings(cls, extras: dict | None = None) -> dict:
         """Application settings to be used. Override to tweak default settings
         for the tests.
 
@@ -170,7 +178,7 @@ class BaseWebTest(_BaseWebTestBase):
 
         return settings
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         super().tearDown()
         self.storage.flush()
         self.cache.flush()
@@ -178,17 +186,17 @@ class BaseWebTest(_BaseWebTestBase):
 
 
 class ThreadMixin(_ThreadMixinBase):
-    def setUp(self):
+    def setUp(self) -> None:
         super().setUp()
-        self._threads = []
+        self._threads: list[threading.Thread] = []
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         super().tearDown()
 
         for thread in self._threads:
             thread.join()
 
-    def _create_thread(self, *args, **kwargs):
+    def _create_thread(self, *args, **kwargs) -> threading.Thread:
         thread = threading.Thread(*args, **kwargs)
         self._threads.append(thread)
         return thread

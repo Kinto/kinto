@@ -1,9 +1,11 @@
 import functools
 import logging
 import re
+from typing import Any
 
 from pyramid.authorization import Authenticated
 from pyramid.interfaces import IAuthorizationPolicy
+from pyramid.request import Request
 from pyramid.settings import aslist
 from zope.interface import implementer
 
@@ -20,27 +22,27 @@ PRIVATE = "private"
 DYNAMIC = "dynamic"
 
 
-def groupfinder(userid, request):
+def groupfinder(userid: str, request: Request) -> list:
     """Fetch principals from permission backend for the specified `userid`.
 
     This is plugged by default using the ``multiauth.groupfinder`` setting.
     """
-    backend = getattr(request.registry, "permission", None)
+    backend = getattr(request.registry, "permission", None)  # ty: ignore[unresolved-attribute]
     # Permission backend not configured. Ignore.
     if not backend:
         return []
 
     # Safety check when Kinto-Core is used without pyramid_multiauth.
-    if request.prefixed_userid:
-        userid = request.prefixed_userid
+    if request.prefixed_userid:  # ty: ignore[unresolved-attribute]
+        userid = request.prefixed_userid  # ty: ignore[unresolved-attribute]
 
     # Query the permission backend only once per request (e.g. batch).
     reify_key = userid + "_principals"
-    if reify_key not in request.bound_data:
+    if reify_key not in request.bound_data:  # ty: ignore[unresolved-attribute]
         principals = backend.get_user_principals(userid)
-        request.bound_data[reify_key] = principals
+        request.bound_data[reify_key] = principals  # ty: ignore[unresolved-attribute]
 
-    return request.bound_data[reify_key]
+    return request.bound_data[reify_key]  # ty: ignore[unresolved-attribute]
 
 
 @implementer(IAuthorizationPolicy)
@@ -54,7 +56,7 @@ class AuthorizationPolicy:
     a list of tuples (<object id>, <permission>). Useful when objects
     permission depend on others."""
 
-    def permits(self, context, principals, permission):
+    def permits(self, context: "RouteFactory", principals: list, permission: str) -> bool:
         if permission == PRIVATE:
             # When using the private permission, we bypass the permissions
             # backend, and simply authorize if authenticated.
@@ -64,7 +66,7 @@ class AuthorizationPolicy:
 
         create_permission = f"{context.resource_name}:create"
 
-        permission = context.required_permission
+        permission = context.required_permission  # ty: ignore[invalid-assignment]
         if permission == "create":
             permission = create_permission
 
@@ -116,7 +118,7 @@ class AuthorizationPolicy:
 
         return allowed
 
-    def _get_bound_permissions(self, object_id, permission):
+    def _get_bound_permissions(self, object_id: str | None, permission: str) -> list:
         if self.get_bound_permissions is None:
             # Permission to 'write' gives permission to 'read'.
             bound = [(object_id, permission)]
@@ -125,7 +127,7 @@ class AuthorizationPolicy:
             return bound
         return self.get_bound_permissions(object_id, permission)
 
-    def principals_allowed_by_permission(self, context, permission):
+    def principals_allowed_by_permission(self, context: Any, permission: str) -> Any:
         raise NotImplementedError()  # PRAGMA NOCOVER
 
 
@@ -145,9 +147,9 @@ class RouteFactory:
         "patch": "write",
     }
 
-    def __init__(self, request):
+    def __init__(self, request: Request) -> None:
         # Store some shortcuts.
-        permission = request.registry.permission
+        permission = request.registry.permission  # ty: ignore[unresolved-attribute]
         self._check_permission = permission.check_permission
         self._get_accessible_objects = permission.get_accessible_objects
 
@@ -160,7 +162,7 @@ class RouteFactory:
         )
         self._resource = None
         if is_on_resource:
-            self.resource_name = request.current_resource_name
+            self.resource_name = request.current_resource_name  # ty: ignore[unresolved-attribute]
             self.on_plural_endpoint = getattr(service, "type", None) == "plural"
 
             # Check if this request targets an individual object.
@@ -192,9 +194,9 @@ class RouteFactory:
             # To obtain shared objects on a plural endpoint, use a match:
             self._object_id_match = self.get_permission_object_id(request, "*")
 
-        self._settings = request.registry.settings
+        self._settings = request.registry.settings  # ty: ignore[unresolved-attribute]
 
-    def check_permission(self, principals, bound_perms):
+    def check_permission(self, principals: list, bound_perms: list | None) -> bool:
         """Read allowed principals from settings, if not any, query the permission
         backend to check if view is allowed.
         """
@@ -212,7 +214,9 @@ class RouteFactory:
                     return True
         return self._check_permission(principals, bound_perms)
 
-    def fetch_shared_objects(self, perm, principals, get_bound_permissions):
+    def fetch_shared_objects(
+        self, perm: str, principals: list, get_bound_permissions: Any | None
+    ) -> list:
         """Fetch objects that are readable or writable for the current
         principals.
 
@@ -241,7 +245,7 @@ class RouteFactory:
         self.shared_ids = [self._extract_object_id(id_) for id_ in ids]
         return self.shared_ids
 
-    def get_permission_object_id(self, request, object_id=None):
+    def get_permission_object_id(self, request: Request, object_id: str | None = None) -> str:
         """Returns the permission object id for the current request.
         In the nominal case, it is just the current URI without version prefix.
         For plural endpoint, it is the related object URI using the specified
@@ -256,7 +260,7 @@ class RouteFactory:
             # With the current request on a plural endpoint, the object URI must
             # be found out by inspecting the "plural" service and its sibling
             # "object" service. (see `register_resource()`)
-            matchdict = {**request.matchdict, "id": object_id}
+            matchdict = {**request.matchdict, "id": object_id}  # ty: ignore[invalid-argument-type]
             try:
                 object_uri = utils.instance_uri(request, self.resource_name, **matchdict)
                 object_uri = object_uri.replace("%2A", "*")
@@ -268,11 +272,11 @@ class RouteFactory:
 
         return object_uri
 
-    def _extract_object_id(self, object_uri):
+    def _extract_object_id(self, object_uri: str) -> str:
         # XXX: Rewrite using kinto.core.utils.view_lookup() and matchdict['id']
         return object_uri.split("/")[-1]
 
-    def _find_required_permission(self, request, service):
+    def _find_required_permission(self, request: Request, service: Any) -> tuple:
         """Find out what is the permission object id and the required
         permission.
 
@@ -287,7 +291,7 @@ class RouteFactory:
 
         # For create permission, the object id is the plural endpoint.
         plural_path = str(service.plural_path)
-        plural_path = plural_path.format_map(request.matchdict)
+        plural_path = plural_path.format_map(request.matchdict)  # ty: ignore[invalid-argument-type]
 
         # In the case of a "PUT", check if the targeted object already
         # exists, return "write" if it does, "create" otherwise.

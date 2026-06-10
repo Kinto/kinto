@@ -641,7 +641,7 @@ class Storage(StorageBase, MigratorMixin):
         id_field = id_field or self.id_field  # ty: ignore[unresolved-attribute]
         modified_field = modified_field or self.modified_field  # ty: ignore[unresolved-attribute]
         deleted_data = json.dumps(dict([(deleted_field, True)]))
-        placeholders = dict(
+        placeholders: dict[str, Any] = dict(
             parent_id=parent_id, resource_name=resource_name, deleted_data=deleted_data
         )
         # Safe strings

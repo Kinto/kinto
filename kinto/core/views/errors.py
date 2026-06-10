@@ -2,6 +2,7 @@ import logging
 
 from pyramid import httpexceptions
 from pyramid.httpexceptions import HTTPTemporaryRedirect
+from pyramid.response import Response
 from pyramid.security import NO_PERMISSION_REQUIRED, forget
 from pyramid.settings import asbool
 from pyramid.view import view_config
@@ -15,7 +16,7 @@ logger = logging.getLogger()
 
 
 @view_config(context=httpexceptions.HTTPForbidden, permission=NO_PERMISSION_REQUIRED)
-def authorization_required(response, request):
+def authorization_required(response, request) -> Response:
     """Distinguish authentication required (``401 Unauthorized``) from
     not allowed (``403 Forbidden``).
     """
@@ -41,7 +42,7 @@ def authorization_required(response, request):
 
 
 @view_config(context=httpexceptions.HTTPNotFound, permission=NO_PERMISSION_REQUIRED)
-def page_not_found(response, request):
+def page_not_found(response, request) -> Response:
     """Return a JSON 404 error response."""
     config_key = "trailing_slash_redirect_enabled"
     redirect_enabled = request.registry.settings[config_key]
@@ -78,7 +79,7 @@ def page_not_found(response, request):
 
 
 @view_config(context=httpexceptions.HTTPServiceUnavailable, permission=NO_PERMISSION_REQUIRED)
-def service_unavailable(response, request):
+def service_unavailable(response, request) -> Response:
     if response.content_type != "application/json":
         error_msg = (
             "Service temporary unavailable due to overloading or maintenance, please retry later."
@@ -91,7 +92,7 @@ def service_unavailable(response, request):
 
 
 @view_config(context=httpexceptions.HTTPMethodNotAllowed, permission=NO_PERMISSION_REQUIRED)
-def method_not_allowed(context, request):
+def method_not_allowed(context, request) -> Response:
     if context.content_type == "application/json":
         return context
 
@@ -103,7 +104,7 @@ def method_not_allowed(context, request):
 
 @view_config(context=Exception, permission=NO_PERMISSION_REQUIRED)
 @view_config(context=httpexceptions.HTTPException, permission=NO_PERMISSION_REQUIRED)
-def error(context, request):
+def error(context, request) -> Response:
     """Catch server errors and trace them."""
     if isinstance(context, httpexceptions.Response):
         return reapply_cors(request, context)

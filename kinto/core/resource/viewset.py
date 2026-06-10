@@ -1,13 +1,12 @@
 import functools
 import warnings
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import colander
 from pyramid.settings import asbool
 
 from kinto.core import authorization
 from kinto.core.cornice.validators import colander_validator
-from kinto.core.resource import Resource
 
 from .schema import (
     ObjectGetQuerySchema,
@@ -20,6 +19,10 @@ from .schema import (
     RequestSchema,
     ResourceResponses,
 )
+
+
+if TYPE_CHECKING:
+    from kinto.core.resource import Resource
 
 
 CONTENT_TYPES = ["application/json"]
@@ -127,7 +130,7 @@ class ViewSet:
         self.__dict__.update(**kwargs)
 
     def get_view_arguments(
-        self, endpoint_type: str, resource_cls: type[Resource], method: str
+        self, endpoint_type: str, resource_cls: "type[Resource]", method: str
     ) -> dict[str, Any]:
         """Return the Pyramid/Cornice view arguments for the given endpoint
         type and method.
@@ -162,7 +165,7 @@ class ViewSet:
 
         return args
 
-    def get_object_schema(self, resource_cls: type[Resource], method: str) -> Any:
+    def get_object_schema(self, resource_cls: "type[Resource]", method: str) -> Any:
         """Return the Cornice schema for the given method."""
         if method.lower() in ("patch", "delete"):
             resource_schema = SimpleSchema
@@ -188,7 +191,7 @@ class ViewSet:
             return method.lower()
         return f"{endpoint_type}_{method.lower()}"
 
-    def get_name(self, resource_cls: type[Resource]) -> str:
+    def get_name(self, resource_cls: "type[Resource]") -> str:
         """Returns the name of the resource."""
         # Provided on viewset during registration.
         if "name" in self.__dict__:
@@ -197,13 +200,12 @@ class ViewSet:
         # Attribute on resource class (but not @property)
         has_class_attr = hasattr(resource_cls, "name") and not callable(resource_cls.name)
         if has_class_attr:
-            assert isinstance(resource_cls, str)
-            return resource_cls.name
+            return resource_cls.name  # ty: ignore[invalid-return-type]
 
         # Use classname
         return resource_cls.__name__.lower()
 
-    def get_service_name(self, endpoint_type: str, resource_cls: type[Resource]) -> str:
+    def get_service_name(self, endpoint_type: str, resource_cls: "type[Resource]") -> str:
         """Returns the name of the service, depending a given type and
         resource.
         """
