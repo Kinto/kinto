@@ -1,7 +1,11 @@
+from typing import Any
+
 import jwt
 import requests
 from pyramid import authentication as base_auth
+from pyramid.config import Configurator
 from pyramid.interfaces import IAuthenticationPolicy
+from pyramid.request import Request
 from pyramid.settings import aslist
 from zope.interface import implementer
 
@@ -14,7 +18,7 @@ from .utils import fetch_openid_config
 
 @implementer(IAuthenticationPolicy)
 class OpenIDConnectPolicy(base_auth.CallbackAuthenticationPolicy):
-    def __init__(self, issuer, client_id, realm="Realm", **kwargs):
+    def __init__(self, issuer: str, client_id: str, realm: str = "Realm", **kwargs: Any) -> None:
         self.realm = realm
         self.issuer = issuer
         self.client_id = client_id
@@ -27,11 +31,11 @@ class OpenIDConnectPolicy(base_auth.CallbackAuthenticationPolicy):
         # Fetch OpenID config (at instantiation, ie. startup)
         self.oid_config = fetch_openid_config(issuer)
 
-        self._jwks_client = None
+        self._jwks_client: jwt.PyJWKClient | None = None
 
-    def unauthenticated_userid(self, request):
+    def unauthenticated_userid(self, request: Request) -> str | None:
         """Return the userid or ``None`` if token could not be verified."""
-        settings = request.registry.settings
+        settings = request.registry.settings  # ty: ignore[unresolved-attribute]
         hmac_secret = settings["userid_hmac_secret"]
 
         authorization = request.headers.get("Authorization", "")
@@ -47,25 +51,27 @@ class OpenIDConnectPolicy(base_auth.CallbackAuthenticationPolicy):
         cache_token = f"{self.issuer}:{self.client_id}:{self.audience}:{access_token}"
         hmac_tokens = core_utils.hmac_digest(hmac_secret, cache_token)
         cache_key = f"openid:verify:{hmac_tokens}"
-        payload = request.registry.cache.get(cache_key)
+        payload = request.registry.cache.get(cache_key)  # ty: ignore[unresolved-attribute]
         if payload is None:
             # This can take some time.
             payload = self._verify_token(access_token)
             if payload is None:
                 return None
         # Save for next time / refresh ttl.
-        request.registry.cache.set(cache_key, payload, ttl=self.verification_ttl)
-        request.bound_data["user_profile"] = payload
+        request.registry.cache.set(  # ty: ignore[unresolved-attribute]
+            cache_key, payload, ttl=self.verification_ttl
+        )
+        request.bound_data["user_profile"] = payload  # ty: ignore[unresolved-attribute]
         # Extract meaningful field from userinfo (eg. email or sub)
         return payload.get(self.userid_field)
 
-    def forget(self, request):
+    def forget(self, request: Request) -> list[tuple[str, str]]:
         """A no-op. Credentials are sent on every request.
         Return WWW-Authenticate Realm header for Bearer token.
         """
         return [("WWW-Authenticate", '%s realm="%s"' % (self.header_type, self.realm))]
 
-    def _verify_token(self, access_token):
+    def _verify_token(self, access_token: str) -> Any:
         if self.audience != "" and self._decode_jwt(access_token) is None:
             # Logged debug in `_decode_jwt()`.
             return None
@@ -82,12 +88,12 @@ class OpenIDConnectPolicy(base_auth.CallbackAuthenticationPolicy):
             logger.debug("Unable to fetch user profile from %s (%s)" % (uri, e))
             return None
 
-    def _get_jwks_client(self):
+    def _get_jwks_client(self) -> jwt.PyJWKClient:
         if self._jwks_client is None:
             self._jwks_client = jwt.PyJWKClient(self.oid_config["jwks_uri"])
         return self._jwks_client
 
-    def _decode_jwt(self, access_token):
+    def _decode_jwt(self, access_token: str) -> Any:
         try:
             signing_key = self._get_jwks_client().get_signing_key_from_jwt(access_token)
             return jwt.decode(
@@ -103,11 +109,11 @@ class OpenIDConnectPolicy(base_auth.CallbackAuthenticationPolicy):
             return None
 
 
-def get_user_profile(request):
-    return request.bound_data.get("user_profile", {})
+def get_user_profile(request: Request) -> dict[str, Any]:
+    return request.bound_data.get("user_profile", {})  # ty: ignore[unresolved-attribute]
 
 
-def includeme(config):
+def includeme(config: Configurator) -> None:
     # Activate end-points.
     config.scan("kinto.plugins.openid.views")
 

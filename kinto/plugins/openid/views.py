@@ -1,9 +1,11 @@
 import base64
 import urllib.parse
+from typing import Any
 
 import colander
 import requests
 from pyramid import httpexceptions
+from pyramid.request import Request
 
 from kinto.core import Service
 from kinto.core.cornice.validators import colander_validator
@@ -37,15 +39,19 @@ response_schemas = {
 }
 
 
-def provider_validator(request, **kwargs):
+def provider_validator(request: Request, **kwargs: Any) -> None:
     """
     This validator verifies that the validator in URL (eg. /openid/auth0/login)
     is a configured OpenIDConnect policy.
     """
-    provider = request.matchdict["provider"]
-    used = request.registry.settings.get("multiauth.policy.%s.use" % provider, "")
+    provider = request.matchdict["provider"]  # ty: ignore[not-subscriptable]
+    used = request.registry.settings.get(  # ty: ignore[unresolved-attribute]
+        "multiauth.policy.%s.use" % provider, ""
+    )
     if not used.endswith("OpenIDConnectPolicy"):
-        request.errors.add("path", "provider", "Unknown provider %r" % provider)
+        request.errors.add(  # ty: ignore[unresolved-attribute]
+            "path", "provider", "Unknown provider %r" % provider
+        )
 
 
 class LoginQuerystringSchema(colander.MappingSchema):
@@ -74,25 +80,20 @@ login = Service(
     validators=(colander_validator, provider_validator),
     response_schemas=response_schemas,
 )
-def get_login(request):
+def get_login(request: Request) -> None:
     """Initiates to login dance for the specified scopes and callback URI
     using appropriate redirections."""
 
     # Settings.
-    provider = request.matchdict["provider"]
+    provider = request.matchdict["provider"]  # ty: ignore[not-subscriptable]
     settings_prefix = "multiauth.policy.%s." % provider
-    issuer = request.registry.settings[settings_prefix + "issuer"]
-    client_id = request.registry.settings[settings_prefix + "client_id"]
-    audience = request.registry.settings.get(settings_prefix + "audience", "")
-    userid_field = request.registry.settings.get(settings_prefix + "userid_field")
-    state_ttl = int(
-        request.registry.settings.get(
-            settings_prefix + "state_ttl_seconds", DEFAULT_STATE_TTL_SECONDS
-        )
-    )
-    state_length = int(
-        request.registry.settings.get(settings_prefix + "state_length", DEFAULT_STATE_LENGTH)
-    )
+    settings = request.registry.settings  # ty: ignore[unresolved-attribute]
+    issuer = settings[settings_prefix + "issuer"]
+    client_id = settings[settings_prefix + "client_id"]
+    audience = settings.get(settings_prefix + "audience", "")
+    userid_field = settings.get(settings_prefix + "userid_field")
+    state_ttl = int(settings.get(settings_prefix + "state_ttl_seconds", DEFAULT_STATE_TTL_SECONDS))
+    state_length = int(settings.get(settings_prefix + "state_length", DEFAULT_STATE_LENGTH))
 
     # Read OpenID configuration (cached by issuer)
     oid_config = fetch_openid_config(issuer)
@@ -113,7 +114,9 @@ def get_login(request):
     # Generate a random string as state.
     # And save it until code is traded.
     state = random_bytes_hex(state_length)
-    request.registry.cache.set("openid:state:" + state, callback, ttl=state_ttl)
+    request.registry.cache.set(  # ty: ignore[unresolved-attribute]
+        "openid:state:" + state, callback, ttl=state_ttl
+    )
 
     # Redirect the client to the Identity Provider that will eventually redirect
     # to the OpenID token endpoint.
@@ -147,17 +150,18 @@ token = Service(name="openid_token", path="/openid/{provider}/token", descriptio
 
 
 @token.get(schema=TokenSchema(), validators=(colander_validator, provider_validator))
-def get_token(request):
+def get_token(request: Request) -> None:
     """Trades the specified code and state against access and ID tokens.
     The client is redirected to the original ``callback`` URI with the
     result in querystring."""
 
     # Settings.
-    provider = request.matchdict["provider"]
+    provider = request.matchdict["provider"]  # ty: ignore[not-subscriptable]
     settings_prefix = "multiauth.policy.%s." % provider
-    issuer = request.registry.settings[settings_prefix + "issuer"]
-    client_id = request.registry.settings[settings_prefix + "client_id"]
-    client_secret = request.registry.settings[settings_prefix + "client_secret"]
+    settings = request.registry.settings  # ty: ignore[unresolved-attribute]
+    issuer = settings[settings_prefix + "issuer"]
+    client_id = settings[settings_prefix + "client_id"]
+    client_secret = settings[settings_prefix + "client_secret"]
 
     # Read OpenID configuration (cached by issuer)
     oid_config = fetch_openid_config(issuer)
@@ -167,7 +171,9 @@ def get_token(request):
     state = request.GET["state"]
 
     # State can be used only once.
-    callback = request.registry.cache.delete("openid:state:" + state)
+    callback = request.registry.cache.delete(  # ty: ignore[unresolved-attribute]
+        "openid:state:" + state
+    )
     if callback is None:
         error_details = {
             "name": "state",

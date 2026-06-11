@@ -4,6 +4,7 @@ from datetime import datetime, timezone
 
 from pyramid.settings import asbool, aslist
 
+from kinto.core.events import ResourceChanged
 from kinto.core.storage import Filter
 from kinto.core.utils import COMPARISON, instance_uri
 
@@ -11,13 +12,14 @@ from kinto.core.utils import COMPARISON, instance_uri
 logger = logging.getLogger(__name__)
 
 
-def on_resource_changed(event):
+def on_resource_changed(event: ResourceChanged) -> None:
     """
     Everytime an object is created/changed/deleted, we create an entry in the
     ``history`` resource. The entries are served as read-only in the
     :mod:`kinto.plugins.history.views` module.
     """
     payload = event.payload
+    assert payload is not None
     resource_name = payload["resource_name"]
     user_id = payload["user_id"]
 

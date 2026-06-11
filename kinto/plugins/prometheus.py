@@ -2,9 +2,13 @@ import logging
 import os
 import shutil
 import warnings
+from collections.abc import Callable
 from time import perf_counter as time_now
+from typing import Any
 
+from pyramid.config import Configurator
 from pyramid.exceptions import ConfigurationError
+from pyramid.request import Request
 from pyramid.response import Response
 from pyramid.settings import asbool, aslist
 from zope.interface import implementer
@@ -21,14 +25,14 @@ except ImportError:  # pragma: no cover
 
 logger = logging.getLogger(__name__)
 
-_METRICS = {}
+_METRICS: dict[str, Any] = {}
 _REGISTRY = None
 
 
 PROMETHEUS_MULTIPROC_DIR = os.getenv("PROMETHEUS_MULTIPROC_DIR")
 
 
-def get_registry():
+def get_registry() -> Any:
     global _REGISTRY
 
     if _REGISTRY is None:
@@ -45,7 +49,7 @@ def get_registry():
     return _REGISTRY
 
 
-def _fix_metric_name(s):
+def _fix_metric_name(s: str) -> str:
     return s.replace("-", "_").replace(".", "_").replace(" ", "_")
 
 
@@ -59,21 +63,21 @@ class Timer:
     Main limitation: it does not support `labels` on the decorator.
     """
 
-    def __init__(self, histogram):
+    def __init__(self, histogram: Any) -> None:
         self.histogram = histogram
-        self._start_time = None
+        self._start_time: float | None = None
 
-    def set_labels(self, labels):
+    def set_labels(self, labels: list) -> None:
         if not labels:
             return
         self.histogram = self.histogram.labels(*(label_value for _, label_value in labels))
 
-    def observe(self, value):
+    def observe(self, value: Any) -> Any:
         return self.histogram.observe(value)
 
-    def __call__(self, f):
+    def __call__(self, f: Callable) -> Callable:
         @safe_wraps(f)
-        def _wrapped(*args, **kwargs):
+        def _wrapped(*args: Any, **kwargs: Any) -> Any:
             start_time = time_now()
             try:
                 return f(*args, **kwargs)
@@ -83,17 +87,17 @@ class Timer:
 
         return _wrapped
 
-    def __enter__(self):
+    def __enter__(self) -> "Timer":
         return self.start()
 
-    def __exit__(self, typ, value, tb):
+    def __exit__(self, typ: Any, value: Any, tb: Any) -> None:
         self.stop()
 
-    def start(self):
+    def start(self) -> "Timer":
         self._start_time = time_now()
         return self
 
-    def stop(self):
+    def stop(self) -> "Timer":
         if self._start_time is None:  # pragma: nocover
             raise RuntimeError("Timer has not started.")
         dt_sec = time_now() - self._start_time
@@ -102,16 +106,21 @@ class Timer:
 
 
 class NoOpHistogram:  # pragma: no cover
-    def observe(self, value):
+    def observe(self, value: Any) -> None:
         pass
 
-    def labels(self, *args):
+    def labels(self, *args: Any) -> "NoOpHistogram":
         return self
 
 
 @implementer(metrics.IMetricsService)
 class PrometheusService:
-    def __init__(self, prefix="", disabled_metrics=[], histogram_buckets=None):
+    def __init__(
+        self,
+        prefix: str = "",
+        disabled_metrics: list = [],
+        histogram_buckets: list | None = None,
+    ) -> None:
         prefix_clean = ""
         if prefix:
             # In GCP Console, the metrics are grouped by the first
@@ -123,7 +132,7 @@ class PrometheusService:
         self.disabled_metrics = [m.replace(self.prefix, "") for m in disabled_metrics]
         self.histogram_buckets = histogram_buckets
 
-    def timer(self, key, value=None, labels=[]):
+    def timer(self, key: str, value: Any = None, labels: list = []) -> Any:
         global _METRICS
 
         key = _fix_metric_name(key)
@@ -156,7 +165,7 @@ class PrometheusService:
         # Note that in this case, the labels values will be the same for all calls.
         return timer
 
-    def observe(self, key, value, labels=[]):
+    def observe(self, key: str, value: Any, labels: list = []) -> None:
         global _METRICS
 
         key = _fix_metric_name(key)
@@ -182,14 +191,14 @@ class PrometheusService:
 
         m.observe(value)
 
-    def count(self, key, count=1, unique=None):
+    def count(self, key: str, count: int = 1, unique: Any = None) -> None:
         global _METRICS
 
         key = _fix_metric_name(key)
         if key in self.disabled_metrics:
             return
 
-        labels = []
+        labels: list = []
         if unique:
             if isinstance(unique, str):
                 warnings.warn(
@@ -228,7 +237,7 @@ class PrometheusService:
         m.inc(count)
 
 
-def metrics_view(request):
+def metrics_view(request: Request) -> Response:
     registry = get_registry()
     try:
         data = prometheus_module.generate_latest(registry)
@@ -250,12 +259,12 @@ def metrics_view(request):
     return resp
 
 
-def _reset_multiproc_folder_content():  # pragma: no cover
+def _reset_multiproc_folder_content() -> None:  # pragma: no cover
     shutil.rmtree(PROMETHEUS_MULTIPROC_DIR, ignore_errors=True)  # ty: ignore[invalid-argument-type]
     os.makedirs(PROMETHEUS_MULTIPROC_DIR, exist_ok=True)  # ty: ignore[invalid-argument-type]
 
 
-def reset_registry():
+def reset_registry() -> None:
     # This is mainly useful in tests, where the plugin is included
     # several times with different settings.
     registry = get_registry()
@@ -268,7 +277,7 @@ def reset_registry():
     _METRICS.clear()
 
 
-def includeme(config):
+def includeme(config: Configurator) -> None:
     if prometheus_module is None:
         error_msg = (
             "Please install Kinto with monitoring dependencies (e.g. prometheus-client package)"
@@ -310,4 +319,4 @@ def includeme(config):
     config.add_route("prometheus_metrics", "/__metrics__")
     config.add_view(metrics_view, route_name="prometheus_metrics")
 
-    config.registry.registerUtility(metrics_impl, metrics.IMetricsService)
+    config.registry.registerUtility(metrics_impl, metrics.IMetricsService)  # ty: ignore[unresolved-attribute]

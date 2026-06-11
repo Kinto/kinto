@@ -1,3 +1,7 @@
+from typing import Any
+
+from pyramid.config import Configurator
+from pyramid.request import Request
 from pyramid.security import NO_PERMISSION_REQUIRED
 
 from kinto.core import Service
@@ -7,9 +11,9 @@ counters = Service(name="counters", description="Shows objects statistics", path
 
 
 @counters.get(permission=NO_PERMISSION_REQUIRED)
-def counters_get(request):
-    storage = request.registry.storage
-    counters = {"objects": {}, "tombstones": {}}
+def counters_get(request: Request) -> dict[str, dict[str, Any]]:
+    storage = request.registry.storage  # ty: ignore[unresolved-attribute]
+    counters: dict[str, dict[str, Any]] = {"objects": {}, "tombstones": {}}
     for resource_name in (
         "account",
         "bucket",
@@ -28,7 +32,7 @@ def counters_get(request):
     return counters
 
 
-def includeme(config):
+def includeme(config: Configurator) -> None:
     config.add_api_capability(
         "counters_endpoint",
         description="The __counters__ endpoint exposes how many objects are stored.",

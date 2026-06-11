@@ -1,10 +1,12 @@
+from typing import Any
+
 import requests
 
 
-_configs = {}
+_configs: dict[str, Any] = {}
 
 
-def fetch_openid_config(issuer):
+def fetch_openid_config(issuer: str) -> Any:
     global _configs
 
     if issuer not in _configs:

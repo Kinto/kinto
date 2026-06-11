@@ -3,17 +3,19 @@ from pyramid import httpexceptions
 from pyramid.authorization import Everyone
 from pyramid.decorator import reify
 from pyramid.events import subscriber
+from pyramid.request import Request
 from pyramid.settings import aslist
 
 from kinto.core import resource, utils
 from kinto.core.errors import http_error, raise_invalid
 from kinto.core.events import ACTIONS, ResourceChanged
+from kinto.core.storage import KintoObject
 from kinto.views import NameGenerator
 
 from .utils import ACCOUNT_CACHE_KEY, ACCOUNT_POLICY_NAME, hash_password
 
 
-def _extract_posted_body_id(request):
+def _extract_posted_body_id(request: Request) -> str:
     try:
         # Anonymous creation with POST.
         return request.json["data"]["id"]
@@ -41,7 +43,7 @@ class AccountSchema(resource.ResourceSchema):
 class Account(resource.Resource):
     schema = AccountSchema
 
-    def __init__(self, request, context):
+    def __init__(self, request, context) -> None:
         settings = request.registry.settings
         # Store if current user is administrator (before accessing get_parent_id())
         allowed_from_settings = settings.get("account_write_principals", [])
@@ -59,11 +61,11 @@ class Account(resource.Resource):
             self.model.current_principal = f"{ACCOUNT_POLICY_NAME}:{self.model.parent_id}"
 
     @reify
-    def id_generator(self):
+    def id_generator(self) -> AccountIdGenerator:
         # This generator is used for ID validation.
         return AccountIdGenerator()
 
-    def get_parent_id(self, request):
+    def get_parent_id(self, request: Request) -> str:
         # The whole challenge here is that we want to isolate what
         # authenticated users can list, but give access to everything to
         # administrators.
@@ -79,19 +81,19 @@ class Account(resource.Resource):
                     return "*"
             else:
                 # No pattern matching for admin on single record.
-                return request.matchdict["id"]
+                return request.matchdict["id"]  # ty: ignore[not-subscriptable]
 
         if not self.context.is_anonymous:  # ty: ignore[unresolved-attribute]
             # Authenticated users see their own account only.
-            return request.selected_userid
+            return request.selected_userid  # ty: ignore[unresolved-attribute]
 
         # Anonymous creation with PUT.
-        if "id" in request.matchdict:
-            return request.matchdict["id"]
+        if "id" in request.matchdict:  # ty: ignore[unsupported-operator]
+            return request.matchdict["id"]  # ty: ignore[not-subscriptable]
 
         return _extract_posted_body_id(request)
 
-    def process_object(self, new, old=None):
+    def process_object(self, new: KintoObject, old: KintoObject | None = None) -> KintoObject:
         new = super().process_object(new, old)
 
         if "data" in self.request.json and "password" in self.request.json["data"]:
@@ -122,7 +124,7 @@ class Account(resource.Resource):
 @subscriber(
     ResourceChanged, for_resources=("account",), for_actions=(ACTIONS.UPDATE, ACTIONS.DELETE)
 )
-def on_account_changed(event):
+def on_account_changed(event: ResourceChanged) -> None:
     request = event.request
     cache = request.registry.cache
     settings = request.registry.settings

@@ -1,5 +1,7 @@
 import os
 
+from pyramid.request import Request
+
 from kinto.core.decorators import cache_forever
 
 
@@ -8,7 +10,7 @@ HERE = os.path.dirname(__file__)
 
 # Configured home page
 @cache_forever
-def admin_home_view(request):
+def admin_home_view(request: Request) -> str:
     """
     This view reads the ``index.html`` file from the Admin assets path folder
     and serves it.
@@ -17,7 +19,7 @@ def admin_home_view(request):
     """
     # Default location of the Admin UI is relative to this plugin source folder,
     # as pulled with the ``make pull-kinto-admin`` command.
-    admin_assets_path = request.registry.settings["admin_assets_path"] or os.path.join(
+    admin_assets_path = request.registry.settings["admin_assets_path"] or os.path.join(  # ty: ignore[unresolved-attribute]
         HERE, "build"
     )
     try:

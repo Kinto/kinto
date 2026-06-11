@@ -10,7 +10,7 @@ from .utils import (
 )
 
 
-def account_check(username, password, request):
+def account_check(username: str, password: str, request) -> bool | None:
     settings = request.registry.settings
     hmac_secret = settings["userid_hmac_secret"]
     cache_key = utils.hmac_digest(hmac_secret, ACCOUNT_CACHE_KEY.format(username))
@@ -53,10 +53,10 @@ class AccountsAuthenticationPolicy(base_auth.BasicAuthAuthenticationPolicy):
 
     name = ACCOUNT_POLICY_NAME
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(account_check, *args, **kwargs)
 
-    def effective_principals(self, request):
+    def effective_principals(self, request) -> list:
         # Bypass default Pyramid construction of principals because
         # Pyramid multiauth already adds userid, Authenticated and Everyone
         # principals.
