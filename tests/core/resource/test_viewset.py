@@ -219,16 +219,19 @@ class ViewSetTest(unittest.TestCase):
 
     def test_get_service_name_returns_resource_att_if_not_callable(self):
         viewset = ViewSet()
-        resource = FakeResource
-        resource.name = "fakename"
-        self.assertEqual(viewset.get_service_name("object", resource), "fakename-object")
+
+        class NamedResource(FakeResource):
+            name = "fakename"
+
+        self.assertEqual(viewset.get_service_name("object", NamedResource), "fakename-object")
 
     def test_get_service_name_doesnt_use_callable_as_a_name(self):
         viewset = ViewSet()
-        resource = FakeResource
-        resource.name = "should not be used"
-        resource.__name__ = "FakeName"
-        self.assertEqual(viewset.get_service_name("object", resource), "fakename-object")
+
+        class FakeName(FakeResource):
+            name = lambda x: "should not be called"  # noqa: E731  # ty: ignore[invalid-assignment]
+
+        self.assertEqual(viewset.get_service_name("object", FakeName), "fakename-object")
 
     def test_is_endpoint_enabled_returns_true_if_unknown(self):
         viewset = ViewSet()
