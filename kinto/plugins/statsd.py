@@ -8,6 +8,7 @@ from pyramid.exceptions import ConfigurationError
 from zope.interface import implementer
 
 from kinto.core import metrics
+from kinto.core.types import Configurator as KintoConfigurator
 
 
 try:
@@ -76,7 +77,7 @@ def load_from_config(config: Configurator) -> StatsDService:
     return StatsDService(uri.hostname, uri.port, prefix)
 
 
-def includeme(config: Configurator) -> None:
+def includeme(config: KintoConfigurator) -> None:
     settings = config.get_settings()
 
     # TODO: this backend abstraction may not be required anymore.
@@ -84,4 +85,4 @@ def includeme(config: Configurator) -> None:
     statsd_mod = config.maybe_dotted(statsd_mod)
     client = statsd_mod.load_from_config(config)
 
-    config.registry.registerUtility(client, metrics.IMetricsService)  # ty: ignore[unresolved-attribute]
+    config.registry.registerUtility(client, metrics.IMetricsService)

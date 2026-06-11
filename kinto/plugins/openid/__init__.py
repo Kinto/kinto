@@ -5,13 +5,13 @@ import requests
 from pyramid import authentication as base_auth
 from pyramid.config import Configurator
 from pyramid.interfaces import IAuthenticationPolicy
-from pyramid.request import Request
 from pyramid.settings import aslist
 from zope.interface import implementer
 
 from kinto.core import logger
 from kinto.core import utils as core_utils
 from kinto.core.openapi import OpenAPI
+from kinto.core.types import Request
 
 from .utils import fetch_openid_config
 
@@ -35,7 +35,7 @@ class OpenIDConnectPolicy(base_auth.CallbackAuthenticationPolicy):
 
     def unauthenticated_userid(self, request: Request) -> str | None:
         """Return the userid or ``None`` if token could not be verified."""
-        settings = request.registry.settings  # ty: ignore[unresolved-attribute]
+        settings = request.registry.settings
         hmac_secret = settings["userid_hmac_secret"]
 
         authorization = request.headers.get("Authorization", "")
@@ -51,17 +51,15 @@ class OpenIDConnectPolicy(base_auth.CallbackAuthenticationPolicy):
         cache_token = f"{self.issuer}:{self.client_id}:{self.audience}:{access_token}"
         hmac_tokens = core_utils.hmac_digest(hmac_secret, cache_token)
         cache_key = f"openid:verify:{hmac_tokens}"
-        payload = request.registry.cache.get(cache_key)  # ty: ignore[unresolved-attribute]
+        payload = request.registry.cache.get(cache_key)
         if payload is None:
             # This can take some time.
             payload = self._verify_token(access_token)
             if payload is None:
                 return None
         # Save for next time / refresh ttl.
-        request.registry.cache.set(  # ty: ignore[unresolved-attribute]
-            cache_key, payload, ttl=self.verification_ttl
-        )
-        request.bound_data["user_profile"] = payload  # ty: ignore[unresolved-attribute]
+        request.registry.cache.set(cache_key, payload, ttl=self.verification_ttl)
+        request.bound_data["user_profile"] = payload
         # Extract meaningful field from userinfo (eg. email or sub)
         return payload.get(self.userid_field)
 
@@ -110,7 +108,7 @@ class OpenIDConnectPolicy(base_auth.CallbackAuthenticationPolicy):
 
 
 def get_user_profile(request: Request) -> dict[str, Any]:
-    return request.bound_data.get("user_profile", {})  # ty: ignore[unresolved-attribute]
+    return request.bound_data.get("user_profile", {})
 
 
 def includeme(config: Configurator) -> None:

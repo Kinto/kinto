@@ -5,12 +5,12 @@ from typing import Any
 
 from pyramid.authorization import Authenticated
 from pyramid.interfaces import IAuthorizationPolicy
-from pyramid.request import Request
 from pyramid.settings import aslist
 from zope.interface import implementer
 
 from kinto.core import utils
 from kinto.core.storage import exceptions as storage_exceptions
+from kinto.core.types import Request
 
 
 logger = logging.getLogger(__name__)
@@ -27,22 +27,22 @@ def groupfinder(userid: str, request: Request) -> list:
 
     This is plugged by default using the ``multiauth.groupfinder`` setting.
     """
-    backend = getattr(request.registry, "permission", None)  # ty: ignore[unresolved-attribute]
+    backend = getattr(request.registry, "permission", None)
     # Permission backend not configured. Ignore.
     if not backend:
         return []
 
     # Safety check when Kinto-Core is used without pyramid_multiauth.
-    if request.prefixed_userid:  # ty: ignore[unresolved-attribute]
-        userid = request.prefixed_userid  # ty: ignore[unresolved-attribute]
+    if request.prefixed_userid:
+        userid = request.prefixed_userid
 
     # Query the permission backend only once per request (e.g. batch).
     reify_key = userid + "_principals"
-    if reify_key not in request.bound_data:  # ty: ignore[unresolved-attribute]
+    if reify_key not in request.bound_data:
         principals = backend.get_user_principals(userid)
-        request.bound_data[reify_key] = principals  # ty: ignore[unresolved-attribute]
+        request.bound_data[reify_key] = principals
 
-    return request.bound_data[reify_key]  # ty: ignore[unresolved-attribute]
+    return request.bound_data[reify_key]
 
 
 @implementer(IAuthorizationPolicy)
@@ -138,6 +138,9 @@ class RouteFactory:
     permission_object_id = None
     current_object = None
     shared_ids = None
+    # Set by some resources (e.g. accounts) to refine permissions handling.
+    is_administrator: bool = False
+    is_anonymous: bool = False
 
     method_permissions = {
         "head": "read",
@@ -149,7 +152,7 @@ class RouteFactory:
 
     def __init__(self, request: Request) -> None:
         # Store some shortcuts.
-        permission = request.registry.permission  # ty: ignore[unresolved-attribute]
+        permission = request.registry.permission
         self._check_permission = permission.check_permission
         self._get_accessible_objects = permission.get_accessible_objects
 
@@ -162,7 +165,7 @@ class RouteFactory:
         )
         self._resource = None
         if is_on_resource:
-            self.resource_name = request.current_resource_name  # ty: ignore[unresolved-attribute]
+            self.resource_name = request.current_resource_name
             self.on_plural_endpoint = getattr(service, "type", None) == "plural"
 
             # Check if this request targets an individual object.
@@ -194,7 +197,7 @@ class RouteFactory:
             # To obtain shared objects on a plural endpoint, use a match:
             self._object_id_match = self.get_permission_object_id(request, "*")
 
-        self._settings = request.registry.settings  # ty: ignore[unresolved-attribute]
+        self._settings = request.registry.settings
 
     def check_permission(self, principals: list, bound_perms: list | None) -> bool:
         """Read allowed principals from settings, if not any, query the permission
@@ -260,7 +263,7 @@ class RouteFactory:
             # With the current request on a plural endpoint, the object URI must
             # be found out by inspecting the "plural" service and its sibling
             # "object" service. (see `register_resource()`)
-            matchdict = {**request.matchdict, "id": object_id}  # ty: ignore[invalid-argument-type]
+            matchdict = {**request.matchdict, "id": object_id}
             try:
                 object_uri = utils.instance_uri(request, self.resource_name, **matchdict)
                 object_uri = object_uri.replace("%2A", "*")
@@ -291,7 +294,7 @@ class RouteFactory:
 
         # For create permission, the object id is the plural endpoint.
         plural_path = str(service.plural_path)
-        plural_path = plural_path.format_map(request.matchdict)  # ty: ignore[invalid-argument-type]
+        plural_path = plural_path.format_map(request.matchdict)
 
         # In the case of a "PUT", check if the targeted object already
         # exists, return "write" if it does, "create" otherwise.

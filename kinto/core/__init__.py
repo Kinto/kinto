@@ -17,6 +17,8 @@ from kinto.core.initialization import (  # NOQA
     install_middlewares,
     load_default_settings,
 )
+from kinto.core.types import Configurator as KintoConfigurator
+from kinto.core.types import Request as KintoRequest
 from kinto.core.utils import (
     current_resource_name,
     current_service,
@@ -170,11 +172,11 @@ class StreamHandlerWithRequestID(logging.StreamHandler):
         self.addFilter(filter_)
 
 
-def get_user_info(request: Request) -> dict:
+def get_user_info(request: KintoRequest) -> dict:
     # Default user info (shown in hello view for example).
     user_info = {
-        "id": request.prefixed_userid,  # ty: ignore[unresolved-attribute]
-        "principals": request.prefixed_principals,  # ty: ignore[unresolved-attribute]
+        "id": request.prefixed_userid,
+        "principals": request.prefixed_principals,
     }
     if hasattr(request, "get_user_profile"):
         user_info["profile"] = request.get_user_profile()  # ty: ignore[call-non-callable]
@@ -196,15 +198,15 @@ def includeme(config: Configurator) -> None:
 
     # Directive to declare arbitrary API capabilities.
     def add_api_capability(
-        config: Configurator, identifier: str, description: str = "", url: str = "", **kw
+        config: KintoConfigurator, identifier: str, description: str = "", url: str = "", **kw
     ) -> None:
-        existing = config.registry.api_capabilities.get(identifier)  # ty: ignore[unresolved-attribute]
+        existing = config.registry.api_capabilities.get(identifier)
         if existing:
             error_msg = "The '{}' API capability was already registered ({})."
             raise ValueError(error_msg.format(identifier, existing))
 
         capability = dict(description=description, url=url, **kw)
-        config.registry.api_capabilities[identifier] = capability  # ty: ignore[unresolved-attribute]
+        config.registry.api_capabilities[identifier] = capability
 
     config.add_directive("add_api_capability", add_api_capability)
     config.registry.api_capabilities = {}  # ty: ignore[invalid-assignment]
@@ -212,10 +214,8 @@ def includeme(config: Configurator) -> None:
     # Directive for plugins to declare schema migrations.
     from kinto.core.migrations import IMigratable
 
-    def add_migration(config: Configurator, migration: Any) -> None:
-        config.registry.registerUtility(  # ty: ignore[unresolved-attribute]
-            migration, IMigratable, name=migration.name
-        )
+    def add_migration(config: KintoConfigurator, migration: Any) -> None:
+        config.registry.registerUtility(migration, IMigratable, name=migration.name)
 
     config.add_directive("add_migration", add_migration)
 

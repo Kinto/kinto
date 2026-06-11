@@ -1,11 +1,12 @@
 import types
 from collections.abc import Callable
-from typing import Any
+from typing import Any, cast
 
 from pyramid.config import Configurator
 from zope.interface import Interface, implementer
 
 from kinto.core import utils
+from kinto.core.types import Registry
 
 
 class IMetricsService(Interface):  # ty: ignore[unsupported-base]
@@ -14,22 +15,20 @@ class IMetricsService(Interface):  # ty: ignore[unsupported-base]
     Any class implementing this must provide all its methods.
     """
 
-    def timer(key):
+    def timer(key: str):
         """
         Watch execution time in seconds.
         """
 
-    def observe(self, key, value, labels=[]):
+    def observe(self, key: str, value: Any, labels=[]):
         """
         Observe a give `value` for the specified `key`.
         """
 
-    def count(key, count=1, unique=None):
+    def count(key: str, count: int = 1, unique: list[tuple[str, str]] | None = None):
         """
         Count occurrences. If `unique` is set, overwrites the counter value
         on each call.
-
-        `unique` should be of type ``list[tuple[str,str]]``.
         """
 
 
@@ -87,7 +86,7 @@ def listener_with_timer(config: Configurator, key: str, func: Callable) -> Calla
     """
 
     def wrapped(*args: Any, **kwargs: Any) -> Any:
-        metrics_service = config.registry.metrics  # ty: ignore[unresolved-attribute]
+        metrics_service = cast(Registry, config.registry).metrics
         if not metrics_service:
             # This only happens if `kinto.core.initialization.setup_metrics` is
             # not listed in the `initialization_sequence` setting.

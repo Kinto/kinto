@@ -1,9 +1,9 @@
 from pyramid.config import Configurator
-from pyramid.request import Request
 from pyramid.security import NO_PERMISSION_REQUIRED
 
 from kinto.core import Service
 from kinto.core.storage import KintoObject
+from kinto.core.types import Request
 from kinto.events import ServerFlushed
 
 
@@ -12,11 +12,11 @@ flush = Service(name="flush", description="Clear database content", path="/__flu
 
 @flush.post(permission=NO_PERMISSION_REQUIRED)
 def flush_post(request: Request) -> KintoObject:
-    request.registry.storage.flush()  # ty: ignore[unresolved-attribute]
-    request.registry.permission.flush()  # ty: ignore[unresolved-attribute]
-    request.registry.cache.flush()  # ty: ignore[unresolved-attribute]
+    request.registry.storage.flush()
+    request.registry.permission.flush()
+    request.registry.cache.flush()
     event = ServerFlushed(request)
-    request.registry.notify(event)  # ty: ignore[unresolved-attribute]
+    request.registry.notify(event)
 
     request.response.status = 202
     return {}

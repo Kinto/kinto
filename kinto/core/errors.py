@@ -124,7 +124,7 @@ def http_error(
     }
 
     response = httpexception
-    response.errno = errno  # ty: ignore[unresolved-attribute]
+    setattr(response, "errno", errno)
     response.json = ErrorSchema().deserialize(body)
     response.content_type = "application/json"
     return response

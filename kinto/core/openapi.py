@@ -1,10 +1,9 @@
 from typing import Any as AnyType
 
-from pyramid.request import Request
-
 from kinto.core.cornice_swagger import CorniceSwagger
 from kinto.core.cornice_swagger.converters.schema import TypeConverter
 from kinto.core.schema import Any
+from kinto.core.types import Request
 
 
 class AnyTypeConverter(TypeConverter):
@@ -57,7 +56,7 @@ class OpenAPI(CorniceSwagger):
         super().__init__(services)
 
         self.request = request
-        self.settings = request.registry.settings  # ty: ignore[unresolved-attribute]
+        self.settings = request.registry.settings
 
         self.api_title = self.settings["project_name"]
         self.api_version = self.settings["http_api_version"]

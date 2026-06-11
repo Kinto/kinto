@@ -1,15 +1,15 @@
 from pathlib import Path
 
-from pyramid.config import Configurator
 from pyramid.httpexceptions import HTTPTemporaryRedirect
-from pyramid.request import Request
 from pyramid.static import static_view
+
+from kinto.core.types import Configurator, Request
 
 from .views import admin_home_view
 
 
 def includeme(config: Configurator) -> None:
-    admin_assets_path = config.registry.settings["admin_assets_path"]  # ty: ignore[unresolved-attribute]
+    admin_assets_path = config.registry.settings["admin_assets_path"]
     if not admin_assets_path:
         # Use bundled admin.
         admin_assets_path = "kinto.plugins.admin:build"

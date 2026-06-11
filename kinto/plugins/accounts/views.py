@@ -3,13 +3,13 @@ from pyramid import httpexceptions
 from pyramid.authorization import Everyone
 from pyramid.decorator import reify
 from pyramid.events import subscriber
-from pyramid.request import Request
 from pyramid.settings import aslist
 
 from kinto.core import resource, utils
 from kinto.core.errors import http_error, raise_invalid
 from kinto.core.events import ACTIONS, ResourceChanged
 from kinto.core.storage import KintoObject
+from kinto.core.types import Request
 from kinto.views import NameGenerator
 
 from .utils import ACCOUNT_CACHE_KEY, ACCOUNT_POLICY_NAME, hash_password
@@ -71,8 +71,9 @@ class Account(resource.Resource):
         # administrators.
         # Plus when anonymous create accounts, we have to set their parent id
         # to the same value they would obtain when authenticated.
-        if self.context.is_administrator:  # ty: ignore[unresolved-attribute]
-            if self.context.on_plural_endpoint:  # ty: ignore[unresolved-attribute]
+        assert self.context is not None
+        if self.context.is_administrator:
+            if self.context.on_plural_endpoint:
                 # Accounts created by admin should have userid as parent.
                 if request.method.lower() == "post":
                     return _extract_posted_body_id(request)
@@ -81,15 +82,15 @@ class Account(resource.Resource):
                     return "*"
             else:
                 # No pattern matching for admin on single record.
-                return request.matchdict["id"]  # ty: ignore[not-subscriptable]
+                return request.matchdict["id"]
 
-        if not self.context.is_anonymous:  # ty: ignore[unresolved-attribute]
+        if not self.context.is_anonymous:
             # Authenticated users see their own account only.
-            return request.selected_userid  # ty: ignore[unresolved-attribute]
+            return request.selected_userid
 
         # Anonymous creation with PUT.
-        if "id" in request.matchdict:  # ty: ignore[unsupported-operator]
-            return request.matchdict["id"]  # ty: ignore[not-subscriptable]
+        if "id" in request.matchdict:
+            return request.matchdict["id"]
 
         return _extract_posted_body_id(request)
 
@@ -106,7 +107,8 @@ class Account(resource.Resource):
 
         # Administrators can reach other accounts and anonymous have no
         # selected_userid. So do not try to enforce.
-        if self.context.is_administrator or self.context.is_anonymous:  # ty: ignore[unresolved-attribute]
+        assert self.context is not None
+        if self.context.is_administrator or self.context.is_anonymous:
             return new
 
         # Otherwise, we force the id to match the authenticated username.

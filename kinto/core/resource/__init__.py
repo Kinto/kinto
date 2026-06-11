@@ -3,7 +3,7 @@ import logging
 import re
 import warnings
 from collections.abc import Callable
-from typing import Any
+from typing import TYPE_CHECKING, Any
 from uuid import uuid4
 
 import colander
@@ -18,7 +18,6 @@ from pyramid.httpexceptions import (
     HTTPPreconditionFailed,
     HTTPServiceUnavailable,
 )
-from pyramid.request import Request
 from pyramid.response import Response
 from pyramid.settings import asbool
 
@@ -27,6 +26,7 @@ from kinto.core.errors import ERRORS, http_error, raise_invalid, request_GET, se
 from kinto.core.events import ACTIONS
 from kinto.core.storage import MISSING, Filter, KintoObject, Sort
 from kinto.core.storage import exceptions as storage_exceptions
+from kinto.core.types import Request
 from kinto.core.utils import (
     COMPARISON,
     apply_json_patch,
@@ -43,6 +43,10 @@ from kinto.core.utils import (
 from .model import Model
 from .schema import JsonPatchRequestSchema, ResourceSchema
 from .viewset import ViewSet
+
+
+if TYPE_CHECKING:
+    from kinto.core.authorization import RouteFactory
 
 
 logger = logging.getLogger(__name__)
@@ -190,7 +194,7 @@ class Resource:
     permissions = ("read", "write")
     """List of allowed permissions names."""
 
-    def __init__(self, request, context=None) -> None:
+    def __init__(self, request, context: "RouteFactory | None" = None) -> None:
         """
         :param request:
             The current request object.

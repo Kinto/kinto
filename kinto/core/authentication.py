@@ -2,10 +2,10 @@ from typing import Any
 
 from pyramid import authentication as base_auth
 from pyramid.config import Configurator
-from pyramid.request import Request
 
 from kinto.core import utils
 from kinto.core.openapi import OpenAPI
+from kinto.core.types import Request
 
 
 class BasicAuthAuthenticationPolicy(base_auth.BasicAuthAuthenticationPolicy):
@@ -29,7 +29,7 @@ class BasicAuthAuthenticationPolicy(base_auth.BasicAuthAuthenticationPolicy):
         return []
 
     def unauthenticated_userid(self, request: Request) -> Any:
-        settings = request.registry.settings  # ty: ignore[unresolved-attribute]
+        settings = request.registry.settings
 
         credentials = base_auth.extract_http_basic_credentials(request)
         if credentials:

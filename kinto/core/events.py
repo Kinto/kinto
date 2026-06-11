@@ -31,6 +31,9 @@ class ACTIONS(Enum):
 
 
 class _ResourceEvent:
+    read_objects: list
+    impacted_objects: list
+
     def __init__(self, payload: dict | None, request: Any) -> None:
         self.payload = payload
         self.request = request
@@ -42,13 +45,13 @@ class _ResourceEvent:
     def read_records(self) -> Any:
         message = "`read_records` is deprecated, use `read_objects` instead."
         warnings.warn(message, DeprecationWarning)
-        return self.read_objects  # ty: ignore[unresolved-attribute]
+        return self.read_objects
 
     @property
     def impacted_records(self) -> Any:
         message = "`impacted_records` is deprecated, use `impacted_objects` instead."
         warnings.warn(message, DeprecationWarning)
-        return self.impacted_objects  # ty: ignore[unresolved-attribute]
+        return self.impacted_objects
 
 
 class ResourceRead(_ResourceEvent):

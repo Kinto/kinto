@@ -1,10 +1,10 @@
 from typing import Any
 
 from pyramid.config import Configurator
-from pyramid.request import Request
 from pyramid.security import NO_PERMISSION_REQUIRED
 
 from kinto.core import Service
+from kinto.core.types import Request
 
 
 counters = Service(name="counters", description="Shows objects statistics", path="/__counters__")
@@ -12,7 +12,7 @@ counters = Service(name="counters", description="Shows objects statistics", path
 
 @counters.get(permission=NO_PERMISSION_REQUIRED)
 def counters_get(request: Request) -> dict[str, dict[str, Any]]:
-    storage = request.registry.storage  # ty: ignore[unresolved-attribute]
+    storage = request.registry.storage
     counters: dict[str, dict[str, Any]] = {"objects": {}, "tombstones": {}}
     for resource_name in (
         "account",

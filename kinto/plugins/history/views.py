@@ -2,12 +2,12 @@ from typing import Any
 
 import colander
 from pyramid.httpexceptions import HTTPForbidden
-from pyramid.request import Request
 
 from kinto.core import Service, resource, utils
 from kinto.core.resource.schema import ErrorResponseSchema
 from kinto.core.resource.viewset import ViewSet
 from kinto.core.storage import Filter, KintoObject, Sort
+from kinto.core.types import Request
 from kinto.core.utils import instance_uri
 
 
@@ -56,7 +56,7 @@ class History(resource.Resource):
     schema = HistorySchema
 
     def get_parent_id(self, request: Request) -> str:
-        self.bucket_id = request.matchdict["bucket_id"]  # ty: ignore[not-subscriptable]
+        self.bucket_id = request.matchdict["bucket_id"]
         return instance_uri(request, "bucket", id=self.bucket_id)
 
     def _extract_filters(self) -> list[Filter]:
@@ -82,14 +82,12 @@ def timestamp_validator(request: Request, **kwargs: Any) -> None:
     """
     Validates that the timestamp is an integer.
     """
-    timestamp = request.matchdict["timestamp"]  # ty: ignore[not-subscriptable]
+    timestamp = request.matchdict["timestamp"]
     try:
         if int(timestamp) < 0:
             raise ValueError
     except ValueError:
-        request.errors.add(  # ty: ignore[unresolved-attribute]
-            "path", "timestamp", "Invalid timestamp %r" % timestamp
-        )
+        request.errors.add("path", "timestamp", "Invalid timestamp %r" % timestamp)
 
 
 class SnapshotPathSchema(colander.MappingSchema):
@@ -119,17 +117,17 @@ snapshot_response_schemas = {
 )
 def get_snapshot(request: Request) -> dict[str, list[KintoObject]]:
     """Reconstructs the collection as it was at the given timestamp."""
-    bucket_id = request.matchdict["bucket_id"]  # ty: ignore[not-subscriptable]
-    collection_id = request.matchdict["collection_id"]  # ty: ignore[not-subscriptable]
-    timestamp = int(request.matchdict["timestamp"])  # ty: ignore[not-subscriptable]
+    bucket_id = request.matchdict["bucket_id"]
+    collection_id = request.matchdict["collection_id"]
+    timestamp = int(request.matchdict["timestamp"])
 
     bucket_uri = instance_uri(request, "bucket", id=bucket_id)
     collection_uri = instance_uri(request, "collection", bucket_id=bucket_id, id=collection_id)
 
     # Check that user has read permission on the collection.
     # This is manual code, because we are outside the normal resource system.
-    if not request.registry.permission.check_permission(  # ty: ignore[unresolved-attribute]
-        request.prefixed_principals,  # ty: ignore[unresolved-attribute]
+    if not request.registry.permission.check_permission(
+        request.prefixed_principals,
         [
             (bucket_uri, "read"),
             (bucket_uri, "write"),
@@ -140,7 +138,7 @@ def get_snapshot(request: Request) -> dict[str, list[KintoObject]]:
         raise HTTPForbidden()
 
     # List all the records that have changed since the given timestamp.
-    all_records = request.registry.storage.list_all(  # ty: ignore[unresolved-attribute]
+    all_records = request.registry.storage.list_all(
         parent_id=collection_uri,
         resource_name="record",
         include_deleted=True,  # Include tombstones
@@ -157,7 +155,7 @@ def get_snapshot(request: Request) -> dict[str, list[KintoObject]]:
     # History entries store the current version. We need to pick the most recent
     # entry before the timestamp for each record_id to obtain the records' state
     # before it was changed or deleted.
-    history_entries = request.registry.storage.list_all(  # ty: ignore[unresolved-attribute]
+    history_entries = request.registry.storage.list_all(
         parent_id=bucket_uri,
         resource_name="history",
         filters=[

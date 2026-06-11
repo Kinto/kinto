@@ -6,7 +6,6 @@ from collections.abc import Callable
 from time import perf_counter as time_now
 from typing import Any
 
-from pyramid.config import Configurator
 from pyramid.exceptions import ConfigurationError
 from pyramid.request import Request
 from pyramid.response import Response
@@ -14,6 +13,7 @@ from pyramid.settings import asbool, aslist
 from zope.interface import implementer
 
 from kinto.core import metrics
+from kinto.core.types import Configurator
 from kinto.core.utils import safe_wraps
 
 
@@ -319,4 +319,4 @@ def includeme(config: Configurator) -> None:
     config.add_route("prometheus_metrics", "/__metrics__")
     config.add_view(metrics_view, route_name="prometheus_metrics")
 
-    config.registry.registerUtility(metrics_impl, metrics.IMetricsService)  # ty: ignore[unresolved-attribute]
+    config.registry.registerUtility(metrics_impl, metrics.IMetricsService)
