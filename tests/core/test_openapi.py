@@ -1,23 +1,24 @@
 import unittest
 from unittest import mock
 
-from kinto.core.cornice.service import clear_services, get_services
+from kinto.core.cornice.service import get_services
 from kinto.core.openapi import OpenAPI
 
 from .support import BaseWebTest
 
 
 class OpenAPITest(BaseWebTest, unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        clear_services()
-        super().setUpClass()
-
     def setUp(self):
         super(OpenAPITest, self).setUp()
         self.request = mock.MagicMock()
         self.request.registry.settings = self.get_app_settings()
-        self.generator = OpenAPI(get_services(), self.request)
+        # Other test modules (e.g. cornice's own tests) register services into
+        # the process-global registry. Keep only the services routed by the app
+        # being tested, so the generated OpenAPI spec is not polluted.
+        routes = self.app.app.registry.introspector.get_category("routes") or []
+        app_routes = {intr["introspectable"]["name"] for intr in routes}
+        services = [s for s in get_services() if s.name in app_routes]
+        self.generator = OpenAPI(services, self.request)
         self.api_doc = self.generator.generate()
 
     def test_assign_base_path(self):

@@ -354,7 +354,7 @@ class TestAuthenticatedCORS(TestCase):
 
 class TestAlwaysCORS(TestCase):
     def setUp(self):
-        self.config = testing.setUp()
+        self.config = testing.setUp(settings={"cornice.always_cors": "true"})
         self.config.include("kinto.core.cornice")
         self.config.add_route("noservice", "/noservice")
         self.config.scan("tests.core.cornice.test_cors")

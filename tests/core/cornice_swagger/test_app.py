@@ -5,7 +5,7 @@ from flex.core import validate
 from pyramid import testing
 
 from kinto.core.cornice import Service
-from kinto.core.cornice.service import clear_services, get_services
+from kinto.core.cornice.service import SERVICES, get_services
 from kinto.core.cornice.validators import colander_validator
 from kinto.core.cornice_swagger import CorniceSwagger
 
@@ -14,10 +14,12 @@ from .support import GetRequestSchema, PutRequestSchema, response_schemas
 
 class AppTest(unittest.TestCase):
     def tearDown(self):
-        clear_services()
+        SERVICES[:] = self._saved_services
         testing.tearDown()
 
     def setUp(self):
+        self._saved_services = list(SERVICES)
+        SERVICES[:] = []
         service = Service("IceCream", "/icecream/{flavour}")
 
         @service.get(
@@ -64,10 +66,12 @@ class AppTest(unittest.TestCase):
 
 class AppGoodRoutesTest(unittest.TestCase):
     def tearDown(self):
-        clear_services()
+        SERVICES[:] = self._saved_services
         testing.tearDown()
 
     def setUp(self):
+        self._saved_services = list(SERVICES)
+        SERVICES[:] = []
         service = Service("Ice Route", pyramid_route="ice_test")
 
         @service.get()

@@ -31,5 +31,14 @@ def openapi_view(request):
     try:
         return openapi_view.__json__
     except AttributeError:
-        openapi_view.__json__ = OpenAPI(get_services(), request).generate()
+        # ``get_services()`` returns the process-global list of registered
+        # services. Restrict it to the ones actually routed by this app, so
+        # that services registered elsewhere (e.g. by tests) are not exposed.
+        introspector = request.registry.introspector
+        services = [
+            service
+            for service in get_services()
+            if introspector.get("routes", getattr(service, "pyramid_route", None) or service.name)
+        ]
+        openapi_view.__json__ = OpenAPI(services, request).generate()
         return openapi_view.__json__

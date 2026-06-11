@@ -7,9 +7,9 @@ from pyramid.exceptions import ConfigurationError
 from pyramid.interfaces import IRendererFactory
 
 from kinto.core.cornice.service import (
+    SERVICES,
     Service,
     _UnboundView,
-    clear_services,
     decorate_view,
     get_services,
 )
@@ -29,8 +29,12 @@ def _stub(req):
 
 
 class TestService(TestCase):
+    def setUp(self):
+        self._saved_services = list(SERVICES)
+        SERVICES[:] = []
+
     def tearDown(self):
-        clear_services()
+        SERVICES[:] = self._saved_services
 
     def test_service_instantiation(self):
         service = Service("coconuts", "/migrate")
@@ -399,11 +403,11 @@ class TestService(TestCase):
         foo = Service(name="foo", path="/foo", cors_origins=("mozilla.org",))
         foo.add_view("GET", _stub, cors_origins=("lolnet.org",))
 
-        self.assertTrue("mozilla.org" in foo.cors_origins_for("GET"))
-        self.assertTrue("lolnet.org" in foo.cors_origins_for("GET"))
+        self.assertIn("mozilla.org", foo.cors_origins_for("GET"))
+        self.assertIn("lolnet.org", foo.cors_origins_for("GET"))
 
         foo.add_view("POST", _stub)
-        self.assertFalse("lolnet.org" in foo.cors_origins_for("POST"))
+        self.assertNotIn("lolnet.org", foo.cors_origins_for("POST"))
 
     def test_credential_support_can_be_enabled(self):
         foo = Service(name="foo", path="/foo", cors_credentials=True)
