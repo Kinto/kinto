@@ -14,12 +14,12 @@ from pyramid.httpexceptions import (
     HTTPMethodNotAllowed,
     HTTPTemporaryRedirect,
 )
-from pyramid.interfaces import IAuthenticationPolicy
+from pyramid.interfaces import ISecurityPolicy
 from pyramid.renderers import JSON as JSONRenderer
 from pyramid.response import Response
 from pyramid.security import NO_PERMISSION_REQUIRED
 from pyramid.settings import asbool, aslist
-from pyramid_multiauth import MultiAuthenticationPolicy, MultiAuthPolicySelected
+from pyramid_multiauth import MultiAuthPolicySelected, MultiAuthSecurityPolicy
 
 from kinto.core import cache, errors, metrics, permission, storage, utils
 from kinto.core.events import ACTIONS, ResourceChanged, ResourceRead
@@ -455,8 +455,8 @@ def setup_metrics(config):
         metrics.watch_execution_time(metrics_service, config.registry.storage, prefix="backend")
         metrics.watch_execution_time(metrics_service, config.registry.permission, prefix="backend")
 
-        policy = config.registry.queryUtility(IAuthenticationPolicy)
-        if isinstance(policy, MultiAuthenticationPolicy):
+        policy = config.registry.queryUtility(ISecurityPolicy)
+        if isinstance(policy, MultiAuthSecurityPolicy):
             for name, subpolicy in policy.get_policies():
                 metrics.watch_execution_time(
                     metrics_service, subpolicy, prefix="authentication", classname=name

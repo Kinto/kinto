@@ -5,7 +5,6 @@ import hmac
 import os
 import re
 import time
-import warnings
 from base64 import b64decode, b64encode
 from binascii import hexlify
 from enum import Enum
@@ -16,7 +15,7 @@ import rapidjson
 from colander import null
 from pyramid import httpexceptions
 from pyramid.authorization import Authenticated
-from pyramid.interfaces import IRoutesMapper
+from pyramid.interfaces import IRoutesMapper, ISecurityPolicy
 from pyramid.request import Request, apply_request_extensions
 from pyramid.settings import aslist
 from pyramid.view import render_view_to_response
@@ -342,17 +341,15 @@ def prefixed_principals(request):
     """
     :returns: the list principals with prefixed user id.
     """
-    # pyramid_multiauth uses the old-style authentication policy interface, so
-    # effective_principals is still the only way to get the full principal list
-    # (including group principals from all configured policies).
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore", DeprecationWarning)
-        principals = request.effective_principals
+    # The security policy (pyramid_multiauth) exposes the full principal list,
+    # including group principals from all configured sub-policies.
+    policy = request.registry.queryUtility(ISecurityPolicy)
+    principals = list(policy.effective_principals(request))
     if Authenticated not in principals:
         return principals
 
-    # Remove unprefixed user id on effective_principals to avoid conflicts.
-    # (it is added via Pyramid Authn policy effective principals)
+    # Remove unprefixed user id on principals to avoid conflicts.
+    # (it is added via the security policy effective principals)
     prefix, userid = request.prefixed_userid.split(":", 1)
     principals = [p for p in principals if p != userid]
 
