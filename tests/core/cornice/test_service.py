@@ -50,7 +50,7 @@ class TestService(TestCase):
             lambda x: True,
         ]
         service = Service("coconuts", "/migrate", validators=validators)
-        self.assertEqual(service.validators, validators)
+        self.assertEqual(service.validators, validators)  # ty: ignore[unresolved-attribute]
 
     def test_representation(self):
         service = Service("coconuts", "/migrate")
@@ -82,11 +82,11 @@ class TestService(TestCase):
         # define a validator for the needs of the test
 
         service = Service("vaches", "/fetchez", validators=(_validator,))
-        self.assertEqual(len(service.validators), 1)
+        self.assertEqual(len(service.validators), 1)  # ty: ignore[unresolved-attribute]
         args = service.get_arguments({"validators": (_validator2,)})
 
         # the list of validators didn't changed
-        self.assertEqual(len(service.validators), 1)
+        self.assertEqual(len(service.validators), 1)  # ty: ignore[unresolved-attribute]
 
         # but the one returned contains 2 validators
         self.assertEqual(len(args["validators"]), 2)
@@ -95,7 +95,7 @@ class TestService(TestCase):
         # validators / filters it returns, without removing it from the ones
         # registered for the service.
         service = Service("open bar", "/bar", validators=(_validator, _validator2))
-        self.assertEqual(service.validators, [_validator, _validator2])
+        self.assertEqual(service.validators, [_validator, _validator2])  # ty: ignore[unresolved-attribute]
 
         args = service.get_arguments({"exclude": _validator2})
         self.assertEqual(args["validators"], [_validator])
@@ -376,7 +376,7 @@ class TestService(TestCase):
     def test_cors_headers_for_method_are_deduplicated(self):
         # defining headers in the view should work.
         service = Service("coconuts", "/migrate")
-        service.cors_headers = ("X-Header-Foobar",)
+        service.cors_headers = ("X-Header-Foobar",)  # ty: ignore[unresolved-attribute]
         service.add_view("GET", _stub, cors_headers=("X-Header-Foobar", "X-Header-Barbaz"))
         get_headers = service.cors_supported_headers_for(method="GET")
         expected = set(["X-Header-Foobar", "X-Header-Barbaz"])

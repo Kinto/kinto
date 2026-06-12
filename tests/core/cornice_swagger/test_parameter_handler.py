@@ -166,7 +166,7 @@ class PathParamConversionTest(unittest.TestCase):
 class RefParamTest(unittest.TestCase):
     def setUp(self):
         self.handler = ParameterHandler(ref=1)
-        self.handler.parameters = {}
+        self.handler.parameters = {}  # ty: ignore[unresolved-attribute]
 
     def test_ref_from_path(self):
         params = self.handler.from_path("/path/{id}")

@@ -68,7 +68,7 @@ class SchemaResponseConversionTest(unittest.TestCase):
 class RefResponseTest(unittest.TestCase):
     def setUp(self):
         self.handler = ResponseHandler(ref=1)
-        self.handler.responses = {}
+        self.handler.responses = {}  # ty: ignore[unresolved-attribute]
 
     def test_from_schema_mapping(self):
         responses = self.handler.from_schema_mapping(response_schemas)

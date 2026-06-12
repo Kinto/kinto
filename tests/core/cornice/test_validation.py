@@ -398,16 +398,16 @@ class TestErrorMessageTranslationColander(TestCase):
 class TestValidatorEdgeCases(TestCase):
     def test_no_schema(self):
         request = DummyRequest()
-        request.validated = mock.sentinel.validated
+        request.validated = mock.sentinel.validated  # ty: ignore[unresolved-attribute]
         colander_validator(request)
-        self.assertEqual(request.validated, mock.sentinel.validated)
+        self.assertEqual(request.validated, mock.sentinel.validated)  # ty: ignore[unresolved-attribute]
         self.assertEqual(len(request.errors), 0)
 
     def _no_body_schema(self):
         request = DummyRequest()
-        request.validated = mock.sentinel.validated
+        request.validated = mock.sentinel.validated  # ty: ignore[unresolved-attribute]
         colander_validator(request)
-        self.assertEqual(request.validated, mock.sentinel.validated)
+        self.assertEqual(request.validated, mock.sentinel.validated)  # ty: ignore[unresolved-attribute]
         self.assertEqual(len(request.errors), 0)
 
 

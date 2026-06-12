@@ -272,7 +272,7 @@ class MappingConversionTest(unittest.TestCase):
             foo = colander.SchemaNode(colander.String(), missing=colander.drop)
 
             @staticmethod
-            def schema_type():
+            def schema_type():  # ty: ignore[invalid-method-override]
                 return colander.Mapping(unknown="preserve")
 
         node = Mapping()

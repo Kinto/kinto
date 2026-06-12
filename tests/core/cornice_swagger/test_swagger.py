@@ -21,12 +21,12 @@ class CorniceSwaggerGeneratorTest(unittest.TestCase):
             )
             def view_get(self, request):
                 """Serve ice cream"""
-                return self.request.validated
+                return self.request.validated  # ty: ignore[unresolved-attribute]
 
             @service.put(validators=(colander_validator,), schema=PutRequestSchema())
             def view_put(self, request):
                 """Add flavour"""
-                return self.request.validated
+                return self.request.validated  # ty: ignore[unresolved-attribute]
 
         self.service = service
         CorniceSwagger.services = [self.service]
@@ -101,7 +101,7 @@ class ExtractContentTypesTest(unittest.TestCase):
         class IceCream(object):
             @service.get()
             def view_get(self, request):
-                return self.request.validated
+                return self.request.validated  # ty: ignore[unresolved-attribute]
 
         swagger = CorniceSwagger([service])
         spec = swagger.generate()
@@ -115,7 +115,7 @@ class ExtractContentTypesTest(unittest.TestCase):
         class IceCream(object):
             @service.get(renderer="json")
             def view_get(self, request):
-                return self.request.validated
+                return self.request.validated  # ty: ignore[unresolved-attribute]
 
         swagger = CorniceSwagger([service])
         spec = swagger.generate()
@@ -129,7 +129,7 @@ class ExtractContentTypesTest(unittest.TestCase):
         class IceCream(object):
             @service.get(renderer="xml")
             def view_get(self, request):
-                return self.request.validated
+                return self.request.validated  # ty: ignore[unresolved-attribute]
 
         swagger = CorniceSwagger([service])
         spec = swagger.generate()
@@ -141,7 +141,7 @@ class ExtractContentTypesTest(unittest.TestCase):
         class IceCream(object):
             @service.get(renderer="")
             def view_get(self, request):
-                return self.request.validated
+                return self.request.validated  # ty: ignore[unresolved-attribute]
 
         swagger = CorniceSwagger([service])
         spec = swagger.generate()
@@ -153,7 +153,7 @@ class ExtractContentTypesTest(unittest.TestCase):
         class IceCream(object):
             @service.put(content_type="application/json")
             def view_put(self, request):
-                return self.request.validated
+                return self.request.validated  # ty: ignore[unresolved-attribute]
 
         swagger = CorniceSwagger([service])
         spec = swagger.generate()
@@ -167,7 +167,7 @@ class ExtractContentTypesTest(unittest.TestCase):
         class IceCream(object):
             @service.put()
             def view_put(self, request):
-                return self.request.validated
+                return self.request.validated  # ty: ignore[unresolved-attribute]
 
         swagger = CorniceSwagger([service])
         spec = swagger.generate()
@@ -179,7 +179,7 @@ class ExtractContentTypesTest(unittest.TestCase):
         class IceCream(object):
             @service.put(content_type=("application/json", "text/xml"))
             def view_put(self, request):
-                return self.request.validated
+                return self.request.validated  # ty: ignore[unresolved-attribute]
 
         swagger = CorniceSwagger([service])
         spec = swagger.generate()
@@ -197,7 +197,7 @@ class ExtractContentTypesTest(unittest.TestCase):
         class IceCream(object):
             @service.put(content_type=my_ctype_callable)
             def view_put(self, request):
-                return self.request.validated
+                return self.request.validated  # ty: ignore[unresolved-attribute]
 
         swagger = CorniceSwagger([service])
         spec = swagger.generate()
@@ -222,7 +222,7 @@ class ExtractContentTypesTest(unittest.TestCase):
                 )
             )
             def view_put(self, request):
-                return self.request.validated
+                return self.request.validated  # ty: ignore[unresolved-attribute]
 
         swagger = CorniceSwagger([service])
         spec = swagger.generate()
@@ -293,7 +293,7 @@ class ExtractPathTest(unittest.TestCase):
         class IceCream(object):
             @service.get()
             def view_get(self, request):
-                return self.request
+                return self.request  # ty: ignore[unresolved-attribute]
 
         swagger = CorniceSwagger([service])
         spec = swagger.generate()
@@ -387,7 +387,7 @@ class ExtractTagsTest(unittest.TestCase):
 
         swagger = CorniceSwagger([service])
         tags = [{"name": "foo", "description": "bar"}]
-        swagger.swagger = {"tags": tags}
+        swagger.swagger = {"tags": tags}  # ty: ignore[invalid-assignment]
         spec = swagger.generate()
         validate(spec)
         self.assertListEqual(
