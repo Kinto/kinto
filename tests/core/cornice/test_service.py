@@ -426,7 +426,7 @@ class TestService(TestCase):
         self.assertTrue(foo.cors_support_credentials_for("GET"))
         self.assertFalse(foo.cors_support_credentials_for("POST"))
 
-    def test_method_takes_precendence_for_credential_support(self):
+    def test_method_takes_precedence_for_credential_support(self):
         foo = Service(name="foo", path="/foo", cors_credentials=True)
         foo.add_view("GET", _stub, cors_credentials=False)
         self.assertFalse(foo.cors_support_credentials_for("GET"))
@@ -441,7 +441,7 @@ class TestService(TestCase):
         foo.add_view("POST", _stub)
         self.assertEqual(foo.cors_max_age_for(), 42)
 
-    def test_max_age_can_be_different_dependeing_methods(self):
+    def test_max_age_can_be_different_depending_methods(self):
         foo = Service(name="foo", path="/foo", cors_max_age=42)
         foo.add_view("GET", _stub)
         foo.add_view("POST", _stub, cors_max_age=32)

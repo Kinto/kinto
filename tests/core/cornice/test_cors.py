@@ -17,7 +17,7 @@ from kinto.core.cornice.service import Service
 from .support import CatchErrors
 
 
-squirel = Service(path="/squirel", name="squirel", cors_origins=("foobar",))
+squirrel = Service(path="/squirrel", name="squirrel", cors_origins=("foobar",))
 spam = Service(path="/spam", name="spam", cors_origins=("*",))
 eggs = Service(path="/eggs", name="egg", cors_origins=("*",), cors_expose_all_headers=False)
 bacon = Service(path="/bacon/{type}", name="bacon", cors_origins=("*",))
@@ -32,7 +32,7 @@ class Klass(object):
         self.request = request
 
     def post(self):
-        return "moar squirels (take care)"
+        return "moar squirrels (take care)"
 
 
 cors_policy = {"origins": ("*",), "credentials": True}
@@ -41,19 +41,19 @@ cors_klass = Service(name="cors_klass", path="/cors_klass", klass=Klass, cors_po
 cors_klass.add_view("post", "post")
 
 
-@squirel.get(cors_origins=("notmyidea.org",), cors_headers=("X-My-Header",))
-def get_squirel(request):
-    return "squirels"
+@squirrel.get(cors_origins=("notmyidea.org",), cors_headers=("X-My-Header",))
+def get_squirrel(request):
+    return "squirrels"
 
 
-@squirel.post(cors_headers=("X-Another-Header"))
-def post_squirel(request):
-    return "moar squirels (take care)"
+@squirrel.post(cors_headers=("X-Another-Header"))
+def post_squirrel(request):
+    return "moar squirrels (take care)"
 
 
-@squirel.put()
-def put_squirel(request):
-    return "squirels!"
+@squirrel.put()
+def put_squirrel(request):
+    return "squirrels!"
 
 
 @spam.get(cors_credentials=True, cors_headers=("X-My-Header"), cors_max_age=42)
@@ -133,32 +133,32 @@ class TestCORS(TestCase):
         # If we just try to reach it, without using correct headers:
         # "Access-Control-Request-Method"or without the "Origin" header,
         # we should get a 400.
-        resp = self.app.options("/squirel", status=400)
+        resp = self.app.options("/squirrel", status=400)
         self.assertEqual(len(resp.json["errors"]), 2)
 
     def test_preflight_missing_origin(self):
         resp = self.app.options(
-            "/squirel", headers={"Access-Control-Request-Method": "GET"}, status=400
+            "/squirrel", headers={"Access-Control-Request-Method": "GET"}, status=400
         )
         self.assertEqual(len(resp.json["errors"]), 1)
 
     def test_preflight_does_not_expose_headers(self):
         resp = self.app.options(
-            "/squirel",
+            "/squirrel",
             headers={"Access-Control-Request-Method": "GET", "Origin": "notmyidea.org"},
             status=200,
         )
         self.assertNotIn("Access-Control-Expose-Headers", resp.headers)
 
     def test_preflight_missing_request_method(self):
-        resp = self.app.options("/squirel", headers={"Origin": "foobar.org"}, status=400)
+        resp = self.app.options("/squirrel", headers={"Origin": "foobar.org"}, status=400)
 
         self.assertEqual(len(resp.json["errors"]), 1)
 
     def test_preflight_incorrect_origin(self):
         # we put "lolnet.org" where only "notmyidea.org" is authorized
         resp = self.app.options(
-            "/squirel",
+            "/squirrel",
             headers={"Origin": "lolnet.org", "Access-Control-Request-Method": "GET"},
             status=400,
         )
@@ -166,7 +166,8 @@ class TestCORS(TestCase):
 
     def test_preflight_correct_origin(self):
         resp = self.app.options(
-            "/squirel", headers={"Origin": "notmyidea.org", "Access-Control-Request-Method": "GET"}
+            "/squirrel",
+            headers={"Origin": "notmyidea.org", "Access-Control-Request-Method": "GET"},
         )
         self.assertEqual(resp.headers["Access-Control-Allow-Origin"], "notmyidea.org")
 
@@ -184,14 +185,14 @@ class TestCORS(TestCase):
 
     def test_preflight_deactivated_method(self):
         self.app.options(
-            "/squirel",
+            "/squirrel",
             headers={"Origin": "notmyidea.org", "Access-Control-Request-Method": "POST"},
             status=400,
         )
 
     def test_preflight_origin_not_allowed_for_method(self):
         self.app.options(
-            "/squirel",
+            "/squirrel",
             headers={"Origin": "notmyidea.org", "Access-Control-Request-Method": "PUT"},
             status=400,
         )
@@ -219,9 +220,9 @@ class TestCORS(TestCase):
         self.assertEqual(resp.headers["Access-Control-Max-Age"], "42")
 
     def test_resp_dont_include_allow_origin(self):
-        resp = self.app.get("/squirel")  # omit the Origin header
+        resp = self.app.get("/squirrel")  # omit the Origin header
         self.assertNotIn("Access-Control-Allow-Origin", resp.headers)
-        self.assertEqual(resp.json, "squirels")
+        self.assertEqual(resp.json, "squirrels")
 
     def test_origin_is_not_wildcard_if_allow_credentials(self):
         resp = self.app.options(
@@ -236,7 +237,7 @@ class TestCORS(TestCase):
         self.assertEqual(resp.headers["Access-Control-Allow-Credentials"], "true")
 
     def test_responses_include_an_allow_origin_header(self):
-        resp = self.app.get("/squirel", headers={"Origin": "notmyidea.org"})
+        resp = self.app.get("/squirrel", headers={"Origin": "notmyidea.org"})
         self.assertIn("Access-Control-Allow-Origin", resp.headers)
         self.assertEqual(resp.headers["Access-Control-Allow-Origin"], "notmyidea.org")
 
@@ -246,7 +247,7 @@ class TestCORS(TestCase):
         self.assertEqual(resp.headers["Access-Control-Allow-Credentials"], "true")
 
     def test_headers_are_exposed(self):
-        resp = self.app.get("/squirel", headers={"Origin": "notmyidea.org"})
+        resp = self.app.get("/squirrel", headers={"Origin": "notmyidea.org"})
         self.assertIn("Access-Control-Expose-Headers", resp.headers)
 
         headers = resp.headers["Access-Control-Expose-Headers"].split(",")
@@ -254,7 +255,7 @@ class TestCORS(TestCase):
 
     def test_preflight_request_headers_are_included(self):
         resp = self.app.options(
-            "/squirel",
+            "/squirrel",
             headers={
                 "Origin": "notmyidea.org",
                 "Access-Control-Request-Method": "GET",
@@ -368,16 +369,16 @@ class TestAlwaysCORS(TestCase):
         self.assertIn("Access-Control-Allow-Origin", resp.headers)
 
     def test_response_does_not_return_CORS_headers_if_no_origin(self):
-        resp = self.app.put("/squirel")
+        resp = self.app.put("/squirrel")
         self.assertNotIn("Access-Control-Allow-Origin", resp.headers)
 
     def test_preflight_checks_origin_when_not_star(self):
         self.app.options(
-            "/squirel",
+            "/squirrel",
             headers={"Origin": "notmyidea.org", "Access-Control-Request-Method": "PUT"},
             status=400,
         )
-        self.app.put("/squirel", headers={"Origin": "notmyidea.org"}, status=400)
+        self.app.put("/squirrel", headers={"Origin": "notmyidea.org"}, status=400)
 
     def test_checks_origin_when_not_star(self):
-        self.app.put("/squirel", headers={"Origin": "not foobar"}, status=400)
+        self.app.put("/squirrel", headers={"Origin": "not foobar"}, status=400)

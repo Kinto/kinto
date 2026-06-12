@@ -29,7 +29,7 @@ from .support import CatchErrors
 service = Service(name="service", path="/service")
 
 
-def has_payed(request, **kw):
+def has_paid(request, **kw):
     if "paid" not in request.GET:
         request.errors.add("body", "paid", "You must pay!")
 
@@ -43,7 +43,7 @@ def foo_int(request, **kw):
         request.errors.add("url", "foo", "Not an int")
 
 
-@service.get(validators=(has_payed, foo_int))
+@service.get(validators=(has_paid, foo_int))
 def get1(request):
     res = {"test": "succeeded"}
     try:

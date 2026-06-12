@@ -135,7 +135,7 @@ class ExtractContentTypesTest(unittest.TestCase):
         spec = swagger.generate()
         self.assertEqual(spec["paths"]["/icecream/{flavour}"]["get"]["produces"], ["text/xml"])
 
-    def test_unkown_renderer(self):
+    def test_unknown_renderer(self):
         service = Service("IceCream", "/icecream/{flavour}")
 
         class IceCream(object):

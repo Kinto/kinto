@@ -10,10 +10,10 @@ class MyListSchema(colander.SequenceSchema):
     entry = colander.SchemaNode(colander.String())
 
 
-class BoredoomSchema(colander.MappingSchema):
+class BoredomSchema(colander.MappingSchema):
     motivators = MyListSchema()
     status = colander.SchemaNode(
-        colander.String(), validator=colander.OneOf(["increasing", "decrasing"])
+        colander.String(), validator=colander.OneOf(["increasing", "decreasing"])
     )
 
 
@@ -22,7 +22,7 @@ class AnxietySchema(colander.MappingSchema):
 
 
 class FeelingsSchema(colander.MappingSchema):
-    bleh = BoredoomSchema()
+    bleh = BoredomSchema()
     aaaa = AnxietySchema()
 
 
