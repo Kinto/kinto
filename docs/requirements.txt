@@ -10,3 +10,4 @@ pyramid==2.1
 python-rapidjson==1.23
 SQLAlchemy==2.0.50
 setuptools<82.0
+redis==8.0.0
