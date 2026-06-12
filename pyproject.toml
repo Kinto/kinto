@@ -28,7 +28,7 @@ dependencies = [
     "logging-color-formatter",
     "python-dateutil",
     "pyramid",
-    "pyramid_multiauth",
+    "pyramid_multiauth>=1.1.0",
     "transaction",
     "pyramid_tm",
     "requests",
@@ -130,9 +130,6 @@ filterwarnings = [
     "ignore:No value specified for `settings_prefix`:UserWarning",
     "ignore:HTTPS is not enabled:UserWarning",
     "ignore:Reuse existing PostgreSQL connection:UserWarning",
-    # pyramid_multiauth
-    "ignore:The new security policy has deprecated effective_principals:DeprecationWarning",
-    "ignore:Authentication and authorization policies have been deprecated:DeprecationWarning:pyramid_multiauth",
     # Pyramid uses pkg_resources internally
     # See https://github.com/Pylons/pyramid/issues/3731
     "ignore:pkg_resources is deprecated as an API:UserWarning:pyramid",

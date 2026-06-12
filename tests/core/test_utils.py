@@ -166,13 +166,15 @@ class CurrentServiceTest(unittest.TestCase):
 class PrefixedPrincipalsTest(unittest.TestCase):
     def test_removes_unprefixed_from_principals(self):
         request = DummyRequest()
-        request.effective_principals = ["foo", "system.Authenticated"]
+        policy = request.registry.queryUtility.return_value
+        policy.effective_principals.return_value = ["foo", "system.Authenticated"]
         request.prefixed_userid = "basic:foo"
         self.assertEqual(prefixed_principals(request), ["basic:foo", "system.Authenticated"])
 
     def test_works_if_userid_is_not_in_principals(self):
         request = DummyRequest()
-        request.effective_principals = ["basic:foo", "system.Authenticated"]
+        policy = request.registry.queryUtility.return_value
+        policy.effective_principals.return_value = ["basic:foo", "system.Authenticated"]
         request.prefixed_userid = "basic:foo"
         self.assertEqual(prefixed_principals(request), ["basic:foo", "system.Authenticated"])
 

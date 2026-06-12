@@ -41,6 +41,10 @@ class DummyRequest(mock.MagicMock):
         self.prefixed_userid = "basicauth:bob"
         self.effective_principals = ["system.Everyone", "system.Authenticated", "bob"]
         self.prefixed_principals = self.effective_principals + [self.prefixed_userid]
+        # Plug the effective principal on the mocked security policy.
+        self.registry.queryUtility.return_value.effective_principals.return_value = (
+            self.effective_principals
+        )
         self.json = {}
         self.validated = {}
         self.log_context = lambda **kw: kw
