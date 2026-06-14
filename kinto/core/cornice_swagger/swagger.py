@@ -120,8 +120,6 @@ class ParameterHandler(object):
 
         :param schema_node:
             Request schema to be transformed into Swagger.
-        :param validators:
-            Validators used in colander with the schema.
 
         :rtype: list
         :returns: List of Swagger parameters.
@@ -176,7 +174,7 @@ class ParameterHandler(object):
         """
         Store a parameter schema and return a reference to it.
 
-        :param schema:
+        :param param:
             Swagger parameter definition.
         :param base_name:
             Name that should be used for the reference.
@@ -264,7 +262,7 @@ class ResponseHandler(object):
         """
         Store a response schema and return a reference to it.
 
-        :param schema:
+        :param resp:
             Swagger response definition.
         :param base_name:
             Name that should be used for the reference.

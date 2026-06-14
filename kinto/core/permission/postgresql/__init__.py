@@ -1,9 +1,13 @@
 import logging
 import os
 from collections import OrderedDict
+from collections.abc import Iterable
+from typing import Any
+
+from pyramid.config import Configurator
 
 from kinto.core.permission import PermissionBase
-from kinto.core.storage.postgresql.client import create_from_config
+from kinto.core.storage.postgresql.client import PostgreSQLClient, create_from_config
 from kinto.core.storage.postgresql.migrator import MigratorMixin
 from kinto.core.utils import sqlalchemy as sa
 
@@ -72,14 +76,14 @@ class Permission(PermissionBase, MigratorMixin):
     schema_file = os.path.join(HERE, "schema.sql")
     migrations_directory = os.path.join(HERE, "migrations")
 
-    def __init__(self, client, *args, **kwargs):
+    def __init__(self, client: PostgreSQLClient, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.client = client
 
-    def initialize_schema(self, dry_run=False):
+    def initialize_schema(self, dry_run: bool = False) -> None:
         return self.create_or_migrate_schema(dry_run)
 
-    def get_installed_version(self):
+    def get_installed_version(self) -> int | None:
         """Return current version of schema or None if not any found.
 
         Migrations were only added to the permission backend in
@@ -143,7 +147,7 @@ class Permission(PermissionBase, MigratorMixin):
         # need to initialize.
         return None
 
-    def flush(self):
+    def flush(self) -> None:
         query = """
         DELETE FROM user_principals;
         DELETE FROM access_control_entries;
@@ -153,7 +157,7 @@ class Permission(PermissionBase, MigratorMixin):
             conn.execute(sa.text(query))
         logger.debug("Flushed PostgreSQL permission tables")
 
-    def add_user_principal(self, user_id, principal):
+    def add_user_principal(self, user_id: str, principal: str) -> None:
         query = """
         INSERT INTO user_principals (user_id, principal)
         SELECT :user_id, :principal
@@ -166,7 +170,7 @@ class Permission(PermissionBase, MigratorMixin):
         with self.client.connect() as conn:
             conn.execute(sa.text(query), dict(user_id=user_id, principal=principal))
 
-    def remove_user_principal(self, user_id, principal):
+    def remove_user_principal(self, user_id: str, principal: str) -> None:
         query = """
         DELETE FROM user_principals
          WHERE user_id = :user_id
@@ -174,14 +178,14 @@ class Permission(PermissionBase, MigratorMixin):
         with self.client.connect() as conn:
             conn.execute(sa.text(query), dict(user_id=user_id, principal=principal))
 
-    def remove_principal(self, principal):
+    def remove_principal(self, principal: str) -> None:
         query = """
         DELETE FROM user_principals
          WHERE principal = :principal;"""
         with self.client.connect() as conn:
             conn.execute(sa.text(query), dict(principal=principal))
 
-    def get_user_principals(self, user_id):
+    def get_user_principals(self, user_id: str) -> set[str]:
         query = """
         SELECT principal
           FROM user_principals
@@ -192,7 +196,7 @@ class Permission(PermissionBase, MigratorMixin):
             results = result.fetchall()
         return set([r.principal for r in results])
 
-    def add_principal_to_ace(self, object_id, permission, principal):
+    def add_principal_to_ace(self, object_id: str, permission: str, principal: str) -> None:
         query = """
         INSERT INTO access_control_entries (object_id, permission, principal)
         SELECT :object_id, :permission, :principal
@@ -209,7 +213,7 @@ class Permission(PermissionBase, MigratorMixin):
                 dict(object_id=object_id, permission=permission, principal=principal),
             )
 
-    def remove_principal_from_ace(self, object_id, permission, principal):
+    def remove_principal_from_ace(self, object_id: str, permission: str, principal: str) -> None:
         query = """
         DELETE FROM access_control_entries
          WHERE object_id = :object_id
@@ -221,7 +225,7 @@ class Permission(PermissionBase, MigratorMixin):
                 dict(object_id=object_id, permission=permission, principal=principal),
             )
 
-    def get_object_permission_principals(self, object_id, permission):
+    def get_object_permission_principals(self, object_id: str, permission: str) -> set[str]:
         query = """
         SELECT principal
           FROM access_control_entries
@@ -232,7 +236,7 @@ class Permission(PermissionBase, MigratorMixin):
             results = result.fetchall()
         return set([r.principal for r in results])
 
-    def get_authorized_principals(self, bound_permissions):
+    def get_authorized_principals(self, bound_permissions: list[tuple[str, str]]) -> set[str]:
         # XXX: this method is not used, except in test suites :(
         if not bound_permissions:
             return set()
@@ -257,8 +261,13 @@ class Permission(PermissionBase, MigratorMixin):
             results = result.fetchall()
         return set([r.principal for r in results])
 
-    def get_accessible_objects(self, principals, bound_permissions=None, with_children=True):
-        placeholders = {}
+    def get_accessible_objects(
+        self,
+        principals: Iterable[str],
+        bound_permissions: list[tuple[str, str]] | None = None,
+        with_children: bool = True,
+    ) -> dict[str, set[str]]:
+        placeholders: dict[str, Any] = {}
 
         if bound_permissions is None:
             # Return all objects on which the specified principals have some
@@ -323,7 +332,9 @@ class Permission(PermissionBase, MigratorMixin):
             perms_by_id.setdefault(r.object_id, set()).add(r[1])
         return perms_by_id
 
-    def check_permission(self, principals, bound_permissions):
+    def check_permission(
+        self, principals: Iterable[str], bound_permissions: list[tuple[str, str]]
+    ) -> bool:
         if not bound_permissions:
             return False
 
@@ -361,8 +372,10 @@ class Permission(PermissionBase, MigratorMixin):
             total = result.fetchone()
         return total.matched > 0
 
-    def get_objects_permissions(self, objects_ids, permissions=None):
-        placeholders = {"object_ids": tuple(objects_ids)}
+    def get_objects_permissions(
+        self, objects_ids: list[str], permissions: list[str] | None = None
+    ) -> list[dict[str, set[str]]]:
+        placeholders: dict[str, Any] = {"object_ids": tuple(objects_ids)}
         query = """
         SELECT object_id, permission, principal
             FROM access_control_entries
@@ -393,11 +406,11 @@ class Permission(PermissionBase, MigratorMixin):
             groupby_id[object_id].setdefault(permission, set()).add(principal)
         return list(groupby_id.values())
 
-    def replace_object_permissions(self, object_id, permissions):
+    def replace_object_permissions(self, object_id: str, permissions: dict[str, Any]) -> None:
         if not permissions:
             return
 
-        placeholders = {"object_id": object_id}
+        placeholders: dict[str, Any] = {"object_id": object_id}
 
         new_aces = []
         specified_perms = []
@@ -445,7 +458,7 @@ class Permission(PermissionBase, MigratorMixin):
         with self.client.connect() as conn:
             conn.execute(sa.text(query), placeholders)
 
-    def delete_object_permissions(self, *object_id_list):
+    def delete_object_permissions(self, *object_id_list: str) -> None:
         if len(object_id_list) == 0:
             return
 
@@ -484,6 +497,6 @@ class Permission(PermissionBase, MigratorMixin):
             conn.execute(sa.text(query), placeholders)
 
 
-def load_from_config(config):
+def load_from_config(config: Configurator) -> Permission:
     client = create_from_config(config, prefix="permission_")
     return Permission(client=client)

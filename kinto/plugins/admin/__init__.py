@@ -3,10 +3,12 @@ from pathlib import Path
 from pyramid.httpexceptions import HTTPTemporaryRedirect
 from pyramid.static import static_view
 
+from kinto.core.types import Configurator, Request
+
 from .views import admin_home_view
 
 
-def includeme(config):
+def includeme(config: Configurator) -> None:
     admin_assets_path = config.registry.settings["admin_assets_path"]
     if not admin_assets_path:
         # Use bundled admin.
@@ -33,7 +35,7 @@ def includeme(config):
     config.add_view(build_dir, route_name="catchall_static")
 
     # Setup redirect without trailing slash.
-    def admin_redirect_view(request):
+    def admin_redirect_view(request: Request) -> None:
         raise HTTPTemporaryRedirect(request.path + "/")
 
     config.add_route("admin_redirect", "/admin")

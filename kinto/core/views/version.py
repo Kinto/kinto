@@ -29,7 +29,7 @@ version = Service(name="version", path="/__version__", description="Version")
     operation_id="__version__",
     response_schemas=version_response_schemas,
 )
-def version_view(request):
+def version_view(request) -> dict:
     try:
         return version_view.__json__
     except AttributeError:

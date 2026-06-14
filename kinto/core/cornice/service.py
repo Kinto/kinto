@@ -486,7 +486,7 @@ class Service(object):
     def cors_supported_headers_for(self, method=None):
         """Return an iterable of supported headers for this service.
 
-        The supported headers are defined by the :param headers: argument
+        The supported headers are defined by the ``headers`` argument
         that is passed to services or methods, at definition time.
         """
         headers = set()

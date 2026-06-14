@@ -638,10 +638,10 @@ class Storage(StorageBase, MigratorMixin):
             RETURNING objects.id, as_epoch(last_modified) AS last_modified;
             """
 
-        id_field = id_field or self.id_field  # ty: ignore[unresolved-attribute]
-        modified_field = modified_field or self.modified_field  # ty: ignore[unresolved-attribute]
+        id_field = id_field or self.id_field
+        modified_field = modified_field or self.modified_field
         deleted_data = json.dumps(dict([(deleted_field, True)]))
-        placeholders = dict(
+        placeholders: dict[str, Any] = dict(
             parent_id=parent_id, resource_name=resource_name, deleted_data=deleted_data
         )
         # Safe strings
@@ -742,8 +742,8 @@ class Storage(StorageBase, MigratorMixin):
             RETURNING 1
             """
 
-        id_field = id_field or self.id_field  # ty: ignore[unresolved-attribute]
-        modified_field = modified_field or self.modified_field  # ty: ignore[unresolved-attribute]
+        id_field = id_field or self.id_field
+        modified_field = modified_field or self.modified_field
         placeholders = dict(
             parent_id=parent_id, resource_name=resource_name, max_retained=max_retained
         )
@@ -1026,10 +1026,11 @@ class Storage(StorageBase, MigratorMixin):
 
             if is_like_query:
                 # Operand should be a string.
+                assert isinstance(value, str)
                 # Add implicit start/end wildcards if none is specified.
                 if "*" not in value:
                     value = f"*{value}*"
-                value = value.replace("*", "%")  # ty: ignore[unresolved-attribute]
+                value = value.replace("*", "%")
 
             if filtr.operator == COMPARISON.HAS:
                 operator = "IS NOT NULL" if filtr.value else "IS NULL"

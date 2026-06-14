@@ -2,10 +2,13 @@ import logging
 import random
 import re
 import warnings
+from collections.abc import Callable
 from datetime import datetime
+from typing import Any
 
 from dateutil import parser as dateparser
 from dockerflow.logging import get_or_generate_request_id, request_id_context
+from pyramid.config import Configurator
 from pyramid.events import ApplicationCreated, NewRequest, NewResponse
 from pyramid.exceptions import ConfigurationError
 from pyramid.httpexceptions import (
@@ -15,7 +18,9 @@ from pyramid.httpexceptions import (
     HTTPTemporaryRedirect,
 )
 from pyramid.interfaces import IAuthenticationPolicy
+from pyramid.registry import Registry
 from pyramid.renderers import JSON as JSONRenderer
+from pyramid.request import Request
 from pyramid.response import Response
 from pyramid.security import NO_PERMISSION_REQUIRED
 from pyramid.settings import asbool, aslist
@@ -43,7 +48,7 @@ logger = logging.getLogger(__name__)
 summary_logger = logging.getLogger("request.summary")
 
 
-def setup_request_bound_data(config):
+def setup_request_bound_data(config: Configurator) -> None:
     """Attach custom data on request object, and share it with parent
     requests during batch."""
 
@@ -54,7 +59,7 @@ def setup_request_bound_data(config):
     config.add_request_method(attach_bound_data, name="bound_data", reify=True)
 
 
-def setup_json_serializer(config):
+def setup_json_serializer(config: Configurator) -> None:
     import requests
     import webob
 
@@ -67,7 +72,7 @@ def setup_json_serializer(config):
     config.add_renderer("ultrajson", renderer)  # See `kinto.core.Service`
 
 
-def setup_csp_headers(config):
+def setup_csp_headers(config: Configurator) -> None:
     """Content-Security-Policy HTTP response header helps reduce XSS risks on
     modern browsers by declaring, which dynamic resources are allowed to load.
     On APIs, we disable everything.
@@ -80,7 +85,7 @@ def setup_csp_headers(config):
     config.add_subscriber(on_new_response, NewResponse)
 
 
-def restrict_http_methods_if_readonly(config):
+def restrict_http_methods_if_readonly(config: Configurator) -> None:
     """Prevent write operations if server is configured as read-only.
 
     This is an additional layer of security on top of the verifications done
@@ -98,7 +103,7 @@ def restrict_http_methods_if_readonly(config):
         config.add_subscriber(on_new_request, NewRequest)
 
 
-def setup_version_redirection(config):
+def setup_version_redirection(config) -> None:
     """Add a view which redirects to the current version of the API."""
     settings = config.get_settings()
     redirect_enabled = settings["version_prefix_redirect_enabled"]
@@ -140,7 +145,7 @@ def setup_version_redirection(config):
     config.route_prefix = route_prefix
 
 
-def setup_authentication(config):
+def setup_authentication(config: Configurator) -> None:
     """Let pyramid_multiauth manage authentication and authorization
     from configuration.
     """
@@ -165,7 +170,7 @@ def setup_authentication(config):
     config.add_subscriber(on_policy_selected, MultiAuthPolicySelected)
 
 
-def setup_backoff(config):
+def setup_backoff(config) -> None:
     """Attach HTTP requests/responses objects.
 
     This is useful to attach objects to the request object for easier
@@ -186,7 +191,7 @@ def setup_backoff(config):
     config.add_subscriber(on_new_response, NewResponse)
 
 
-def setup_requests_scheme(config):
+def setup_requests_scheme(config: Configurator) -> None:
     """Force server scheme, host and port at the application level."""
     settings = config.get_settings()
 
@@ -203,11 +208,13 @@ def setup_requests_scheme(config):
         config.add_subscriber(on_new_request, NewRequest)
 
 
-def setup_deprecation(config):
+def setup_deprecation(config: Configurator) -> None:
     config.add_tween("kinto.core.initialization._end_of_life_tween_factory")
 
 
-def _end_of_life_tween_factory(handler, registry):
+def _end_of_life_tween_factory(
+    handler: Callable, registry: Registry
+) -> Callable[[Request], Response]:
     """Pyramid tween to handle service end of life."""
     deprecation_msg = "The service you are trying to connect no longer exists at this location."
 
@@ -236,7 +243,7 @@ def _end_of_life_tween_factory(handler, registry):
     return eos_tween
 
 
-def setup_storage(config):
+def setup_storage(config) -> None:
     settings = config.get_settings()
 
     # Id generators by resource name.
@@ -263,7 +270,7 @@ def setup_storage(config):
     config.registry.heartbeats["storage"] = heartbeat
 
 
-def setup_permission(config):
+def setup_permission(config) -> None:
     settings = config.get_settings()
     permission_mod = settings["permission_backend"]
     if not permission_mod:
@@ -279,7 +286,7 @@ def setup_permission(config):
     config.registry.heartbeats["permission"] = heartbeat
 
 
-def setup_cache(config):
+def setup_cache(config) -> None:
     settings = config.get_settings()
     cache_mod = settings["cache_backend"]
     if not cache_mod:
@@ -295,7 +302,7 @@ def setup_cache(config):
     config.registry.heartbeats["cache"] = heartbeat
 
 
-def setup_sentry(config):
+def setup_sentry(config: Configurator) -> None:
     settings = config.get_settings()
 
     # Note: SENTRY_DSN and SENTRY_ENV env variables will override
@@ -336,7 +343,7 @@ def setup_sentry(config):
         config.add_subscriber(on_app_created, ApplicationCreated)
 
 
-def install_middlewares(app, settings):
+def install_middlewares(app: Any, settings: dict) -> Any:
     "Install a set of middlewares defined in the ini file on the given app."
     # Setup new-relic.
     if settings.get("newrelic_config"):
@@ -355,7 +362,7 @@ def install_middlewares(app, settings):
     return app
 
 
-def setup_logging(config):
+def setup_logging(config: Configurator) -> None:
     """Setup structured logging, and emit `request.summary` event on each
     request, as recommended by Mozilla Services standard:
 
@@ -426,7 +433,7 @@ def setup_logging(config):
     config.add_subscriber(on_new_response, NewResponse)
 
 
-def setup_metrics(config):
+def setup_metrics(config) -> None:
     settings = config.get_settings()
 
     # Register a no-op metrics service by default.
@@ -554,31 +561,31 @@ def setup_metrics(config):
 
 
 class EventActionFilter:
-    def __init__(self, actions, config):
-        actions = ACTIONS.from_string_list(actions)
-        self.actions = [action.value for action in actions]
+    def __init__(self, actions: list[str], config: Configurator) -> None:
+        parsed_actions = ACTIONS.from_string_list(actions)
+        self.actions = [action.value for action in parsed_actions]
 
-    def phash(self):
+    def phash(self) -> str:
         return f"for_actions = {','.join(self.actions)}"
 
-    def __call__(self, event):
+    def __call__(self, event: Any) -> bool:
         action = event.payload.get("action")
         return not action or action in self.actions
 
 
 class EventResourceFilter:
-    def __init__(self, resources, config):
+    def __init__(self, resources: list[str], config: Configurator) -> None:
         self.resources = resources
 
-    def phash(self):
+    def phash(self) -> str:
         return f"for_resources = {','.join(self.resources)}"
 
-    def __call__(self, event):
+    def __call__(self, event: Any) -> bool:
         resource = event.payload.get("resource_name")
         return not resource or not self.resources or resource in self.resources
 
 
-def setup_listeners(config):
+def setup_listeners(config: Configurator) -> None:
     # Register basic subscriber predicates, to filter events.
     config.add_subscriber_predicate("for_actions", EventActionFilter)
     config.add_subscriber_predicate("for_resources", EventResourceFilter)
@@ -640,7 +647,7 @@ def setup_listeners(config):
             config.add_subscriber(wrapped_listener, ResourceChanged, **options)
 
 
-def load_default_settings(config, default_settings):
+def load_default_settings(config: Configurator, default_settings: dict) -> None:
     """Read settings provided in Paste ini file, set default values and
     replace if defined as environment variable.
     """
@@ -684,7 +691,12 @@ def load_default_settings(config, default_settings):
     config.add_settings(settings)
 
 
-def initialize(config, version=None, settings_prefix="", default_settings=None):
+def initialize(
+    config: Configurator,
+    version: str | None = None,
+    settings_prefix: str = "",
+    default_settings: dict | None = None,
+) -> None:
     """Initialize kinto.core with the given configuration, version and project
     name.
 

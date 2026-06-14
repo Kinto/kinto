@@ -53,13 +53,13 @@ class PutTest(BaseTest):
         self.assertEqual(expected, self.last_response.headers["ETag"])
 
     def test_returns_201_if_created(self):
-        self.resource.object_id = self.resource.model.id_generator()  # ty: ignore[call-non-callable]
+        self.resource.object_id = self.resource.model.id_generator()  # ty: ignore[call-non-callable, invalid-assignment]
         self.validated["body"] = {"data": {"field": "new"}}
         self.resource.put()
         self.assertEqual(self.last_response.status_code, 201)
 
     def test_relies_on_plural_endpoint_create(self):
-        self.resource.object_id = self.resource.model.id_generator()  # ty: ignore[call-non-callable]
+        self.resource.object_id = self.resource.model.id_generator()  # ty: ignore[call-non-callable, invalid-assignment]
         self.validated["body"] = {"data": {"field": "new"}}
         with mock.patch.object(self.model, "create_object") as patched:
             self.resource.put()

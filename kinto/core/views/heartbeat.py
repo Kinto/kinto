@@ -1,5 +1,6 @@
 import logging
-from concurrent.futures import ThreadPoolExecutor, wait
+from collections.abc import Callable
+from concurrent.futures import Future, ThreadPoolExecutor, wait
 
 import colander
 import transaction
@@ -30,11 +31,11 @@ heartbeat_responses = {
     operation_id="__heartbeat__",
     response_schemas=heartbeat_responses,
 )
-def get_heartbeat(request):
+def get_heartbeat(request) -> dict:
     """Return information about server health."""
-    status = {}
+    status: dict = {}
 
-    def heartbeat_check(name, func):
+    def heartbeat_check(name: str, func: Callable) -> None:
         status[name] = False
         status[name] = func(request)
         # Since the heartbeat checks run concurrently, their transactions
@@ -46,7 +47,7 @@ def get_heartbeat(request):
     # Start executing heartbeats concurrently.
     heartbeats = request.registry.heartbeats
     pool = ThreadPoolExecutor(max_workers=max(1, len(heartbeats.keys())))
-    futures = []
+    futures: list[Future] = []
     future_names: dict = {}
     for name, func in heartbeats.items():
         future = pool.submit(heartbeat_check, name, func)
@@ -97,7 +98,7 @@ lbheartbeat = Service(name="lbheartbeat", path="/__lbheartbeat__", description="
     operation_id="__lbheartbeat__",
     response_schemas=lbheartbeat_responses,
 )
-def get_lbheartbeat(request):
+def get_lbheartbeat(request) -> dict:
     """Return successful healthy response.
 
     If the load-balancer tries to access this URL and fails, this means the

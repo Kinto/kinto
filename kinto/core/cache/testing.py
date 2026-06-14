@@ -5,8 +5,9 @@ from unittest import mock
 
 import pytest
 from pyramid import testing
+from pyramid.config import Configurator
 
-from kinto.core.cache import heartbeat
+from kinto.core.cache import CacheBase, heartbeat
 from kinto.core.storage import exceptions
 
 
@@ -30,7 +31,7 @@ class CacheTest(_CacheTestBase):
         self.request = None
         self.client_error_patcher = None
 
-    def _get_config(self, settings=None):
+    def _get_config(self, settings: dict[str, Any] | None = None) -> Configurator:
         """Mock Pyramid config object."""
         if settings is None:
             settings = self.settings
@@ -43,7 +44,7 @@ class CacheTest(_CacheTestBase):
         super().tearDown()
         self.cache.flush()
 
-    def get_backend_prefix(self, prefix):
+    def get_backend_prefix(self, prefix: str) -> CacheBase:
         settings_prefix = {**self.settings}
         settings_prefix["cache_prefix"] = prefix
         config_prefix = self._get_config(settings=settings_prefix)

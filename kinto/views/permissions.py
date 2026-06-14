@@ -12,8 +12,8 @@ from kinto.core.storage.memory import extract_object_set
 
 def allowed_from_settings(settings, principals):
     """Returns every permissions allowed from settings for the current user.
-    :param settings dict: app settings
-    :param principals list: list of principals of current user
+    :param dict settings: app settings
+    :param list principals: list of principals of current user
     :rtype: dict
 
     Result example::

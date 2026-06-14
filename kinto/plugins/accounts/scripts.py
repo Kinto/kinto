@@ -1,5 +1,6 @@
 import getpass
 import logging
+from typing import Any
 
 import transaction as current_transaction
 from pyramid.settings import asbool
@@ -11,7 +12,9 @@ from .views import AccountIdGenerator
 logger = logging.getLogger(__name__)
 
 
-def create_user(env, username=None, password=None):
+def create_user(
+    env: dict[str, Any], username: str | None = None, password: str | None = None
+) -> int:
     """Administrative command to create a new user."""
     registry = env["registry"]
     settings = registry.settings

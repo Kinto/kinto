@@ -1,3 +1,6 @@
+from typing import Any
+
+from pyramid.config import Configurator
 from pyramid.settings import aslist
 
 from kinto.authorization import PERMISSIONS_INHERITANCE_TREE
@@ -7,7 +10,7 @@ from kinto.core.events import ResourceChanged
 from .listener import on_resource_changed
 
 
-def uri_to_dict(uri):
+def uri_to_dict(uri: str) -> dict[str, str]:
     """
     Convert a resource URI to a dictionary with its components.
     We don't use `kinto.core.view_lookup_registry()` here because it requires
@@ -29,9 +32,9 @@ def uri_to_dict(uri):
     raise ValueError(f"Invalid URI: {uri}")  # pragma: no cover
 
 
-def includeme(config):
+def includeme(config: Configurator) -> None:
     settings = config.get_settings()
-    exposed_settings = {}
+    exposed_settings: dict[str, Any] = {}
     if (trim_history_max := int(settings.get("history.auto_trim_max_count", "-1"))) > 0:
         exposed_settings["auto_trim_max_count"] = trim_history_max
     if trim_user_ids := aslist(settings.get("history.auto_trim_user_ids", "")):

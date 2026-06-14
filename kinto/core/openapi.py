@@ -1,12 +1,15 @@
+from typing import Any as AnyType
+
 from kinto.core.cornice_swagger import CorniceSwagger
 from kinto.core.cornice_swagger.converters.schema import TypeConverter
 from kinto.core.schema import Any
+from kinto.core.types import Request
 
 
 class AnyTypeConverter(TypeConverter):
     """Convert type agnostic parameter to swagger."""
 
-    def __call__(self, schema_node):
+    def __call__(self, schema_node: AnyType) -> dict:
         return {}
 
 
@@ -23,7 +26,7 @@ class OpenAPI(CorniceSwagger):
     """Kinto resource security roles. May be used for setting OAuth roles by plugins."""
 
     @classmethod
-    def expose_authentication_method(cls, method_name, definition):
+    def expose_authentication_method(cls, method_name: str, definition: dict) -> None:
         """Allow security extensions to expose authentication methods on the
         OpenAPI documentation. The definition field should correspond to a
         valid OpenAPI security definition. Refer to the
@@ -49,7 +52,7 @@ class OpenAPI(CorniceSwagger):
         cls.security_definitions[method_name] = definition
         cls.security_roles[method_name] = definition.get("scopes", {}).keys()
 
-    def __init__(self, services, request):
+    def __init__(self, services: AnyType, request: Request) -> None:
         super().__init__(services)
 
         self.request = request
@@ -62,7 +65,7 @@ class OpenAPI(CorniceSwagger):
         # Matches the base routing address - See kinto.core.initialization
         self.base_path = f"/v{self.api_version.split('.')[0]}"
 
-    def generate(self):  # ty: ignore[invalid-method-override]
+    def generate(self) -> dict:  # ty: ignore[invalid-method-override]
         base_spec = {
             "host": self.request.host,
             "schemes": [self.settings.get("http_scheme") or "http"],
@@ -71,7 +74,7 @@ class OpenAPI(CorniceSwagger):
 
         return super(OpenAPI, self).generate(swagger=base_spec)
 
-    def default_tags(self, service, method):
+    def default_tags(self, service: AnyType, method: str) -> list[str]:
         """Povides default tags to views."""
 
         base_tag = service.name.capitalize()
@@ -80,7 +83,7 @@ class OpenAPI(CorniceSwagger):
 
         return [base_tag]
 
-    def default_op_ids(self, service, method):
+    def default_op_ids(self, service: AnyType, method: str) -> str:
         """Povides default operation ids to methods if not defined on view."""
 
         method = method.lower()
@@ -98,7 +101,7 @@ class OpenAPI(CorniceSwagger):
 
         return op_id
 
-    def default_security(self, service, method):
+    def default_security(self, service: AnyType, method: str) -> list:
         """Provides OpenAPI security properties based on kinto policies."""
 
         definitions = service.definitions

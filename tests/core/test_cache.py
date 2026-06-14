@@ -1,5 +1,6 @@
 import time
 import unittest
+from typing import cast
 from unittest import mock
 
 import pytest
@@ -38,7 +39,7 @@ class MemoryCacheTest(CacheTest, unittest.TestCase):
     settings = {"cache_prefix": "", "cache_max_size_bytes": 7000}
 
     def get_backend_prefix(self, prefix):
-        backend_prefix = CacheTest.get_backend_prefix(self, prefix)
+        backend_prefix = cast(memory_backend.Cache, CacheTest.get_backend_prefix(self, prefix))
 
         # Share the store between both client for tests.
         backend_prefix._ttl = self.cache._ttl
@@ -149,7 +150,7 @@ class RedisCacheTest(CacheTest, unittest.TestCase):
         )
         backend = redis_backend.load_from_config(config)
         self.assertEqual(backend._client.connection_pool.max_connections, 111)
-        self.assertEqual(backend._client.connection_pool.timeout, 3.14)
+        self.assertEqual(backend._client.connection_pool.timeout, 3.14)  # ty: ignore[unresolved-attribute]
 
 
 @pytest.mark.xdist_group("postgres")

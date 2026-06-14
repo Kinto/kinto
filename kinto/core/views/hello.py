@@ -1,3 +1,5 @@
+from typing import Any
+
 import colander
 from pyramid.security import NO_PERMISSION_REQUIRED
 
@@ -23,7 +25,7 @@ hello_response_schemas = {
     operation_id="server_info",
     response_schemas=hello_response_schemas,
 )
-def get_hello(request):
+def get_hello(request) -> dict:
     """Return information regarding the current instance."""
     settings = request.registry.settings
 
@@ -64,5 +66,5 @@ def get_hello(request):
     return data
 
 
-def get_eos(request):
+def get_eos(request) -> Any:
     return request.registry.settings["eos"]

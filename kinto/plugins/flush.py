@@ -1,6 +1,9 @@
+from pyramid.config import Configurator
 from pyramid.security import NO_PERMISSION_REQUIRED
 
 from kinto.core import Service
+from kinto.core.storage import KintoObject
+from kinto.core.types import Request
 from kinto.events import ServerFlushed
 
 
@@ -8,7 +11,7 @@ flush = Service(name="flush", description="Clear database content", path="/__flu
 
 
 @flush.post(permission=NO_PERMISSION_REQUIRED)
-def flush_post(request):
+def flush_post(request: Request) -> KintoObject:
     request.registry.storage.flush()
     request.registry.permission.flush()
     request.registry.cache.flush()
@@ -19,7 +22,7 @@ def flush_post(request):
     return {}
 
 
-def includeme(config):
+def includeme(config: Configurator) -> None:
     config.add_api_capability(
         "flush_endpoint",
         description="The __flush__ endpoint can be used to remove all data from all backends.",
