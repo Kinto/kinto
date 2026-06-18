@@ -7,6 +7,7 @@ from bravado_core.response import OutgoingResponse, validate_response
 from bravado_core.spec import Spec
 
 from kinto.core.utils import json
+from kinto.core.views.openapi import openapi_view
 
 from ..support import (
     MINIMALIST_BUCKET,
@@ -21,6 +22,11 @@ class OpenAPITest(BaseWebTest, unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+        # The OpenAPI spec is memoized on the view across requests; drop any
+        # spec cached by a previously built app so it is regenerated for the
+        # app being tested here.
+        if hasattr(openapi_view, "__json__"):
+            del openapi_view.__json__
         cls.spec_dict = cls.app.get("/__api__").json
         bravado_config = {
             # Use models (Python classes) instead of dicts for #/definitions/{models}
