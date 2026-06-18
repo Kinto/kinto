@@ -122,6 +122,13 @@ nitpick_ignore = [
     ("py:class", "Sequence"),
     # kinto.core.resource.schema
     ("py:attr", "colander.null"),
+    # Type annotations
+    ("py:class", "kinto.core.types.Request"),
+    ("py:class", "kinto.core.events.ACTIONS"),
+    ("py:class", "kinto.core.permission.PermissionBase"),
+    ("py:class", "RouteFactory"),
+    ("py:class", "webtest.app.TestApp"),
+    ("py:class", "redis.client.Redis"),
 ]
 
 
@@ -163,6 +170,7 @@ def setup(app):
 # -- Options for intersphinx --------------------------------------------------
 
 intersphinx_mapping = {
+    "python": ("https://docs.python.org/3", None),
     "colander": ("https://docs.pylonsproject.org/projects/colander/en/latest/", None),
     "pyramid": ("https://docs.pylonsproject.org/projects/pyramid/en/latest/", None),
 }

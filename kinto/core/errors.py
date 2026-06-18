@@ -1,5 +1,7 @@
 import logging
 from enum import Enum
+from typing import Any as AnyType
+from typing import Union
 
 import colander
 from pyramid import httpexceptions
@@ -87,8 +89,14 @@ class ErrorSchema(colander.MappingSchema):
 
 
 def http_error(
-    httpexception, errno=None, code=None, error=None, message=None, info=None, details=None
-):
+    httpexception: httpexceptions.HTTPException,
+    errno: Union["ERRORS", int] | None = None,
+    code: int | None = None,
+    error: str | None = None,
+    message: str | None = None,
+    info: str | None = None,
+    details: AnyType = None,
+) -> httpexceptions.HTTPException:
     """Return a JSON formatted response matching the error HTTP API.
 
     :param httpexception: Instance of :mod:`~pyramid:pyramid.httpexceptions`
@@ -116,13 +124,13 @@ def http_error(
     }
 
     response = httpexception
-    response.errno = errno
+    setattr(response, "errno", errno)
     response.json = ErrorSchema().deserialize(body)
     response.content_type = "application/json"
     return response
 
 
-def json_error_handler(request):
+def json_error_handler(request) -> httpexceptions.HTTPException:
     """Cornice JSON error handler, returning consistent JSON formatted errors
     from schema validation errors.
 
@@ -171,7 +179,13 @@ def json_error_handler(request):
     return response
 
 
-def raise_invalid(request, location="body", name=None, description=None, **kwargs):
+def raise_invalid(
+    request,
+    location: AnyType = "body",
+    name: AnyType | None = None,
+    description: AnyType | None = None,
+    **kwargs: AnyType,
+) -> None:
     """Helper to raise a validation error.
 
     :param location: location in request (e.g. ``'querystring'``)
@@ -185,7 +199,12 @@ def raise_invalid(request, location="body", name=None, description=None, **kwarg
     raise response
 
 
-def send_alert(request, message=None, url=None, code="soft-eol"):
+def send_alert(
+    request,
+    message: str | None = None,
+    url: str | None = None,
+    code: str = "soft-eol",
+) -> None:
     """Helper to add an Alert header to the response.
 
     :param code: The type of error 'soft-eol', 'hard-eol'
@@ -198,7 +217,7 @@ def send_alert(request, message=None, url=None, code="soft-eol"):
     request.response.headers["Alert"] = json.dumps({"code": code, "message": message, "url": url})
 
 
-def request_GET(request):
+def request_GET(request) -> AnyType:
     """Catches a UnicodeDecode error in request.GET in case a wrong request was received.
     Fixing a webob long term issue: https://github.com/Pylons/webob/issues/161
     """

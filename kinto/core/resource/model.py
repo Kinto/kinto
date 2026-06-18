@@ -1,6 +1,9 @@
 import warnings
 from typing import Any
 
+from kinto.core.permission import PermissionBase
+from kinto.core.storage import Filter, KintoObject, Sort, StorageBase, generators
+
 
 class Model:
     """A resource stores and manipulate objects in its attached storage.
@@ -29,14 +32,14 @@ class Model:
 
     def __init__(
         self,
-        storage,
-        permission,
-        id_generator=None,
-        resource_name="",
-        parent_id="",
-        current_principal=None,
+        storage: StorageBase,
+        permission: PermissionBase,
+        id_generator: generators.Generator | None = None,
+        resource_name: str = "",
+        parent_id: str = "",
+        current_principal: str | None = None,
         prefixed_principals: list | None = None,
-        explicit_perm=True,
+        explicit_perm: bool = True,
     ):
         """
         :param storage: an instance of storage
@@ -65,7 +68,7 @@ class Model:
         # Object permission id.
         self.get_permission_object_id: Any = None
 
-    def timestamp(self, parent_id=None):
+    def timestamp(self, parent_id: str | None = None) -> int:
         """Fetch the resource current timestamp.
 
         :param str parent_id: optional filter for parent id
@@ -77,7 +80,7 @@ class Model:
             resource_name=self.resource_name, parent_id=parent_id
         )
 
-    def _annotate(self, obj, perm_object_id):
+    def _annotate(self, obj: KintoObject, perm_object_id: str) -> KintoObject:
         permissions = self.permission.get_object_permissions(perm_object_id)
         # Permissions are not returned if user only has read permission.
         writers = permissions.get("write", [])
@@ -88,20 +91,21 @@ class Model:
         annotated = {**obj, self.permissions_field: permissions}
         return annotated
 
-    def _allow_write(self, perm_object_id):
+    def _allow_write(self, perm_object_id: str) -> None:
         """Helper to give the ``write`` permission to the current user."""
         if self.explicit_perm:
+            assert self.current_principal is not None
             self.permission.add_principal_to_ace(perm_object_id, "write", self.current_principal)
 
     def get_objects(
         self,
-        filters=None,
-        sorting=None,
-        pagination_rules=None,
-        limit=None,
-        include_deleted=False,
-        parent_id=None,
-    ):
+        filters: list[Filter] | None = None,
+        sorting: list[Sort] | None = None,
+        pagination_rules: list[list[Filter]] | None = None,
+        limit: int | None = None,
+        include_deleted: bool = False,
+        parent_id: str | None = None,
+    ) -> list[KintoObject]:
         """Fetch the resource objects.
 
         Override to post-process objects after feching them from storage.
@@ -150,7 +154,9 @@ class Model:
             deleted_field=self.deleted_field,
         )
 
-    def count_objects(self, filters=None, parent_id=None):
+    def count_objects(
+        self, filters: list[Filter] | None = None, parent_id: str | None = None
+    ) -> int:
         """Fetch the total count of resource objects
 
         Override to post-process objects after feching them from storage.
@@ -177,8 +183,13 @@ class Model:
         )
 
     def delete_objects(
-        self, filters=None, sorting=None, pagination_rules=None, limit=None, parent_id=None
-    ):
+        self,
+        filters: list[Filter] | None = None,
+        sorting: list[Sort] | None = None,
+        pagination_rules: list[list[Filter]] | None = None,
+        limit: int | None = None,
+        parent_id: str | None = None,
+    ) -> list[KintoObject]:
         """Delete multiple resource objects.
 
         Override to post-process objects after their deletion from storage.
@@ -229,7 +240,7 @@ class Model:
         self.permission.delete_object_permissions(*perm_ids)
         return deleted
 
-    def get_object(self, object_id, parent_id=None):
+    def get_object(self, object_id: str, parent_id: str | None = None) -> KintoObject:
         """Fetch current view related object, and raise 404 if missing.
 
         :param str object_id: object identifier
@@ -249,7 +260,7 @@ class Model:
         perm_object_id = self.get_permission_object_id(object_id)
         return self._annotate(obj, perm_object_id)
 
-    def create_object(self, obj, parent_id=None):
+    def create_object(self, obj: KintoObject, parent_id: str | None = None) -> KintoObject:
         """Create an object in the resource.
 
         The current principal is added to the owner (``write`` permission).
@@ -291,7 +302,7 @@ class Model:
 
         return self._annotate(created, perm_object_id)
 
-    def update_object(self, obj, parent_id=None):
+    def update_object(self, obj: KintoObject, parent_id: str | None = None) -> KintoObject:
         """Update object and the specified permissions.
 
         If no permissions is specified, the current permissions are not
@@ -334,7 +345,9 @@ class Model:
 
         return self._annotate(updated, perm_object_id)
 
-    def delete_object(self, obj, parent_id=None, last_modified=None):
+    def delete_object(
+        self, obj: KintoObject, parent_id: str | None = None, last_modified: int | None = None
+    ) -> KintoObject:
         """Delete an object and its associated permissions.
 
         Override to perform actions or post-process objects after deletion
@@ -370,37 +383,39 @@ class Model:
         )
 
     @property
-    def collection_id(self):
+    def collection_id(self) -> str:
         message = "`collection_id` is deprecated, use `resource_name` instead."
         warnings.warn(message, DeprecationWarning)
         return self.resource_name
 
-    def get_records(self, *args, **kwargs):
+    def get_records(self, *args, **kwargs) -> list[KintoObject]:
         message = "`get_records()` is deprecated, use `get_objects()` instead."
         warnings.warn(message, DeprecationWarning)
         return self.get_objects(*args, **kwargs)
 
-    def delete_records(self, *args, **kwargs):
+    def delete_records(self, *args, **kwargs) -> list[KintoObject]:
         message = "`delete_records()` is deprecated, use `delete_objects()` instead."
         warnings.warn(message, DeprecationWarning)
         return self.delete_objects(*args, **kwargs)
 
-    def get_record(self, record_id, parent_id=None):
+    def get_record(self, record_id: str, parent_id: str | None = None) -> KintoObject:
         message = "`get_record()` is deprecated, use `get_object()` instead."
         warnings.warn(message, DeprecationWarning)
         return self.get_object(object_id=record_id, parent_id=parent_id)
 
-    def create_record(self, record, parent_id=None):
+    def create_record(self, record: KintoObject, parent_id: str | None = None) -> KintoObject:
         message = "`create_record()` is deprecated, use `create_object()` instead."
         warnings.warn(message, DeprecationWarning)
         return self.create_object(obj=record, parent_id=parent_id)
 
-    def update_record(self, record, parent_id=None):
+    def update_record(self, record: KintoObject, parent_id: str | None = None) -> KintoObject:
         message = "`update_record()` is deprecated, use `update_object()` instead."
         warnings.warn(message, DeprecationWarning)
         return self.update_object(obj=record, parent_id=parent_id)
 
-    def delete_record(self, record, parent_id=None, last_modified=None):
+    def delete_record(
+        self, record: KintoObject, parent_id: str | None = None, last_modified: int | None = None
+    ) -> KintoObject:
         message = "`delete_record()` is deprecated, use `delete_object()` instead."
         warnings.warn(message, DeprecationWarning)
         return self.delete_object(obj=record, parent_id=parent_id, last_modified=last_modified)

@@ -1,6 +1,7 @@
 import re
 import sys
 
+from pyramid.config import Configurator
 from pyramid.exceptions import ConfigurationError
 
 from kinto.authorization import PERMISSIONS_INHERITANCE_TREE
@@ -18,7 +19,7 @@ __all__ = [
 DOCS_URL = "https://kinto.readthedocs.io/en/stable/api/1.x/accounts.html"
 
 
-def includeme(config):
+def includeme(config: Configurator) -> None:
     settings = config.get_settings()
     config.add_api_capability(
         "accounts",

@@ -8,12 +8,14 @@ from pyramid.settings import aslist
 from kinto.core import resource, utils
 from kinto.core.errors import http_error, raise_invalid
 from kinto.core.events import ACTIONS, ResourceChanged
+from kinto.core.storage import KintoObject
+from kinto.core.types import Request
 from kinto.views import NameGenerator
 
 from .utils import ACCOUNT_CACHE_KEY, ACCOUNT_POLICY_NAME, hash_password
 
 
-def _extract_posted_body_id(request):
+def _extract_posted_body_id(request: Request) -> str:
     try:
         # Anonymous creation with POST.
         return request.json["data"]["id"]
@@ -41,7 +43,7 @@ class AccountSchema(resource.ResourceSchema):
 class Account(resource.Resource):
     schema = AccountSchema
 
-    def __init__(self, request, context):
+    def __init__(self, request, context) -> None:
         settings = request.registry.settings
         # Store if current user is administrator (before accessing get_parent_id())
         allowed_from_settings = settings.get("account_write_principals", [])
@@ -59,18 +61,19 @@ class Account(resource.Resource):
             self.model.current_principal = f"{ACCOUNT_POLICY_NAME}:{self.model.parent_id}"
 
     @reify
-    def id_generator(self):
+    def id_generator(self) -> AccountIdGenerator:
         # This generator is used for ID validation.
         return AccountIdGenerator()
 
-    def get_parent_id(self, request):
+    def get_parent_id(self, request: Request) -> str:
         # The whole challenge here is that we want to isolate what
         # authenticated users can list, but give access to everything to
         # administrators.
         # Plus when anonymous create accounts, we have to set their parent id
         # to the same value they would obtain when authenticated.
-        if self.context.is_administrator:  # ty: ignore[unresolved-attribute]
-            if self.context.on_plural_endpoint:  # ty: ignore[unresolved-attribute]
+        assert self.context is not None
+        if self.context.is_administrator:
+            if self.context.on_plural_endpoint:
                 # Accounts created by admin should have userid as parent.
                 if request.method.lower() == "post":
                     return _extract_posted_body_id(request)
@@ -81,7 +84,7 @@ class Account(resource.Resource):
                 # No pattern matching for admin on single record.
                 return request.matchdict["id"]
 
-        if not self.context.is_anonymous:  # ty: ignore[unresolved-attribute]
+        if not self.context.is_anonymous:
             # Authenticated users see their own account only.
             return request.selected_userid
 
@@ -91,8 +94,8 @@ class Account(resource.Resource):
 
         return _extract_posted_body_id(request)
 
-    def process_object(self, new, old=None):
-        new = super(Account, self).process_object(new, old)
+    def process_object(self, new: KintoObject, old: KintoObject | None = None) -> KintoObject:
+        new = super().process_object(new, old)
 
         if "data" in self.request.json and "password" in self.request.json["data"]:
             new["password"] = hash_password(new["password"])
@@ -104,7 +107,8 @@ class Account(resource.Resource):
 
         # Administrators can reach other accounts and anonymous have no
         # selected_userid. So do not try to enforce.
-        if self.context.is_administrator or self.context.is_anonymous:  # ty: ignore[unresolved-attribute]
+        assert self.context is not None
+        if self.context.is_administrator or self.context.is_anonymous:
             return new
 
         # Otherwise, we force the id to match the authenticated username.
@@ -122,7 +126,7 @@ class Account(resource.Resource):
 @subscriber(
     ResourceChanged, for_resources=("account",), for_actions=(ACTIONS.UPDATE, ACTIONS.DELETE)
 )
-def on_account_changed(event):
+def on_account_changed(event: ResourceChanged) -> None:
     request = event.request
     cache = request.registry.cache
     settings = request.registry.settings

@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING, Any
 from unittest import mock
 
 from pyramid import testing
+from pyramid.config import Configurator
 
 from kinto.core.permission import heartbeat
 from kinto.core.storage import exceptions
@@ -29,7 +30,7 @@ class PermissionTest(_PermissionTestBase):
         self.request = DummyRequest()
         self.client_error_patcher = []
 
-    def _get_config(self):
+    def _get_config(self) -> Configurator:
         """Mock Pyramid config object."""
         config = testing.setUp()
         config.add_settings(self.settings)

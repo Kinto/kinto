@@ -160,7 +160,7 @@ class RouteFactoryTest(unittest.TestCase):
     def test_permits_takes_route_factory_allowed_principals_into_account_for_object_creation(self):
         request = DummyRequest()
         context = RouteFactory(request)
-        context._check_permission.return_value = False
+        context._check_permission.return_value = False  # ty: ignore[unresolved-attribute]
         context.resource_name = "book"
         context.required_permission = "book:create"
         context._settings = {"book_create_principals": "fxa:user"}

@@ -1,4 +1,8 @@
 import re
+from collections.abc import Iterable
+from typing import Any
+
+from pyramid.config import Configurator
 
 from kinto.core.decorators import synchronized
 from kinto.core.permission import PermissionBase
@@ -18,22 +22,22 @@ class Permission(PermissionBase):
         super().__init__(*args, **kwargs)
         self.flush()
 
-    def initialize_schema(self, dry_run=False):
+    def initialize_schema(self, dry_run: bool = False) -> None:
         # Nothing to do.
         pass
 
-    def flush(self):
-        self._store = {}
+    def flush(self) -> None:
+        self._store: dict[str, set[str]] = {}
 
     @synchronized
-    def add_user_principal(self, user_id, principal):
+    def add_user_principal(self, user_id: str, principal: str) -> None:
         user_key = f"user:{user_id}"
         user_principals = self._store.get(user_key, set())
         user_principals.add(principal)
         self._store[user_key] = user_principals
 
     @synchronized
-    def remove_user_principal(self, user_id, principal):
+    def remove_user_principal(self, user_id: str, principal: str) -> None:
         user_key = f"user:{user_id}"
         user_principals = self._store.get(user_key, set())
         try:
@@ -47,7 +51,7 @@ class Permission(PermissionBase):
             self._store[user_key] = user_principals
 
     @synchronized
-    def remove_principal(self, principal):
+    def remove_principal(self, principal: str) -> None:
         for key, user_principals in self._store.items():
             if not key.startswith("user:"):
                 continue
@@ -57,7 +61,7 @@ class Permission(PermissionBase):
                 pass
 
     @synchronized
-    def get_user_principals(self, user_id):
+    def get_user_principals(self, user_id: str) -> set[str]:
         # Fetch the groups the user is in.
         user_key = f"user:{user_id}"
         members = self._store.get(user_key, set())
@@ -66,14 +70,14 @@ class Permission(PermissionBase):
         return members | group_authenticated
 
     @synchronized
-    def add_principal_to_ace(self, object_id, permission, principal):
+    def add_principal_to_ace(self, object_id: str, permission: str, principal: str) -> None:
         permission_key = f"permission:{object_id}:{permission}"
         object_permission_principals = self._store.get(permission_key, set())
         object_permission_principals.add(principal)
         self._store[permission_key] = object_permission_principals
 
     @synchronized
-    def remove_principal_from_ace(self, object_id, permission, principal):
+    def remove_principal_from_ace(self, object_id: str, permission: str, principal: str) -> None:
         permission_key = f"permission:{object_id}:{permission}"
         object_permission_principals = self._store.get(permission_key, set())
         try:
@@ -87,13 +91,18 @@ class Permission(PermissionBase):
             self._store[permission_key] = object_permission_principals
 
     @synchronized
-    def get_object_permission_principals(self, object_id, permission):
+    def get_object_permission_principals(self, object_id: str, permission: str) -> set[str]:
         permission_key = f"permission:{object_id}:{permission}"
         members = self._store.get(permission_key, set())
         return members
 
     @synchronized
-    def get_accessible_objects(self, principals, bound_permissions=None, with_children=True):
+    def get_accessible_objects(
+        self,
+        principals: Iterable[str],
+        bound_permissions: list[tuple[str, str]] | None = None,
+        with_children: bool = True,
+    ) -> dict[str, set[str]]:
         principals = set(principals)
         candidates = []
         if bound_permissions is None:
@@ -118,14 +127,16 @@ class Permission(PermissionBase):
         return perms_by_object_id
 
     @synchronized
-    def get_authorized_principals(self, bound_permissions):
+    def get_authorized_principals(self, bound_permissions: list[tuple[str, str]]) -> set[str]:
         principals = set()
         for obj_id, perm in bound_permissions:
             principals |= self.get_object_permission_principals(obj_id, perm)
         return principals
 
     @synchronized
-    def get_objects_permissions(self, objects_ids, permissions=None):
+    def get_objects_permissions(
+        self, objects_ids: list[str], permissions: list[str] | None = None
+    ) -> list[dict[str, set[str]]]:
         result = []
         for object_id in objects_ids:
             if permissions is None:
@@ -141,7 +152,9 @@ class Permission(PermissionBase):
         return result
 
     @synchronized
-    def replace_object_permissions(self, object_id, permissions):
+    def replace_object_permissions(
+        self, object_id: str, permissions: dict[str, Any]
+    ) -> dict[str, Any]:
         for permission, principals in permissions.items():
             permission_key = f"permission:{object_id}:{permission}"
             if permission_key in self._store and len(principals) == 0:
@@ -151,7 +164,7 @@ class Permission(PermissionBase):
         return permissions
 
     @synchronized
-    def delete_object_permissions(self, *object_id_list):
+    def delete_object_permissions(self, *object_id_list: str) -> None:
         to_delete = []
         for key in self._store.keys():
             object_id = key.split(":")[1]
@@ -163,5 +176,5 @@ class Permission(PermissionBase):
             del self._store[k]
 
 
-def load_from_config(config):
+def load_from_config(config: Configurator) -> Permission:
     return Permission()

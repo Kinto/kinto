@@ -1,5 +1,6 @@
 import base64
 import urllib.parse
+from typing import Any
 
 import colander
 import requests
@@ -10,6 +11,7 @@ from kinto.core.cornice.validators import colander_validator
 from kinto.core.errors import ERRORS, raise_invalid
 from kinto.core.resource.schema import ErrorResponseSchema
 from kinto.core.schema import URL
+from kinto.core.types import Request
 from kinto.core.utils import random_bytes_hex
 
 from .utils import fetch_openid_config
@@ -37,7 +39,7 @@ response_schemas = {
 }
 
 
-def provider_validator(request, **kwargs):
+def provider_validator(request: Request, **kwargs: Any) -> None:
     """
     This validator verifies that the validator in URL (eg. /openid/auth0/login)
     is a configured OpenIDConnect policy.
@@ -74,25 +76,20 @@ login = Service(
     validators=(colander_validator, provider_validator),
     response_schemas=response_schemas,
 )
-def get_login(request):
+def get_login(request: Request) -> None:
     """Initiates to login dance for the specified scopes and callback URI
     using appropriate redirections."""
 
     # Settings.
     provider = request.matchdict["provider"]
     settings_prefix = "multiauth.policy.%s." % provider
-    issuer = request.registry.settings[settings_prefix + "issuer"]
-    client_id = request.registry.settings[settings_prefix + "client_id"]
-    audience = request.registry.settings.get(settings_prefix + "audience", "")
-    userid_field = request.registry.settings.get(settings_prefix + "userid_field")
-    state_ttl = int(
-        request.registry.settings.get(
-            settings_prefix + "state_ttl_seconds", DEFAULT_STATE_TTL_SECONDS
-        )
-    )
-    state_length = int(
-        request.registry.settings.get(settings_prefix + "state_length", DEFAULT_STATE_LENGTH)
-    )
+    settings = request.registry.settings
+    issuer = settings[settings_prefix + "issuer"]
+    client_id = settings[settings_prefix + "client_id"]
+    audience = settings.get(settings_prefix + "audience", "")
+    userid_field = settings.get(settings_prefix + "userid_field")
+    state_ttl = int(settings.get(settings_prefix + "state_ttl_seconds", DEFAULT_STATE_TTL_SECONDS))
+    state_length = int(settings.get(settings_prefix + "state_length", DEFAULT_STATE_LENGTH))
 
     # Read OpenID configuration (cached by issuer)
     oid_config = fetch_openid_config(issuer)
@@ -147,7 +144,7 @@ token = Service(name="openid_token", path="/openid/{provider}/token", descriptio
 
 
 @token.get(schema=TokenSchema(), validators=(colander_validator, provider_validator))
-def get_token(request):
+def get_token(request: Request) -> None:
     """Trades the specified code and state against access and ID tokens.
     The client is redirected to the original ``callback`` URI with the
     result in querystring."""
@@ -155,9 +152,10 @@ def get_token(request):
     # Settings.
     provider = request.matchdict["provider"]
     settings_prefix = "multiauth.policy.%s." % provider
-    issuer = request.registry.settings[settings_prefix + "issuer"]
-    client_id = request.registry.settings[settings_prefix + "client_id"]
-    client_secret = request.registry.settings[settings_prefix + "client_secret"]
+    settings = request.registry.settings
+    issuer = settings[settings_prefix + "issuer"]
+    client_id = settings[settings_prefix + "client_id"]
+    client_secret = settings[settings_prefix + "client_secret"]
 
     # Read OpenID configuration (cached by issuer)
     oid_config = fetch_openid_config(issuer)

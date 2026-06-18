@@ -1,6 +1,9 @@
+from typing import Any
+
 import jwt
 import requests
 from pyramid import authentication as base_auth
+from pyramid.config import Configurator
 from pyramid.interfaces import IAuthenticationPolicy
 from pyramid.settings import aslist
 from zope.interface import implementer
@@ -8,13 +11,14 @@ from zope.interface import implementer
 from kinto.core import logger
 from kinto.core import utils as core_utils
 from kinto.core.openapi import OpenAPI
+from kinto.core.types import Request
 
 from .utils import fetch_openid_config
 
 
 @implementer(IAuthenticationPolicy)
 class OpenIDConnectPolicy(base_auth.CallbackAuthenticationPolicy):
-    def __init__(self, issuer, client_id, realm="Realm", **kwargs):
+    def __init__(self, issuer: str, client_id: str, realm: str = "Realm", **kwargs: Any) -> None:
         self.realm = realm
         self.issuer = issuer
         self.client_id = client_id
@@ -27,9 +31,9 @@ class OpenIDConnectPolicy(base_auth.CallbackAuthenticationPolicy):
         # Fetch OpenID config (at instantiation, ie. startup)
         self.oid_config = fetch_openid_config(issuer)
 
-        self._jwks_client = None
+        self._jwks_client: jwt.PyJWKClient | None = None
 
-    def unauthenticated_userid(self, request):
+    def unauthenticated_userid(self, request: Request) -> str | None:
         """Return the userid or ``None`` if token could not be verified."""
         settings = request.registry.settings
         hmac_secret = settings["userid_hmac_secret"]
@@ -59,13 +63,13 @@ class OpenIDConnectPolicy(base_auth.CallbackAuthenticationPolicy):
         # Extract meaningful field from userinfo (eg. email or sub)
         return payload.get(self.userid_field)
 
-    def forget(self, request):
+    def forget(self, request: Request) -> list[tuple[str, str]]:
         """A no-op. Credentials are sent on every request.
         Return WWW-Authenticate Realm header for Bearer token.
         """
         return [("WWW-Authenticate", '%s realm="%s"' % (self.header_type, self.realm))]
 
-    def _verify_token(self, access_token):
+    def _verify_token(self, access_token: str) -> Any:
         if self.audience != "" and self._decode_jwt(access_token) is None:
             # Logged debug in `_decode_jwt()`.
             return None
@@ -82,12 +86,12 @@ class OpenIDConnectPolicy(base_auth.CallbackAuthenticationPolicy):
             logger.debug("Unable to fetch user profile from %s (%s)" % (uri, e))
             return None
 
-    def _get_jwks_client(self):
+    def _get_jwks_client(self) -> jwt.PyJWKClient:
         if self._jwks_client is None:
             self._jwks_client = jwt.PyJWKClient(self.oid_config["jwks_uri"])
         return self._jwks_client
 
-    def _decode_jwt(self, access_token):
+    def _decode_jwt(self, access_token: str) -> Any:
         try:
             signing_key = self._get_jwks_client().get_signing_key_from_jwt(access_token)
             return jwt.decode(
@@ -103,11 +107,11 @@ class OpenIDConnectPolicy(base_auth.CallbackAuthenticationPolicy):
             return None
 
 
-def get_user_profile(request):
+def get_user_profile(request: Request) -> dict[str, Any]:
     return request.bound_data.get("user_profile", {})
 
 
-def includeme(config):
+def includeme(config: Configurator) -> None:
     # Activate end-points.
     config.scan("kinto.plugins.openid.views")
 

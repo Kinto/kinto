@@ -1,11 +1,14 @@
 import warnings
 from datetime import timedelta
+from typing import Any
 from urllib.parse import urlparse
 
+from pyramid.config import Configurator
 from pyramid.exceptions import ConfigurationError
 from zope.interface import implementer
 
 from kinto.core import metrics
+from kinto.core.types import Configurator as KintoConfigurator
 
 
 try:
@@ -14,7 +17,7 @@ except ImportError:  # pragma: no cover
     statsd_module = None  # ty: ignore[invalid-assignment]
 
 
-def sanitize(value):
+def sanitize(value: Any) -> Any:
     """
     Telegraf does not support ':' in values.
     See https://github.com/influxdata/telegraf/issues/4495
@@ -24,10 +27,10 @@ def sanitize(value):
 
 @implementer(metrics.IMetricsService)
 class StatsDService:
-    def __init__(self, host, port, prefix):
+    def __init__(self, host: str | None, port: int | None, prefix: str) -> None:
         self._client = statsd_module.StatsClient(host, port, prefix=prefix)
 
-    def timer(self, key, value=None, labels=[]):
+    def timer(self, key: str, value: Any = None, labels: list = []) -> Any:
         if labels:
             # [("method", "get")] -> "method.get"
             key = f"{key}." + ".".join(f"{label[0]}.{sanitize(label[1])}" for label in labels)
@@ -36,10 +39,10 @@ class StatsDService:
             return self._client.timing(key, value)
         return self._client.timer(key)
 
-    def observe(self, key, value, labels=[]):
+    def observe(self, key: str, value: Any, labels: list = []) -> Any:
         return self._client.gauge(key, sanitize(value))
 
-    def count(self, key, count=1, unique=None):
+    def count(self, key: str, count: int = 1, unique: Any = None) -> Any:
         if unique is None:
             return self._client.incr(key, count=count)
         if isinstance(unique, list):
@@ -54,7 +57,7 @@ class StatsDService:
         return self._client.set(key, unique)
 
 
-def load_from_config(config):
+def load_from_config(config: Configurator) -> StatsDService:
     # If this is called, it means that a ``statsd_url`` was specified in settings.
     # (see ``kinto.core.initialization``)
     # Raise a proper error if the ``statsd`` module is not installed.
@@ -74,7 +77,7 @@ def load_from_config(config):
     return StatsDService(uri.hostname, uri.port, prefix)
 
 
-def includeme(config):
+def includeme(config: KintoConfigurator) -> None:
     settings = config.get_settings()
 
     # TODO: this backend abstraction may not be required anymore.

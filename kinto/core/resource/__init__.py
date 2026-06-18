@@ -2,6 +2,8 @@ import functools
 import logging
 import re
 import warnings
+from collections.abc import Callable
+from typing import TYPE_CHECKING, Any
 from uuid import uuid4
 
 import colander
@@ -10,18 +12,21 @@ from pyramid import exceptions as pyramid_exceptions
 from pyramid.authorization import Everyone
 from pyramid.decorator import reify
 from pyramid.httpexceptions import (
+    HTTPException,
     HTTPNotFound,
     HTTPNotModified,
     HTTPPreconditionFailed,
     HTTPServiceUnavailable,
 )
+from pyramid.response import Response
 from pyramid.settings import asbool
 
 from kinto.core import Service
 from kinto.core.errors import ERRORS, http_error, raise_invalid, request_GET, send_alert
 from kinto.core.events import ACTIONS
-from kinto.core.storage import MISSING, Filter, Sort
+from kinto.core.storage import MISSING, Filter, KintoObject, Sort
 from kinto.core.storage import exceptions as storage_exceptions
+from kinto.core.types import Request
 from kinto.core.utils import (
     COMPARISON,
     apply_json_patch,
@@ -40,10 +45,14 @@ from .schema import JsonPatchRequestSchema, ResourceSchema
 from .viewset import ViewSet
 
 
+if TYPE_CHECKING:
+    from kinto.core.authorization import RouteFactory
+
+
 logger = logging.getLogger(__name__)
 
 
-def register(depth=1, **kwargs):
+def register(depth: int = 1, **kwargs) -> Callable[["type[Resource]"], "type[Resource]"]:
     """Resource class decorator.
 
     Register the decorated class in the cornice registry.
@@ -51,14 +60,16 @@ def register(depth=1, **kwargs):
     function.
     """
 
-    def wrapped(resource):
+    def wrapped(resource: type[Resource]) -> type[Resource]:
         register_resource(resource, depth=depth + 1, **kwargs)
         return resource
 
     return wrapped
 
 
-def register_resource(resource_cls, settings=None, viewset=None, depth=1, **kwargs):
+def register_resource(
+    resource_cls: "type[Resource]", settings=None, viewset=None, depth=1, **kwargs
+) -> Callable:
     """Register a resource in the cornice registry.
 
     :param resource_cls:
@@ -83,7 +94,7 @@ def register_resource(resource_cls, settings=None, viewset=None, depth=1, **kwar
 
     resource_name = viewset.get_name(resource_cls)
 
-    def register_service(endpoint_type, settings):
+    def register_service(endpoint_type: str, settings) -> Any:
         """Registers a service in cornice, for the given type."""
         path_pattern = getattr(viewset, f"{endpoint_type}_path")
         path_values = {"resource_name": resource_name}
@@ -130,7 +141,7 @@ def register_resource(resource_cls, settings=None, viewset=None, depth=1, **kwar
 
         return service
 
-    def callback(context, name, ob):
+    def callback(context, name, ob) -> None:
         # get the callbacks registered by the inner services
         # and call them from here when the @resource classes are being
         # scanned by venusian.
@@ -183,7 +194,7 @@ class Resource:
     permissions = ("read", "write")
     """List of allowed permissions names."""
 
-    def __init__(self, request, context=None):
+    def __init__(self, request, context: "RouteFactory | None" = None) -> None:
         """
         :param request:
             The current request object.
@@ -224,7 +235,7 @@ class Resource:
             )
 
     @reify
-    def id_generator(self):
+    def id_generator(self) -> Any:
         # ID generator by resource name in settings.
         default_id_generator = self.request.registry.id_generators[""]
         resource_name = self.request.current_resource_name
@@ -232,7 +243,7 @@ class Resource:
         return id_generator
 
     @reify
-    def timestamp(self):
+    def timestamp(self) -> int:
         """Return the current resource timestamp.
 
         :rtype: int
@@ -252,7 +263,7 @@ class Resource:
             raise http_error(HTTPServiceUnavailable(), errno=ERRORS.BACKEND, message=error_msg)
 
     @reify
-    def object_id(self):
+    def object_id(self) -> str | None:
         """Return the object id for this request. It's either in the match dict
         or in the posted body.
         """
@@ -267,7 +278,7 @@ class Resource:
                 return None
         return self.request.matchdict.get("id")
 
-    def get_parent_id(self, request):
+    def get_parent_id(self, request: Request) -> str:
         """Return the parent_id of the resource with regards to the current
         request.
 
@@ -289,7 +300,7 @@ class Resource:
         """
         return ""
 
-    def _get_known_fields(self):
+    def _get_known_fields(self) -> list[str]:
         """Return all the `field` defined in the resource schema."""
         known_fields = [c.name for c in self.schema().children] + [
             self.model.id_field,
@@ -298,7 +309,7 @@ class Resource:
         ]
         return known_fields
 
-    def is_known_field(self, field):
+    def is_known_field(self, field: str) -> bool:
         """Return ``True`` if `field` is defined in the resource schema.
         If the resource schema allows unknown fields, this will always return
         ``True``.
@@ -319,7 +330,7 @@ class Resource:
     # End-points
     #
 
-    def plural_head(self):
+    def plural_head(self) -> dict:
         """Model ``HEAD`` endpoint: empty response with a ``Total-Objects`` header.
 
         :raises: :exc:`~pyramid:pyramid.httpexceptions.HTTPNotModified` if
@@ -335,7 +346,7 @@ class Resource:
         """
         return self._plural_get(True)
 
-    def plural_get(self):
+    def plural_get(self) -> dict:
         """Model ``GET`` endpoint: retrieve multiple objects.
 
         :raises: :exc:`~pyramid:pyramid.httpexceptions.HTTPNotModified` if
@@ -351,7 +362,7 @@ class Resource:
         """
         return self._plural_get(False)
 
-    def _plural_get(self, head_request):
+    def _plural_get(self, head_request: bool) -> dict:
         self._add_timestamp_header(self.request.response)
         self._add_cache_header(self.request.response)
         self._raise_304_if_not_modified()
@@ -410,7 +421,7 @@ class Resource:
         # a next page. But we have to honor the limit in our returned response.
         return self.postprocess(objects[:limit])
 
-    def plural_post(self):
+    def plural_post(self) -> dict:
         """Model ``POST`` endpoint: create an object.
 
         If the new object id conflicts against an existing one, the
@@ -455,7 +466,7 @@ class Resource:
 
         return self.postprocess(obj, action=action)
 
-    def plural_delete(self):
+    def plural_delete(self) -> dict:
         """Model ``DELETE`` endpoint: delete multiple objects.
 
         :raises:
@@ -496,7 +507,7 @@ class Resource:
         action = len(deleted) > 0 and ACTIONS.DELETE or ACTIONS.READ
         return self.postprocess(deleted, action=action, old=objects[:limit])
 
-    def get(self):
+    def get(self) -> dict:
         """Object ``GET`` endpoint: retrieve an object.
 
         :raises: :exc:`~pyramid:pyramid.httpexceptions.HTTPNotFound` if
@@ -525,7 +536,7 @@ class Resource:
 
         return self.postprocess(obj)
 
-    def put(self):
+    def put(self) -> dict:
         """Object ``PUT`` endpoint: create or replace the provided object and
         return it.
 
@@ -569,10 +580,10 @@ class Resource:
         timestamp = obj[self.model.modified_field]
         self._add_timestamp_header(self.request.response, timestamp=timestamp)
 
-        action = existing and ACTIONS.UPDATE or ACTIONS.CREATE
+        action = ACTIONS.UPDATE if existing else ACTIONS.CREATE
         return self.postprocess(obj, action=action, old=existing)
 
-    def patch(self):
+    def patch(self) -> dict:
         """Object ``PATCH`` endpoint: modify an object and return its
         new version.
 
@@ -651,7 +662,7 @@ class Resource:
 
         return self.postprocess(data, action=ACTIONS.UPDATE, old=existing)
 
-    def delete(self):
+    def delete(self) -> dict:
         """Object ``DELETE`` endpoint: delete an object and return it.
 
         :raises: :exc:`~pyramid:pyramid.httpexceptions.HTTPNotFound` if
@@ -701,7 +712,7 @@ class Resource:
     # Data processing
     #
 
-    def process_object(self, new, old=None):
+    def process_object(self, new: KintoObject, old: KintoObject | None = None) -> KintoObject:
         """Hook for processing objects before they reach storage, to introduce
         specific logics on fields for example.
 
@@ -777,7 +788,7 @@ class Resource:
 
         return annotated
 
-    def apply_changes(self, obj, requested_changes):
+    def apply_changes(self, obj: KintoObject, requested_changes: dict | list) -> tuple[Any, Any]:
         """Merge `changes` into `object` fields.
 
         .. note::
@@ -790,7 +801,7 @@ class Resource:
 
             def apply_changes(self, obj, requested_changes):
                 # Ignore value change if inferior
-                if object['position'] > changes.get('position', -1):
+                if object['position'] > requested_changes.get('position', -1):
                     changes.pop('position', None)
                 return super().apply_changes(obj, requested_changes)
 
@@ -812,6 +823,7 @@ class Resource:
                 raise_invalid(self.request, **error_details)
 
         else:
+            assert isinstance(requested_changes, dict)
             applied_changes = {**requested_changes}
             updated = {**obj}
 
@@ -838,14 +850,20 @@ class Resource:
 
         return validated, applied_changes
 
-    def postprocess(self, result, action=ACTIONS.READ, old=None):
-        body = {}
+    def postprocess(
+        self,
+        result: KintoObject | list[KintoObject],
+        action: ACTIONS = ACTIONS.READ,
+        old: KintoObject | list[KintoObject] | None = None,
+    ) -> dict:
+        body: dict[str, Any] = {}
 
         if not isinstance(result, list):
             perms = result.pop(self.model.permissions_field, None)
             if perms is not None:
                 body["permissions"] = {k: list(p) for k, p in perms.items()}
             if old:
+                assert not isinstance(old, list)
                 # Remove permissions from event payload.
                 old.pop(self.model.permissions_field, None)
 
@@ -867,11 +885,11 @@ class Resource:
     # Internals
     #
 
-    def _404_for_object(self, object_id):
+    def _404_for_object(self, object_id: str) -> HTTPException:
         details = {"id": object_id, "resource_name": self.request.current_resource_name}
         return http_error(HTTPNotFound(), errno=ERRORS.INVALID_RESOURCE_ID, details=details)
 
-    def _get_object_or_404(self, object_id):
+    def _get_object_or_404(self, object_id: str) -> KintoObject:
         """Retrieve object from storage and raise ``404 Not found`` if missing.
 
         :raises: :exc:`~pyramid:pyramid.httpexceptions.HTTPNotFound` if
@@ -886,7 +904,7 @@ class Resource:
         except storage_exceptions.ObjectNotFoundError:
             raise self._404_for_object(object_id)
 
-    def _add_timestamp_header(self, response, timestamp=None):
+    def _add_timestamp_header(self, response: Response, timestamp: int | None = None) -> None:
         """Add current timestamp in response headers, when request comes in."""
         if timestamp is None:
             timestamp = self.timestamp
@@ -895,7 +913,7 @@ class Resource:
         # Return timestamp as ETag.
         response.headers["ETag"] = f'"{timestamp}"'
 
-    def _add_cache_header(self, response):
+    def _add_cache_header(self, response: Response) -> None:
         """Add Cache-Control and Expire headers, based a on a setting for the
         current resource.
 
@@ -922,7 +940,7 @@ class Resource:
             response.cache_control.no_cache = True
             response.cache_control.no_store = True
 
-    def _raise_400_if_invalid_id(self, object_id):
+    def _raise_400_if_invalid_id(self, object_id: Any) -> None:
         """Raise 400 if specified object id does not match the format excepted
         by storage backends.
 
@@ -933,7 +951,7 @@ class Resource:
             error_details = {"location": "path", "description": "Invalid object id"}
             raise_invalid(self.request, **error_details)
 
-    def _raise_304_if_not_modified(self, obj=None):
+    def _raise_304_if_not_modified(self, obj: KintoObject | None = None) -> None:
         """Raise 304 if current timestamp is inferior to the one specified
         in headers.
 
@@ -957,7 +975,7 @@ class Resource:
             self._add_timestamp_header(response, timestamp=current_timestamp)
             raise response
 
-    def _raise_412_if_modified(self, obj=None):
+    def _raise_412_if_modified(self, obj: KintoObject | None = None) -> None:
         """Raise 412 if current timestamp is superior to the one
         specified in headers.
 
@@ -1012,7 +1030,7 @@ class Resource:
             self._add_timestamp_header(response, timestamp=current_timestamp)
             raise response
 
-    def _raise_400_if_id_mismatch(self, new_id, object_id):
+    def _raise_400_if_id_mismatch(self, new_id: Any, object_id: str) -> None:
         """Raise 400 if the `new_id`, within the request body, does not match
         the `object_id`, obtained from request path.
 
@@ -1023,7 +1041,7 @@ class Resource:
             error_details = {"name": self.model.id_field, "description": error_msg}
             raise_invalid(self.request, **error_details)
 
-    def _extract_partial_fields(self):
+    def _extract_partial_fields(self) -> list | None:
         """Extract the fields to do the projection from QueryString parameters."""
         fields = self.request.validated["querystring"].get("_fields")
         if fields:
@@ -1042,7 +1060,7 @@ class Resource:
 
         return fields
 
-    def _extract_limit(self):
+    def _extract_limit(self) -> int:
         """Extract limit value from QueryString parameters."""
         paginate_by = self.request.registry.settings["paginate_by"]
         max_fetch_size = self.request.registry.settings["storage_max_fetch_size"]
@@ -1057,10 +1075,10 @@ class Resource:
 
         return limit
 
-    def _extract_filters(self):
+    def _extract_filters(self) -> list[Filter]:
         """Extracts filters from QueryString parameters."""
 
-        def is_valid_timestamp(value):
+        def is_valid_timestamp(value: Any) -> bool:
             # Is either integer, or integer as string, or integer between 2 quotes.
             if isinstance(value, str):
                 if not re.match(r'^(\d+)$|^("\d+")$', value):
@@ -1165,7 +1183,7 @@ class Resource:
 
         return filters
 
-    def _extract_sorting(self, limit):
+    def _extract_sorting(self, limit: int) -> list[Sort]:
         """Extracts filters from QueryString parameters."""
         specified = self.request.validated["querystring"].get("_sort", [])
         sorting = []
@@ -1192,7 +1210,12 @@ class Resource:
             sorting.append(Sort(self.model.modified_field, -1))
         return sorting
 
-    def _build_pagination_rules(self, sorting, last_object, rules=None):
+    def _build_pagination_rules(
+        self,
+        sorting: list[Sort],
+        last_object: KintoObject,
+        rules: list[list[Filter]] | None = None,
+    ) -> list[list[Filter]]:
         """Return the list of rules for a given sorting attribute and
         last_object.
 
@@ -1220,7 +1243,9 @@ class Resource:
 
         return self._build_pagination_rules(next_sorting, last_object, rules)
 
-    def _extract_pagination_rules_from_token(self, limit, sorting):
+    def _extract_pagination_rules_from_token(
+        self, limit: int, sorting: list[Sort]
+    ) -> tuple[list, int]:
         """Get pagination params."""
         token = self.request.validated["querystring"].get("_token", None)
         filters = []
@@ -1253,7 +1278,9 @@ class Resource:
 
         return filters, offset
 
-    def _next_page_url(self, sorting, limit, last_object, offset):
+    def _next_page_url(
+        self, sorting: list[Sort], limit: int, last_object: KintoObject, offset: int
+    ) -> str:
         """Build the Next-Page header from where we stopped."""
         token = self._build_pagination_token(sorting, last_object, offset)
 
@@ -1265,7 +1292,7 @@ class Resource:
         )
         return next_page_url
 
-    def _build_pagination_token(self, sorting, last_object, offset):
+    def _build_pagination_token(self, sorting: list, last_object: KintoObject, offset: int) -> str:
         """Build a pagination token.
 
         It is a base64 JSON object with the sorting fields values of
@@ -1288,27 +1315,27 @@ class Resource:
         return encode64(json.dumps(token))
 
     @property
-    def record_id(self):
+    def record_id(self) -> str | None:
         message = "`record_id` is deprecated, use `object_id` instead."
         warnings.warn(message, DeprecationWarning)
         return self.object_id
 
-    def process_record(self, *args, **kwargs):
+    def process_record(self, *args, **kwargs) -> KintoObject:
         message = "`process_record()` is deprecated, use `process_object()` instead."
         warnings.warn(message, DeprecationWarning)
         return self.process_object(*args, **kwargs)
 
-    def collection_get(self, *args, **kwargs):
+    def collection_get(self, *args, **kwargs) -> dict:
         message = "`collection_get()` is deprecated, use `plural_get()` instead."
         warnings.warn(message, DeprecationWarning)
         return self.plural_get(*args, **kwargs)
 
-    def collection_post(self, *args, **kwargs):
+    def collection_post(self, *args, **kwargs) -> dict:
         message = "`collection_post()` is deprecated, use `plural_post()` instead."
         warnings.warn(message, DeprecationWarning)
         return self.plural_post(*args, **kwargs)
 
-    def collection_delete(self, *args, **kwargs):
+    def collection_delete(self, *args, **kwargs) -> dict:
         message = "`collection_delete()` is deprecated, use `plural_delete()` instead."
         warnings.warn(message, DeprecationWarning)
         return self.plural_delete(*args, **kwargs)

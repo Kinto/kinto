@@ -1,6 +1,7 @@
 import os
 
 from kinto.core.decorators import cache_forever
+from kinto.core.types import Request
 
 
 HERE = os.path.dirname(__file__)
@@ -8,7 +9,7 @@ HERE = os.path.dirname(__file__)
 
 # Configured home page
 @cache_forever
-def admin_home_view(request):
+def admin_home_view(request: Request) -> str:
     """
     This view reads the ``index.html`` file from the Admin assets path folder
     and serves it.

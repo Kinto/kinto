@@ -26,7 +26,7 @@ openapi_response_schemas = {
     tags=["Utilities"],
     operation_id="get_openapi_spec",
 )
-def openapi_view(request):
+def openapi_view(request) -> dict:
     # Only build json once
     try:
         return openapi_view.__json__

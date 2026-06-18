@@ -62,8 +62,8 @@ def _generate_colander_validator(location):
                 :type name: str
                 :param bases: The class's superclasses.
                 :type bases: tuple
-                :param dct: The class's class attributes.
-                :type dct: dict
+                :param class_attrs: The class's class attributes.
+                :type class_attrs: dict
                 """
                 class_attrs[location] = schema_instance
                 return type(name, bases, class_attrs)

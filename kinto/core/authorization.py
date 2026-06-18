@@ -1,6 +1,7 @@
 import functools
 import logging
 import re
+from typing import Any
 
 from pyramid.authorization import Authenticated
 from pyramid.interfaces import IAuthorizationPolicy
@@ -9,6 +10,7 @@ from zope.interface import implementer
 
 from kinto.core import utils
 from kinto.core.storage import exceptions as storage_exceptions
+from kinto.core.types import Request
 
 
 logger = logging.getLogger(__name__)
@@ -20,7 +22,7 @@ PRIVATE = "private"
 DYNAMIC = "dynamic"
 
 
-def groupfinder(userid, request):
+def groupfinder(userid: str, request: Request) -> list:
     """Fetch principals from permission backend for the specified `userid`.
 
     This is plugged by default using the ``multiauth.groupfinder`` setting.
@@ -54,7 +56,7 @@ class AuthorizationPolicy:
     a list of tuples (<object id>, <permission>). Useful when objects
     permission depend on others."""
 
-    def permits(self, context, principals, permission):
+    def permits(self, context: "RouteFactory", principals: list, permission: str) -> bool:
         if permission == PRIVATE:
             # When using the private permission, we bypass the permissions
             # backend, and simply authorize if authenticated.
@@ -64,7 +66,7 @@ class AuthorizationPolicy:
 
         create_permission = f"{context.resource_name}:create"
 
-        permission = context.required_permission
+        permission = context.required_permission  # ty: ignore[invalid-assignment]
         if permission == "create":
             permission = create_permission
 
@@ -116,7 +118,7 @@ class AuthorizationPolicy:
 
         return allowed
 
-    def _get_bound_permissions(self, object_id, permission):
+    def _get_bound_permissions(self, object_id: str | None, permission: str) -> list:
         if self.get_bound_permissions is None:
             # Permission to 'write' gives permission to 'read'.
             bound = [(object_id, permission)]
@@ -125,7 +127,7 @@ class AuthorizationPolicy:
             return bound
         return self.get_bound_permissions(object_id, permission)
 
-    def principals_allowed_by_permission(self, context, permission):
+    def principals_allowed_by_permission(self, context: Any, permission: str) -> Any:
         raise NotImplementedError()  # PRAGMA NOCOVER
 
 
@@ -136,6 +138,9 @@ class RouteFactory:
     permission_object_id = None
     current_object = None
     shared_ids = None
+    # Set by some resources (e.g. accounts) to refine permissions handling.
+    is_administrator: bool = False
+    is_anonymous: bool = False
 
     method_permissions = {
         "head": "read",
@@ -145,7 +150,7 @@ class RouteFactory:
         "patch": "write",
     }
 
-    def __init__(self, request):
+    def __init__(self, request: Request) -> None:
         # Store some shortcuts.
         permission = request.registry.permission
         self._check_permission = permission.check_permission
@@ -194,7 +199,7 @@ class RouteFactory:
 
         self._settings = request.registry.settings
 
-    def check_permission(self, principals, bound_perms):
+    def check_permission(self, principals: list, bound_perms: list | None) -> bool:
         """Read allowed principals from settings, if not any, query the permission
         backend to check if view is allowed.
         """
@@ -212,7 +217,9 @@ class RouteFactory:
                     return True
         return self._check_permission(principals, bound_perms)
 
-    def fetch_shared_objects(self, perm, principals, get_bound_permissions):
+    def fetch_shared_objects(
+        self, perm: str, principals: list, get_bound_permissions: Any | None
+    ) -> list:
         """Fetch objects that are readable or writable for the current
         principals.
 
@@ -241,7 +248,7 @@ class RouteFactory:
         self.shared_ids = [self._extract_object_id(id_) for id_ in ids]
         return self.shared_ids
 
-    def get_permission_object_id(self, request, object_id=None):
+    def get_permission_object_id(self, request: Request, object_id: str | None = None) -> str:
         """Returns the permission object id for the current request.
         In the nominal case, it is just the current URI without version prefix.
         For plural endpoint, it is the related object URI using the specified
@@ -268,11 +275,11 @@ class RouteFactory:
 
         return object_uri
 
-    def _extract_object_id(self, object_uri):
+    def _extract_object_id(self, object_uri: str) -> str:
         # XXX: Rewrite using kinto.core.utils.view_lookup() and matchdict['id']
         return object_uri.split("/")[-1]
 
-    def _find_required_permission(self, request, service):
+    def _find_required_permission(self, request: Request, service: Any) -> tuple:
         """Find out what is the permission object id and the required
         permission.
 

@@ -1,4 +1,7 @@
 import logging
+from typing import Any
+
+from pyramid.config import Configurator
 
 from kinto.core.cache import CacheBase
 from kinto.core.decorators import synchronized
@@ -22,23 +25,23 @@ class Cache(CacheBase):
         super().__init__(*args, **kwargs)
         self.flush()
 
-    def initialize_schema(self, dry_run=False):
+    def initialize_schema(self, dry_run: bool = False) -> None:
         # Nothing to do.
         pass
 
-    def flush(self):
-        self._created_at = {}
-        self._ttl = {}
-        self._store = {}
+    def flush(self) -> None:
+        self._created_at: dict[str, int] = {}
+        self._ttl: dict[str, int] = {}
+        self._store: dict[str, Any] = {}
         self._quota = 0
 
-    def _clean_expired(self):
+    def _clean_expired(self) -> None:
         current = msec_time()
         expired = [k for k, v in self._ttl.items() if current >= v]
         for expired_item_key in expired:
             self.delete(expired_item_key[len(self.prefix) :])
 
-    def _clean_oversized(self):
+    def _clean_oversized(self) -> None:
         if self.max_size_bytes is None or self._quota < self.max_size_bytes:
             return
 
@@ -48,18 +51,18 @@ class Cache(CacheBase):
             self.delete(key[len(self.prefix) :])
 
     @synchronized
-    def ttl(self, key):
+    def ttl(self, key: str) -> float:
         ttl = self._ttl.get(self.prefix + key)
         if ttl is not None:
             return (ttl - msec_time()) / 1000.0
         return -1
 
     @synchronized
-    def expire(self, key, ttl):
+    def expire(self, key: str, ttl: float) -> None:
         self._ttl[self.prefix + key] = msec_time() + int(ttl * 1000.0)
 
     @synchronized
-    def set(self, key, value, ttl):
+    def set(self, key: str, value: Any, ttl: float) -> None:
         if isinstance(value, bytes):
             raise TypeError("a string-like object is required, not 'bytes'")
         self._clean_expired()
@@ -71,7 +74,7 @@ class Cache(CacheBase):
         self._quota += size_of(item_key, value)
 
     @synchronized
-    def get(self, key):
+    def get(self, key: str) -> Any:
         self._clean_expired()
         value = self._store.get(self.prefix + key)
         if value is None:
@@ -81,7 +84,7 @@ class Cache(CacheBase):
         return value
 
     @synchronized
-    def delete(self, key):
+    def delete(self, key: str) -> Any:
         key = self.prefix + key
         self._ttl.pop(key, None)
         self._created_at.pop(key, None)
@@ -90,7 +93,7 @@ class Cache(CacheBase):
         return value
 
 
-def load_from_config(config):
+def load_from_config(config: Configurator) -> Cache:
     settings = config.get_settings()
     return Cache(
         cache_prefix=settings["cache_prefix"],
@@ -98,7 +101,7 @@ def load_from_config(config):
     )
 
 
-def size_of(key, value):
+def size_of(key: str, value: Any) -> int:
     # Key used for ttl, created_at and store.
     # Int size is 24 bytes one for ttl and one for created_at values
     return len(key) * 3 + len(str(value)) + 24 * 2

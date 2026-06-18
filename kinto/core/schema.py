@@ -7,6 +7,8 @@ may be reused across the `kinto.core` here.
     - If a schema is view specific, you should declare it on the respective view.
 """
 
+from typing import Any as AnyType
+
 import colander
 
 from kinto.core.utils import msec_time, native_value, strip_whitespace
@@ -34,7 +36,7 @@ class TimeStamp(colander.SchemaNode):  # ty: ignore[unsupported-base]
     missing = None
     """Default field value if not provided in object."""
 
-    def deserialize(self, cstruct=colander.null):
+    def deserialize(self, cstruct: AnyType = colander.null) -> AnyType:
         if cstruct is colander.null and self.auto_now:
             cstruct = msec_time()
         return super(TimeStamp, self).deserialize(cstruct)
@@ -54,14 +56,14 @@ class URL(colander.SchemaNode):  # ty: ignore[unsupported-base]
     schema_type = colander.String
     validator = colander.All(colander.url, colander.Length(min=1, max=2048))
 
-    def preparer(self, appstruct):
+    def preparer(self, appstruct: AnyType) -> AnyType:
         return strip_whitespace(appstruct)
 
 
 class Any(colander.SchemaType):
     """Colander type agnostic field."""
 
-    def deserialize(self, node, cstruct):
+    def deserialize(self, node: AnyType, cstruct: AnyType) -> AnyType:
         return cstruct
 
 
@@ -70,7 +72,7 @@ class HeaderField(colander.SchemaNode):  # ty: ignore[unsupported-base]
 
     missing = colander.drop
 
-    def deserialize(self, cstruct=colander.null):
+    def deserialize(self, cstruct: AnyType = colander.null) -> AnyType:
         if isinstance(cstruct, bytes):
             try:
                 cstruct = cstruct.decode("utf-8")
@@ -84,7 +86,7 @@ class QueryField(colander.SchemaNode):  # ty: ignore[unsupported-base]
 
     missing = colander.drop
 
-    def deserialize(self, cstruct=colander.null):
+    def deserialize(self, cstruct: AnyType = colander.null) -> AnyType:
         if isinstance(cstruct, str):
             cstruct = native_value(cstruct)
         return super(QueryField, self).deserialize(cstruct)
@@ -98,7 +100,7 @@ class FieldList(QueryField):
     missing = colander.drop
     fields = colander.SchemaNode(colander.String(), missing=colander.drop)
 
-    def deserialize(self, cstruct=colander.null):
+    def deserialize(self, cstruct: AnyType = colander.null) -> AnyType:
         if isinstance(cstruct, str):
             cstruct = cstruct.split(",")
         return super(FieldList, self).deserialize(cstruct)
@@ -111,7 +113,7 @@ class HeaderQuotedInteger(HeaderField):
     error_message = "The value should be integer between double quotes."
     validator = colander.Regex('^"([0-9]+?)"$|\\*', msg=error_message)
 
-    def deserialize(self, cstruct=colander.null):
+    def deserialize(self, cstruct: AnyType = colander.null) -> AnyType:
         param = super(HeaderQuotedInteger, self).deserialize(cstruct)
         if param is colander.drop or param == "*":
             return param

@@ -1,6 +1,9 @@
 import uuid
+from typing import Any
 
 from pyramid import httpexceptions
+from pyramid.config import Configurator
+from pyramid.response import Response
 from pyramid.security import NO_PERMISSION_REQUIRED
 from pyramid.settings import asbool
 
@@ -8,13 +11,14 @@ from kinto.authorization import RouteFactory
 from kinto.core import get_user_info as core_get_user_info
 from kinto.core.errors import raise_invalid
 from kinto.core.events import ACTIONS
+from kinto.core.storage import KintoObject
 from kinto.core.storage.exceptions import UnicityError
 from kinto.core.utils import build_request, hmac_digest, instance_uri, reapply_cors, view_lookup
 from kinto.views.buckets import Bucket
 from kinto.views.collections import Collection
 
 
-def create_bucket(request, bucket_id):
+def create_bucket(request: Any, bucket_id: str) -> None:
     """Create a bucket if it doesn't exists."""
     bucket_put = request.method.lower() == "put" and request.path.endswith("buckets/default")
     # Do nothing if current request will already create the bucket.
@@ -31,7 +35,7 @@ def create_bucket(request, bucket_id):
     already_created[bucket_id] = bucket
 
 
-def create_collection(request, bucket_id):
+def create_collection(request: Any, bucket_id: str) -> None:
     # Do nothing if current request does not involve a collection.
     subpath = request.matchdict.get("subpath")
     if not (subpath and subpath.rstrip("/").startswith("collections/")):
@@ -56,7 +60,7 @@ def create_collection(request, bucket_id):
     already_created[collection_uri] = collection
 
 
-def resource_create_object(request, resource_cls, uri):
+def resource_create_object(request: Any, resource_cls: type, uri: str) -> KintoObject:
     """Implicitly create a resource (or fail silently).
 
     In the default bucket, the bucket and collection are implicitly
@@ -106,7 +110,7 @@ def resource_create_object(request, resource_cls, uri):
     return obj
 
 
-def default_bucket(request):
+def default_bucket(request: Any) -> Response:
     if request.method.lower() == "options":
         path = request.path.replace("default", "unknown")
         subrequest = build_request(request, {"method": "OPTIONS", "path": path})
@@ -154,7 +158,7 @@ def default_bucket(request):
     return response
 
 
-def default_bucket_id(request):
+def default_bucket_id(request: Any) -> str:
     settings = request.registry.settings
     secret = settings.get("default_bucket_hmac_secret", settings["userid_hmac_secret"])
     # Build the user unguessable bucket_id UUID from its user_id
@@ -162,12 +166,12 @@ def default_bucket_id(request):
     return str(uuid.UUID(digest[:32]))
 
 
-def get_user_info(request):
+def get_user_info(request: Any) -> dict[str, Any]:
     user_info = {**core_get_user_info(request), "bucket": request.default_bucket_id}
     return user_info
 
 
-def includeme(config):
+def includeme(config: Configurator) -> None:
     # Redirect default to the right endpoint
     config.add_view(default_bucket, route_name="default_bucket", permission=NO_PERMISSION_REQUIRED)
     config.add_view(

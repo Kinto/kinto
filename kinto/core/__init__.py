@@ -3,8 +3,11 @@
 import logging
 import tempfile
 from importlib.metadata import version as get_version
+from typing import Any
 
 from dockerflow import logging as dockerflow_logging
+from pyramid.config import Configurator
+from pyramid.request import Request
 from pyramid.settings import aslist
 
 from kinto.core import errors, events
@@ -14,6 +17,8 @@ from kinto.core.initialization import (  # NOQA
     install_middlewares,
     load_default_settings,
 )
+from kinto.core.types import Configurator as KintoConfigurator
+from kinto.core.types import Request as KintoRequest
 from kinto.core.utils import (
     current_resource_name,
     current_service,
@@ -124,11 +129,11 @@ class Service(CorniceService):
 
     default_cors_headers = ("Backoff", "Retry-After", "Alert", "Content-Length", "Content-Type")
 
-    def error_handler(self, request):
+    def error_handler(self, request: Request) -> Any:
         return errors.json_error_handler(request)
 
     @classmethod
-    def init_from_settings(cls, settings):
+    def init_from_settings(cls, settings: dict) -> None:
         cls.renderer = settings["json_renderer"]
         cls.cors_origins = tuple(aslist(settings["cors_origins"]))
         cors_max_age = settings["cors_max_age_seconds"]
@@ -139,10 +144,12 @@ class JsonLogFormatter(dockerflow_logging.MozlogFormatter):
     logger_name = "kinto"
 
     @classmethod
-    def init_from_settings(cls, settings):
+    def init_from_settings(cls, settings: dict) -> None:
         cls.logger_name = settings["project_name"]
 
-    def __init__(self, fmt=None, datefmt=None, style="%"):
+    def __init__(
+        self, fmt: str | None = None, datefmt: str | None = None, style: str = "%"
+    ) -> None:
         # Do not let mozilla-cloud-services-logger constructor to improperly
         # use style as the logger_name.
         # See https://github.com/mozilla/mozilla-cloud-services-logger/issues/3
@@ -159,31 +166,40 @@ class StreamHandlerWithRequestID(logging.StreamHandler):
     ``logging.config.fileConfig()`` does not load filters from ``.ini`` files.
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         filter_ = dockerflow_logging.RequestIdLogFilter()
         self.addFilter(filter_)
 
 
-def get_user_info(request):
+def get_user_info(request: KintoRequest) -> dict:
     # Default user info (shown in hello view for example).
-    user_info = {"id": request.prefixed_userid, "principals": request.prefixed_principals}
+    user_info = {
+        "id": request.prefixed_userid,
+        "principals": request.prefixed_principals,
+    }
     if hasattr(request, "get_user_profile"):
-        user_info["profile"] = request.get_user_profile()
+        user_info["profile"] = request.get_user_profile()  # ty: ignore[call-non-callable]
     return user_info
 
 
-def includeme(config):
+def includeme(config: Configurator) -> None:
     settings = config.get_settings()
 
     # Heartbeat registry.
-    config.registry.heartbeats = {}
+    config.registry.heartbeats = {}  # ty: ignore[invalid-assignment]
 
     # Public settings registry.
-    config.registry.public_settings = {"batch_max_requests", "readonly", "explicit_permissions"}
+    config.registry.public_settings = {  # ty: ignore[invalid-assignment]
+        "batch_max_requests",
+        "readonly",
+        "explicit_permissions",
+    }
 
     # Directive to declare arbitrary API capabilities.
-    def add_api_capability(config, identifier, description="", url="", **kw):
+    def add_api_capability(
+        config: KintoConfigurator, identifier: str, description: str = "", url: str = "", **kw
+    ) -> None:
         existing = config.registry.api_capabilities.get(identifier)
         if existing:
             error_msg = "The '{}' API capability was already registered ({})."
@@ -193,12 +209,12 @@ def includeme(config):
         config.registry.api_capabilities[identifier] = capability
 
     config.add_directive("add_api_capability", add_api_capability)
-    config.registry.api_capabilities = {}
+    config.registry.api_capabilities = {}  # ty: ignore[invalid-assignment]
 
     # Directive for plugins to declare schema migrations.
     from kinto.core.migrations import IMigratable
 
-    def add_migration(config, migration):
+    def add_migration(config: KintoConfigurator, migration: Any) -> None:
         config.registry.registerUtility(migration, IMigratable, name=migration.name)
 
     config.add_directive("add_migration", add_migration)

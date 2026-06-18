@@ -1,8 +1,9 @@
 import logging
 import os
+from typing import Any
 
 from kinto.core.cache import CacheBase
-from kinto.core.storage.postgresql.client import create_from_config
+from kinto.core.storage.postgresql.client import PostgreSQLClient, create_from_config
 from kinto.core.utils import json
 from kinto.core.utils import sqlalchemy as sa
 
@@ -64,11 +65,11 @@ class Cache(CacheBase):
     :noindex:
     """  # NOQA
 
-    def __init__(self, client, *args, **kwargs):
+    def __init__(self, client: PostgreSQLClient, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.client = client
 
-    def initialize_schema(self, dry_run=False):
+    def initialize_schema(self, dry_run: bool = False) -> None:
         # Check if cache table exists.
         query = """
         SELECT 1
@@ -96,7 +97,7 @@ class Cache(CacheBase):
             conn.execute(sa.text(schema))
         logger.info("Created PostgreSQL cache tables")
 
-    def flush(self):
+    def flush(self) -> None:
         query = """
         DELETE FROM cache;
         """
@@ -105,7 +106,7 @@ class Cache(CacheBase):
             conn.execute(sa.text(query))
         logger.debug("Flushed PostgreSQL cache tables")
 
-    def ttl(self, key):
+    def ttl(self, key: str) -> float:
         query = """
         SELECT EXTRACT(SECOND FROM (ttl - now())) AS ttl
           FROM cache
@@ -118,14 +119,14 @@ class Cache(CacheBase):
                 return result.fetchone().ttl
         return -1
 
-    def expire(self, key, ttl):
+    def expire(self, key: str, ttl: float) -> None:
         query = """
         UPDATE cache SET ttl = sec2ttl(:ttl) WHERE key = :key;
         """
         with self.client.connect() as conn:
             conn.execute(sa.text(query), dict(ttl=ttl, key=self.prefix + key))
 
-    def set(self, key, value, ttl):
+    def set(self, key: str, value: Any, ttl: float) -> None:
         if isinstance(value, bytes):
             raise TypeError("a string-like object is required, not 'bytes'")
 
@@ -140,7 +141,7 @@ class Cache(CacheBase):
         with self.client.connect() as conn:
             conn.execute(sa.text(query), dict(key=self.prefix + key, value=value, ttl=ttl))
 
-    def get(self, key):
+    def get(self, key: str) -> Any:
         purge = """
         DELETE FROM cache c
         USING (
@@ -162,7 +163,7 @@ class Cache(CacheBase):
             self.metrics_backend.count_miss()
             return None
 
-    def delete(self, key):
+    def delete(self, key: str) -> Any:
         query = "DELETE FROM cache WHERE key = :key RETURNING value;"
         with self.client.connect() as conn:
             result = conn.execute(sa.text(query), dict(key=self.prefix + key))
@@ -172,7 +173,7 @@ class Cache(CacheBase):
         return None
 
 
-def load_from_config(config):
+def load_from_config(config) -> Cache:
     settings = config.get_settings()
     client = create_from_config(config, prefix="cache_", with_transaction=False)
     return Cache(client=client, cache_prefix=settings["cache_prefix"])

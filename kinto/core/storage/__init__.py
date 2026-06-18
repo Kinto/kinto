@@ -64,6 +64,12 @@ class StorageBase:
     id_generator = generators.UUID4()
     """Id generator used when no one is provided for create."""
 
+    id_field: str = DEFAULT_ID_FIELD
+    """Default name of the field holding the object id."""
+
+    modified_field: str = DEFAULT_MODIFIED_FIELD
+    """Default name of the field holding the last modification timestamp."""
+
     def initialize_schema(self, dry_run: bool = False) -> None:
         """Create every necessary objects (like tables or indices) in the
         backend.
@@ -283,7 +289,7 @@ class StorageBase:
         :param str parent_id: the resource parent.
 
         :param int before: Optional timestamp to limit deletion (exclusive).
-        :param int max_count: Optional maximum of tombstones to keep per collection.
+        :param int max_retained: Optional maximum of tombstones to keep per collection.
 
         :param bool force_commit: whether to force commit the transaction after deletion.
 
