@@ -1263,7 +1263,7 @@ requires-dist = [
     { name = "psycopg2-binary", marker = "extra == 'postgresql'" },
     { name = "pyjwt", extras = ["crypto"], specifier = ">=2.13.0" },
     { name = "pyramid" },
-    { name = "pyramid-multiauth" },
+    { name = "pyramid-multiauth", specifier = ">=1.1.0" },
     { name = "pyramid-tm" },
     { name = "pytest", marker = "extra == 'test'" },
     { name = "pytest-cache", marker = "extra == 'test'" },
@@ -2050,14 +2050,14 @@ wheels = [
 
 [[package]]
 name = "pyramid-multiauth"
-version = "1.0.2"
+version = "1.1.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "pyramid" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/c8/51/30beabe10c2cfab7d43bd2c7c6a183eb917193841ba8d5979ea4e5cc5427/pyramid_multiauth-1.0.2.tar.gz", hash = "sha256:e4c01c59dd865a637173c7d0e3de062895e4a1b3312e442add6182989a13ca83", size = 31079, upload-time = "2024-03-28T15:01:28.356Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/b7/44/17b576b4b01237f6bc4161f0c5aeff07a5eae6f0e0205c8d47296e4f1092/pyramid_multiauth-1.1.0.tar.gz", hash = "sha256:aba7d9697b5888c5958d22bdd01e05d254b8707d222027afe95c16078759ea69", size = 34345, upload-time = "2026-06-18T09:34:50.089Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/6c/6b/c25340c5efccdbb7352d88a513b881b986fbb02e3b94fce937e6786d725e/pyramid_multiauth-1.0.2-py3-none-any.whl", hash = "sha256:0cd1f2d9c782458c3992a9183a55f9fcd257a2f1c6e7d62e44552f7cdaff9063", size = 18297, upload-time = "2024-03-28T15:01:26.823Z" },
+    { url = "https://files.pythonhosted.org/packages/0e/e7/4b15c454ec192d8212f88b4e8cef28a444909b9519382de37a7f28af88c7/pyramid_multiauth-1.1.0-py3-none-any.whl", hash = "sha256:341ceed277c1d80aa0e62a4d0ef31dfd0bf33c75b5dd020856d0c4d8d1e3f77e", size = 19843, upload-time = "2026-06-18T09:34:48.718Z" },
 ]
 
 [[package]]

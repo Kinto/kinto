@@ -229,7 +229,7 @@ class ViewSetTest(unittest.TestCase):
         viewset = ViewSet()
 
         class FakeName(FakeResource):
-            name = lambda x: "should not be called"  # noqa: E731  # ty: ignore[invalid-assignment]
+            name = lambda x: "should not be called"  # noqa: E731
 
         self.assertEqual(viewset.get_service_name("object", FakeName), "fakename-object")
 
