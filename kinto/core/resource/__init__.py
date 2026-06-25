@@ -1257,6 +1257,8 @@ class Resource:
                 if not isinstance(tokeninfo, dict):
                     raise ValueError()
                 last_object = tokeninfo["last_object"]
+                if not isinstance(last_object, dict):
+                    raise ValueError()
                 offset = tokeninfo["offset"]
                 nonce = tokeninfo["nonce"]
             except (ValueError, KeyError, TypeError):
