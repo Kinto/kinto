@@ -195,6 +195,20 @@ class PaginationTest(BasePaginationTest):
         }
         self.assertRaises(HTTPBadRequest, self.resource.plural_get)
 
+    def test_raises_bad_request_if_token_last_object_is_not_object(self):
+        invalid_token = json.dumps(
+            {
+                "last_object": ["not", "an", "object"],
+                "offset": 0,
+                "nonce": "nonce",
+            }
+        )
+        self.validated["querystring"] = {
+            "_limit": 20,
+            "_token": b64encode(invalid_token.encode("ascii")).decode("ascii"),
+        }
+        self.assertRaises(HTTPBadRequest, self.resource.plural_get)
+
     def test_next_page_url_works_with_optional_fields(self):
         self.validated["querystring"] = {"_limit": 10, "_sort": ["-optional"]}
         results1 = self.resource.plural_get()
