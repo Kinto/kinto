@@ -8,6 +8,6 @@ mock==5.2.0
 webtest==3.0.7
 pyramid==2.1
 python-rapidjson==1.23
-SQLAlchemy==2.0.50
+SQLAlchemy==2.0.51
 setuptools<82.0
-redis==8.0.0
+redis==8.0.1
