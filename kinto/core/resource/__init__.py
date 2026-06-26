@@ -1091,6 +1091,15 @@ class Resource:
             tomorrow = msec_time() + 24 * 3600 * 1000
             return 0 <= ivalue < tomorrow
 
+        def has_null_character(value: Any) -> bool:
+            if isinstance(value, str):
+                return "\x00" in value
+            if isinstance(value, list | tuple):
+                return any(has_null_character(item) for item in value)
+            if isinstance(value, dict):
+                return any(has_null_character(item) for pair in value.items() for item in pair)
+            return False
+
         queryparams = self.request.validated["querystring"]
 
         filters = []
@@ -1156,7 +1165,7 @@ class Resource:
                 if has_invalid_value:
                     raise_invalid(self.request, **error_details)
 
-            if "\x00" in field or "\x00" in str(value):
+            if "\x00" in field or has_null_character(value):
                 error_details["description"] = "Invalid character 0x00"
                 raise_invalid(self.request, **error_details)
 

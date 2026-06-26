@@ -275,6 +275,12 @@ class FilteringTest(BaseTest):
         self.validated["querystring"] = {"in_last_modified": ["a", "b"]}
         self.assertRaises(httpexceptions.HTTPBadRequest, self.resource.plural_get)
 
+    def test_include_returns_400_if_string_list_value_has_null_character(self):
+        self.validated["querystring"] = {"in_id": ["abc\x00def"]}
+        with self.assertRaises(httpexceptions.HTTPBadRequest) as cm:
+            self.resource.plural_get()
+        self.assertIn("Invalid character 0x00", cm.exception.json["message"])
+
     def test_exclude_returns_400_if_value_has_wrong_type(self):
         self.validated["querystring"] = {"exclude_id": [0, 1]}
         with self.assertRaises(httpexceptions.HTTPBadRequest) as cm:
@@ -283,6 +289,12 @@ class FilteringTest(BaseTest):
 
         self.validated["querystring"] = {"exclude_last_modified": ["a", "b"]}
         self.assertRaises(httpexceptions.HTTPBadRequest, self.resource.plural_get)
+
+    def test_exclude_returns_400_if_string_list_value_has_null_character(self):
+        self.validated["querystring"] = {"exclude_id": ["abc\x00def"]}
+        with self.assertRaises(httpexceptions.HTTPBadRequest) as cm:
+            self.resource.plural_get()
+        self.assertIn("Invalid character 0x00", cm.exception.json["message"])
 
     def test_contains_can_filter_with_one_string(self):
         self.validated["querystring"] = {"contains_colors": ["red"]}
