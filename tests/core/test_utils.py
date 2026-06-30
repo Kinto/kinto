@@ -187,9 +187,7 @@ class DeprecatedEffectivePrincipalsTest(unittest.TestCase):
         request.prefixed_principals = ["basic:foo", "system.Authenticated"]
         with warnings.catch_warnings():
             warnings.simplefilter("ignore", DeprecationWarning)
-            self.assertEqual(
-                deprecated_effective_principals(request), request.prefixed_principals
-            )
+            self.assertEqual(deprecated_effective_principals(request), request.prefixed_principals)
 
     def test_emits_deprecation_warning(self):
         request = DummyRequest()
