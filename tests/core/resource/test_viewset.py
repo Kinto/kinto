@@ -22,7 +22,7 @@ class FakeViewSet(ViewSet):
     def __init__(self):
         self.plural_arguments = self.arguments
         self.object_arguments = self.arguments
-        self.update = mock.MagicMock()  # ty: ignore[invalid-assignment]
+        self.update = mock.MagicMock()
         self.responses = mock.MagicMock()
 
     def arguments(self, resource, method):
@@ -393,10 +393,10 @@ class RegisterTest(unittest.TestCase):
 
     def test_resource_default_viewset_is_used_if_not_provided(self):
         resource = FakeResource
-        resource.default_viewset = mock.Mock()  # ty: ignore[invalid-assignment]
+        resource.default_viewset = mock.Mock()
         additional_params = {"foo": "bar"}
         register_resource(resource, **additional_params)
-        resource.default_viewset.assert_called_with(**additional_params)  # ty: ignore[unresolved-attribute]
+        resource.default_viewset.assert_called_with(**additional_params)
 
     @mock.patch("kinto.core.resource.Service")
     def test_plural_views_are_registered_in_cornice(self, service_class):
