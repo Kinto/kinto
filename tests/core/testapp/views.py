@@ -16,7 +16,7 @@ class Mushroom(resource.Resource):
     schema = MushroomSchema
 
     def get_parent_id(self, request):
-        # Rely on ``request.effective_principals`` to check auth.
+        # Rely on ``request.prefixed_principals`` to check auth.
         return request.prefixed_principals[0]
 
 

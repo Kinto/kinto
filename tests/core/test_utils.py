@@ -1,5 +1,6 @@
 import os
 import unittest
+import warnings
 from unittest import mock
 
 import colander
@@ -11,6 +12,7 @@ from kinto.core.testing import DummyRequest
 from kinto.core.utils import (
     build_request,
     current_service,
+    deprecated_effective_principals,
     dict_merge,
     dict_subset,
     find_nested_value,
@@ -177,6 +179,23 @@ class PrefixedPrincipalsTest(unittest.TestCase):
         policy.effective_principals.return_value = ["basic:foo", "system.Authenticated"]
         request.prefixed_userid = "basic:foo"
         self.assertEqual(prefixed_principals(request), ["basic:foo", "system.Authenticated"])
+
+
+class DeprecatedEffectivePrincipalsTest(unittest.TestCase):
+    def test_returns_prefixed_principals(self):
+        request = DummyRequest()
+        request.prefixed_principals = ["basic:foo", "system.Authenticated"]
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", DeprecationWarning)
+            self.assertEqual(
+                deprecated_effective_principals(request), request.prefixed_principals
+            )
+
+    def test_emits_deprecation_warning(self):
+        request = DummyRequest()
+        request.prefixed_principals = ["basic:foo", "system.Authenticated"]
+        with self.assertWarns(DeprecationWarning):
+            deprecated_effective_principals(request)
 
 
 class BuildRequestTest(unittest.TestCase):
