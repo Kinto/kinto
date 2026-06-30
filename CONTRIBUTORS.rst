@@ -106,6 +106,7 @@ Contributors
 * Vamsi Sangam <vamsisangam@live.com>
 * Varna Suresh <varna96@gmail.com>
 * Vincent Fretin <@vincentfretin>
+* Vincent Gao <@gaoflow>
 * Vitor Falcao <vitor.falcaor@gmail.com>
 * Wil Clouser <wclouser@mozilla.com>
 * Yann Klis <yann.klis@gmail.com>
