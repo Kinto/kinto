@@ -1271,6 +1271,20 @@ class Resource:
                     raise ValueError()
                 offset = tokeninfo["offset"]
                 nonce = tokeninfo["nonce"]
+                # ``offset`` must be a positive integer (#3734).
+                # Note: ``bool`` is a subclass of ``int`` and must be excluded.
+                if isinstance(offset, bool) or not isinstance(offset, int) or offset < 0:
+                    raise ValueError()
+                # The values stored in ``last_object`` must be valid (#3735, #3739).
+                for field, _ in sorting:
+                    value = last_object.get(field, MISSING)
+                    if value is MISSING:
+                        continue
+                    if field == self.model.modified_field:
+                        if not is_valid_timestamp(value):
+                            raise ValueError()
+                    elif isinstance(value, (dict, list)) or has_null_character(value):
+                        raise ValueError()
             except (ValueError, KeyError, TypeError):
                 error_msg = "_token has invalid content"
 
