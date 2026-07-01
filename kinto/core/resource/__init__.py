@@ -52,6 +52,30 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
+def is_valid_timestamp(value: Any) -> bool:
+    # Is either integer, or integer as string, or integer between 2 quotes.
+    if isinstance(value, str):
+        if not re.match(r'^(\d+)$|^("\d+")$', value):
+            return False
+        value = value.strip('"')
+    try:
+        ivalue = int(value)
+    except (ValueError, TypeError):
+        return False
+    tomorrow = msec_time() + 24 * 3600 * 1000
+    return 0 <= ivalue < tomorrow
+
+
+def has_null_character(value: Any) -> bool:
+    if isinstance(value, str):
+        return "\x00" in value
+    if isinstance(value, list | tuple):
+        return any(has_null_character(item) for item in value)
+    if isinstance(value, dict):
+        return any(has_null_character(item) for pair in value.items() for item in pair)
+    return False
+
+
 def register(depth: int = 1, **kwargs) -> Callable[["type[Resource]"], "type[Resource]"]:
     """Resource class decorator.
 
@@ -1077,29 +1101,6 @@ class Resource:
 
     def _extract_filters(self) -> list[Filter]:
         """Extracts filters from QueryString parameters."""
-
-        def is_valid_timestamp(value: Any) -> bool:
-            # Is either integer, or integer as string, or integer between 2 quotes.
-            if isinstance(value, str):
-                if not re.match(r'^(\d+)$|^("\d+")$', value):
-                    return False
-                value = value.strip('"')
-            try:
-                ivalue = int(value)
-            except (ValueError, TypeError):
-                return False
-            tomorrow = msec_time() + 24 * 3600 * 1000
-            return 0 <= ivalue < tomorrow
-
-        def has_null_character(value: Any) -> bool:
-            if isinstance(value, str):
-                return "\x00" in value
-            if isinstance(value, list | tuple):
-                return any(has_null_character(item) for item in value)
-            if isinstance(value, dict):
-                return any(has_null_character(item) for pair in value.items() for item in pair)
-            return False
-
         queryparams = self.request.validated["querystring"]
 
         filters = []
