@@ -22,6 +22,7 @@ from kinto.core.types import Request as KintoRequest
 from kinto.core.utils import (
     current_resource_name,
     current_service,
+    deprecated_effective_principals,
     follow_subrequest,
     log_context,
     prefixed_principals,
@@ -248,6 +249,9 @@ def includeme(config: Configurator) -> None:
     config.add_request_method(follow_subrequest)
     config.add_request_method(prefixed_userid, property=True)
     config.add_request_method(prefixed_principals, reify=True)
+    config.add_request_method(
+        deprecated_effective_principals, name="effective_principals", property=True
+    )
     config.add_request_method(get_user_info, name="get_user_info")
     config.add_request_method(current_resource_name, reify=True)
     config.add_request_method(current_service, reify=True)

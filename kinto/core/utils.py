@@ -5,6 +5,7 @@ import hmac
 import os
 import re
 import time
+import warnings
 from base64 import b64decode, b64encode
 from binascii import hexlify
 from collections.abc import Callable
@@ -360,6 +361,22 @@ def prefixed_principals(request) -> list:
         principals = [request.prefixed_userid] + principals
 
     return principals
+
+
+def deprecated_effective_principals(request) -> list:
+    """Deprecated alias for :func:`prefixed_principals`.
+
+    .. deprecated::
+        Use ``request.prefixed_principals`` instead.
+
+    :returns: the list of principals with prefixed user id.
+    """
+    warnings.warn(
+        "``request.effective_principals`` is deprecated, "
+        "use ``request.prefixed_principals`` instead.",
+        DeprecationWarning,
+    )
+    return request.prefixed_principals
 
 
 def build_request(original, dict_obj: dict) -> Any:
