@@ -1,6 +1,7 @@
 from pyramid import httpexceptions
 
 from kinto.core.errors import ERRORS
+from kinto.core.resource.schema import QuerySchema
 
 from . import BaseTest
 
@@ -277,6 +278,14 @@ class FilteringTest(BaseTest):
 
     def test_include_returns_400_if_string_list_value_has_null_character(self):
         self.validated["querystring"] = {"in_id": ["abc\x00def"]}
+        with self.assertRaises(httpexceptions.HTTPBadRequest) as cm:
+            self.resource.plural_get()
+        self.assertIn("Invalid character 0x00", cm.exception.json["message"])
+
+    def test_include_returns_400_if_raw_querystring_value_has_null_character(self):
+        # The null character must be rejected even when it goes through the
+        # querystring deserialization (which splits the raw value on commas into a list).
+        self.validated["querystring"] = QuerySchema().deserialize({"in_id": "abcd\x00rid"})
         with self.assertRaises(httpexceptions.HTTPBadRequest) as cm:
             self.resource.plural_get()
         self.assertIn("Invalid character 0x00", cm.exception.json["message"])
