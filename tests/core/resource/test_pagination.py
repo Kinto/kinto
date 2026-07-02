@@ -209,6 +209,78 @@ class PaginationTest(BasePaginationTest):
         }
         self.assertRaises(HTTPBadRequest, self.resource.plural_get)
 
+    def test_raises_bad_request_if_token_offset_is_not_integer(self):
+        invalid_token = json.dumps(
+            {
+                "last_object": {"last_modified": 123},
+                "offset": "not-an-integer",
+                "nonce": "nonce",
+            }
+        )
+        self.validated["querystring"] = {
+            "_limit": 20,
+            "_token": b64encode(invalid_token.encode("ascii")).decode("ascii"),
+        }
+        self.assertRaises(HTTPBadRequest, self.resource.plural_get)
+
+    def test_raises_bad_request_if_token_offset_is_negative(self):
+        invalid_token = json.dumps(
+            {
+                "last_object": {"last_modified": 123},
+                "offset": -1,
+                "nonce": "nonce",
+            }
+        )
+        self.validated["querystring"] = {
+            "_limit": 20,
+            "_token": b64encode(invalid_token.encode("ascii")).decode("ascii"),
+        }
+        self.assertRaises(HTTPBadRequest, self.resource.plural_get)
+
+    def test_raises_bad_request_if_token_value_is_nested_object(self):
+        invalid_token = json.dumps(
+            {
+                "last_object": {"status": {"nested": {"deep": True}}},
+                "offset": 0,
+                "nonce": "nonce",
+            }
+        )
+        self.validated["querystring"] = {
+            "_limit": 20,
+            "_sort": ["status"],
+            "_token": b64encode(invalid_token.encode("ascii")).decode("ascii"),
+        }
+        self.assertRaises(HTTPBadRequest, self.resource.plural_get)
+
+    def test_raises_bad_request_if_token_value_is_a_list(self):
+        invalid_token = json.dumps(
+            {
+                "last_object": {"status": ["a", "list"]},
+                "offset": 0,
+                "nonce": "nonce",
+            }
+        )
+        self.validated["querystring"] = {
+            "_limit": 20,
+            "_sort": ["status"],
+            "_token": b64encode(invalid_token.encode("ascii")).decode("ascii"),
+        }
+        self.assertRaises(HTTPBadRequest, self.resource.plural_get)
+
+    def test_raises_bad_request_if_token_last_modified_is_not_a_valid_timestamp(self):
+        invalid_token = json.dumps(
+            {
+                "last_object": {"last_modified": 1e20},
+                "offset": 0,
+                "nonce": "nonce",
+            }
+        )
+        self.validated["querystring"] = {
+            "_limit": 20,
+            "_token": b64encode(invalid_token.encode("ascii")).decode("ascii"),
+        }
+        self.assertRaises(HTTPBadRequest, self.resource.plural_get)
+
     def test_next_page_url_works_with_optional_fields(self):
         self.validated["querystring"] = {"_limit": 10, "_sort": ["-optional"]}
         results1 = self.resource.plural_get()
