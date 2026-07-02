@@ -75,7 +75,7 @@ class OpenAPI(CorniceSwagger):
         return super(OpenAPI, self).generate(swagger=base_spec)
 
     def default_tags(self, service: AnyType, method: str) -> list[str]:
-        """Povides default tags to views."""
+        """Provides default tags to views."""
 
         base_tag = service.name.capitalize()
         base_tag = base_tag.replace("-plural", "s")
