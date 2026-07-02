@@ -84,7 +84,7 @@ class OpenAPI(CorniceSwagger):
         return [base_tag]
 
     def default_op_ids(self, service: AnyType, method: str) -> str:
-        """Povides default operation ids to methods if not defined on view."""
+        """Provides default operation ids to methods if not defined on view."""
 
         method = method.lower()
         method_mapping = {"post": "create", "put": "update"}
