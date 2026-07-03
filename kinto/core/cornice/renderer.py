@@ -31,7 +31,7 @@ class CorniceRenderer(JSON):
                  #serializing-custom-objects
     """
 
-    acceptable = ("application/json", "text/plain")
+    acceptable: tuple[str, ...] = ("application/json", "text/plain")
 
     def __init__(self, *args, **kwargs):
         """Adds a `bytes` adapter by default."""
