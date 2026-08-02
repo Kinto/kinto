@@ -408,3 +408,73 @@ class TokenViewTest(OpenIDWebTest):
             )
         location = resp.headers["Location"]
         assert location == "http://ui/#token=eyJhY2Nlc3NfdG9rZW4iOiAidG9rZW4ifQ%3D%3D"
+
+
+class TokenViewErrorTest(OpenIDWebTest):
+    """The auth server may redirect back to the token endpoint with an error
+    instead of a code (e.g. when audience is not found).  Kinto must forward
+    the error to the original callback rather than returning a 400."""
+
+    def test_auth_server_error_redirects_to_callback(self):
+        """When the auth server returns error=access_denied (no code),
+        the token endpoint must redirect to the stored callback with the error
+        forwarded in the querystring."""
+        self.app.app.registry.cache.set("openid:state:mystate", "http://ui/?", ttl=100)
+        resp = self.app.get(
+            "/openid/auth0/token",
+            params={"error": "access_denied", "state": "mystate"},
+            status=307,
+        )
+        location = resp.headers["Location"]
+        assert "error=access_denied" in location
+        assert location.startswith("http://ui/?")
+
+    def test_auth_server_error_includes_error_description(self):
+        """error_description from the auth server must also be forwarded."""
+        self.app.app.registry.cache.set("openid:state:mystate", "http://ui/?", ttl=100)
+        resp = self.app.get(
+            "/openid/auth0/token",
+            params={
+                "error": "access_denied",
+                "error_description": "Service not found: kinto-nonprod",
+                "state": "mystate",
+            },
+            status=307,
+        )
+        location = resp.headers["Location"]
+        assert "error=access_denied" in location
+        assert "error_description=" in location
+        assert "Service+not+found" in location or "Service%20not%20found" in location
+
+    def test_auth_server_error_with_invalid_state_returns_400(self):
+        """If the state is unknown even when an error is returned, kinto
+        cannot recover the callback and must return 400."""
+        self.app.get(
+            "/openid/auth0/token",
+            params={"error": "access_denied", "state": "unknown-state"},
+            status=400,
+        )
+
+    def test_auth_server_error_state_cannot_be_reused(self):
+        """The state must be consumed even when an error is forwarded."""
+        self.app.app.registry.cache.set("openid:state:mystate", "http://ui/?", ttl=100)
+        self.app.get(
+            "/openid/auth0/token",
+            params={"error": "access_denied", "state": "mystate"},
+            status=307,
+        )
+        # Second request with same state must fail.
+        self.app.get(
+            "/openid/auth0/token",
+            params={"error": "access_denied", "state": "mystate"},
+            status=400,
+        )
+
+    def test_missing_code_and_no_error_returns_400(self):
+        """A request with state but neither code nor error is still a bad request."""
+        self.app.app.registry.cache.set("openid:state:mystate", "http://ui/?", ttl=100)
+        self.app.get(
+            "/openid/auth0/token",
+            params={"state": "mystate"},
+            status=400,
+        )
