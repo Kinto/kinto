@@ -132,7 +132,7 @@ class TokenQuerystringSchema(colander.MappingSchema):
     Querystring schema for the token endpoint.
     """
 
-    code = colander.SchemaNode(colander.String())
+    code = colander.SchemaNode(colander.String(), missing=colander.drop)
     state = colander.SchemaNode(colander.String())
 
 
@@ -157,12 +157,40 @@ def get_token(request: Request) -> None:
     client_id = settings[settings_prefix + "client_id"]
     client_secret = settings[settings_prefix + "client_secret"]
 
+    state = request.GET["state"]
+
+    # If the auth server returned an error (e.g. access_denied when audience
+    # is not found), forward it back to the callback URI instead of trying
+    # to trade a code that was never issued.
+    error = request.GET.get("error")
+    if error:
+        callback = request.registry.cache.delete("openid:state:" + state)
+        if callback is None:
+            error_details = {
+                "name": "state",
+                "description": "Invalid state",
+                "errno": ERRORS.INVALID_AUTH_TOKEN.value,
+            }
+            raise_invalid(request, **error_details)
+        error_params = {"error": error}
+        error_description = request.GET.get("error_description")
+        if error_description:
+            error_params["error_description"] = error_description
+        redirect = callback + urllib.parse.urlencode(error_params)
+        raise httpexceptions.HTTPTemporaryRedirect(redirect)
+
     # Read OpenID configuration (cached by issuer)
     oid_config = fetch_openid_config(issuer)
     token_endpoint = oid_config["token_endpoint"]
 
-    code = request.GET["code"]
-    state = request.GET["state"]
+    code = request.GET.get("code")
+    if not code:
+        # No error param and no code — malformed request.
+        error_details = {
+            "name": "code",
+            "description": "code in querystring: Required",
+        }
+        raise_invalid(request, **error_details)
 
     # State can be used only once.
     callback = request.registry.cache.delete("openid:state:" + state)
