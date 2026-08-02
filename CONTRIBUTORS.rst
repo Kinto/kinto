@@ -55,6 +55,7 @@ Contributors
 * Julien Bouquillon <contact@revolunet.com>
 * Julien Lebunetel <julien@lebunetel.com>
 * Kaloneh <kaloneh@gmail.com>
+* Kanishkraj Singh Chauhan <kanishkrajsinghchauhan@gmail.com>
 * Kulshekhar Kabra <@kulshekhar>
 * Lavish Aggarwal <lucky.lavish@gmail.com>
 * Maksym Shalenyi <supamaxy@gmail.com>
