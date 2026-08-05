@@ -10,6 +10,11 @@ updates:
     groups:
       minor-patch:
         update-types: ["minor", "patch"]
+    ignore:
+      # setuptools 82 removed pkg_resources, which pyramid still needs.
+      # See https://github.com/Pylons/pyramid/issues/3731
+      - dependency-name: "setuptools"
+        update-types: ["version-update:semver-major"]
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:

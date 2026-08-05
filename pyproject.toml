@@ -27,15 +27,18 @@ dependencies = [
     "jsonpatch",
     "logging-color-formatter",
     "python-dateutil",
-    "pyramid",
+    "pyramid>=2.1",
     "pyramid_multiauth>=1.1.0",
     "transaction",
     "pyramid_tm",
     "requests",
     "waitress",
     "python-rapidjson",
-    # pyramid still requires setuptools<82.0
-    "setuptools<82.0",
+    # Pyramid still imports pkg_resources, which was removed in setuptools 82.
+    # Without the upper bound, the resolver downgrades pyramid to 2.0.2 (which
+    # declares an unbounded setuptools requirement) and imports fail.
+    # See https://github.com/Pylons/pyramid/issues/3731
+    "setuptools<82",
     "pyjwt[crypto]>=2.13.0",
 ]
 requires-python = ">=3.10"

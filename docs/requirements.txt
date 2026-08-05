@@ -9,5 +9,5 @@ webtest==3.0.7
 pyramid==2.1
 python-rapidjson==1.23
 SQLAlchemy==2.0.51
-setuptools<82.0
+setuptools<82
 redis==8.0.1
