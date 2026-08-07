@@ -1165,7 +1165,7 @@ class Storage(StorageBase, MigratorMixin):
                 COMPARISON.MIN,
             )
 
-            if not (filtr.field == id_field or filtr.field == modified_field):
+            if value != MISSING and not (filtr.field == id_field or filtr.field == modified_field):
                 if filtr.operator in null_false_operators:
                     cond = f"({sql_field} IS NOT NULL AND {cond})"
                 elif filtr.operator in null_true_operators:
