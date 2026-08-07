@@ -53,6 +53,9 @@ logger = logging.getLogger(__name__)
 
 
 def is_valid_timestamp(value: Any) -> bool:
+    # Booleans are integers in Python, but are not valid timestamps.
+    if isinstance(value, bool):
+        return False
     # Is either integer, or integer as string, or integer between 2 quotes.
     if isinstance(value, str):
         if not re.match(r'^(\d+)$|^("\d+")$', value):
