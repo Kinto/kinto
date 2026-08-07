@@ -132,14 +132,10 @@ def validate_token_querystring(node: colander.SchemaNode, value: dict) -> None:
     has_code = "code" in value
     has_error = "error" in value
 
-    success_response = has_code
-    error_response = has_error
-
-    if success_response == error_response:
+    if has_code == has_error:
         raise colander.Invalid(
             node,
-            "Provide either 'state' and 'code', "
-            "or 'error' and 'error_description', but not both.",
+            "Provide either 'state' and 'code', or 'error' and 'error_description', but not both.",
         )
 
 
@@ -153,7 +149,7 @@ class TokenQuerystringSchema(colander.MappingSchema):
     error = colander.SchemaNode(colander.String(), missing=colander.drop)
     error_description = colander.SchemaNode(colander.String(), missing=colander.drop)
 
-    validator = validate_token_querystring
+    validator = staticmethod(validate_token_querystring)
 
 
 class TokenSchema(colander.MappingSchema):
@@ -203,14 +199,7 @@ def get_token(request: Request) -> None:
     oid_config = fetch_openid_config(issuer)
     token_endpoint = oid_config["token_endpoint"]
 
-    code = request.GET.get("code")
-    if not code:
-        # No error param and no code — malformed request.
-        error_details = {
-            "name": "code",
-            "description": "code in querystring: Required",
-        }
-        raise_invalid(request, **error_details)
+    code = request.GET["code"]
 
     # State can be used only once.
     callback = request.registry.cache.delete("openid:state:" + state)
