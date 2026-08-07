@@ -4,6 +4,7 @@ from pyramid.events import subscriber
 from kinto.core import resource, utils
 from kinto.core.events import ACTIONS, ResourceChanged
 from kinto.schema_validation import JSONSchemaMapping, validate_from_bucket_schema_or_400
+from kinto.views import raise_404_if_invalid_id
 
 
 class CollectionSchema(resource.ResourceSchema):
@@ -22,6 +23,7 @@ class Collection(resource.Resource):
 
     def get_parent_id(self, request):
         bucket_id = request.matchdict["bucket_id"]
+        raise_404_if_invalid_id(request, "bucket", bucket_id)
         parent_id = utils.instance_uri(request, "bucket", id=bucket_id)
         return parent_id
 
