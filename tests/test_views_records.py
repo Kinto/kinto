@@ -377,8 +377,6 @@ class RecordsViewFilterTest(BaseWebTest, unittest.TestCase):
         assert response.json["data"][0]["id"] == "strawberry"
 
     def test_boolean_timestamp_filters_are_rejected(self):
-        # Booleans are integers in Python, so they used to reach the backend
-        # and blow up there (e.g. `from_epoch(boolean)` on PostgreSQL).
         for query in ("?min_last_modified=true", "?_since=true", "?last_modified=false"):
             response = self.app.get(self.collection_url + query, headers=self.headers, status=400)
             assert response.json["errno"] == ERRORS.INVALID_PARAMETERS.value

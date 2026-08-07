@@ -88,7 +88,11 @@ class QueryField(colander.SchemaNode):  # ty: ignore[unsupported-base]
 
     def deserialize(self, cstruct: AnyType = colander.null) -> AnyType:
         if isinstance(cstruct, str):
-            cstruct = native_value(cstruct)
+            native = native_value(cstruct)
+            # Booleans are integers in Python. Leave them as strings, so that
+            # integer fields reject them (eg. ``?_since=true``).
+            if not isinstance(native, bool):
+                cstruct = native
         return super(QueryField, self).deserialize(cstruct)
 
 
