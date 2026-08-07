@@ -1032,7 +1032,40 @@ class Storage(StorageBase, MigratorMixin):
                     value = f"*{value}*"
                 value = value.replace("*", "%")
 
-            if filtr.operator == COMPARISON.HAS:
+            if value == MISSING:
+                # Handle MISSING values. The main use case for this is
+                # pagination, since there's no way to encode MISSING
+                # at the HTTP API level. Because we only need to cover
+                # pagination, we don't have to worry about any
+                # operators besides LT, LE, GT, GE, and EQ, and
+                # never worry about id_field or modified_field.
+                #
+                # Comparing a value against NULL is not the same
+                # as comparing a NULL against some other value, so
+                # we need another set of operators for which
+                # NULLs are OK.
+                if filtr.operator in (COMPARISON.EQ, COMPARISON.MIN):
+                    # If a row is NULL, then it can be == NULL
+                    # (for the purposes of pagination).
+                    # >= NULL should only match rows that are
+                    # NULL, since there's nothing higher.
+                    cond = f"{sql_field} IS NULL"
+                elif filtr.operator == COMPARISON.LT:
+                    # If we're looking for < NULL, match only
+                    # non-nulls.
+                    cond = f"{sql_field} IS NOT NULL"
+                elif filtr.operator == COMPARISON.MAX:
+                    # <= NULL should include everything -- NULL
+                    # because it's equal, and non-nulls because
+                    # they're <.
+                    cond = "TRUE"
+                elif filtr.operator == COMPARISON.GT:
+                    # Nothing can be greater than NULL (that is,
+                    # higher in search order).
+                    cond = "FALSE"
+                else:
+                    raise ValueError("Somehow we got a filter with MISSING value")
+            elif filtr.operator == COMPARISON.HAS:
                 operator = "IS NOT NULL" if filtr.value else "IS NULL"
                 cond = f"{sql_field} {operator}"
 
@@ -1068,7 +1101,7 @@ class Storage(StorageBase, MigratorMixin):
                 """
                 cond = f"{is_json_sequence} AND {data_as_array} && (:{value_holder})::jsonb[]"
 
-            elif value != MISSING:
+            else:
                 # Safely escape value. MISSING get handled below.
                 value_holder = f"{prefix}_value_{i}"
 
@@ -1133,40 +1166,7 @@ class Storage(StorageBase, MigratorMixin):
             )
 
             if not (filtr.field == id_field or filtr.field == modified_field):
-                if value == MISSING:
-                    # Handle MISSING values. The main use case for this is
-                    # pagination, since there's no way to encode MISSING
-                    # at the HTTP API level. Because we only need to cover
-                    # pagination, we don't have to worry about any
-                    # operators besides LT, LE, GT, GE, and EQ, and
-                    # never worry about id_field or modified_field.
-                    #
-                    # Comparing a value against NULL is not the same
-                    # as comparing a NULL against some other value, so
-                    # we need another set of operators for which
-                    # NULLs are OK.
-                    if filtr.operator in (COMPARISON.EQ, COMPARISON.MIN):
-                        # If a row is NULL, then it can be == NULL
-                        # (for the purposes of pagination).
-                        # >= NULL should only match rows that are
-                        # NULL, since there's nothing higher.
-                        cond = f"{sql_field} IS NULL"
-                    elif filtr.operator == COMPARISON.LT:
-                        # If we're looking for < NULL, match only
-                        # non-nulls.
-                        cond = f"{sql_field} IS NOT NULL"
-                    elif filtr.operator == COMPARISON.MAX:
-                        # <= NULL should include everything -- NULL
-                        # because it's equal, and non-nulls because
-                        # they're <.
-                        cond = "TRUE"
-                    elif filtr.operator == COMPARISON.GT:
-                        # Nothing can be greater than NULL (that is,
-                        # higher in search order).
-                        cond = "FALSE"
-                    else:
-                        raise ValueError("Somehow we got a filter with MISSING value")
-                elif filtr.operator in null_false_operators:
+                if filtr.operator in null_false_operators:
                     cond = f"({sql_field} IS NOT NULL AND {cond})"
                 elif filtr.operator in null_true_operators:
                     cond = f"({sql_field} IS NULL OR {cond})"
