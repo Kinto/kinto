@@ -127,6 +127,22 @@ def get_login(request: Request) -> None:
     raise httpexceptions.HTTPTemporaryRedirect(redirect)
 
 
+def validate_token_querystring(node: colander.SchemaNode, value: dict) -> None:
+    """Enforce that exactly one of (code, error) is present, never both."""
+    has_code = "code" in value
+    has_error = "error" in value
+
+    success_response = has_code
+    error_response = has_error
+
+    if success_response == error_response:
+        raise colander.Invalid(
+            node,
+            "Provide either 'state' and 'code', "
+            "or 'error' and 'error_description', but not both.",
+        )
+
+
 class TokenQuerystringSchema(colander.MappingSchema):
     """
     Querystring schema for the token endpoint.
@@ -134,6 +150,10 @@ class TokenQuerystringSchema(colander.MappingSchema):
 
     code = colander.SchemaNode(colander.String(), missing=colander.drop)
     state = colander.SchemaNode(colander.String())
+    error = colander.SchemaNode(colander.String(), missing=colander.drop)
+    error_description = colander.SchemaNode(colander.String(), missing=colander.drop)
+
+    validator = validate_token_querystring
 
 
 class TokenSchema(colander.MappingSchema):
