@@ -127,7 +127,7 @@ def get_login(request: Request) -> None:
     raise httpexceptions.HTTPTemporaryRedirect(redirect)
 
 
-def validate_token_querystring(node: colander.SchemaNode, value: dict) -> None:
+def validate_token_querystring(node, value):
     """Enforce that exactly one of (code, error) is present, never both."""
     has_code = "code" in value
     has_error = "error" in value
