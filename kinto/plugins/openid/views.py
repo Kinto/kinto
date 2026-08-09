@@ -127,13 +127,29 @@ def get_login(request: Request) -> None:
     raise httpexceptions.HTTPTemporaryRedirect(redirect)
 
 
+def validate_token_querystring(node, value):
+    """Enforce that exactly one of (code, error) is present, never both."""
+    has_code = "code" in value
+    has_error = "error" in value
+
+    if has_code == has_error:
+        raise colander.Invalid(
+            node,
+            "Provide either 'state' and 'code', or 'error' and 'error_description', but not both.",
+        )
+
+
 class TokenQuerystringSchema(colander.MappingSchema):
     """
     Querystring schema for the token endpoint.
     """
 
-    code = colander.SchemaNode(colander.String())
+    code = colander.SchemaNode(colander.String(), missing=colander.drop)
     state = colander.SchemaNode(colander.String())
+    error = colander.SchemaNode(colander.String(), missing=colander.drop)
+    error_description = colander.SchemaNode(colander.String(), missing=colander.drop)
+
+    validator = staticmethod(validate_token_querystring)
 
 
 class TokenSchema(colander.MappingSchema):
@@ -157,12 +173,33 @@ def get_token(request: Request) -> None:
     client_id = settings[settings_prefix + "client_id"]
     client_secret = settings[settings_prefix + "client_secret"]
 
+    state = request.GET["state"]
+
+    # If the auth server returned an error (e.g. access_denied when audience
+    # is not found), forward it back to the callback URI instead of trying
+    # to trade a code that was never issued.
+    error = request.GET.get("error")
+    if error:
+        callback = request.registry.cache.delete("openid:state:" + state)
+        if callback is None:
+            error_details = {
+                "name": "state",
+                "description": "Invalid state",
+                "errno": ERRORS.INVALID_AUTH_TOKEN.value,
+            }
+            raise_invalid(request, **error_details)
+        error_params = {"error": error}
+        error_description = request.GET.get("error_description")
+        if error_description:
+            error_params["error_description"] = error_description
+        redirect = callback + urllib.parse.urlencode(error_params)
+        raise httpexceptions.HTTPTemporaryRedirect(redirect)
+
     # Read OpenID configuration (cached by issuer)
     oid_config = fetch_openid_config(issuer)
     token_endpoint = oid_config["token_endpoint"]
 
     code = request.GET["code"]
-    state = request.GET["state"]
 
     # State can be used only once.
     callback = request.registry.cache.delete("openid:state:" + state)
