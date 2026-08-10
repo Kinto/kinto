@@ -1279,6 +1279,11 @@ class Resource:
                 for field, _ in sorting:
                     value = last_object.get(field, MISSING)
                     if value is MISSING:
+                        # Sorting on a field that the last object does not have
+                        # is legitimate (see ``_build_pagination_token()``), but
+                        # stored objects always have `id` and `last_modified`.
+                        if field == self.model.modified_field:
+                            raise ValueError()
                         continue
                     if field == self.model.modified_field:
                         if not is_valid_timestamp(value):

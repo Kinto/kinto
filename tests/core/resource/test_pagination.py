@@ -281,6 +281,51 @@ class PaginationTest(BasePaginationTest):
         }
         self.assertRaises(HTTPBadRequest, self.resource.plural_get)
 
+    def test_raises_bad_request_if_token_has_no_last_modified(self):
+        invalid_token = json.dumps(
+            {
+                "last_object": {"id": "*.*"},
+                "offset": 0,
+                "nonce": "nonce",
+            }
+        )
+        self.validated["querystring"] = {
+            "_limit": 20,
+            "_token": b64encode(invalid_token.encode("ascii")).decode("ascii"),
+        }
+        self.assertRaises(HTTPBadRequest, self.resource.plural_get)
+
+    def test_accepts_token_without_id(self):
+        # Virtual resources like from /permissions) have objects without ids.
+        valid_token = json.dumps(
+            {
+                "last_object": {"last_modified": 123},
+                "offset": 0,
+                "nonce": "nonce",
+            }
+        )
+        self.validated["querystring"] = {
+            "_limit": 20,
+            "_sort": ["id"],
+            "_token": b64encode(valid_token.encode("ascii")).decode("ascii"),
+        }
+        self.resource.plural_get()  # Does not raise.
+
+    def test_accepts_token_without_sorted_data_field(self):
+        valid_token = json.dumps(
+            {
+                "last_object": {"last_modified": 123},
+                "offset": 0,
+                "nonce": "nonce",
+            }
+        )
+        self.validated["querystring"] = {
+            "_limit": 20,
+            "_sort": ["status"],
+            "_token": b64encode(valid_token.encode("ascii")).decode("ascii"),
+        }
+        self.resource.plural_get()  # Does not raise.
+
     def test_next_page_url_works_with_optional_fields(self):
         self.validated["querystring"] = {"_limit": 10, "_sort": ["-optional"]}
         results1 = self.resource.plural_get()
