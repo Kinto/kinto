@@ -23,7 +23,21 @@ class RelaxedUUID(generators.UUID4):
     regexp = generators.Generator.regexp
 
 
+def raise_404_if_invalid_id(request, resource_name, object_id):
+    """Raise 404 if the specified object id does not comply with the id format
+    of this kind of object, because such an object cannot exist anyway.
+
+    :raises: :exc:`~pyramid:pyramid.httpexceptions.HTTPNotFound`
+    """
+    id_generators = request.registry.id_generators
+    id_generator = id_generators.get(resource_name, id_generators[""])
+    if not id_generator.match(object_id):
+        details = {"id": object_id, "resource_name": resource_name}
+        raise http_error(HTTPNotFound(), errno=ERRORS.MISSING_RESOURCE, details=details)
+
+
 def object_exists_or_404(request, resource_name, object_id, parent_id=""):
+    raise_404_if_invalid_id(request, resource_name, object_id)
     storage = request.registry.storage
     try:
         return storage.get(resource_name=resource_name, parent_id=parent_id, object_id=object_id)

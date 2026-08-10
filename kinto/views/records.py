@@ -8,7 +8,7 @@ from kinto.schema_validation import (
     validate_from_bucket_schema_or_400,
     validate_schema,
 )
-from kinto.views import object_exists_or_404
+from kinto.views import object_exists_or_404, raise_404_if_invalid_id
 
 
 _parent_path = "/buckets/{{bucket_id}}/collections/{{collection_id}}"
@@ -44,6 +44,8 @@ class Record(resource.Resource):
     def get_parent_id(self, request):
         self.bucket_id = request.matchdict["bucket_id"]
         self.collection_id = request.matchdict["collection_id"]
+        raise_404_if_invalid_id(request, "bucket", self.bucket_id)
+        raise_404_if_invalid_id(request, "collection", self.collection_id)
         return utils.instance_uri(
             request, "collection", bucket_id=self.bucket_id, id=self.collection_id
         )

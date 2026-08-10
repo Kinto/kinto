@@ -401,6 +401,28 @@ class HistoryDeletionTest(HistoryWebTest):
         assert len(resp.json["data"]) == 2  # record + new collection
 
 
+class InvalidParentIdTest(HistoryWebTest):
+    def setUp(self):
+        self.app.put("/buckets/bid", headers=self.headers)
+        self.app.put("/buckets/bid/collections/cid", headers=self.headers)
+
+    def test_history_of_invalid_bucket_id_returns_404(self):
+        resp = self.app.get("/buckets/*/history", headers=self.headers, status=404)
+        assert resp.json["details"] == {"id": "*", "resource_name": "bucket"}
+
+    def test_snapshot_of_invalid_bucket_id_returns_404(self):
+        resp = self.app.get(
+            "/buckets/*/snapshot/collections/cid@42", headers=self.headers, status=404
+        )
+        assert resp.json["details"] == {"id": "*", "resource_name": "bucket"}
+
+    def test_snapshot_of_invalid_collection_id_returns_404(self):
+        resp = self.app.get(
+            "/buckets/bid/snapshot/collections/*@42", headers=self.headers, status=404
+        )
+        assert resp.json["details"] == {"id": "*", "resource_name": "collection"}
+
+
 class FilteringTest(HistoryWebTest):
     def setUp(self):
         self.app.put("/buckets/bid", headers=self.headers)

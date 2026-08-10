@@ -9,6 +9,7 @@ from kinto.core.resource.viewset import ViewSet
 from kinto.core.storage import Filter, KintoObject, Sort
 from kinto.core.types import Request
 from kinto.core.utils import instance_uri
+from kinto.views import raise_404_if_invalid_id
 
 
 class HistorySchema(resource.ResourceSchema):
@@ -57,6 +58,7 @@ class History(resource.Resource):
 
     def get_parent_id(self, request: Request) -> str:
         self.bucket_id = request.matchdict["bucket_id"]
+        raise_404_if_invalid_id(request, "bucket", self.bucket_id)
         return instance_uri(request, "bucket", id=self.bucket_id)
 
     def _extract_filters(self) -> list[Filter]:
@@ -120,6 +122,9 @@ def get_snapshot(request: Request) -> dict[str, list[KintoObject]]:
     bucket_id = request.matchdict["bucket_id"]
     collection_id = request.matchdict["collection_id"]
     timestamp = int(request.matchdict["timestamp"])
+
+    raise_404_if_invalid_id(request, "bucket", bucket_id)
+    raise_404_if_invalid_id(request, "collection", collection_id)
 
     bucket_uri = instance_uri(request, "bucket", id=bucket_id)
     collection_uri = instance_uri(request, "collection", bucket_id=bucket_id, id=collection_id)
