@@ -117,6 +117,12 @@ class FilteringTest(BaseTest):
         self.validated["querystring"] = {"_since": list()}
         self.assertRaises(httpexceptions.HTTPBadRequest, self.resource.plural_get)
 
+    def test_filter_raises_error_if_since_or_before_value_is_a_boolean(self):
+        for param in ("_since", "_before"):
+            for value in (True, False):
+                self.validated["querystring"] = {param: value}
+                self.assertRaises(httpexceptions.HTTPBadRequest, self.resource.plural_get)
+
     def test_filter_errors_are_json_formatted(self):
         self.patch_known_field.stop()
         self.validated["querystring"] = {"foo": 1}

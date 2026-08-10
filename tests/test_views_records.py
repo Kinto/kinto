@@ -3,6 +3,7 @@ import re
 import unittest
 from unittest import mock
 
+from kinto.core.errors import ERRORS
 from kinto.core.testing import get_user_headers
 
 from .support import (
@@ -374,6 +375,11 @@ class RecordsViewFilterTest(BaseWebTest, unittest.TestCase):
         response = self.app.get(self.collection_url + '?flavor="strawberry"', headers=self.headers)
         assert len(response.json["data"]) == 1
         assert response.json["data"][0]["id"] == "strawberry"
+
+    def test_boolean_timestamp_filters_are_rejected(self):
+        for query in ("?min_last_modified=true", "?_since=true", "?last_modified=false"):
+            response = self.app.get(self.collection_url + query, headers=self.headers, status=400)
+            assert response.json["errno"] == ERRORS.INVALID_PARAMETERS.value
 
     def test_records_can_be_filtered_with_object(self):
         query = self.collection_url + '?attributes={"ibu": 25, "seen_on": "2017-06-01"}'
