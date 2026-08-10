@@ -508,6 +508,25 @@ class FormatConditionsContainsContainmentTest(unittest.TestCase):
         self.assertNotIn("data @>", sql)
 
 
+class FormatConditionsMissingValueTest(unittest.TestCase):
+    def _get_storage(self):
+        return postgresql.Storage(client=mock.Mock(), max_fetch_size=10000)
+
+    def test_missing_on_modified_field_does_not_crash(self):
+        storage = self._get_storage()
+        filters = [Filter("last_modified", MISSING, COMPARISON.LT)]
+        sql, holders = storage._format_conditions(filters, "id", "last_modified")
+        self.assertEqual(sql, "last_modified IS NOT NULL")
+        self.assertEqual(holders, {})
+
+    def test_missing_on_id_field_does_not_crash(self):
+        storage = self._get_storage()
+        filters = [Filter("id", MISSING, COMPARISON.GT)]
+        sql, holders = storage._format_conditions(filters, "id", "last_modified")
+        self.assertEqual(sql, "FALSE")
+        self.assertEqual(holders, {})
+
+
 class FormatSortingNormalizationTest(unittest.TestCase):
     """Test that _format_sorting uses the same JSONB accessor expression format
     as _format_conditions (without parentheses around placeholders)."""
