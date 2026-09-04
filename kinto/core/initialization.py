@@ -4,7 +4,7 @@ import re
 import warnings
 from collections.abc import Callable
 from datetime import datetime
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from dateutil import parser as dateparser
 from dockerflow.logging import get_or_generate_request_id, request_id_context
@@ -30,18 +30,25 @@ from kinto.core import cache, errors, metrics, permission, storage, utils
 from kinto.core.events import ACTIONS, ResourceChanged, ResourceRead
 
 
-try:
+if TYPE_CHECKING:
+    # Type checkers see the real modules. At runtime they are optional, and set
+    # to a falsy value when not installed (see ``else`` below).
     import newrelic
-except ImportError:  # pragma: no cover
-    newrelic = None  # ty: ignore[invalid-assignment]
-try:
-    from werkzeug.middleware.profiler import ProfilerMiddleware
-except ImportError:  # pragma: no cover
-    ProfilerMiddleware = False  # ty: ignore[invalid-assignment]
-try:
     import sentry_sdk
-except ImportError:  # pragma: no cover
-    sentry_sdk = None  # ty: ignore[invalid-assignment]
+    from werkzeug.middleware.profiler import ProfilerMiddleware
+else:
+    try:
+        import newrelic
+    except ImportError:  # pragma: no cover
+        newrelic = None
+    try:
+        from werkzeug.middleware.profiler import ProfilerMiddleware
+    except ImportError:  # pragma: no cover
+        ProfilerMiddleware = False
+    try:
+        import sentry_sdk
+    except ImportError:  # pragma: no cover
+        sentry_sdk = None
 
 
 logger = logging.getLogger(__name__)

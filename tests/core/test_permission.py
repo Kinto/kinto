@@ -65,6 +65,6 @@ class PostgreSQLPermissionTest(PermissionTest, unittest.TestCase):
             mock.patch.object(
                 self.permission.client,
                 "session_factory",
-                side_effect=sqlalchemy.exc.SQLAlchemyError,  # ty: ignore[possibly-missing-submodule]
+                side_effect=sqlalchemy.exc.SQLAlchemyError,
             )
         ]

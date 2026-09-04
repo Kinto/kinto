@@ -1,6 +1,6 @@
 import warnings
 from datetime import timedelta
-from typing import Any
+from typing import TYPE_CHECKING, Any
 from urllib.parse import urlparse
 
 from pyramid.config import Configurator
@@ -11,10 +11,13 @@ from kinto.core import metrics
 from kinto.core.types import Configurator as KintoConfigurator
 
 
-try:
+if TYPE_CHECKING:
     import statsd as statsd_module
-except ImportError:  # pragma: no cover
-    statsd_module = None  # ty: ignore[invalid-assignment]
+else:
+    try:
+        import statsd as statsd_module
+    except ImportError:  # pragma: no cover
+        statsd_module = None
 
 
 def sanitize(value: Any) -> Any:
