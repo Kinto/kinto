@@ -4,7 +4,7 @@ import shutil
 import warnings
 from collections.abc import Callable
 from time import perf_counter as time_now
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from pyramid.exceptions import ConfigurationError
 from pyramid.request import Request
@@ -17,10 +17,13 @@ from kinto.core.types import Configurator
 from kinto.core.utils import safe_wraps
 
 
-try:
+if TYPE_CHECKING:
     import prometheus_client as prometheus_module
-except ImportError:  # pragma: no cover
-    prometheus_module = None  # ty: ignore[invalid-assignment]
+else:
+    try:
+        import prometheus_client as prometheus_module
+    except ImportError:  # pragma: no cover
+        prometheus_module = None
 
 
 logger = logging.getLogger(__name__)

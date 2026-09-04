@@ -59,12 +59,12 @@ class PostgreSQLClient:
                 # Commit like would do a successful request.
                 zope_transaction.commit()
 
-        except sqlalchemy.exc.IntegrityError as e:  # ty: ignore[possibly-missing-submodule]
+        except sqlalchemy.exc.IntegrityError as e:
             logger.error(e, exc_info=True)
             if session and commit_manually:  # pragma: no branch
                 session.rollback()
             raise exceptions.IntegrityError(original=e) from e
-        except sqlalchemy.exc.SQLAlchemyError as e:  # ty: ignore[possibly-missing-submodule]
+        except sqlalchemy.exc.SQLAlchemyError as e:
             logger.error(e, exc_info=True)
             if session and commit_manually:
                 session.rollback()

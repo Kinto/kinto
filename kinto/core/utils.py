@@ -10,7 +10,7 @@ from base64 import b64decode, b64encode
 from binascii import hexlify
 from collections.abc import Callable
 from enum import Enum
-from typing import Any
+from typing import TYPE_CHECKING, Any
 from urllib.parse import unquote
 
 import jsonpatch
@@ -26,20 +26,28 @@ from pyramid.view import render_view_to_response
 from kinto.core.cornice import cors
 
 
-try:
-    import sqlalchemy
-except ImportError:  # pragma: no cover
-    sqlalchemy = None  # ty: ignore[invalid-assignment]
-
-try:
+if TYPE_CHECKING:
+    # Type checkers see the real modules. At runtime they are optional, and set
+    # to ``None`` when the matching extra is not installed (see ``else`` below).
     import memcache
-except ImportError:  # pragma: no cover
-    memcache = None  # ty: ignore[invalid-assignment]
-
-try:
     import redis
-except ImportError:  # pragma: no cover
-    redis = None  # ty: ignore[invalid-assignment]
+    import sqlalchemy
+    import sqlalchemy.exc
+else:
+    try:
+        import sqlalchemy
+    except ImportError:  # pragma: no cover
+        sqlalchemy = None
+
+    try:
+        import memcache
+    except ImportError:  # pragma: no cover
+        memcache = None
+
+    try:
+        import redis
+    except ImportError:  # pragma: no cover
+        redis = None
 
 
 class json:
