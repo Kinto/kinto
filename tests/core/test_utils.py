@@ -175,6 +175,24 @@ class PrefixedPrincipalsTest(unittest.TestCase):
         request.prefixed_userid = "basic:foo"
         self.assertEqual(prefixed_principals(request), ["basic:foo", "system.Authenticated"])
 
+    def test_returns_list_when_effective_principals_is_a_set(self):
+        # pyramid_multiauth's MultiAuthSecurityPolicy.effective_principals()
+        # returns a set; prefixed_principals() must coerce it to a list so
+        # that downstream code can concatenate with lists.
+        request = DummyRequest()
+        request.effective_principals = {"system.Everyone"}
+        result = prefixed_principals(request)
+        self.assertIsInstance(result, list)
+        self.assertEqual(result, ["system.Everyone"])
+
+    def test_returns_list_when_authenticated_set(self):
+        request = DummyRequest()
+        request.effective_principals = {"basic:foo", "system.Authenticated"}
+        request.prefixed_userid = "basic:foo"
+        result = prefixed_principals(request)
+        self.assertIsInstance(result, list)
+        self.assertEqual(set(result), {"basic:foo", "system.Authenticated"})
+
 
 class BuildRequestTest(unittest.TestCase):
     def test_built_request_has_kinto_core_custom_methods(self):

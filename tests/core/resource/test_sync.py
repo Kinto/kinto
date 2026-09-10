@@ -73,6 +73,17 @@ class SinceModifiedTest(ThreadMixin, BaseTest):
         header = int(self.last_response.headers["ETag"][1:-1])
         self.assertEqual(header, modification)
 
+    def test_timestamp_header_does_not_crash_when_timestamp_is_none(self):
+        # Simulate a storage backend race condition where resource_timestamp
+        # returns None. _add_timestamp_header should skip the headers rather
+        # than raising TypeError (None / 1000.0).
+        from pyramid.httpexceptions import HTTPNotModified
+
+        self.resource.timestamp = None  # bypass @reify
+        response = HTTPNotModified()
+        self.resource._add_timestamp_header(response)
+        self.assertNotIn("ETag", response.headers)
+
     def test_filter_with_since_accepts_numeric_value(self):
         self.validated["querystring"] = {"_since": 6}
         self.resource.plural_post()

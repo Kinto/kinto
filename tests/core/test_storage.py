@@ -570,6 +570,81 @@ class FormatConditionsContainsContainmentTest(unittest.TestCase):
         self.assertNotIn("data @>", sql)
 
 
+class ResourceTimestampRaceConditionTest(unittest.TestCase):
+    """Test that resource_timestamp handles the ON CONFLICT DO NOTHING race.
+
+    When two concurrent requests hit an empty resource, query_existing may
+    return (None, None) while a concurrent INSERT creates the timestamp row.
+    The ON CONFLICT DO NOTHING then returns no row, and resource_timestamp
+    must re-query instead of returning None.
+    """
+
+    def _get_storage(self):
+        return postgresql.Storage(client=mock.Mock(), max_fetch_size=10000)
+
+    def test_requeries_when_on_conflict_returns_no_row(self):
+        storage = self._get_storage()
+
+        empty_row = mock.Mock(last_modified=None, last_epoch=None)
+        real_row = mock.Mock(last_modified="2026-01-01", last_epoch=1700000000)
+
+        query_existing_result = mock.Mock()
+        create_result = mock.Mock()
+
+        # Simulate: 1st query_existing -> empty, create -> None (conflict),
+        # 2nd query_existing -> real row (concurrent insert is now visible).
+        call_count = {"existing": 0}
+
+        def execute_side_effect(text_clause, _placeholders=None):
+            sql_text = str(text_clause)
+            if "existing_timestamps" in sql_text:
+                call_count["existing"] += 1
+                result = mock.Mock()
+                if call_count["existing"] == 1:
+                    result.fetchone.return_value = empty_row
+                else:
+                    result.fetchone.return_value = real_row
+                return result
+            elif "INSERT INTO timestamps" in sql_text:
+                create_result.fetchone.return_value = None  # ON CONFLICT DO NOTHING
+                return create_result
+            return mock.Mock()
+
+        conn = mock.Mock()
+        conn.execute.side_effect = execute_side_effect
+        storage.client.connect.return_value.__enter__ = mock.Mock(return_value=conn)
+        storage.client.connect.return_value.__exit__ = mock.Mock(return_value=False)
+
+        result = storage.resource_timestamp("record", "/buckets/x/collections/y")
+        self.assertEqual(result, 1700000000)
+
+    def test_returns_epoch_when_insert_succeeds(self):
+        storage = self._get_storage()
+
+        empty_row = mock.Mock(last_modified=None, last_epoch=None)
+        inserted_row = mock.Mock(last_epoch=1700000001)
+
+        def execute_side_effect(text_clause, _placeholders=None):
+            sql_text = str(text_clause)
+            if "existing_timestamps" in sql_text:
+                result = mock.Mock()
+                result.fetchone.return_value = empty_row
+                return result
+            elif "INSERT INTO timestamps" in sql_text:
+                result = mock.Mock()
+                result.fetchone.return_value = inserted_row
+                return result
+            return mock.Mock()
+
+        conn = mock.Mock()
+        conn.execute.side_effect = execute_side_effect
+        storage.client.connect.return_value.__enter__ = mock.Mock(return_value=conn)
+        storage.client.connect.return_value.__exit__ = mock.Mock(return_value=False)
+
+        result = storage.resource_timestamp("record", "/buckets/x/collections/y")
+        self.assertEqual(result, 1700000001)
+
+
 class FormatSortingNormalizationTest(unittest.TestCase):
     """Test that _format_sorting uses the same JSONB accessor expression format
     as _format_conditions (without parentheses around placeholders)."""

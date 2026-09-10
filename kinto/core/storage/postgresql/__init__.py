@@ -329,7 +329,14 @@ class Storage(StorageBase, MigratorMixin):
                 create_result = conn.execute(
                     sa.text(create_if_missing), dict(last_modified=existing_ts, **placeholders)
                 )
-                obj = create_result.fetchone() or row
+                obj = create_result.fetchone()
+                if obj is None:
+                    # ON CONFLICT DO NOTHING: a concurrent request inserted the
+                    # timestamp row between our query_existing and this INSERT.
+                    # Re-query to obtain the actual timestamp instead of
+                    # returning the stale (None, None) row.
+                    ts_result = conn.execute(sa.text(query_existing), placeholders)
+                    obj = ts_result.fetchone()
 
         return obj.last_epoch
 

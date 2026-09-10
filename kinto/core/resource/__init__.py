@@ -890,6 +890,10 @@ class Resource:
         """Add current timestamp in response headers, when request comes in."""
         if timestamp is None:
             timestamp = self.timestamp
+        if timestamp is None:
+            # The storage backend returned no timestamp (e.g. a race condition
+            # in resource_timestamp). Skip the headers rather than crashing.
+            return
         # Pyramid takes care of converting.
         response.last_modified = timestamp / 1000.0
         # Return timestamp as ETag.

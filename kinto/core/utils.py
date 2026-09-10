@@ -349,7 +349,9 @@ def prefixed_principals(request):
         warnings.simplefilter("ignore", DeprecationWarning)
         principals = request.effective_principals
     if Authenticated not in principals:
-        return principals
+        # `effective_principals` may return a `set` (e.g. with pyramid_multiauth's
+        # `MultiAuthSecurityPolicy`), but callers expect a list. Coerce to be safe.
+        return list(principals)
 
     # Remove unprefixed user id on effective_principals to avoid conflicts.
     # (it is added via Pyramid Authn policy effective principals)

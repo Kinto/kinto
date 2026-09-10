@@ -81,7 +81,7 @@ class Model:
         permissions = self.permission.get_object_permissions(perm_object_id)
         # Permissions are not returned if user only has read permission.
         writers = permissions.get("write", [])
-        principals = (self.prefixed_principals or []) + [self.current_principal]
+        principals = list(self.prefixed_principals or []) + [self.current_principal]
         if len(set(writers) & set(principals)) == 0:
             permissions = {}
         # Insert the permissions values in the response.
