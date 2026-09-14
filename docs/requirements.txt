@@ -7,7 +7,7 @@ kinto
 mock==5.2.0
 webtest==3.0.7
 pyramid==2.1
-python-rapidjson==1.23
+python-rapidjson==1.25
 SQLAlchemy==2.0.52
 setuptools<82
 redis==8.1.0
