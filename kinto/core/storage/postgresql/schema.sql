@@ -76,6 +76,10 @@ DECLARE
     previous BIGINT;
     current BIGINT;
 BEGIN
+    -- Lock concurrent inserts/updates on those with same (parent_id, resource_name)
+    -- to stop duplicate keys in MAX(last_modified) arithmetic.
+    PERFORM pg_advisory_xact_lock(hashtext(NEW.parent_id), hashtext(NEW.resource_name));
+
     previous := NULL;
     WITH existing_timestamps AS (
       -- Timestamp of latest record.
@@ -140,4 +144,4 @@ INSERT INTO metadata (name, value) VALUES ('created_at', NOW()::TEXT);
 
 -- Set storage schema version.
 -- Should match ``kinto.core.storage.postgresql.PostgreSQL.schema_version``
-INSERT INTO metadata (name, value) VALUES ('storage_schema_version', '26');
+INSERT INTO metadata (name, value) VALUES ('storage_schema_version', '27');

@@ -294,6 +294,25 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
         assert count == 1
         assert objects[0]["drink"] == "mate"
 
+    def test_migration_27_updates_bump_timestamp(self):
+        last_version = postgresql_storage.Storage.schema_version
+        postgresql_storage.Storage.schema_version = 26
+
+        # Initialize schema at version 26
+        self.storage.initialize_schema()
+
+        # Run migration 26 -> 27
+        postgresql_storage.Storage.schema_version = last_version
+        self.storage.initialize_schema()
+
+        version = self.storage.get_installed_version()
+        self.assertEqual(version, 27)
+
+        # Create objects and verify bump_timestamp works as expected
+        r1 = self.storage.create("test", "jean-louis", {"item": 1})
+        r2 = self.storage.create("test", "jean-louis", {"item": 2})
+        self.assertTrue(r2["last_modified"] > r1["last_modified"])
+
 
 @pytest.mark.xdist_group("postgres")
 @skip_if_no_postgresql
