@@ -290,9 +290,8 @@ def reapply_cors(request, response) -> Any:
         # Import service here because kinto.core import utils
         from kinto.core import Service
 
-        if Service.default_cors_headers:  # pragma: no branch
-            headers = ",".join(Service.default_cors_headers)
-            response.headers["Access-Control-Expose-Headers"] = headers
+        headers = ",".join(Service.default_cors_headers)
+        response.headers["Access-Control-Expose-Headers"] = headers
     return response
 
 

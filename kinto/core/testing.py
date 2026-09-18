@@ -19,9 +19,10 @@ skip_if_ci = unittest.skipIf("CI" in os.environ, "ci")
 skip_if_no_postgresql = unittest.skipIf(sqlalchemy is None, "postgresql is not installed.")
 skip_if_no_memcached = unittest.skipIf(memcache is None, "memcached is not installed.")
 skip_if_no_redis = unittest.skipIf(redis is None, "redis is not installed.")
-skip_if_no_statsd = unittest.skipIf(not statsd.statsd_module, "statsd is not installed.")
+skip_if_no_statsd = unittest.skipIf(not statsd.statsd_module, "statsd is not installed.")  # ty: ignore[redundant-condition]
 skip_if_no_prometheus = unittest.skipIf(
-    not prometheus.prometheus_module, "prometheus is not installed."
+    not prometheus.prometheus_module,  # ty: ignore[redundant-condition]
+    "prometheus is not installed.",
 )
 
 

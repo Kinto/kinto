@@ -14,7 +14,6 @@ from kinto.core.events import (
 )
 from kinto.core.storage.exceptions import BackendError
 from kinto.core.testing import skip_if_no_prometheus, skip_if_no_statsd, unittest
-from kinto.plugins import statsd
 
 from ..support import BaseWebTest
 
@@ -496,9 +495,6 @@ class StatsDTest(BaseWebTest, unittest.TestCase):
     @classmethod
     def get_app_settings(cls, *args, **kwargs):
         settings = super().get_app_settings(*args, **kwargs)
-        if not statsd.statsd_module:
-            return settings
-
         settings["includes"] = "kinto.plugins.statsd"
         settings["statsd_url"] = "udp://localhost:8125"
         this_module = "tests.core.resource.test_events"
