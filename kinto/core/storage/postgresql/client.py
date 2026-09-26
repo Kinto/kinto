@@ -60,7 +60,10 @@ class PostgreSQLClient:
                 zope_transaction.commit()
 
         except sqlalchemy.exc.IntegrityError as e:
-            logger.error(e, exc_info=True)
+            if "idx_objects_parent_id_resource_name_last_modified" in str(e):
+                logger.debug(e, exc_info=True)
+            else:
+                logger.error(e, exc_info=True)
             if session and commit_manually:  # pragma: no branch
                 session.rollback()
             raise exceptions.IntegrityError(original=e) from e

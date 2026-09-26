@@ -1,5 +1,7 @@
 import logging
 import os
+import random
+import time
 import warnings
 from collections import defaultdict
 from typing import Any
@@ -41,6 +43,13 @@ def _build_containment_json(field: str, value: Any) -> str:
     for subfield in reversed(field.split(".")):
         obj = {subfield: obj}
     return json.dumps(obj)
+
+
+MAX_TIMESTAMP_COLLISION_RETRIES = 3
+
+
+def _is_timestamp_collision(e: Exception) -> bool:
+    return "idx_objects_parent_id_resource_name_last_modified" in str(e)
 
 
 class Storage(StorageBase, MigratorMixin):
@@ -173,7 +182,7 @@ class Storage(StorageBase, MigratorMixin):
 
     # MigratorMixin attributes.
     name = "storage"
-    schema_version = 26
+    schema_version = 27
     schema_file = os.path.join(HERE, "schema.sql")
     migrations_directory = os.path.join(HERE, "migrations")
 
@@ -378,6 +387,39 @@ class Storage(StorageBase, MigratorMixin):
         results = {r[0]: r[1] for r in rows}
         return results
 
+    def _execute_and_fetch_with_retry(
+        self,
+        query: Any,
+        placeholders: dict[str, Any],
+        fetch_method: str = "fetchone",
+        fetch_size: int | None = None,
+    ) -> tuple[Any, int]:
+        for attempt in range(MAX_TIMESTAMP_COLLISION_RETRIES):
+            try:
+                with self.client.connect() as conn:
+                    if not self.client.commit_manually:
+                        with conn.begin_nested():
+                            result = conn.execute(query, placeholders)
+                            data = (
+                                result.fetchmany(fetch_size)
+                                if fetch_method == "fetchmany"
+                                else result.fetchone()
+                            )
+                            return data, result.rowcount
+                    result = conn.execute(query, placeholders)
+                    data = (
+                        result.fetchmany(fetch_size)
+                        if fetch_method == "fetchmany"
+                        else result.fetchone()
+                    )
+                    return data, result.rowcount
+            except (sa.exc.IntegrityError, exceptions.IntegrityError) as e:
+                if _is_timestamp_collision(e) and attempt < MAX_TIMESTAMP_COLLISION_RETRIES - 1:
+                    time.sleep(random.uniform(0.001, 0.005) * (attempt + 1))
+                    continue
+                raise
+        raise exceptions.IntegrityError()  # pragma: no cover
+
     @deprecate_kwargs({"collection_id": "resource_name", "record": "obj"})
     def create(
         self,
@@ -440,9 +482,11 @@ class Storage(StorageBase, MigratorMixin):
             last_modified=obj.get(modified_field),
             data=json.dumps(query_object),
         )
-        with self.client.connect() as conn:
-            result = conn.execute(sa.text(query % safe_holders), placeholders)
-            inserted = result.fetchone()
+        inserted, _ = self._execute_and_fetch_with_retry(
+            sa.text(query % safe_holders), 
+            placeholders, 
+            "fetchone"
+        )
 
         if not inserted:
             raise exceptions.UnicityError(id_field)
@@ -516,9 +560,11 @@ class Storage(StorageBase, MigratorMixin):
             data=json.dumps(query_object),
         )
 
-        with self.client.connect() as conn:
-            result = conn.execute(sa.text(query), placeholders)
-            updated = result.fetchone()
+        updated, _ = self._execute_and_fetch_with_retry(
+            sa.text(query), 
+            placeholders, 
+            "fetchone"
+        )
 
         obj = {**obj, id_field: object_id}
         obj[modified_field] = updated.last_modified
@@ -566,11 +612,13 @@ class Storage(StorageBase, MigratorMixin):
             deleted_data=deleted_data,
         )
 
-        with self.client.connect() as conn:
-            result = conn.execute(sa.text(query), placeholders)
-            if result.rowcount == 0:
-                raise exceptions.ObjectNotFoundError(object_id)
-            updated = result.fetchone()
+        updated, rowcount = self._execute_and_fetch_with_retry(
+            sa.text(query), 
+            placeholders, 
+            "fetchone"
+        )
+        if rowcount == 0:
+            raise exceptions.ObjectNotFoundError(object_id)
 
         obj = {}
         obj[modified_field] = updated.last_modified
@@ -679,9 +727,12 @@ class Storage(StorageBase, MigratorMixin):
 
         query = query.format_map(safeholders)
 
-        with self.client.connect() as conn:
-            result = conn.execute(sa.text(query), placeholders)
-            deleted = result.fetchmany(self._max_fetch_size)
+        deleted, _ = self._execute_and_fetch_with_retry(
+            sa.text(query), 
+            placeholders, 
+            "fetchmany", 
+            self._max_fetch_size
+        )
 
         objects = []
         for result in deleted:
