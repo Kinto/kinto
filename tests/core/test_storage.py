@@ -1,3 +1,4 @@
+import contextlib
 from unittest import mock
 
 import pytest
@@ -312,6 +313,73 @@ class PostgreSQLStorageTest(StorageTest, unittest.TestCase):
         for obj in results:
             self.assertLess(obj["last_modified"], before)
 
+    def test_retry_on_timestamp_collision(self):
+        attempts = [0]
+        real_connect = self.storage.client.connect
+
+        @contextlib.contextmanager
+        def mock_connect(*args, **kwargs):
+            attempts[0] += 1
+            if attempts[0] < 3:
+                raise exceptions.IntegrityError(
+                    "idx_objects_parent_id_resource_name_last_modified"
+                )
+            with real_connect(*args, **kwargs) as conn:
+                yield conn
+
+        with mock.patch.object(self.storage.client, "connect", side_effect=mock_connect):
+            obj = self.create_object({"item": 1})
+            self.assertIsNotNone(obj["id"])
+            self.assertEqual(attempts[0], 3)
+
+    def test_retry_on_timestamp_collision_managed_transaction(self):
+        import transaction as zope_transaction
+
+        self.storage.client.commit_manually = False
+        try:
+            attempts = [0]
+            real_connect = self.storage.client.connect
+
+            @contextlib.contextmanager
+            def mock_connect(*args, **kwargs):
+                attempts[0] += 1
+                if attempts[0] < 2:
+                    raise exceptions.IntegrityError(
+                        "idx_objects_parent_id_resource_name_last_modified"
+                    )
+                with real_connect(*args, **kwargs) as conn:
+                    yield conn
+
+            with mock.patch.object(self.storage.client, "connect", side_effect=mock_connect):
+                obj = self.create_object({"item": 2})
+                self.assertIsNotNone(obj["id"])
+                self.assertEqual(attempts[0], 2)
+        finally:
+            zope_transaction.abort()
+            if hasattr(self.storage.client.session_factory, "remove"):
+                self.storage.client.session_factory.remove()
+            self.storage.client.commit_manually = True
+
+    def test_retry_exhausted_raises_integrity_error(self):
+        with mock.patch.object(
+            self.storage.client,
+            "connect",
+            side_effect=exceptions.IntegrityError(
+                "idx_objects_parent_id_resource_name_last_modified"
+            ),
+        ):
+            with self.assertRaises(exceptions.IntegrityError):
+                self.storage.create("record", "/b/c", {"item": 1})
+
+    def test_non_timestamp_integrity_error_is_not_retried(self):
+        with mock.patch.object(
+            self.storage.client,
+            "connect",
+            side_effect=exceptions.IntegrityError("idx_objects_id_parent_id_resource_name"),
+        ):
+            with self.assertRaises(exceptions.IntegrityError):
+                self.storage.create("record", "/b/c", {"item": 1})
+
 
 class FormatConditionsEQContainmentTest(unittest.TestCase):
     """Test that _format_conditions uses JSONB containment (@>) for EQ filters
@@ -571,3 +639,67 @@ class FormatSortingNormalizationTest(unittest.TestCase):
         # The format should be the same: data->:<placeholder>
         self.assertIn("data->:", cond_sql)
         self.assertIn("data->:", sort_sql)
+
+
+class FormatConditionsModifiedFieldTest(unittest.TestCase):
+    """Test that _format_conditions wraps placeholders in from_epoch() for last_modified
+    to enable PostgreSQL index range scans."""
+
+    def _get_storage(self):
+        return postgresql.Storage(client=mock.Mock(), max_fetch_size=10000)
+
+    def test_gt_on_modified_field(self):
+        storage = self._get_storage()
+        filters = [Filter("last_modified", 1000, COMPARISON.GT)]
+        sql, holders = storage._format_conditions(filters, "id", "last_modified")
+        self.assertEqual(sql, "last_modified > from_epoch(:filters_value_0)")
+        self.assertEqual(holders["filters_value_0"], 1000)
+
+    def test_max_on_modified_field(self):
+        storage = self._get_storage()
+        filters = [Filter("last_modified", 1000, COMPARISON.MAX)]
+        sql, holders = storage._format_conditions(filters, "id", "last_modified")
+        self.assertEqual(sql, "last_modified <= from_epoch(:filters_value_0)")
+        self.assertEqual(holders["filters_value_0"], 1000)
+
+    def test_lt_on_modified_field(self):
+        storage = self._get_storage()
+        filters = [Filter("last_modified", 1000, COMPARISON.LT)]
+        sql, holders = storage._format_conditions(filters, "id", "last_modified")
+        self.assertEqual(sql, "last_modified < from_epoch(:filters_value_0)")
+        self.assertEqual(holders["filters_value_0"], 1000)
+
+    def test_min_on_modified_field(self):
+        storage = self._get_storage()
+        filters = [Filter("last_modified", 1000, COMPARISON.MIN)]
+        sql, holders = storage._format_conditions(filters, "id", "last_modified")
+        self.assertEqual(sql, "last_modified >= from_epoch(:filters_value_0)")
+        self.assertEqual(holders["filters_value_0"], 1000)
+
+    def test_eq_on_modified_field(self):
+        storage = self._get_storage()
+        filters = [Filter("last_modified", 1000, COMPARISON.EQ)]
+        sql, holders = storage._format_conditions(filters, "id", "last_modified")
+        self.assertEqual(sql, "last_modified = from_epoch(:filters_value_0)")
+        self.assertEqual(holders["filters_value_0"], 1000)
+
+    def test_not_on_modified_field(self):
+        storage = self._get_storage()
+        filters = [Filter("last_modified", 1000, COMPARISON.NOT)]
+        sql, holders = storage._format_conditions(filters, "id", "last_modified")
+        self.assertEqual(sql, "last_modified <> from_epoch(:filters_value_0)")
+        self.assertEqual(holders["filters_value_0"], 1000)
+
+    def test_in_on_modified_field_uses_as_epoch_fallback(self):
+        storage = self._get_storage()
+        filters = [Filter("last_modified", (1000, 2000), COMPARISON.IN)]
+        sql, holders = storage._format_conditions(filters, "id", "last_modified")
+        self.assertEqual(sql, "as_epoch(last_modified) IN :filters_value_0")
+        self.assertEqual(holders["filters_value_0"], (1000, 2000))
+
+    def test_exclude_on_modified_field_uses_as_epoch_fallback(self):
+        storage = self._get_storage()
+        filters = [Filter("last_modified", (1000, 2000), COMPARISON.EXCLUDE)]
+        sql, holders = storage._format_conditions(filters, "id", "last_modified")
+        self.assertEqual(sql, "as_epoch(last_modified) NOT IN :filters_value_0")
+        self.assertEqual(holders["filters_value_0"], (1000, 2000))
