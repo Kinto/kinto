@@ -483,9 +483,7 @@ class Storage(StorageBase, MigratorMixin):
             data=json.dumps(query_object),
         )
         inserted, _ = self._execute_and_fetch_with_retry(
-            sa.text(query % safe_holders), 
-            placeholders, 
-            "fetchone"
+            sa.text(query % safe_holders), placeholders, "fetchone"
         )
 
         if not inserted:
@@ -560,11 +558,7 @@ class Storage(StorageBase, MigratorMixin):
             data=json.dumps(query_object),
         )
 
-        updated, _ = self._execute_and_fetch_with_retry(
-            sa.text(query), 
-            placeholders, 
-            "fetchone"
-        )
+        updated, _ = self._execute_and_fetch_with_retry(sa.text(query), placeholders, "fetchone")
 
         obj = {**obj, id_field: object_id}
         obj[modified_field] = updated.last_modified
@@ -613,9 +607,7 @@ class Storage(StorageBase, MigratorMixin):
         )
 
         updated, rowcount = self._execute_and_fetch_with_retry(
-            sa.text(query), 
-            placeholders, 
-            "fetchone"
+            sa.text(query), placeholders, "fetchone"
         )
         if rowcount == 0:
             raise exceptions.ObjectNotFoundError(object_id)
@@ -728,10 +720,7 @@ class Storage(StorageBase, MigratorMixin):
         query = query.format_map(safeholders)
 
         deleted, _ = self._execute_and_fetch_with_retry(
-            sa.text(query), 
-            placeholders, 
-            "fetchmany", 
-            self._max_fetch_size
+            sa.text(query), placeholders, "fetchmany", self._max_fetch_size
         )
 
         objects = []
