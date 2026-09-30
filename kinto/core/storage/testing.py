@@ -1418,6 +1418,11 @@ class DeletedObjectsTest(_StorageMixin):
         num_removed = self.storage.purge_deleted(**self.storage_kw)
         self.assertEqual(num_removed, 0)
 
+    def test_purge_deleted_works_when_resource_does_not_exist(self):
+        self.create_object()
+        num_removed = self.storage.purge_deleted(resource_name="unexisting", parent_id="*")
+        self.assertEqual(num_removed, 0)
+
     def test_purge_deleted_remove_with_before_remove_olders_exclusive(self):
         older = self.create_object()
         newer = self.create_object()
