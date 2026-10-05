@@ -745,6 +745,10 @@ OpenID Authentication should work as described in the :ref:`API docs <authentica
     # and then requires the obtained access token ``aud`` claim to match.
     multiauth.policy.google.audience = kinto-prod
 
+    # Scopes that clients are allowed to request during login
+    # (Default: ``openid email profile``).
+    multiauth.policy.google.allowed_scopes = openid email
+
     # User information cache expiration (Default: 1 day)
     # Access token verification will be cached during that amount of time.
     multiauth.policy.google.verification_ttl_seconds = 86400

@@ -5,6 +5,7 @@ from typing import Any
 import colander
 import requests
 from pyramid import httpexceptions
+from pyramid.config import aslist
 
 from kinto.core import Service
 from kinto.core.cornice.validators import colander_validator
@@ -19,6 +20,7 @@ from .utils import fetch_openid_config
 
 DEFAULT_STATE_TTL_SECONDS = 3600
 DEFAULT_STATE_LENGTH = 32
+DEFAULT_ALLOWED_SCOPES = "openid email profile"
 
 
 class RedirectHeadersSchema(colander.MappingSchema):
@@ -90,6 +92,9 @@ def get_login(request: Request) -> None:
     userid_field = settings.get(settings_prefix + "userid_field")
     state_ttl = int(settings.get(settings_prefix + "state_ttl_seconds", DEFAULT_STATE_TTL_SECONDS))
     state_length = int(settings.get(settings_prefix + "state_length", DEFAULT_STATE_LENGTH))
+    allowed_scopes = set(
+        aslist(settings.get(settings_prefix + "allowed_scopes", DEFAULT_ALLOWED_SCOPES))
+    )
 
     # Read OpenID configuration (cached by issuer)
     oid_config = fetch_openid_config(issuer)
@@ -99,8 +104,19 @@ def get_login(request: Request) -> None:
     callback = request.GET["callback"]
     prompt = request.GET.get("prompt")
 
+    # Do not let clients obtain tokens with more permissions than necessary
+    # (eg. ``offline_access`` for refresh tokens).
+    scopes = scope.split()
+    unknown_scopes = sorted(set(scopes) - allowed_scopes)
+    if unknown_scopes:
+        error_details = {
+            "name": "scope",
+            "description": "Scopes not allowed: %s" % ", ".join(unknown_scopes),
+        }
+        raise_invalid(request, **error_details)
+
     # Check that email scope is requested if userid field is configured as email.
-    if userid_field == "email" and "email" not in scope:
+    if userid_field == "email" and "email" not in scopes:
         error_details = {
             "name": "scope",
             "description": "Provider %s requires 'email' scope" % provider,
