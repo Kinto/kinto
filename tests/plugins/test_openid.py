@@ -1,7 +1,11 @@
+import json
+import time
 import unittest
 from unittest import mock
 
 import jwt
+from cryptography.hazmat.primitives.asymmetric import rsa
+from jwt.algorithms import RSAAlgorithm
 
 from kinto.core.testing import DummyRequest
 from kinto.plugins.openid import OpenIDConnectPolicy
@@ -267,6 +271,7 @@ class VerifyTokenTest(unittest.TestCase):
         }
         signing_key = mock.Mock()
         signing_key.key = "public-key"
+        signing_key.algorithm_name = "RS256"
 
         with (
             mock.patch("kinto.plugins.openid.jwt.PyJWKClient") as jwks_client,
@@ -283,6 +288,7 @@ class VerifyTokenTest(unittest.TestCase):
         decode.assert_called_with(
             "abc",
             "public-key",
+            algorithms=["RS256"],
             audience="rs-nonprod",
             issuer="https://fxa",
         )

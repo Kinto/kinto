@@ -97,6 +97,8 @@ class OpenIDConnectPolicy(base_auth.CallbackAuthenticationPolicy):
             return jwt.decode(
                 access_token,
                 signing_key.key,
+                # Only accept the algorithm of the provider key (eg. never ``none`` or ``HS256``).
+                algorithms=[signing_key.algorithm_name],
                 # Verify issuer
                 issuer=self.issuer,
                 # Verify audience
