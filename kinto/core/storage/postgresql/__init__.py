@@ -46,6 +46,8 @@ def _build_containment_json(field: str, value: Any) -> str:
 
 
 MAX_TIMESTAMP_COLLISION_RETRIES = 3
+TIMESTAMP_COLLISION_RETRY_MIN_DELAY = 0.001
+TIMESTAMP_COLLISION_RETRY_MAX_DELAY = 0.005
 
 
 def _is_timestamp_collision(e: Exception) -> bool:
@@ -415,7 +417,13 @@ class Storage(StorageBase, MigratorMixin):
                     return data, result.rowcount
             except (sa.exc.IntegrityError, exceptions.IntegrityError) as e:
                 if _is_timestamp_collision(e) and attempt < MAX_TIMESTAMP_COLLISION_RETRIES - 1:
-                    time.sleep(random.uniform(0.001, 0.005) * (attempt + 1))
+                    time.sleep(
+                        random.uniform(
+                            TIMESTAMP_COLLISION_RETRY_MIN_DELAY,
+                            TIMESTAMP_COLLISION_RETRY_MAX_DELAY,
+                        )
+                        * (attempt + 1)
+                    )
                     continue
                 raise
         raise exceptions.IntegrityError()  # pragma: no cover
