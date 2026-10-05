@@ -21,6 +21,10 @@ BLACKLISTED_SETTINGS = [
     "hosts",
 ]
 
+# Make sure to look at https://github.com/Kinto/kinto/issues/3648
+# when switching to psycopg3 (psycopg[binary]).
+DEFAULT_DRIVER = "psycopg2"
+
 
 class PostgreSQLClient:
     def __init__(
@@ -101,7 +105,11 @@ def create_from_config(
     transaction_per_request = with_transaction and filtered_settings.pop(
         "transaction_per_request", False
     )
-    url = filtered_settings[prefix + "url"]
+    url = sqlalchemy.engine.make_url(filtered_settings[prefix + "url"])
+    if url.drivername == "postgresql":
+        # No explicit driver in URL (eg. ``postgresql+psycopg2://``), use default one.
+        url = url.set(drivername=f"postgresql+{DEFAULT_DRIVER}")
+    url = url.render_as_string(hide_password=False)
     existing_client = _CLIENTS[transaction_per_request].get(url)
     if existing_client:
         msg = f"Reuse existing PostgreSQL connection. Parameters {prefix}* will be ignored."
