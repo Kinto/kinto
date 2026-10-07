@@ -220,6 +220,28 @@ class PostgreSQLStorageTest(StorageTest, unittest.TestCase):
         storage2 = self.backend.load_from_config(config)
         self.assertEqual(id(storage1.client), id(storage2.client))
 
+    def test_uses_psycopg2_driver_by_default(self):
+        settings = {
+            **self.settings,
+            "storage_url": "postgresql://postgres:postgres@localhost/testdb",
+        }
+        client = postgresql.create_from_config(
+            self._get_config(settings=settings), prefix="storage_", with_transaction=False
+        )
+        engine = client.session_factory().get_bind()
+        self.assertEqual(engine.url.drivername, "postgresql+psycopg2")
+
+    def test_explicit_driver_is_kept(self):
+        settings = {
+            **self.settings,
+            "storage_url": "postgresql+pg8000://postgres:postgres@localhost/testdb",
+        }
+        with mock.patch("kinto.core.storage.postgresql.client.sqlalchemy.engine_from_config") as m:
+            postgresql.create_from_config(
+                self._get_config(settings=settings), prefix="storage_", with_transaction=False
+            )
+        self.assertEqual(m.call_args.kwargs["url"], settings["storage_url"])
+
     def test_warns_if_configured_pool_size_differs_for_same_backend_type(self):
         self.backend.load_from_config(self._get_config())
         settings = {**self.settings, "storage_pool_size": 1}
