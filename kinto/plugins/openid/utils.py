@@ -32,29 +32,33 @@ IPV6_CHARS = set(string.hexdigits.lower() + ":.")
 PORT_CHARS = set(string.digits + "*")
 
 
-def _url_parts(url: str) -> tuple[str, str, str, str] | None:
+def _url_parts(url: str) -> tuple[str, str, str, str]:
+    """Split the ``url`` into normalized parts, for comparison with trusted patterns.
+
+    :returns: a ``(scheme, host, port, rest)`` tuple
+    :raises ValueError: if the URL is malformed or ambiguous.
+    """
     # ``urlsplit()`` silently strips whitespace and control characters.
     if any(c.isspace() or not c.isprintable() for c in url):
-        return None
-    try:
-        parts = urlsplit(url)
-    except ValueError:
-        return None
+        raise ValueError("Contains space or non-printable char(s)")
+
+    parts = urlsplit(url)  # can raise ValueError
+
     if parts.scheme not in DEFAULT_PORTS or "@" in parts.netloc:
-        return None
+        raise ValueError("Unsupported scheme or username")
 
     # Lowercased, and without brackets for IPv6 (eg. ``[::1]`` gives ``::1``).
     host = parts.hostname or ""
     allowed_chars = IPV6_CHARS if parts.netloc.startswith("[") else HOSTNAME_CHARS
     if not host or not set(host).issubset(allowed_chars):
-        return None
+        raise ValueError("Empty host or with unsupported chars")
 
     # Read the port as text, since ``parts.port`` fails with wildcards.
     # (eg. ``localhost:8000`` or ``[::1]:8000``)
     after_host = parts.netloc.rsplit("]", 1)[-1]
     _, _, port = after_host.partition(":")
     if not set(port).issubset(PORT_CHARS):
-        return None
+        raise ValueError("Unsupported port format")
     port = port or DEFAULT_PORTS[parts.scheme]
 
     # Path, querystring and fragment, as is.
@@ -73,16 +77,16 @@ def is_trusted_callback(callback: str, trusted_urls: list[str]) -> bool:
     """Return ``True`` if the ``callback`` URL matches one of the ``trusted_urls``
     patterns, where ``*`` acts as a wildcard in host, port, and path.
     """
-    callback_parts = _url_parts(callback)
-    if callback_parts is None:
+    try:
+        cb_scheme, cb_host, cb_port, cb_rest = _url_parts(callback)
+    except ValueError:
         return False
-    cb_scheme, cb_host, cb_port, cb_rest = callback_parts
 
     for trusted_url in trusted_urls:
-        trusted_parts = _url_parts(trusted_url)
-        if trusted_parts is None:
+        try:
+            t_scheme, t_host, t_port, t_rest = _url_parts(trusted_url)
+        except ValueError:
             continue
-        t_scheme, t_host, t_port, t_rest = trusted_parts
         if (
             cb_scheme == t_scheme
             and _match(cb_host, t_host)
