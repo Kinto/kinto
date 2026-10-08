@@ -434,8 +434,20 @@ class IsTrustedCallbackTest(unittest.TestCase):
             "https://[::1x]/",
             "javascript://trusted.com/%0aalert(1)",
             "//trusted.com/",
+            "https://trusted.com/admin/../other/",
+            "https://trusted.com/admin/%2e%2e/other/",
+            "https://trusted.com/admin/%2E./other/",
+            "https://trusted.com/admin/./../other/#t=",
+            "https://trusted.com/admin/..\\other/",
+            "https://trusted.com/admin/..",
         ):
             assert not is_trusted_callback(callback, trusted), callback
+
+    def test_dots_outside_path_segments_are_allowed(self):
+        trusted = ["https://trusted.com/*"]
+        assert is_trusted_callback("https://trusted.com/admin/v1..2/file.html", trusted)
+        assert is_trusted_callback("https://trusted.com/admin/?next=../other/", trusted)
+        assert is_trusted_callback("https://trusted.com/admin/#t=../other/", trusted)
 
     def test_malformed_trusted_urls_are_ignored(self):
         assert not is_trusted_callback(

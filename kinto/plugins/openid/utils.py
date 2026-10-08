@@ -61,6 +61,13 @@ def _url_parts(url: str) -> tuple[str, str, str, str]:
         raise ValueError("Unsupported port format")
     port = port or DEFAULT_PORTS[parts.scheme]
 
+    # Browsers resolve dot segments (eg. ``/admin/../other/`` goes to ``/other/``),
+    # including percent-encoded ones and with backslashes as separators.
+    # Consider these as malformed.
+    path = parts.path.lower().replace("%2e", ".").replace("\\", "/")
+    if any(segment in (".", "..") for segment in path.split("/")):
+        raise ValueError("Path contains dot segments")
+
     # Path, querystring and fragment, as is.
     rest = url[len(parts.scheme) + len("://") + len(parts.netloc) :] or "/"
     return parts.scheme, host, port, rest
