@@ -1,4 +1,7 @@
+import fnmatch
+import string
 from typing import Any
+from urllib.parse import urlsplit
 
 import requests
 
@@ -14,3 +17,88 @@ def fetch_openid_config(issuer: str) -> Any:
         _configs[issuer] = resp.json()
 
     return _configs[issuer]
+
+
+# Local ports are used by command-line clients (eg. ``kinto-http`` browser login).
+DEFAULT_TRUSTED_LOCAL_CALLBACK_URLS = ("http://localhost:*/*", "http://127.0.0.1:*/*")
+
+DEFAULT_PORTS = {"http": "80", "https": "443"}
+
+# ``urlsplit()`` is more indulgent than browsers (eg. ``https://evil.com\.trusted.com``
+# is parsed with hostname ``evil.com\.trusted.com``, but browsers go to ``evil.com``).
+# So we only accept these characters in hostnames and ports (``*`` for wildcards).
+HOSTNAME_CHARS = set(string.ascii_lowercase + string.digits + ".-*")
+IPV6_CHARS = set(string.hexdigits.lower() + ":.")
+PORT_CHARS = set(string.digits + "*")
+
+
+def _url_parts(url: str) -> tuple[str, str, str, str]:
+    """Split the ``url`` into normalized parts, for comparison with trusted patterns.
+
+    :returns: a ``(scheme, host, port, rest)`` tuple
+    :raises ValueError: if the URL is malformed or ambiguous.
+    """
+    # ``urlsplit()`` silently strips whitespace and control characters.
+    if any(c.isspace() or not c.isprintable() for c in url):
+        raise ValueError("Contains space or non-printable char(s)")
+
+    parts = urlsplit(url)  # can raise ValueError
+
+    if parts.scheme not in DEFAULT_PORTS or "@" in parts.netloc:
+        raise ValueError("Unsupported scheme or username")
+
+    # Lowercased, and without brackets for IPv6 (eg. ``[::1]`` gives ``::1``).
+    host = parts.hostname or ""
+    allowed_chars = IPV6_CHARS if parts.netloc.startswith("[") else HOSTNAME_CHARS
+    if not host or not set(host).issubset(allowed_chars):
+        raise ValueError("Empty host or with unsupported chars")
+
+    # Read the port as text, since ``parts.port`` fails with wildcards.
+    # (eg. ``localhost:8000`` or ``[::1]:8000``)
+    after_host = parts.netloc.rsplit("]", 1)[-1]
+    _, _, port = after_host.partition(":")
+    if not set(port).issubset(PORT_CHARS):
+        raise ValueError("Unsupported port format")
+    port = port or DEFAULT_PORTS[parts.scheme]
+
+    # Browsers resolve dot segments (eg. ``/admin/../other/`` goes to ``/other/``),
+    # including percent-encoded ones and with backslashes as separators.
+    # Consider these as malformed.
+    path = parts.path.lower().replace("%2e", ".").replace("\\", "/")
+    if any(segment in (".", "..") for segment in path.split("/")):
+        raise ValueError("Path contains dot segments")
+
+    # Path, querystring and fragment, as is.
+    rest = url[len(parts.scheme) + len("://") + len(parts.netloc) :] or "/"
+    return parts.scheme, host, port, rest
+
+
+def _match(value: str, pattern: str) -> bool:
+    # We use filename matching with ``*`` like on shell.
+    # Unlike normal regexp, only ``*`` is a wildcard. (eg. brackets
+    # and querystrings ? are literal).
+    return fnmatch.fnmatchcase(value, pattern.replace("[", "[[]").replace("?", "[?]"))
+
+
+def is_trusted_callback(callback: str, trusted_urls: list[str]) -> bool:
+    """Return ``True`` if the ``callback`` URL matches one of the ``trusted_urls``
+    patterns, where ``*`` acts as a wildcard in host, port, and path.
+    """
+    try:
+        cb_scheme, cb_host, cb_port, cb_rest = _url_parts(callback)
+    except ValueError:
+        return False
+
+    for trusted_url in trusted_urls:
+        try:
+            t_scheme, t_host, t_port, t_rest = _url_parts(trusted_url)
+        except ValueError:
+            continue
+        if (
+            cb_scheme == t_scheme
+            and _match(cb_host, t_host)
+            and _match(cb_port, t_port)
+            and _match(cb_rest, t_rest)
+        ):
+            return True
+    return False

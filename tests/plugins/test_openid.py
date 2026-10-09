@@ -5,7 +5,7 @@ import jwt
 
 from kinto.core.testing import DummyRequest
 from kinto.plugins.openid import OpenIDConnectPolicy
-from kinto.plugins.openid.utils import fetch_openid_config
+from kinto.plugins.openid.utils import fetch_openid_config, is_trusted_callback
 
 from .. import support
 
@@ -40,12 +40,16 @@ class OpenIDWebTest(support.BaseWebTest, unittest.TestCase):
         settings["multiauth.policy.auth0.client_id"] = "abc"
         settings["multiauth.policy.auth0.client_secret"] = "xyz"
         settings["multiauth.policy.auth0.audience"] = "nonprod"
+        settings["multiauth.policy.auth0.trusted_callback_urls"] = (
+            "http://ui.kinto.example.com/* https://*.example.org:*/admin/*"
+        )
 
         settings["multiauth.policy.google.use"] = openid_policy
         settings["multiauth.policy.google.issuer"] = "https://google-issuer"
         settings["multiauth.policy.google.client_id"] = "123"
         settings["multiauth.policy.google.client_secret"] = "789"
         settings["multiauth.policy.google.userid_field"] = "email"
+        settings["multiauth.policy.google.trusted_callback_urls"] = "http://ui.kinto.example.com/*"
         return settings
 
     def test_openid_multiple_providers(self):
@@ -398,6 +402,145 @@ class LoginAllowedScopesTest(OpenIDWebTest):
 
     def test_allowed_scopes_are_per_provider(self):
         self.login("openid email offline_access", provider="google", status=400)
+
+
+class LoginCallbackTest(OpenIDWebTest):
+    def login(self, callback, provider="auth0", status=307):
+        params = {"callback": callback, "scope": "openid email"}
+        return self.app.get(f"/openid/{provider}/login", params=params, status=status)
+
+    def test_trusted_callbacks_are_accepted(self):
+        self.login("http://ui.kinto.example.com")
+        self.login("http://ui.kinto.example.com/#/auth/abc/")
+        self.login("HTTP://UI.kinto.example.com:80/?token=")
+        self.login("https://admin.example.org/admin/#tokens=")
+        self.login("https://a.b.example.org:8443/admin/")
+
+    def test_untrusted_callbacks_are_rejected(self):
+        for callback in (
+            "http://evil.com/",
+            "https://ui.kinto.example.com/",
+            "http://ui.kinto.example.com:8080/",
+            "http://ui.kinto.example.com.evil.com/",
+            "http://ui.kinto.example.com@evil.com/",
+            "http://ui.kinto.example.com:80@evil.com/",
+            "http://evil.com#@ui.kinto.example.com/",
+            "https://example.org/admin/",
+            "https://admin.example.org/other/",
+            "http://localhost/v1/admin/",
+        ):
+            resp = self.login(callback, status=400)
+            assert resp.json["details"][0]["name"] == "callback", callback
+
+    def test_trusted_callbacks_are_per_provider(self):
+        self.login("https://admin.example.org/admin/", provider="google", status=400)
+
+
+class IsTrustedCallbackTest(unittest.TestCase):
+    def test_wildcards_match_host_port_and_path(self):
+        trusted = ["https://*.example.com:*/admin/*"]
+        assert is_trusted_callback("https://a.example.com:8443/admin/#tokens=", trusted)
+        assert not is_trusted_callback("https://a.example.com:8443/other/", trusted)
+        assert not is_trusted_callback("https://a.example.com.evil.com/admin/", trusted)
+
+    def test_default_ports_are_normalized(self):
+        assert is_trusted_callback("https://example.com:443/", ["https://example.com"])
+        assert is_trusted_callback("https://example.com", ["https://example.com:443/"])
+        assert not is_trusted_callback("https://example.com", ["https://example.com/admin/"])
+
+    def test_ipv6_hosts_are_supported(self):
+        assert is_trusted_callback("http://[::1]:8000/", ["http://[::1]:*/*"])
+        assert not is_trusted_callback("http://[::2]:8000/", ["http://[::1]:*/*"])
+
+    def test_only_star_is_a_wildcard(self):
+        assert is_trusted_callback("https://example.com/?a=", ["https://example.com/?a=*"])
+        assert not is_trusted_callback("https://example.com/xa=", ["https://example.com/?a=*"])
+
+    def test_ambiguous_urls_are_rejected(self):
+        trusted = ["https://trusted.com/*", "https://*.trusted.com/*"]
+        for callback in (
+            "https://trusted.com@evil.com/",
+            "https://evil.com\\.trusted.com/",
+            "https://evil.com%2F.trusted.com/",
+            "https://evil.com\t.trusted.com/",
+            "https://evil.com_.trusted.com/",
+            "https://@trusted.com/",
+            "https://trusted.com:443:443/",
+            "https://trusted.com:44x/",
+            "https://[::1x]/",
+            "javascript://trusted.com/%0aalert(1)",
+            "//trusted.com/",
+            "https://trusted.com/admin/../other/",
+            "https://trusted.com/admin/%2e%2e/other/",
+            "https://trusted.com/admin/%2E./other/",
+            "https://trusted.com/admin/./../other/#t=",
+            "https://trusted.com/admin/..\\other/",
+            "https://trusted.com/admin/..",
+        ):
+            assert not is_trusted_callback(callback, trusted), callback
+
+    def test_dots_outside_path_segments_are_allowed(self):
+        trusted = ["https://trusted.com/*"]
+        assert is_trusted_callback("https://trusted.com/admin/v1..2/file.html", trusted)
+        assert is_trusted_callback("https://trusted.com/admin/?next=../other/", trusted)
+        assert is_trusted_callback("https://trusted.com/admin/#t=../other/", trusted)
+
+    def test_malformed_trusted_urls_are_ignored(self):
+        assert not is_trusted_callback(
+            "https://trusted.com/", ["trusted.com", "*", "http://[::1/"]
+        )
+
+    def test_malformed_callbacks_are_rejected(self):
+        trusted = ["https://*/*"]
+        assert not is_trusted_callback("https://[::1/", trusted)
+        assert not is_trusted_callback("https://trusted.com/\x00", trusted)
+
+
+class LoginDefaultCallbackTest(OpenIDWebTest):
+    @classmethod
+    def get_app_settings(cls, extras=None):
+        settings = super().get_app_settings(extras)
+        del settings["multiauth.policy.auth0.trusted_callback_urls"]
+        return settings
+
+    def login(self, callback, status=307):
+        params = {"callback": callback, "scope": "openid"}
+        environ = {"HTTP_HOST": "kinto.example.com"}
+        return self.app.get(
+            "/openid/auth0/login", params=params, extra_environ=environ, status=status
+        )
+
+    def test_local_clients_are_trusted_by_default(self):
+        self.login("http://localhost:8000/#token=")
+        self.login("http://127.0.0.1:53682/")
+
+    def test_admin_is_not_trusted_if_plugin_is_disabled(self):
+        self.login("http://kinto.example.com/v1/admin/#/auth/abc/", status=400)
+
+    def test_other_origins_are_rejected_by_default(self):
+        self.login("http://ui.kinto.example.com/", status=400)
+        self.login("https://kinto.example.com/v1/admin/", status=400)
+        self.login("http://localhost:8000@evil.com/", status=400)
+        self.login("http://localhost.evil.com:8000/", status=400)
+
+
+class LoginDefaultCallbackWithAdminTest(LoginDefaultCallbackTest):
+    @classmethod
+    def get_app_settings(cls, extras=None):
+        settings = super().get_app_settings(extras)
+        settings["includes"] = "kinto.plugins.openid kinto.plugins.admin"
+        return settings
+
+    def test_admin_is_not_trusted_if_plugin_is_disabled(self):
+        pass  # Plugin is enabled here.
+
+    def test_admin_is_trusted_by_default(self):
+        self.login("http://kinto.example.com/v1/admin/#/auth/abc/")
+
+    def test_other_server_paths_are_rejected_by_default(self):
+        self.login("http://kinto.example.com/v1/", status=400)
+        self.login("http://kinto.example.com/v1/buckets?token=", status=400)
+        self.login("http://kinto.example.com/v1/administrator/", status=400)
 
 
 class TokenViewTest(OpenIDWebTest):

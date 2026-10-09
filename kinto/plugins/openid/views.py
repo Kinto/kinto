@@ -15,7 +15,7 @@ from kinto.core.schema import URL
 from kinto.core.types import Request
 from kinto.core.utils import random_bytes_hex
 
-from .utils import fetch_openid_config
+from .utils import DEFAULT_TRUSTED_LOCAL_CALLBACK_URLS, fetch_openid_config, is_trusted_callback
 
 
 DEFAULT_STATE_TTL_SECONDS = 3600
@@ -95,6 +95,16 @@ def get_login(request: Request) -> None:
     allowed_scopes = set(
         aslist(settings.get(settings_prefix + "allowed_scopes", DEFAULT_ALLOWED_SCOPES))
     )
+    trusted_callback_urls: list[str] = aslist(
+        settings.get(settings_prefix + "trusted_callback_urls", "")
+    )
+    if not trusted_callback_urls:
+        # By default, only trust local clients and the Kinto Admin plugin if enabled.
+        trusted_callback_urls = list(DEFAULT_TRUSTED_LOCAL_CALLBACK_URLS)
+        try:
+            trusted_callback_urls.append(request.route_url("admin_home") + "*")
+        except KeyError:
+            pass  # Admin plugin is not enabled.
 
     # Read OpenID configuration (cached by issuer)
     oid_config = fetch_openid_config(issuer)
@@ -112,6 +122,13 @@ def get_login(request: Request) -> None:
         error_details = {
             "name": "scope",
             "description": "Scopes not allowed: %s" % ", ".join(unknown_scopes),
+        }
+        raise_invalid(request, **error_details)
+    # Tokens will be sent to the callback URL. Make sure it can be trusted.
+    if not is_trusted_callback(callback, trusted_callback_urls):
+        error_details = {
+            "name": "callback",
+            "description": "Untrusted callback URL",
         }
         raise_invalid(request, **error_details)
 

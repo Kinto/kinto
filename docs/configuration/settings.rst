@@ -748,6 +748,12 @@ OpenID Authentication should work as described in the :ref:`API docs <authentica
     # Scopes that clients are allowed to request during login
     # (Default: ``openid email profile``).
     multiauth.policy.google.allowed_scopes = openid email
+    # Callback URLs where tokens can be sent at the end of the login flow
+    # (Default: local clients ``http://localhost:*/*`` and ``http://127.0.0.1:*/*``,
+    # and the Kinto Admin plugin if enabled, eg. ``https://kinto.example.com/v1/admin/*``).
+    # Whitespace separated list, where ``*`` is a wildcard in host, port, and path.
+    multiauth.policy.google.trusted_callback_urls = https://admin.example.com/*
+                                                    http://localhost:*/*
 
     # User information cache expiration (Default: 1 day)
     # Access token verification will be cached during that amount of time.
