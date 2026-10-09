@@ -5,7 +5,7 @@ from typing import Any
 import colander
 import requests
 from pyramid import httpexceptions
-from pyramid.config import aslist
+from pyramid.settings import aslist
 
 from kinto.core import Service
 from kinto.core.cornice.validators import colander_validator
