@@ -20,6 +20,7 @@ from .utils import DEFAULT_TRUSTED_LOCAL_CALLBACK_URLS, fetch_openid_config, is_
 
 DEFAULT_STATE_TTL_SECONDS = 3600
 DEFAULT_STATE_LENGTH = 32
+DEFAULT_ALLOWED_SCOPES = "openid email profile"
 
 
 class RedirectHeadersSchema(colander.MappingSchema):
@@ -91,7 +92,12 @@ def get_login(request: Request) -> None:
     userid_field = settings.get(settings_prefix + "userid_field")
     state_ttl = int(settings.get(settings_prefix + "state_ttl_seconds", DEFAULT_STATE_TTL_SECONDS))
     state_length = int(settings.get(settings_prefix + "state_length", DEFAULT_STATE_LENGTH))
-    trusted_callback_urls = aslist(settings.get(settings_prefix + "trusted_callback_urls", ""))
+    allowed_scopes = set(
+        aslist(settings.get(settings_prefix + "allowed_scopes", DEFAULT_ALLOWED_SCOPES))
+    )
+    trusted_callback_urls: list[str] = aslist(
+        settings.get(settings_prefix + "trusted_callback_urls", "")
+    )
     if not trusted_callback_urls:
         # By default, only trust local clients and the Kinto Admin plugin if enabled.
         trusted_callback_urls = list(DEFAULT_TRUSTED_LOCAL_CALLBACK_URLS)
@@ -108,6 +114,16 @@ def get_login(request: Request) -> None:
     callback = request.GET["callback"]
     prompt = request.GET.get("prompt")
 
+    # Do not let clients obtain tokens with more permissions than necessary
+    # (eg. ``offline_access`` for refresh tokens).
+    scopes = scope.split()
+    unknown_scopes = sorted(set(scopes) - allowed_scopes)
+    if unknown_scopes:
+        error_details = {
+            "name": "scope",
+            "description": "Scopes not allowed: %s" % ", ".join(unknown_scopes),
+        }
+        raise_invalid(request, **error_details)
     # Tokens will be sent to the callback URL. Make sure it can be trusted.
     if not is_trusted_callback(callback, trusted_callback_urls):
         error_details = {
@@ -117,7 +133,7 @@ def get_login(request: Request) -> None:
         raise_invalid(request, **error_details)
 
     # Check that email scope is requested if userid field is configured as email.
-    if userid_field == "email" and "email" not in scope:
+    if userid_field == "email" and "email" not in scopes:
         error_details = {
             "name": "scope",
             "description": "Provider %s requires 'email' scope" % provider,

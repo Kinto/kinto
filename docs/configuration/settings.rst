@@ -745,6 +745,10 @@ OpenID Authentication should work as described in the :ref:`API docs <authentica
     # and then requires the obtained access token ``aud`` claim to match.
     multiauth.policy.google.audience = kinto-prod
 
+    # Scopes that clients are allowed to request during login
+    # (Default: ``openid email profile``).
+    multiauth.policy.google.allowed_scopes = openid email
+
     # Callback URLs where tokens can be sent at the end of the login flow
     # (Default: local clients ``http://localhost:*/*`` and ``http://127.0.0.1:*/*``,
     # and the Kinto Admin plugin if enabled, eg. ``https://kinto.example.com/v1/admin/*``).

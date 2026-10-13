@@ -315,6 +315,20 @@ class LoginViewTest(OpenIDWebTest):
     def test_returns_400_if_provider_is_unknown(self):
         self.app.get("/openid/fxa/login", status=400)
 
+    def test_returns_400_if_scope_is_not_allowed(self):
+        cb = "http://ui.kinto.example.com"
+        for scope in ("openid email offline_access", "openid https://mail.google.com/"):
+            resp = self.app.get(
+                "/openid/auth0/login", params={"callback": cb, "scope": scope}, status=400
+            )
+            assert resp.json["details"][0]["name"] == "scope"
+            assert "Scopes not allowed" in resp.json["message"]
+
+    def test_default_scopes_are_allowed(self):
+        cb = "http://ui.kinto.example.com"
+        params = {"callback": cb, "scope": "openid email profile"}
+        self.app.get("/openid/auth0/login", params=params, status=307)
+
     def test_returns_400_if_email_is_not_in_scope_when_userid_field_is_email(self):
         scope = "openid"
         cb = "http://ui.kinto.example.com"
@@ -366,6 +380,28 @@ class LoginViewTest(OpenIDWebTest):
 
         cached = self.app.app.registry.cache.get("openid:state:key")
         assert cached == "http://ui.kinto.example.com"
+
+
+class LoginAllowedScopesTest(OpenIDWebTest):
+    @classmethod
+    def get_app_settings(cls, extras=None):
+        settings = super().get_app_settings(extras)
+        settings["multiauth.policy.auth0.allowed_scopes"] = "openid offline_access"
+        return settings
+
+    def login(self, scope, provider="auth0", status=307):
+        params = {"callback": "http://ui.kinto.example.com", "scope": scope}
+        return self.app.get(f"/openid/{provider}/login", params=params, status=status)
+
+    def test_configured_scopes_are_allowed(self):
+        self.login("openid offline_access")
+
+    def test_other_scopes_are_rejected(self):
+        resp = self.login("openid email", status=400)
+        assert "Scopes not allowed: email" in resp.json["message"]
+
+    def test_allowed_scopes_are_per_provider(self):
+        self.login("openid email offline_access", provider="google", status=400)
 
 
 class LoginCallbackTest(OpenIDWebTest):
