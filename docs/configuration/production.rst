@@ -156,6 +156,87 @@ The last step consists in creating the necessary tables and indices, run the ``m
     *Kinto* `source <https://github.com/Kinto/kinto>`_.
 
 
+.. _postgresql-indexes:
+
+Indexes for performance tuning
+------------------------------
+
+The ``migrate`` command creates the indexes that *Kinto*'s core queries rely
+on (see the
+`schema file <https://github.com/Kinto/kinto/blob/main/kinto/core/storage/postgresql/schema.sql>`_
+in the source). Large deployments with many records and lots of filtering
+traffic may benefit from **optional** indexes, which *Kinto* does not create
+automatically because building them on large tables can be expensive.
+
+They can be added at any time, using ``CONCURRENTLY`` so that reads and writes
+are not blocked while the index is being built.
+
+Filtering on JSONB fields
+:::::::::::::::::::::::::
+
+Equality filters (``?field=value``), nested fields (``?author.name=Alice``)
+and array containment (``?contains_colors=red``) are translated into JSONB
+containment expressions (``data @> ...``). A GIN index on the ``data`` column
+can accelerate them::
+
+    CREATE INDEX CONCURRENTLY idx_objects_data_gin
+        ON objects USING gin (data jsonb_path_ops)
+        WHERE NOT deleted;
+
+The ``jsonb_path_ops`` operator class is about 60% smaller than the default
+one and supports the ``@>`` operator used by *Kinto*.
+
+Since bucket, collection and group metadata are never filtered on JSONB
+fields, the index can also be restricted to records::
+
+    CREATE INDEX CONCURRENTLY idx_objects_data_gin
+        ON objects USING gin (data jsonb_path_ops)
+        WHERE resource_name = 'record' AND NOT deleted;
+
+This smaller variant relies on ``psycopg2`` performing client-side parameter
+interpolation, so that the planner can match the literal partial index
+condition. With drivers that bind parameters server-side (like ``psycopg 3``),
+prefer the simplest variant above.
+
+Alternatively, a composite GIN index can satisfy ``parent_id``,
+``resource_name`` and ``data @>`` conditions in a single index scan, at the
+cost of a larger index and higher write overhead. It requires the
+``btree_gin`` extension (it ships with PostgreSQL)::
+
+    CREATE EXTENSION IF NOT EXISTS btree_gin;
+
+    CREATE INDEX CONCURRENTLY idx_objects_data_gin
+        ON objects USING gin (parent_id, resource_name, data jsonb_path_ops)
+        WHERE NOT deleted;
+
+These indexes accelerate:
+
+- Equality filters: ``?status=active``
+- Nested field equality: ``?person.name=Alice``
+- Array containment filters: ``?contains_colors=red``
+
+They do **not** accelerate range filters (``min_``, ``max_``, ``gt_``,
+``lt_``), text search filters (``like_``), ``contains_any_`` filters, or
+sorting on JSONB fields.
+
+Sorting queries such as ``?_sort=status`` order by the JSONB expression
+``data->'status'``. A B-tree *expression index* can be added for those, for
+example::
+
+    CREATE INDEX CONCURRENTLY idx_objects_data_status
+        ON objects ((data->'status'));
+
+Use ``EXPLAIN`` to confirm that the planner picks the index up. As with any
+index, expect a slower write throughput and some disk usage: for the ``data``
+GIN index above, allow for roughly 300 MB to 1.5 GB per million records,
+depending on the average size of the JSON documents.
+
+.. note::
+
+    Built-in indexes are created by ``kinto migrate``, so make sure to run it
+    after upgrading *Kinto*.
+
+
 Production checklist
 ====================
 
