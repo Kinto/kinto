@@ -6,7 +6,12 @@ build:
     python: "3.12"
   jobs:
     install:
-      - make install-docs
+      # The project dependencies are installed with plain pip here (and not
+      # with ``make install-docs``) because the ``uv`` executable is not
+      # available in the Read the Docs build environment.
+      - python -m pip install --upgrade pip
+      - python -m pip install -e .
+      - python -m pip install -r docs/requirements.txt
     build:
       html:
-        - SPHINX_BUILDDIR=$READTHEDOCS_OUTPUT make docs
+        - python -m sphinx -a -W -n -b html -d $READTHEDOCS_OUTPUT/doctrees docs $READTHEDOCS_OUTPUT/html
