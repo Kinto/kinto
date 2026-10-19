@@ -2,7 +2,7 @@ import contextlib
 import logging
 import warnings
 from collections import defaultdict
-from collections.abc import Callable, Iterator
+from collections.abc import Callable, Generator
 from typing import Any
 
 import transaction as zope_transaction
@@ -43,7 +43,7 @@ class PostgreSQLClient:
         self.invalidate = invalidate
 
     @contextlib.contextmanager
-    def connect(self, readonly: bool = False, force_commit: bool = False) -> Iterator[Any]:
+    def connect(self, readonly: bool = False, force_commit: bool = False) -> Generator[Any]:
         """
         Pulls a connection from the pool when context is entered and
         returns it when context is exited.
