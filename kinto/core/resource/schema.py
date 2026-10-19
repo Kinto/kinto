@@ -50,7 +50,7 @@ class URL(URL):
 class ResourceSchema(colander.MappingSchema):
     """Base resource schema, with *Cliquet* specific built-in options."""
 
-    class Options:
+    class _Options:
         """
         Resource schema options.
 
@@ -80,9 +80,11 @@ class ResourceSchema(colander.MappingSchema):
         the accepted fields to the ones defined in the schema.
         """
 
+    Options: type = _Options
+
     @classmethod
     def get_option(cls, attr: str) -> typing.Any:
-        default_value = getattr(ResourceSchema.Options, attr)
+        default_value = getattr(ResourceSchema._Options, attr)
         return getattr(cls.Options, attr, default_value)
 
     @classmethod
