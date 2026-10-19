@@ -47,44 +47,45 @@ class URL(URL):
 # Resource related schemas
 
 
+class ResourceSchemaOptions:
+    """
+    Resource schema options.
+
+    This is meant to be overridden for changing values:
+
+    .. code-block:: python
+
+        class Product(ResourceSchema):
+            reference = colander.SchemaNode(colander.String())
+
+            class Options:
+                readonly_fields = ('reference',)
+    """
+
+    readonly_fields = tuple()
+    """Fields that cannot be updated. Values for fields will have to be
+    provided either during object creation, through default values using
+    ``missing`` attribute or implementing a custom logic in
+    :meth:`kinto.core.resource.Resource.process_object`.
+    """
+
+    preserve_unknown = True
+    """Define if unknown fields should be preserved or not.
+
+    The resource is schema-less by default. In other words, any field name
+    will be accepted on objects. Set this to ``False`` in order to limit
+    the accepted fields to the ones defined in the schema.
+    """
+
+
 class ResourceSchema(colander.MappingSchema):
     """Base resource schema, with *Cliquet* specific built-in options."""
 
-    class _Options:
-        """
-        Resource schema options.
-
-        This is meant to be overridden for changing values:
-
-        .. code-block:: python
-
-            class Product(ResourceSchema):
-                reference = colander.SchemaNode(colander.String())
-
-                class Options:
-                    readonly_fields = ('reference',)
-        """
-
-        readonly_fields = tuple()
-        """Fields that cannot be updated. Values for fields will have to be
-        provided either during object creation, through default values using
-        ``missing`` attribute or implementing a custom logic in
-        :meth:`kinto.core.resource.Resource.process_object`.
-        """
-
-        preserve_unknown = True
-        """Define if unknown fields should be preserved or not.
-
-        The resource is schema-less by default. In other words, any field name
-        will be accepted on objects. Set this to ``False`` in order to limit
-        the accepted fields to the ones defined in the schema.
-        """
-
-    Options: type = _Options
+    Options: type = ResourceSchemaOptions
 
     @classmethod
     def get_option(cls, attr: str) -> typing.Any:
-        default_value = getattr(ResourceSchema._Options, attr)
+        default_value = getattr(ResourceSchemaOptions, attr)
         return getattr(cls.Options, attr, default_value)
 
     @classmethod
