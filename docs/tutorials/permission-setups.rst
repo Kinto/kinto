@@ -176,3 +176,53 @@ The following objects are created:
 This ensures every app can list the receipts of every buyer, and that each
 buyer can also list their receipts. However, only the payment
 application can create / edit new ones.
+
+
+.. _permissions-setups-shared-collections:
+
+Shared collections and data isolation
+-------------------------------------
+
+Storing records from multiple users in a single shared collection (such as
+``/buckets/todo/collections/tasks`` with ``record:create`` granted to
+``system.Authenticated``) creates security and spam risks.
+
+Because Kinto grants ``write`` permission to the creator of a record, any user
+can update their record permissions and grant ``read`` to ``system.Everyone``.
+Those records then appear when other users list the collection, allowing an
+untrusted user to broadcast spam or unwanted content to all users of the
+application.
+
+To isolate data safely:
+
+- **Per-user data**: Use the default bucket (``/buckets/default``). It is
+  private to each user and prevents records from being exposed to other users.
+- **Shared or collaborative data**: For collaborative features (such as shared
+  todos or team wikis), create a separate bucket or collection for each group
+  using a generated, unguessable ID (such as a UUID). Grant permissions only
+  to members of that group so outsiders cannot discover or read the data.
+
+Consider a collaborative task list shared within a project team:
+
+- A bucket with a generated ID ``proj-6f3b8a12`` is created for the project;
+- A group ``collaborators`` contains the project members;
+- Only group members can read and write tasks in the ``tasks`` collection;
+- Other users have no access to the bucket or collection.
+
+The following objects are created:
+
+- A bucket ``proj-6f3b8a12``;
+- A group ``collaborators`` with members ``account:alice`` and ``account:bob``;
+- A collection ``tasks``.
+
++--------------------------+-------------+-------------------------------------------------+
+| Object                   | Permissions | Principals                                      |
++==========================+=============+=================================================+
+| Bucket ``proj-6f3b8a12`` | ``write``   | ``account:<project manager id>``                |
++--------------------------+-------------+-------------------------------------------------+
+| Group ``collaborators``  | ``write``   | ``account:<project manager id>``                |
++--------------------------+-------------+-------------------------------------------------+
+| Collection ``tasks``     | ``read``    | ``/buckets/proj-6f3b8a12/groups/collaborators`` |
+|                          +-------------+-------------------------------------------------+
+|                          | ``write``   | ``/buckets/proj-6f3b8a12/groups/collaborators`` |
++--------------------------+-------------+-------------------------------------------------+
