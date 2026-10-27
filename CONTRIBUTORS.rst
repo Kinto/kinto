@@ -119,4 +119,5 @@ Contributors
 * Dex Devlon <@bxff>
 * Varun Koranne <@varun-dhruv>
 * Robin Sharma <robinrythm123@gmail.com>
+* Punya Arora <@YJuDeAd>
 * Wong Hok Kan <@hkwongax>
