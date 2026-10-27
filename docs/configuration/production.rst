@@ -221,10 +221,15 @@ example::
     CREATE INDEX CONCURRENTLY idx_objects_data_status
         ON objects ((data->'status'));
 
-Use ``EXPLAIN`` to confirm that the planner picks the index up. As with any
-index, expect a slower write throughput and some disk usage: for the ``data``
-GIN index above, allow for roughly 300 MB to 1.5 GB per million records,
-depending on the average size of the JSON documents.
+PostgreSQL's
+`pg_stat_statements <https://www.postgresql.org/docs/current/pgstatstatements.html>`_
+extension identifies the queries that consume the most time on the server.
+Use ``EXPLAIN`` on those queries to understand whether an index is being used
+and where the bottleneck is.
+
+As with any index, expect slower write throughput and some disk usage: for the
+``data`` GIN index above, allow for roughly 300 MB to 1.5 GB per million
+records, depending on the average size of the JSON documents.
 
 .. note::
 
