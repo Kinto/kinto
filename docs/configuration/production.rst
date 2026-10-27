@@ -193,11 +193,6 @@ fields, the index can also be restricted to records::
         ON objects USING gin (data jsonb_path_ops)
         WHERE resource_name = 'record' AND NOT deleted;
 
-This smaller variant relies on ``psycopg2`` performing client-side parameter
-interpolation, so that the planner can match the literal partial index
-condition. With drivers that bind parameters server-side (like ``psycopg 3``),
-prefer the simplest variant above.
-
 Alternatively, a composite GIN index can satisfy ``parent_id``,
 ``resource_name`` and ``data @>`` conditions in a single index scan, at the
 cost of a larger index and higher write overhead. It requires the
