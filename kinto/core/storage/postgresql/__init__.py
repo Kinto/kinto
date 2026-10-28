@@ -43,6 +43,46 @@ def _build_containment_json(field: str, value: Any) -> str:
     return json.dumps(obj)
 
 
+# For each operator, the (exclusive) range of the raw ``last_modified`` column,
+# as millisecond offsets from the compared epoch value, that contains every row
+# whose rounded ``as_epoch(last_modified)`` satisfies the comparison.
+# ``as_epoch()`` rounds to the nearest millisecond, so a row with
+# ``as_epoch(ts) == E`` always has ``E - 0.5 <= ts <= E + 0.5``.
+_EPOCH_INDEX_BOUNDS: dict[COMPARISON, tuple[int | None, int | None]] = {
+    COMPARISON.LT: (None, 0),
+    COMPARISON.MAX: (None, 1),
+    COMPARISON.GT: (0, None),
+    COMPARISON.MIN: (-1, None),
+    COMPARISON.EQ: (-1, 1),
+}
+
+
+def _modified_field_condition(
+    operator: COMPARISON, value_holder: str, holders: dict[str, Any], value: int | str
+) -> str:
+    """Build the SQL condition comparing ``last_modified`` with an epoch value.
+
+    The exact comparison is done on ``as_epoch(last_modified)``, since this is
+    the value exposed to clients. A wider range on the raw column is added so
+    that PostgreSQL can use the ``last_modified`` indexes.
+    """
+    if isinstance(value, str):
+        # Timestamps from querystring can be integers as strings (``"123"``).
+        value = int(value.strip('"'))
+    holders[value_holder] = value
+    sql_operator = "=" if operator == COMPARISON.EQ else operator.value
+    conditions = []
+    lower, upper = _EPOCH_INDEX_BOUNDS[operator]
+    if lower is not None:
+        holders[f"{value_holder}_lower"] = value + lower
+        conditions.append(f"last_modified > from_epoch(:{value_holder}_lower)")
+    if upper is not None:
+        holders[f"{value_holder}_upper"] = value + upper
+        conditions.append(f"last_modified < from_epoch(:{value_holder}_upper)")
+    conditions.append(f"as_epoch(last_modified) {sql_operator} :{value_holder}")
+    return f"({' AND '.join(conditions)})"
+
+
 class Storage(StorageBase, MigratorMixin):
     """Storage backend using PostgreSQL.
 
@@ -692,8 +732,9 @@ class Storage(StorageBase, MigratorMixin):
             safeholders["resource_name_filter"] = "AND resource_name = :resource_name"  # NOQA
 
         if before is not None:
-            safeholders["conditions_filter"] = "AND last_modified < from_epoch(:before)"
             placeholders["before"] = before
+            condition = _modified_field_condition(COMPARISON.LT, "before", placeholders, before)
+            safeholders["conditions_filter"] = f"AND {condition}"
 
         with self.client.connect(force_commit=force_commit) as conn:
             result = conn.execute(sa.text(delete_tombstones.format_map(safeholders)), placeholders)
@@ -1051,13 +1092,15 @@ class Storage(StorageBase, MigratorMixin):
                     holders[value_holder] = value
                     sql_operator = operators.setdefault(filtr.operator, filtr.operator.value)
 
-                    if filtr.field == modified_field and filtr.operator not in (
-                        COMPARISON.IN,
-                        COMPARISON.EXCLUDE,
-                    ):
-                        # Wrap placeholder in from_epoch() so PostgreSQL can use the index
-                        rhs = f"from_epoch(:{value_holder})"
-                        cond = f"{sql_field} {sql_operator} {rhs}"
+                    if filtr.field == modified_field and filtr.operator in _EPOCH_INDEX_BOUNDS:
+                        # Timestamps written by old schema versions can have a
+                        # sub-millisecond precision, which ``as_epoch()`` rounds.
+                        # Compare the rounded epoch to stay consistent with the
+                        # values returned to clients (and used in pagination tokens),
+                        # and add a bound on the raw column so the index can be used.
+                        cond = _modified_field_condition(
+                            filtr.operator, value_holder, holders, filtr.value
+                        )
                     elif filtr.field == modified_field:
                         # For IN/EXCLUDE on last_modified (extremely unlikely), fall back
                         # to wrapping the column in as_epoch() to avoid unnest() complexity
