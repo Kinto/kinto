@@ -463,7 +463,7 @@ class ReadonlyFieldsTest(BaseTest):
     def setUp(self):
         super().setUp()
         self.stored = self.model.create_object({"age": 32})
-        self.resource.schema.Options.readonly_fields = ("age",)  # ty: ignore[unresolved-attribute]
+        self.resource.schema.Options.readonly_fields = ("age",)
         self.resource.object_id = self.stored["id"]
 
     def assertReadonlyError(self, field):
