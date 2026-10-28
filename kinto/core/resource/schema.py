@@ -62,7 +62,7 @@ class ResourceSchemaOptions:
                 readonly_fields = ('reference',)
     """
 
-    readonly_fields = tuple()
+    readonly_fields: tuple[str, ...] = tuple()
     """Fields that cannot be updated. Values for fields will have to be
     provided either during object creation, through default values using
     ``missing`` attribute or implementing a custom logic in
@@ -81,7 +81,7 @@ class ResourceSchemaOptions:
 class ResourceSchema(colander.MappingSchema):
     """Base resource schema, with *Cliquet* specific built-in options."""
 
-    Options: type = ResourceSchemaOptions
+    Options = ResourceSchemaOptions
 
     @classmethod
     def get_option(cls, attr: str) -> typing.Any:
