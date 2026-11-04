@@ -13,6 +13,11 @@ from kinto.core.utils import sqlalchemy
 
 logger = logging.getLogger(__name__)
 
+
+def _is_timestamp_collision(e: Exception) -> bool:
+    return "idx_objects_parent_id_resource_name_last_modified" in str(e)
+
+
 BLACKLISTED_SETTINGS = [
     "backend",
     "max_fetch_size",
@@ -60,9 +65,7 @@ class PostgreSQLClient:
                 zope_transaction.commit()
 
         except sqlalchemy.exc.IntegrityError as e:
-            if "idx_objects_parent_id_resource_name_last_modified" in str(e):
-                logger.debug(e, exc_info=True)
-            else:
+            if not _is_timestamp_collision(e):
                 logger.error(e, exc_info=True)
             if session and commit_manually:  # pragma: no branch
                 session.rollback()

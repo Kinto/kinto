@@ -19,7 +19,11 @@ from kinto.core.storage import (
     exceptions,
     generators,
 )
-from kinto.core.storage.postgresql.client import PostgreSQLClient, create_from_config
+from kinto.core.storage.postgresql.client import (
+    PostgreSQLClient,
+    _is_timestamp_collision,
+    create_from_config,
+)
 from kinto.core.storage.postgresql.migrator import MigratorMixin
 from kinto.core.storage.postgresql.migrator import (
     PostgreSQLPluginMigration as PostgreSQLPluginMigration,
@@ -48,10 +52,6 @@ def _build_containment_json(field: str, value: Any) -> str:
 MAX_TIMESTAMP_COLLISION_RETRIES = 3
 TIMESTAMP_COLLISION_RETRY_MIN_DELAY = 0.001
 TIMESTAMP_COLLISION_RETRY_MAX_DELAY = 0.005
-
-
-def _is_timestamp_collision(e: Exception) -> bool:
-    return "idx_objects_parent_id_resource_name_last_modified" in str(e)
 
 
 class Storage(StorageBase, MigratorMixin):
