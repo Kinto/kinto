@@ -319,13 +319,19 @@ class PostgreSQLStorageTest(StorageTest, unittest.TestCase):
 
         @contextlib.contextmanager
         def mock_connect(*args, **kwargs):
-            attempts[0] += 1
-            if attempts[0] < 3:
-                raise exceptions.IntegrityError(
-                    "idx_objects_parent_id_resource_name_last_modified"
-                )
             with real_connect(*args, **kwargs) as conn:
-                yield conn
+                real_execute = conn.execute
+
+                def mock_execute(*args, **kwargs):
+                    attempts[0] += 1
+                    if attempts[0] < 3:
+                        raise exceptions.IntegrityError(
+                            "idx_objects_parent_id_resource_name_last_modified"
+                        )
+                    return real_execute(*args, **kwargs)
+
+                with mock.patch.object(conn, "execute", side_effect=mock_execute):
+                    yield conn
 
         with mock.patch.object(self.storage.client, "connect", side_effect=mock_connect):
             obj = self.create_object({"item": 1})
@@ -342,13 +348,19 @@ class PostgreSQLStorageTest(StorageTest, unittest.TestCase):
 
             @contextlib.contextmanager
             def mock_connect(*args, **kwargs):
-                attempts[0] += 1
-                if attempts[0] < 2:
-                    raise exceptions.IntegrityError(
-                        "idx_objects_parent_id_resource_name_last_modified"
-                    )
                 with real_connect(*args, **kwargs) as conn:
-                    yield conn
+                    real_execute = conn.execute
+
+                    def mock_execute(*args, **kwargs):
+                        attempts[0] += 1
+                        if attempts[0] < 2:
+                            raise exceptions.IntegrityError(
+                                "idx_objects_parent_id_resource_name_last_modified"
+                            )
+                        return real_execute(*args, **kwargs)
+
+                    with mock.patch.object(conn, "execute", side_effect=mock_execute):
+                        yield conn
 
             with mock.patch.object(self.storage.client, "connect", side_effect=mock_connect):
                 obj = self.create_object({"item": 2})
