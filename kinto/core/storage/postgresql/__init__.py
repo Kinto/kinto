@@ -692,7 +692,9 @@ class Storage(StorageBase, MigratorMixin):
             safeholders["resource_name_filter"] = "AND resource_name = :resource_name"  # NOQA
 
         if before is not None:
-            safeholders["conditions_filter"] = "AND last_modified < from_epoch(:before)"
+            safeholders["conditions_filter"] = (
+                "AND last_modified < from_epoch(:before) AND as_epoch(last_modified) < :before"
+            )
             placeholders["before"] = before
 
         with self.client.connect(force_commit=force_commit) as conn:
@@ -1055,9 +1057,20 @@ class Storage(StorageBase, MigratorMixin):
                         COMPARISON.IN,
                         COMPARISON.EXCLUDE,
                     ):
-                        # Wrap placeholder in from_epoch() so PostgreSQL can use the index
-                        rhs = f"from_epoch(:{value_holder})"
-                        cond = f"{sql_field} {sql_operator} {rhs}"
+                        # Legacy rows can have sub-millisecond timestamps, which as_epoch()
+                        # rounds (see #3800). Compare the exposed epoch exactly, plus a
+                        # ±1ms bound on the raw column so that the index can be used.
+                        v = f":{value_holder}"
+                        cond = f"as_epoch({sql_field}) {sql_operator} {v}"
+                        if filtr.operator in (COMPARISON.LT, COMPARISON.MAX, COMPARISON.EQ):
+                            cond += (
+                                f" AND {sql_field} < from_epoch({v}) + INTERVAL '1 millisecond'"
+                            )
+                        if filtr.operator in (COMPARISON.GT, COMPARISON.MIN, COMPARISON.EQ):
+                            cond += (
+                                f" AND {sql_field} > from_epoch({v}) - INTERVAL '1 millisecond'"
+                            )
+                        cond = f"({cond})"
                     elif filtr.field == modified_field:
                         # For IN/EXCLUDE on last_modified (extremely unlikely), fall back
                         # to wrapping the column in as_epoch() to avoid unnest() complexity
