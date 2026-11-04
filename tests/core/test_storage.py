@@ -361,15 +361,19 @@ class PostgreSQLStorageTest(StorageTest, unittest.TestCase):
             self.storage.client.commit_manually = True
 
     def test_retry_exhausted_raises_integrity_error(self):
-        with mock.patch.object(
-            self.storage.client,
-            "connect",
-            side_effect=exceptions.IntegrityError(
-                "idx_objects_parent_id_resource_name_last_modified"
+        with (
+            mock.patch.object(
+                self.storage.client,
+                "connect",
+                side_effect=exceptions.IntegrityError(
+                    "idx_objects_parent_id_resource_name_last_modified"
+                ),
             ),
+            mock.patch("kinto.core.storage.postgresql.logger") as logger,
         ):
             with self.assertRaises(exceptions.IntegrityError):
                 self.storage.create("record", "/b/c", {"item": 1})
+            logger.error.assert_called_once()
 
     def test_non_timestamp_integrity_error_is_not_retried(self):
         with mock.patch.object(

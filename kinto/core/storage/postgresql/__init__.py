@@ -425,6 +425,7 @@ class Storage(StorageBase, MigratorMixin):
                         * (attempt + 1)
                     )
                     continue
+                logger.error(e, exc_info=True)
                 raise
         raise exceptions.IntegrityError()  # pragma: no cover
 
