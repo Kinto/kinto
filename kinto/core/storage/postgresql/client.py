@@ -65,6 +65,7 @@ class PostgreSQLClient:
                 zope_transaction.commit()
 
         except sqlalchemy.exc.IntegrityError as e:
+            # ts collisions are logged in `_execute_and_fetch_with_retry()`
             if not _is_timestamp_collision(e):
                 logger.error(e, exc_info=True)
             if session and commit_manually:  # pragma: no branch
