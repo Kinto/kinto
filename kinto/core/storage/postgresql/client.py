@@ -15,6 +15,8 @@ logger = logging.getLogger(__name__)
 
 
 def _is_timestamp_collision(e: Exception) -> bool:
+    # See CREATE UNIQUE INDEX IF NOT EXISTS idx_objects_parent_id_resource_name_last_modified
+    # in schema.sql.
     return "idx_objects_parent_id_resource_name_last_modified" in str(e)
 
 
