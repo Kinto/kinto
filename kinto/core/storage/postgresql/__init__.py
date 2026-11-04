@@ -50,8 +50,8 @@ def _build_containment_json(field: str, value: Any) -> str:
 
 
 MAX_TIMESTAMP_COLLISION_RETRIES = 3
-TIMESTAMP_COLLISION_RETRY_MIN_DELAY = 0.001
-TIMESTAMP_COLLISION_RETRY_MAX_DELAY = 0.005
+TIMESTAMP_COLLISION_RETRY_MIN_DELAY_SECONDS = 0.001
+TIMESTAMP_COLLISION_RETRY_MAX_DELAY_SECONDS = 0.005
 
 
 class Storage(StorageBase, MigratorMixin):
@@ -419,8 +419,8 @@ class Storage(StorageBase, MigratorMixin):
                 if _is_timestamp_collision(e) and attempt < MAX_TIMESTAMP_COLLISION_RETRIES - 1:
                     time.sleep(
                         random.uniform(
-                            TIMESTAMP_COLLISION_RETRY_MIN_DELAY,
-                            TIMESTAMP_COLLISION_RETRY_MAX_DELAY,
+                            TIMESTAMP_COLLISION_RETRY_MIN_DELAY_SECONDS,
+                            TIMESTAMP_COLLISION_RETRY_MAX_DELAY_SECONDS,
                         )
                         * (attempt + 1)
                     )
