@@ -59,6 +59,7 @@ Contributors
 * Kulshekhar Kabra <@kulshekhar>
 * Lavish Aggarwal <lucky.lavish@gmail.com>
 * Maksym Shalenyi <supamaxy@gmail.com>
+* Mallesh Pareet <malleshpareet360@gmail.com>
 * Manas Mangaonkar <@Pac23>
 * Mansimar Kaur <mansimarkaur.mks@gmail.com>
 * Masataka Takeuchi <masataka.takeuchi@l-is-b.com>
@@ -119,3 +120,5 @@ Contributors
 * Varun Koranne <@varun-dhruv>
 * Robin Sharma <robinrythm123@gmail.com>
 * Marouan Boumchahate <marouanboumchahate@gmail.com>
+* Punya Arora <@YJuDeAd>
+* Wong Hok Kan <@hkwongax>

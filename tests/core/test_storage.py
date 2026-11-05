@@ -221,6 +221,28 @@ class PostgreSQLStorageTest(StorageTest, unittest.TestCase):
         storage2 = self.backend.load_from_config(config)
         self.assertEqual(id(storage1.client), id(storage2.client))
 
+    def test_uses_psycopg2_driver_by_default(self):
+        settings = {
+            **self.settings,
+            "storage_url": "postgresql://postgres:postgres@localhost/testdb",
+        }
+        client = postgresql.create_from_config(
+            self._get_config(settings=settings), prefix="storage_", with_transaction=False
+        )
+        engine = client.session_factory().get_bind()
+        self.assertEqual(engine.url.drivername, "postgresql+psycopg2")
+
+    def test_explicit_driver_is_kept(self):
+        settings = {
+            **self.settings,
+            "storage_url": "postgresql+pg8000://postgres:postgres@localhost/testdb",
+        }
+        with mock.patch("kinto.core.storage.postgresql.client.sqlalchemy.engine_from_config") as m:
+            postgresql.create_from_config(
+                self._get_config(settings=settings), prefix="storage_", with_transaction=False
+            )
+        self.assertEqual(m.call_args.kwargs["url"], settings["storage_url"])
+
     def test_warns_if_configured_pool_size_differs_for_same_backend_type(self):
         self.backend.load_from_config(self._get_config())
         settings = {**self.settings, "storage_pool_size": 1}
@@ -395,6 +417,78 @@ class PostgreSQLStorageTest(StorageTest, unittest.TestCase):
         ):
             with self.assertRaises(exceptions.IntegrityError):
                 self.storage.create("record", "/b/c", {"item": 1})
+    def _set_sub_millisecond_timestamps(self):
+        # Old schema versions stored ``clock_timestamp()`` with a microsecond
+        # precision. Timestamps are shifted by -0.4ms, which ``as_epoch()``
+        # rounds up to the original millisecond (#3800).
+        with self.storage.client.connect() as conn:
+            conn.execute(
+                sa.text(
+                    """
+                UPDATE objects
+                   SET last_modified = last_modified - INTERVAL '400 microseconds'
+                 WHERE parent_id = :parent_id AND resource_name = :resource_name;
+                """
+                ),
+                self.storage_kw,
+            )
+
+    def test_pagination_does_not_repeat_objects_with_sub_millisecond_timestamps(self):
+        for i in range(3):
+            self.create_object({"id": f"id-{i}"})
+        self._set_sub_millisecond_timestamps()
+        sorting = [Sort("id", 1), Sort("last_modified", -1)]
+
+        first_page = self.storage.list_all(sorting=sorting, limit=1, **self.storage_kw)
+        last_object = first_page[-1]
+        # Same rules as built from the pagination token in ``kinto.core.resource``.
+        pagination_rules = [
+            [
+                Filter("id", last_object["id"], COMPARISON.EQ),
+                Filter("last_modified", last_object["last_modified"], COMPARISON.LT),
+            ],
+            [Filter("id", last_object["id"], COMPARISON.GT)],
+        ]
+        next_page = self.storage.list_all(
+            sorting=sorting, pagination_rules=pagination_rules, **self.storage_kw
+        )
+
+        self.assertEqual([obj["id"] for obj in next_page], ["id-1", "id-2"])
+
+    def test_modified_field_filters_match_epoch_with_sub_millisecond_timestamps(self):
+        self.create_object()
+        self._set_sub_millisecond_timestamps()
+        epoch = self.storage.list_all(**self.storage_kw)[0]["last_modified"]
+
+        expectations = [
+            (COMPARISON.EQ, epoch, 1),
+            (COMPARISON.EQ, str(epoch), 1),
+            (COMPARISON.NOT, epoch, 0),
+            (COMPARISON.LT, epoch, 0),
+            (COMPARISON.LT, epoch + 1, 1),
+            (COMPARISON.MAX, epoch, 1),
+            (COMPARISON.MAX, epoch - 1, 0),
+            (COMPARISON.GT, epoch, 0),
+            (COMPARISON.GT, epoch - 1, 1),
+            (COMPARISON.MIN, epoch, 1),
+            (COMPARISON.MIN, epoch + 1, 0),
+        ]
+        for operator, value, expected in expectations:
+            with self.subTest(operator=operator, value=value):
+                filters = [Filter("last_modified", value, operator)]
+                results = self.storage.list_all(filters=filters, **self.storage_kw)
+                self.assertEqual(len(results), expected)
+
+    def test_purge_deleted_before_uses_epoch_with_sub_millisecond_timestamps(self):
+        obj = self.create_object()
+        self.storage.delete(object_id=obj["id"], **self.storage_kw)
+        self._set_sub_millisecond_timestamps()
+        epoch = self.storage.list_all(include_deleted=True, **self.storage_kw)[0]["last_modified"]
+
+        self.storage.purge_deleted(before=epoch, **self.storage_kw)
+
+        tombstones = self.storage.list_all(include_deleted=True, **self.storage_kw)
+        self.assertEqual(len(tombstones), 1)
 
 
 class FormatConditionsEQContainmentTest(unittest.TestCase):

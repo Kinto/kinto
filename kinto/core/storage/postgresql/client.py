@@ -2,7 +2,7 @@ import contextlib
 import logging
 import warnings
 from collections import defaultdict
-from collections.abc import Callable, Iterator
+from collections.abc import Callable, Generator
 from typing import Any
 
 import transaction as zope_transaction
@@ -30,6 +30,15 @@ BLACKLISTED_SETTINGS = [
 
 
 class PostgreSQLClient:
+    """PostgreSQL client integrated with zope transactions
+    in order to rollback or commit based on response status.
+    """
+
+    """Default driver to be used when not specified in DSN."""
+    DEFAULT_DRIVER = "psycopg2"
+    # Make sure to look at https://github.com/Kinto/kinto/issues/3648
+    # when switching to psycopg3 (psycopg[binary]).
+
     def __init__(
         self,
         session_factory: Callable[[], Any],
@@ -41,7 +50,7 @@ class PostgreSQLClient:
         self.invalidate = invalidate
 
     @contextlib.contextmanager
-    def connect(self, readonly: bool = False, force_commit: bool = False) -> Iterator[Any]:
+    def connect(self, readonly: bool = False, force_commit: bool = False) -> Generator[Any]:
         """
         Pulls a connection from the pool when context is entered and
         returns it when context is exited.
@@ -110,7 +119,11 @@ def create_from_config(
     transaction_per_request = with_transaction and filtered_settings.pop(
         "transaction_per_request", False
     )
-    url = filtered_settings[prefix + "url"]
+    url = sqlalchemy.engine.make_url(filtered_settings[prefix + "url"])
+    if url.drivername == "postgresql":
+        # No explicit driver in URL (eg. ``postgresql+psycopg2://``), use default one.
+        url = url.set(drivername=f"postgresql+{PostgreSQLClient.DEFAULT_DRIVER}")
+    url = url.render_as_string(hide_password=False)
     existing_client = _CLIENTS[transaction_per_request].get(url)
     if existing_client:
         msg = f"Reuse existing PostgreSQL connection. Parameters {prefix}* will be ignored."

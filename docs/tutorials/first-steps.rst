@@ -424,6 +424,13 @@ header with the last ``ETag`` value.
 Sync and share data between users
 =================================
 
+.. warning::
+
+   Storing records from multiple users in a single shared collection allows
+   any writer to expose records to everyone by setting ``read`` to
+   ``system.Everyone``. See :ref:`permissions-setups-shared-collections` for
+   recommended patterns for personal and collaborative data.
+
 In this example, instead of using the *personal bucket* we will create an
 application-specific bucket called ``todo``.
 

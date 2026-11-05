@@ -332,11 +332,11 @@ class Storage(MemoryBasedStorage):
             if parent_id_match.match(pid)
         }
         if resource_name is not None:
-            for pid, resources in timestamps_by_parent_id.items():
-                del self._timestamps[pid][resource_name]
+            for pid in timestamps_by_parent_id:
+                self._timestamps[pid].pop(resource_name, None)
         else:
-            for pid, resources in timestamps_by_parent_id.items():
-                del self._timestamps[pid]
+            for pid in timestamps_by_parent_id:
+                self._timestamps.pop(pid, None)
 
         num_deleted = 0
         tombstones_by_parent_id = {
@@ -346,6 +346,8 @@ class Storage(MemoryBasedStorage):
         }
         for pid, resources in tombstones_by_parent_id.items():
             if resource_name is not None:
+                if resource_name not in resources:
+                    continue
                 resources = {resource_name: resources[resource_name]}
             for resource, resource_objects in resources.items():
                 if before is None:
