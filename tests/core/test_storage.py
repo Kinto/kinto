@@ -417,6 +417,7 @@ class PostgreSQLStorageTest(StorageTest, unittest.TestCase):
         ):
             with self.assertRaises(exceptions.IntegrityError):
                 self.storage.create("record", "/b/c", {"item": 1})
+
     def _set_sub_millisecond_timestamps(self):
         # Old schema versions stored ``clock_timestamp()`` with a microsecond
         # precision. Timestamps are shifted by -0.4ms, which ``as_epoch()``

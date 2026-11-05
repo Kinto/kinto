@@ -294,6 +294,7 @@ class PostgresqlStorageMigrationTest(unittest.TestCase):
         assert count == 1
         assert objects[0]["drink"] == "mate"
 
+
 @pytest.mark.xdist_group("postgres")
 @skip_if_no_postgresql
 class PostgresqlPermissionMigrationTest(unittest.TestCase):
