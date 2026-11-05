@@ -1,3 +1,4 @@
+import contextlib
 from unittest import mock
 
 import pytest
@@ -333,6 +334,101 @@ class PostgreSQLStorageTest(StorageTest, unittest.TestCase):
         self.assertEqual(len(results), 5)
         for obj in results:
             self.assertLess(obj["last_modified"], before)
+
+    def test_retry_on_timestamp_collision(self):
+        attempts = [0]
+        real_connect = self.storage.client.connect
+
+        @contextlib.contextmanager
+        def mock_connect(*args, **kwargs):
+            with real_connect(*args, **kwargs) as conn:
+                real_execute = conn.execute
+
+                def mock_execute(*args, **kwargs):
+                    attempts[0] += 1
+                    if attempts[0] < 3:
+                        raise sa.exc.IntegrityError(
+                            "",
+                            {},
+                            mock.Mock(
+                                diag=mock.Mock(
+                                    constraint_name="idx_objects_parent_id_resource_name_last_modified"
+                                )
+                            ),
+                        )
+                    return real_execute(*args, **kwargs)
+
+                with mock.patch.object(conn, "execute", side_effect=mock_execute):
+                    yield conn
+
+        with mock.patch.object(self.storage.client, "connect", side_effect=mock_connect):
+            obj = self.create_object({"item": 1})
+            self.assertIsNotNone(obj["id"])
+            self.assertEqual(attempts[0], 3)
+
+    def test_retry_on_timestamp_collision_managed_transaction(self):
+        import transaction as zope_transaction
+
+        self.storage.client.commit_manually = False
+        try:
+            attempts = [0]
+            real_connect = self.storage.client.connect
+
+            @contextlib.contextmanager
+            def mock_connect(*args, **kwargs):
+                with real_connect(*args, **kwargs) as conn:
+                    real_execute = conn.execute
+
+                    def mock_execute(*args, **kwargs):
+                        attempts[0] += 1
+                        if attempts[0] < 2:
+                            raise sa.exc.IntegrityError(
+                                "",
+                                {},
+                                mock.Mock(
+                                    diag=mock.Mock(
+                                        constraint_name="idx_objects_parent_id_resource_name_last_modified"
+                                    )
+                                ),
+                            )
+                        return real_execute(*args, **kwargs)
+
+                    with mock.patch.object(conn, "execute", side_effect=mock_execute):
+                        yield conn
+
+            with mock.patch.object(self.storage.client, "connect", side_effect=mock_connect):
+                obj = self.create_object({"item": 2})
+                self.assertIsNotNone(obj["id"])
+                self.assertEqual(attempts[0], 2)
+        finally:
+            zope_transaction.abort()
+            if hasattr(self.storage.client.session_factory, "remove"):
+                self.storage.client.session_factory.remove()
+            self.storage.client.commit_manually = True
+
+    def test_retry_exhausted_raises_integrity_error(self):
+        with (
+            mock.patch.object(
+                self.storage.client,
+                "connect",
+                side_effect=exceptions.IntegrityError(
+                    "idx_objects_parent_id_resource_name_last_modified"
+                ),
+            ),
+            mock.patch("kinto.core.storage.postgresql.logger") as logger,
+        ):
+            with self.assertRaises(exceptions.IntegrityError):
+                self.storage.create("record", "/b/c", {"item": 1})
+            logger.error.assert_called_once()
+
+    def test_non_timestamp_integrity_error_is_not_retried(self):
+        with mock.patch.object(
+            self.storage.client,
+            "connect",
+            side_effect=exceptions.IntegrityError("idx_objects_id_parent_id_resource_name"),
+        ):
+            with self.assertRaises(exceptions.IntegrityError):
+                self.storage.create("record", "/b/c", {"item": 1})
 
     def _set_sub_millisecond_timestamps(self):
         # Old schema versions stored ``clock_timestamp()`` with a microsecond

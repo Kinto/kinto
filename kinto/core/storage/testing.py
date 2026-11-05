@@ -7,7 +7,7 @@ from pyramid import testing
 
 from kinto.core import utils
 from kinto.core.storage import MISSING, Filter, Sort, exceptions, heartbeat
-from kinto.core.testing import DummyRequest, ThreadMixin, skip_if_ci
+from kinto.core.testing import DummyRequest, ThreadMixin
 
 
 OBJECT_ID = "472be9ec-26fe-461b-8282-9c4e4b207ab3"
@@ -908,8 +908,7 @@ class TimestampsTest(_StorageMixin):
             self.storage.all_resources_timestamps(resource_name="record"),
         )
 
-    @skip_if_ci
-    def test_timestamps_are_unique(self):  # pragma: no cover
+    def test_timestamps_are_unique(self):
         obtained = []
 
         def create_item():
@@ -917,15 +916,14 @@ class TimestampsTest(_StorageMixin):
                 obj = self.create_object()
                 obtained.append((obj["last_modified"], obj["id"]))
 
-        thread1 = self._create_thread(target=create_item)
-        thread2 = self._create_thread(target=create_item)
-        thread1.start()
-        thread2.start()
-        thread1.join()
-        thread2.join()
+        threads = [self._create_thread(target=create_item) for _ in range(5)]
+        for t in threads:
+            t.start()
+        for t in threads:
+            t.join()
 
         # With CPython (GIL), list appending is thread-safe
-        self.assertEqual(len(obtained), 200)
+        self.assertEqual(len(obtained), 500)
         # No duplicated timestamps
         self.assertEqual(len(set(obtained)), len(obtained))
 
