@@ -347,8 +347,14 @@ class PostgreSQLStorageTest(StorageTest, unittest.TestCase):
                 def mock_execute(*args, **kwargs):
                     attempts[0] += 1
                     if attempts[0] < 3:
-                        raise exceptions.IntegrityError(
-                            "idx_objects_parent_id_resource_name_last_modified"
+                        raise sa.exc.IntegrityError(
+                            "",
+                            {},
+                            mock.Mock(
+                                diag=mock.Mock(
+                                    constraint_name="idx_objects_parent_id_resource_name_last_modified"
+                                )
+                            ),
                         )
                     return real_execute(*args, **kwargs)
 
@@ -376,8 +382,14 @@ class PostgreSQLStorageTest(StorageTest, unittest.TestCase):
                     def mock_execute(*args, **kwargs):
                         attempts[0] += 1
                         if attempts[0] < 2:
-                            raise exceptions.IntegrityError(
-                                "idx_objects_parent_id_resource_name_last_modified"
+                            raise sa.exc.IntegrityError(
+                                "",
+                                {},
+                                mock.Mock(
+                                    diag=mock.Mock(
+                                        constraint_name="idx_objects_parent_id_resource_name_last_modified"
+                                    )
+                                ),
                             )
                         return real_execute(*args, **kwargs)
 

@@ -17,7 +17,14 @@ logger = logging.getLogger(__name__)
 def _is_timestamp_collision(e: Exception) -> bool:
     # See CREATE UNIQUE INDEX IF NOT EXISTS idx_objects_parent_id_resource_name_last_modified
     # in schema.sql.
-    return "idx_objects_parent_id_resource_name_last_modified" in str(e)
+    if isinstance(e, exceptions.IntegrityError):
+        e = e.original
+    if not isinstance(e, sqlalchemy.exc.IntegrityError):
+        return False
+
+    diagnostic = getattr(e.orig, "diag", None)
+    constraint_name = getattr(diagnostic, "constraint_name", None)
+    return constraint_name == "idx_objects_parent_id_resource_name_last_modified"
 
 
 BLACKLISTED_SETTINGS = [
