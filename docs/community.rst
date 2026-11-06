@@ -126,7 +126,7 @@ Get started!
 
    Now you can make your changes locally.
 
-6. When you're done making changes, check that your changes pass linting (requires Python >= 3.10)::
+6. When you're done making changes, check that your changes pass linting (requires Python >= 3.11)::
 
     make lint
 
