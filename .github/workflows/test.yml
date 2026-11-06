@@ -38,16 +38,20 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        pyenv: [py310, py311, py312, py312-raw]
+        pyenv: [py311, py312, py313, py314, py315, py315-raw]
         include:
-          - pyenv: py310
-            python-version: "3.10"
           - pyenv: py311
             python-version: "3.11"
           - pyenv: py312
             python-version: "3.12"
-          - pyenv: py312-raw
-            python-version: "3.12"
+          - pyenv: py313
+            python-version: "3.13"
+          - pyenv: py314
+            python-version: "3.14"
+          - pyenv: py315
+            python-version: "3.15"
+          - pyenv: py315-raw
+            python-version: "3.15"
     services:
       postgres:
         image: postgres
