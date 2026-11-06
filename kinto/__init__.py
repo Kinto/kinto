@@ -39,6 +39,7 @@ DEFAULT_SETTINGS = {
     "record_id_generator": "kinto.views.RelaxedUUID",
     "project_name": "kinto",
     "admin_assets_path": None,
+    "admin_csp_connect_src": "",
     "metrics_matchdict_fields": ["bucket_id", "collection_id", "group_id", "record_id"],
 }
 

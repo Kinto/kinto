@@ -72,6 +72,10 @@ class AdminViewTest(BaseWebTest, unittest.TestCase):
         resp = self.app.get("/admin/")
         assert "default-src 'self'" in resp.headers["Content-Security-Policy"]
 
+    def test_admin_csp_has_no_connect_src_by_default(self):
+        resp = self.app.get("/admin/")
+        assert "connect-src" not in resp.headers["Content-Security-Policy"]
+
 
 class OverriddenAdminViewTest(BaseWebTest, unittest.TestCase):
     @classmethod
@@ -95,6 +99,7 @@ class OverriddenAdminViewTest(BaseWebTest, unittest.TestCase):
         settings = super().get_app_settings(extras)
         settings["includes"] = "kinto.plugins.admin"
         settings["admin_assets_path"] = cls.tmp_dir.name
+        settings["admin_csp_connect_src"] = "https://cdn.example.com https://other.example.com"
         return settings
 
     def setUp(self):
@@ -114,3 +119,10 @@ class OverriddenAdminViewTest(BaseWebTest, unittest.TestCase):
 
     def test_original_assets_are_not_available(self):
         self.app.get("/admin/favicon.png", status=404)
+
+    def test_admin_csp_includes_connect_src_origins(self):
+        resp = self.app.get("/admin/")
+        assert (
+            "connect-src 'self' https://cdn.example.com https://other.example.com"
+            in resp.headers["Content-Security-Policy"]
+        )

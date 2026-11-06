@@ -194,6 +194,8 @@ kinto.bucket_create_principals = account:admin
 # Kinto admin
 # Absolute path to UI assets
 # kinto.admin_assets_path = /app/kinto/plugins/admin/build/
+# Additional origins allowed in the Admin UI Content-Security-Policy connect-src
+# kinto.admin_csp_connect_src = https://cdn.example.com
 
 # Enabling or disabling endpoints
 # https://kinto.readthedocs.io/en/latest/configuration/settings.html#enabling-or-disabling-endpoints
