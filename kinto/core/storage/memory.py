@@ -616,7 +616,7 @@ def apply_filters(objects: list[KintoObject], filters: list[Filter]) -> Iterator
                 right = schwartzian_transform(right)
 
             if f.operator == COMPARISON.HAS:
-                matches = left != MISSING if f.value else left == MISSING
+                matches = matches and (left != MISSING if f.value else left == MISSING)
             else:
                 matches = matches and operators[f.operator](left, right)
         if matches:

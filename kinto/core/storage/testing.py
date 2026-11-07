@@ -813,6 +813,24 @@ class BaseTestStorage(_StorageMixin):
         self.assertEqual(len(objects), 1)
         self.assertEqual(objects[0]["flavor"], "strawberry")
 
+    def test_list_all_combines_has_with_previous_filters(self):
+        self.create_object({"flavor": "strawberry", "author": "hello"})
+        self.create_object({"flavor": "blueberry", "author": "hello"})
+        self.create_object({"flavor": "raspberry"})
+        filters = [
+            Filter("flavor", "strawberry", utils.COMPARISON.EQ),
+            Filter("author", True, utils.COMPARISON.HAS),
+        ]
+        objects = self.storage.list_all(filters=filters, **self.storage_kw)
+        self.assertEqual([r["flavor"] for r in objects], ["strawberry"])
+
+        filters = [
+            Filter("flavor", "strawberry", utils.COMPARISON.EQ),
+            Filter("author", False, utils.COMPARISON.HAS),
+        ]
+        objects = self.storage.list_all(filters=filters, **self.storage_kw)
+        self.assertEqual(objects, [])
+
     def test_list_all_can_filter_by_subobjects_values(self):
         for code in ["a", "b", "c"]:
             self.create_object({"code": {"sub": code}})
