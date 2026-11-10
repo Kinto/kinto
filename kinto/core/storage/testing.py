@@ -859,6 +859,15 @@ class BaseTestStorage(_StorageMixin):
         objects = self.storage.list_all(filters=filters, **self.storage_kw)
         self.assertEqual(len(objects), 2)
 
+    def test_list_all_like_only_treats_star_as_wildchar(self):
+        for name in ["abc", "a.c", "a_c", "a\\c", "100%", "1000", "x(y"]:
+            self.create_object({"name": name})
+
+        for term in ["a.c", "a_c", "a\\c", "100%", "x(y"]:
+            filters = [Filter("name", term, utils.COMPARISON.LIKE)]
+            objects = self.storage.list_all(filters=filters, **self.storage_kw)
+            self.assertEqual([o["name"] for o in objects], [term])
+
     def test_objects_filtered_when_searched_by_string_field(self):
         self.create_object({"name": "foo"})
         self.create_object({"name": "bar"})
