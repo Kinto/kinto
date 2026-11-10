@@ -1011,6 +1011,9 @@ class Storage(StorageBase, MigratorMixin):
                 # Add implicit start/end wildcards if none is specified.
                 if "*" not in value:
                     value = f"*{value}*"
+                # Only `*` is a wildcard: escape LIKE's own special characters (backslash first).
+                for char in ("\\", "%", "_"):
+                    value = value.replace(char, "\\" + char)
                 value = value.replace("*", "%")
 
             if value == MISSING:

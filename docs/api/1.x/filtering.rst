@@ -151,6 +151,8 @@ The specified value can also contain wildchars:
 * ``/collection?like_field=*foo`` (ends with ``foo``)
 * ``/collection?like_field=*foo*`` (equivalent to ``like_field=foo``)
 
+Only ``*`` is a wildchar: other characters, such as ``_``, ``%`` or ``.``, are matched literally.
+
 Field existence
 ---------------
 

@@ -603,7 +603,7 @@ def apply_filters(objects: list[KintoObject], filters: list[Filter]) -> Iterator
                 # Add implicit start/end wildchars if none is specified.
                 if "*" not in right:
                     right = f"*{right}*"
-                right = f"^{right.replace('*', '.*')}$"
+                right = "^" + ".*".join(re.escape(part) for part in right.split("*")) + "$"
             elif f.operator in (
                 COMPARISON.LT,
                 COMPARISON.MAX,
