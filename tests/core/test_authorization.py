@@ -118,6 +118,22 @@ class RouteFactoryTest(unittest.TestCase):
             ["userid"], [("/buckets/*", "read")], with_children=False
         )
 
+    def test_fetch_shared_objects_does_not_escape_object_id_pattern(self):
+        bucket_id = "bucket-cdd54d2a-c55a-4a2e-a1e3-ae6d1b9e2b0f"
+        request = DummyRequest()
+        request.route_path.return_value = f"/v1/buckets/{bucket_id}/collections/%2A"
+        service = mock.MagicMock()
+        service.type = "plural"
+        with mock.patch("kinto.core.authorization.utils.current_service") as m:
+            m.return_value = service
+            context = RouteFactory(request)
+
+        context.fetch_shared_objects("read", ["userid"], None)
+
+        request.registry.permission.get_accessible_objects.assert_called_with(
+            ["userid"], [(f"/buckets/{bucket_id}/collections/*", "read")], with_children=False
+        )
+
     def test_fetch_shared_objects_uses_get_bound_permission_callback(self):
         request = DummyRequest()
         service = mock.MagicMock()

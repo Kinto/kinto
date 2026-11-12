@@ -1,6 +1,5 @@
 import functools
 import logging
-import re
 from typing import Any
 
 from pyramid.authorization import Authenticated
@@ -237,12 +236,7 @@ class RouteFactory:
         else:
             bound_perms = [(self._object_id_match, perm)]
 
-        safe_bound_perms = [
-            (re.escape(obj_id).replace(r"\*", "*") if obj_id else obj_id, p)
-            for obj_id, p in bound_perms
-        ]
-
-        by_obj_id = self._get_accessible_objects(principals, safe_bound_perms, with_children=False)
+        by_obj_id = self._get_accessible_objects(principals, bound_perms, with_children=False)
         ids = by_obj_id.keys()
         # Store for later use in ``Resource``.
         self.shared_ids = [self._extract_object_id(id_) for id_ in ids]
