@@ -18,8 +18,14 @@ configuration, a Web admin UI is available at ``/v1/admin/``.
 |                             |          | to the ``connect-src`` directive of its         |
 |                             |          | Content-Security-Policy                         |
 |                             |          | (eg. ``https://cdn.example.com``).              |
+|                             |          | Also exposed in the ``admin`` capability as     |
+|                             |          | ``csp_connect_src``.                            |
 +-----------------------------+----------+-------------------------------------------------+
 
+To enable attachment diffs in the Admin UI when attachments are served from a
+different origin, add that origin to ``kinto.admin_csp_connect_src``, and
+configure the attachments host to allow CORS ``GET`` requests from the Kinto
+server's origin.
 
 * `See dedicated repo <https://github.com/Kinto/kinto-admin/>`_
 
