@@ -1,13 +1,14 @@
 ############################
 # Builder stage
 ############################
-FROM python:3.10-bullseye AS python-builder
+FROM python:3.14-bookworm AS python-builder
 
 # Install uv
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
 ENV UV_CACHE_DIR=/opt/uv-cache \
-    UV_PROJECT_ENVIRONMENT=/opt/venv
+    UV_PROJECT_ENVIRONMENT=/opt/venv \
+    UV_PYTHON_DOWNLOADS=never
 
 WORKDIR /build
 
@@ -40,7 +41,7 @@ RUN --mount=type=cache,target=/opt/uv-cache \
 ############################
 # Runtime stage
 ############################
-FROM python:3.10-slim-bullseye
+FROM python:3.14-slim-bookworm
 
 RUN groupadd --gid 10001 app && \
     useradd --uid 10001 --gid 10001 --home /app --create-home app
