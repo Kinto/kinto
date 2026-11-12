@@ -1,5 +1,7 @@
 import os
 
+from pyramid.settings import aslist
+
 from kinto.core.decorators import cache_forever
 from kinto.core.types import Request
 
@@ -29,15 +31,16 @@ def admin_home_view(request: Request) -> str:
             page_content = f.read()
 
     # Add Content-Security-Policy HTTP response header to protect against XSS:
-    # only allow from local domain:
-    allow_local_only = "; ".join(
-        (
-            "default-src 'self'",
-            "img-src data: *",
-            "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
-            "style-src 'self' 'unsafe-inline'",
-        )
-    )
-    request.response.headers["Content-Security-Policy"] = allow_local_only
+    # only allow from local domain and origins configured by `admin_csp_connect_src`
+    directives = [
+        "default-src 'self'",
+        "img-src data: *",
+        "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+        "style-src 'self' 'unsafe-inline'",
+    ]
+
+    if connect_src := aslist(request.registry.settings["admin_csp_connect_src"]):
+        directives.append(" ".join(["connect-src 'self'", *connect_src]))
+    request.response.headers["Content-Security-Policy"] = "; ".join(directives)
 
     return page_content

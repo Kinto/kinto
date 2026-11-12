@@ -48,6 +48,7 @@ class AdminViewTest(BaseWebTest, unittest.TestCase):
         expected = {
             "description": "Serves the admin console.",
             "url": ("https://github.com/Kinto/kinto-admin/"),
+            "csp_connect_src": [],
         }
         self.assertEqual(expected, capabilities["admin"])
 
@@ -72,6 +73,10 @@ class AdminViewTest(BaseWebTest, unittest.TestCase):
         resp = self.app.get("/admin/")
         assert "default-src 'self'" in resp.headers["Content-Security-Policy"]
 
+    def test_admin_csp_has_no_connect_src_by_default(self):
+        resp = self.app.get("/admin/")
+        assert "connect-src" not in resp.headers["Content-Security-Policy"]
+
 
 class OverriddenAdminViewTest(BaseWebTest, unittest.TestCase):
     @classmethod
@@ -95,6 +100,7 @@ class OverriddenAdminViewTest(BaseWebTest, unittest.TestCase):
         settings = super().get_app_settings(extras)
         settings["includes"] = "kinto.plugins.admin"
         settings["admin_assets_path"] = cls.tmp_dir.name
+        settings["admin_csp_connect_src"] = "https://cdn.example.com https://other.example.com"
         return settings
 
     def setUp(self):
@@ -103,6 +109,13 @@ class OverriddenAdminViewTest(BaseWebTest, unittest.TestCase):
     def test_admin_capability_reads_version_from_configured_folder(self):
         resp = self.app.get("/")
         self.assertEqual(resp.json["capabilities"]["admin"]["version"], "42.0.0")
+
+    def test_admin_capability_exposes_csp_connect_src(self):
+        resp = self.app.get("/")
+        self.assertEqual(
+            resp.json["capabilities"]["admin"]["csp_connect_src"],
+            ["https://cdn.example.com", "https://other.example.com"],
+        )
 
     def test_admin_ui_is_served_from_configured_folder(self):
         resp = self.app.get("/admin/")
@@ -114,3 +127,10 @@ class OverriddenAdminViewTest(BaseWebTest, unittest.TestCase):
 
     def test_original_assets_are_not_available(self):
         self.app.get("/admin/favicon.png", status=404)
+
+    def test_admin_csp_includes_connect_src_origins(self):
+        resp = self.app.get("/admin/")
+        assert (
+            "connect-src 'self' https://cdn.example.com https://other.example.com"
+            in resp.headers["Content-Security-Policy"]
+        )

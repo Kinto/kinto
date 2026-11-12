@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from pyramid.httpexceptions import HTTPTemporaryRedirect
+from pyramid.settings import aslist
 from pyramid.static import static_view
 
 from kinto.core.types import Configurator, Request
@@ -25,6 +26,7 @@ def includeme(config: Configurator) -> None:
         version=admin_version,
         description="Serves the admin console.",
         url="https://github.com/Kinto/kinto-admin/",
+        csp_connect_src=aslist(config.registry.settings["admin_csp_connect_src"]),
     )
 
     config.add_route("admin_home", "/admin/")
