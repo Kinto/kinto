@@ -311,6 +311,15 @@ class BaseTestStorage(_StorageMixin):
         total_objects = self.storage.count_all(parent_id="ab*", resource_name="c")
         self.assertEqual(len(objects), total_objects)
 
+    def test_list_all_parent_id_pattern_does_not_treat_underscore_as_wildcard(self):
+        obj = self.create_object(parent_id="/buckets/a_b", resource_name="c")
+        self.create_object(parent_id="/buckets/axb", resource_name="c")
+
+        objects = self.storage.list_all(parent_id="/buckets/a_*", resource_name="c")
+        self.assertEqual([o["id"] for o in objects], [obj["id"]])
+        total_objects = self.storage.count_all(parent_id="/buckets/a_*", resource_name="c")
+        self.assertEqual(total_objects, 1)
+
     def test_list_all_parent_id_handles_collisions(self):
         abc1 = self.create_object(
             parent_id="abc1", resource_name="c", obj={"id": "abc", "secret_data": "abc1"}
@@ -1339,6 +1348,19 @@ class DeletedObjectsTest(_StorageMixin):
         count = self.storage.count_all(parent_id="efg", resource_name="c")
         self.assertEqual(count, 1)
 
+    def test_delete_all_parent_id_pattern_does_not_treat_underscore_as_wildcard(self):
+        self.create_object(parent_id="/buckets/a_b/collections/c", resource_name="record")
+        self.create_object(parent_id="/buckets/axb/collections/c", resource_name="record")
+        self.storage.delete_all(parent_id="/buckets/a_b/*", resource_name=None, with_deleted=False)
+        count = self.storage.count_all(
+            parent_id="/buckets/a_b/collections/c", resource_name="record"
+        )
+        self.assertEqual(count, 0)
+        count = self.storage.count_all(
+            parent_id="/buckets/axb/collections/c", resource_name="record"
+        )
+        self.assertEqual(count, 1)
+
     def test_delete_all_does_proper_matching(self):
         self.create_object(parent_id="abc", resource_name="c", obj={"id": "id1"})
         self.create_object(parent_id="def", resource_name="g", obj={"id": "id1"})
@@ -1438,6 +1460,17 @@ class DeletedObjectsTest(_StorageMixin):
         self.assertNotEqual(before1, after1)  # timestamp was removed, it will differ.
         self.assertEqual(before2, after2)
         self.assertEqual(before3, after3)
+
+    def test_purge_deleted_parent_id_pattern_does_not_treat_underscore_as_wildcard(self):
+        for parent_id in ("/buckets/a_b/collections/c", "/buckets/axb/collections/c"):
+            obj = self.create_object(parent_id=parent_id, resource_name="record")
+            self.storage.delete(object_id=obj["id"], parent_id=parent_id, resource_name="record")
+        num_removed = self.storage.purge_deleted(parent_id="/buckets/a_b/*", resource_name=None)
+        self.assertEqual(num_removed, 1)
+        tombstones = self.storage.list_all(
+            parent_id="/buckets/axb/collections/c", resource_name="record", include_deleted=True
+        )
+        self.assertEqual(len(tombstones), 1)
 
     def test_purge_deleted_works_when_no_tombstones(self):
         num_removed = self.storage.purge_deleted(**self.storage_kw)
