@@ -48,6 +48,7 @@ class AdminViewTest(BaseWebTest, unittest.TestCase):
         expected = {
             "description": "Serves the admin console.",
             "url": ("https://github.com/Kinto/kinto-admin/"),
+            "csp_connect_src": [],
         }
         self.assertEqual(expected, capabilities["admin"])
 
@@ -108,6 +109,13 @@ class OverriddenAdminViewTest(BaseWebTest, unittest.TestCase):
     def test_admin_capability_reads_version_from_configured_folder(self):
         resp = self.app.get("/")
         self.assertEqual(resp.json["capabilities"]["admin"]["version"], "42.0.0")
+
+    def test_admin_capability_exposes_csp_connect_src(self):
+        resp = self.app.get("/")
+        self.assertEqual(
+            resp.json["capabilities"]["admin"]["csp_connect_src"],
+            ["https://cdn.example.com", "https://other.example.com"],
+        )
 
     def test_admin_ui_is_served_from_configured_folder(self):
         resp = self.app.get("/admin/")
