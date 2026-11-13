@@ -27,6 +27,17 @@ def _is_timestamp_collision(e: Exception) -> bool:
     return constraint_name == "idx_objects_parent_id_resource_name_last_modified"
 
 
+def like_pattern(value: str) -> str:
+    """Convert a value where only ``*`` is a wildcard into a ``LIKE`` pattern.
+
+    LIKE's own special characters (``%``, ``_`` and the ``\\`` escape character)
+    are escaped, so that eg. ``_`` in object IDs does not match any character.
+    """
+    for char in ("\\", "%", "_"):
+        value = value.replace(char, "\\" + char)
+    return value.replace("*", "%")
+
+
 BLACKLISTED_SETTINGS = [
     "backend",
     "max_fetch_size",

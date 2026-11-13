@@ -330,6 +330,18 @@ class PermissionTest(_PermissionTestBase):
         )
         self.assertEqual(sorted(per_object_ids.keys()), ["/url1/id"])
 
+    def test_accessible_objects_with_pattern_does_not_treat_underscore_as_wildcard(self):
+        self.permission.add_principal_to_ace("/buckets/a_b", "write", "user1")
+        self.permission.add_principal_to_ace("/buckets/axb", "write", "user1")
+        per_object_ids = self.permission.get_accessible_objects(
+            ["user1"], [("/buckets/a_*", "write")]
+        )
+        self.assertEqual(sorted(per_object_ids.keys()), ["/buckets/a_b"])
+        per_object_ids = self.permission.get_accessible_objects(
+            ["user1"], [("/buckets/a_*", "write")], with_children=False
+        )
+        self.assertEqual(sorted(per_object_ids.keys()), ["/buckets/a_b"])
+
     def test_accessible_objects_several_bound_permissions(self):
         self.permission.add_principal_to_ace("/url/a/id/1", "write", "user1")
         self.permission.add_principal_to_ace("/url/a/id/2", "read", "user1")
@@ -496,4 +508,32 @@ class PermissionTest(_PermissionTestBase):
         self.assertDictEqual(self.permission.get_object_permissions("/url/a/id/1"), {})
         self.assertDictEqual(
             self.permission.get_object_permissions("/url/b/id/1"), {"write": {"user1"}}
+        )
+
+    def test_delete_object_permissions_does_not_treat_underscore_as_wildcard(self):
+        self.permission.add_principal_to_ace("/buckets/a_b", "write", "user1")
+        self.permission.add_principal_to_ace("/buckets/a_b/collections/c", "write", "user1")
+        self.permission.add_principal_to_ace("/buckets/axb", "write", "user2")
+        self.permission.add_principal_to_ace("/buckets/axb/collections/c", "write", "user2")
+
+        self.permission.delete_object_permissions("/buckets/a_b", "/buckets/a_b/*")
+
+        self.assertDictEqual(self.permission.get_object_permissions("/buckets/a_b"), {})
+        self.assertDictEqual(
+            self.permission.get_object_permissions("/buckets/axb"), {"write": {"user2"}}
+        )
+        self.assertDictEqual(
+            self.permission.get_object_permissions("/buckets/axb/collections/c"),
+            {"write": {"user2"}},
+        )
+
+    def test_delete_object_permissions_single_id_does_not_treat_underscore_as_wildcard(self):
+        self.permission.add_principal_to_ace("/buckets/a_b", "write", "user1")
+        self.permission.add_principal_to_ace("/buckets/axb", "write", "user2")
+
+        self.permission.delete_object_permissions("/buckets/a_b")
+
+        self.assertDictEqual(self.permission.get_object_permissions("/buckets/a_b"), {})
+        self.assertDictEqual(
+            self.permission.get_object_permissions("/buckets/axb"), {"write": {"user2"}}
         )

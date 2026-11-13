@@ -7,7 +7,11 @@ from typing import Any
 from pyramid.config import Configurator
 
 from kinto.core.permission import PermissionBase
-from kinto.core.storage.postgresql.client import PostgreSQLClient, create_from_config
+from kinto.core.storage.postgresql.client import (
+    PostgreSQLClient,
+    create_from_config,
+    like_pattern,
+)
 from kinto.core.storage.postgresql.migrator import MigratorMixin
 from kinto.core.utils import sqlalchemy as sa
 
@@ -293,7 +297,7 @@ class Permission(PermissionBase, MigratorMixin):
 
             perm_values = []
             for i, (obj, perm) in enumerate(bound_permissions):
-                placeholders[f"obj_{i}"] = obj.replace("*", "%")
+                placeholders[f"obj_{i}"] = like_pattern(obj)
                 placeholders[f"perm_{i}"] = perm
                 perm_values.append("(:obj_{0}, :perm_{0})".format(i))
 
@@ -466,7 +470,7 @@ class Permission(PermissionBase, MigratorMixin):
         placeholders = {}
         for i, obj_id in enumerate(object_id_list):
             object_ids_values.append(f"(:obj_id_{i})")
-            placeholders[f"obj_id_{i}"] = obj_id.replace("*", "%")
+            placeholders[f"obj_id_{i}"] = like_pattern(obj_id)
 
         query = """
         WITH object_ids AS (

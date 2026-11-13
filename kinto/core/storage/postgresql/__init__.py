@@ -23,6 +23,7 @@ from kinto.core.storage.postgresql.client import (
     PostgreSQLClient,
     _is_timestamp_collision,
     create_from_config,
+    like_pattern,
 )
 from kinto.core.storage.postgresql.migrator import MigratorMixin
 from kinto.core.storage.postgresql.migrator import (
@@ -628,7 +629,7 @@ class Storage(StorageBase, MigratorMixin):
         # Handle parent_id as a regex only if it contains *
         if "*" in parent_id:
             safeholders["parent_id_filter"] = "parent_id LIKE :parent_id"
-            placeholders["parent_id"] = parent_id.replace("*", "%")
+            placeholders["parent_id"] = like_pattern(parent_id)
         else:
             safeholders["parent_id_filter"] = "parent_id = :parent_id"
         # If resource is None, remove it from query.
@@ -731,7 +732,7 @@ class Storage(StorageBase, MigratorMixin):
         # Handle parent_id as a regex only if it contains *
         if "*" in parent_id:
             safeholders["parent_id_filter"] = "parent_id LIKE :parent_id"
-            placeholders["parent_id"] = parent_id.replace("*", "%")
+            placeholders["parent_id"] = like_pattern(parent_id)
         else:
             safeholders["parent_id_filter"] = "parent_id = :parent_id"
         # If resource is None, remove it from query.
@@ -903,7 +904,7 @@ class Storage(StorageBase, MigratorMixin):
         # Handle parent_id as a regex only if it contains *
         if "*" in parent_id:
             safeholders["parent_id_filter"] = "parent_id LIKE :parent_id"
-            placeholders["parent_id"] = parent_id.replace("*", "%")
+            placeholders["parent_id"] = like_pattern(parent_id)
         else:
             safeholders["parent_id_filter"] = "parent_id = :parent_id"
 
@@ -1011,10 +1012,7 @@ class Storage(StorageBase, MigratorMixin):
                 # Add implicit start/end wildcards if none is specified.
                 if "*" not in value:
                     value = f"*{value}*"
-                # Only `*` is a wildcard: escape LIKE's own special characters (backslash first).
-                for char in ("\\", "%", "_"):
-                    value = value.replace(char, "\\" + char)
-                value = value.replace("*", "%")
+                value = like_pattern(value)
 
             if value == MISSING:
                 # Handle MISSING values. The main use case for this is
