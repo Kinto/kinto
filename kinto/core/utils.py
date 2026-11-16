@@ -118,8 +118,9 @@ def recursive_update_dict(root: dict, changes: Any, ignores: tuple = ()) -> None
     if isinstance(changes, dict):
         for k, v in changes.items():
             if isinstance(v, dict):
-                if k not in root:
-                    root[k] = {}
+                # Copy nested dicts so the caller's objects stay untouched, and
+                # replace values that are not objects (RFC 7396).
+                root[k] = {**root[k]} if isinstance(root.get(k), dict) else {}
                 recursive_update_dict(root[k], v, ignores)
             elif v in ignores:
                 if k in root:

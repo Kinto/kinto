@@ -287,6 +287,21 @@ class MergePatchTest(BaseTest):
         self.assertIn("bb", result["aa"])
         self.assertNotIn("cc", result["aa"]["bb"])
 
+    def test_merge_patch_replaces_attribute_that_is_not_an_object(self):
+        self.validated["body"] = {"data": {"a": "aaa"}}
+        self.resource.patch()
+        self.validated["body"] = {"data": {"a": {"b": "bbb"}}}
+        result = self.resource.patch()["data"]
+        self.assertEqual(result["a"], {"b": "bbb"})
+
+    def test_merge_patch_returns_changed_nested_attribute_if_behaviour_is_light(self):
+        self.validated["body"] = {"data": {"a": {"b": "bbb"}}}
+        self.resource.patch()
+        self.validated["body"] = {"data": {"a": {"c": "ccc"}}}
+        self.validated["header"] = {"Response-Behavior": "light"}
+        result = self.resource.patch()["data"]
+        self.assertEqual(result, {"a": {"b": "bbb", "c": "ccc"}})
+
     def test_merge_patch_doesnt_remove_attribute_if_false(self):
         self.validated["body"] = {"data": {"field": 0}}
         result = self.resource.patch()["data"]
