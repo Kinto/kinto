@@ -71,9 +71,20 @@ build-backend = "hatchling.build"
 
 [dependency-groups]
 dev = [
+    "bravado",
+    "build",
     "docstring-format-checker>=1.11.4",
+    "flex",
+    "granian",
+    "playwright",
+    "pytest",
+    "pytest-cache",
+    "pytest-cov",
     "pytest-xdist>=3.8.0",
+    "ruff",
+    "twine",
     "ty>=0.0.19",
+    "webtest",
 ]
 
 [project.optional-dependencies]
@@ -94,21 +105,6 @@ monitoring = [
     "statsd",
     "werkzeug",
     "prometheus-client",
-]
-test = [
-    "bravado",
-    "flex",
-    "pytest",
-    "pytest-cache",
-    "pytest-cov",
-    "playwright",
-    "webtest",
-]
-dev = [
-    "build",
-    "ruff",
-    "twine",
-    "granian",
 ]
 container = [
     "kinto-attachment",
