@@ -180,7 +180,7 @@ def get_user_info(request: KintoRequest) -> dict:
         "principals": request.prefixed_principals,
     }
     if hasattr(request, "get_user_profile"):
-        user_info["profile"] = request.get_user_profile()  # ty: ignore[call-non-callable]
+        user_info["profile"] = request.get_user_profile()  # ty: ignore[not-callable]
     return user_info
 
 

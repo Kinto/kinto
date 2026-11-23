@@ -40,7 +40,7 @@ class MigratorTest(unittest.TestCase):
     def _walk_from_3_to_6(self):
         """Helper method for simulating a migration from version 3 to version 6."""
         versions = [6, 5, 4, 3, 3]
-        self.migrator.get_installed_version = lambda: versions.pop()  # ty: ignore[invalid-assignment]
+        self.migrator.get_installed_version = lambda: versions.pop()
 
     def test_migration_file_is_executed_for_every_intermediary_version(self, execute_sql):
         self._walk_from_3_to_6()

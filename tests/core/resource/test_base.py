@@ -130,4 +130,4 @@ class CustomModelResource(Resource):
 class CustomModelResourceTets(unittest.TestCase):
     def test_custom_model_is_not_overridden(self):
         c = CustomModelResource(request=mock.MagicMock())
-        self.assertEqual(c.model.name, mock.sentinel.model)  # ty: ignore[unresolved-attribute]
+        self.assertEqual(c.model.name, mock.sentinel.model)  # ty: ignore[missing-union-attribute]

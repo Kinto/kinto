@@ -33,22 +33,22 @@ class InitializationTest(unittest.TestCase):
     def test_set_the_project_version_if_specified(self):
         config = Configurator()
         kinto.core.initialize(config, "0.0.1", "name")
-        self.assertEqual(config.registry.settings["project_version"], "0.0.1")  # ty: ignore[unresolved-attribute]
+        self.assertEqual(config.registry.settings["project_version"], "0.0.1")  # ty: ignore[missing-union-attribute]
 
     def test_project_version_uses_setting_if_specified(self):
         config = Configurator(settings={"name.project_version": "1.0.0"})
         kinto.core.initialize(config, "0.0.1", "name")
-        self.assertEqual(config.registry.settings["project_version"], "1.0.0")  # ty: ignore[unresolved-attribute]
+        self.assertEqual(config.registry.settings["project_version"], "1.0.0")  # ty: ignore[missing-union-attribute]
 
     def test_http_api_version_relies_on_project_version_by_default(self):
         config = Configurator()
         kinto.core.initialize(config, "0.1.0", "name")
-        self.assertEqual(config.registry.settings["http_api_version"], "0.1")  # ty: ignore[unresolved-attribute]
+        self.assertEqual(config.registry.settings["http_api_version"], "0.1")  # ty: ignore[missing-union-attribute]
 
     def test_http_api_version_uses_setting_if_specified(self):
         config = Configurator(settings={"name.http_api_version": "1.3"})
         kinto.core.initialize(config, "0.0.1", "name")
-        self.assertEqual(config.registry.settings["http_api_version"], "1.3")  # ty: ignore[unresolved-attribute]
+        self.assertEqual(config.registry.settings["http_api_version"], "1.3")  # ty: ignore[missing-union-attribute]
 
     def test_warns_if_settings_prefix_is_empty(self):
         config = Configurator(settings={"kinto.settings_prefix": ""})
@@ -67,12 +67,12 @@ class InitializationTest(unittest.TestCase):
     def test_set_the_settings_prefix_if_specified(self):
         config = Configurator()
         kinto.core.initialize(config, "0.0.1", "kinto")
-        self.assertEqual(config.registry.settings["settings_prefix"], "kinto")  # ty: ignore[unresolved-attribute]
+        self.assertEqual(config.registry.settings["settings_prefix"], "kinto")  # ty: ignore[missing-union-attribute]
 
     def test_set_the_settings_prefix_from_settings_even_if_specified(self):
         config = Configurator(settings={"kinto.settings_prefix": "kinto"})
         kinto.core.initialize(config, "0.0.1", "readinglist")
-        self.assertEqual(config.registry.settings["settings_prefix"], "kinto")  # ty: ignore[unresolved-attribute]
+        self.assertEqual(config.registry.settings["settings_prefix"], "kinto")  # ty: ignore[missing-union-attribute]
 
     def test_warns_if_not_https(self):
         error_msg = "HTTPS is not enabled"
@@ -93,18 +93,18 @@ class InitializationTest(unittest.TestCase):
         config = Configurator()
         defaults = {"paginate_by": 102}
         kinto.core.initialize(config, "0.0.1", "prefix", default_settings=defaults)
-        self.assertEqual(config.registry.settings["paginate_by"], 102)  # ty: ignore[unresolved-attribute]
+        self.assertEqual(config.registry.settings["paginate_by"], 102)  # ty: ignore[missing-union-attribute]
 
     def test_default_settings_are_overridden_by_application(self):
         config = Configurator(settings={"prefix.paginate_by": 10})
         kinto.core.initialize(config, "0.0.1", "prefix")
-        self.assertEqual(config.registry.settings["paginate_by"], 10)  # ty: ignore[unresolved-attribute]
+        self.assertEqual(config.registry.settings["paginate_by"], 10)  # ty: ignore[missing-union-attribute]
 
     def test_specified_default_settings_are_overridden_by_application(self):
         config = Configurator(settings={"settings_prefix.paginate_by": 5})
         defaults = {"settings_prefix.paginate_by": 10}
         kinto.core.initialize(config, "0.0.1", "settings_prefix", default_settings=defaults)
-        self.assertEqual(config.registry.settings["paginate_by"], 5)  # ty: ignore[unresolved-attribute]
+        self.assertEqual(config.registry.settings["paginate_by"], 5)  # ty: ignore[missing-union-attribute]
 
     def test_backends_are_not_instantiated_by_default(self):
         config = Configurator(settings={**kinto.core.DEFAULT_SETTINGS})
@@ -134,7 +134,7 @@ class InitializationTest(unittest.TestCase):
 
         os.environ.pop(envkey)
 
-        prefix_used = config.registry.settings["settings_prefix"]  # ty: ignore[unresolved-attribute]
+        prefix_used = config.registry.settings["settings_prefix"]  # ty: ignore[missing-union-attribute]
         self.assertEqual(prefix_used, "abc")
 
     def test_statsd_plugin_isnt_included_by_default(self):
@@ -154,7 +154,7 @@ class InitializationTest(unittest.TestCase):
         config.add_migration(migration)
         config.commit()
 
-        registered = dict(config.registry.getUtilitiesFor(IMigratable))  # ty: ignore[unresolved-attribute]
+        registered = dict(config.registry.getUtilitiesFor(IMigratable))  # ty: ignore[missing-union-attribute]
         self.assertIn("my_plugin", registered)
         self.assertIs(registered["my_plugin"], migration)
 
@@ -324,7 +324,7 @@ class SentryTest(unittest.TestCase):
     def unexpected_exceptions_are_reported(self):
         with mock.patch("kinto.core.views.hello.get_eos", side_effect=ValueError):
             with mock.patch("sentry_sdk.hub.Hub.capture_event") as mocked:
-                resp = self.app.get("/")  # ty: ignore[unresolved-attribute]
+                resp = self.app.get("/")  # ty: ignore[missing-attribute]
         assert resp.status == 500
         assert len(mocked.call_args_list) > 0
 
@@ -493,7 +493,7 @@ class MetricsConfigurationTest(unittest.TestCase):
         initialization.setup_metrics(self.config)
 
         with pytest.warns(DeprecationWarning, match="config.registry.statsd"):
-            self.assertEqual(self.config.registry.statsd.__class__.__name__, "NoOpMetricsService")  # ty: ignore[unresolved-attribute]
+            self.assertEqual(self.config.registry.statsd.__class__.__name__, "NoOpMetricsService")  # ty: ignore[missing-union-attribute]
 
     def test_metrics_attr_is_set_if_statsd_url_is_set(self):
         self.config.add_settings({"statsd_url": "udp://host:8080"})
@@ -501,8 +501,8 @@ class MetricsConfigurationTest(unittest.TestCase):
         initialization.setup_metrics(self.config)
 
         with pytest.warns(DeprecationWarning, match="config.registry.statsd"):
-            self.assertIsNotNone(self.config.registry.statsd)  # ty: ignore[unresolved-attribute]
-        self.assertIsNotNone(self.config.registry.metrics)  # ty: ignore[unresolved-attribute]
+            self.assertIsNotNone(self.config.registry.statsd)  # ty: ignore[missing-union-attribute]
+        self.assertIsNotNone(self.config.registry.metrics)  # ty: ignore[missing-union-attribute]
 
     def test_statsd_attr_is_exposed_in_the_registry_if_url_is_set(self):
         self.config.add_settings({"statsd_url": "udp://host:8080"})
@@ -510,7 +510,7 @@ class MetricsConfigurationTest(unittest.TestCase):
         initialization.setup_metrics(self.config)
 
         with mock.patch("warnings.warn") as mocked_warnings:
-            self.config.registry.statsd.count("key")  # ty: ignore[unresolved-attribute]
+            self.config.registry.statsd.count("key")  # ty: ignore[missing-union-attribute]
             mocked_warnings.assert_called_with(
                 "``config.registry.statsd`` is now deprecated. Use ``config.registry.metrics`` instead.",
                 DeprecationWarning,
@@ -600,8 +600,8 @@ class PluginsTest(unittest.TestCase):
             with mock.patch.object(config, "scan"):
                 kinto.core.includeme(config)
 
-                config.include.assert_any_call("elastic")  # ty: ignore[unresolved-attribute]
-                config.include.assert_any_call("history")  # ty: ignore[unresolved-attribute]
+                config.include.assert_any_call("elastic")  # ty: ignore[missing-attribute]
+                config.include.assert_any_call("history")  # ty: ignore[missing-attribute]
 
     def make_app(self, settings=None):
         config = Configurator(settings={**kinto.core.DEFAULT_SETTINGS})

@@ -34,7 +34,7 @@ def build_real_request(wsgi_environ):
     config = testing.setUp(settings=DEFAULT_SETTINGS)
     includeme(config)
     request = pyramid_request.Request(wsgi_environ)
-    request.registry = config.registry  # ty: ignore[unresolved-attribute]
+    request.registry = config.registry  # ty: ignore[missing-attribute]
     return request
 
 

@@ -311,7 +311,7 @@ class Service(object):
             del args["factory"]
 
         if hasattr(self, "get_view_wrapper"):
-            view = self.get_view_wrapper(kwargs)(view)  # ty: ignore[call-non-callable]
+            view = self.get_view_wrapper(kwargs)(view)  # ty: ignore[not-callable]
         self.definitions.append((method, view, args))
 
         # keep track of the defined methods for the service

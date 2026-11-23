@@ -389,7 +389,7 @@ class RegisterTest(unittest.TestCase):
     def test_viewset_is_updated_if_provided(self, service_class):
         additional_params = {"foo": "bar"}
         register_resource(self.resource, viewset=self.viewset, **additional_params)
-        self.viewset.update.assert_called_with(**additional_params)  # ty: ignore[unresolved-attribute]
+        self.viewset.update.assert_called_with(**additional_params)  # ty: ignore[missing-attribute]
 
     def test_resource_default_viewset_is_used_if_not_provided(self):
         resource = FakeResource
