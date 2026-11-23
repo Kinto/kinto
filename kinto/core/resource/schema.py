@@ -99,7 +99,7 @@ class ResourceSchema(colander.MappingSchema):
         """
         return field in cls.get_option("readonly_fields")
 
-    def schema_type(self) -> colander.Mapping:  # ty: ignore[invalid-method-override]
+    def schema_type(self) -> colander.Mapping:  # ty: ignore[incompatible-method-override]
         if self.get_option("preserve_unknown") is True:
             unknown = "preserve"
         else:
@@ -186,7 +186,7 @@ class HeaderSchema(colander.MappingSchema):
     if_none_match = HeaderQuotedInteger(name="If-None-Match")
 
     @staticmethod
-    def schema_type() -> colander.Mapping:  # ty: ignore[invalid-method-override]
+    def schema_type() -> colander.Mapping:  # ty: ignore[incompatible-method-override]
         return colander.Mapping(unknown="preserve")
 
 
@@ -213,7 +213,7 @@ class QuerySchema(colander.MappingSchema):
     missing = colander.drop
 
     @staticmethod
-    def schema_type() -> colander.Mapping:  # ty: ignore[invalid-method-override]
+    def schema_type() -> colander.Mapping:  # ty: ignore[incompatible-method-override]
         return colander.Mapping(unknown="ignore")
 
     def deserialize(self, cstruct: typing.Any = colander.null) -> typing.Any:
@@ -305,7 +305,7 @@ class ObjectSchema(colander.MappingSchema):
         return get_perms(node, kwargs) or colander.deferred(get_perms)
 
     @staticmethod
-    def schema_type() -> colander.Mapping:  # ty: ignore[invalid-method-override]
+    def schema_type() -> colander.Mapping:  # ty: ignore[incompatible-method-override]
         return colander.Mapping(unknown="raise")
 
 
@@ -327,7 +327,7 @@ class JsonPatchOperationSchema(colander.MappingSchema):
     value = colander.SchemaNode(Any(), missing=colander.drop)
 
     @staticmethod
-    def schema_type() -> colander.Mapping:  # ty: ignore[invalid-method-override]
+    def schema_type() -> colander.Mapping:  # ty: ignore[incompatible-method-override]
         return colander.Mapping(unknown="raise")
 
 

@@ -87,7 +87,7 @@ def validate_schema(data, schema, id_field, ignore_fields=None):
             field = e.validator_value[-1]
         else:
             field = e.schema_path[-1]
-        e.field = field  # ty: ignore[unresolved-attribute]
+        e.field = field  # ty: ignore[missing-attribute]
         raise e
     # Raise an error here if a reference in the schema doesn't resolve.
     # jsonschema doesn't provide schema validation checking upon creation yet,
@@ -131,6 +131,6 @@ def validate_from_bucket_schema_or_400(data, resource_name, request, id_field, i
     try:
         validate_schema(data, schema, ignore_fields=ignore_fields, id_field=id_field)
     except ValidationError as e:
-        raise_invalid(request, name=e.field, description=e.message)  # ty: ignore[unresolved-attribute]
+        raise_invalid(request, name=e.field, description=e.message)  # ty: ignore[missing-attribute]
     except RefResolutionError as e:
         raise_invalid(request, name="schema", description=str(e))

@@ -53,5 +53,5 @@ class QueuePoolWithMaxBacklog(QueuePool):
 
     def recreate(self) -> QueuePool:
         new_self = QueuePool.recreate(self)
-        new_self._pool = _QueueWithMaxBacklog(self._pool.maxsize, self._pool.max_backlog)  # ty: ignore[unresolved-attribute]
+        new_self._pool = _QueueWithMaxBacklog(self._pool.maxsize, self._pool.max_backlog)  # ty: ignore[missing-attribute]
         return new_self

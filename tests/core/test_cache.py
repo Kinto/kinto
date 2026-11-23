@@ -150,7 +150,7 @@ class RedisCacheTest(CacheTest, unittest.TestCase):
         )
         backend = redis_backend.load_from_config(config)
         self.assertEqual(backend._client.connection_pool.max_connections, 111)
-        self.assertEqual(backend._client.connection_pool.timeout, 3.14)  # ty: ignore[unresolved-attribute]
+        self.assertEqual(backend._client.connection_pool.timeout, 3.14)  # ty: ignore[missing-attribute]
 
 
 @pytest.mark.xdist_group("postgres")

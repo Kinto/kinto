@@ -32,19 +32,19 @@ PATCH_CONTENT_TYPES = ["application/merge-patch+json"]
 
 class StrictSchema(colander.MappingSchema):
     @staticmethod
-    def schema_type() -> colander.Mapping:  # ty: ignore[invalid-method-override]
+    def schema_type() -> colander.Mapping:  # ty: ignore[incompatible-method-override]
         return colander.Mapping(unknown="raise")
 
 
 class PartialSchema(colander.MappingSchema):
     @staticmethod
-    def schema_type() -> colander.Mapping:  # ty: ignore[invalid-method-override]
+    def schema_type() -> colander.Mapping:  # ty: ignore[incompatible-method-override]
         return colander.Mapping(unknown="ignore")
 
 
 class SimpleSchema(colander.MappingSchema):
     @staticmethod
-    def schema_type() -> colander.Mapping:  # ty: ignore[invalid-method-override]
+    def schema_type() -> colander.Mapping:  # ty: ignore[incompatible-method-override]
         return colander.Mapping(unknown="preserve")
 
 
@@ -200,7 +200,7 @@ class ViewSet:
         # Attribute on resource class (but not @property)
         has_class_attr = hasattr(resource_cls, "name") and not callable(resource_cls.name)
         if has_class_attr:
-            return resource_cls.name  # ty: ignore[invalid-return-type]
+            return resource_cls.name  # ty: ignore[invalid-explicit-return]
 
         # Use classname
         return resource_cls.__name__.lower()

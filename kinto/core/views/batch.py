@@ -41,7 +41,7 @@ class BatchRequestSchema(colander.MappingSchema):
     body = colander.SchemaNode(colander.Mapping(unknown="preserve"), missing=colander.drop)
 
     @staticmethod
-    def schema_type():  # ty: ignore[invalid-method-override]
+    def schema_type():  # ty: ignore[incompatible-method-override]
         return colander.Mapping(unknown="raise")
 
 
@@ -50,7 +50,7 @@ class BatchPayloadSchema(colander.MappingSchema):
     requests = colander.SchemaNode(colander.Sequence(), BatchRequestSchema())
 
     @staticmethod
-    def schema_type():  # ty: ignore[invalid-method-override]
+    def schema_type():  # ty: ignore[incompatible-method-override]
         return colander.Mapping(unknown="raise")
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:

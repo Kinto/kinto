@@ -43,7 +43,7 @@ class _TestHandler(logging.handlers.BufferingHandler):
         logging.handlers.BufferingHandler.__init__(self, 0)
         self.setLevel(logging.DEBUG)
 
-    def shouldFlush(self):  # ty: ignore[invalid-method-override]
+    def shouldFlush(self):  # ty: ignore[incompatible-method-override]
         return False
 
     def emit(self, record):
@@ -58,7 +58,7 @@ class LoggingCatcher(object):
     """
 
     def setUp(self):
-        super(LoggingCatcher, self).setUp()  # ty: ignore[unresolved-attribute]
+        super(LoggingCatcher, self).setUp()  # ty: ignore[missing-attribute]
         self.loghandler = handler = _TestHandler()
         self._old_level = logger.level
         logger.addHandler(handler)
@@ -71,10 +71,10 @@ class LoggingCatcher(object):
         handler.close()
         logger.removeHandler(handler)
         for ref in weakref.getweakrefs(handler):
-            logging._removeHandlerRef(ref)  # ty: ignore[unresolved-attribute]
+            logging._removeHandlerRef(ref)  # ty: ignore[missing-attribute]
         del self.loghandler
         logger.setLevel(self._old_level)
-        super(LoggingCatcher, self).tearDown()  # ty: ignore[unresolved-attribute]
+        super(LoggingCatcher, self).tearDown()  # ty: ignore[missing-attribute]
 
     def get_logs(self, level=logging.WARNING, flush=True):
         """Return all log messages with given level.

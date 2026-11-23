@@ -399,14 +399,14 @@ class CorniceSwagger(object):
             self.services = services
 
         # Instantiate handlers
-        self.definitions = self.definitions(ref=def_ref_depth, type_converter=type_converter)  # ty: ignore[call-non-callable, invalid-assignment]
-        self.parameters = self.parameters(  # ty: ignore[call-non-callable, invalid-assignment]
+        self.definitions = self.definitions(ref=def_ref_depth, type_converter=type_converter)  # ty: ignore[not-callable, invalid-assignment]
+        self.parameters = self.parameters(  # ty: ignore[not-callable, invalid-assignment]
             self.definitions,
             ref=param_ref,
             type_converter=type_converter,
             parameter_converter=parameter_converter,
         )
-        self.responses = self.responses(  # ty: ignore[call-non-callable, invalid-assignment]
+        self.responses = self.responses(  # ty: ignore[not-callable, invalid-assignment]
             self.definitions, ref=resp_ref, type_converter=type_converter
         )
 
@@ -455,17 +455,17 @@ class CorniceSwagger(object):
             swagger_doc.setdefault("paths", {})
             merge_dicts(swagger_doc["paths"], paths)
 
-        definitions = self.definitions.definition_registry  # ty: ignore[unresolved-attribute]
+        definitions = self.definitions.definition_registry  # ty: ignore[missing-union-attribute]
         if definitions:
             swagger_doc.setdefault("definitions", {})
             merge_dicts(swagger_doc["definitions"], definitions)
 
-        parameters = self.parameters.parameter_registry  # ty: ignore[unresolved-attribute]
+        parameters = self.parameters.parameter_registry  # ty: ignore[missing-union-attribute]
         if parameters:
             swagger_doc.setdefault("parameters", {})
             merge_dicts(swagger_doc["parameters"], parameters)
 
-        responses = self.responses.response_registry  # ty: ignore[unresolved-attribute]
+        responses = self.responses.response_registry  # ty: ignore[missing-union-attribute]
         if responses:
             swagger_doc.setdefault("responses", {})
             merge_dicts(swagger_doc["responses"], responses)

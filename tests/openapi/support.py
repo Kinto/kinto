@@ -69,24 +69,24 @@ class OpenAPITest(BaseWebTest, unittest.TestCase):
 
         # Create raw Bravado request
         self.request = IncomingRequest()
-        self.request.url = ""  # ty: ignore[unresolved-attribute]
-        self.request.data = ""  # ty: ignore[unresolved-attribute]
-        self.request.path = {}  # ty: ignore[unresolved-attribute]
-        self.request.headers = {}  # ty: ignore[unresolved-attribute]
-        self.request.query = {}  # ty: ignore[unresolved-attribute]
-        self.request._json = {}  # ty: ignore[unresolved-attribute]
+        self.request.url = ""  # ty: ignore[missing-attribute]
+        self.request.data = ""  # ty: ignore[missing-attribute]
+        self.request.path = {}  # ty: ignore[missing-attribute]
+        self.request.headers = {}  # ty: ignore[missing-attribute]
+        self.request.query = {}  # ty: ignore[missing-attribute]
+        self.request._json = {}  # ty: ignore[missing-attribute]
         self.request.json = lambda: self.request._json  # ty: ignore[invalid-assignment]
 
     def cast_bravado_response(self, response):
         resp = OutgoingResponse()
-        resp.text = response.body  # ty: ignore[unresolved-attribute]
+        resp.text = response.body  # ty: ignore[missing-attribute]
 
         # FIXME: Empty response fails with Bravado and Python 3
         # See https://github.com/Yelp/bravado-core/issues/134
         if not resp.text:
-            resp.text = None  # ty: ignore[unresolved-attribute]
+            resp.text = None  # ty: ignore[missing-attribute]
 
-        resp.headers = response.headers  # ty: ignore[unresolved-attribute]
+        resp.headers = response.headers  # ty: ignore[missing-attribute]
         # Response headers integer fields are not casted by default
         for k, v in resp.headers.items():
             try:
@@ -96,7 +96,7 @@ class OpenAPITest(BaseWebTest, unittest.TestCase):
 
         # FIXME: Drop charset from application/json response on Pyramid
         # See https://github.com/Pylons/pyramid/issues/2860
-        resp.content_type = response.headers.get("Content-Type", "").split(";")[0]  # ty: ignore[unresolved-attribute]
+        resp.content_type = response.headers.get("Content-Type", "").split(";")[0]  # ty: ignore[missing-attribute]
         resp.json = lambda: response.json  # ty: ignore[invalid-assignment]
 
         return resp

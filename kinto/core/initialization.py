@@ -72,7 +72,7 @@ def setup_json_serializer(config: Configurator) -> None:
 
     # Monkey patch to use rapidjson
     webob.request.json = utils.json  # ty: ignore[invalid-assignment]
-    requests.models.json = utils.json  # ty: ignore[unresolved-attribute]
+    requests.models.json = utils.json  # ty: ignore[missing-attribute]
 
     # Override json renderer using rapidjson
     renderer = JSONRenderer(serializer=utils.json_serializer)

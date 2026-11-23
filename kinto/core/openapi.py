@@ -65,7 +65,7 @@ class OpenAPI(CorniceSwagger):
         # Matches the base routing address - See kinto.core.initialization
         self.base_path = f"/v{self.api_version.split('.')[0]}"
 
-    def generate(self) -> dict:  # ty: ignore[invalid-method-override]
+    def generate(self) -> dict:  # ty: ignore[incompatible-method-override]
         base_spec = {
             "host": self.request.host,
             "schemes": [self.settings.get("http_scheme") or "http"],

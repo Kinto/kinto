@@ -132,12 +132,12 @@ def register_resource(
         service = Service(name, path, depth=depth, **viewset.get_service_arguments())
 
         # Attach viewset and resource to the service for later reference.
-        service.viewset = viewset  # ty: ignore[unresolved-attribute]
-        service.resource = resource_cls  # ty: ignore[unresolved-attribute]
-        service.type = endpoint_type  # ty: ignore[unresolved-attribute]
+        service.viewset = viewset  # ty: ignore[missing-attribute]
+        service.resource = resource_cls  # ty: ignore[missing-attribute]
+        service.type = endpoint_type  # ty: ignore[missing-attribute]
         # Attach plural and object paths.
-        service.plural_path = viewset.plural_path.format_map(path_values)  # ty: ignore[unresolved-attribute]
-        service.object_path = (  # ty: ignore[unresolved-attribute]
+        service.plural_path = viewset.plural_path.format_map(path_values)  # ty: ignore[missing-attribute]
+        service.object_path = (  # ty: ignore[missing-attribute]
             viewset.object_path.format_map(path_values)
             if viewset.object_path is not None
             else None
@@ -974,7 +974,7 @@ class Resource:
         :raises: :class:`pyramid.httpexceptions.HTTPBadRequest`
         """
         is_string = isinstance(object_id, str)
-        if not is_string or not self.model.id_generator.match(object_id):  # ty: ignore[unresolved-attribute]
+        if not is_string or not self.model.id_generator.match(object_id):  # ty: ignore[missing-union-attribute]
             error_details = {"location": "path", "description": "Invalid object id"}
             raise_invalid(self.request, **error_details)
 
@@ -1189,7 +1189,7 @@ class Resource:
         # If a plural endpoint is reached, and if the user does not have the
         # permission to read/write the whole list, the set is filtered by ids,
         # based on the list of ids returned by the authorization policy.
-        ids = self.context.shared_ids  # ty: ignore[unresolved-attribute]
+        ids = self.context.shared_ids  # ty: ignore[missing-union-attribute]
         if ids is not None:
             filter_by_id = Filter(self.model.id_field, ids, COMPARISON.IN)
             filters.insert(0, filter_by_id)
