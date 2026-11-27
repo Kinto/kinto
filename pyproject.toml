@@ -77,7 +77,7 @@ dev = [
     "flex",
     "granian",
     "playwright",
-    "pytest<9.2.0",
+    "pytest<9.3.0",
     "pytest-cache",
     "pytest-cov",
     "pytest-xdist>=3.8.0",
